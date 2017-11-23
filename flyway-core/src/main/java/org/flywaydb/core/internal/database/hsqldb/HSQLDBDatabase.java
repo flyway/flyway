@@ -15,29 +15,31 @@
  */
 package org.flywaydb.core.internal.database.hsqldb;
 
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * HSQLDB-specific support
+ * HSQLDB database.
  */
 public class HSQLDBDatabase extends Database {
     /**
      * Creates a new instance.
      *
-     * @param connection The connection to use.
+     * @param configuration The Flyway configuration.
+     * @param connection    The connection to use.
      */
-    public HSQLDBDatabase(Connection connection) {
-        super(new JdbcTemplate(connection, Types.VARCHAR));
+    public HSQLDBDatabase(FlywayConfiguration configuration, Connection connection) {
+        super(configuration, connection, Types.VARCHAR);
+    }
+
+    @Override
+    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType) {
+        return new HSQLDBConnection(configuration, this, connection, nullType);
     }
 
     @Override
@@ -51,31 +53,6 @@ public class HSQLDBDatabase extends Database {
 
     public String getDbName() {
         return "hsqldb";
-    }
-
-    @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
-        ResultSet resultSet = null;
-        String schema = null;
-
-        try {
-            resultSet = jdbcTemplate.getMetaData().getSchemas();
-            while (resultSet.next()) {
-                if (resultSet.getBoolean("IS_DEFAULT")) {
-                    schema = resultSet.getString("TABLE_SCHEM");
-                    break;
-                }
-            }
-        } finally {
-            JdbcUtils.closeResultSet(resultSet);
-        }
-
-        return schema;
-    }
-
-    @Override
-    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        jdbcTemplate.execute("SET SCHEMA " + quote(schema));
     }
 
     public boolean supportsDdlTransactions() {
@@ -97,11 +74,6 @@ public class HSQLDBDatabase extends Database {
     @Override
     public String doQuote(String identifier) {
         return "\"" + identifier + "\"";
-    }
-
-    @Override
-    public Schema getSchema(String name) {
-        return new HSQLDBSchema(jdbcTemplate, this, name);
     }
 
     @Override

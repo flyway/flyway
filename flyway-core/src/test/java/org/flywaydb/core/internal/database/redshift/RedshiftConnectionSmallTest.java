@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.postgresql;
+package org.flywaydb.core.internal.database.redshift;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class PostgreSQLDatabaseSmallTest {
+public class RedshiftConnectionSmallTest {
     @Test
-    public void doQuote() {
-        assertEquals("\"abc\"", PostgreSQLDatabase.pgQuote("abc"));
-        assertEquals("\"a\"\"b\"\"c\"", PostgreSQLDatabase.pgQuote("a\"b\"c"));
+    public void getFirstSchemaFromSearchPath() {
+        assertEquals("ABC", RedshiftConnection.getFirstSchemaFromSearchPath("\"ABC\", def"));
+    }
+
+    @Test
+    public void getFirstSchemaFromSearchPathDollarUser() {
+        assertEquals("public", RedshiftConnection.getFirstSchemaFromSearchPath("$user,public"));
+        assertEquals("public", RedshiftConnection.getFirstSchemaFromSearchPath("\"$user\",public"));
+        assertEquals("public", RedshiftConnection.getFirstSchemaFromSearchPath("\"$user\",\"public\""));
     }
 }

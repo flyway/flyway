@@ -15,28 +15,17 @@
  */
 package org.flywaydb.core.internal.database.redshift;
 
+import org.flywaydb.core.Flyway;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class RedshiftDatabaseSmallTest {
-    private final RedshiftDatabase database = new RedshiftDatabase(null);
+    private final RedshiftDatabase database = new RedshiftDatabase(new Flyway(), null);
 
     @Test
     public void doQuote() {
         assertEquals("\"abc\"", database.doQuote("abc"));
         assertEquals("\"a\"\"b\"\"c\"", database.doQuote("a\"b\"c"));
-    }
-
-    @Test
-    public void getFirstSchemaFromSearchPath() {
-        assertEquals("ABC", database.getFirstSchemaFromSearchPath("\"ABC\", def"));
-    }
-
-    @Test
-    public void getFirstSchemaFromSearchPathDollarUser() {
-        assertEquals("public", database.getFirstSchemaFromSearchPath("$user,public"));
-        assertEquals("public", database.getFirstSchemaFromSearchPath("\"$user\",public"));
-        assertEquals("public", database.getFirstSchemaFromSearchPath("\"$user\",\"public\""));
     }
 }

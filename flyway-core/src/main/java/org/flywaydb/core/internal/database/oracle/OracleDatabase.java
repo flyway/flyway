@@ -15,11 +15,9 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.FlywaySqlException;
-import org.flywaydb.core.internal.database.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
@@ -35,7 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Oracle-specific support.
+ * Oracle database.
  */
 public class OracleDatabase extends Database {
     private static final String ORACLE_NET_TNS_ADMIN = "oracle.net.tns_admin";
@@ -43,10 +41,11 @@ public class OracleDatabase extends Database {
     /**
      * Creates a new instance.
      *
-     * @param connection The connection to use.
+     * @param configuration The Flyway configuration.
+     * @param connection    The connection to use.
      */
-    public OracleDatabase(Connection connection) {
-        super(new JdbcTemplate(connection, Types.VARCHAR));
+    public OracleDatabase(FlywayConfiguration configuration, Connection connection) {
+        super(configuration, connection, Types.VARCHAR);
 
         // If the TNS_ADMIN environment variable is set, enable tnsnames.ora support for the Oracle JDBC driver
         // See http://www.orafaq.com/wiki/TNS_ADMIN
@@ -58,6 +57,11 @@ public class OracleDatabase extends Database {
     }
 
     @Override
+    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType) {
+        return new OracleConnection(configuration, this, connection, nullType);
+    }
+
+    @Override
     protected final void ensureSupported() {
         int majorVersion = getMajorVersion();
         if (majorVersion < 10) {
@@ -65,7 +69,7 @@ public class OracleDatabase extends Database {
         }
         // [enterprise-not]
         //if (majorVersion == 10 || majorVersion == 11) {
-            //throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("Oracle", "Oracle", "" + majorVersion);
+        //throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("Oracle", "Oracle", "" + majorVersion);
         //}
         // [/enterprise-not]
         if (majorVersion > 12) {
@@ -79,30 +83,7 @@ public class OracleDatabase extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT USER FROM DUAL");
-    }
-
-    /**
-     * Retrieves the current user.
-     *
-     * @return The current user for this connection.
-     */
-    String getCurrentUserName() {
-        try {
-            return jdbcTemplate.queryForString("SELECT USER FROM DUAL");
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to retrieve the current user for the connection", e);
-        }
-    }
-
-    @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') FROM DUAL");
-    }
-
-    @Override
-    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        jdbcTemplate.execute("ALTER SESSION SET CURRENT_SCHEMA=" + quote(schema));
+        return mainConnection.getJdbcTemplate().queryForString("SELECT USER FROM DUAL");
     }
 
     public boolean supportsDdlTransactions() {
@@ -127,11 +108,6 @@ public class OracleDatabase extends Database {
     }
 
     @Override
-    public Schema getSchema(String name) {
-        return new OracleSchema(jdbcTemplate, this, name);
-    }
-
-    @Override
     public boolean catalogIsSchema() {
         return false;
     }
@@ -148,7 +124,7 @@ public class OracleDatabase extends Database {
      * @throws SQLException when the query execution failed.
      */
     boolean queryReturnsRows(String query, String... params) throws SQLException {
-        return jdbcTemplate.queryForBoolean("SELECT CASE WHEN EXISTS(" + query + ") THEN 1 ELSE 0 END FROM DUAL", params);
+        return mainConnection.getJdbcTemplate().queryForBoolean("SELECT CASE WHEN EXISTS(" + query + ") THEN 1 ELSE 0 END FROM DUAL", params);
     }
 
     /**
@@ -207,7 +183,8 @@ public class OracleDatabase extends Database {
      * @throws SQLException if retrieving of options failed.
      */
     private Set<String> getAvailableOptions() throws SQLException {
-        return new HashSet<String>(jdbcTemplate.queryForStringList("SELECT PARAMETER FROM V$OPTION WHERE VALUE = 'TRUE'"));
+        return new HashSet<String>(mainConnection.getJdbcTemplate()
+                .queryForStringList("SELECT PARAMETER FROM V$OPTION WHERE VALUE = 'TRUE'"));
     }
 
     /**
@@ -296,7 +273,7 @@ public class OracleDatabase extends Database {
         // from Oracle 12.1, there is a special column in ALL_USERS that marks Oracle-maintained schemas.
         boolean oracle12cOrHigher = getMajorVersion() >= 12;
         // [/enterprise]
-        result.addAll(jdbcTemplate.queryForStringList("SELECT USERNAME FROM ALL_USERS " +
+        result.addAll(mainConnection.getJdbcTemplate().queryForStringList("SELECT USERNAME FROM ALL_USERS " +
                         "WHERE REGEXP_LIKE(USERNAME, '^(APEX|FLOWS)_\\d+$')" +
                         // [enterprise]
                         (oracle12cOrHigher ?
@@ -310,7 +287,7 @@ public class OracleDatabase extends Database {
         // [enterprise]
         // For earlier Oracle versions check also DBA_REGISTRY if possible.
         if (!oracle12cOrHigher && isDataDictViewAccessible("DBA_REGISTRY")) {
-            List<List<String>> schemaSuperList = jdbcTemplate.query(
+            List<List<String>> schemaSuperList = mainConnection.getJdbcTemplate().query(
                     "SELECT SCHEMA, OTHER_SCHEMAS FROM DBA_REGISTRY",
                     new RowMapper<List<String>>() {
                         @Override

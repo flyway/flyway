@@ -15,13 +15,10 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 
 import java.sql.Connection;
@@ -29,18 +26,23 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * Sybase ASE specific support.
+ * Sybase ASE database.
  */
-public class SybaseASEDatabase extends Database {
-    private static final Log LOG = LogFactory.getLog(SybaseASEDatabase.class);
-
+public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     /**
-     * Whether the warning message has already been printed.
+     * Creates a new Sybase ASE database.
+     *
+     * @param configuration The Flyway configuration.
+     * @param connection    The initial connection.
+     * @param jconnect      Whether we are using the official jConnect driver or not (jTDS).
      */
-    private static boolean schemaMessagePrinted;
+    public SybaseASEDatabase(FlywayConfiguration configuration, Connection connection, boolean jconnect) {
+        super(configuration, connection, jconnect ? Types.VARCHAR : Types.NULL);
+    }
 
-    public SybaseASEDatabase(Connection connection, boolean jconnect) {
-        super(new JdbcTemplate(connection, jconnect ? Types.VARCHAR : Types.NULL));
+    @Override
+    protected SybaseASEConnection getConnection(Connection connection, int nullType) {
+        return new SybaseASEConnection(configuration, this, connection, nullType);
     }
 
     @Override
@@ -53,12 +55,6 @@ public class SybaseASEDatabase extends Database {
         if (majorVersion > 16 || (majorVersion == 16 && minorVersion > 2)) {
             recommendFlywayUpgrade("Sybase ASE", version);
         }
-    }
-
-    @Override
-    public Schema getSchema(String name) {
-        //Sybase does not support schema and changing user on the fly. Always return the same dummy schema.
-        return new SybaseASESchema(jdbcTemplate, this, "dbo");
     }
 
     @Override
@@ -77,21 +73,8 @@ public class SybaseASEDatabase extends Database {
     }
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
-        return "dbo";
-    }
-
-    @Override
-    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        if (!schemaMessagePrinted) {
-            LOG.info("Sybase ASE does not support setting the schema for the current session. Default schema NOT changed to " + schema);
-            schemaMessagePrinted = true;
-        }
-    }
-
-    @Override
     protected String doGetCurrentUser() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT user_name()");
+        return mainConnection.getJdbcTemplate().queryForString("SELECT user_name()");
     }
 
     @Override

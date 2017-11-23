@@ -348,7 +348,7 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
 
     @Test
     public void msDBToolsIgnoredForEmpty() throws Exception {
-        Schema schema = database.getOriginalSchema();
+        Schema schema = database.getMainConnection().getOriginalSchema();
 
         new SqlScript(new ClassPathResource("migration/database/sqlserver/createMSDBTools.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"), database).
@@ -369,7 +369,7 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
 
     @Test
     public void msDBToolsNotCleared() throws Exception {
-        Schema schema = database.getOriginalSchema();
+        Schema schema = database.getMainConnection().getOriginalSchema();
 
         new SqlScript(new ClassPathResource("migration/database/sqlserver/createMSDBTools.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"), database).

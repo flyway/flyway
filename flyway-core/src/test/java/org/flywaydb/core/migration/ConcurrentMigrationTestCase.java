@@ -95,13 +95,12 @@ public abstract class ConcurrentMigrationTestCase {
 
         concurrentMigrationDataSource = createDataSource(customProperties);
 
-        Connection connection = concurrentMigrationDataSource.getConnection();
-        final Database database = DatabaseFactory.createDbSupport(connection, false);
+        flyway = createFlyway();
+
+        final Database database = DatabaseFactory.createDatabase(flyway, false);
         schemaName = "concurrent_test";
         schemaQuoted = database.quote(schemaName);
-        connection.close();
 
-        flyway = createFlyway();
         flyway.clean();
 
         if (needsBaseline()) {

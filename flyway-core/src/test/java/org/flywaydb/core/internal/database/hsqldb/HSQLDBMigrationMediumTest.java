@@ -67,7 +67,7 @@ public class HSQLDBMigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void view() throws Exception {
-        Schema schema = database.getSchema("MY_VIEWS");
+        Schema schema = database.getMainConnection().getSchema("MY_VIEWS");
         schema.create();
 
         flyway.setSchemas("PUBLIC", "MY_VIEWS");

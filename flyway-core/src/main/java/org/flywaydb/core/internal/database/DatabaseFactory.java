@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabase;
@@ -30,6 +31,7 @@ import org.flywaydb.core.internal.database.redshift.RedshiftDatabase;
 import org.flywaydb.core.internal.database.sqlite.SQLiteDatabase;
 import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabase;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEDatabase;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -51,11 +53,13 @@ public class DatabaseFactory {
     /**
      * Initializes the appropriate Database class for the database product used by the data source.
      *
-     * @param connection The Jdbc connection to use to query the database.
-     * @param printInfo  Where the DB info should be printed in the logs.
+     * @param configuration The Flyway configuration.
+     * @param printInfo     Where the DB info should be printed in the logs.
      * @return The appropriate Database class.
      */
-    public static Database createDbSupport(Connection connection, boolean printInfo) {
+    public static Database createDatabase(FlywayConfiguration configuration, boolean printInfo) {
+        Connection connection = JdbcUtils.openConnection(configuration.getDataSource());
+
         String databaseProductName = getDatabaseProductName(connection);
 
         if (printInfo) {
@@ -63,48 +67,48 @@ public class DatabaseFactory {
         }
 
         if (databaseProductName.startsWith("Apache Derby")) {
-            return new DerbyDatabase(connection);
+            return new DerbyDatabase(configuration, connection);
         }
         if (databaseProductName.startsWith("SQLite")) {
-            return new SQLiteDatabase(connection);
+            return new SQLiteDatabase(configuration, connection);
         }
         if (databaseProductName.startsWith("H2")) {
-            return new H2Database(connection);
+            return new H2Database(configuration, connection);
         }
         if (databaseProductName.contains("HSQL Database Engine")) {
-            return new HSQLDBDatabase(connection);
+            return new HSQLDBDatabase(configuration, connection);
         }
         if (databaseProductName.startsWith("Microsoft SQL Server")) {
-            return new SQLServerDatabase(connection);
+            return new SQLServerDatabase(configuration, connection);
         }
         if (databaseProductName.contains("MySQL")) {
             // For regular MySQL, MariaDB and Google Cloud SQL.
             // Google Cloud SQL returns different names depending on the environment and the SDK version.
             //   ex.: Google SQL Service/MySQL
-            return new MySQLDatabase(connection);
+            return new MySQLDatabase(configuration, connection);
         }
         if (databaseProductName.startsWith("Oracle")) {
-            return new OracleDatabase(connection);
+            return new OracleDatabase(configuration, connection);
         }
         if (databaseProductName.startsWith("PostgreSQL 8")) {
             if (RedshiftDatabase.isRedshift(connection)) {
-                return new RedshiftDatabase(connection);
+                return new RedshiftDatabase(configuration, connection);
             }
         }
         if (databaseProductName.startsWith("PostgreSQL")) {
             if (CockroachDBDatabase.isCockroachDB(connection)) {
-                return new CockroachDBDatabase(connection);
+                return new CockroachDBDatabase(configuration, connection);
             }
-            return new PostgreSQLDatabase(connection);
+            return new PostgreSQLDatabase(configuration, connection);
         }
         if (databaseProductName.startsWith("DB2")) {
-            return new DB2Database(connection);
+            return new DB2Database(configuration, connection);
         }
         if (databaseProductName.startsWith("ASE")) {
-            return new SybaseASEDatabase(connection, false);
+            return new SybaseASEDatabase(configuration, connection, false);
         }
         if (databaseProductName.startsWith("Adaptive Server Enterprise")) {
-            return new SybaseASEDatabase(connection, true);
+            return new SybaseASEDatabase(configuration, connection, true);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);

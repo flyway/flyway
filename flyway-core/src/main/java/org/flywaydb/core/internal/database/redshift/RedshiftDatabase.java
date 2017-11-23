@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.database.redshift;
 
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.FlywaySqlException;
 import org.flywaydb.core.internal.database.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -27,9 +26,9 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * PostgreSQL-specific support.
+ * Redshift database.
  */
-public class RedshiftDatabase extends Database {
+public class RedshiftDatabase extends Database<RedshiftConnection> {
     /**
      * Checks whether this connection is pointing at a Redshift instance.
      *
@@ -47,10 +46,16 @@ public class RedshiftDatabase extends Database {
     /**
      * Creates a new instance.
      *
-     * @param connection The connection to use.
+     * @param configuration The Flyway configuration.
+     * @param connection    The connection to use.
      */
-    public RedshiftDatabase(Connection connection) {
-        super(new JdbcTemplate(connection, Types.VARCHAR));
+    public RedshiftDatabase(FlywayConfiguration configuration, Connection connection) {
+        super(configuration, connection, Types.VARCHAR);
+    }
+
+    @Override
+    protected RedshiftConnection getConnection(Connection connection, int nullType) {
+        return new RedshiftConnection(configuration, this, connection, nullType);
     }
 
     @Override
@@ -64,65 +69,9 @@ public class RedshiftDatabase extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT current_user");
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT current_user");
     }
 
-    @Override
-    public Schema getOriginalSchema() {
-        if (originalSchema == null) {
-            return null;
-        }
-
-        return getSchema(getFirstSchemaFromSearchPath(this.originalSchema));
-    }
-
-    /* private -> testing */ String getFirstSchemaFromSearchPath(String searchPath) {
-        String result = searchPath
-                .replace("\"$user\"", "")
-                .replace("$user", "").trim();
-        if (result.startsWith(",")) {
-            result = result.substring(1);
-        }
-        if (result.contains(",")) {
-            result = result.substring(0, result.indexOf(","));
-        }
-        result = result.trim();
-        // Unquote if necessary
-        if (result.startsWith("\"") && result.endsWith("\"") && !result.endsWith("\\\"") && (result.length() > 1)) {
-            result = result.substring(1, result.length() - 1);
-        }
-        return result;
-    }
-
-    @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SHOW search_path");
-    }
-
-    @Override
-    public void changeCurrentSchemaTo(Schema schema) {
-        try {
-            if (schema.getName().equals(originalSchema) || originalSchema.startsWith(schema.getName() + ",") || !schema.exists()) {
-                return;
-            }
-
-            if (StringUtils.hasText(originalSchema) && !"unset".equals(originalSchema)) {
-                doChangeCurrentSchemaTo(schema.toString() + "," + originalSchema);
-            } else {
-                doChangeCurrentSchemaTo(schema.toString());
-            }
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error setting current schema to " + schema, e);
-        }
-    }
-
-    @Override
-    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        if ("unset".equals(schema)) {
-            schema = "";
-        }
-        jdbcTemplate.execute("SELECT set_config('search_path', ?, false)", schema);
-    }
 
     public boolean supportsDdlTransactions() {
         return true;
@@ -143,11 +92,6 @@ public class RedshiftDatabase extends Database {
     @Override
     public String doQuote(String identifier) {
         return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
-    }
-
-    @Override
-    public Schema getSchema(String name) {
-        return new RedshiftSchema(jdbcTemplate, this, name);
     }
 
     @Override

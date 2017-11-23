@@ -15,9 +15,9 @@
  */
 package org.flywaydb.core.internal.database.h2;
 
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 
@@ -26,16 +26,22 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * H2 database specific support
+ * H2 database.
  */
 public class H2Database extends Database {
     /**
      * Creates a new instance.
      *
-     * @param connection The connection to use.
+     * @param configuration The Flyway configuration.
+     * @param connection    The connection to use.
      */
-    public H2Database(Connection connection) {
-        super(new JdbcTemplate(connection, Types.VARCHAR));
+    public H2Database(FlywayConfiguration configuration, Connection connection) {
+        super(configuration, connection, Types.VARCHAR);
+    }
+
+    @Override
+    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType) {
+        return new H2Connection(configuration, this, connection, nullType);
     }
 
     @Override
@@ -53,16 +59,7 @@ public class H2Database extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT USER()");
-    }
-
-    protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("CALL SCHEMA()");
-    }
-
-    @Override
-    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        jdbcTemplate.execute("SET SCHEMA " + quote(schema));
+        return mainConnection.getJdbcTemplate().queryForString("SELECT USER()");
     }
 
     public boolean supportsDdlTransactions() {
@@ -84,11 +81,6 @@ public class H2Database extends Database {
     @Override
     public String doQuote(String identifier) {
         return "\"" + identifier + "\"";
-    }
-
-    @Override
-    public Schema getSchema(String name) {
-        return new H2Schema(jdbcTemplate, this, name);
     }
 
     @Override

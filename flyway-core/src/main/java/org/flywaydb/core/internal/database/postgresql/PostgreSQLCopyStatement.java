@@ -16,12 +16,12 @@
 package org.flywaydb.core.internal.database.postgresql;
 
 import org.flywaydb.core.internal.database.AbstractSqlStatement;
+import org.flywaydb.core.internal.database.JdbcTemplate;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -34,17 +34,17 @@ public class PostgreSQLCopyStatement extends AbstractSqlStatement {
      * @param lineNumber The original line number where the statement was located in the script it came from.
      * @param sql        The sql to send to the database.
      */
-    public PostgreSQLCopyStatement(int lineNumber, String sql) {
+    PostgreSQLCopyStatement(int lineNumber, String sql) {
         super(sql, lineNumber);
     }
 
     @Override
-    public void execute(Connection connection) throws SQLException {
+    public void execute(JdbcTemplate jdbcTemplate) throws SQLException {
         int split = sql.indexOf(";");
         String statement = sql.substring(0, split);
         String data = sql.substring(split + 1).trim();
 
-        CopyManager copyManager = new CopyManager(connection.unwrap(BaseConnection.class));
+        CopyManager copyManager = new CopyManager(jdbcTemplate.getConnection().unwrap(BaseConnection.class));
         try {
             copyManager.copyIn(statement, new StringReader(data));
         } catch (IOException e) {

@@ -18,7 +18,6 @@ package org.flywaydb.core.internal.resolver.sql;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.JdbcTemplate;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
@@ -59,7 +58,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
     /**
      * Creates a new sql script migration based on this sql script.
      *
-     * @param database           The database-specific support.
+     * @param database            The database-specific support.
      * @param sqlScriptResource   The resource containing the sql script.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param configuration       The Flyway configuration.
@@ -73,11 +72,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     @Override
     public void execute(Connection connection) {
-        JdbcTemplate jdbcTemplate = connection == database.getJdbcTemplate().getConnection()
-                ? database.getJdbcTemplate()
-                : new JdbcTemplate(connection, 0);
-
-        getSqlScript().execute(jdbcTemplate);
+        getSqlScript().execute(database.getMigrationConnection().getJdbcTemplate());
     }
 
     private synchronized SqlScript getSqlScript() {

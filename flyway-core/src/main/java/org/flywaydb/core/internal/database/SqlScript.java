@@ -151,7 +151,7 @@ public class SqlScript {
     /**
      * Executes this script against the database.
      *
-     * @param jdbcTemplate The jdbc template to use to execute this script.
+     * @param jdbcTemplate The jdbcTemplate to use to execute this script.
      */
     public void execute(final JdbcTemplate jdbcTemplate) {
         for (SqlStatement sqlStatement : sqlStatements) {
@@ -159,7 +159,7 @@ public class SqlScript {
             LOG.debug("Executing SQL: " + sql);
 
             try {
-                sqlStatement.execute(jdbcTemplate.getConnection());
+                sqlStatement.execute(jdbcTemplate);
             } catch (final SQLException e) {
                 //[pro]
                 if (errorHandler != null) {

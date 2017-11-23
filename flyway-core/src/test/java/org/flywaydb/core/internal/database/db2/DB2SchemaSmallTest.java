@@ -52,7 +52,7 @@ public class DB2SchemaSmallTest {
         ResultSet mockResultSet = mock(ResultSet.class);
 
         // Return empty resultset for Types
-        when(jdbcTemplate.getMetaData().getUDTs(null, "SCHEMA", null, null)).thenReturn(mockResultSet);
+        when(database.getJdbcMetaData().getUDTs(null, "SCHEMA", null, null)).thenReturn(mockResultSet);
         when(mockResultSet.next()).thenReturn(false);
 
         when(database.getMajorVersion()).thenReturn(9);

@@ -19,10 +19,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class PostgreSQLDatabaseSmallTest {
+public class PostgreSQLConnectionSmallTest {
     @Test
-    public void doQuote() {
-        assertEquals("\"abc\"", PostgreSQLDatabase.pgQuote("abc"));
-        assertEquals("\"a\"\"b\"\"c\"", PostgreSQLDatabase.pgQuote("a\"b\"c"));
+    public void getFirstSchemaFromSearchPath() {
+        assertEquals("ABC", PostgreSQLConnection.getFirstSchemaFromSearchPath("\"ABC\", def"));
     }
 }

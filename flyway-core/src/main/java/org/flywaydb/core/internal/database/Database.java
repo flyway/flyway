@@ -15,34 +15,45 @@
  */
 package org.flywaydb.core.internal.database;
 
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
+import java.io.Closeable;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 /**
  * Abstraction for database-specific functionality.
  */
-public abstract class Database {
+public abstract class Database<C extends Connection> implements Closeable {
     private static final Log LOG = LogFactory.getLog(Database.class);
 
     /**
-     * The JDBC template available for use.
+     * The Flyway configuration.
      */
-    protected final JdbcTemplate jdbcTemplate;
+    protected final FlywayConfiguration configuration;
 
     /**
-     * The original schema of the connection that should be restored later.
+     * The JDBC metadata to use.
      */
-    protected final String originalSchema;
+    protected  final DatabaseMetaData jdbcMetaData;
+
+    /**
+     * The main connection to use.
+     */
+    protected final C mainConnection;
+
+    /**
+     * The connection to use for migrations.
+     */
+    private final C migrationConnection;
 
     /**
      * The major version of the database.
@@ -57,19 +68,36 @@ public abstract class Database {
     /**
      * Creates a new Database instance with this JdbcTemplate.
      *
-     * @param jdbcTemplate The JDBC template to use.
+     * @param configuration The Flyway configuration.
+     * @param connection    The main connection to use.
+     * @param nullType      The type to assign to a null value.
      */
-    public Database(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-        originalSchema = jdbcTemplate.getConnection() == null ? null : getCurrentSchemaName();
-        Pair<Integer, Integer> majorMinor =
-                jdbcTemplate.getConnection() == null ? Pair.of(0, 0) : determineMajorAndMinorVersion();
+    public Database(FlywayConfiguration configuration, java.sql.Connection connection, int nullType) {
+        this.configuration = configuration;
+        try {
+            this.jdbcMetaData = connection.getMetaData();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to get metadata for connection", e);
+        }
+        this.mainConnection = getConnection(connection, nullType);
+        this.migrationConnection = useSingleConnection()
+                ? mainConnection
+                : getConnection(JdbcUtils.openConnection(configuration.getDataSource()), nullType);
+
+        Pair<Integer, Integer> majorMinor = determineMajorAndMinorVersion();
         majorVersion = majorMinor.getLeft();
         minorVersion = majorMinor.getRight();
-        if (jdbcTemplate.getConnection() != null) {
-            ensureSupported();
-        }
+        ensureSupported();
     }
+
+    /**
+     * Retrieves a Flyway Connection for this JDBC connection.
+     *
+     * @param connection The JDBC connection to wrap.
+     * @param nullType   The JDBC type to assign to a null value.
+     * @return The Flyway Connection.
+     */
+    protected abstract C getConnection(java.sql.Connection connection, int nullType);
 
     /**
      * Ensures Flyway supports this version of this database.
@@ -80,21 +108,6 @@ public abstract class Database {
         LOG.warn("Flyway upgrade recommended: " + database + " " + version
                 + " is newer than this version of Flyway and support has not been tested.");
     }
-
-    /**
-     * @return The DB-specific JdbcTemplate instance.
-     */
-    public JdbcTemplate getJdbcTemplate() {
-        return jdbcTemplate;
-    }
-
-    /**
-     * Retrieves the schema with this name in the database.
-     *
-     * @param name The name of the schema.
-     * @return The schema.
-     */
-    public abstract Schema getSchema(String name);
 
     /**
      * Creates a new SqlStatementBuilder for this specific database.
@@ -116,75 +129,6 @@ public abstract class Database {
     public abstract String getDbName();
 
     /**
-     * Retrieves the original schema of the connection.
-     *
-     * @return The original schema for this connection.
-     */
-    public Schema getOriginalSchema() {
-        if (originalSchema == null) {
-            return null;
-        }
-
-        return getSchema(originalSchema);
-    }
-
-    /**
-     * Retrieves the current schema.
-     *
-     * @return The current schema for this connection.
-     */
-    public String getCurrentSchemaName() {
-        try {
-            return doGetCurrentSchemaName();
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to retrieve the current schema for the connection", e);
-        }
-    }
-
-    /**
-     * Retrieves the current schema.
-     *
-     * @return The current schema for this connection.
-     * @throws SQLException when the current schema could not be retrieved.
-     */
-    protected abstract String doGetCurrentSchemaName() throws SQLException;
-
-    /**
-     * Sets the current schema to this schema.
-     *
-     * @param schema The new current schema for this connection.
-     */
-    public void changeCurrentSchemaTo(Schema schema) {
-        try {
-            if (!schema.exists()) {
-                return;
-            }
-            doChangeCurrentSchemaTo(schema.getName());
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error setting current schema to " + schema, e);
-        }
-    }
-
-    /**
-     * Restores the current schema of the connection to its original setting.
-     */
-    public void restoreCurrentSchema() {
-        try {
-            doChangeCurrentSchemaTo(originalSchema);
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error restoring current schema to its original setting", e);
-        }
-    }
-
-    /**
-     * Sets the current schema to this schema.
-     *
-     * @param schema The new current schema for this connection.
-     * @throws SQLException when the current schema could not be set.
-     */
-    protected abstract void doChangeCurrentSchemaTo(String schema) throws SQLException;
-
-    /**
      * @return The current database user.
      */
     public final String getCurrentUser() {
@@ -196,7 +140,7 @@ public abstract class Database {
     }
 
     protected String doGetCurrentUser() throws SQLException {
-        return jdbcTemplate.getMetaData().getUserName();
+        return jdbcMetaData.getUserName();
     }
 
     /**
@@ -207,6 +151,7 @@ public abstract class Database {
     public abstract boolean supportsDdlTransactions();
 
     // [pro]
+
     /**
      * Checks whether read-only transactions are supported by this database.
      *
@@ -262,27 +207,28 @@ public abstract class Database {
     public abstract boolean catalogIsSchema();
 
     /**
-     * Locks this table and executes this callable.
-     *
-     * @param table    The table to lock.
-     * @param callable The callable to execute.
-     * @return The result of the callable.
-     */
-    public <T> T lock(final Table table, final Callable<T> callable) {
-        return new TransactionTemplate(jdbcTemplate.getConnection(), supportsDdlTransactions()).execute(new Callable<T>() {
-            @Override
-            public T call() throws Exception {
-                table.lock();
-                return callable.call();
-            }
-        });
-    }
-
-    /**
      * @return Whether to only use a single connection for both metadata table management and applying migrations.
      */
     public boolean useSingleConnection() {
         return false;
+    }
+
+    public DatabaseMetaData getJdbcMetaData() {
+        return jdbcMetaData;
+    }
+
+    /**
+     * @return The main connection, used to manipulate the schema history.
+     */
+    public final C getMainConnection() {
+        return mainConnection;
+    }
+
+    /**
+     * @return The migration connection, used to apply migrations.
+     */
+    public final C getMigrationConnection() {
+        return migrationConnection;
     }
 
     /**
@@ -308,8 +254,7 @@ public abstract class Database {
      */
     protected Pair<Integer, Integer> determineMajorAndMinorVersion() {
         try {
-            DatabaseMetaData metaData = jdbcTemplate.getMetaData();
-            return Pair.of(metaData.getDatabaseMajorVersion(), metaData.getDatabaseMinorVersion());
+            return Pair.of(jdbcMetaData.getDatabaseMajorVersion(), jdbcMetaData.getDatabaseMinorVersion());
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine the major version of the database", e);
         }
@@ -342,5 +287,12 @@ public abstract class Database {
                 + "," + quote("success")
                 + ")"
                 + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    }
+
+    public void close() {
+        if (!useSingleConnection()) {
+            getMigrationConnection().close();
+        }
+        getMainConnection().close();
     }
 }

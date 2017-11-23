@@ -100,13 +100,13 @@ public abstract class MigrationTestCase {
 
         dataSource = createDataSource(customProperties);
 
-        connection = dataSource.getConnection();
-        database = DatabaseFactory.createDbSupport(connection, false);
-        jdbcTemplate = database.getJdbcTemplate();
-
         flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.clean();
+
+        connection = dataSource.getConnection();
+        database = DatabaseFactory.createDatabase(flyway, false);
+        jdbcTemplate = database.getMainConnection().getJdbcTemplate();
     }
 
     protected void ensureTestEnabled() {
@@ -114,14 +114,8 @@ public abstract class MigrationTestCase {
     }
 
     protected void assumeDatabaseVersionNotLessThan(int expectedMajorVersion, int expectedMinorVersion) {
-        int majorVersion;
-        int minorVersion;
-        try {
-            majorVersion = jdbcTemplate.getMetaData().getDatabaseMajorVersion();
-            minorVersion = jdbcTemplate.getMetaData().getDatabaseMinorVersion();
-        } catch (SQLException e) {
-            throw new FlywayException(e);
-        }
+        int majorVersion = database.getMajorVersion();
+        int minorVersion = database.getMinorVersion();
         assumeTrue("Database version is " + expectedMajorVersion + "." + expectedMinorVersion + " or higher",
                 majorVersion == expectedMajorVersion && minorVersion >= expectedMinorVersion ||
                         majorVersion > expectedMajorVersion);
@@ -330,7 +324,7 @@ public abstract class MigrationTestCase {
      *
      * @param migrationInfo The migration to check.
      */
-    protected void assertChecksum(MigrationInfo migrationInfo) {
+    private void assertChecksum(MigrationInfo migrationInfo) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
                 database, new Scanner(Thread.currentThread().getContextClassLoader()),
                 new Locations(getBasedir()),
@@ -410,7 +404,7 @@ public abstract class MigrationTestCase {
         MigrationInfo migration = flyway.info().current();
         assertEquals(
                 database.supportsDdlTransactions(),
-                !database.getSchema(database.getCurrentSchemaName()).getTable(tableName).exists());
+                !database.getMainConnection().getSchema(database.getMainConnection().getCurrentSchemaName()).getTable(tableName).exists());
         if (database.supportsDdlTransactions()) {
             assertNull(migration);
         } else {
@@ -500,15 +494,15 @@ public abstract class MigrationTestCase {
     @Test
     public void tableExists() throws Exception {
         flyway.baseline();
-        assertTrue(database.getOriginalSchema().getTable(flyway.getTable()).exists());
-        assertTrue(database.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).exists());
+        assertTrue(database.getMainConnection().getOriginalSchema().getTable(flyway.getTable()).exists());
+        assertTrue(database.getMainConnection().getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).exists());
     }
 
     @Test
     public void columnExists() throws Exception {
         flyway.baseline();
-        assertTrue(database.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("installed_rank"));
-        assertFalse(database.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("dummy"));
+        assertTrue(database.getMainConnection().getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("installed_rank"));
+        assertFalse(database.getMainConnection().getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("dummy"));
     }
 
     @Test
@@ -543,7 +537,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void isSchemaEmpty() throws Exception {
-        Schema schema = database.getOriginalSchema();
+        Schema schema = database.getMainConnection().getOriginalSchema();
 
         assertTrue(schema.empty());
 
@@ -657,7 +651,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void setCurrentSchema() throws Exception {
-        Schema schema = database.getSchema("current_schema_test");
+        Schema schema = database.getMainConnection().getSchema("current_schema_test");
         try {
             schema.create();
 
@@ -701,17 +695,17 @@ public abstract class MigrationTestCase {
 
     @Test
     public void schemaExists() throws SQLException {
-        assertTrue(database.getOriginalSchema().exists());
-        assertFalse(database.getSchema("InVaLidScHeMa").exists());
+        assertTrue(database.getMainConnection().getOriginalSchema().exists());
+        assertFalse(database.getMainConnection().getSchema("InVaLidScHeMa").exists());
     }
 
-    protected void createTestTable() throws SQLException {
+    private void createTestTable() throws SQLException {
         jdbcTemplate.execute("CREATE TABLE t1 (\n" +
                 "  name VARCHAR(25) NOT NULL,\n" +
                 "  PRIMARY KEY(name))");
     }
 
-    protected String getFutureFailedLocation() {
+    private String getFutureFailedLocation() {
         return getMigrationDir() + "/future_failed";
     }
 
@@ -719,11 +713,11 @@ public abstract class MigrationTestCase {
         return getMigrationDir() + "/validate";
     }
 
-    protected String getSemiColonLocation() {
+    private String getSemiColonLocation() {
         return getMigrationDir() + "/semicolon";
     }
 
-    protected String getCommentLocation() {
+    private String getCommentLocation() {
         return getMigrationDir() + "/comment";
     }
 }

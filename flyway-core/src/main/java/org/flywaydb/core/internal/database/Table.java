@@ -80,7 +80,7 @@ public abstract class Table extends SchemaObject {
         ResultSet resultSet = null;
         boolean found;
         try {
-            resultSet = jdbcTemplate.getMetaData().getTables(
+            resultSet = database.jdbcMetaData.getTables(
                     catalog == null ? null : catalog.getName(),
                     schema == null ? null : schema.getName(),
                     table,
@@ -103,9 +103,9 @@ public abstract class Table extends SchemaObject {
         boolean found;
         try {
             if (database.catalogIsSchema()) {
-                resultSet = jdbcTemplate.getMetaData().getPrimaryKeys(schema.getName(), null, name);
+                resultSet = database.jdbcMetaData.getPrimaryKeys(schema.getName(), null, name);
             } else {
-                resultSet = jdbcTemplate.getMetaData().getPrimaryKeys(null, schema.getName(), name);
+                resultSet = database.jdbcMetaData.getPrimaryKeys(null, schema.getName(), name);
             }
             found = resultSet.next();
         } catch (SQLException e) {
@@ -128,9 +128,9 @@ public abstract class Table extends SchemaObject {
         boolean found;
         try {
             if (database.catalogIsSchema()) {
-                resultSet = jdbcTemplate.getMetaData().getColumns(schema.getName(), null, name, column);
+                resultSet = database.jdbcMetaData.getColumns(schema.getName(), null, name, column);
             } else {
-                resultSet = jdbcTemplate.getMetaData().getColumns(null, schema.getName(), name, column);
+                resultSet = database.jdbcMetaData.getColumns(null, schema.getName(), name, column);
             }
             found = resultSet.next();
         } catch (SQLException e) {
@@ -153,9 +153,9 @@ public abstract class Table extends SchemaObject {
         int columnSize;
         try {
             if (database.catalogIsSchema()) {
-                resultSet = jdbcTemplate.getMetaData().getColumns(schema.getName(), null, name, column);
+                resultSet = database.jdbcMetaData.getColumns(schema.getName(), null, name, column);
             } else {
-                resultSet = jdbcTemplate.getMetaData().getColumns(null, schema.getName(), name, column);
+                resultSet = database.jdbcMetaData.getColumns(null, schema.getName(), name, column);
             }
             resultSet.next();
             columnSize = resultSet.getInt("COLUMN_SIZE");

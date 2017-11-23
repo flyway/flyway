@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database;
 
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.junit.Ignore;
@@ -35,7 +36,7 @@ public class SqlScriptSmallTest {
     /**
      * Class under test.
      */
-    private SqlScript sqlScript = new SqlScript("", new MySQLDatabase(null));
+    private SqlScript sqlScript = new SqlScript("", new MySQLDatabase(new Flyway(), null));
 
     /**
      * Input lines.

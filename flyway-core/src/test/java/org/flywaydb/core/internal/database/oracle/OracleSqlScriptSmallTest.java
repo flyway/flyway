@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.database.SqlStatement;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
@@ -34,7 +35,7 @@ public class OracleSqlScriptSmallTest {
         String source = new ClassPathResource("migration/database/oracle/sql/placeholders/V1__Placeholders.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(null));
+        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(new Flyway(), null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(3, sqlStatements.size());
         assertEquals(18, sqlStatements.get(0).getLineNumber());
@@ -48,7 +49,7 @@ public class OracleSqlScriptSmallTest {
         String source = new ClassPathResource("migration/database/oracle/sql/function/V2__FunctionWithConditionals.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(null));
+        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(new Flyway(), null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(1, sqlStatements.size());
         assertEquals(18, sqlStatements.get(0).getLineNumber());
@@ -60,7 +61,7 @@ public class OracleSqlScriptSmallTest {
         String source = new ClassPathResource("migration/database/oracle/sql/function/V1__Function.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(null));
+        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(new Flyway(), null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(5, sqlStatements.size());
         assertEquals(17, sqlStatements.get(0).getLineNumber());
@@ -76,7 +77,7 @@ public class OracleSqlScriptSmallTest {
         String source = new ClassPathResource("migration/database/oracle/sql/package/V1__Package.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(null));
+        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(new Flyway(), null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(2, sqlStatements.size());
         assertEquals(17, sqlStatements.get(0).getLineNumber());
@@ -88,7 +89,7 @@ public class OracleSqlScriptSmallTest {
         String source = new ClassPathResource("migration/database/oracle/sql/qquote/V1__Q_Quote.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(null));
+        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(new Flyway(), null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(12, sqlStatements.size());
     }
@@ -125,7 +126,7 @@ public class OracleSqlScriptSmallTest {
                 "END <trigger-name>;\n" +
                 "/";
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(null));
+        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(new Flyway(), null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(1, sqlStatements.size());
     }
@@ -148,7 +149,7 @@ public class OracleSqlScriptSmallTest {
                 "AND D.IDS = IDS\n" +
                 ");";
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(null));
+        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(new Flyway(), null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(1, sqlStatements.size());
     }
@@ -185,7 +186,7 @@ public class OracleSqlScriptSmallTest {
                 "\n" +
                 "EXECUTE set_right_value_for_sequence('SEQ_ATR', 'TOTCATTRIB', 'ATTRIB_ID');";
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(null));
+        SqlScript sqlScript = new SqlScript(source, new OracleDatabase(new Flyway(), null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(2, sqlStatements.size());
     }

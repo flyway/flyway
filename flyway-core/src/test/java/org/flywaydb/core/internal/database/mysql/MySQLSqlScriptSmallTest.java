@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.database.SqlStatement;
 import org.junit.Test;
@@ -33,7 +34,7 @@ public class MySQLSqlScriptSmallTest {
                 "/*!50013 DEFINER=`user`@`%` SQL SECURITY DEFINER */\n" +
                 "/*!50001 VIEW `viewname` AS select `t`.`id` AS `someId`,`t`.`name` AS `someName` from `someTable` `t` where `t`.`state` = 0 */;\n";
 
-        SqlScript sqlScript = new SqlScript(source, new MySQLDatabase(null));
+        SqlScript sqlScript = new SqlScript(source, new MySQLDatabase(new Flyway(), null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(1, sqlStatements.size());
         assertEquals(1, sqlStatements.get(0).getLineNumber());
@@ -47,7 +48,7 @@ public class MySQLSqlScriptSmallTest {
                 "`name` varchar(10)\n" +
                 ") ENGINE=MyISAM */;\n" +
                 "INSERT INTO tablename VALUES ('a','b');";
-        SqlScript sqlScript = new SqlScript(source, new MySQLDatabase(null));
+        SqlScript sqlScript = new SqlScript(source, new MySQLDatabase(new Flyway(), null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(3, sqlStatements.size());
         assertEquals(1, sqlStatements.get(0).getLineNumber());

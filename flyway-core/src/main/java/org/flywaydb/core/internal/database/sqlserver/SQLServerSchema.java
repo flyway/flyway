@@ -216,11 +216,15 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
             jdbcTemplate.execute(statement);
         }
 
-        if (jdbcTemplate.getMetaData().getDatabaseMajorVersion() >= 11) {
+        // [enterprise]
+        if (database.getMajorVersion() >= 11) {
+            // [/enterprise]
             for (String statement : cleanSequences()) {
                 jdbcTemplate.execute(statement);
             }
+            // [enterprise]
         }
+        // [/enterprise]
     }
 
     /**

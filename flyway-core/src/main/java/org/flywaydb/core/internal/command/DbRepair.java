@@ -22,6 +22,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
@@ -33,7 +34,6 @@ import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
@@ -78,16 +78,15 @@ public class DbRepair {
     /**
      * Creates a new DbRepair.
      *
-     * @param database         The database-specific support.
-     * @param connection        The database connection to use for accessing the metadata table.
+     * @param database          The database-specific support.
      * @param schema            The database schema to use by default.
      * @param migrationResolver The migration resolver.
      * @param schemaHistory     The metadata table.
      * @param callbacks         Callbacks for the Flyway lifecycle.
      */
-    public DbRepair(Database database, Connection connection, Schema schema, MigrationResolver migrationResolver, SchemaHistory schemaHistory, FlywayCallback[] callbacks) {
+    public DbRepair(Database database, Schema schema, MigrationResolver migrationResolver, SchemaHistory schemaHistory, FlywayCallback[] callbacks) {
         this.database = database;
-        this.connection = connection;
+        this.connection = database.getMainConnection();
         this.schema = schema;
         this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, MigrationVersion.LATEST, true, true, true, true);
         this.schemaHistory = schemaHistory;
@@ -100,11 +99,11 @@ public class DbRepair {
     public void repair() {
         try {
             for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new Callable<Object>() {
+                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        database.changeCurrentSchemaTo(schema);
-                        callback.beforeRepair(connection);
+                        connection.changeCurrentSchemaTo(schema);
+                        callback.beforeRepair(connection.getJdbcConnection());
                         return null;
                     }
                 });
@@ -113,9 +112,9 @@ public class DbRepair {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            new TransactionTemplate(connection).execute(new Callable<Object>() {
+            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                 public Void call() {
-                    database.changeCurrentSchemaTo(schema);
+                    connection.changeCurrentSchemaTo(schema);
                     schemaHistory.removeFailedMigrations();
                     alignAppliedMigrationsWithResolvedMigrations();
                     return null;
@@ -131,17 +130,17 @@ public class DbRepair {
             }
 
             for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new Callable<Object>() {
+                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        database.changeCurrentSchemaTo(schema);
-                        callback.afterRepair(connection);
+                        connection.changeCurrentSchemaTo(schema);
+                        callback.afterRepair(connection.getJdbcConnection());
                         return null;
                     }
                 });
             }
         } finally {
-            database.restoreCurrentSchema();
+            connection.restoreCurrentSchema();
         }
     }
 

@@ -130,7 +130,7 @@ public class DbBaselineTest {
         // assert
         this.expectedException.expect(FlywayException.class);
         this.expectedException.expectMessage(TEST_BASELINE_VERSION.toString());
-        this.expectedException.expectMessage(TEST_BASELINE_DESCRIPTION.toString());
+        this.expectedException.expectMessage(TEST_BASELINE_DESCRIPTION);
         this.expectedException.expectMessage(baselineVersion.toString());
 
         // act
@@ -148,7 +148,7 @@ public class DbBaselineTest {
         // assert
         this.expectedException.expect(FlywayException.class);
         this.expectedException.expectMessage(TEST_BASELINE_VERSION.toString());
-        this.expectedException.expectMessage(TEST_BASELINE_DESCRIPTION.toString());
+        this.expectedException.expectMessage(TEST_BASELINE_DESCRIPTION);
         this.expectedException.expectMessage(baselineDescription);
 
         // act
@@ -171,7 +171,7 @@ public class DbBaselineTest {
     }
 
     private DbBaseline createTestBaselinie(MigrationVersion version) {
-        return new DbBaseline(connection, database, schemaHistory, schema, version, TEST_BASELINE_DESCRIPTION, callbacks);
+        return new DbBaseline(database, schemaHistory, schema, version, TEST_BASELINE_DESCRIPTION, callbacks);
     }
 
 }

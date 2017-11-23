@@ -15,36 +15,33 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.database.FlywaySqlException;
-import org.flywaydb.core.internal.database.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.database.Table;
-import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.UUID;
-import java.util.concurrent.Callable;
 
 /**
- * Mysql-specific support.
+ * MySQL database.
  */
 public class MySQLDatabase extends Database {
-    private static final Log LOG = LogFactory.getLog(MySQLDatabase.class);
-
     /**
      * Creates a new instance.
      *
-     * @param connection The connection to use.
+     * @param configuration The Flyway configuration.
+     * @param connection    The connection to use.
      */
-    public MySQLDatabase(Connection connection) {
-        super(new JdbcTemplate(connection, Types.VARCHAR));
+    public MySQLDatabase(FlywayConfiguration configuration, Connection connection) {
+        super(configuration, connection, Types.VARCHAR);
+    }
+
+    @Override
+    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType) {
+        return new MySQLConnection(configuration, this, connection, nullType);
     }
 
     @Override
@@ -52,7 +49,7 @@ public class MySQLDatabase extends Database {
         String version = majorVersion + "." + minorVersion;
         boolean isMariaDB;
         try {
-            isMariaDB = jdbcTemplate.getMetaData().getDatabaseProductVersion().contains("MariaDB");
+            isMariaDB = jdbcMetaData.getDatabaseProductVersion().contains("MariaDB");
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine database product version", e);
         }
@@ -88,29 +85,7 @@ public class MySQLDatabase extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT SUBSTRING_INDEX(USER(),'@',1)");
-    }
-
-    @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.getConnection().getCatalog();
-    }
-
-    @Override
-    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        if (!StringUtils.hasLength(schema)) {
-            try {
-                // Weird hack to switch back to no database selected...
-                String newDb = quote(UUID.randomUUID().toString());
-                jdbcTemplate.execute("CREATE SCHEMA " + newDb);
-                jdbcTemplate.execute("USE " + newDb);
-                jdbcTemplate.execute("DROP SCHEMA " + newDb);
-            } catch (Exception e) {
-                LOG.warn("Unable to restore connection to having no default schema: " + e.getMessage());
-            }
-        } else {
-            jdbcTemplate.getConnection().setCatalog(schema);
-        }
+        return mainConnection.getJdbcTemplate().queryForString("SELECT SUBSTRING_INDEX(USER(),'@',1)");
     }
 
     public boolean supportsDdlTransactions() {
@@ -135,18 +110,8 @@ public class MySQLDatabase extends Database {
     }
 
     @Override
-    public Schema getSchema(String name) {
-        return new MySQLSchema(jdbcTemplate, this, name);
-    }
-
-    @Override
     public boolean catalogIsSchema() {
         return true;
-    }
-
-    @Override
-    public <T> T lock(Table table, Callable<T> callable) {
-        return new MySQLNamedLockTemplate(jdbcTemplate, table.toString().hashCode()).execute(callable);
     }
 
     @Override

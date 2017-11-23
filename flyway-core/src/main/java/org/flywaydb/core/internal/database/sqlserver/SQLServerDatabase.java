@@ -15,13 +15,10 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -30,23 +27,22 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * SQLServer-specific support.
+ * SQL Server database.
  */
 public class SQLServerDatabase extends Database {
-    private static final Log LOG = LogFactory.getLog(SQLServerDatabase.class);
-
-    /**
-     * Whether the warning message has already been printed.
-     */
-    private static boolean schemaMessagePrinted;
-
     /**
      * Creates a new instance.
      *
-     * @param connection The connection to use.
+     * @param configuration The Flyway configuration.
+     * @param connection    The connection to use.
      */
-    public SQLServerDatabase(Connection connection) {
-        super(new JdbcTemplate(connection, Types.VARCHAR));
+    public SQLServerDatabase(FlywayConfiguration configuration, Connection connection) {
+        super(configuration, connection, Types.VARCHAR);
+    }
+
+    @Override
+    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType) {
+        return new SQLServerConnection(configuration, this, connection, nullType);
     }
 
     @Override
@@ -58,7 +54,7 @@ public class SQLServerDatabase extends Database {
         }
         // [enterprise-not]
         //if (majorVersion < 12) {
-            //throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("Microsoft", "SQL Server", release);
+        //throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("Microsoft", "SQL Server", release);
         //}
         // [/enterprise-not]
         if (majorVersion > 14 || (majorVersion == 14 && minorVersion > 0)) {
@@ -108,22 +104,7 @@ public class SQLServerDatabase extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT SUSER_SNAME()");
-    }
-
-    @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT SCHEMA_NAME()");
-    }
-
-    @Override
-    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        if (!schemaMessagePrinted) {
-            LOG.info("SQLServer does not support setting the schema for the current session. Default schema NOT changed to " + schema);
-            // Not currently supported.
-            // See http://connect.microsoft.com/SQLServer/feedback/details/390528/t-sql-statement-for-changing-default-schema-context
-            schemaMessagePrinted = true;
-        }
+        return mainConnection.getJdbcTemplate().queryForString("SELECT SUSER_SNAME()");
     }
 
     public boolean supportsDdlTransactions() {
@@ -155,11 +136,6 @@ public class SQLServerDatabase extends Database {
     @Override
     public String doQuote(String identifier) {
         return "[" + escapeIdentifier(identifier) + "]";
-    }
-
-    @Override
-    public Schema getSchema(String name) {
-        return new SQLServerSchema(jdbcTemplate, this, name);
     }
 
     @Override

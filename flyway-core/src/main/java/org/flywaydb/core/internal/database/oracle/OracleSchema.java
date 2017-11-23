@@ -64,7 +64,7 @@ public class OracleSchema extends Schema<OracleDatabase> {
      * @return {@code true} if it is default, {@code false} if not.
      */
     boolean isDefaultSchemaForUser() throws SQLException {
-        return name.equals(database.getCurrentUserName());
+        return name.equals(database.doGetCurrentUser());
     }
 
     @Override
@@ -192,7 +192,7 @@ public class OracleSchema extends Schema<OracleDatabase> {
 
         if (!dbaViewAccessible && !isDefaultSchemaForUser()) {
             LOG.warn("Unable to check and disable Flashback Archive for tables in schema " + database.quote(name) +
-                    " by user \"" + database.getCurrentUserName() + "\": DBA_FLASHBACK_ARCHIVE_TABLES is not accessible");
+                    " by user \"" + database.doGetCurrentUser() + "\": DBA_FLASHBACK_ARCHIVE_TABLES is not accessible");
             return;
         }
 
@@ -236,7 +236,7 @@ public class OracleSchema extends Schema<OracleDatabase> {
 
         if (!isDefaultSchemaForUser()) {
             LOG.warn("Unable to clean Oracle Locator metadata for schema " + database.quote(name) +
-                    " by user \"" + database.getCurrentUserName() + "\": unsupported operation");
+                    " by user \"" + database.doGetCurrentUser() + "\": unsupported operation");
             return;
         }
 

@@ -17,7 +17,10 @@ package org.flywaydb.core.internal.command;
 
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
@@ -26,10 +29,7 @@ import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
@@ -97,15 +97,9 @@ public class DbValidate {
     private final FlywayCallback[] callbacks;
 
     /**
-     * The DB support for the connection.
-     */
-    private final Database database;
-
-    /**
      * Creates a new database validator.
      *
-     * @param connection        The connection to use.
-     * @param database         The DB support for the connection.
+     * @param database          The DB support for the connection.
      * @param schemaHistory     The database metadata table.
      * @param schema            The database schema to use by default.
      * @param migrationResolver The migration resolver.
@@ -116,11 +110,9 @@ public class DbValidate {
      * @param future            Whether future migrations are allowed.
      * @param callbacks         The lifecycle callbacks.
      */
-    public DbValidate(Connection connection,
-                      Database database, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
+    public DbValidate(Database database, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
                       MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean future, FlywayCallback[] callbacks) {
-        this.connection = connection;
-        this.database = database;
+        this.connection = database.getMainConnection();
         this.schemaHistory = schemaHistory;
         this.schema = schema;
         this.migrationResolver = migrationResolver;
@@ -147,11 +139,11 @@ public class DbValidate {
 
         try {
             for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new Callable<Object>() {
+                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        database.changeCurrentSchemaTo(schema);
-                        callback.beforeValidate(connection);
+                        connection.changeCurrentSchemaTo(schema);
+                        callback.beforeValidate(connection.getJdbcConnection());
                         return null;
                     }
                 });
@@ -161,10 +153,10 @@ public class DbValidate {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            Pair<Integer, String> result = new TransactionTemplate(connection).execute(new Callable<Pair<Integer, String>>() {
+            Pair<Integer, String> result = new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Pair<Integer, String>>() {
                 @Override
                 public Pair<Integer, String> call() {
-                    database.changeCurrentSchemaTo(schema);
+                    connection.changeCurrentSchemaTo(schema);
                     MigrationInfoServiceImpl migrationInfoService =
                             new MigrationInfoServiceImpl(migrationResolver, schemaHistory, target, outOfOrder, pending, missing, future);
 
@@ -191,11 +183,11 @@ public class DbValidate {
             }
 
             for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new Callable<Object>() {
+                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        database.changeCurrentSchemaTo(schema);
-                        callback.afterValidate(connection);
+                        connection.changeCurrentSchemaTo(schema);
+                        callback.afterValidate(connection.getJdbcConnection());
                         return null;
                     }
                 });
@@ -203,7 +195,7 @@ public class DbValidate {
 
             return error;
         } finally {
-            database.restoreCurrentSchema();
+            connection.restoreCurrentSchema();
         }
     }
 }

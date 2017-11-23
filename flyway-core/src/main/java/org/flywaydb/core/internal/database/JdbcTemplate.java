@@ -15,13 +15,12 @@
  */
 package org.flywaydb.core.internal.database;
 
-import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.util.jdbc.RowMapper;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -53,10 +52,10 @@ public class JdbcTemplate {
      * Creates a new JdbcTemplate.
      *
      * @param connection The DB connection to use.
+     * @throws SQLException when the database metadata could not be retrieved.
      */
-    public JdbcTemplate(Connection connection) {
-        this.connection = connection;
-        this.nullType = Types.NULL;
+    public JdbcTemplate(Connection connection) throws SQLException {
+        this(connection, Types.NULL);
     }
 
     /**
@@ -232,16 +231,6 @@ public class JdbcTemplate {
         }
 
         return result;
-    }
-
-    /**
-     * Retrieves the database metadata for the connection associated with this JdbcTemplate.
-     *
-     * @return The database metadata.
-     * @throws SQLException when the database metadata could not be retrieved.
-     */
-    public DatabaseMetaData getMetaData() throws SQLException {
-        return connection.getMetaData();
     }
 
     /**

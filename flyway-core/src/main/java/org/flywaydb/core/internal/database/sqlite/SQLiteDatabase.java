@@ -15,31 +15,32 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * SQLite database specific support
+ * SQLite database.
  */
 public class SQLiteDatabase extends Database {
-    private static final Log LOG = LogFactory.getLog(SQLiteDatabase.class);
-
     /**
      * Creates a new instance.
      *
-     * @param connection The connection to use.
+     * @param configuration The Flyway configuration.
+     * @param connection    The connection to use.
      */
-    public SQLiteDatabase(Connection connection) {
-        super(new JdbcTemplate(connection, Types.VARCHAR));
+    public SQLiteDatabase(FlywayConfiguration configuration, Connection connection) {
+        super(configuration, connection, Types.VARCHAR);
+    }
+
+    @Override
+    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType) {
+        return new SQLiteConnection(configuration, this, connection, nullType);
     }
 
     @Override
@@ -58,15 +59,6 @@ public class SQLiteDatabase extends Database {
     @Override
     protected String doGetCurrentUser() throws SQLException {
         return "";
-    }
-
-    protected String doGetCurrentSchemaName() throws SQLException {
-        return "main";
-    }
-
-    @Override
-    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        LOG.info("SQLite does not support setting the schema. Default schema NOT changed to " + schema);
     }
 
     public boolean supportsDdlTransactions() {
@@ -88,11 +80,6 @@ public class SQLiteDatabase extends Database {
     @Override
     public String doQuote(String identifier) {
         return "\"" + identifier + "\"";
-    }
-
-    @Override
-    public Schema getSchema(String name) {
-        return new SQLiteSchema(jdbcTemplate, this, name);
     }
 
     @Override

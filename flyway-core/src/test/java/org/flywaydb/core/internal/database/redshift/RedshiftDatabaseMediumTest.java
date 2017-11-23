@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database.redshift;
 
 import org.flywaydb.core.DbCategory;
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
@@ -54,16 +55,16 @@ public class RedshiftDatabaseMediumTest {
     @Test
     public void setCurrentSchema() throws Exception {
         Connection connection = createDataSource().getConnection();
-        RedshiftDatabase database = new RedshiftDatabase(connection);
-        Schema schema = database.getSchema("search_path_test");
+        RedshiftDatabase database = new RedshiftDatabase(new Flyway(), connection);
+        Schema schema = database.getMainConnection().getSchema("search_path_test");
         try {
             schema.drop();
         } catch (Exception e) {
             // Ignore
         }
         schema.create();
-        database.changeCurrentSchemaTo(database.getSchema("search_path_test"));
-        String searchPath = database.getJdbcTemplate().queryForString("SHOW search_path");
+        database.getMainConnection().changeCurrentSchemaTo(database.getMainConnection().getSchema("search_path_test"));
+        String searchPath = database.getMainConnection().getJdbcTemplate().queryForString("SHOW search_path");
         assertEquals("\"search_path_test\",$user, public", searchPath);
         schema.drop();
         JdbcUtils.closeConnection(connection);

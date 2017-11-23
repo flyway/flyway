@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.database.derby;
 
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 
 import java.sql.Connection;
@@ -26,16 +25,22 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * Derby database specific support
+ * Derby database.
  */
 public class DerbyDatabase extends Database {
     /**
      * Creates a new instance.
      *
-     * @param connection The connection to use.
+     * @param configuration The Flyway configuration.
+     * @param connection    The connection to use.
      */
-    public DerbyDatabase(Connection connection) {
-        super(new JdbcTemplate(connection, Types.VARCHAR));
+    public DerbyDatabase(FlywayConfiguration configuration, Connection connection) {
+        super(configuration, connection, Types.VARCHAR);
+    }
+
+    @Override
+    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType) {
+        return new DerbyConnection(configuration, this, connection, nullType);
     }
 
     @Override
@@ -53,17 +58,7 @@ public class DerbyDatabase extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT CURRENT_USER FROM SYSIBM.SYSDUMMY1");
-    }
-
-    @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT CURRENT SCHEMA FROM SYSIBM.SYSDUMMY1");
-    }
-
-    @Override
-    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        jdbcTemplate.execute("SET SCHEMA " + quote(schema));
+        return mainConnection.getJdbcTemplate().queryForString("SELECT CURRENT_USER FROM SYSIBM.SYSDUMMY1");
     }
 
     public boolean supportsDdlTransactions() {
@@ -85,11 +80,6 @@ public class DerbyDatabase extends Database {
     @Override
     public String doQuote(String identifier) {
         return "\"" + identifier + "\"";
-    }
-
-    @Override
-    public Schema getSchema(String name) {
-        return new DerbySchema(jdbcTemplate, this, name);
     }
 
     @Override

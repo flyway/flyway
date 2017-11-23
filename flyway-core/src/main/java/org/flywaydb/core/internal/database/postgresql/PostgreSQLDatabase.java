@@ -15,31 +15,33 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.FlywaySqlException;
-import org.flywaydb.core.internal.database.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.concurrent.Callable;
 
 /**
- * PostgreSQL-specific support.
+ * PostgreSQL database.
  */
 public class PostgreSQLDatabase extends Database {
     /**
      * Creates a new instance.
      *
-     * @param connection The connection to use.
+     * @param configuration The Flyway configuration.
+     * @param connection    The connection to use.
      */
-    public PostgreSQLDatabase(Connection connection) {
-        super(new JdbcTemplate(connection, Types.NULL));
+    public PostgreSQLDatabase(FlywayConfiguration configuration, Connection connection) {
+        super(configuration, connection, Types.NULL);
+    }
+
+    @Override
+    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType) {
+        return new PostgreSQLConnection(configuration, this, connection, nullType);
     }
 
     @Override
@@ -50,10 +52,8 @@ public class PostgreSQLDatabase extends Database {
             throw new FlywayDbUpgradeRequiredException("PostgreSQL", version, "9.0");
         }
         // [enterprise-not]
-        //if (majorVersion == 9) {
-            //if (minorVersion < 3) {
-            //    throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("PostgreSQL", "PostgreSQL", version);
-            //}
+        //if (majorVersion == 9 && minorVersion < 3) {
+        //    throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("PostgreSQL", "PostgreSQL", version);
         //}
         // [/enterprise-not]
         if (majorVersion > 10) {
@@ -67,66 +67,7 @@ public class PostgreSQLDatabase extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT current_user");
-    }
-
-    @Override
-    public Schema getOriginalSchema() {
-        if (originalSchema == null) {
-            return null;
-        }
-
-        return getSchema(getFirstSchemaFromSearchPath(this.originalSchema));
-    }
-
-    /* private -> testing */ String getFirstSchemaFromSearchPath(String searchPath) {
-        String result = searchPath.replace(doQuote("$user"), "").trim();
-        if (result.startsWith(",")) {
-            result = result.substring(1);
-        }
-        if (result.contains(",")) {
-            result = result.substring(0, result.indexOf(","));
-        }
-        result = result.trim();
-        // Unquote if necessary
-        if (result.startsWith("\"") && result.endsWith("\"") && !result.endsWith("\\\"") && (result.length() > 1)) {
-            result = result.substring(1, result.length() - 1);
-        }
-        return result;
-    }
-
-    @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SHOW search_path");
-    }
-
-    @Override
-    public void changeCurrentSchemaTo(Schema schema) {
-        try {
-            // First reset the role in case a migration or callback changed it
-            jdbcTemplate.executeStatement("RESET ROLE");
-
-            if (schema.getName().equals(originalSchema) || originalSchema.startsWith(schema.getName() + ",") || !schema.exists()) {
-                return;
-            }
-
-            if (StringUtils.hasText(originalSchema)) {
-                doChangeCurrentSchemaTo(schema.toString() + "," + originalSchema);
-            } else {
-                doChangeCurrentSchemaTo(schema.toString());
-            }
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error setting current schema to " + schema, e);
-        }
-    }
-
-    @Override
-    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        if (!StringUtils.hasLength(schema)) {
-            jdbcTemplate.execute("SELECT set_config('search_path', '', false)");
-            return;
-        }
-        jdbcTemplate.execute("SET search_path = " + schema);
+        return mainConnection.getJdbcTemplate().queryForString("SELECT current_user");
     }
 
     public boolean supportsDdlTransactions() {
@@ -147,22 +88,16 @@ public class PostgreSQLDatabase extends Database {
 
     @Override
     public String doQuote(String identifier) {
-        return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
+        return pgQuote(identifier);
     }
 
-    @Override
-    public Schema getSchema(String name) {
-        return new PostgreSQLSchema(jdbcTemplate, this, name);
+    static String pgQuote(String identifier) {
+        return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
     }
 
     @Override
     public boolean catalogIsSchema() {
         return false;
-    }
-
-    @Override
-    public <T> T lock(Table table, Callable<T> callable) {
-        return new PostgreSQLAdvisoryLockTemplate(jdbcTemplate, table.toString().hashCode()).execute(callable);
     }
 
     @Override

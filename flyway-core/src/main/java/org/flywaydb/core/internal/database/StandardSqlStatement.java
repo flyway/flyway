@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.database;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -33,7 +32,7 @@ public class StandardSqlStatement extends AbstractSqlStatement {
     }
 
     @Override
-    public void execute(Connection connection) throws SQLException {
-        new JdbcTemplate(connection).executeStatement(sql);
+    public void execute(JdbcTemplate jdbcTemplate) throws SQLException {
+        jdbcTemplate.executeStatement(sql);
     }
 }

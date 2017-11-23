@@ -186,7 +186,7 @@ public abstract class Schema<D extends Database> {
     protected final Type[] allTypes() {
         ResultSet resultSet = null;
         try {
-            resultSet = jdbcTemplate.getMetaData().getUDTs(null, name, null, null);
+            resultSet = database.jdbcMetaData.getUDTs(null, name, null, null);
 
             List<Type> types = new ArrayList<Type>();
             while (resultSet.next()) {

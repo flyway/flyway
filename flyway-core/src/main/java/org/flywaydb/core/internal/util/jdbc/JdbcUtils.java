@@ -19,8 +19,6 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.FlywaySqlException;
-import org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor;
-import org.flywaydb.core.internal.util.jdbc.pro.JdbcProxies;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -45,29 +43,15 @@ public class JdbcUtils {
      * Opens a new connection from this dataSource.
      *
      * @param dataSource The dataSource to obtain the connection from.
-     *                   // [pro]
-     * @param readOnly   Whether the connection should be read-only.
-     *                   // [/pro]
      * @return The new connection.
      * @throws FlywayException when the connection could not be opened.
      */
-    public static Connection openConnection(DataSource dataSource
-                                            // [pro]
-            , ClassLoader classLoader
-            , DryRunStatementInterceptor dryRunStatementInterceptor
-                                            // [/pro]
-    ) throws FlywayException {
+    public static Connection openConnection(DataSource dataSource) throws FlywayException {
         try {
             Connection connection = dataSource.getConnection();
             if (connection == null) {
                 throw new FlywayException("Unable to obtain Jdbc connection from DataSource");
             }
-            // [pro]
-            if (dryRunStatementInterceptor != null) {
-                //connection.setReadOnly(true);
-                return JdbcProxies.createConnectionProxy(classLoader, connection, dryRunStatementInterceptor);
-            }
-            // [/pro]
             return connection;
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to obtain Jdbc connection from DataSource", e);

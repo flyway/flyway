@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.database.SqlStatement;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
@@ -33,7 +34,7 @@ public class PostgreSQLSqlScriptSmallTest {
         String source = new ClassPathResource(
                 "migration/database/postgresql/sql/dollar/V2__Even_more_dollars.sql", Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new PostgreSQLDatabase(null));
+        SqlScript sqlScript = new SqlScript(source, new PostgreSQLDatabase(new Flyway(), null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(3, sqlStatements.size());
         assertEquals(17, sqlStatements.get(0).getLineNumber());

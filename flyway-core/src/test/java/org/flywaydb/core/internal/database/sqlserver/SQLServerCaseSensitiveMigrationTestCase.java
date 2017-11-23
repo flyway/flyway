@@ -52,9 +52,9 @@ public abstract class SQLServerCaseSensitiveMigrationTestCase {
         assertEquals(4, flyway.info().applied().length);
 
         Connection connection = dataSource.getConnection();
-        Database database = DatabaseFactory.createDbSupport(connection, true);
+        Database database = DatabaseFactory.createDatabase(flyway, true);
 
-        assertEquals(2, database.getJdbcTemplate().queryForInt("select count(*) from all_misters"));
+        assertEquals(2, database.getMainConnection().getJdbcTemplate().queryForInt("select count(*) from all_misters"));
 
         connection.close();
     }

@@ -547,7 +547,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     public void mining() throws FlywayException, SQLException {
         assumeOracleEditionNotLessThan(OracleEdition.EE);
         // Starting from Oracle 11.1 Data Mining API works with non-default schemas.
-        if (jdbcTemplate.getMetaData().getDatabaseMajorVersion() >= 11) {
+        if (database.getMajorVersion() >= 11) {
             flyway.setSchemas("FLYWAY_AUX");
         }
         flyway.clean();

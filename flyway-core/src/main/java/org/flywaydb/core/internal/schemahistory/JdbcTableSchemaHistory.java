@@ -21,23 +21,20 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.FlywaySqlException;
 import org.flywaydb.core.internal.database.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.database.Table;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
-import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -47,18 +44,20 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
     private static final Log LOG = LogFactory.getLog(JdbcTableSchemaHistory.class);
 
     /**
-     * Database-specific functionality.
+     * The database to use.
      */
     private final Database database;
 
     /**
-     * The metadata table used by flyway.
+     * The schema history table used by flyway.
      */
     private final Table table;
 
     /**
-     * JdbcTemplate with ddl manipulation access to the database.
+     * Connection with access to the database.
      */
+    private final Connection<?> connection;
+
     private final JdbcTemplate jdbcTemplate;
 
     /**
@@ -67,22 +66,23 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
     private final LinkedList<AppliedMigration> cache = new LinkedList<AppliedMigration>();
 
     /**
-     * The current user in the database.
+     * The user invoking Flyway, for audit purposes.
      */
     private String installedBy;
 
     /**
      * Creates a new instance of the metadata table support.
      *
-     * @param database   Database-specific functionality.
-     * @param table       The metadata table used by flyway.
-     * @param installedBy The current user in the database.
+     * @param database    The database to use.
+     * @param table       The schema history table used by flyway.
+     * @param installedBy The user invoking Flyway, for audit purposes.
      */
     JdbcTableSchemaHistory(Database database, Table table, String installedBy) {
-        this.jdbcTemplate = database.getJdbcTemplate();
+        this.connection = database.getMainConnection();
         this.database = database;
         this.table = table;
         this.installedBy = installedBy;
+        jdbcTemplate = connection.getJdbcTemplate();
     }
 
     @Override
@@ -102,18 +102,18 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
         int retries = 0;
         while (!table.exists()) {
             if (retries == 0) {
-                LOG.info("Creating Metadata table: " + table);
+                LOG.info("Creating Schema History table: " + table);
             }
 
             try {
-                new SqlScript(database.getCreateScript(table), database).execute(jdbcTemplate);
-                LOG.debug("Metadata table " + table + " created.");
+                new SqlScript(database.getCreateScript(table), database).execute(connection.getJdbcTemplate());
+                LOG.debug("Schema History table " + table + " created.");
             } catch (FlywayException e) {
                 if (++retries >= 10) {
                     throw e;
                 }
                 try {
-                    LOG.debug("Metadata table creation failed. Retrying in 1 sec ...");
+                    LOG.debug("Schema History table creation failed. Retrying in 1 sec ...");
                     Thread.sleep(1000);
                 } catch (InterruptedException e1) {
                     // Ignore
@@ -125,12 +125,12 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
     @Override
     public <T> T lock(Callable<T> callable) {
         createIfNotExists();
-        return database.lock(table, callable);
+        return connection.lock(table, callable);
     }
 
     @Override
     protected void doAddAppliedMigration(MigrationVersion version, String description, MigrationType type, String script, Integer checksum, int executionTime, boolean success) {
-        database.changeCurrentSchemaTo(table.getSchema());
+        connection.changeCurrentSchemaTo(table.getSchema());
 
         createIfNotExists();
 
@@ -148,7 +148,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
 
             LOG.debug("MetaData table " + table + " successfully updated to reflect changes");
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to insert row for version '" + version + "' in metadata table " + table, e);
+            throw new FlywaySqlException("Unable to insert row for version '" + version + "' in Schema History table " + table, e);
         }
     }
 
@@ -235,7 +235,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
             }));
             return cache;
         } catch (SQLException e) {
-            throw new FlywaySqlException("Error while retrieving the list of applied migrations from metadata table "
+            throw new FlywaySqlException("Error while retrieving the list of applied migrations from Schema History table "
                     + table, e);
         }
     }
@@ -243,7 +243,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
     @Override
     public void removeFailedMigrations() {
         if (!table.exists()) {
-            LOG.info("Repair of failed migration in metadata table " + table + " not necessary. No failed migration detected.");
+            LOG.info("Repair of failed migration in Schema History table " + table + " not necessary. No failed migration detected.");
             return;
         }
 
@@ -253,18 +253,18 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
             int failedCount = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + table
                     + " WHERE " + database.quote("success") + "=" + database.getBooleanFalse());
             if (failedCount == 0) {
-                LOG.info("Repair of failed migration in metadata table " + table + " not necessary. No failed migration detected.");
+                LOG.info("Repair of failed migration in Schema History table " + table + " not necessary. No failed migration detected.");
                 return;
             }
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to check the metadata table " + table + " for failed migrations", e);
+            throw new FlywaySqlException("Unable to check the Schema History table " + table + " for failed migrations", e);
         }
 
         try {
             jdbcTemplate.execute("DELETE FROM " + table
                     + " WHERE " + database.quote("success") + " = " + database.getBooleanFalse());
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to repair metadata table " + table, e);
+            throw new FlywaySqlException("Unable to repair Schema History table " + table, e);
         }
     }
 
@@ -292,7 +292,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
                     "SELECT COUNT(*) FROM " + table + " WHERE " + database.quote("type") + "='SCHEMA'");
             return count > 0;
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has a schema marker migration", e);
+            throw new FlywaySqlException("Unable to check whether the Schema History table " + table + " has a schema marker migration", e);
         }
     }
 
@@ -309,7 +309,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
                     "SELECT COUNT(*) FROM " + table + " WHERE " + database.quote("type") + "='INIT' OR " + database.quote("type") + "='BASELINE'");
             return count > 0;
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has an baseline marker migration", e);
+            throw new FlywaySqlException("Unable to check whether the Schema History table " + table + " has an baseline marker migration", e);
         }
     }
 
@@ -332,7 +332,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
                     "SELECT COUNT(*) FROM " + table + " WHERE " + database.quote("type") + " NOT IN ('SCHEMA', 'INIT', 'BASELINE')");
             return count > 0;
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has applied migrations", e);
+            throw new FlywaySqlException("Unable to check whether the Schema History table " + table + " has applied migrations", e);
         }
     }
 
@@ -348,42 +348,20 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
                 ? appliedMigration.getType()
                 : resolvedMigration.getType();
 
-        LOG.info("Repairing metadata for version " + version
+        LOG.info("Repairing Schema History table for version " + version
                 + " (Description: " + description + ", Type: " + type + ", Checksum: " + checksum + ")  ...");
 
-        // Try load an update.sql file if it exists
-        String resourceName = "org/flywaydb/core/internal/database/" + database.getDbName() + "/update.sql";
-        ClassPathResource resource = new ClassPathResource(resourceName, getClass().getClassLoader());
-        if (resource.exists()) {
-            String source = resource.loadAsString("UTF-8");
-            Map<String, String> placeholders = new HashMap<String, String>();
-
-            // Placeholders for column names
-            placeholders.put("schema", table.getSchema().getName());
-            placeholders.put("table", table.getName());
-
-            // Placeholders for column values
-            placeholders.put("version_val", version.toString());
-            placeholders.put("description_val", description);
-            placeholders.put("type_val", type.name());
-            placeholders.put("checksum_val", String.valueOf(checksum));
-
-            String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
-
-            new SqlScript(sourceNoPlaceholders, database).execute(jdbcTemplate);
-        } else {
-            try {
-                jdbcTemplate.update("UPDATE " + table
-                                + " SET "
-                                + database.quote("description") + "=? , "
-                                + database.quote("type") + "=? , "
-                                + database.quote("checksum") + "=?"
-                                + " WHERE " + database.quote("version") + "=?",
-                        description, type, checksum, version);
-            } catch (SQLException e) {
-                throw new FlywaySqlException("Unable to repair metadata table " + table
-                        + " for version " + version, e);
-            }
+        try {
+            jdbcTemplate.update("UPDATE " + table
+                            + " SET "
+                            + database.quote("description") + "=? , "
+                            + database.quote("type") + "=? , "
+                            + database.quote("checksum") + "=?"
+                            + " WHERE " + database.quote("version") + "=?",
+                    description, type, checksum, version);
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to repair Schema History table " + table
+                    + " for version " + version, e);
         }
     }
 

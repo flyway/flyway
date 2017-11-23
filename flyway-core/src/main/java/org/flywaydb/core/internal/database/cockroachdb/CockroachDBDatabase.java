@@ -15,11 +15,11 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.database.FlywaySqlException;
 import org.flywaydb.core.internal.database.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -29,7 +29,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * CockroachDB-specific support.
+ * CockroachDB database.
  */
 public class CockroachDBDatabase extends Database {
     /**
@@ -49,10 +49,16 @@ public class CockroachDBDatabase extends Database {
     /**
      * Creates a new instance.
      *
-     * @param connection The connection to use.
+     * @param configuration The Flyway configuration.
+     * @param connection    The connection to use.
      */
-    public CockroachDBDatabase(Connection connection) {
-        super(new JdbcTemplate(connection, Types.NULL));
+    public CockroachDBDatabase(FlywayConfiguration configuration, Connection connection) {
+        super(configuration, connection, Types.NULL);
+    }
+
+    @Override
+    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType) {
+        return new CockroachDBConnection(configuration, this, connection, nullType);
     }
 
     @Override
@@ -70,9 +76,9 @@ public class CockroachDBDatabase extends Database {
     protected Pair<Integer, Integer> determineMajorAndMinorVersion() {
         String version;
         try {
-            version = jdbcTemplate.queryForString("SELECT value FROM crdb_internal.node_build_info where field='Version'");
+            version = mainConnection.getJdbcTemplate().queryForString("SELECT value FROM crdb_internal.node_build_info where field='Version'");
             if (version == null) {
-                version = jdbcTemplate.queryForString("SELECT value FROM crdb_internal.node_build_info where field='Tag'");
+                version = mainConnection.getJdbcTemplate().queryForString("SELECT value FROM crdb_internal.node_build_info where field='Tag'");
             }
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine CockroachDB version", e);
@@ -90,55 +96,7 @@ public class CockroachDBDatabase extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return jdbcTemplate.queryForString("(SELECT * FROM [SHOW SESSION_USER])");
-    }
-
-    @Override
-    public Schema getOriginalSchema() {
-        if (originalSchema == null) {
-            return null;
-        }
-
-        return getSchema(getFirstSchemaFromSearchPath(this.originalSchema));
-    }
-
-    private String getFirstSchemaFromSearchPath(String searchPath) {
-        String result = searchPath.replace(doQuote("$user"), "").trim();
-        if (result.startsWith(",")) {
-            result = result.substring(1);
-        }
-        if (result.contains(",")) {
-            result = result.substring(0, result.indexOf(","));
-        }
-        result = result.trim();
-        // Unquote if necessary
-        if (result.startsWith("\"") && result.endsWith("\"") && !result.endsWith("\\\"") && (result.length() > 1)) {
-            result = result.substring(1, result.length() - 1);
-        }
-        return result;
-    }
-
-    @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SHOW database");
-    }
-
-    @Override
-    public void changeCurrentSchemaTo(Schema schema) {
-        try {
-            // Avoid unnecessary schema changes as this trips up CockroachDB
-            if (schema.getName().equals(originalSchema) || !schema.exists()) {
-                return;
-            }
-            doChangeCurrentSchemaTo(schema.getName());
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error setting current schema to " + schema, e);
-        }
-    }
-
-    @Override
-    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        jdbcTemplate.execute("SET database = " + schema);
+        return mainConnection.getJdbcTemplate().queryForString("(SELECT * FROM [SHOW SESSION_USER])");
     }
 
     public boolean supportsDdlTransactions() {
@@ -167,11 +125,6 @@ public class CockroachDBDatabase extends Database {
     @Override
     public String doQuote(String identifier) {
         return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
-    }
-
-    @Override
-    public Schema getSchema(String name) {
-        return new CockroachDBSchema(jdbcTemplate, this, name);
     }
 
     @Override
