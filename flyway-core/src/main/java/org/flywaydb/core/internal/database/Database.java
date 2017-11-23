@@ -73,17 +73,29 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @param connection    The main connection to use.
      * @param nullType      The type to assign to a null value.
      */
-    public Database(FlywayConfiguration configuration, java.sql.Connection connection, int nullType) {
+    public Database(FlywayConfiguration configuration, java.sql.Connection connection, int nullType
+                    // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                    // [/pro]
+    ) {
         this.configuration = configuration;
         try {
             this.jdbcMetaData = connection.getMetaData();
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to get metadata for connection", e);
         }
-        this.mainConnection = getConnection(connection, nullType);
+        this.mainConnection = getConnection(connection, nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
         this.migrationConnection = useSingleConnection()
                 ? mainConnection
-                : getConnection(JdbcUtils.openConnection(configuration.getDataSource()), nullType);
+                : getConnection(JdbcUtils.openConnection(configuration.getDataSource()), nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
 
         Pair<Integer, Integer> majorMinor = determineMajorAndMinorVersion();
         majorVersion = majorMinor.getLeft();
@@ -98,7 +110,11 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @param nullType   The JDBC type to assign to a null value.
      * @return The Flyway Connection.
      */
-    protected abstract C getConnection(java.sql.Connection connection, int nullType);
+    protected abstract C getConnection(java.sql.Connection connection, int nullType
+                                       // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                                       // [/pro]
+    );
 
     /**
      * Ensures Flyway supports this version of this database.

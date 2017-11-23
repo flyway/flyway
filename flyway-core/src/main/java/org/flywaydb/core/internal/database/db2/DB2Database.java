@@ -34,13 +34,29 @@ public class DB2Database extends Database {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public DB2Database(FlywayConfiguration configuration, Connection connection) {
-        super(configuration, connection, Types.VARCHAR);
+    public DB2Database(FlywayConfiguration configuration, Connection connection
+                       // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                       // [/pro]
+    ) {
+        super(configuration, connection, Types.VARCHAR
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType) {
-        return new DB2Connection(configuration, this, connection, nullType);
+    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+                                                                           // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                                                                           // [/pro]
+    ) {
+        return new DB2Connection(configuration, this, connection, nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override

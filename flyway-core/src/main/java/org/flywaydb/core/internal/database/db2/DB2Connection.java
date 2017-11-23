@@ -10,8 +10,16 @@ import java.sql.SQLException;
  * DB2 connection.
  */
 public class DB2Connection extends Connection<DB2Database> {
-    DB2Connection(FlywayConfiguration configuration, DB2Database database, java.sql.Connection connection, int nullType) {
-        super(configuration, database, connection, nullType);
+    DB2Connection(FlywayConfiguration configuration, DB2Database database, java.sql.Connection connection, int nullType
+                  // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                  // [/pro]
+    ) {
+        super(configuration, database, connection, nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override

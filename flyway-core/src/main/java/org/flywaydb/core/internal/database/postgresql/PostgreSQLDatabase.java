@@ -35,13 +35,29 @@ public class PostgreSQLDatabase extends Database {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public PostgreSQLDatabase(FlywayConfiguration configuration, Connection connection) {
-        super(configuration, connection, Types.NULL);
+    public PostgreSQLDatabase(FlywayConfiguration configuration, Connection connection
+                              // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                              // [/pro]
+    ) {
+        super(configuration, connection, Types.NULL
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType) {
-        return new PostgreSQLConnection(configuration, this, connection, nullType);
+    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+                                                                           // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                                                                           // [/pro]
+    ) {
+        return new PostgreSQLConnection(configuration, this, connection, nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override

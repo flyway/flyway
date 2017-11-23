@@ -18,7 +18,6 @@ package org.flywaydb.core.internal.database.h2;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 
 import java.sql.Connection;
@@ -35,13 +34,29 @@ public class H2Database extends Database {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public H2Database(FlywayConfiguration configuration, Connection connection) {
-        super(configuration, connection, Types.VARCHAR);
+    public H2Database(FlywayConfiguration configuration, Connection connection
+                      // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                      // [/pro]
+    ) {
+        super(configuration, connection, Types.VARCHAR
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType) {
-        return new H2Connection(configuration, this, connection, nullType);
+    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+                                                                           // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                                                                           // [/pro]
+    ) {
+        return new H2Connection(configuration, this, connection, nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override

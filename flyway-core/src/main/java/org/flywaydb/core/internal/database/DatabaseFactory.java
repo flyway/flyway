@@ -57,7 +57,11 @@ public class DatabaseFactory {
      * @param printInfo     Where the DB info should be printed in the logs.
      * @return The appropriate Database class.
      */
-    public static Database createDatabase(FlywayConfiguration configuration, boolean printInfo) {
+    public static Database createDatabase(FlywayConfiguration configuration, boolean printInfo
+                                          // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                                          // [/pro]
+    ) {
         Connection connection = JdbcUtils.openConnection(configuration.getDataSource());
 
         String databaseProductName = getDatabaseProductName(connection);
@@ -67,48 +71,100 @@ public class DatabaseFactory {
         }
 
         if (databaseProductName.startsWith("Apache Derby")) {
-            return new DerbyDatabase(configuration, connection);
+            return new DerbyDatabase(configuration, connection
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
         }
         if (databaseProductName.startsWith("SQLite")) {
-            return new SQLiteDatabase(configuration, connection);
+            return new SQLiteDatabase(configuration, connection
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
         }
         if (databaseProductName.startsWith("H2")) {
-            return new H2Database(configuration, connection);
+            return new H2Database(configuration, connection
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
         }
         if (databaseProductName.contains("HSQL Database Engine")) {
-            return new HSQLDBDatabase(configuration, connection);
+            return new HSQLDBDatabase(configuration, connection
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
         }
         if (databaseProductName.startsWith("Microsoft SQL Server")) {
-            return new SQLServerDatabase(configuration, connection);
+            return new SQLServerDatabase(configuration, connection
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
         }
         if (databaseProductName.contains("MySQL")) {
             // For regular MySQL, MariaDB and Google Cloud SQL.
             // Google Cloud SQL returns different names depending on the environment and the SDK version.
             //   ex.: Google SQL Service/MySQL
-            return new MySQLDatabase(configuration, connection);
+            return new MySQLDatabase(configuration, connection
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
         }
         if (databaseProductName.startsWith("Oracle")) {
-            return new OracleDatabase(configuration, connection);
+            return new OracleDatabase(configuration, connection
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
         }
         if (databaseProductName.startsWith("PostgreSQL 8")) {
             if (RedshiftDatabase.isRedshift(connection)) {
-                return new RedshiftDatabase(configuration, connection);
+                return new RedshiftDatabase(configuration, connection
+                        // [pro]
+                        , dryRunStatementInterceptor
+                        // [/pro]
+                );
             }
         }
         if (databaseProductName.startsWith("PostgreSQL")) {
             if (CockroachDBDatabase.isCockroachDB(connection)) {
-                return new CockroachDBDatabase(configuration, connection);
+                return new CockroachDBDatabase(configuration, connection
+                        // [pro]
+                        , dryRunStatementInterceptor
+                        // [/pro]
+                );
             }
-            return new PostgreSQLDatabase(configuration, connection);
+            return new PostgreSQLDatabase(configuration, connection
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
         }
         if (databaseProductName.startsWith("DB2")) {
-            return new DB2Database(configuration, connection);
+            return new DB2Database(configuration, connection
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
         }
         if (databaseProductName.startsWith("ASE")) {
-            return new SybaseASEDatabase(configuration, connection, false);
+            return new SybaseASEDatabase(configuration, connection, false
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
         }
         if (databaseProductName.startsWith("Adaptive Server Enterprise")) {
-            return new SybaseASEDatabase(configuration, connection, true);
+            return new SybaseASEDatabase(configuration, connection, true
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);

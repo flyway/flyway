@@ -81,9 +81,9 @@ public class FlywayMediumTest {
         Connection connection2 = dataSource2.getConnection();
 
         flyway.setDataSource(dataSource1);
-        Schema schema1 = new H2Database(flyway, connection1).getMainConnection().getSchema("PUBLIC");
+        Schema schema1 = new H2Database(flyway, connection1, null).getMainConnection().getSchema("PUBLIC");
         flyway.setDataSource(dataSource2);
-        Schema schema2 = new H2Database(flyway, connection2).getMainConnection().getSchema("PUBLIC");
+        Schema schema2 = new H2Database(flyway, connection2, null).getMainConnection().getSchema("PUBLIC");
 
         assertTrue(schema1.empty());
         assertTrue(schema2.empty());

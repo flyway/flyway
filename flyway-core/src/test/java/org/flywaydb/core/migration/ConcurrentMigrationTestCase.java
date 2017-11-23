@@ -97,7 +97,7 @@ public abstract class ConcurrentMigrationTestCase {
 
         flyway = createFlyway();
 
-        final Database database = DatabaseFactory.createDatabase(flyway, false);
+        final Database database = DatabaseFactory.createDatabase(flyway, false, null);
         schemaQuoted = database.quote(schemaName);
 
         flyway.clean();

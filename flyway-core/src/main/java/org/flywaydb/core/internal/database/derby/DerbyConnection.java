@@ -10,8 +10,16 @@ import java.sql.SQLException;
  * Derby connection.
  */
 public class DerbyConnection extends Connection<DerbyDatabase> {
-    DerbyConnection(FlywayConfiguration configuration, DerbyDatabase database, java.sql.Connection connection, int nullType) {
-        super(configuration, database, connection, nullType);
+    DerbyConnection(FlywayConfiguration configuration, DerbyDatabase database, java.sql.Connection connection, int nullType
+                    // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                    // [/pro]
+    ) {
+        super(configuration, database, connection, nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override

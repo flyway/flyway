@@ -71,7 +71,7 @@ public class PostgreSQLDatabaseMediumTest {
     @Test
     public void setCurrentSchema() throws Exception {
         Connection connection = createDataSource().getConnection();
-        PostgreSQLDatabase database = new PostgreSQLDatabase(new Flyway(), connection);
+        PostgreSQLDatabase database = new PostgreSQLDatabase(new Flyway(), connection, null);
         Schema schema = database.getMainConnection().getSchema("search_path_test");
         try {
             schema.drop();

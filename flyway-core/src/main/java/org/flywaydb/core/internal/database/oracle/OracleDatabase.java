@@ -44,8 +44,16 @@ public class OracleDatabase extends Database {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public OracleDatabase(FlywayConfiguration configuration, Connection connection) {
-        super(configuration, connection, Types.VARCHAR);
+    public OracleDatabase(FlywayConfiguration configuration, Connection connection
+                          // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                          // [/pro]
+    ) {
+        super(configuration, connection, Types.VARCHAR
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
 
         // If the TNS_ADMIN environment variable is set, enable tnsnames.ora support for the Oracle JDBC driver
         // See http://www.orafaq.com/wiki/TNS_ADMIN
@@ -57,8 +65,16 @@ public class OracleDatabase extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType) {
-        return new OracleConnection(configuration, this, connection, nullType);
+    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+                                                                           // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                                                                           // [/pro]
+    ) {
+        return new OracleConnection(configuration, this, connection, nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override

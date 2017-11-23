@@ -11,8 +11,17 @@ import java.sql.SQLException;
  * CockroachDB connection.
  */
 public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
-    CockroachDBConnection(FlywayConfiguration configuration, CockroachDBDatabase database, java.sql.Connection connection, int nullType) {
-        super(configuration, database, connection, nullType);
+    CockroachDBConnection(FlywayConfiguration configuration, CockroachDBDatabase database,
+                          java.sql.Connection connection, int nullType
+                          // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                          // [/pro]
+    ) {
+        super(configuration, database, connection, nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override

@@ -83,7 +83,7 @@ public class OracleDatabaseMediumTest {
         DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, jdbcUrl, dataSourceUser, password, null);
 
         Connection connection = dataSource.getConnection();
-        OracleDatabase database = new OracleDatabase(new Flyway(), connection);
+        OracleDatabase database = new OracleDatabase(new Flyway(), connection, null);
 
         if (changeSchema) {
             database.getMainConnection().doChangeCurrentSchemaTo(auxUser);
@@ -144,7 +144,7 @@ public class OracleDatabaseMediumTest {
         Connection connection = null;
         try {
             connection = dataSource.getConnection();
-            OracleDatabase database = new OracleDatabase(new Flyway(), connection);
+            OracleDatabase database = new OracleDatabase(new Flyway(), connection, null);
             for (int i = 0; i < 200; i++) {
                 database.getMainConnection().getSchema(database.getMainConnection().getCurrentSchemaName()).getTable("schema_version").exists();
             }
@@ -163,7 +163,7 @@ public class OracleDatabaseMediumTest {
         Connection connection = null;
         try {
             connection = dataSource.getConnection();
-            OracleDatabase database = new OracleDatabase(new Flyway(), connection);
+            OracleDatabase database = new OracleDatabase(new Flyway(), connection, null);
             for (int i = 0; i < 200; i++) {
                 database.getMainConnection().getSchema(database.getMainConnection().getCurrentSchemaName()).empty();
             }

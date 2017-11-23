@@ -36,13 +36,29 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
      * @param connection    The initial connection.
      * @param jconnect      Whether we are using the official jConnect driver or not (jTDS).
      */
-    public SybaseASEDatabase(FlywayConfiguration configuration, Connection connection, boolean jconnect) {
-        super(configuration, connection, jconnect ? Types.VARCHAR : Types.NULL);
+    public SybaseASEDatabase(FlywayConfiguration configuration, Connection connection, boolean jconnect
+                             // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                             // [/pro]
+    ) {
+        super(configuration, connection, jconnect ? Types.VARCHAR : Types.NULL
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override
-    protected SybaseASEConnection getConnection(Connection connection, int nullType) {
-        return new SybaseASEConnection(configuration, this, connection, nullType);
+    protected SybaseASEConnection getConnection(Connection connection, int nullType
+                                                // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                                                // [/pro]
+    ) {
+        return new SybaseASEConnection(configuration, this, connection, nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override

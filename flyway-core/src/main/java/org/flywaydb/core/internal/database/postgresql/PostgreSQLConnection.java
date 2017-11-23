@@ -15,8 +15,16 @@ import java.util.concurrent.Callable;
  * PostgreSQL connection.
  */
 public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
-    PostgreSQLConnection(FlywayConfiguration configuration, PostgreSQLDatabase database, java.sql.Connection connection, int nullType) {
-        super(configuration, database, connection, nullType);
+    PostgreSQLConnection(FlywayConfiguration configuration, PostgreSQLDatabase database, java.sql.Connection connection, int nullType
+                         // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                         // [/pro]
+    ) {
+        super(configuration, database, connection, nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override

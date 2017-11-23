@@ -19,8 +19,16 @@ public class SybaseASEConnection extends Connection<SybaseASEDatabase> {
      */
     private static boolean schemaMessagePrinted;
 
-    SybaseASEConnection(FlywayConfiguration configuration, SybaseASEDatabase database, java.sql.Connection connection, int nullType) {
-        super(configuration, database, connection, nullType);
+    SybaseASEConnection(FlywayConfiguration configuration, SybaseASEDatabase database, java.sql.Connection connection, int nullType
+                        // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                        // [/pro]
+    ) {
+        super(configuration, database, connection, nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
 

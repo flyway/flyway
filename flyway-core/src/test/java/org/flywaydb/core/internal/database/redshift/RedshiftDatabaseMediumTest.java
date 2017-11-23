@@ -55,7 +55,7 @@ public class RedshiftDatabaseMediumTest {
     @Test
     public void setCurrentSchema() throws Exception {
         Connection connection = createDataSource().getConnection();
-        RedshiftDatabase database = new RedshiftDatabase(new Flyway(), connection);
+        RedshiftDatabase database = new RedshiftDatabase(new Flyway(), connection, null);
         Schema schema = database.getMainConnection().getSchema("search_path_test");
         try {
             schema.drop();

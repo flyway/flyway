@@ -105,7 +105,7 @@ public abstract class MigrationTestCase {
         flyway.clean();
 
         connection = dataSource.getConnection();
-        database = DatabaseFactory.createDatabase(flyway, false);
+        database = DatabaseFactory.createDatabase(flyway, false, null);
         jdbcTemplate = database.getMainConnection().getJdbcTemplate();
     }
 

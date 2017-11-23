@@ -19,8 +19,16 @@ public class SQLiteConnection extends Connection<SQLiteDatabase> {
      */
     private static boolean schemaMessagePrinted;
 
-    SQLiteConnection(FlywayConfiguration configuration, SQLiteDatabase database, java.sql.Connection connection, int nullType) {
-        super(configuration, database, connection, nullType);
+    SQLiteConnection(FlywayConfiguration configuration, SQLiteDatabase database, java.sql.Connection connection, int nullType
+                     // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                     // [/pro]
+    ) {
+        super(configuration, database, connection, nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
 

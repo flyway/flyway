@@ -12,8 +12,16 @@ import java.sql.SQLException;
  * Redshift connection.
  */
 public class RedshiftConnection extends Connection<RedshiftDatabase> {
-    RedshiftConnection(FlywayConfiguration configuration, RedshiftDatabase database, java.sql.Connection connection, int nullType) {
-        super(configuration, database, connection, nullType);
+    RedshiftConnection(FlywayConfiguration configuration, RedshiftDatabase database, java.sql.Connection connection, int nullType
+                       // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                       // [/pro]
+    ) {
+        super(configuration, database, connection, nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override

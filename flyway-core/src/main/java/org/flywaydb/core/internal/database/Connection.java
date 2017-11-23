@@ -19,14 +19,15 @@ public abstract class Connection<D extends Database> implements Closeable {
      */
     protected final String originalSchema;
 
-    public Connection(FlywayConfiguration configuration, D database, java.sql.Connection connection, int nullType) {
+    public Connection(FlywayConfiguration configuration, D database, java.sql.Connection connection, int nullType
+                      // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                      // [/pro]
+    ) {
         this.database = database;
 
         // [pro]
-        if (configuration.getDryRunOutput() != null) {
-            org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor =
-                    org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor.of(
-                            configuration.getDryRunOutput(), configuration.getEncoding());
+        if (dryRunStatementInterceptor != null) {
             if (database.supportsReadOnlyTransactions()) {
                 try {
                     connection.setReadOnly(true);

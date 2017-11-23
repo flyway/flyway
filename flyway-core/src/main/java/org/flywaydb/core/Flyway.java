@@ -1531,7 +1531,11 @@ public class Flyway implements FlywayConfiguration {
         // [/pro]
         Database database = null;
         try {
-            database = DatabaseFactory.createDatabase(this, !dbConnectionInfoPrinted);
+            database = DatabaseFactory.createDatabase(this, !dbConnectionInfoPrinted
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
             dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
 

@@ -49,13 +49,29 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public RedshiftDatabase(FlywayConfiguration configuration, Connection connection) {
-        super(configuration, connection, Types.VARCHAR);
+    public RedshiftDatabase(FlywayConfiguration configuration, Connection connection
+                            // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                            // [/pro]
+    ) {
+        super(configuration, connection, Types.VARCHAR
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override
-    protected RedshiftConnection getConnection(Connection connection, int nullType) {
-        return new RedshiftConnection(configuration, this, connection, nullType);
+    protected RedshiftConnection getConnection(Connection connection, int nullType
+                                               // [pro]
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                                               // [/pro]
+    ) {
+        return new RedshiftConnection(configuration, this, connection, nullType
+                // [pro]
+                , dryRunStatementInterceptor
+                // [/pro]
+        );
     }
 
     @Override
