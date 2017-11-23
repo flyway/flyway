@@ -81,6 +81,11 @@ public class SQLiteDatabase extends Database {
         return true;
     }
 
+    @Override
+    public boolean supportsReadOnlyTransactions() {
+        return false;
+    }
+
     public String getBooleanTrue() {
         return "1";
     }
