@@ -15,9 +15,10 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
-import org.flywaydb.core.Flyway;
+import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.database.SqlStatement;
+import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.junit.Test;
 
 import java.util.List;
@@ -28,13 +29,22 @@ import static org.junit.Assert.assertEquals;
  * Test for MySQL SqlScript.
  */
 public class MySQLSqlScriptSmallTest {
+    private SqlScript createSqlScript(String source) {
+        return new SqlScript(source, null) {
+            @Override
+            protected SqlStatementBuilder createSqlStatementBuilder() {
+                return new MySQLSqlStatementBuilder(Database.DEFAULT_DELIMITER);
+            }
+        };
+    }
+
     @Test
     public void multiLineCommentDirective() throws Exception {
         String source = "/*!50001 CREATE ALGORITHM=UNDEFINED */\n" +
                 "/*!50013 DEFINER=`user`@`%` SQL SECURITY DEFINER */\n" +
                 "/*!50001 VIEW `viewname` AS select `t`.`id` AS `someId`,`t`.`name` AS `someName` from `someTable` `t` where `t`.`state` = 0 */;\n";
 
-        SqlScript sqlScript = new SqlScript(source, new MySQLDatabase(new Flyway(), null));
+        SqlScript sqlScript = createSqlScript(source);
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(1, sqlStatements.size());
         assertEquals(1, sqlStatements.get(0).getLineNumber());
@@ -48,7 +58,7 @@ public class MySQLSqlScriptSmallTest {
                 "`name` varchar(10)\n" +
                 ") ENGINE=MyISAM */;\n" +
                 "INSERT INTO tablename VALUES ('a','b');";
-        SqlScript sqlScript = new SqlScript(source, new MySQLDatabase(new Flyway(), null));
+        SqlScript sqlScript = createSqlScript(source);
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(3, sqlStatements.size());
         assertEquals(1, sqlStatements.get(0).getLineNumber());

@@ -204,7 +204,7 @@ public class SqlScript {
         List<SqlStatement> statements = new ArrayList<SqlStatement>();
 
         Delimiter nonStandardDelimiter = null;
-        SqlStatementBuilder sqlStatementBuilder = database.createSqlStatementBuilder();
+        SqlStatementBuilder sqlStatementBuilder = createSqlStatementBuilder();
 
         for (int lineNumber = 1; lineNumber <= lines.size(); lineNumber++) {
             String line = lines.get(lineNumber - 1);
@@ -237,10 +237,10 @@ public class SqlScript {
             }
 
             if (sqlStatementBuilder.canDiscard()) {
-                sqlStatementBuilder = database.createSqlStatementBuilder();
+                sqlStatementBuilder = createSqlStatementBuilder();
             } else if (sqlStatementBuilder.isTerminated()) {
                 addStatement(statements, sqlStatementBuilder);
-                sqlStatementBuilder = database.createSqlStatementBuilder();
+                sqlStatementBuilder = createSqlStatementBuilder();
             }
         }
 
@@ -250,6 +250,10 @@ public class SqlScript {
         }
 
         return statements;
+    }
+
+    protected SqlStatementBuilder createSqlStatementBuilder() {
+        return database.createSqlStatementBuilder();
     }
 
     private void addStatement(List<SqlStatement> statements, SqlStatementBuilder sqlStatementBuilder) {

@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.database;
 
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
+import org.flywaydb.core.internal.database.mysql.MySQLSqlStatementBuilder;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -36,7 +35,12 @@ public class SqlScriptSmallTest {
     /**
      * Class under test.
      */
-    private SqlScript sqlScript = new SqlScript("", new MySQLDatabase(new Flyway(), null));
+    private SqlScript sqlScript = new SqlScript("", null) {
+        @Override
+        protected SqlStatementBuilder createSqlStatementBuilder() {
+            return new MySQLSqlStatementBuilder(Database.DEFAULT_DELIMITER);
+        }
+    };
 
     /**
      * Input lines.

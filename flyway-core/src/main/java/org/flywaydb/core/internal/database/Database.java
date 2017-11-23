@@ -34,6 +34,7 @@ import java.util.Map;
  */
 public abstract class Database<C extends Connection> implements Closeable {
     private static final Log LOG = LogFactory.getLog(Database.class);
+    public static final Delimiter DEFAULT_DELIMITER = new Delimiter(";", false);
 
     /**
      * The Flyway configuration.
@@ -120,7 +121,7 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @return The default delimiter for this database.
      */
     public Delimiter getDefaultDelimiter() {
-        return new Delimiter(";", false);
+        return DEFAULT_DELIMITER;
     }
 
     /**

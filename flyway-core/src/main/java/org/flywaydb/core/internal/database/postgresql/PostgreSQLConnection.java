@@ -28,7 +28,7 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
         return getSchema(getFirstSchemaFromSearchPath(this.originalSchema));
     }
 
-    public static String getFirstSchemaFromSearchPath(String searchPath) {
+    static String getFirstSchemaFromSearchPath(String searchPath) {
         String result = searchPath.replace("\"$user\"", "").trim();
         if (result.startsWith(",")) {
             result = result.substring(1);

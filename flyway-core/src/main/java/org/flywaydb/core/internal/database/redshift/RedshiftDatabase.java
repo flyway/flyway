@@ -91,6 +91,10 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
 
     @Override
     public String doQuote(String identifier) {
+        return redshiftQuote(identifier);
+    }
+
+    static String redshiftQuote(String identifier) {
         return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
     }
 

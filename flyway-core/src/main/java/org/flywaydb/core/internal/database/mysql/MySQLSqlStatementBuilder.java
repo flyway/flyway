@@ -37,7 +37,7 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
 
     /*private -> testing*/ boolean isInMultiLineCommentDirective = false;
 
-    MySQLSqlStatementBuilder(Delimiter defaultDelimiter) {
+    public MySQLSqlStatementBuilder(Delimiter defaultDelimiter) {
         super(defaultDelimiter);
     }
 

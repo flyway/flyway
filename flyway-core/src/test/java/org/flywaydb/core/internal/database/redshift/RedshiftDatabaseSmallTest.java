@@ -15,17 +15,14 @@
  */
 package org.flywaydb.core.internal.database.redshift;
 
-import org.flywaydb.core.Flyway;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class RedshiftDatabaseSmallTest {
-    private final RedshiftDatabase database = new RedshiftDatabase(new Flyway(), null);
-
     @Test
     public void doQuote() {
-        assertEquals("\"abc\"", database.doQuote("abc"));
-        assertEquals("\"a\"\"b\"\"c\"", database.doQuote("a\"b\"c"));
+        assertEquals("\"abc\"", RedshiftDatabase.redshiftQuote("abc"));
+        assertEquals("\"a\"\"b\"\"c\"", RedshiftDatabase.redshiftQuote("a\"b\"c"));
     }
 }
