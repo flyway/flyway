@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.junit.Rule;
@@ -83,7 +84,7 @@ public class OracleDatabaseMediumTest {
         DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, jdbcUrl, dataSourceUser, password, null);
 
         Connection connection = dataSource.getConnection();
-        OracleDatabase database = new OracleDatabase(new Flyway(), connection, null);
+        OracleDatabase database = new OracleDatabase(createConfiguration(dataSource), connection, null);
 
         if (changeSchema) {
             database.getMainConnection().doChangeCurrentSchemaTo(auxUser);
@@ -144,13 +145,19 @@ public class OracleDatabaseMediumTest {
         Connection connection = null;
         try {
             connection = dataSource.getConnection();
-            OracleDatabase database = new OracleDatabase(new Flyway(), connection, null);
+            OracleDatabase database = new OracleDatabase(createConfiguration(dataSource), connection, null);
             for (int i = 0; i < 200; i++) {
                 database.getMainConnection().getSchema(database.getMainConnection().getCurrentSchemaName()).getTable("schema_version").exists();
             }
         } finally {
             JdbcUtils.closeConnection(connection);
         }
+    }
+
+    private FlywayConfiguration createConfiguration(DataSource dataSource) {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        return flyway;
     }
 
     /**
@@ -163,7 +170,7 @@ public class OracleDatabaseMediumTest {
         Connection connection = null;
         try {
             connection = dataSource.getConnection();
-            OracleDatabase database = new OracleDatabase(new Flyway(), connection, null);
+            OracleDatabase database = new OracleDatabase(createConfiguration(dataSource), connection, null);
             for (int i = 0; i < 200; i++) {
                 database.getMainConnection().getSchema(database.getMainConnection().getCurrentSchemaName()).empty();
             }
