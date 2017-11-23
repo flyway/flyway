@@ -79,7 +79,7 @@ public abstract class ConcurrentMigrationTestCase {
      * The instance under test.
      */
     private Flyway flyway;
-    private String schemaName;
+    private String schemaName = "concurrent_test";
 
     @BeforeClass
     public static void loadProperties() throws Exception {
@@ -98,7 +98,6 @@ public abstract class ConcurrentMigrationTestCase {
         flyway = createFlyway();
 
         final Database database = DatabaseFactory.createDatabase(flyway, false);
-        schemaName = "concurrent_test";
         schemaQuoted = database.quote(schemaName);
 
         flyway.clean();
