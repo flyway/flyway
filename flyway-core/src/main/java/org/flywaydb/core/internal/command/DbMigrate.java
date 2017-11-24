@@ -40,6 +40,7 @@ import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -78,6 +79,11 @@ public class DbMigrate {
     private final FlywayConfiguration configuration;
 
     /**
+     * The callbacks to use.
+     */
+    private final List<FlywayCallback> effectiveCallbacks;
+
+    /**
      * The connection to use to perform the actual database migrations.
      */
     private final Connection connectionUserObjects;
@@ -85,20 +91,22 @@ public class DbMigrate {
     /**
      * Creates a new database migrator.
      *
-     * @param database          Database-specific functionality.
-     * @param schemaHistory     The database metadata table.
-     * @param migrationResolver The migration resolver.
-     * @param configuration     The Flyway configuration.
+     * @param database           Database-specific functionality.
+     * @param schemaHistory      The database metadata table.
+     * @param migrationResolver  The migration resolver.
+     * @param configuration      The Flyway configuration.
+     * @param effectiveCallbacks The callbacks to use.
      */
     public DbMigrate(Database database,
                      SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
-                     FlywayConfiguration configuration) {
+                     FlywayConfiguration configuration, List<FlywayCallback> effectiveCallbacks) {
         this.database = database;
         this.connectionUserObjects = database.getMigrationConnection();
         this.schemaHistory = schemaHistory;
         this.schema = schema;
         this.migrationResolver = migrationResolver;
         this.configuration = configuration;
+        this.effectiveCallbacks = effectiveCallbacks;
     }
 
     /**
@@ -109,7 +117,7 @@ public class DbMigrate {
      */
     public int migrate() throws FlywayException {
         try {
-            for (final FlywayCallback callback : configuration.getCallbacks()) {
+            for (final FlywayCallback callback : effectiveCallbacks) {
                 new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
@@ -139,7 +147,7 @@ public class DbMigrate {
 
             logSummary(count, stopWatch.getTotalTimeMillis());
 
-            for (final FlywayCallback callback : configuration.getCallbacks()) {
+            for (final FlywayCallback callback : effectiveCallbacks) {
                 new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
@@ -346,7 +354,7 @@ public class DbMigrate {
 
             connectionUserObjects.changeCurrentSchemaTo(schema);
 
-            for (final FlywayCallback callback : configuration.getCallbacks()) {
+            for (final FlywayCallback callback : effectiveCallbacks) {
                 callback.beforeEachMigrate(connectionUserObjects.getJdbcConnection(), migration);
             }
 
@@ -359,7 +367,7 @@ public class DbMigrate {
             }
             LOG.debug("Successfully completed migration of " + migrationText);
 
-            for (final FlywayCallback callback : configuration.getCallbacks()) {
+            for (final FlywayCallback callback : effectiveCallbacks) {
                 callback.afterEachMigrate(connectionUserObjects.getJdbcConnection(), migration);
             }
 

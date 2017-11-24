@@ -12,6 +12,7 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 public class DbInfo {
@@ -20,20 +21,22 @@ public class DbInfo {
     private final Connection connection;
     private final FlywayConfiguration configuration;
     private final Schema[] schemas;
+    private final List<FlywayCallback> effectiveCallbacks;
 
     public DbInfo(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                  final Database database, FlywayConfiguration configuration, Schema[] schemas) {
+                  final Database database, FlywayConfiguration configuration, Schema[] schemas, List<FlywayCallback> effectiveCallbacks) {
 
         this.migrationResolver = migrationResolver;
         this.schemaHistory = schemaHistory;
         this.connection = database.getMainConnection();
         this.configuration = configuration;
         this.schemas = schemas;
+        this.effectiveCallbacks = effectiveCallbacks;
     }
 
     public MigrationInfoService info() {
         try {
-            for (final FlywayCallback callback : configuration.getCallbacks()) {
+            for (final FlywayCallback callback : effectiveCallbacks) {
                 new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
@@ -49,7 +52,7 @@ public class DbInfo {
                             configuration.isOutOfOrder(), true, true, true);
             migrationInfoService.refresh();
 
-            for (final FlywayCallback callback : configuration.getCallbacks()) {
+            for (final FlywayCallback callback : effectiveCallbacks) {
                 new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
