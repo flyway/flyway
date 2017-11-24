@@ -57,6 +57,7 @@ public class ConfigUtils {
     public static final String CLEAN_DISABLED = "flyway.cleanDisabled";
     public static final String CLEAN_ON_VALIDATION_ERROR = "flyway.cleanOnValidationError";
     public static final String DRIVER = "flyway.driver";
+    public static final String DRYRUN_OUTPUT = "flyway.dryRunOutput";
     public static final String ENCODING = "flyway.encoding";
     public static final String ERROR_HANDLER = "flyway.errorHandler";
     public static final String GROUP = "flyway.group";

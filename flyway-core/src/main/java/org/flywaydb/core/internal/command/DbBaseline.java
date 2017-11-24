@@ -18,16 +18,17 @@ package org.flywaydb.core.internal.command;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.database.Connection;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.schemahistory.AppliedMigration;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 
-import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -44,7 +45,7 @@ public class DbBaseline {
     /**
      * The metadata table.
      */
-    private final MetaDataTable metaDataTable;
+    private final SchemaHistory schemaHistory;
 
     /**
      * The version to tag an existing schema with when executing baseline.
@@ -61,12 +62,7 @@ public class DbBaseline {
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
-    private final FlywayCallback[] callbacks;
-
-    /**
-     * The DB support for the connection.
-     */
-    private final DbSupport dbSupport;
+    private final List<FlywayCallback> callbacks;
 
     /**
      * The schema containing the metadata table.
@@ -76,17 +72,16 @@ public class DbBaseline {
     /**
      * Creates a new DbBaseline.
      *
-     * @param connection          The database connection to use for accessing the metadata table.
-     * @param dbSupport           The DB support for the connection.
-     * @param metaDataTable       The database metadata table.
+     * @param database           The database to use.
+     * @param schemaHistory       The database metadata table.
      * @param schema              The database schema to use by default.
      * @param baselineVersion     The version to tag an existing schema with when executing baseline.
      * @param baselineDescription The description to tag an existing schema with when executing baseline.
      */
-    public DbBaseline(Connection connection, DbSupport dbSupport, MetaDataTable metaDataTable, Schema schema, MigrationVersion baselineVersion, String baselineDescription, FlywayCallback[] callbacks) {
-        this.connection = connection;
-        this.dbSupport = dbSupport;
-        this.metaDataTable = metaDataTable;
+    public DbBaseline(Database database, SchemaHistory schemaHistory, Schema schema, MigrationVersion baselineVersion,
+                      String baselineDescription, List<FlywayCallback> callbacks) {
+        this.connection = database.getMainConnection();
+        this.schemaHistory = schemaHistory;
         this.schema = schema;
         this.baselineVersion = baselineVersion;
         this.baselineDescription = baselineDescription;
@@ -99,40 +94,40 @@ public class DbBaseline {
     public void baseline() {
         try {
             for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new Callable<Object>() {
+                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        dbSupport.changeCurrentSchemaTo(schema);
-                        callback.beforeBaseline(connection);
+                        connection.changeCurrentSchemaTo(schema);
+                        callback.beforeBaseline(connection.getJdbcConnection());
                         return null;
                     }
                 });
             }
 
-            new TransactionTemplate(connection).execute(new Callable<Object>() {
+            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                 @Override
                 public Void call() {
-                    dbSupport.changeCurrentSchemaTo(schema);
-                    if (metaDataTable.hasBaselineMarker()) {
-                        AppliedMigration baselineMarker = metaDataTable.getBaselineMarker();
+                    connection.changeCurrentSchemaTo(schema);
+                    if (schemaHistory.hasBaselineMarker()) {
+                        AppliedMigration baselineMarker = schemaHistory.getBaselineMarker();
                         if (baselineVersion.equals(baselineMarker.getVersion())
                                 && baselineDescription.equals(baselineMarker.getDescription())) {
-                            LOG.info("Metadata table " + metaDataTable + " already initialized with ("
+                            LOG.info("Metadata table " + schemaHistory + " already initialized with ("
                                     + baselineVersion + "," + baselineDescription + "). Skipping.");
                             return null;
                         }
-                        throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with ("
+                        throw new FlywayException("Unable to baseline metadata table " + schemaHistory + " with ("
                                 + baselineVersion + "," + baselineDescription
                                 + ") as it has already been initialized with ("
                                 + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")");
                     }
-                    if (metaDataTable.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
-                        throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");
+                    if (schemaHistory.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
+                        throw new FlywayException("Unable to baseline metadata table " + schemaHistory + " with version 0 as this version was used for schema creation");
                     }
-                    if (metaDataTable.hasAppliedMigrations()) {
-                        throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " as it already contains migrations");
+                    if (schemaHistory.hasAppliedMigrations()) {
+                        throw new FlywayException("Unable to baseline metadata table " + schemaHistory + " as it already contains migrations");
                     }
-                    metaDataTable.addBaselineMarker(baselineVersion, baselineDescription);
+                    schemaHistory.addBaselineMarker(baselineVersion, baselineDescription);
 
                     return null;
                 }
@@ -141,17 +136,17 @@ public class DbBaseline {
             LOG.info("Successfully baselined schema with version: " + baselineVersion);
 
             for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new Callable<Object>() {
+                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        dbSupport.changeCurrentSchemaTo(schema);
-                        callback.afterBaseline(connection);
+                        connection.changeCurrentSchemaTo(schema);
+                        callback.afterBaseline(connection.getJdbcConnection());
                         return null;
                     }
                 });
             }
         } finally {
-            dbSupport.restoreCurrentSchema();
+            connection.restoreCurrentSchema();
         }
     }
 }

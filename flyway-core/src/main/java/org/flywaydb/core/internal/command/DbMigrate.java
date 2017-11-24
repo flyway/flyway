@@ -26,22 +26,21 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
-import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
-import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.database.Connection;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.FlywaySqlScriptException;
+import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -57,12 +56,12 @@ public class DbMigrate {
     /**
      * Database-specific functionality.
      */
-    private final DbSupport dbSupport;
+    private final Database database;
 
     /**
      * The database metadata table.
      */
-    private final MetaDataTable metaDataTable;
+    private final SchemaHistory schemaHistory;
 
     /**
      * The schema containing the metadata table.
@@ -80,35 +79,34 @@ public class DbMigrate {
     private final FlywayConfiguration configuration;
 
     /**
+     * The callbacks to use.
+     */
+    private final List<FlywayCallback> effectiveCallbacks;
+
+    /**
      * The connection to use to perform the actual database migrations.
      */
     private final Connection connectionUserObjects;
 
     /**
-     * The DB support for the user objects connection.
-     */
-    private final DbSupport dbSupportUserObjects;
-
-    /**
      * Creates a new database migrator.
      *
-     * @param connectionUserObjects The connection to use to perform the actual database migrations.
-     * @param dbSupport             Database-specific functionality.
-     * @param metaDataTable         The database metadata table.
-     * @param migrationResolver     The migration resolver.
-     * @param configuration         The Flyway configuration.
+     * @param database           Database-specific functionality.
+     * @param schemaHistory      The database metadata table.
+     * @param migrationResolver  The migration resolver.
+     * @param configuration      The Flyway configuration.
+     * @param effectiveCallbacks The callbacks to use.
      */
-    public DbMigrate(Connection connectionUserObjects, DbSupport dbSupport,
-                     MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
-                     FlywayConfiguration configuration) {
-        this.connectionUserObjects = connectionUserObjects;
-        this.dbSupport = dbSupport;
-        this.metaDataTable = metaDataTable;
+    public DbMigrate(Database database,
+                     SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
+                     FlywayConfiguration configuration, List<FlywayCallback> effectiveCallbacks) {
+        this.database = database;
+        this.connectionUserObjects = database.getMigrationConnection();
+        this.schemaHistory = schemaHistory;
         this.schema = schema;
         this.migrationResolver = migrationResolver;
         this.configuration = configuration;
-
-        dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false);
+        this.effectiveCallbacks = effectiveCallbacks;
     }
 
     /**
@@ -119,12 +117,12 @@ public class DbMigrate {
      */
     public int migrate() throws FlywayException {
         try {
-            for (final FlywayCallback callback : configuration.getCallbacks()) {
-                new TransactionTemplate(connectionUserObjects).execute(new Callable<Object>() {
+            for (final FlywayCallback callback : effectiveCallbacks) {
+                new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        dbSupportUserObjects.changeCurrentSchemaTo(schema);
-                        callback.beforeMigrate(connectionUserObjects);
+                        connectionUserObjects.changeCurrentSchemaTo(schema);
+                        callback.beforeMigrate(connectionUserObjects.getJdbcConnection());
                         return null;
                     }
                 });
@@ -136,7 +134,7 @@ public class DbMigrate {
             int count = configuration.isGroup() ?
                     // When group is active, start the transaction boundary early to
                     // ensure that all changes to the metadata table are either committed or rolled back atomically.
-                    metaDataTable.lock(new Callable<Integer>() {
+                    schemaHistory.lock(new Callable<Integer>() {
                         @Override
                         public Integer call() {
                             return migrateAll();
@@ -149,12 +147,12 @@ public class DbMigrate {
 
             logSummary(count, stopWatch.getTotalTimeMillis());
 
-            for (final FlywayCallback callback : configuration.getCallbacks()) {
-                new TransactionTemplate(connectionUserObjects).execute(new Callable<Object>() {
+            for (final FlywayCallback callback : effectiveCallbacks) {
+                new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        dbSupportUserObjects.changeCurrentSchemaTo(schema);
-                        callback.afterMigrate(connectionUserObjects);
+                        connectionUserObjects.changeCurrentSchemaTo(schema);
+                        callback.afterMigrate(connectionUserObjects.getJdbcConnection());
                         return null;
                     }
                 });
@@ -162,7 +160,7 @@ public class DbMigrate {
 
             return count;
         } finally {
-            dbSupportUserObjects.restoreCurrentSchema();
+            connectionUserObjects.restoreCurrentSchema();
         }
     }
 
@@ -174,7 +172,7 @@ public class DbMigrate {
                     // With group active a lock on the metadata table has already been acquired.
                     ? migrateGroup(firstRun)
                     // Otherwise acquire the lock now. The lock will be released at the end of each migration.
-                    : metaDataTable.lock(new Callable<Integer>() {
+                    : schemaHistory.lock(new Callable<Integer>() {
                 @Override
                 public Integer call() {
                     return migrateGroup(firstRun);
@@ -197,7 +195,7 @@ public class DbMigrate {
      */
     private Integer migrateGroup(boolean firstRun) {
         MigrationInfoServiceImpl infoService =
-                new MigrationInfoServiceImpl(migrationResolver, metaDataTable, configuration.getTarget(), configuration.isOutOfOrder(), true, true, true);
+                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration.getTarget(), configuration.isOutOfOrder(), true, true, true);
         infoService.refresh();
 
         MigrationVersion currentSchemaVersion = MigrationVersion.EMPTY;
@@ -292,7 +290,7 @@ public class DbMigrate {
         final StopWatch stopWatch = new StopWatch();
         try {
             if (executeGroupInTransaction) {
-                new TransactionTemplate(connectionUserObjects).execute(new Callable<Object>() {
+                new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
                         doMigrateGroup(group, stopWatch);
@@ -305,16 +303,15 @@ public class DbMigrate {
         } catch (FlywayMigrateSqlException e) {
             MigrationInfoImpl migration = e.getMigration();
             String failedMsg = "Migration of " + toMigrationText(migration, e.isOutOfOrder()) + " failed!";
-            if (dbSupport.supportsDdlTransactions() && executeGroupInTransaction) {
+            if (database.supportsDdlTransactions() && executeGroupInTransaction) {
                 LOG.error(failedMsg + " Changes successfully rolled back.");
             } else {
                 LOG.error(failedMsg + " Please restore backups and roll back database and code!");
 
                 stopWatch.stop();
                 int executionTime = (int) stopWatch.getTotalTimeMillis();
-                AppliedMigration appliedMigration = new AppliedMigration(migration.getVersion(), migration.getDescription(),
+                schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(),
                         migration.getType(), migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, false);
-                metaDataTable.addAppliedMigration(appliedMigration);
             }
             throw e;
         }
@@ -355,14 +352,14 @@ public class DbMigrate {
 
             LOG.info("Migrating " + migrationText);
 
-            dbSupportUserObjects.changeCurrentSchemaTo(schema);
+            connectionUserObjects.changeCurrentSchemaTo(schema);
 
-            for (final FlywayCallback callback : configuration.getCallbacks()) {
-                callback.beforeEachMigrate(connectionUserObjects, migration);
+            for (final FlywayCallback callback : effectiveCallbacks) {
+                callback.beforeEachMigrate(connectionUserObjects.getJdbcConnection(), migration);
             }
 
             try {
-                migration.getResolvedMigration().getExecutor().execute(connectionUserObjects);
+                migration.getResolvedMigration().getExecutor().execute(connectionUserObjects.getJdbcConnection());
             } catch (FlywaySqlScriptException e) {
                 throw new FlywayMigrateSqlException(migration, isOutOfOrder, e);
             } catch (SQLException e) {
@@ -370,16 +367,15 @@ public class DbMigrate {
             }
             LOG.debug("Successfully completed migration of " + migrationText);
 
-            for (final FlywayCallback callback : configuration.getCallbacks()) {
-                callback.afterEachMigrate(connectionUserObjects, migration);
+            for (final FlywayCallback callback : effectiveCallbacks) {
+                callback.afterEachMigrate(connectionUserObjects.getJdbcConnection(), migration);
             }
 
             stopWatch.stop();
             int executionTime = (int) stopWatch.getTotalTimeMillis();
 
-            AppliedMigration appliedMigration = new AppliedMigration(migration.getVersion(), migration.getDescription(),
-                    migration.getType(), migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
-            metaDataTable.addAppliedMigration(appliedMigration);
+            schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(), migration.getType(),
+                    migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
         }
     }
 
