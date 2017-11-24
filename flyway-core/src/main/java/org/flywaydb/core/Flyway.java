@@ -1619,7 +1619,7 @@ public class Flyway implements FlywayConfiguration {
          * @param schemaHistory      The metadata table.
          * @param database           The database-specific support for these connections.
          * @param schemas            The schemas managed by Flyway.   @return The result of the operation.
-         * @param effectiveCallbacks
+         * @param effectiveCallbacks The callbacks to use.
          */
         T execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
                   Database database, Schema[] schemas
