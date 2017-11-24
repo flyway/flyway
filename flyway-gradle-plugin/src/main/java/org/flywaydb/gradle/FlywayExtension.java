@@ -250,9 +250,19 @@ public class FlywayExtension {
      * The fully qualified class name of the ErrorHandler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
      * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
      * <p>{@code null} if the default internal handler should be used instead. (default: {@code null})</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.errorHandler}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */
     public String errorHandler;
+
+    /**
+     * The file where to output the SQL statements of a migration dry run. If the file specified is in a non-existent
+     * directory, Flyway will create all directories and parent directories as needed.
+     * <p>{@code null} to execute the SQL statements directly against the database. (default: {@code null})</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.dryRunOutput}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    public String dryRunOutput;
 
     /**
      * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).

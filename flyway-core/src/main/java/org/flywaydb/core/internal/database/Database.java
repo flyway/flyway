@@ -60,6 +60,9 @@ public abstract class Database<C extends Connection> implements Closeable {
     private final org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor;
     // [/pro]
 
+    /**
+     * The type to assign to a null value.
+     */
     private final int nullType;
 
     /**

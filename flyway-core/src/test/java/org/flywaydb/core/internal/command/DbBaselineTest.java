@@ -29,7 +29,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.sql.Connection;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -42,7 +45,7 @@ public class DbBaselineTest {
     private Database database;
     private Schema schema;
     private FlywayCallback testCallback;
-    private FlywayCallback[] callbacks;
+    private List<FlywayCallback> callbacks;
     private SchemaHistory schemaHistory;
     private DbBaseline testBaseline;
 
@@ -55,9 +58,8 @@ public class DbBaselineTest {
         this.database = mock(Database.class);
         this.schema = mock(Schema.class);
         testCallback = mock(FlywayCallback.class);
-        callbacks = new FlywayCallback[]{this.testCallback};
+        callbacks = Collections.singletonList(this.testCallback);
         this.schemaHistory = mock(SchemaHistory.class);
-
         this.testBaseline = createTestBaselinie(TEST_BASELINE_VERSION);
     }
 

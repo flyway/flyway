@@ -25,19 +25,16 @@ public class DryRunStatementInterceptor implements Closeable {
     private Table table;
     private String delimiterStr;
 
-    public static DryRunStatementInterceptor of(OutputStream dryRunOutput, String encoding) {
+    public DryRunStatementInterceptor(OutputStream dryRunOutput, String encoding) {
         try {
-            return new DryRunStatementInterceptor(
-                    new BufferedWriter(new OutputStreamWriter(dryRunOutput, encoding)));
+            this.dryRunOutput = new BufferedWriter(new OutputStreamWriter(dryRunOutput, encoding));
         } catch (IOException e) {
             throw new FlywayException("Unable to write dry run output: " + e.getMessage(), e);
         }
-    }
-
-    DryRunStatementInterceptor(Writer writer) {
-        this.dryRunOutput = writer;
+        append("---====================================");
         append("-- Flyway Dry Run (" + DateUtils.formatDateAsIsoString(new Date()) + ")");
-        append("--------------------------------------- ");
+        append("---====================================");
+        append("");
     }
 
     public void init(Database database, Table table) {
@@ -66,15 +63,15 @@ public class DryRunStatementInterceptor implements Closeable {
         append(insertStatement);
     }
 
-    public void interceptStatement(String sql) {
+    void interceptStatement(String sql) {
         append(sql + delimiterStr);
     }
 
-    public void interceptPreparedStatement(String sql) {
+    void interceptPreparedStatement(String sql) {
         append(sql + delimiterStr);
     }
 
-    public void interceptCallableStatement(String sql) {
+    void interceptCallableStatement(String sql) {
         append(sql + delimiterStr);
     }
 
@@ -93,5 +90,11 @@ public class DryRunStatementInterceptor implements Closeable {
         } catch (IOException e) {
             LOG.warn("Unable to close dry run output: " + e.getMessage());
         }
+    }
+
+    void interceptCommand(String command) {
+        append("");
+        append("-- Executing: " + command + " (with callbacks)");
+        append("------------------------------------------------------------------------------------------");
     }
 }

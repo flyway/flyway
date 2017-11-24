@@ -28,6 +28,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -56,7 +57,7 @@ public class DbClean {
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
-    private final FlywayCallback[] callbacks;
+    private final List<FlywayCallback> callbacks;
 
     /**
      * Whether to disable clean.
@@ -74,7 +75,7 @@ public class DbClean {
      * @param cleanDisabled Whether to disable clean.
      */
     public DbClean(Database database, SchemaHistory schemaHistory, Schema[] schemas,
-                   FlywayCallback[] callbacks, boolean cleanDisabled) {
+                   List<FlywayCallback> callbacks, boolean cleanDisabled) {
         this.connection = database.getMainConnection();
         this.schemaHistory = schemaHistory;
         this.schemas = schemas;

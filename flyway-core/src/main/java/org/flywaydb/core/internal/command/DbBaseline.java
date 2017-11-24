@@ -28,6 +28,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -61,7 +62,7 @@ public class DbBaseline {
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
-    private final FlywayCallback[] callbacks;
+    private final List<FlywayCallback> callbacks;
 
     /**
      * The schema containing the metadata table.
@@ -77,7 +78,8 @@ public class DbBaseline {
      * @param baselineVersion     The version to tag an existing schema with when executing baseline.
      * @param baselineDescription The description to tag an existing schema with when executing baseline.
      */
-    public DbBaseline(Database database, SchemaHistory schemaHistory, Schema schema, MigrationVersion baselineVersion, String baselineDescription, FlywayCallback[] callbacks) {
+    public DbBaseline(Database database, SchemaHistory schemaHistory, Schema schema, MigrationVersion baselineVersion,
+                      String baselineDescription, List<FlywayCallback> callbacks) {
         this.connection = database.getMainConnection();
         this.schemaHistory = schemaHistory;
         this.schema = schema;

@@ -35,6 +35,7 @@ import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -68,7 +69,7 @@ public class DbRepair {
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
-    private final FlywayCallback[] callbacks;
+    private final List<FlywayCallback> callbacks;
 
     /**
      * The database-specific support.
@@ -84,7 +85,8 @@ public class DbRepair {
      * @param schemaHistory     The metadata table.
      * @param callbacks         Callbacks for the Flyway lifecycle.
      */
-    public DbRepair(Database database, Schema schema, MigrationResolver migrationResolver, SchemaHistory schemaHistory, FlywayCallback[] callbacks) {
+    public DbRepair(Database database, Schema schema, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
+                    List<FlywayCallback> callbacks) {
         this.database = database;
         this.connection = database.getMainConnection();
         this.schema = schema;

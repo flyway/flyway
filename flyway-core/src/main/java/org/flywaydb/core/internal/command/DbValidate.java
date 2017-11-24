@@ -31,6 +31,7 @@ import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -94,7 +95,7 @@ public class DbValidate {
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
-    private final FlywayCallback[] callbacks;
+    private final List<FlywayCallback> callbacks;
 
     /**
      * Creates a new database validator.
@@ -111,7 +112,8 @@ public class DbValidate {
      * @param callbacks         The lifecycle callbacks.
      */
     public DbValidate(Database database, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
-                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean future, FlywayCallback[] callbacks) {
+                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean future,
+                      List<FlywayCallback> callbacks) {
         this.connection = database.getMainConnection();
         this.schemaHistory = schemaHistory;
         this.schema = schema;

@@ -46,6 +46,7 @@ import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.VersionPrinter;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.jdbc.pro.DryRunCallback;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import javax.sql.DataSource;
@@ -58,11 +59,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
@@ -250,7 +249,7 @@ public class Flyway implements FlywayConfiguration {
      * This is a list of custom callbacks that fire before and after tasks are executed.  You can
      * add as many custom callbacks as you want. (default: none)
      */
-    private FlywayCallback[] callbacks = new FlywayCallback[0];
+    private final List<FlywayCallback> callbacks = new ArrayList<FlywayCallback>();
 
     /**
      * Whether Flyway should skip the default callbacks. If true, only custom callbacks are used.
@@ -571,7 +570,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Sets the file where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
-     * directly against the database. If the file specified is in a non-existent directly, Flyway will create all
+     * directly against the database. If the file specified is in a non-existent directory, Flyway will create all
      * directories and parent directories as needed.
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
@@ -617,7 +616,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Sets the file where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
-     * directly against the database. If the file specified is in a non-existent directly, Flyway will create all
+     * directly against the database. If the file specified is in a non-existent directory, Flyway will create all
      * directories and parent directories as needed.
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
@@ -1029,7 +1028,7 @@ public class Flyway implements FlywayConfiguration {
      */
     @Override
     public FlywayCallback[] getCallbacks() {
-        return callbacks;
+        return callbacks.toArray(new FlywayCallback[callbacks.size()]);
     }
 
     @Override
@@ -1043,7 +1042,8 @@ public class Flyway implements FlywayConfiguration {
      * @param callbacks The callbacks for lifecycle notifications. (default: none)
      */
     public void setCallbacks(FlywayCallback... callbacks) {
-        this.callbacks = callbacks;
+        this.callbacks.clear();
+        this.callbacks.addAll(Arrays.asList(callbacks));
     }
 
     /**
@@ -1110,7 +1110,7 @@ public class Flyway implements FlywayConfiguration {
                                    // [/pro]
             ) {
                 if (validateOnMigrate) {
-                    doValidate(database, migrationResolver, schemaHistory, schemas, callbacks, true);
+                    doValidate(database, migrationResolver, schemaHistory, schemas, true);
                 }
 
                 new DbSchemas(database, schemas, schemaHistory).create();
@@ -1165,7 +1165,7 @@ public class Flyway implements FlywayConfiguration {
                     , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
                                 // [/pro]
             ) {
-                doValidate(database, migrationResolver, schemaHistory, schemas, callbacks, false);
+                doValidate(database, migrationResolver, schemaHistory, schemas, false);
                 return null;
             }
         });
@@ -1181,14 +1181,14 @@ public class Flyway implements FlywayConfiguration {
      * @param pending           Whether pending migrations are ok.
      */
     private void doValidate(Database database, MigrationResolver migrationResolver,
-                            SchemaHistory schemaHistory, Schema[] schemas, FlywayCallback[] flywayCallbacks, boolean pending) {
+                            SchemaHistory schemaHistory, Schema[] schemas, boolean pending) {
         String validationError =
                 new DbValidate(database, schemaHistory, schemas[0], migrationResolver,
-                        target, outOfOrder, pending, ignoreMissingMigrations, ignoreFutureMigrations, flywayCallbacks).validate();
+                        target, outOfOrder, pending, ignoreMissingMigrations, ignoreFutureMigrations, callbacks).validate();
 
         if (validationError != null) {
             if (cleanOnValidationError) {
-                new DbClean(database, schemaHistory, schemas, flywayCallbacks, cleanDisabled).clean();
+                new DbClean(database, schemaHistory, schemas, callbacks, cleanDisabled).clean();
             } else {
                 throw new FlywayException("Validate failed: " + validationError);
             }
@@ -1527,7 +1527,7 @@ public class Flyway implements FlywayConfiguration {
         // [pro]
         org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor =
                 dryRunOutput == null ? null :
-                        org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor.of(dryRunOutput, encoding);
+                        new org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor(dryRunOutput, encoding);
         // [/pro]
         Database database = null;
         try {
@@ -1562,11 +1562,15 @@ public class Flyway implements FlywayConfiguration {
             Scanner scanner = new Scanner(classLoader);
             MigrationResolver migrationResolver = createMigrationResolver(database, scanner);
 
+            // [pro]
+            if (dryRunStatementInterceptor != null) {
+                callbacks.add(0, new DryRunCallback(dryRunStatementInterceptor));
+            }
+            // [/pro]
+
             if (!skipDefaultCallbacks) {
-                Set<FlywayCallback> flywayCallbacks = new LinkedHashSet<FlywayCallback>(Arrays.asList(callbacks));
-                flywayCallbacks.add(
-                        new SqlScriptFlywayCallback(database, scanner, locations, createPlaceholderReplacer(), this));
-                callbacks = flywayCallbacks.toArray(new FlywayCallback[flywayCallbacks.size()]);
+                callbacks.add(new SqlScriptFlywayCallback(database, scanner, locations, createPlaceholderReplacer(),
+                        this));
             }
 
             for (FlywayCallback callback : callbacks) {
