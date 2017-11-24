@@ -21,9 +21,9 @@ import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.SqlScript;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
@@ -69,13 +69,13 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
     /**
      * Creates a new instance.
      *
-     * @param dbSupport           The database-specific support.
+     * @param database           The database-specific support.
      * @param scanner             The Scanner for loading migrations on the classpath.
      * @param locations           The locations where migrations are located.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param configuration       The Flyway configuration.
      */
-    public SqlScriptFlywayCallback(DbSupport dbSupport, Scanner scanner, Locations locations,
+    public SqlScriptFlywayCallback(Database database, Scanner scanner, Locations locations,
                                    PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
         for (String callback : ALL_CALLBACKS) {
             scripts.put(callback, null);
@@ -100,7 +100,7 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
                                 "-> " + existing.getResource().getLocationOnDisk() + "\n" +
                                 "-> " + resource.getLocationOnDisk());
                     }
-                    scripts.put(key, new SqlScript(dbSupport, resource, placeholderReplacer, configuration.getEncoding(),
+                    scripts.put(key, new SqlScript(database, resource, placeholderReplacer, configuration.getEncoding(),
                             configuration.isMixed()
 
 

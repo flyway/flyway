@@ -376,6 +376,16 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String errorHandler;
 
     /**
+     * The file where to output the SQL statements of a migration dry run. If the file specified is in a non-existent
+     * directory, Flyway will create all directories and parent directories as needed.
+     * <p>{@code null} to execute the SQL statements directly against the database. (default: {@code null})</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.dryRunOutput}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    @Parameter(property = ConfigUtils.DRYRUN_OUTPUT)
+    private String dryRunOutput;
+
+    /**
      * Properties file from which to load the Flyway configuration. The names of the individual properties match the ones you would
      * use as Maven or System properties. The encoding of the file must be the same as the encoding defined with the
      * {@code flyway.encoding) property, which is UTF-8 by default. Relative paths are relative to the POM. (default: flyway.properties)
@@ -540,6 +550,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.DRIVER, driver);
 
             putIfSet(conf, ConfigUtils.ERROR_HANDLER, errorHandler);
+            putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput);
 
             if (placeholders != null) {
                 for (String placeholder : placeholders.keySet()) {

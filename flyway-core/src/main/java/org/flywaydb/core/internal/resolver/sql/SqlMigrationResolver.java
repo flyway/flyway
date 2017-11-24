@@ -22,7 +22,7 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
@@ -50,7 +50,7 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Database-specific support.
      */
-    private final DbSupport dbSupport;
+    private final Database database;
 
     /**
      * The scanner to use.
@@ -75,15 +75,15 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Creates a new instance.
      *
-     * @param dbSupport                    The database-specific support.
+     * @param database                    The database-specific support.
      * @param scanner                      The Scanner for loading migrations on the classpath.
      * @param locations                    The locations on the classpath where to migrations are located.
      * @param placeholderReplacer          The placeholder replacer to apply to sql migration scripts.
      * @param configuration                The Flyway configuration.
      */
-    public SqlMigrationResolver(DbSupport dbSupport, Scanner scanner, Locations locations,
+    public SqlMigrationResolver(Database database, Scanner scanner, Locations locations,
                                 PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
-        this.dbSupport = dbSupport;
+        this.database = database;
         this.scanner = scanner;
         this.locations = locations;
         this.placeholderReplacer = placeholderReplacer;
@@ -118,7 +118,7 @@ public class SqlMigrationResolver implements MigrationResolver {
             migration.setChecksum(calculateChecksum(resource, resource.loadAsString(configuration.getEncoding())));
             migration.setType(MigrationType.SQL);
             migration.setPhysicalLocation(resource.getLocationOnDisk());
-            migration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, configuration));
+            migration.setExecutor(new SqlMigrationExecutor(database, resource, placeholderReplacer, configuration));
             migrations.add(migration);
         }
     }
