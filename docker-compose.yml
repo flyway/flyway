@@ -155,6 +155,7 @@ services:
      - "62041:1521"
     volumes:
      - ./flyway-core/src/test/resources/migration/database/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+     - ./flyway-core/src/test/resources/migration/database/oracle/tuneDatabase.sh:/docker-entrypoint-initdb.d/tuneDatabase.sh
   oracle-12:
     image: "sath89/oracle-12c"
     ports:
