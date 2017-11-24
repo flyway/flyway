@@ -19,214 +19,223 @@ services:
   cockroachdb-11:
     image: "cockroachdb/cockroach:v1.1.2"
     ports:
-     - "62000:26257"
+      - "62000:26257"
     tmpfs:
-     - /cockroach/cockroach-data:rw
+      - /cockroach/cockroach-data:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/cockroachdb/entrypoint.sh:/entrypoint.sh
-     - ./flyway-core/src/test/resources/migration/database/cockroachdb/createDatabase.sql:/createDatabase.sql
+      - ./flyway-core/src/test/resources/migration/database/cockroachdb/entrypoint.sh:/entrypoint.sh
+      - ./flyway-core/src/test/resources/migration/database/cockroachdb/createDatabase.sql:/createDatabase.sql
     entrypoint:
-     - /entrypoint.sh
+      - /entrypoint.sh
   db2-105:
     image: "ibmcom/db2express-c:10.5.0.5-3.10.0"
     ports:
-     - "62010:50000"
+      - "62010:50000"
     environment:
-     - DB2INST1_PASSWORD=flywaypwd
-     - LICENSE=accept
+      - DB2INST1_PASSWORD=flywaypwd
+      - LICENSE=accept
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/db2/entrypoint.sh:/entrypoint.sh
-     - ./flyway-core/src/test/resources/migration/database/db2/createDatabase.sql:/createDatabase.sql
+      - ./flyway-core/src/test/resources/migration/database/db2/entrypoint.sh:/entrypoint.sh
+      - ./flyway-core/src/test/resources/migration/database/db2/createDatabase.sql:/createDatabase.sql
     command: "db2start"
   mariadb-55:
     image: "mariadb:5.5.57"
     ports:
-     - "62020:3306"
+      - "62020:3306"
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+      - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
-     - MYSQL_DATABASE=flyway_db
-     - MYSQL_USER=flyway
-     - MYSQL_PASSWORD=flywayPWD000
-     - MYSQL_ROOT_PASSWORD=flywayPWD000
+      - MYSQL_DATABASE=flyway_db
+      - MYSQL_USER=flyway
+      - MYSQL_PASSWORD=flywayPWD000
+      - MYSQL_ROOT_PASSWORD=flywayPWD000
   mariadb-100:
     image: "mariadb:10.0.32"
     ports:
-     - "62021:3306"
+      - "62021:3306"
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+      - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
-     - MYSQL_DATABASE=flyway_db
-     - MYSQL_USER=flyway
-     - MYSQL_PASSWORD=flywayPWD000
-     - MYSQL_ROOT_PASSWORD=flywayPWD000
+      - MYSQL_DATABASE=flyway_db
+      - MYSQL_USER=flyway
+      - MYSQL_PASSWORD=flywayPWD000
+      - MYSQL_ROOT_PASSWORD=flywayPWD000
   mariadb-101:
     image: "mariadb:10.1.28"
     ports:
-     - "62022:3306"
+      - "62022:3306"
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+      - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
-     - MYSQL_DATABASE=flyway_db
-     - MYSQL_USER=flyway
-     - MYSQL_PASSWORD=flywayPWD000
-     - MYSQL_ROOT_PASSWORD=flywayPWD000
+      - MYSQL_DATABASE=flyway_db
+      - MYSQL_USER=flyway
+      - MYSQL_PASSWORD=flywayPWD000
+      - MYSQL_ROOT_PASSWORD=flywayPWD000
   mariadb-102:
     image: "mariadb:10.2.10"
     ports:
-     - "62023:3306"
+      - "62023:3306"
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+      - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
-     - MYSQL_DATABASE=flyway_db
-     - MYSQL_USER=flyway
-     - MYSQL_PASSWORD=flywayPWD000
-     - MYSQL_ROOT_PASSWORD=flywayPWD000
+      - MYSQL_DATABASE=flyway_db
+      - MYSQL_USER=flyway
+      - MYSQL_PASSWORD=flywayPWD000
+      - MYSQL_ROOT_PASSWORD=flywayPWD000
   mysql-55:
     image: "mysql:5.5.58"
     ports:
-     - "62030:3306"
+      - "62030:3306"
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+      - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
-     - MYSQL_DATABASE=flyway_db
-     - MYSQL_USER=flyway
-     - MYSQL_PASSWORD=flywayPWD000
-     - MYSQL_ROOT_PASSWORD=flywayPWD000
+      - MYSQL_DATABASE=flyway_db
+      - MYSQL_USER=flyway
+      - MYSQL_PASSWORD=flywayPWD000
+      - MYSQL_ROOT_PASSWORD=flywayPWD000
   mysql-56:
     image: "mysql:5.6.38"
     ports:
-     - "62031:3306"
+      - "62031:3306"
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+      - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
-     - MYSQL_DATABASE=flyway_db
-     - MYSQL_USER=flyway
-     - MYSQL_PASSWORD=flywayPWD000
-     - MYSQL_ROOT_PASSWORD=flywayPWD000
+      - MYSQL_DATABASE=flyway_db
+      - MYSQL_USER=flyway
+      - MYSQL_PASSWORD=flywayPWD000
+      - MYSQL_ROOT_PASSWORD=flywayPWD000
   mysql-57:
     image: "mysql:5.7.20"
     ports:
-     - "62032:3306"
+      - "62032:3306"
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+      - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
-     - MYSQL_DATABASE=flyway_db
-     - MYSQL_USER=flyway
-     - MYSQL_PASSWORD=flywayPWD000
-     - MYSQL_ROOT_PASSWORD=flywayPWD000
+      - MYSQL_DATABASE=flyway_db
+      - MYSQL_USER=flyway
+      - MYSQL_PASSWORD=flywayPWD000
+      - MYSQL_ROOT_PASSWORD=flywayPWD000
   mysql-80:
     image: "mysql:8.0.3"
     ports:
-     - "62033:3306"
+      - "62033:3306"
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+      - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
-     - MYSQL_DATABASE=flyway_db
-     - MYSQL_USER=flyway
-     - MYSQL_PASSWORD=flywayPWD000
-     - MYSQL_ROOT_PASSWORD=flywayPWD000
+      - MYSQL_DATABASE=flyway_db
+      - MYSQL_USER=flyway
+      - MYSQL_PASSWORD=flywayPWD000
+      - MYSQL_ROOT_PASSWORD=flywayPWD000
   oracle-10:
     image: "aledv/docker-debian-oracle-xe-10g"
     ports:
-     - "62040:1521"
+      - "62040:1521"
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
-     - ./flyway-core/src/test/resources/migration/database/oracle/tuneDatabase.sh:/docker-entrypoint-initdb.d/tuneDatabase.sh
+      - ./flyway-core/src/test/resources/migration/database/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+      - ./flyway-core/src/test/resources/migration/database/oracle/tuneDatabase.sh:/docker-entrypoint-initdb.d/tuneDatabase.sh
   oracle-11:
     image: "wnameless/oracle-xe-11g"
     ports:
-     - "62041:1521"
+      - "62041:1521"
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
-     - ./flyway-core/src/test/resources/migration/database/oracle/tuneDatabase.sh:/docker-entrypoint-initdb.d/tuneDatabase.sh
+      - ./flyway-core/src/test/resources/migration/database/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+      - ./flyway-core/src/test/resources/migration/database/oracle/tuneDatabase.sh:/docker-entrypoint-initdb.d/tuneDatabase.sh
   oracle-12:
     image: "sath89/oracle-12c"
     ports:
-     - "62042:1521"
+      - "62042:1521"
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+      - ./flyway-core/src/test/resources/migration/database/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   postgresql-92:
     image: "postgres:9.2.23-alpine"
     ports:
-     - "62050:5432"
+      - "62050:5432"
     tmpfs:
       - /var/lib/postgresql/data:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+      - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   postgresql-93:
     image: "postgres:9.3.19-alpine"
     ports:
-     - "62051:5432"
+      - "62051:5432"
     tmpfs:
       - /var/lib/postgresql/data:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+      - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   postgresql-94:
     image: "postgres:9.4.14-alpine"
     ports:
-     - "62052:5432"
+      - "62052:5432"
     tmpfs:
       - /var/lib/postgresql/data:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+      - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   postgresql-95:
     image: "postgres:9.5.9-alpine"
     ports:
-     - "62053:5432"
+      - "62053:5432"
     tmpfs:
       - /var/lib/postgresql/data:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+      - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   postgresql-96:
     image: "postgres:9.6.5-alpine"
     ports:
-     - "62054:5432"
+      - "62054:5432"
     tmpfs:
       - /var/lib/postgresql/data:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+      - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   postgresql-100:
     image: "postgres:10.0-alpine"
     ports:
-     - "62055:5432"
+      - "62055:5432"
     tmpfs:
       - /var/lib/postgresql/data:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+      - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+  saphana-2:
+    image: "store/saplabs/hanaexpress:2.00.021.00.20171030.1"
+    ports:
+      - "39013:39013"
+    sysctls:
+      - "net.ipv4.ip_local_port_range=40000 60999"
+    volumes:
+      - ./flyway-core/src/test/resources/migration/database/saphana/password.json:/password.json
+    command: /bin/bash /run_hana --dont-check-system --passwords-url file:///password.json --agree-to-sap-license
   sqlserver-2017:
     image: "microsoft/mssql-server-linux:2017-CU1"
     ports:
-     - "62070:1433"
+      - "62070:1433"
     cap_add:
-     - SYS_PTRACE
+      - SYS_PTRACE
     environment:
-     - ACCEPT_EULA=Y
-     - MSSQL_PID=Developer
-     - MSSQL_SA_PASSWORD=flywayPWD000
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Developer
+      - MSSQL_SA_PASSWORD=flywayPWD000
     volumes:
-     - ./flyway-core/src/test/resources/migration/database/sqlserver/entrypoint.sh:/entrypoint.sh
-     - ./flyway-core/src/test/resources/migration/database/sqlserver/createDatabase.sql:/createDatabase.sql
+      - ./flyway-core/src/test/resources/migration/database/sqlserver/entrypoint.sh:/entrypoint.sh
+      - ./flyway-core/src/test/resources/migration/database/sqlserver/createDatabase.sql:/createDatabase.sql
     entrypoint:
-     - /entrypoint.sh
+      - /entrypoint.sh
   sybasease-157:
     image: "datagrip/sybase:15.7"
     hostname: dksybase
     ports:
-     - "62080:5000"
+      - "62080:5000"
