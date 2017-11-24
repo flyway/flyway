@@ -3,7 +3,6 @@ package org.flywaydb.core.internal.database;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
-import org.flywaydb.core.internal.util.jdbc.pro.JdbcProxies;
 
 import java.io.Closeable;
 import java.sql.SQLException;
@@ -35,7 +34,7 @@ public abstract class Connection<D extends Database> implements Closeable {
                     throw new FlywaySqlException("Unable to switch connection to read-only", e);
                 }
             }
-            this.jdbcConnection = JdbcProxies.createConnectionProxy(configuration.getClassLoader(),
+            this.jdbcConnection = org.flywaydb.core.internal.util.jdbc.pro.JdbcProxies.createConnectionProxy(configuration.getClassLoader(),
                     connection, dryRunStatementInterceptor);
         } else {
             // [/pro]

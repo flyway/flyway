@@ -4,8 +4,6 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
-import org.flywaydb.core.internal.schemahistory.pro.InMemorySchemaHistory;
-import org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor;
 
 /**
  * Factory to obtain a reference to the schema history.
@@ -25,7 +23,7 @@ public class SchemaHistoryFactory {
      */
     public static SchemaHistory getSchemaHistory(FlywayConfiguration configuration, Database database, Schema schema
                                                  // [pro]
-            , DryRunStatementInterceptor dryRunStatementInterceptor
+            , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
                                                  // [/pro]
     ) {
         String installedBy = configuration.getInstalledBy() == null
@@ -38,7 +36,7 @@ public class SchemaHistoryFactory {
         // [pro]
         if (configuration.getDryRunOutput() != null) {
             dryRunStatementInterceptor.init(database, table);
-            return new InMemorySchemaHistory(jdbcTableSchemaHistory.exists(),
+            return new org.flywaydb.core.internal.schemahistory.pro.InMemorySchemaHistory(jdbcTableSchemaHistory.exists(),
                     jdbcTableSchemaHistory.allAppliedMigrations(), installedBy, dryRunStatementInterceptor);
         }
         // [/pro]

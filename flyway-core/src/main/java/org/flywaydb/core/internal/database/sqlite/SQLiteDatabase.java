@@ -77,23 +77,29 @@ public class SQLiteDatabase extends Database {
         return "";
     }
 
+    @Override
     public boolean supportsDdlTransactions() {
         return true;
     }
 
+    // [pro]
     @Override
     public boolean supportsReadOnlyTransactions() {
         return false;
     }
+    // [/pro]
 
+    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "0";
     }
 
+    @Override
     public SqlStatementBuilder createSqlStatementBuilder() {
         return new SQLiteSqlStatementBuilder(getDefaultDelimiter());
     }

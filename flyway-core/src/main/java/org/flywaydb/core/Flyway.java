@@ -1622,9 +1622,9 @@ public class Flyway implements FlywayConfiguration {
          * @param effectiveCallbacks The callbacks to use.
          */
         T execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                  Database database, Schema[] schemas
+                  Database database, Schema[] schemas, List<FlywayCallback> effectiveCallbacks
                   // [pro]
-                , List<FlywayCallback> effectiveCallbacks, org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
                   // [/pro]
         );
     }
