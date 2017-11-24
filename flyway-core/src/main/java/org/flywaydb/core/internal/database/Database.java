@@ -54,7 +54,13 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * The connection to use for migrations.
      */
-    private final C migrationConnection;
+    private C migrationConnection;
+
+    // [pro]
+    private final org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor;
+    // [/pro]
+
+    private final int nullType;
 
     /**
      * The major version of the database.
@@ -89,13 +95,10 @@ public abstract class Database<C extends Connection> implements Closeable {
                 , dryRunStatementInterceptor
                 // [/pro]
         );
-        this.migrationConnection = useSingleConnection()
-                ? mainConnection
-                : getConnection(JdbcUtils.openConnection(configuration.getDataSource()), nullType
-                // [pro]
-                , dryRunStatementInterceptor
-                // [/pro]
-        );
+        this.nullType = nullType;
+        // [pro]
+        this.dryRunStatementInterceptor = dryRunStatementInterceptor;
+        // [/pro]
 
         Pair<Integer, Integer> majorMinor = determineMajorAndMinorVersion();
         majorVersion = majorMinor.getLeft();
@@ -245,6 +248,15 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @return The migration connection, used to apply migrations.
      */
     public final C getMigrationConnection() {
+        if (migrationConnection == null) {
+            this.migrationConnection = useSingleConnection()
+                    ? mainConnection
+                    : getConnection(JdbcUtils.openConnection(configuration.getDataSource()), nullType
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
+        }
         return migrationConnection;
     }
 
@@ -307,9 +319,9 @@ public abstract class Database<C extends Connection> implements Closeable {
     }
 
     public void close() {
-        if (!useSingleConnection()) {
-            getMigrationConnection().close();
+        if (!useSingleConnection() && migrationConnection != null) {
+            migrationConnection.close();
         }
-        getMainConnection().close();
+        mainConnection.close();
     }
 }
