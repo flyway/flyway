@@ -1353,9 +1353,9 @@ public class Flyway implements FlywayConfiguration {
         if (locationsProp != null) {
             setLocations(StringUtils.tokenizeToStringArray(locationsProp, ","));
         }
-        String placeholderReplacementProp = props.remove(ConfigUtils.PLACEHOLDER_REPLACEMENT);
+        Boolean placeholderReplacementProp = getBooleanProp(props, ConfigUtils.PLACEHOLDER_REPLACEMENT);
         if (placeholderReplacementProp != null) {
-            setPlaceholderReplacement(Boolean.parseBoolean(placeholderReplacementProp));
+            setPlaceholderReplacement(placeholderReplacementProp);
         }
         String placeholderPrefixProp = props.remove(ConfigUtils.PLACEHOLDER_PREFIX);
         if (placeholderPrefixProp != null) {
@@ -1393,17 +1393,17 @@ public class Flyway implements FlywayConfiguration {
         if (tableProp != null) {
             setTable(tableProp);
         }
-        String cleanOnValidationErrorProp = props.remove(ConfigUtils.CLEAN_ON_VALIDATION_ERROR);
+        Boolean cleanOnValidationErrorProp = getBooleanProp(props, ConfigUtils.CLEAN_ON_VALIDATION_ERROR);
         if (cleanOnValidationErrorProp != null) {
-            setCleanOnValidationError(Boolean.parseBoolean(cleanOnValidationErrorProp));
+            setCleanOnValidationError(cleanOnValidationErrorProp);
         }
-        String cleanDisabledProp = props.remove(ConfigUtils.CLEAN_DISABLED);
+        Boolean cleanDisabledProp = getBooleanProp(props, ConfigUtils.CLEAN_DISABLED);
         if (cleanDisabledProp != null) {
-            setCleanDisabled(Boolean.parseBoolean(cleanDisabledProp));
+            setCleanDisabled(cleanDisabledProp);
         }
-        String validateOnMigrateProp = props.remove(ConfigUtils.VALIDATE_ON_MIGRATE);
+        Boolean validateOnMigrateProp = getBooleanProp(props, ConfigUtils.VALIDATE_ON_MIGRATE);
         if (validateOnMigrateProp != null) {
-            setValidateOnMigrate(Boolean.parseBoolean(validateOnMigrateProp));
+            setValidateOnMigrate(validateOnMigrateProp);
         }
         String baselineVersionProp = props.remove(ConfigUtils.BASELINE_VERSION);
         if (baselineVersionProp != null) {
@@ -1413,41 +1413,41 @@ public class Flyway implements FlywayConfiguration {
         if (baselineDescriptionProp != null) {
             setBaselineDescription(baselineDescriptionProp);
         }
-        String baselineOnMigrateProp = props.remove(ConfigUtils.BASELINE_ON_MIGRATE);
+        Boolean baselineOnMigrateProp = getBooleanProp(props, ConfigUtils.BASELINE_ON_MIGRATE);
         if (baselineOnMigrateProp != null) {
-            setBaselineOnMigrate(Boolean.parseBoolean(baselineOnMigrateProp));
+            setBaselineOnMigrate(baselineOnMigrateProp);
         }
-        String ignoreMissingMigrationsProp = props.remove(ConfigUtils.IGNORE_MISSING_MIGRATIONS);
+        Boolean ignoreMissingMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_MISSING_MIGRATIONS);
         if (ignoreMissingMigrationsProp != null) {
-            setIgnoreMissingMigrations(Boolean.parseBoolean(ignoreMissingMigrationsProp));
+            setIgnoreMissingMigrations(ignoreMissingMigrationsProp);
         }
-        String ignoreFutureMigrationsProp = props.remove(ConfigUtils.IGNORE_FUTURE_MIGRATIONS);
+        Boolean ignoreFutureMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_FUTURE_MIGRATIONS);
         if (ignoreFutureMigrationsProp != null) {
-            setIgnoreFutureMigrations(Boolean.parseBoolean(ignoreFutureMigrationsProp));
+            setIgnoreFutureMigrations(ignoreFutureMigrationsProp);
         }
         String targetProp = props.remove(ConfigUtils.TARGET);
         if (targetProp != null) {
             setTarget(MigrationVersion.fromVersion(targetProp));
         }
-        String outOfOrderProp = props.remove(ConfigUtils.OUT_OF_ORDER);
+        Boolean outOfOrderProp = getBooleanProp(props, ConfigUtils.OUT_OF_ORDER);
         if (outOfOrderProp != null) {
-            setOutOfOrder(Boolean.parseBoolean(outOfOrderProp));
+            setOutOfOrder(outOfOrderProp);
         }
         String resolversProp = props.remove(ConfigUtils.RESOLVERS);
         if (StringUtils.hasLength(resolversProp)) {
             setResolversAsClassNames(StringUtils.tokenizeToStringArray(resolversProp, ","));
         }
-        String skipDefaultResolversProp = props.remove(ConfigUtils.SKIP_DEFAULT_RESOLVERS);
+        Boolean skipDefaultResolversProp = getBooleanProp(props, ConfigUtils.SKIP_DEFAULT_RESOLVERS);
         if (skipDefaultResolversProp != null) {
-            setSkipDefaultResolvers(Boolean.parseBoolean(skipDefaultResolversProp));
+            setSkipDefaultResolvers(skipDefaultResolversProp);
         }
         String callbacksProp = props.remove(ConfigUtils.CALLBACKS);
         if (StringUtils.hasLength(callbacksProp)) {
             setCallbacksAsClassNames(StringUtils.tokenizeToStringArray(callbacksProp, ","));
         }
-        String skipDefaultCallbacksProp = props.remove(ConfigUtils.SKIP_DEFAULT_CALLBACKS);
+        Boolean skipDefaultCallbacksProp = getBooleanProp(props, ConfigUtils.SKIP_DEFAULT_CALLBACKS);
         if (skipDefaultCallbacksProp != null) {
-            setSkipDefaultCallbacks(Boolean.parseBoolean(skipDefaultCallbacksProp));
+            setSkipDefaultCallbacks(skipDefaultCallbacksProp);
         }
 
         Map<String, String> placeholdersFromProps = new HashMap<>(placeholders);
@@ -1466,14 +1466,14 @@ public class Flyway implements FlywayConfiguration {
         }
         setPlaceholders(placeholdersFromProps);
 
-        String mixedProp = props.remove(ConfigUtils.MIXED);
+        Boolean mixedProp = getBooleanProp(props, ConfigUtils.MIXED);
         if (mixedProp != null) {
-            setMixed(Boolean.parseBoolean(mixedProp));
+            setMixed(mixedProp);
         }
 
-        String groupProp = props.remove(ConfigUtils.GROUP);
+        Boolean groupProp = getBooleanProp(props, ConfigUtils.GROUP);
         if (groupProp != null) {
-            setGroup(Boolean.parseBoolean(groupProp));
+            setGroup(groupProp);
         }
 
         String installedByProp = props.remove(ConfigUtils.INSTALLED_BY);
@@ -1496,6 +1496,14 @@ public class Flyway implements FlywayConfiguration {
                 LOG.warn("Unknown configuration property: " + key);
             }
         }
+    }
+
+    private Boolean getBooleanProp(Map<String, String> props, String key) {
+        String value = props.remove(key);
+        if (value != null && !"true".equals(value) && !"false".equals(value)) {
+            throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value);
+        }
+        return value == null ? null : Boolean.valueOf(value);
     }
 
     /**
