@@ -21,31 +21,29 @@ package org.flywaydb.core;
  */
 public class DbCategory {
     public interface DB {}
-    public interface InstallableDB extends DB {}
     public interface EmbeddedDB extends DB {}
-    public interface OpenSourceDB extends InstallableDB {}
-    public interface CommercialDB extends InstallableDB {}
-    public interface ContributorSupportedDB extends CommercialDB {}
+    public interface DockerDB extends DB {}
+    public interface SpecialDB extends DB {}
 
     public interface Derby extends EmbeddedDB {}
     public interface H2 extends EmbeddedDB {}
     public interface HSQL extends EmbeddedDB {}
     public interface SQLite extends EmbeddedDB {}
 
-    public interface MySQL extends OpenSourceDB {}
-    public interface MariaDB extends OpenSourceDB {}
-    public interface PostgreSQL extends OpenSourceDB {}
-    public interface CockroachDB extends OpenSourceDB {}
+    public interface MySQL extends DockerDB {}
+    public interface MariaDB extends DockerDB {}
+    public interface PostgreSQL extends DockerDB {}
+    public interface CockroachDB extends DockerDB {}
+    public interface Oracle extends DockerDB {}
+    public interface DB2 extends DockerDB {}
+    public interface SQLServer extends DockerDB {}
+    public interface SybaseASE extends DockerDB {}
 
-    public interface Oracle extends CommercialDB {}
-    public interface DB2 extends CommercialDB {}
-    public interface SQLServer extends CommercialDB {}
-    public interface SybaseASE extends CommercialDB {}
-    public interface Redshift extends CommercialDB {}
+    public interface Redshift extends SpecialDB {}
+    public interface SAPHANA extends SpecialDB {}
 
     // Other databases support maintained by the third party contributors
-    public interface EnterpriseDB extends ContributorSupportedDB {}
-    public interface Phoenix extends ContributorSupportedDB {}
-    public interface SapHana extends ContributorSupportedDB {}
-    public interface SolidDB extends ContributorSupportedDB {}
+//    public interface EnterpriseDB extends ContributorSupportedDB {}
+//    public interface Phoenix extends ContributorSupportedDB {}
+//    public interface SolidDB extends ContributorSupportedDB {}
 }

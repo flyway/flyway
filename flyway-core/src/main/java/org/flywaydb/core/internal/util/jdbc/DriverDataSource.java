@@ -322,6 +322,10 @@ public class DriverDataSource implements DataSource {
             return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
         }
 
+        if (url.startsWith("jdbc:sap:")) {
+            return "com.sap.db.jdbc.Driver";
+        }
+
         return null;
     }
 

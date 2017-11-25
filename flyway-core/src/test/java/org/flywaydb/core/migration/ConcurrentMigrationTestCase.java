@@ -79,7 +79,11 @@ public abstract class ConcurrentMigrationTestCase {
      * The instance under test.
      */
     private Flyway flyway;
-    private String schemaName = "concurrent_test";
+    private String schemaName = getSchemaName();
+
+    protected String getSchemaName() {
+        return "concurrent_test";
+    }
 
     @BeforeClass
     public static void loadProperties() throws Exception {

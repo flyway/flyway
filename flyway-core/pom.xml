@@ -146,6 +146,11 @@
             <artifactId>jconnect</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sap.db.jdbc</groupId>
+            <artifactId>ngdbc</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- [/master] -->
     </dependencies>
 
@@ -280,7 +285,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$InstallableDB</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$DockerDB,org.flywaydb.core.DbCategory$SpecialDB</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -296,7 +301,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$Redshift</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$SpecialDB</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -312,9 +317,28 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$ContributorSupportedDB</excludedGroups>
+                            <groups>org.flywaydb.core.DbCategory$Redshift</groups>
                             <systemProperties>
-                                <redshift>true</redshift>
+                                <flyway.test.redshift>true</flyway.test.redshift>
+                            </systemProperties>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>SAPHANATest</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <groups>org.flywaydb.core.DbCategory$SAPHANA</groups>
+                            <systemProperties>
+                                <flyway.test.saphana>true</flyway.test.saphana>
                             </systemProperties>
                         </configuration>
                     </plugin>

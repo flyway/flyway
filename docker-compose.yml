@@ -218,7 +218,7 @@ services:
       - "net.ipv4.ip_local_port_range=40000 60999"
     volumes:
       - ./flyway-core/src/test/resources/migration/database/saphana/password.json:/password.json
-    command: /bin/bash /run_hana --dont-check-system --passwords-url file:///password.json --agree-to-sap-license
+    command: --dont-check-system --passwords-url file:///password.json --agree-to-sap-license
   sqlserver-2017:
     image: "microsoft/mssql-server-linux:2017-CU1"
     ports:

@@ -43,7 +43,7 @@ import static org.junit.Assume.assumeTrue;
 public class RedshiftMigrationMediumTest extends MigrationTestCase {
     @Override
     protected void ensureTestEnabled() {
-        assumeTrue(Boolean.valueOf(System.getProperty("redshift")));
+        assumeTrue(Boolean.valueOf(System.getProperty("flyway.test.redshift")));
     }
 
     static final String JDBC_URL = "jdbc:redshift://52.59.121.141:5439/flywaydb";

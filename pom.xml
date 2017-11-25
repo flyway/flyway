@@ -292,6 +292,12 @@
                 <version>7.07</version>
                 <optional>true</optional>
             </dependency>
+            <dependency>
+                <groupId>com.sap.db.jdbc</groupId>
+                <artifactId>ngdbc</artifactId>
+                <version>2.2.3</version>
+                <optional>true</optional>
+            </dependency>
             <!-- [/master] -->
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>

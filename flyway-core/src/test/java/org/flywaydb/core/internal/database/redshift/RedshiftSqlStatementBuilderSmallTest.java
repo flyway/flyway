@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-
 /**
  * Test for RedshiftSqlStatementBuilder.
  */
@@ -30,7 +29,7 @@ public class RedshiftSqlStatementBuilderSmallTest {
     /**
      * Class under test.
      */
-    private RedshiftSqlStatementBuilder statementBuilder = new RedshiftSqlStatementBuilder(new Delimiter(";", false));
+    private RedshiftSqlStatementBuilder statementBuilder = new RedshiftSqlStatementBuilder(Delimiter.SEMICOLON);
 
     @Test
     public void columnColumnText() {

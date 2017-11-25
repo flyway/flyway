@@ -38,7 +38,7 @@ import static org.junit.Assume.assumeTrue;
 public class RedshiftDatabaseMediumTest {
     @Before
     public void ensureRedshiftEnabled() {
-        assumeTrue(Boolean.valueOf(System.getProperty("redshift")));
+        assumeTrue(Boolean.valueOf(System.getProperty("flyway.test.redshift")));
     }
 
     protected DataSource createDataSource() {

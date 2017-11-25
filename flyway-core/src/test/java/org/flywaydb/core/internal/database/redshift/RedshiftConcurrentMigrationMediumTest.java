@@ -33,7 +33,7 @@ import static org.junit.Assume.assumeTrue;
 public class RedshiftConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
     protected void ensureTestEnabled() {
-        assumeTrue(Boolean.valueOf(System.getProperty("redshift")));
+        assumeTrue(Boolean.valueOf(System.getProperty("flyway.test.redshift")));
     }
 
     @Override
