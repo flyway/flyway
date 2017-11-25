@@ -19,6 +19,9 @@ package org.flywaydb.core.internal.database;
  * Represents a sql statement delimiter.
  */
 public class Delimiter {
+    public static final Delimiter SEMICOLON = new Delimiter(";", false);
+    public static final Delimiter GO = new Delimiter("GO", true);
+
     /**
      * The actual delimiter string.
      */
