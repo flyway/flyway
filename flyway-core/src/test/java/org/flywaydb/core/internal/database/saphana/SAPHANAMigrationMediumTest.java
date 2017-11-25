@@ -31,7 +31,23 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
 /**
- * Test to demonstrate the migration functionality using H2.
+ * Test to demonstrate the migration functionality using SAP HANA.
+ *
+ * Testing with SAP HANA 1
+ * -----------------------
+ * 1. Launch SAP HANA One on SUSE Linux Enterprise Server 11 SP 4 from AWS Marketplace (ami-28b25547) with known Keypair
+ * 2. Open all ports in newly created security group
+ * 3. Log in at https://instanceip
+ * 4. Fill in AWS Access Key and Secret Key
+ * 5. Pick SAPhana1 for hdbadm and SYSTEM passwords
+ * 6. Wait for HANA instance to start (40-50 minutes!)
+ * 7. Add license (and fill in credentials!)
+ * 8. Connect to jdbc:sap://instanceip:30015/ with SYSTEM / SAPhana1
+ * 9. Execute CREATE USER flyway PASSWORD SAPhana1 NO FORCE_FIRST_PASSWORD_CHANGE
+ * 10. Connect to jdbc:sap://instanceip:30015/ with flyway / SAPhana1
+ * 11. Run tests
+ * 12. Terminate instance in AWS Console
+ * 13. Delete remaining volumes in AWS Console
  */
 @Category(DbCategory.SAPHANA.class)
 public class SAPHANAMigrationMediumTest extends MigrationTestCase {
