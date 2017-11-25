@@ -1337,10 +1337,10 @@ public class Flyway implements FlywayConfiguration {
         // Make copy to prevent removing elements from the original.
         props = new HashMap<>(props);
 
-        String driverProp = getValueAndRemoveEntry(props, ConfigUtils.DRIVER);
-        String urlProp = getValueAndRemoveEntry(props, ConfigUtils.URL);
-        String userProp = getValueAndRemoveEntry(props, ConfigUtils.USER);
-        String passwordProp = getValueAndRemoveEntry(props, ConfigUtils.PASSWORD);
+        String driverProp = props.remove(ConfigUtils.DRIVER);
+        String urlProp = props.remove(ConfigUtils.URL);
+        String userProp = props.remove(ConfigUtils.USER);
+        String passwordProp = props.remove(ConfigUtils.PASSWORD);
 
         if (StringUtils.hasText(urlProp)) {
             setDataSource(new DriverDataSource(classLoader, driverProp, urlProp, userProp, passwordProp, null));
@@ -1349,103 +1349,103 @@ public class Flyway implements FlywayConfiguration {
             LOG.warn("Discarding INCOMPLETE dataSource configuration! " + ConfigUtils.URL + " must be set.");
         }
 
-        String locationsProp = getValueAndRemoveEntry(props, ConfigUtils.LOCATIONS);
+        String locationsProp = props.remove(ConfigUtils.LOCATIONS);
         if (locationsProp != null) {
             setLocations(StringUtils.tokenizeToStringArray(locationsProp, ","));
         }
-        String placeholderReplacementProp = getValueAndRemoveEntry(props, ConfigUtils.PLACEHOLDER_REPLACEMENT);
+        String placeholderReplacementProp = props.remove(ConfigUtils.PLACEHOLDER_REPLACEMENT);
         if (placeholderReplacementProp != null) {
             setPlaceholderReplacement(Boolean.parseBoolean(placeholderReplacementProp));
         }
-        String placeholderPrefixProp = getValueAndRemoveEntry(props, ConfigUtils.PLACEHOLDER_PREFIX);
+        String placeholderPrefixProp = props.remove(ConfigUtils.PLACEHOLDER_PREFIX);
         if (placeholderPrefixProp != null) {
             setPlaceholderPrefix(placeholderPrefixProp);
         }
-        String placeholderSuffixProp = getValueAndRemoveEntry(props, ConfigUtils.PLACEHOLDER_SUFFIX);
+        String placeholderSuffixProp = props.remove(ConfigUtils.PLACEHOLDER_SUFFIX);
         if (placeholderSuffixProp != null) {
             setPlaceholderSuffix(placeholderSuffixProp);
         }
-        String sqlMigrationPrefixProp = getValueAndRemoveEntry(props, ConfigUtils.SQL_MIGRATION_PREFIX);
+        String sqlMigrationPrefixProp = props.remove(ConfigUtils.SQL_MIGRATION_PREFIX);
         if (sqlMigrationPrefixProp != null) {
             setSqlMigrationPrefix(sqlMigrationPrefixProp);
         }
-        String repeatableSqlMigrationPrefixProp = getValueAndRemoveEntry(props, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX);
+        String repeatableSqlMigrationPrefixProp = props.remove(ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX);
         if (repeatableSqlMigrationPrefixProp != null) {
             setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefixProp);
         }
-        String sqlMigrationSeparatorProp = getValueAndRemoveEntry(props, ConfigUtils.SQL_MIGRATION_SEPARATOR);
+        String sqlMigrationSeparatorProp = props.remove(ConfigUtils.SQL_MIGRATION_SEPARATOR);
         if (sqlMigrationSeparatorProp != null) {
             setSqlMigrationSeparator(sqlMigrationSeparatorProp);
         }
-        String sqlMigrationSuffixProp = getValueAndRemoveEntry(props, ConfigUtils.SQL_MIGRATION_SUFFIX);
+        String sqlMigrationSuffixProp = props.remove(ConfigUtils.SQL_MIGRATION_SUFFIX);
         if (sqlMigrationSuffixProp != null) {
             setSqlMigrationSuffix(sqlMigrationSuffixProp);
         }
-        String encodingProp = getValueAndRemoveEntry(props, ConfigUtils.ENCODING);
+        String encodingProp = props.remove(ConfigUtils.ENCODING);
         if (encodingProp != null) {
             setEncoding(encodingProp);
         }
-        String schemasProp = getValueAndRemoveEntry(props, ConfigUtils.SCHEMAS);
+        String schemasProp = props.remove(ConfigUtils.SCHEMAS);
         if (schemasProp != null) {
             setSchemas(StringUtils.tokenizeToStringArray(schemasProp, ","));
         }
-        String tableProp = getValueAndRemoveEntry(props, ConfigUtils.TABLE);
+        String tableProp = props.remove(ConfigUtils.TABLE);
         if (tableProp != null) {
             setTable(tableProp);
         }
-        String cleanOnValidationErrorProp = getValueAndRemoveEntry(props, ConfigUtils.CLEAN_ON_VALIDATION_ERROR);
+        String cleanOnValidationErrorProp = props.remove(ConfigUtils.CLEAN_ON_VALIDATION_ERROR);
         if (cleanOnValidationErrorProp != null) {
             setCleanOnValidationError(Boolean.parseBoolean(cleanOnValidationErrorProp));
         }
-        String cleanDisabledProp = getValueAndRemoveEntry(props, ConfigUtils.CLEAN_DISABLED);
+        String cleanDisabledProp = props.remove(ConfigUtils.CLEAN_DISABLED);
         if (cleanDisabledProp != null) {
             setCleanDisabled(Boolean.parseBoolean(cleanDisabledProp));
         }
-        String validateOnMigrateProp = getValueAndRemoveEntry(props, ConfigUtils.VALIDATE_ON_MIGRATE);
+        String validateOnMigrateProp = props.remove(ConfigUtils.VALIDATE_ON_MIGRATE);
         if (validateOnMigrateProp != null) {
             setValidateOnMigrate(Boolean.parseBoolean(validateOnMigrateProp));
         }
-        String baselineVersionProp = getValueAndRemoveEntry(props, ConfigUtils.BASELINE_VERSION);
+        String baselineVersionProp = props.remove(ConfigUtils.BASELINE_VERSION);
         if (baselineVersionProp != null) {
             setBaselineVersion(MigrationVersion.fromVersion(baselineVersionProp));
         }
-        String baselineDescriptionProp = getValueAndRemoveEntry(props, ConfigUtils.BASELINE_DESCRIPTION);
+        String baselineDescriptionProp = props.remove(ConfigUtils.BASELINE_DESCRIPTION);
         if (baselineDescriptionProp != null) {
             setBaselineDescription(baselineDescriptionProp);
         }
-        String baselineOnMigrateProp = getValueAndRemoveEntry(props, ConfigUtils.BASELINE_ON_MIGRATE);
+        String baselineOnMigrateProp = props.remove(ConfigUtils.BASELINE_ON_MIGRATE);
         if (baselineOnMigrateProp != null) {
             setBaselineOnMigrate(Boolean.parseBoolean(baselineOnMigrateProp));
         }
-        String ignoreMissingMigrationsProp = getValueAndRemoveEntry(props, ConfigUtils.IGNORE_MISSING_MIGRATIONS);
+        String ignoreMissingMigrationsProp = props.remove(ConfigUtils.IGNORE_MISSING_MIGRATIONS);
         if (ignoreMissingMigrationsProp != null) {
             setIgnoreMissingMigrations(Boolean.parseBoolean(ignoreMissingMigrationsProp));
         }
-        String ignoreFutureMigrationsProp = getValueAndRemoveEntry(props, ConfigUtils.IGNORE_FUTURE_MIGRATIONS);
+        String ignoreFutureMigrationsProp = props.remove(ConfigUtils.IGNORE_FUTURE_MIGRATIONS);
         if (ignoreFutureMigrationsProp != null) {
             setIgnoreFutureMigrations(Boolean.parseBoolean(ignoreFutureMigrationsProp));
         }
-        String targetProp = getValueAndRemoveEntry(props, ConfigUtils.TARGET);
+        String targetProp = props.remove(ConfigUtils.TARGET);
         if (targetProp != null) {
             setTarget(MigrationVersion.fromVersion(targetProp));
         }
-        String outOfOrderProp = getValueAndRemoveEntry(props, ConfigUtils.OUT_OF_ORDER);
+        String outOfOrderProp = props.remove(ConfigUtils.OUT_OF_ORDER);
         if (outOfOrderProp != null) {
             setOutOfOrder(Boolean.parseBoolean(outOfOrderProp));
         }
-        String resolversProp = getValueAndRemoveEntry(props, ConfigUtils.RESOLVERS);
+        String resolversProp = props.remove(ConfigUtils.RESOLVERS);
         if (StringUtils.hasLength(resolversProp)) {
             setResolversAsClassNames(StringUtils.tokenizeToStringArray(resolversProp, ","));
         }
-        String skipDefaultResolversProp = getValueAndRemoveEntry(props, ConfigUtils.SKIP_DEFAULT_RESOLVERS);
+        String skipDefaultResolversProp = props.remove(ConfigUtils.SKIP_DEFAULT_RESOLVERS);
         if (skipDefaultResolversProp != null) {
             setSkipDefaultResolvers(Boolean.parseBoolean(skipDefaultResolversProp));
         }
-        String callbacksProp = getValueAndRemoveEntry(props, ConfigUtils.CALLBACKS);
+        String callbacksProp = props.remove(ConfigUtils.CALLBACKS);
         if (StringUtils.hasLength(callbacksProp)) {
             setCallbacksAsClassNames(StringUtils.tokenizeToStringArray(callbacksProp, ","));
         }
-        String skipDefaultCallbacksProp = getValueAndRemoveEntry(props, ConfigUtils.SKIP_DEFAULT_CALLBACKS);
+        String skipDefaultCallbacksProp = props.remove(ConfigUtils.SKIP_DEFAULT_CALLBACKS);
         if (skipDefaultCallbacksProp != null) {
             setSkipDefaultCallbacks(Boolean.parseBoolean(skipDefaultCallbacksProp));
         }
@@ -1466,27 +1466,27 @@ public class Flyway implements FlywayConfiguration {
         }
         setPlaceholders(placeholdersFromProps);
 
-        String mixedProp = getValueAndRemoveEntry(props, ConfigUtils.MIXED);
+        String mixedProp = props.remove(ConfigUtils.MIXED);
         if (mixedProp != null) {
             setMixed(Boolean.parseBoolean(mixedProp));
         }
 
-        String groupProp = getValueAndRemoveEntry(props, ConfigUtils.GROUP);
+        String groupProp = props.remove(ConfigUtils.GROUP);
         if (groupProp != null) {
             setGroup(Boolean.parseBoolean(groupProp));
         }
 
-        String installedByProp = getValueAndRemoveEntry(props, ConfigUtils.INSTALLED_BY);
+        String installedByProp = props.remove(ConfigUtils.INSTALLED_BY);
         if (installedByProp != null) {
             setInstalledBy(installedByProp);
         }
 
-        String dryRunOutputProp = getValueAndRemoveEntry(props, ConfigUtils.DRYRUN_OUTPUT);
+        String dryRunOutputProp = props.remove(ConfigUtils.DRYRUN_OUTPUT);
         if (dryRunOutputProp != null) {
             setDryRunOutputAsFileName(dryRunOutputProp);
         }
 
-        String errorHandlerProp = getValueAndRemoveEntry(props, ConfigUtils.ERROR_HANDLER);
+        String errorHandlerProp = props.remove(ConfigUtils.ERROR_HANDLER);
         if (errorHandlerProp != null) {
             setErrorHandlerAsClassName(errorHandlerProp);
         }
@@ -1496,19 +1496,6 @@ public class Flyway implements FlywayConfiguration {
                 LOG.warn("Unknown configuration property: " + key);
             }
         }
-    }
-
-    /**
-     * Retrieves the value for this key in this map and removes the corresponding entry from the map.
-     *
-     * @param map The map.
-     * @param key The key.
-     * @return The value. {@code null} if not found.
-     */
-    private String getValueAndRemoveEntry(Map<String, String> map, String key) {
-        String value = map.get(key);
-        map.remove(key);
-        return value;
     }
 
     /**
@@ -1542,47 +1529,14 @@ public class Flyway implements FlywayConfiguration {
             dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
 
-            if (schemaNames.length == 0) {
-                Schema currentSchema = database.getMainConnection().getOriginalSchema();
-                if (currentSchema == null) {
-                    throw new FlywayException("Unable to determine schema for the metadata table." +
-                            " Set a default schema for the connection or specify one using the schemas property!");
-                }
-                setSchemas(currentSchema.getName());
-            }
-
-            if (schemaNames.length == 1) {
-                LOG.debug("Schema: " + schemaNames[0]);
-            } else {
-                LOG.debug("Schemas: " + StringUtils.arrayToCommaDelimitedString(schemaNames));
-            }
-
-            Schema[] schemas = new Schema[schemaNames.length];
-            for (int i = 0; i < schemaNames.length; i++) {
-                schemas[i] = database.getMainConnection().getSchema(schemaNames[i]);
-            }
-
+            Schema[] schemas = prepareSchemas(database);
             Scanner scanner = new Scanner(classLoader);
             MigrationResolver migrationResolver = createMigrationResolver(database, scanner);
-
-            List<FlywayCallback> effectiveCallbacks = new ArrayList<>();
-
+            List<FlywayCallback> effectiveCallbacks = prepareCallbacks(scanner, database
 
 
 
-
-
-            effectiveCallbacks.addAll(callbacks);
-
-            if (!skipDefaultCallbacks) {
-                effectiveCallbacks.add(new SqlScriptFlywayCallback(database, scanner, locations, createPlaceholderReplacer(),
-                        this));
-            }
-
-            for (FlywayCallback callback : effectiveCallbacks) {
-                ConfigUtils.injectFlywayConfiguration(callback, this);
-            }
-
+            );
             SchemaHistory schemaHistory = SchemaHistoryFactory.getSchemaHistory(this, database, schemas[0]
 
 
@@ -1604,6 +1558,54 @@ public class Flyway implements FlywayConfiguration {
 
         }
         return result;
+    }
+
+    private Schema[] prepareSchemas(Database database) {
+        if (schemaNames.length == 0) {
+            Schema currentSchema = database.getMainConnection().getOriginalSchema();
+            if (currentSchema == null) {
+                throw new FlywayException("Unable to determine schema for the metadata table." +
+                        " Set a default schema for the connection or specify one using the schemas property!");
+            }
+            setSchemas(currentSchema.getName());
+        }
+
+        if (schemaNames.length == 1) {
+            LOG.debug("Schema: " + schemaNames[0]);
+        } else {
+            LOG.debug("Schemas: " + StringUtils.arrayToCommaDelimitedString(schemaNames));
+        }
+
+        Schema[] schemas = new Schema[schemaNames.length];
+        for (int i = 0; i < schemaNames.length; i++) {
+            schemas[i] = database.getMainConnection().getSchema(schemaNames[i]);
+        }
+        return schemas;
+    }
+
+    private List<FlywayCallback> prepareCallbacks(Scanner scanner, Database database
+
+
+
+    ) {
+        List<FlywayCallback> effectiveCallbacks = new ArrayList<>();
+
+
+
+
+
+
+        effectiveCallbacks.addAll(callbacks);
+
+        if (!skipDefaultCallbacks) {
+            effectiveCallbacks.add(new SqlScriptFlywayCallback(database, scanner, locations, createPlaceholderReplacer(),
+                    this));
+        }
+
+        for (FlywayCallback callback : effectiveCallbacks) {
+            ConfigUtils.injectFlywayConfiguration(callback, this);
+        }
+        return effectiveCallbacks;
     }
 
     /**
