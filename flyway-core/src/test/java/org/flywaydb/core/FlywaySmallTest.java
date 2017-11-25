@@ -96,6 +96,15 @@ public class FlywaySmallTest {
         assertEquals(true, flyway.isOutOfOrder());
     }
 
+    @Test(expected = FlywayException.class)
+    public void configureBadBoolean() {
+        Properties properties = new Properties();
+        properties.setProperty("flyway.outOfOrder", "nope");
+
+        Flyway flyway = new Flyway();
+        flyway.configure(properties);
+    }
+
     @Test
     public void configureSchemas() {
         Properties properties = new Properties();
