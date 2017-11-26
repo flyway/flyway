@@ -70,9 +70,7 @@ public class AndroidScanner implements ResourceAndClassScanner {
         String pkg = location.getPath().replace("/", ".");
 
         List<Class> classes = new ArrayList<Class>();
-
         DexFile dex = null;
-
         try {
             dex = new DexFile(context.getApplicationInfo().sourceDir);
             Enumeration<String> entries = dex.entries();
@@ -99,7 +97,7 @@ public class AndroidScanner implements ResourceAndClassScanner {
             if (dex != null) {
                 dex.close();
             }
-            return classes.toArray(new Class<?>[classes.size()]);
         }
+        return classes.toArray(new Class<?>[classes.size()]);
     }
 }
