@@ -120,7 +120,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
                 LOG.debug("Skipping invalid class: " + className);
                 continue;
             } catch (IncompatibleClassChangeError e) {
-                LOG.debug("Skipping incompatibly changed class: " + className);
+                LOG.warn("Skipping incompatibly changed class: " + className);
                 continue;
             } catch (NoClassDefFoundError e) {
                 LOG.debug("Skipping non-loadable class: " + className);
