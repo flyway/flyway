@@ -19,6 +19,7 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Connection;
+import org.flywaydb.core.internal.database.FlywaySqlException;
 import org.flywaydb.core.internal.database.Schema;
 
 import java.sql.SQLException;
@@ -28,6 +29,8 @@ import java.sql.SQLException;
  */
 public class SQLServerConnection extends Connection<SQLServerDatabase> {
     private static final Log LOG = LogFactory.getLog(SQLServerConnection.class);
+
+    private final String originalDatabase;
 
     /**
      * Whether the warning message has already been printed.
@@ -44,6 +47,11 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
 
 
         );
+        try {
+            originalDatabase = jdbcTemplate.queryForString("SELECT DB_NAME()");
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine current database", e);
+        }
     }
 
 
@@ -54,6 +62,9 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
 
     @Override
     public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+        // Always restore original database in case it was changed in a previous migration or callback.
+        jdbcTemplate.execute("USE " + database.quote(originalDatabase));
+
         if (!schemaMessagePrinted) {
             LOG.info("SQLServer does not support setting the schema for the current session. Default schema NOT changed to " + schema);
             // Not currently supported.
