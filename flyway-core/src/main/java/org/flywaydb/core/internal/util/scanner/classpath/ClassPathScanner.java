@@ -31,6 +31,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -189,38 +190,43 @@ public class ClassPathScanner implements ResourceAndClassScanner {
                 if ("file".equals(url.getProtocol())
                         && url.getPath().endsWith(".jar")
                         && !url.getPath().matches(".*" + Pattern.quote("/jre/lib/") + ".*")) {
-                    // All non-system jars on disk
-                    JarFile jarFile;
                     try {
-                        jarFile = new JarFile(url.toURI().getSchemeSpecificPart());
-                    } catch (URISyntaxException ex) {
-                        // Fallback for URLs that are not valid URIs (should hardly ever happen).
-                        jarFile = new JarFile(url.getPath().substring("file:".length()));
-                    }
-
-                    try {
-                        boolean directoryFound = false;
-                        Enumeration<JarEntry> entries = jarFile.entries();
-                        while (entries.hasMoreElements()) {
-                            if (entries.nextElement().isDirectory()) {
-                                directoryFound = true;
-                                break;
-                            }
+                        // All non-system jars on disk
+                        JarFile jarFile;
+                        try {
+                            jarFile = new JarFile(url.toURI().getSchemeSpecificPart());
+                        } catch (URISyntaxException ex) {
+                            // Fallback for URLs that are not valid URIs (should hardly ever happen).
+                            jarFile = new JarFile(url.getPath().substring("file:".length()));
                         }
-                        if (!directoryFound) {
-                            entries = jarFile.entries();
+
+                        try {
+                            boolean directoryFound = false;
+                            Enumeration<JarEntry> entries = jarFile.entries();
                             while (entries.hasMoreElements()) {
-                                String entryName = entries.nextElement().getName();
-                                if (entryName.startsWith(location.getPath())) {
-                                    locationResolved = true;
-                                    if (entryName.endsWith(suffix)) {
-                                        resourceNames.add(entryName);
+                                if (entries.nextElement().isDirectory()) {
+                                    directoryFound = true;
+                                    break;
+                                }
+                            }
+                            if (!directoryFound) {
+                                entries = jarFile.entries();
+                                while (entries.hasMoreElements()) {
+                                    String entryName = entries.nextElement().getName();
+                                    if (entryName.startsWith(location.getPath())) {
+                                        locationResolved = true;
+                                        if (entryName.endsWith(suffix)) {
+                                            resourceNames.add(entryName);
+                                        }
                                     }
                                 }
                             }
+                        } finally {
+                            jarFile.close();
                         }
-                    } finally {
-                        jarFile.close();
+                    } catch (AccessControlException e) {
+                        // Ignore cases where the scanner pokes its nose where it doesn't belong.
+                        LOG.warn("Not allowed to scan url: " + url.getPath());
                     }
                 }
             }
