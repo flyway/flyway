@@ -290,6 +290,12 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     }
 
     @Test
+    public void use() throws Exception {
+        flyway.setLocations("migration/database/sqlserver/sql/use");
+        assertEquals(2, flyway.migrate());
+    }
+
+    @Test
     public void itShouldCleanCheckConstraint() throws Exception {
         // given
         flyway.setLocations("migration/database/sqlserver/sql/checkConstraint");

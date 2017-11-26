@@ -18,7 +18,7 @@ public abstract class Connection<D extends Database> implements Closeable {
      */
     protected final String originalSchema;
 
-    public Connection(FlywayConfiguration configuration, D database, java.sql.Connection connection, int nullType
+    protected Connection(FlywayConfiguration configuration, D database, java.sql.Connection connection, int nullType
                       // [pro]
             , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
                       // [/pro]
