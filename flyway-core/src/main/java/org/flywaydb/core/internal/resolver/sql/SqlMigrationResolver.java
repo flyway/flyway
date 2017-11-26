@@ -43,8 +43,8 @@ import java.util.List;
 import java.util.zip.CRC32;
 
 /**
- * Migration resolver for sql files on the classpath. The sql files must have names like
- * V1__Description.sql or V1_1__Description.sql.
+ * Migration resolver for SQL files on the classpath. The SQL files must have names like
+ * V1__Description.sql, V1_1__Description.sql or R__description.sql.
  */
 public class SqlMigrationResolver implements MigrationResolver {
     /**
@@ -75,11 +75,11 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Creates a new instance.
      *
-     * @param database                    The database-specific support.
-     * @param scanner                      The Scanner for loading migrations on the classpath.
-     * @param locations                    The locations on the classpath where to migrations are located.
-     * @param placeholderReplacer          The placeholder replacer to apply to sql migration scripts.
-     * @param configuration                The Flyway configuration.
+     * @param database            The database-specific support.
+     * @param scanner             The Scanner for loading migrations on the classpath.
+     * @param locations           The locations on the classpath where to migrations are located.
+     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
+     * @param configuration       The Flyway configuration.
      */
     public SqlMigrationResolver(Database database, Scanner scanner, Locations locations,
                                 PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
@@ -93,7 +93,7 @@ public class SqlMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
-        for (Location location: locations.getLocations()) {
+        for (Location location : locations.getLocations()) {
             scanForMigrations(location, migrations, configuration.getSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix(), false);
             scanForMigrations(location, migrations, configuration.getRepeatableSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix(), true);
         }
