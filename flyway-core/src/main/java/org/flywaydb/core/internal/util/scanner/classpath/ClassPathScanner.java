@@ -192,10 +192,15 @@ public class ClassPathScanner implements ResourceAndClassScanner {
                     // All non-system jars on disk
                     JarFile jarFile;
                     try {
-                        jarFile = new JarFile(url.toURI().getSchemeSpecificPart());
-                    } catch (URISyntaxException ex) {
-                        // Fallback for URLs that are not valid URIs (should hardly ever happen).
-                        jarFile = new JarFile(url.getPath().substring("file:".length()));
+                        try {
+                            jarFile = new JarFile(url.toURI().getSchemeSpecificPart());
+                        } catch (URISyntaxException ex) {
+                            // Fallback for URLs that are not valid URIs (should hardly ever happen).
+                            jarFile = new JarFile(url.getPath().substring("file:".length()));
+                        }
+                    } catch (SecurityException e) {
+                        LOG.warn("Skipping unloadable jar file: " + url + " (" + e.getMessage() + ")");
+                        continue;
                     }
 
                     try {
