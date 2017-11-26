@@ -15,15 +15,16 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
-import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.flywaydb.core.DbCategory;
 
 import javax.sql.DataSource;
 import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using SQL Server with the Microsoft driver.
@@ -36,20 +37,17 @@ public class MsSQLServerMigrationMediumTest extends SQLServerMigrationTestCase {
                 "jdbc:sqlserver://localhost:" + JDBC_PORT + ";databaseName=flyway_db_ms", JDBC_USER, JDBC_PASSWORD);
     }
 
-    /**
-     * Tests migrate error for pk constraints.
-     */
-    @Ignore("Seems to be a bug in the Microsoft driver as Jtds works fine")
-    @Test(expected = FlywayException.class)
-    public void pkConstraints() throws Exception {
-        flyway.setLocations("migration/database/sqlserver/sql/pkConstraint");
-        flyway.migrate();
-    }
-
     @Ignore("No solution for this so far as it must be run outside of a transaction with no other transaction active in the system")
     @Test
     public void singleUser() throws Exception {
         flyway.setLocations("migration/database/sqlserver/sql/singleUser");
         flyway.migrate();
+    }
+
+    @Ignore("Currently broken in single-connection mode as there is no way to lock and unlock a SQL Server table outside of a transaction")
+    @Test
+    public void backup() throws Exception {
+        flyway.setLocations("migration/database/sqlserver/sql/backup");
+        assertEquals(1, flyway.migrate());
     }
 }
