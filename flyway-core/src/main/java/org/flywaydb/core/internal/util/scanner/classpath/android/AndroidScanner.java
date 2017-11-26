@@ -71,27 +71,35 @@ public class AndroidScanner implements ResourceAndClassScanner {
 
         List<Class> classes = new ArrayList<>();
 
-        DexFile dex = new DexFile(context.getApplicationInfo().sourceDir);
-        Enumeration<String> entries = dex.entries();
-        while (entries.hasMoreElements()) {
-            String className = entries.nextElement();
-            if (className.startsWith(pkg)) {
-                Class<?> clazz = classLoader.loadClass(className);
-                if (Modifier.isAbstract(clazz.getModifiers())) {
-                    LOG.debug("Skipping abstract class: " + className);
-                    continue;
+        DexFile dex = null;
+
+        try {
+            dex = new DexFile(context.getApplicationInfo().sourceDir);
+            Enumeration<String> entries = dex.entries();
+            while (entries.hasMoreElements()) {
+                String className = entries.nextElement();
+                if (className.startsWith(pkg)) {
+                    Class<?> clazz = classLoader.loadClass(className);
+                    if (Modifier.isAbstract(clazz.getModifiers())) {
+                        LOG.debug("Skipping abstract class: " + className);
+                        continue;
+                    }
+
+                    if (!implementedInterface.isAssignableFrom(clazz)) {
+                        continue;
+                    }
+
+                    ClassUtils.instantiate(className, classLoader);
+
+                    classes.add(clazz);
+                    LOG.debug("Found class: " + className);
                 }
-
-                if (!implementedInterface.isAssignableFrom(clazz)) {
-                    continue;
-                }
-
-                ClassUtils.instantiate(className, classLoader);
-
-                classes.add(clazz);
-                LOG.debug("Found class: " + className);
             }
+        } finally {
+            if (dex != null) {
+                dex.close();
+            }
+            return classes.toArray(new Class<?>[classes.size()]);
         }
-        return classes.toArray(new Class<?>[classes.size()]);
     }
 }
