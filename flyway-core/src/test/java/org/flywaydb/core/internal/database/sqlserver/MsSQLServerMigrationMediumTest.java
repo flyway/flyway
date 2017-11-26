@@ -44,7 +44,6 @@ public class MsSQLServerMigrationMediumTest extends SQLServerMigrationTestCase {
         flyway.migrate();
     }
 
-    @Ignore("Currently broken in single-connection mode as there is no way to lock and unlock a SQL Server table outside of a transaction")
     @Test
     public void backup() throws Exception {
         flyway.setLocations("migration/database/sqlserver/sql/backup");

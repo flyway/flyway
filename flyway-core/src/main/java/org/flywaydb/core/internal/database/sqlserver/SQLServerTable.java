@@ -30,7 +30,7 @@ public class SQLServerTable extends Table {
      * Creates a new SQLServer table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
@@ -45,7 +45,15 @@ public class SQLServerTable extends Table {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return exists(null, schema, name);
+        return jdbcTemplate.queryForBoolean(
+                "SELECT CAST(" +
+                        "CASE WHEN EXISTS(" +
+                        "  SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=?" +
+                        ") " +
+                        "THEN 1 ELSE 0 " +
+                        "END " +
+                        "AS BIT)",
+                schema.getName(), name);
     }
 
     @Override
