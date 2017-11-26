@@ -22,8 +22,12 @@ import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -32,14 +36,31 @@ import static org.junit.Assert.assertEquals;
  * Test to demonstrate the migration functionality using DB2.
  */
 @Category(DbCategory.DB2.class)
+@RunWith(Parameterized.class)
 public class DB2MigrationMediumTest extends MigrationTestCase {
-    static final String JDBC_URL = "jdbc:db2://localhost:62010/flyway:retrieveMessagesFromServerOnGetMessage=true;";
+    static final String JDBC_URL_DB2_111 = "jdbc:db2://localhost:62011/testdb";
+    static final String JDBC_URL_DB2_105 = "jdbc:db2://localhost:62010/flyway";
     static final String JDBC_USER = "db2inst1";
     static final String JDBC_PASSWORD = "flywaypwd";
 
+    private final String jdbcUrl;
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {JDBC_URL_DB2_111},
+                {JDBC_URL_DB2_105}
+        });
+    }
+
+    public DB2MigrationMediumTest(String jdbcUrl) throws Exception {
+        this.jdbcUrl = jdbcUrl;
+    }
+
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, JDBC_URL, JDBC_USER, JDBC_PASSWORD, null);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                jdbcUrl, JDBC_USER, JDBC_PASSWORD, null);
     }
 
     @Override

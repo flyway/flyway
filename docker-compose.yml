@@ -38,6 +38,43 @@ services:
       - ./flyway-core/src/test/resources/migration/database/db2/entrypoint.sh:/entrypoint.sh
       - ./flyway-core/src/test/resources/migration/database/db2/createDatabase.sql:/createDatabase.sql
     command: "db2start"
+  db2-111:
+    image: "store/ibmcorp/db2_developer_c:11.1.2.2"
+    ports:
+      - "62011:50000"
+    privileged: true
+    environment:
+      - BLU=false
+      - DB2INST1_PASSWORD=flywaypwd
+      - DBNAME=testdb
+      - ENABLE_ORACLE_COMPATIBILITY=false
+      - LICENSE=accept
+      - REPODB=false
+      - TO_CREATE_SAMPLEDB=false
+      - UPDATEAVAIL=NO
+    volumes:
+      - ./flyway-core/src/test/resources/migration/database/db2/entrypoint-111.sh:/entrypoint.sh
+    entrypoint:
+      - /entrypoint.sh
+#  edb-95:
+#    image: "containers.enterprisedb.com/edb/edb-as:9.6"
+#    ports:
+#      - "5444:5444"
+#    environment:
+#      - BART_HOST_ADDRESS=localhost
+#      - DB_SERVER_NAME=ppas-95
+#      - DATABASE_NAME=edb
+#      - DATABASE_USER=enterprisedb
+#      - DATABASE_USER_PASSWORD=FlywayPWD000
+#      - ENTERPRISEDB_PASSWORD=FlywayPWD000
+#      - PGHOST=edb-service
+#      - PGPORT=5444
+#      - REPL_USER=repl
+#      - REPL_PASSWORD=FlywayPWD000
+#      - YUM_URL=http://boxfuse-dev:7450d31af75d230333eb2a43f4600645@yum.enterprisedb.com
+#      - PERSISTENT_VOLUME=
+#      - PERSISTENT_VOLUME_CLAIM=
+#    command: initdb
   mariadb-55:
     image: "mariadb:5.5.57"
     ports:
@@ -210,15 +247,15 @@ services:
       - /var/lib/postgresql/data:rw
     volumes:
       - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
-  saphana-2:
-    image: "store/saplabs/hanaexpress:2.00.021.00.20171030.1"
-    ports:
-      - "39013:39013"
-    sysctls:
-      - "net.ipv4.ip_local_port_range=40000 60999"
-    volumes:
-      - ./flyway-core/src/test/resources/migration/database/saphana/password.json:/password.json
-    command: --dont-check-system --passwords-url file:///password.json --agree-to-sap-license
+#  saphana-2:
+#    image: "store/saplabs/hanaexpress:2.00.021.00.20171030.1"
+#    ports:
+#      - "39013:39013"
+#    sysctls:
+#      - "net.ipv4.ip_local_port_range=40000 60999"
+#    volumes:
+#      - ./flyway-core/src/test/resources/migration/database/saphana/password.json:/password.json
+#    command: --dont-check-system --passwords-url file:///password.json --agree-to-sap-license
   sqlserver-2017:
     image: "microsoft/mssql-server-linux:2017-CU1"
     ports:
