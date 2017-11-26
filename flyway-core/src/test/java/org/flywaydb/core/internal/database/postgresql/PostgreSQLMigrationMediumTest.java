@@ -120,6 +120,12 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
+    public void rule() throws Exception {
+        flyway.setLocations("migration/database/postgresql/sql/rule");
+        assertEquals(1, flyway.migrate());
+    }
+
+    @Test
     public void cleanUnknown() throws Exception {
         flyway.setSchemas("non-existant");
         flyway.clean();

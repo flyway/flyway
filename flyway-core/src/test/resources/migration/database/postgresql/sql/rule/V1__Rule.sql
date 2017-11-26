@@ -14,28 +14,26 @@
 -- limitations under the License.
 --
 
-CREATE TABLE test_data (
-  value/*test*/ /*test*/VARCHAR(25) NOT NULL PRIMARY KEY
+CREATE TABLE some_table (
+  id int
 );
 
-CREATE FUNCTION AddData() RETURNS INTEGER
-AS $$
-    BEGIN
-     INSERT INTO test_data (value) VALUES ('Hello');
-     RETURN 1;
-   END;
- $$ LANGUAGE plpgsql;
+CREATE TABLE some_other_table (
+  id int
+);
 
-SELECT *  INTO TEMP adddata_temp_table FROM AddData() ;
+CREATE TABLE some_other_table2 (
+  id int
+);
 
-CREATE FUNCTION add(integer, integer) RETURNS integer
-    LANGUAGE sql/*test*/ IMMUTABLE STRICT
-    AS $_$select $1 + $2;$_$;
-    
-CREATE FUNCTION """add2"""(integer, integer) RETURNS integer
-    LANGUAGE sql/*test*/ IMMUTABLE STRICT
-    AS $_$select $1 + $2;$_$;
+CREATE OR REPLACE RULE my_rule AS
+ON DELETE TO some_table
+DO ALSO
+(
+DELETE FROM some_other_table WHERE some_other_table.id=123;
+DELETE FROM some_other_table2 WHERE some_other_table2.id=123;
+);
 
-CREATE FUNCTION inc(i integer) RETURNS VARCHAR(25)
-    LANGUAGE sql
-    AS $$SELECT * FROM test_data$$;    
+CREATE TABLE some_other_table4 (
+  id int
+);
