@@ -15,11 +15,9 @@
 # limitations under the License.
 #
 
-# Detect cygwin
-cygwin=false
+# Detect OS
 linux=false
 case "`uname`" in
-  CYGWIN*|MINGW*) cygwin=true;;
   Linux*) linux=true;;
 esac
 
@@ -57,8 +55,8 @@ if $linux; then
   EXTRA_ARGS=-Djava.security.egd=file:/dev/../dev/urandom
 fi
 
-if $cygwin; then
-  CP=$(cygpath -pw "$CP")
+if `command -v cygpath > /dev/null`; then
+  CP=`cygpath -pw "$CP"`
 fi
 
 "$JAVA_CMD" $JAVA_ARGS $EXTRA_ARGS -cp "$CP" org.flywaydb.commandline.Main "$@"
