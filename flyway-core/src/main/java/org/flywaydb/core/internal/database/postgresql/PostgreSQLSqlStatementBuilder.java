@@ -82,7 +82,7 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
             return;
         }
 
-        if (StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
+        if (StringUtils.countOccurrencesOf(statementStart, " ") < 100) {
             statementStart += line;
             statementStart += " ";
             statementStart = statementStart.replaceAll("\\s+", " ");
@@ -132,6 +132,14 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
         if (copyStatement != null && copyStatement.contains(" FROM STDIN")) {
             pgCopy = true;
             return COPY_DELIMITER;
+        }
+
+        if (statementStart.matches("CREATE( OR REPLACE)? RULE .* DO (ALSO|INSTEAD) \\(.+;\\w?\\)\\w?;")) {
+            return Delimiter.SEMICOLON;
+        }
+
+        if (statementStart.matches("CREATE( OR REPLACE)? RULE .* DO (ALSO|INSTEAD) \\(.*")) {
+            return null;
         }
 
         return delimiter;
