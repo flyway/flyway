@@ -247,15 +247,19 @@ services:
       - /var/lib/postgresql/data:rw
     volumes:
       - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
-#  saphana-2:
-#    image: "store/saplabs/hanaexpress:2.00.021.00.20171030.1"
-#    ports:
-#      - "39013:39013"
-#    sysctls:
-#      - "net.ipv4.ip_local_port_range=40000 60999"
-#    volumes:
-#      - ./flyway-core/src/test/resources/migration/database/saphana/password.json:/password.json
-#    command: --dont-check-system --passwords-url file:///password.json --agree-to-sap-license
+  saphana-2:
+    image: "store/saplabs/hanaexpress:2.00.021.00.20171030.1"
+    ports:
+      - "1128-1129:1128-1129"
+      - "39013:39013"
+      - "39017:39017"
+      - "39041-39045:39041-39045"
+      - "59013-59014:59013-59014"
+    sysctls:
+      - "net.ipv4.ip_local_port_range=40000 60999"
+    volumes:
+      - ./flyway-core/src/test/resources/migration/database/saphana/password.json:/password.json
+    command: --dont-check-system --passwords-url file:///password.json --agree-to-sap-license
   sqlserver-2017:
     image: "microsoft/mssql-server-linux:2017-CU1"
     ports:

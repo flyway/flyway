@@ -51,13 +51,13 @@ import static org.junit.Assume.assumeTrue;
  */
 @Category(DbCategory.SAPHANA.class)
 public class SAPHANAMigrationMediumTest extends MigrationTestCase {
-    private static final String JDBC_URL = "jdbc:sap://18.195.137.186:30015/FLYWAY";
-    private static final String JDBC_USER = "flywaydb1";
-    private static final String JDBC_PASSWORD = "SAPhana1";
+    private static final String JDBC_URL = "jdbc:sap://localhost:39013/?databaseName=HXE";
+    private static final String JDBC_USER = "SYSTEM";
+    private static final String JDBC_PASSWORD = "HXEHana1";
 
     @Override
     protected void ensureTestEnabled() {
-        assumeTrue(Boolean.valueOf(System.getProperty("flyway.test.saphana")));
+        //assumeTrue(Boolean.valueOf(System.getProperty("flyway.test.saphana")));
     }
 
     @Override
