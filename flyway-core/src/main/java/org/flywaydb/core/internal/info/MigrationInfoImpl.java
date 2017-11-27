@@ -296,12 +296,19 @@ public class MigrationInfoImpl implements MigrationInfo {
             if (state == MigrationState.BASELINE && oState == MigrationState.BELOW_BASELINE) {
                 return Integer.MAX_VALUE;
             }
-            if (state == MigrationState.IGNORED && oState == MigrationState.SUCCESS) {
-                return Integer.MIN_VALUE;
+        }
+
+        if (state == MigrationState.IGNORED && oState.isApplied()) {
+            if (getVersion() != null && o.getVersion() != null) {
+                return getVersion().compareTo(o.getVersion());
             }
-            if (state == MigrationState.SUCCESS && oState == MigrationState.IGNORED) {
-                return Integer.MAX_VALUE;
+            return Integer.MIN_VALUE;
+        }
+        if (state.isApplied() && oState == MigrationState.IGNORED) {
+            if (getVersion() != null && o.getVersion() != null) {
+                return getVersion().compareTo(o.getVersion());
             }
+            return Integer.MAX_VALUE;
         }
 
         if (getInstalledRank() != null || o.getInstalledRank() != null) {
