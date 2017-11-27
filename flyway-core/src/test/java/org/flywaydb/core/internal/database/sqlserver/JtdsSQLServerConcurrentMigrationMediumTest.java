@@ -23,9 +23,9 @@ import org.flywaydb.core.DbCategory;
 import javax.sql.DataSource;
 import java.util.Properties;
 
-import static org.flywaydb.core.internal.database.sqlserver.SQLServerMigrationTestCase.JDBC_PASSWORD;
-import static org.flywaydb.core.internal.database.sqlserver.SQLServerMigrationTestCase.JDBC_PORT;
-import static org.flywaydb.core.internal.database.sqlserver.SQLServerMigrationTestCase.JDBC_USER;
+import static org.flywaydb.core.internal.database.sqlserver.SQLServerMigrationMediumTest.JDBC_PASSWORD;
+import static org.flywaydb.core.internal.database.sqlserver.SQLServerMigrationMediumTest.JDBC_PORT;
+import static org.flywaydb.core.internal.database.sqlserver.SQLServerMigrationMediumTest.JDBC_USER;
 
 /**
  * Test to demonstrate the migration functionality using SQL Server with the Jtds driver.

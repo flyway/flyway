@@ -15,23 +15,29 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
+import org.flywaydb.core.DbCategory;
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.database.FlywaySqlScriptException;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import javax.sql.DataSource;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -39,10 +45,40 @@ import static org.junit.Assert.*;
  * Test to demonstrate the migration functionality using SQL Server.
  */
 @SuppressWarnings({"JavaDoc"})
-public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
+@Category(DbCategory.SQLServer.class)
+public class SQLServerMigrationMediumTest extends MigrationTestCase {
+    static String JDBC_PORT = "62070";
+    static String JDBC_URL_JTDS = "jdbc:jtds:sqlserver://localhost:" + JDBC_PORT + "/flyway_db_jtds";
     static String JDBC_USER = "sa";
     static String JDBC_PASSWORD = "flywayPWD000";
-    static String JDBC_PORT = "62070";
+
+    @Override
+    protected DataSource createDataSource(Properties customProperties) throws Exception {
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                "jdbc:sqlserver://localhost:" + JDBC_PORT + ";databaseName=flyway_db_ms", JDBC_USER, JDBC_PASSWORD);
+    }
+
+    @Ignore("No solution for this so far as it must be run outside of a transaction with no other transaction active in the system")
+    @Test
+    public void singleUser() throws Exception {
+        flyway.setLocations("migration/database/sqlserver/sql/singleUser");
+        flyway.migrate();
+    }
+
+    @Test
+    public void backup() throws Exception {
+        flyway.setLocations("migration/database/sqlserver/sql/backup");
+        assertEquals(1, flyway.migrate());
+    }
+
+    @Test
+    public void jTDS() throws Exception {
+        flyway = new Flyway();
+        flyway.setDataSource(JDBC_URL_JTDS, JDBC_USER, JDBC_PASSWORD);
+        flyway.clean();
+        flyway.setLocations(getMigrationDir() + "/sql");
+        assertEquals(4, flyway.migrate());
+    }
 
     @Override
     protected String getQuoteLocation() {
