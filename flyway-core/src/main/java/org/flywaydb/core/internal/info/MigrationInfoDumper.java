@@ -68,14 +68,15 @@ public class MigrationInfoDumper {
         table.append(ruler);
         table.append("| ").append(StringUtils.trimOrPad(VERSION_TITLE, versionWidth, ' '))
                 .append(" | ").append(StringUtils.trimOrPad(DESCRIPTION_TITLE, descriptionWidth))
-                .append(" | ").append(StringUtils.trimOrPad(TYPE_TITLE, descriptionWidth))
+                .append(" | ").append(StringUtils.trimOrPad(TYPE_TITLE, typeWidth))
                 .append(" | Installed on       ")
                 .append(" | ").append(StringUtils.trimOrPad(STATE_TITLE, stateWidth))
                 .append(" |\n");
         table.append(ruler);
 
         if (migrationInfos.length == 0) {
-            table.append(StringUtils.trimOrPad("| No migrations found", ruler.length() - 2, ' ')).append("|\n");
+            table.append(StringUtils.trimOrPad("| No migrations found", ruler.length() - 2, ' '))
+                    .append("|\n");
         } else {
             for (MigrationInfo migrationInfo : migrationInfos) {
                 String versionStr = migrationInfo.getVersion() == null ? "" : migrationInfo.getVersion().toString();

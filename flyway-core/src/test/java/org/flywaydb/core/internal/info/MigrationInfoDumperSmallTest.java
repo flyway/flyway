@@ -45,7 +45,7 @@ public class MigrationInfoDumperSmallTest {
 
         assertEquals(5, lines.length);
         for (String line : lines) {
-            assertEquals(lines[0].length(), line.length());
+            assertEquals(table, lines[0].length(), line.length());
         }
     }
 
