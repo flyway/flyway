@@ -33,104 +33,104 @@ import org.flywaydb.core.api.MigrationInfo;
 public class FlywayCallbackImpl implements FlywayCallback, ConfigurationAware {
 
     private FlywayConfiguration flywayConfiguration;
-	private boolean beforeClean = false;
-	private boolean afterClean = false;
-	private boolean beforeMigrate = false;
-	private boolean afterMigrate = false;
-	private boolean beforeEachMigrate = false;
-	private boolean afterEachMigrate = false;
-	private boolean beforeValidate = false;
-	private boolean afterValidate = false;
-	private boolean beforeBaseline = false;
-	private boolean afterBaseline = false;
-	private boolean beforeRepair = false;
-	private boolean afterRepair = false;
-	private boolean beforeInfo = false;
-	private boolean afterInfo = false;
+	private int beforeClean;
+	private int afterClean;
+	private int beforeMigrate;
+	private int afterMigrate;
+	private int beforeEachMigrate;
+	private int afterEachMigrate;
+	private int beforeValidate;
+	private int afterValidate;
+	private int beforeBaseline;
+	private int afterBaseline;
+	private int beforeRepair;
+	private int afterRepair;
+	private int beforeInfo;
+	private int afterInfo;
 
 	@Override
 	public void beforeClean(Connection dataConnection) {
-		beforeClean = true;
+		beforeClean++;
         assertNotNull(dataConnection);
 	}
 
 	@Override
 	public void afterClean(Connection dataConnection) {
-		afterClean = true;
+		afterClean++;
         assertNotNull(dataConnection);
 	}
 
 	@Override
 	public void beforeMigrate(Connection dataConnection) {
-		beforeMigrate = true;
+		beforeMigrate++;
         assertNotNull(dataConnection);
 	}
 
 	@Override
 	public void afterMigrate(Connection dataConnection) {
-		afterMigrate = true;
+		afterMigrate++;
         assertNotNull(dataConnection);
 	}
 
 	@Override
 	public void beforeEachMigrate(Connection dataConnection, MigrationInfo info) {
-		beforeEachMigrate = true;
+		beforeEachMigrate++;
         assertNotNull(dataConnection);
         assertNotNull(info);
 	}
 
 	@Override
 	public void afterEachMigrate(Connection dataConnection, MigrationInfo info) {
-		afterEachMigrate = true;
+		afterEachMigrate++;
         assertNotNull(dataConnection);
         assertNotNull(info);
 	}
 
 	@Override
 	public void beforeValidate(Connection dataConnection) {
-		beforeValidate = true;
+		beforeValidate++;
         assertNotNull(dataConnection);
 	}
 
 	@Override
 	public void afterValidate(Connection dataConnection) {
-		afterValidate = true;
+		afterValidate++;
         assertNotNull(dataConnection);
 	}
 
 	@Override
 	public void beforeBaseline(Connection dataConnection) {
-		beforeBaseline = true;
+		beforeBaseline++;
         assertNotNull(dataConnection);
 	}
 
 	@Override
 	public void afterBaseline(Connection dataConnection) {
-		afterBaseline = true;
+		afterBaseline++;
         assertNotNull(dataConnection);
 	}
 
 	@Override
 	public void beforeRepair(Connection dataConnection) {
-		beforeRepair = true;
+		beforeRepair++;
         assertNotNull(dataConnection);
 	}
 
 	@Override
 	public void afterRepair(Connection dataConnection) {
-		afterRepair = true;
+		afterRepair++;
         assertNotNull(dataConnection);
 	}
 
 	@Override
 	public void beforeInfo(Connection dataConnection) {
-		beforeInfo = true;
+		beforeInfo++;
         assertNotNull(dataConnection);
 	}
 
 	@Override
 	public void afterInfo(Connection dataConnection) {
-		afterInfo = true;
+		afterInfo++;
         assertNotNull(dataConnection);
 	}
 
@@ -139,59 +139,59 @@ public class FlywayCallbackImpl implements FlywayCallback, ConfigurationAware {
         this.flywayConfiguration = flywayConfiguration;
 	}
 
-	public boolean isBeforeClean() {
+	public int getBeforeClean() {
 		return beforeClean;
 	}
 
-	public boolean isAfterClean() {
+	public int getAfterClean() {
 		return afterClean;
 	}
 
-	public boolean isBeforeMigrate() {
+	public int getBeforeMigrate() {
 		return beforeMigrate;
 	}
 
-	public boolean isAfterMigrate() {
+	public int getAfterMigrate() {
 		return afterMigrate;
 	}
 
-	public boolean isBeforeEachMigrate() {
+	public int getBeforeEachMigrate() {
 		return beforeEachMigrate;
 	}
 
-	public boolean isAfterEachMigrate() {
+	public int getAfterEachMigrate() {
 		return afterEachMigrate;
 	}
 
-	public boolean isBeforeValidate() {
+	public int getBeforeValidate() {
 		return beforeValidate;
 	}
 
-	public boolean isAfterValidate() {
+	public int getAfterValidate() {
 		return afterValidate;
 	}
 
-	public boolean isBeforeBaseline() {
+	public int getBeforeBaseline() {
 		return beforeBaseline;
 	}
 
-	public boolean isAfterBaseline() {
+	public int getAfterBaseline() {
 		return afterBaseline;
 	}
 
-	public boolean isBeforeRepair() {
+	public int getBeforeRepair() {
 		return beforeRepair;
 	}
 
-	public boolean isAfterRepair() {
+	public int getAfterRepair() {
 		return afterRepair;
 	}
 
-	public boolean isBeforeInfo() {
+	public int getBeforeInfo() {
 		return beforeInfo;
 	}
 
-	public boolean isAfterInfo() {
+	public int getAfterInfo() {
 		return afterInfo;
 	}
 
