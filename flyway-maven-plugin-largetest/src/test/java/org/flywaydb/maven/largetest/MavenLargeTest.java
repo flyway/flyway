@@ -50,7 +50,8 @@ public class MavenLargeTest {
 
     @Test
     public void regular() throws Exception {
-        String stdOut = runMaven(0, "regular", "clean", "compile", "flyway:baseline", "flyway:info", "-Dflyway.initVersion=0.1", "-Dflyway.user=SA");
+        String stdOut = runMaven(0, "regular", "clean", "compile", "flyway:baseline",
+                "flyway:info", "-Dflyway.baselineVersion=0.1", "-Dflyway.user=SA");
         assertTrue(stdOut.contains("<< Flyway Baseline >>"));
     }
 
