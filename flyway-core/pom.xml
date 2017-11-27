@@ -330,6 +330,9 @@
             <id>SAPHANATest</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
+                <os>
+                    <family>unix</family>
+                </os>
             </activation>
             <build>
                 <plugins>

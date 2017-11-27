@@ -53,16 +53,15 @@ import static org.junit.Assume.assumeTrue;
  * 12. Terminate instance in AWS Console
  * 13. Delete remaining volumes in AWS Console
  */
-@Category(DbCategory.DockerDB.class)
+@Category(DbCategory.SAPHANA.class)
 public class SAPHANAMigrationMediumTest extends MigrationTestCase {
-    private static final String JDBC_URL = "jdbc:sap://localhost:39013/?databaseName=HXE";
-    private static final String JDBC_USER_SYSTEM = "SYSTEM";
+    private static final String JDBC_URL = "jdbc:sap://localhost:62060/?databaseName=HXE";
     private static final String JDBC_PASSWORD = "HXEHana1";
     private static final String JDBC_USER = "flywaydb";
 
     @Override
     protected void ensureTestEnabled() {
-        //assumeTrue(Boolean.valueOf(System.getProperty("flyway.test.saphana")));
+        assumeTrue(Boolean.valueOf(System.getProperty("flyway.test.saphana")));
     }
 
     @Override
@@ -104,7 +103,7 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
 
             @Override
             protected String getSchemaName() {
-                return JDBC_USER_SYSTEM.toUpperCase();
+                return JDBC_USER.toUpperCase();
             }
 
             @Override
