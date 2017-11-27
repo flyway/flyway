@@ -55,7 +55,7 @@ import static org.junit.Assume.assumeTrue;
  */
 @Category(DbCategory.SAPHANA.class)
 public class SAPHANAMigrationMediumTest extends MigrationTestCase {
-    private static final String JDBC_URL = "jdbc:sap://localhost:62060/?databaseName=HXE";
+    private static final String JDBC_URL = "jdbc:sap://localhost:39013/?databaseName=HXE";
     private static final String JDBC_PASSWORD = "HXEHana1";
     private static final String JDBC_USER = "flywaydb";
 
