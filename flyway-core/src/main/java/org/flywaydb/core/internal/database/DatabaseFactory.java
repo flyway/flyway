@@ -187,10 +187,25 @@ public class DatabaseFactory {
 
     private static String getJdbcUrl(Connection connection) {
         try {
-            return connection.getMetaData().getURL();
+            return filterUrl(connection.getMetaData().getURL());
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to retrieve the Jdbc connection Url!", e);
         }
+    }
+
+    /**
+     * Filter out parameters to avoid including passwords, etc.
+     *
+     * @param url The raw url.
+     * @return The filtered url.
+     */
+    static String filterUrl(String url) {
+        int questionMark = url.indexOf("?");
+        if (questionMark >= 0) {
+            url = url.substring(0, questionMark);
+        }
+        url = url.replaceAll("://.*:.*@", "://");
+        return url;
     }
 
     /**
