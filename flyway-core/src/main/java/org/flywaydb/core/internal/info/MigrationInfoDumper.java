@@ -25,6 +25,8 @@ import org.flywaydb.core.internal.util.StringUtils;
 public class MigrationInfoDumper {
     private static final String VERSION_TITLE = "Version";
     private static final String DESCRIPTION_TITLE = "Description";
+    private static final String TYPE_TITLE = "Type";
+    private static final String STATE_TITLE = "State";
 
     /**
      * Prevent instantiation.
@@ -42,20 +44,34 @@ public class MigrationInfoDumper {
     public static String dumpToAsciiTable(MigrationInfo[] migrationInfos) {
         int versionWidth = VERSION_TITLE.length();
         int descriptionWidth = DESCRIPTION_TITLE.length();
+        int typeWidth = TYPE_TITLE.length();
+        int stateWidth = STATE_TITLE.length();
 
         for (MigrationInfo migrationInfo : migrationInfos) {
-            versionWidth = Math.max(versionWidth, migrationInfo.getVersion() == null ? 0 : migrationInfo.getVersion().toString().length());
+            versionWidth = Math.max(versionWidth,
+                    migrationInfo.getVersion() == null
+                            ? 0
+                            : migrationInfo.getVersion().toString().length());
             descriptionWidth = Math.max(descriptionWidth, migrationInfo.getDescription().length());
+            typeWidth = Math.max(typeWidth, migrationInfo.getDescription().length());
+            stateWidth = Math.max(stateWidth, migrationInfo.getState().getDisplayName().length());
         }
 
         String ruler = "+-" + StringUtils.trimOrPad("", versionWidth, '-')
-                + "-+-" + StringUtils.trimOrPad("", descriptionWidth, '-') + "-+---------------------+---------+\n";
+                + "-+-" + StringUtils.trimOrPad("", descriptionWidth, '-')
+                + "-+-" + StringUtils.trimOrPad("", typeWidth, '-')
+                + "-+--------------------"
+                + "-+-" + StringUtils.trimOrPad("", stateWidth, '-')
+                + "-+\n";
 
         StringBuilder table = new StringBuilder();
         table.append(ruler);
         table.append("| ").append(StringUtils.trimOrPad(VERSION_TITLE, versionWidth, ' '))
                 .append(" | ").append(StringUtils.trimOrPad(DESCRIPTION_TITLE, descriptionWidth))
-                .append(" | Installed on        | State   |\n");
+                .append(" | ").append(StringUtils.trimOrPad(TYPE_TITLE, descriptionWidth))
+                .append(" | Installed on       ")
+                .append(" | ").append(StringUtils.trimOrPad(STATE_TITLE, stateWidth))
+                .append(" |\n");
         table.append(ruler);
 
         if (migrationInfos.length == 0) {
@@ -65,8 +81,9 @@ public class MigrationInfoDumper {
                 String versionStr = migrationInfo.getVersion() == null ? "" : migrationInfo.getVersion().toString();
                 table.append("| ").append(StringUtils.trimOrPad(versionStr, versionWidth));
                 table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getDescription(), descriptionWidth));
+                table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getType().name(), typeWidth));
                 table.append(" | ").append(StringUtils.trimOrPad(DateUtils.formatDateAsIsoString(migrationInfo.getInstalledOn()), 19));
-                table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getState().getDisplayName(), 7));
+                table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getState().getDisplayName(), stateWidth));
                 table.append(" |\n");
             }
         }

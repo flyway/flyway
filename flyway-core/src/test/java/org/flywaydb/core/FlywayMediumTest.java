@@ -552,8 +552,8 @@ public class FlywayMediumTest {
         all = flyway.info().all();
         assertEquals(MigrationState.SUCCESS, all[0].getState());
         assertEquals(MigrationState.SUCCESS, all[1].getState());
-        assertEquals(MigrationState.SUPERSEEDED, all[2].getState());
-        assertEquals(MigrationState.SUPERSEEDED, all[3].getState());
+        assertEquals(MigrationState.SUPERSEDED, all[2].getState());
+        assertEquals(MigrationState.SUPERSEDED, all[3].getState());
         assertEquals(MigrationState.SUCCESS, all[4].getState());
         assertEquals(MigrationState.SUCCESS, all[5].getState());
         assertEquals(MigrationState.SUCCESS, all[6].getState());
@@ -574,8 +574,8 @@ public class FlywayMediumTest {
         all = flyway.info().all();
         assertEquals(MigrationState.SUCCESS, all[0].getState());
         assertEquals(MigrationState.SUCCESS, all[1].getState());
-        assertEquals(MigrationState.SUPERSEEDED, all[2].getState());
-        assertEquals(MigrationState.SUPERSEEDED, all[3].getState());
+        assertEquals(MigrationState.SUPERSEDED, all[2].getState());
+        assertEquals(MigrationState.SUPERSEDED, all[3].getState());
         assertEquals(MigrationState.SUCCESS, all[4].getState());
         assertEquals(MigrationState.SUCCESS, all[5].getState());
         assertEquals(MigrationState.OUTDATED, all[6].getState());
@@ -587,12 +587,12 @@ public class FlywayMediumTest {
         all = flyway.info().all();
         assertEquals(MigrationState.SUCCESS, all[0].getState());
         assertEquals(MigrationState.SUCCESS, all[1].getState());
-        assertEquals(MigrationState.SUPERSEEDED, all[2].getState());
-        assertEquals(MigrationState.SUPERSEEDED, all[3].getState());
+        assertEquals(MigrationState.SUPERSEDED, all[2].getState());
+        assertEquals(MigrationState.SUPERSEDED, all[3].getState());
         assertEquals(MigrationState.SUCCESS, all[4].getState());
         assertEquals(MigrationState.SUCCESS, all[5].getState());
-        assertEquals(MigrationState.SUPERSEEDED, all[6].getState());
-        assertEquals(MigrationState.SUPERSEEDED, all[7].getState());
+        assertEquals(MigrationState.SUPERSEDED, all[6].getState());
+        assertEquals(MigrationState.SUPERSEDED, all[7].getState());
         assertEquals(MigrationState.SUCCESS, all[8].getState());
         assertEquals(MigrationState.SUCCESS, all[9].getState());
         assertNotNull(all[0].getVersion());
