@@ -170,9 +170,13 @@ public class FlywayMediumTest {
         flyway.setDataSource(dataSource);
         flyway.setSqlMigrationPrefix("");
         flyway.setLocations("migration/callback");
+        assertEquals(0, flyway.getCallbacks().length);
         flyway.migrate();
+        assertEquals(0, flyway.getCallbacks().length);
         assertEquals("1", flyway.info().current().getVersion().toString());
+        assertEquals(0, flyway.getCallbacks().length);
         assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
+        assertEquals(0, flyway.getCallbacks().length);
 
         assertEquals("Mr Callback", new JdbcTemplate(dataSource.getConnection(), 0).queryForString("SELECT name FROM test_user"));
     }
