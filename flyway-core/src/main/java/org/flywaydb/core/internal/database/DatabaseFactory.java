@@ -201,7 +201,7 @@ public class DatabaseFactory {
      */
     static String filterUrl(String url) {
         int questionMark = url.indexOf("?");
-        if (questionMark >= 0) {
+        if (questionMark >= 0 && !url.contains("?databaseName=")) {
             url = url.substring(0, questionMark);
         }
         url = url.replaceAll("://.*:.*@", "://");
