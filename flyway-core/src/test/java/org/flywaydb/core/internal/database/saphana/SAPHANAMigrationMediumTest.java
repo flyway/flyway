@@ -49,7 +49,7 @@ import static org.junit.Assume.assumeTrue;
  * 12. Terminate instance in AWS Console
  * 13. Delete remaining volumes in AWS Console
  */
-@Category(DbCategory.SAPHANA.class)
+@Category(DbCategory.DockerDB.class)
 public class SAPHANAMigrationMediumTest extends MigrationTestCase {
     private static final String JDBC_URL = "jdbc:sap://localhost:39013/?databaseName=HXE";
     private static final String JDBC_USER = "SYSTEM";
