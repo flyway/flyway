@@ -98,9 +98,8 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
     public void concurrent() throws Exception {
         ConcurrentMigrationTestCase testCase = new ConcurrentMigrationTestCase() {
             @Override
-            protected DataSource createDataSource(Properties customProperties) {
-                return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                        JDBC_URL, JDBC_USER_SYSTEM, JDBC_PASSWORD);
+            protected DataSource createDataSource(Properties customProperties) throws SQLException {
+                return SAPHANAMigrationMediumTest.this.createDataSource(customProperties);
             }
 
             @Override
