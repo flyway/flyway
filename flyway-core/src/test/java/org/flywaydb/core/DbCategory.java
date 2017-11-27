@@ -37,10 +37,10 @@ public class DbCategory {
     public interface Oracle extends DockerDB {}
     public interface DB2 extends DockerDB {}
     public interface SQLServer extends DockerDB {}
+    public interface SAPHANA extends DockerDB {}
     public interface SybaseASE extends DockerDB {}
 
     public interface Redshift extends SpecialDB {}
-    public interface SAPHANA extends SpecialDB {}
 
     // Other databases support maintained by the third party contributors
 //    public interface EnterpriseDB extends ContributorSupportedDB {}

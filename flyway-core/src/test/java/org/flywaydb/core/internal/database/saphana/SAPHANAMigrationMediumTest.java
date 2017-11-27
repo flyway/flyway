@@ -61,7 +61,7 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
 
     @Override
     protected void ensureTestEnabled() {
-        assumeTrue(Boolean.valueOf(System.getProperty("flyway.test.saphana")));
+        assumeTrue(Boolean.valueOf(System.getProperty("flyway.test.saphana")) || System.getProperty("os.name").toLowerCase().contains("linux"));
     }
 
     @Override

@@ -326,28 +326,6 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-            <id>SAPHANATest</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <os>
-                    <family>unix</family>
-                </os>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <groups>org.flywaydb.core.DbCategory$SAPHANA</groups>
-                            <systemProperties>
-                                <flyway.test.saphana>true</flyway.test.saphana>
-                            </systemProperties>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
     <!-- [/master] -->
 </project>
