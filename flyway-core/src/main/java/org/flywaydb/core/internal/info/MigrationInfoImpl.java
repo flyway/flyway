@@ -164,7 +164,7 @@ public class MigrationInfoImpl implements MigrationInfo {
                 }
                 return MigrationState.OUTDATED;
             }
-            return MigrationState.SUPERSEEDED;
+            return MigrationState.SUPERSEDED;
         }
 
         if (outOfOrder) {
@@ -250,7 +250,7 @@ public class MigrationInfoImpl implements MigrationInfo {
                 }
                 if (resolvedMigration.getVersion() != null
                         || (context.pending &&
-                        ((MigrationState.OUTDATED != getState()) && (MigrationState.SUPERSEEDED != getState())))) {
+                        ((MigrationState.OUTDATED != getState()) && (MigrationState.SUPERSEDED != getState())))) {
                     if (!ObjectUtils.nullSafeEquals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
                         return createMismatchMessage("checksum", migrationIdentifier,
                                 appliedMigration.getChecksum(), resolvedMigration.getChecksum());
