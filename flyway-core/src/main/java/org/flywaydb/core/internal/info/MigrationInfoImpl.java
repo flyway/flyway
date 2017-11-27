@@ -290,9 +290,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         MigrationState state = getState();
         MigrationState oState = o.getState();
 
-        if (((getInstalledRank() != null) || (o.getInstalledRank() != null))
-                && (!(state == MigrationState.BELOW_BASELINE || oState == MigrationState.BELOW_BASELINE
-                || state == MigrationState.IGNORED || oState == MigrationState.IGNORED))) {
+        if (((getInstalledRank() != null) || (o.getInstalledRank() != null))) {
             if (getInstalledRank() != null) {
                 return Integer.MIN_VALUE;
             }
