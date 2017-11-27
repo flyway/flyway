@@ -28,6 +28,7 @@ import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.h2.H2Database;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.logging.StringLogCreator;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.junit.Before;
@@ -386,6 +387,29 @@ public class FlywayMediumTest {
 
         assertEquals("2.0", flyway.info().current().getVersion().toString());
         assertEquals(MigrationType.SQL, flyway.info().current().getType());
+    }
+
+    @Test
+    public void baselineOnMigrateNotSql() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_baseline_on_migrate_not_sql;DB_CLOSE_DELAY=-1", "sa", "", null);
+
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            new JdbcTemplate(connection).execute("CREATE TABLE abc ( def int)");
+        } finally {
+            JdbcUtils.closeConnection(connection);
+        }
+
+        flyway.setDataSource(dataSource);
+        flyway.setLocations("migration/sql");
+        flyway.setBaselineVersionAsString("2.0");
+        flyway.setBaselineOnMigrate(true);
+        flyway.migrate();
+
+        assertEquals("2.0", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
     }
 
     @Test
