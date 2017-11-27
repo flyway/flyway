@@ -17,7 +17,9 @@ package org.flywaydb.core.internal.database.saphana;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.internal.database.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Ignore;
@@ -25,6 +27,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -52,8 +56,9 @@ import static org.junit.Assume.assumeTrue;
 @Category(DbCategory.DockerDB.class)
 public class SAPHANAMigrationMediumTest extends MigrationTestCase {
     private static final String JDBC_URL = "jdbc:sap://localhost:39013/?databaseName=HXE";
-    private static final String JDBC_USER = "SYSTEM";
+    private static final String JDBC_USER_SYSTEM = "SYSTEM";
     private static final String JDBC_PASSWORD = "HXEHana1";
+    private static final String JDBC_USER = "flywaydb";
 
     @Override
     protected void ensureTestEnabled() {
@@ -61,11 +66,23 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource(Properties customProperties) throws SQLException {
+        DriverDataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                JDBC_URL, "SYSTEM", JDBC_PASSWORD);
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            try {
+                new JdbcTemplate(connection).execute("CREATE USER " + JDBC_USER + " PASSWORD " + JDBC_PASSWORD
+                        + " NO FORCE_FIRST_PASSWORD_CHANGE");
+            } catch (SQLException e) {
+                System.out.println("Ignoring: " + e.getMessage());
+            }
+        } finally {
+            JdbcUtils.closeConnection(connection);
+        }
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                JDBC_URL, JDBC_USER, JDBC_PASSWORD, null
-                //, "CREATE USER flywaydb1 PASSWORD SAPhana1 NO FORCE_FIRST_PASSWORD_CHANGE"
-                );
+                JDBC_URL, JDBC_USER, JDBC_PASSWORD);
     }
 
     protected String getBasedir() {
@@ -83,12 +100,12 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
             @Override
             protected DataSource createDataSource(Properties customProperties) {
                 return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                        JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+                        JDBC_URL, JDBC_USER_SYSTEM, JDBC_PASSWORD);
             }
 
             @Override
             protected String getSchemaName() {
-                return JDBC_USER.toUpperCase();
+                return JDBC_USER_SYSTEM.toUpperCase();
             }
 
             @Override
