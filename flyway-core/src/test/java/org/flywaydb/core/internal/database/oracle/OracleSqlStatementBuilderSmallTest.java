@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -32,6 +31,14 @@ public class OracleSqlStatementBuilderSmallTest {
     public void setDefineOff() {
         builder.addLine("set define off;");
         assertTrue(builder.canDiscard());
+    }
+
+    @Test(timeout = 2000)
+    public void setDefineOff1000000() {
+        builder.addLine("CREATE TABLE (a int);");
+        for (int i = 0; i < 1000000; i++) {
+            assertFalse(builder.isUnsupportedSqlPlusStatement());
+        }
     }
 
     @Test

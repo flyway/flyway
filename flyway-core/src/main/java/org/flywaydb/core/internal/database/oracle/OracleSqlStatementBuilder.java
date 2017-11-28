@@ -40,6 +40,65 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
      */
     private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(USING|THEN|FROM|AND|OR|AS)(?!.)");
 
+    // [pro]
+    private static final Pattern UNSUPPORTED_SQLPLUS_COMMANDS_REGEX = Pattern.compile("(" +
+            "ACC|ACCEPT|" +
+            "A|APPEND|" +
+            "ARCHIVE|" +
+            "ATTR|ATTRIBUTE|" +
+            "BRE|BREAK|" +
+            "BTI|BTITLE|" +
+            "C|CHANGE|" +
+            "CL|CLEAR|" +
+            "COL|COLUMN|" +
+            "COMP|COMPUTE|" +
+            "CONN|CONNECT|" +
+            "COPY|" +
+            "DEF|DEFINE|" +
+            "DEL|" +
+            "DESC|DESCRIBE|" +
+            "DISC|DISCONNECT|" +
+            "ED|EDIT|" +
+            "EXEC|EXECUTE|" +
+            "EXIT|" +
+            "GET|" +
+            "HELP|" +
+            "HIST|HISTORY|" +
+            "HO|HOST|" +
+            "I|INPUT|" +
+            "L|LIST|" +
+            "PASSW|PASSWORD|" +
+            "PAU|PAUSE|" +
+            "PRINT|" +
+            "PRO|PROMPT|" +
+            "QUIT|" +
+            "RECOVER|" +
+            "REM|REMARK|" +
+            "REPF|REPFOOTER|" +
+            "REPH|REPHEADER|" +
+            "R|RUN|" +
+            "SAV|SAVE|" +
+            "SET|" +
+            "SHO|SHOW|" +
+            "SHUTDOWN|" +
+            "SPO|SPOOL|" +
+            "STA|START|" +
+            "STARTUP|" +
+            "STORE|" +
+            "TIMI|TIMING|" +
+            "TTI|TTITLE|" +
+            "UNDEF|UNDEFINE|" +
+            "VAR|VARIABLE|" +
+            "WHENEVER|" +
+            "XQUERY) .*");
+    // [/pro]
+
+    private static final Pattern DECLARE_BEGIN_REGEX = Pattern.compile("(DECLARE|BEGIN)(\\s.*)?");
+    private static final Pattern PLSQL_REGEX = Pattern.compile(
+            "CREATE(\\s+OR\\s+REPLACE)?(\\s+(NON)?EDITIONABLE)?\\s+(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*");
+    private static final Pattern JAVA_REGEX = Pattern.compile(
+            "CREATE(\\s+OR\\s+REPLACE)?(\\s+AND\\s+(RESOLVE|COMPILE))?(\\s+NOFORCE)?\\s+JAVA\\s+(SOURCE|RESOURCE|CLASS).*");
+
     /**
      * Delimiter of PL/SQL blocks and statements.
      */
@@ -56,7 +115,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
-        if (line.matches("DECLARE|DECLARE\\s.*") || line.matches("BEGIN|BEGIN\\s.*")) {
+        if (DECLARE_BEGIN_REGEX.matcher(line).matches()) {
             return PLSQL_DELIMITER;
         }
 
@@ -66,8 +125,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
             statementStart = statementStart.replaceAll("\\s+", " ");
         }
 
-        if (statementStart.matches("CREATE(\\s+OR\\s+REPLACE)?(\\s+(NON)?EDITIONABLE)?\\s+(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*")
-                || statementStart.matches("CREATE(\\s+OR\\s+REPLACE)?(\\s+AND\\s+(RESOLVE|COMPILE))?(\\s+NOFORCE)?\\s+JAVA\\s+(SOURCE|RESOURCE|CLASS).*")) {
+        if (PLSQL_REGEX.matcher(statementStart).matches() || JAVA_REGEX.matcher(statementStart).matches()) {
             return PLSQL_DELIMITER;
         }
 
@@ -129,18 +187,15 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
         return super.canDiscard()
                 || statementStart.startsWith("/") // Lone / that can safely be ignored
                 // [pro]
-                || isSqlPlusStatement()
+                || isUnsupportedSqlPlusStatement()
                 // [/pro]
                 ;
     }
 
     // [pro]
-    private boolean isSqlPlusStatement() {
+    boolean isUnsupportedSqlPlusStatement() {
         if (statementStart.startsWith("@")
-                || statementStart.matches("(ACCEPT|APPEND|ARCHIVE|ATTRIBUTE|BREAK|BTITLE|CHANGE|CLEAR|COLUMN|" +
-                "COMPUTE|CONNECT|COPY|DEFINE|DEL|DESCRIBE|DISCONNECT|EDIT|EXECUTE|EXIT|GET|HELP|HISTORY|HOST|INPUT|" +
-                "LIST|PASSWORD|PAUSE|PRINT|PROMPT|RECOVER|REMARK|REPFOOTER|REPHEADER|RUN|SAVE|SET|SHOW|SHUTDOWN|SPOOL|" +
-                "START|STARTUP|STORE|TIMING|TTITLE|UNDEFINE|VARIABLE|WHENEVER|XQUERY) .*")) {
+                || UNSUPPORTED_SQLPLUS_COMMANDS_REGEX.matcher(statementStart).matches()) {
             LOG.warn("Ignoring unsupported SQL*Plus statement: " + statement.toString());
             return true;
         }
