@@ -308,6 +308,12 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.clean();
     }
 
+    @Test
+    public void sqlplus() throws FlywayException {
+        flyway.setLocations("migration/database/oracle/sql/sqlplus");
+        assertEquals(1, flyway.migrate());
+    }
+
     /**
      * Tests support for create function.
      */

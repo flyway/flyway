@@ -20,7 +20,6 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlStatement;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.database.oracle.pro.SQLPlusExecuteSqlStatement;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.regex.Matcher;
@@ -71,7 +70,6 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
             "PASSW|PASSWORD|" +
             "PAU|PAUSE|" +
             "PRINT|" +
-            "PRO|PROMPT|" +
             "QUIT|" +
             "RECOVER|" +
             "REM|REMARK|" +
@@ -93,6 +91,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
             "WHENEVER|" +
             "XQUERY) .*");
     private static final Pattern EXECUTE_REGEX = Pattern.compile("(EXEC|EXECUTE)(\\s.*)?");
+    private static final Pattern PROMPT_REGEX = Pattern.compile("PROMPT(\\s.*)?");
     // [/pro]
 
     private static final Pattern DECLARE_BEGIN_REGEX = Pattern.compile("(DECLARE|BEGIN)(\\s.*)?");
@@ -119,9 +118,17 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     @Override
     public SqlStatement getSqlStatement() {
         if (EXECUTE_REGEX.matcher(statementStart).matches()) {
-            return new SQLPlusExecuteSqlStatement(lineNumber, statement.toString());
+            return new org.flywaydb.core.internal.database.oracle.pro.SQLPlusExecuteSqlStatement(lineNumber, statement.toString());
+        }
+        if (PROMPT_REGEX.matcher(statementStart).matches()) {
+            return new org.flywaydb.core.internal.database.oracle.pro.SQLPlusPromptSqlStatement(lineNumber, statement.toString());
         }
         return super.getSqlStatement();
+    }
+
+    @Override
+    public boolean isTerminated() {
+        return (PROMPT_REGEX.matcher(statementStart).matches() && !statement.toString().endsWith("-")) || super.isTerminated();
     }
     // [/pro]
 
