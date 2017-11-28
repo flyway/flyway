@@ -5,11 +5,8 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.AbstractSqlStatement;
 import org.flywaydb.core.internal.database.JdbcTemplate;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -49,8 +46,8 @@ public class SQLPlusShowSqlStatement extends AbstractSqlStatement {
             }
             StringBuilder output = new StringBuilder(
                     "Errors for " + result.get(0).get("TYPE") + " " + result.get(0).get("NAME") + ":\n\n" +
-                    "LINE/COL ERROR\n" +
-                    "-------- -----------------------------------------------------------------\n");
+                            "LINE/COL ERROR\n" +
+                            "-------- -----------------------------------------------------------------\n");
             for (Map<String, String> row : result) {
                 output.append(StringUtils.trimOrPad(row.get("LINE") + "/" + row.get("POSITION"), 8))
                         .append(" ").append(row.get("TEXT").replace("\n", "\n         ")).append("\n");
@@ -68,20 +65,7 @@ public class SQLPlusShowSqlStatement extends AbstractSqlStatement {
         LOG.warn("Unknown option for SHOW: " + option);
     }
 
-    String extractOption() {
+    private String extractOption() {
         return sql.substring(sql.indexOf(" ") + 1).toUpperCase(Locale.ENGLISH);
-    }
-
-    private static class ErrorRowMapper implements RowMapper<Map<String, String>> {
-        @Override
-        public Map<String, String> mapRow(ResultSet rs) throws SQLException {
-            Map<String, String> row = new HashMap<String, String>();
-            row.put("TYPE", rs.getString(1));
-            row.put("NAME", rs.getString(2));
-            row.put("LINE", "" + rs.getInt(3));
-            row.put("POSITION", "" + rs.getInt(4));
-            row.put("TEXT", rs.getString(5));
-            return row;
-        }
     }
 }
