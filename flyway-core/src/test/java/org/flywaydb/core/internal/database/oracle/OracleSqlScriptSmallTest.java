@@ -198,6 +198,6 @@ public class OracleSqlScriptSmallTest {
 
         SqlScript sqlScript = createSqlScript(source);
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
-        assertEquals(2, sqlStatements.size());
+        assertEquals(1, sqlStatements.size());
     }
 }
