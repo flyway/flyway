@@ -32,11 +32,10 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
 
 /**
  * Test to demonstrate the migration functionality using SAP HANA.
- *
+ * <p>
  * Testing with SAP HANA 1
  * -----------------------
  * 1. Launch SAP HANA One on SUSE Linux Enterprise Server 11 SP 4 from AWS Marketplace (ami-28b25547) with known Keypair
@@ -55,7 +54,7 @@ import static org.junit.Assume.assumeTrue;
  */
 @Category(DbCategory.SAPHANA.class)
 public class SAPHANAMigrationMediumTest extends MigrationTestCase {
-    private static final String JDBC_URL = "jdbc:sap://localhost:62060/?databaseName=HXE";
+    private static final String JDBC_URL = "jdbc:sap://localhost:62060/";
     private static final String JDBC_PASSWORD = "HXEHana1";
     private static final String JDBC_USER = "flywaydb";
 
