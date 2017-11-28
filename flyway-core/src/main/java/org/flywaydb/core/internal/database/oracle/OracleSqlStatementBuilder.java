@@ -50,7 +50,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
         return Pattern.compile("^(" + StringUtils.arrayToDelimitedString("|", commands) + ").*");
     }
 
-    private static final String SUPPORTED_SHOW_OPTIONS = "CON_ID|ERR|ERRORS|REL|RELEASE";
+    private static final String SUPPORTED_SHOW_OPTIONS = "CON_ID|ERR|ERRORS|REL|RELEASE|USER";
     private static final String UNSUPPORTED_SQLPLUS_COMMANDS =
             "ACC|ACCEPT|" +
                     "A|APPEND|" +

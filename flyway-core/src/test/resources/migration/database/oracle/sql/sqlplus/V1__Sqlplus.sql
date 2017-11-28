@@ -21,6 +21,8 @@ REM abc-
 def
 REM abc-;
 
+show user
+
 create or replace procedure selectdata is
   v_number number;
   begin
