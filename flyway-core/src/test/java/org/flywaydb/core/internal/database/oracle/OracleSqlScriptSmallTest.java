@@ -73,13 +73,14 @@ public class OracleSqlScriptSmallTest {
 
         SqlScript sqlScript = createSqlScript(source);
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
-        assertEquals(5, sqlStatements.size());
+        assertEquals(6, sqlStatements.size());
         assertEquals(17, sqlStatements.get(0).getLineNumber());
         assertEquals(28, sqlStatements.get(1).getLineNumber());
         assertEquals(36, sqlStatements.get(2).getLineNumber());
         assertEquals(40, sqlStatements.get(3).getLineNumber());
         assertEquals(48, sqlStatements.get(4).getLineNumber());
         assertEquals("COMMIT", sqlStatements.get(4).getSql());
+        assertEquals(50, sqlStatements.get(5).getLineNumber());
     }
 
     @Test
@@ -198,6 +199,6 @@ public class OracleSqlScriptSmallTest {
 
         SqlScript sqlScript = createSqlScript(source);
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
-        assertEquals(1, sqlStatements.size());
+        assertEquals(2, sqlStatements.size());
     }
 }
