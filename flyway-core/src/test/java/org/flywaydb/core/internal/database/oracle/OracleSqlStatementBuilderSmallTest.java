@@ -28,7 +28,6 @@ import static org.junit.Assert.*;
 public class OracleSqlStatementBuilderSmallTest {
     private OracleSqlStatementBuilder builder = new OracleSqlStatementBuilder(new Delimiter(";", false));
 
-    @Ignore
     @Test
     public void setDefineOff() {
         builder.addLine("set define off;");

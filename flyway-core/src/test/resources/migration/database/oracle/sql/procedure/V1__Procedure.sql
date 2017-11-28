@@ -29,6 +29,8 @@ procedure id_for_sub_sector (
    end id_for_sub_sector;
 /
 
+set define off;
+
 create or replace
 procedure id_for_sector (
       p_sector_name in sectors.name%type,

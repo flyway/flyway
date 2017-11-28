@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -26,6 +28,8 @@ import java.util.regex.Pattern;
  * SqlStatementBuilder supporting Oracle-specific PL/SQL constructs.
  */
 public class OracleSqlStatementBuilder extends SqlStatementBuilder {
+    private static final Log LOG = LogFactory.getLog(SqlStatementBuilder.class);
+
     /**
      * Regex for keywords that can appear before a string literal without being separated by a space.
      */
@@ -122,6 +126,25 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     public boolean canDiscard() {
-        return super.canDiscard() || statementStart.startsWith("/");
+        return super.canDiscard()
+                || statementStart.startsWith("/") // Lone / that can safely be ignored
+                // [pro]
+                || isSqlPlusStatement()
+                // [/pro]
+                ;
     }
+
+    // [pro]
+    private boolean isSqlPlusStatement() {
+        if (statementStart.startsWith("@")
+                || statementStart.matches("(ACCEPT|APPEND|ARCHIVE|ATTRIBUTE|BREAK|BTITLE|CHANGE|CLEAR|COLUMN|" +
+                "COMPUTE|CONNECT|COPY|DEFINE|DEL|DESCRIBE|DISCONNECT|EDIT|EXECUTE|EXIT|GET|HELP|HISTORY|HOST|INPUT|" +
+                "LIST|PASSWORD|PAUSE|PRINT|PROMPT|RECOVER|REMARK|REPFOOTER|REPHEADER|RUN|SAVE|SET|SHOW|SHUTDOWN|SPOOL|" +
+                "START|STARTUP|STORE|TIMING|TTITLE|UNDEFINE|VARIABLE|WHENEVER|XQUERY) .*")) {
+            LOG.warn("Ignoring unsupported SQL*Plus statement: " + statement.toString());
+            return true;
+        }
+        return false;
+    }
+    // [/pro]
 }
