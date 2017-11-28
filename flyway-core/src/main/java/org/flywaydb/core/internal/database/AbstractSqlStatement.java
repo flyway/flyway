@@ -29,9 +29,9 @@ public abstract class AbstractSqlStatement implements SqlStatement {
      */
     protected String sql;
 
-    public AbstractSqlStatement(String sql, int lineNumber) {
-        this.sql = sql;
+    public AbstractSqlStatement(int lineNumber, String sql) {
         this.lineNumber = lineNumber;
+        this.sql = sql;
     }
 
     @Override

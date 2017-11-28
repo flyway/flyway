@@ -46,3 +46,5 @@ CREATE PROCEDURE remove_emp (employee_id NUMBER) AS
    END;
 /
 COMMIT;
+
+EXEC selectdata();

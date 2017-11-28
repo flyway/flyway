@@ -18,7 +18,9 @@ package org.flywaydb.core.internal.database.oracle;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Delimiter;
+import org.flywaydb.core.internal.database.SqlStatement;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.database.oracle.pro.SQLPlusExecuteSqlStatement;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.regex.Matcher;
@@ -59,7 +61,6 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
             "DESC|DESCRIBE|" +
             "DISC|DISCONNECT|" +
             "ED|EDIT|" +
-            "EXEC|EXECUTE|" +
             "EXIT|" +
             "GET|" +
             "HELP|" +
@@ -91,6 +92,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
             "VAR|VARIABLE|" +
             "WHENEVER|" +
             "XQUERY) .*");
+    private static final Pattern EXECUTE_REGEX = Pattern.compile("(EXEC|EXECUTE)(\\s.*)?");
     // [/pro]
 
     private static final Pattern DECLARE_BEGIN_REGEX = Pattern.compile("(DECLARE|BEGIN)(\\s.*)?");
@@ -112,6 +114,16 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     public OracleSqlStatementBuilder(Delimiter defaultDelimiter) {
         super(defaultDelimiter);
     }
+
+    // [pro]
+    @Override
+    public SqlStatement getSqlStatement() {
+        if (EXECUTE_REGEX.matcher(statementStart).matches()) {
+            return new SQLPlusExecuteSqlStatement(lineNumber, statement.toString());
+        }
+        return super.getSqlStatement();
+    }
+    // [/pro]
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {

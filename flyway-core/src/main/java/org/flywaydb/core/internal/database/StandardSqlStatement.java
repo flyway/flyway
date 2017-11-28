@@ -28,7 +28,7 @@ public class StandardSqlStatement extends AbstractSqlStatement {
      * @param sql        The sql to send to the database.
      */
     public StandardSqlStatement(int lineNumber, String sql) {
-        super(sql, lineNumber);
+        super(lineNumber, sql);
     }
 
     @Override

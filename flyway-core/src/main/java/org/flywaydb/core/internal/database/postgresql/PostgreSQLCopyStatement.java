@@ -35,7 +35,7 @@ public class PostgreSQLCopyStatement extends AbstractSqlStatement {
      * @param sql        The sql to send to the database.
      */
     PostgreSQLCopyStatement(int lineNumber, String sql) {
-        super(sql, lineNumber);
+        super(lineNumber, sql);
     }
 
     @Override
