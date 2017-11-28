@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.database.saphana;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 
 import java.sql.Connection;
@@ -73,7 +73,7 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new SAPHANASqlStatementBuilder(DEFAULT_DELIMITER);
+        return new SAPHANASqlStatementBuilder(Delimiter.SEMICOLON);
     }
 
     public String getDbName() {

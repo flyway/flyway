@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
-import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.database.SqlStatement;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
@@ -35,7 +35,7 @@ public class OracleSqlScriptSmallTest {
         return new SqlScript(source, null) {
             @Override
             protected SqlStatementBuilder createSqlStatementBuilder() {
-                return new OracleSqlStatementBuilder(Database.DEFAULT_DELIMITER);
+                return new OracleSqlStatementBuilder(Delimiter.SEMICOLON);
             }
         };
     }

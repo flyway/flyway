@@ -38,7 +38,7 @@ public class SqlScriptSmallTest {
     private SqlScript sqlScript = new SqlScript("", null) {
         @Override
         protected SqlStatementBuilder createSqlStatementBuilder() {
-            return new MySQLSqlStatementBuilder(Database.DEFAULT_DELIMITER);
+            return new MySQLSqlStatementBuilder(Delimiter.SEMICOLON);
         }
     };
 
