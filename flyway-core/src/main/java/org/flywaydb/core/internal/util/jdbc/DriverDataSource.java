@@ -218,6 +218,7 @@ public class DriverDataSource implements DataSource {
             String osUser = System.getProperty("user.name");
             result.put("v$session.osuser", osUser.substring(0, Math.min(osUser.length(), 30)));
             result.put("v$session.program", "Flyway by Boxfuse");
+            result.put("oracle.net.keepAlive", "true");
         }
 
         return result;
@@ -417,7 +418,7 @@ public class DriverDataSource implements DataSource {
             } catch (SQLRecoverableException e) {
                 if (++retries >= 10) {
                     throw new FlywaySqlException(
-                            "Unable to obtain Jdbc connection from DataSource (" + url + ") for user '" + user + "': " + e.getMessage(), e);
+                            "Unable to obtain connection from database (" + url + ") for user '" + user + "': " + e.getMessage(), e);
                 }
                 Throwable rootCause = ExceptionUtils.getRootCause(e);
                 String msg = "Connection error: " + e.getMessage();
@@ -427,7 +428,7 @@ public class DriverDataSource implements DataSource {
                 LOG.warn(msg + " Retrying in 1 sec...");
             } catch (SQLException e) {
                 throw new FlywaySqlException(
-                        "Unable to obtain Jdbc connection from DataSource (" + url + ") for user '" + user + "': " + e.getMessage(), e);
+                        "Unable to obtain connection from database (" + url + ") for user '" + user + "': " + e.getMessage(), e);
             }
         } while (connection == null);
 
