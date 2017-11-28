@@ -34,11 +34,17 @@ public class OracleSqlStatementBuilderSmallTest {
     }
 
     @Test(timeout = 2000)
-    public void setDefineOff1000000() {
-        builder.addLine("CREATE TABLE (a int);");
+    public void isUnsupportedSqlPlusStatementPerformance() {
+        builder.addLine("SHOW ERRORS;");
         for (int i = 0; i < 1000000; i++) {
             assertFalse(builder.isUnsupportedSqlPlusStatement());
         }
+    }
+
+    @Test
+    public void isUnsupportedSqlPlusStatementShowHistory() {
+        builder.addLine("SHOW HISTORY;");
+        assertTrue(builder.isUnsupportedSqlPlusStatement());
     }
 
     @Test

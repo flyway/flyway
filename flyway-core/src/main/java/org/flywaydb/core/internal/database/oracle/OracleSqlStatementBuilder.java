@@ -41,11 +41,16 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
      */
     private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(USING|THEN|FROM|AND|OR|AS)(?!.)");
 
-    // [pro]
     private static Pattern toRegex(String... commands) {
-        return Pattern.compile("(" + StringUtils.arrayToDelimitedString("|", commands) + ")(\\s.*)?");
+        return Pattern.compile("^(" + StringUtils.arrayToDelimitedString("|", commands) + ")(\\s.*)?");
     }
 
+    // [pro]
+    private static Pattern toRegexNoSpace(String... commands) {
+        return Pattern.compile("^(" + StringUtils.arrayToDelimitedString("|", commands) + ").*");
+    }
+
+    private static final String SUPPORTED_SHOW_OPTIONS = "CON_ID|ERR|ERRORS|REL|RELEASE";
     private static final String UNSUPPORTED_SQLPLUS_COMMANDS =
             "ACC|ACCEPT|" +
                     "A|APPEND|" +
@@ -81,7 +86,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
                     "R|RUN|" +
                     "SAV|SAVE|" +
                     "SET|" +
-                    "SHO|SHOW|" +
+                    "((SHO|SHOW)((?! (" + SUPPORTED_SHOW_OPTIONS + "))))|" +
                     "SHUTDOWN|" +
                     "SPO|SPOOL|" +
                     "STA|START|" +
@@ -99,13 +104,15 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     private static final Pattern EXECUTE_REGEX = toRegex(EXECUTE_COMMANDS);
     private static final String PROMPT_COMMANDS = "PRO|PROMPT";
     private static final Pattern PROMPT_REGEX = toRegex(PROMPT_COMMANDS);
+    private static final String SHOW_COMMANDS = "((SHO|SHOW) (" + SUPPORTED_SHOW_OPTIONS + "))";
+    private static final Pattern SHOW_REGEX = toRegexNoSpace(SHOW_COMMANDS);
     private static final String REMARK_COMMANDS = "REM|REMARK";
     private static final Pattern REMARK_REGEX = toRegex(REMARK_COMMANDS);
     private static final Pattern SQLPLUS_REGEX =
-            toRegex(UNSUPPORTED_SQLPLUS_COMMANDS, EXECUTE_COMMANDS, PROMPT_COMMANDS, REMARK_COMMANDS);
+            toRegex(UNSUPPORTED_SQLPLUS_COMMANDS, EXECUTE_COMMANDS, PROMPT_COMMANDS, SHOW_COMMANDS, REMARK_COMMANDS);
     // [/pro]
 
-    private static final Pattern DECLARE_BEGIN_REGEX = Pattern.compile("(DECLARE|BEGIN)(\\s.*)?");
+    private static final Pattern DECLARE_BEGIN_REGEX = toRegex("DECLARE|BEGIN");
     private static final Pattern PLSQL_REGEX = Pattern.compile(
             "CREATE(\\s+OR\\s+REPLACE)?(\\s+(NON)?EDITIONABLE)?\\s+(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*");
     private static final Pattern JAVA_REGEX = Pattern.compile(
@@ -136,6 +143,9 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
         }
         if (REMARK_REGEX.matcher(statementStart).matches()) {
             return new org.flywaydb.core.internal.database.oracle.pro.SQLPlusRemarkSqlStatement(lineNumber, statement.toString());
+        }
+        if (SHOW_REGEX.matcher(statementStart).matches()) {
+            return new org.flywaydb.core.internal.database.oracle.pro.SQLPlusShowSqlStatement(lineNumber, statement.toString());
         }
         return super.getSqlStatement();
     }

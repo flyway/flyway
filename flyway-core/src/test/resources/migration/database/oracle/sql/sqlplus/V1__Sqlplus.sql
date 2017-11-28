@@ -14,6 +14,8 @@
 -- limitations under the License.
 --
 
+show rel;
+
 REM xyz
 REM abc-
 def
@@ -31,6 +33,16 @@ PROMPT ready-
 to-
 execute
 
+
+create or replace procedure update_test
+begin
+  update test set id=1;
+end;
+/
+
+sho err
+
 PROMPT 3..2..1..go-;
+sho err procedure abc
 
 EXEC selectdata();
