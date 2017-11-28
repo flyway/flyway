@@ -250,7 +250,7 @@ services:
   saphana-2:
     image: "store/saplabs/hanaexpress:2.00.021.00.20171030.1"
     ports:
-      - "62060:39013"
+      - "62060:39041"
     sysctls:
       - "net.ipv4.ip_local_port_range=40000 60999"
     volumes:

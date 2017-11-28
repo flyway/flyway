@@ -60,11 +60,6 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
     private static final String JDBC_USER = "flywaydb";
 
     @Override
-    protected void ensureTestEnabled() {
-        assumeTrue(Boolean.valueOf(System.getProperty("flyway.test.saphana")) || System.getProperty("os.name").toLowerCase().contains("linux"));
-    }
-
-    @Override
     protected DataSource createDataSource(Properties customProperties) throws SQLException {
         DriverDataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 JDBC_URL, "SYSTEM", JDBC_PASSWORD);

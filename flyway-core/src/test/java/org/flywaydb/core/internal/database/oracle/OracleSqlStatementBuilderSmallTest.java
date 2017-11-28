@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -27,9 +28,16 @@ import static org.junit.Assert.*;
 public class OracleSqlStatementBuilderSmallTest {
     private OracleSqlStatementBuilder builder = new OracleSqlStatementBuilder(new Delimiter(";", false));
 
+    @Ignore
     @Test
     public void setDefineOff() {
         builder.addLine("set define off;");
+        assertTrue(builder.canDiscard());
+    }
+
+    @Test
+    public void loneSlash() {
+        builder.addLine("/");
         assertTrue(builder.canDiscard());
     }
 
