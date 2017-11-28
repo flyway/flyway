@@ -42,56 +42,67 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(USING|THEN|FROM|AND|OR|AS)(?!.)");
 
     // [pro]
-    private static final Pattern UNSUPPORTED_SQLPLUS_COMMANDS_REGEX = Pattern.compile("(" +
+    private static Pattern toRegex(String... commands) {
+        return Pattern.compile("(" + StringUtils.arrayToDelimitedString("|", commands) + ")(\\s.*)?");
+    }
+
+    private static final String UNSUPPORTED_SQLPLUS_COMMANDS =
             "ACC|ACCEPT|" +
-            "A|APPEND|" +
-            "ARCHIVE|" +
-            "ATTR|ATTRIBUTE|" +
-            "BRE|BREAK|" +
-            "BTI|BTITLE|" +
-            "C|CHANGE|" +
-            "CL|CLEAR|" +
-            "COL|COLUMN|" +
-            "COMP|COMPUTE|" +
-            "CONN|CONNECT|" +
-            "COPY|" +
-            "DEF|DEFINE|" +
-            "DEL|" +
-            "DESC|DESCRIBE|" +
-            "DISC|DISCONNECT|" +
-            "ED|EDIT|" +
-            "EXIT|" +
-            "GET|" +
-            "HELP|" +
-            "HIST|HISTORY|" +
-            "HO|HOST|" +
-            "I|INPUT|" +
-            "L|LIST|" +
-            "PASSW|PASSWORD|" +
-            "PAU|PAUSE|" +
-            "PRINT|" +
-            "QUIT|" +
-            "RECOVER|" +
-            "REM|REMARK|" +
-            "REPF|REPFOOTER|" +
-            "REPH|REPHEADER|" +
-            "R|RUN|" +
-            "SAV|SAVE|" +
-            "SET|" +
-            "SHO|SHOW|" +
-            "SHUTDOWN|" +
-            "SPO|SPOOL|" +
-            "STA|START|" +
-            "STARTUP|" +
-            "STORE|" +
-            "TIMI|TIMING|" +
-            "TTI|TTITLE|" +
-            "UNDEF|UNDEFINE|" +
-            "VAR|VARIABLE|" +
-            "WHENEVER|" +
-            "XQUERY) .*");
-    private static final Pattern EXECUTE_REGEX = Pattern.compile("(EXEC|EXECUTE)(\\s.*)?");
-    private static final Pattern PROMPT_REGEX = Pattern.compile("PROMPT(\\s.*)?");
+                    "A|APPEND|" +
+                    "ARCHIVE|" +
+                    "ATTR|ATTRIBUTE|" +
+                    "BRE|BREAK|" +
+                    "BTI|BTITLE|" +
+                    "C|CHANGE|" +
+                    "CL|CLEAR|" +
+                    "COL|COLUMN|" +
+                    "COMP|COMPUTE|" +
+                    "CONN|CONNECT|" +
+                    "COPY|" +
+                    "DEF|DEFINE|" +
+                    "DEL|" +
+                    "DESC|DESCRIBE|" +
+                    "DISC|DISCONNECT|" +
+                    "ED|EDIT|" +
+                    "EXIT|" +
+                    "GET|" +
+                    "HELP|" +
+                    "HIST|HISTORY|" +
+                    "HO|HOST|" +
+                    "I|INPUT|" +
+                    "L|LIST|" +
+                    "PASSW|PASSWORD|" +
+                    "PAU|PAUSE|" +
+                    "PRINT|" +
+                    "QUIT|" +
+                    "RECOVER|" +
+                    "REPF|REPFOOTER|" +
+                    "REPH|REPHEADER|" +
+                    "R|RUN|" +
+                    "SAV|SAVE|" +
+                    "SET|" +
+                    "SHO|SHOW|" +
+                    "SHUTDOWN|" +
+                    "SPO|SPOOL|" +
+                    "STA|START|" +
+                    "STARTUP|" +
+                    "STORE|" +
+                    "TIMI|TIMING|" +
+                    "TTI|TTITLE|" +
+                    "UNDEF|UNDEFINE|" +
+                    "VAR|VARIABLE|" +
+                    "WHENEVER|" +
+                    "XQUERY";
+    private static final Pattern UNSUPPORTED_SQLPLUS_COMMANDS_REGEX = toRegex(UNSUPPORTED_SQLPLUS_COMMANDS);
+
+    private static final String EXECUTE_COMMANDS = "EXEC|EXECUTE";
+    private static final Pattern EXECUTE_REGEX = toRegex(EXECUTE_COMMANDS);
+    private static final String PROMPT_COMMANDS = "PRO|PROMPT";
+    private static final Pattern PROMPT_REGEX = toRegex(PROMPT_COMMANDS);
+    private static final String REMARK_COMMANDS = "REM|REMARK";
+    private static final Pattern REMARK_REGEX = toRegex(REMARK_COMMANDS);
+    private static final Pattern SQLPLUS_REGEX =
+            toRegex(UNSUPPORTED_SQLPLUS_COMMANDS, EXECUTE_COMMANDS, PROMPT_COMMANDS, REMARK_COMMANDS);
     // [/pro]
 
     private static final Pattern DECLARE_BEGIN_REGEX = Pattern.compile("(DECLARE|BEGIN)(\\s.*)?");
@@ -123,12 +134,16 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
         if (PROMPT_REGEX.matcher(statementStart).matches()) {
             return new org.flywaydb.core.internal.database.oracle.pro.SQLPlusPromptSqlStatement(lineNumber, statement.toString());
         }
+        if (REMARK_REGEX.matcher(statementStart).matches()) {
+            return new org.flywaydb.core.internal.database.oracle.pro.SQLPlusRemarkSqlStatement(lineNumber, statement.toString());
+        }
         return super.getSqlStatement();
     }
 
     @Override
     public boolean isTerminated() {
-        return (PROMPT_REGEX.matcher(statementStart).matches() && !statement.toString().endsWith("-")) || super.isTerminated();
+        return (SQLPLUS_REGEX.matcher(statementStart).matches() && !statement.toString().endsWith("-"))
+                || super.isTerminated();
     }
     // [/pro]
 

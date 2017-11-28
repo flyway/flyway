@@ -14,6 +14,11 @@
 -- limitations under the License.
 --
 
+REM xyz
+REM abc-
+def
+REM abc-;
+
 create or replace procedure selectdata is
   v_number number;
   begin
