@@ -122,6 +122,6 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     public boolean canDiscard() {
-        return super.canDiscard() || statementStart.startsWith("SET DEFINE OFF");
+        return super.canDiscard() || statementStart.startsWith("/");
     }
 }

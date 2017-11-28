@@ -23,6 +23,8 @@ AS
  END;
 /
 
+;
+
 create or replace procedure selectdata is
   v_number number;
   begin
@@ -32,6 +34,8 @@ create or replace procedure selectdata is
 /
 
 CALL selectdata();
+
+/
 
 CREATE PROCEDURE remove_emp (employee_id NUMBER) AS
    tot_emps NUMBER;
