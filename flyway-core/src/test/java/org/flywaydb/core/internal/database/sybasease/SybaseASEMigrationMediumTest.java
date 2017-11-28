@@ -130,10 +130,4 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
         // It is line 22 as a go statement is added for Sybase
         doFailedMigration(22);
     }
-
-    @Override
-    @Ignore("Not needed as Sybase ASE support was first introduced in Flyway 4.0")
-    public void columnExists() throws Exception {
-        //Skip
-    }
 }
