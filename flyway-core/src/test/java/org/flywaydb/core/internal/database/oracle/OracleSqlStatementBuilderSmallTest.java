@@ -114,6 +114,27 @@ public class OracleSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void dateNoSpace() {
+        String sqlScriptSource = "CREATE OR REPLACE PACKAGE BODY DEMO_P_FLYWAYBUG\n" +
+                "IS\n" +
+                "  FUNCTION F_MAGIC_DATE\n" +
+                "    RETURN DATE\n" +
+                "  IS BEGIN\n" +
+                "    RETURN DATE'11/29/2017';\n" +
+                "  END F_MAGIC_DATE;\n" +
+                "\n" +
+                "END DEMO_P_FLYWAYBUG;\n" +
+                "/\n";
+
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        for (String line : lines) {
+            builder.addLine(line);
+        }
+
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
     public void quotedStringEndingWithN() {
         builder.addLine("insert into table (COLUMN) values 'VALUE_WITH_N';");
         assertTrue(builder.isTerminated());

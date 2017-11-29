@@ -34,7 +34,8 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Regex for keywords that can appear before a string literal without being separated by a space.
      */
-    private static final Pattern KEYWORDS_BEFORE_STRING_LITERAL_REGEX = Pattern.compile("^(N|IF|ELSIF|SELECT|IMMEDIATE|RETURN|IS)('.*)");
+    private static final Pattern KEYWORDS_BEFORE_STRING_LITERAL_REGEX =
+            Pattern.compile("^(N|DATE|IF|ELSIF|SELECT|IMMEDIATE|RETURN|IS)('.*)");
 
     /**
      * Regex for keywords that can appear after a string literal without being separated by a space.
