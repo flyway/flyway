@@ -13,43 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.postgresql;
+package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.internal.database.AbstractSqlStatement;
 import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.postgresql.copy.CopyManager;
-import org.postgresql.core.BaseConnection;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.sql.SQLException;
 
 /**
- * A PostgreSQL COPY FROM STDIN statement.
+ * A sql statement from a script that can be executed at once against a database.
  */
-public class PostgreSQLCopyStatement extends AbstractSqlStatement {
+public class StandardSqlStatement extends AbstractSqlStatement {
     /**
      * Creates a new sql statement.
      *
      * @param lineNumber The original line number where the statement was located in the script it came from.
      * @param sql        The sql to send to the database.
      */
-    PostgreSQLCopyStatement(int lineNumber, String sql) {
+    public StandardSqlStatement(int lineNumber, String sql) {
         super(lineNumber, sql);
     }
 
     @Override
     public void execute(ErrorContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
-        int split = sql.indexOf(";");
-        String statement = sql.substring(0, split);
-        String data = sql.substring(split + 1).trim();
-
-        CopyManager copyManager = new CopyManager(jdbcTemplate.getConnection().unwrap(BaseConnection.class));
-        try {
-            copyManager.copyIn(statement, new StringReader(data));
-        } catch (IOException e) {
-            throw new SQLException("Unable to execute COPY operation", e);
-        }
+        jdbcTemplate.executeStatement(errorContext, sql);
     }
 }

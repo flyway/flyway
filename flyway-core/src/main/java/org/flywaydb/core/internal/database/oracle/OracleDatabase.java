@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
@@ -85,7 +85,7 @@ public class OracleDatabase extends Database {
         }
 
         if (majorVersion == 10 || majorVersion == 11) {
-        throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("Oracle", "Oracle", "" + majorVersion);
+        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("Oracle", "Oracle", "" + majorVersion);
         }
 
         if (majorVersion > 12) {

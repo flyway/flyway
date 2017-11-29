@@ -17,9 +17,9 @@ package org.flywaydb.core.internal.database.cockroachdb;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.FlywaySqlException;
-import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;

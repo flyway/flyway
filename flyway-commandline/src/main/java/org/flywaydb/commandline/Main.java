@@ -267,7 +267,7 @@ public class Main {
         LOG.info("configFileEncoding           : Encoding to use when loading the config files");
         LOG.info("jarDirs                      : Comma-separated list of dirs for Jdbc drivers & Java migrations");
         LOG.info("dryRunOutput                 : File where to output the SQL statements of a migration dry run");
-        LOG.info("errorHandler                 : Handler for errors that occur during a migration");
+        LOG.info("errorHandlers                : Comma-separated list of handlers for errors and warnings");
         LOG.info("");
         LOG.info("Flags");
         LOG.info("-----");

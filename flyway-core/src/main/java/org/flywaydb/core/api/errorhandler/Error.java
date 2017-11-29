@@ -13,16 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database;
-
-import org.flywaydb.core.api.FlywayException;
+package org.flywaydb.core.api.errorhandler;
 
 /**
- * Thrown when an attempt was made to use a Flyway Pro or Flyway Enterprise feature not supported by Flyway Open Source.
+ * An error that occurred while executing a statement.
  */
-public class FlywayProUpgradeRequiredException extends FlywayException {
-    public FlywayProUpgradeRequiredException(String feature) {
-        super("Flyway Pro or Flyway Enterprise upgrade required: " + feature
-                + " is not supported by Flyway Open Source.");
-    }
+public interface Error {
+    /**
+     * @return The error code.
+     */
+    int getCode();
+
+    /**
+     * @return The error state.
+     */
+    String getState();
+
+    /**
+     * @return The error message.
+     */
+    String getMessage();
 }

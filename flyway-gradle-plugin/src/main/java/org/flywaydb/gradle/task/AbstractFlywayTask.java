@@ -270,13 +270,16 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String installedBy;
 
     /**
-     * The fully qualified class name of the ErrorHandler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
-     * <p>{@code null} if the default internal handler should be used instead. (default: {@code null})</p>
+     * The fully qualified class names of handlers for errors and warnings that occur during a migration. This can be
+     * used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
+     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
+     * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
+     * (default: none)
      * <p>Also configurable with Gradle or System Property: ${flyway.errorHandler}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */
-    public String errorHandler;
+    public String[] errorHandlers;
 
     /**
      * The file where to output the SQL statements of a migration dry run. If the file specified is in a non-existent
@@ -394,14 +397,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate, extension.baselineOnMigrate);
         putIfSet(conf, ConfigUtils.SKIP_DEFAULT_RESOLVERS, skipDefaultResolvers, extension.skipDefaultResolvers);
         putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks, extension.skipDefaultCallbacks);
+
         putIfSet(conf, ConfigUtils.SCHEMAS, StringUtils.arrayToCommaDelimitedString(schemas), StringUtils.arrayToCommaDelimitedString(extension.schemas));
-
         putIfSet(conf, ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locations), StringUtils.arrayToCommaDelimitedString(extension.locations));
-
         putIfSet(conf, ConfigUtils.RESOLVERS, StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));
         putIfSet(conf, ConfigUtils.CALLBACKS, StringUtils.arrayToCommaDelimitedString(callbacks), StringUtils.arrayToCommaDelimitedString(extension.callbacks));
+        putIfSet(conf, ConfigUtils.ERROR_HANDLERS, StringUtils.arrayToCommaDelimitedString(errorHandlers), StringUtils.arrayToCommaDelimitedString(extension.errorHandlers));
 
-        putIfSet(conf, ConfigUtils.ERROR_HANDLER, errorHandler, extension.errorHandler);
         putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput, extension.dryRunOutput);
 
         if (placeholders != null) {

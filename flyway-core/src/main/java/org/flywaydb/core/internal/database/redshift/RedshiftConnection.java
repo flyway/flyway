@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.database.redshift;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.database.FlywaySqlException;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.util.StringUtils;
 

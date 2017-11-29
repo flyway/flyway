@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.database.sqlserver;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -70,7 +70,7 @@ public class SQLServerDatabase extends Database {
         }
 
         if (majorVersion < 12) {
-        throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("Microsoft", "SQL Server", release);
+        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("Microsoft", "SQL Server", release);
         }
 
         if (majorVersion > 14 || (majorVersion == 14 && minorVersion > 0)) {

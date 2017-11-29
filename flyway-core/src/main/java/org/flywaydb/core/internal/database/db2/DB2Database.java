@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.database.db2;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 
 import java.sql.Connection;
@@ -68,7 +68,7 @@ public class DB2Database extends Database {
         }
 
         if (majorVersion == 9 || (majorVersion == 10 && minorVersion < 5)) {
-        throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("IBM", "DB2", version);
+        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("IBM", "DB2", version);
         }
 
         if (majorVersion > 11 || (majorVersion == 11 && minorVersion > 1)) {
