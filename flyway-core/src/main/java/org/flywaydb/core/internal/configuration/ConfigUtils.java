@@ -156,7 +156,7 @@ public class ConfigUtils {
         if ("FLYWAY_ENCODING".equals(key)) {
             return ENCODING;
         }
-        if ("FLYWAY_ERROR_HANDLER".equals(key)) {
+        if ("FLYWAY_ERROR_HANDLERS".equals(key)) {
             return ERROR_HANDLERS;
         }
         if ("FLYWAY_GROUP".equals(key)) {
