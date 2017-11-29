@@ -27,7 +27,9 @@ import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import java.io.Closeable;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -327,4 +329,13 @@ public abstract class Database<C extends Connection> implements Closeable {
         }
         mainConnection.close();
     }
+
+
+
+
+
+
+
+
+
 }

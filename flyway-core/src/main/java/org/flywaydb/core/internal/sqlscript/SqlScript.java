@@ -51,7 +51,7 @@ public class SqlScript {
     /**
      * The database-specific support.
      */
-    private final Database database;
+    private final Database<?> database;
 
 
 
@@ -113,7 +113,8 @@ public class SqlScript {
 
 
      */
-    public SqlScript(Database database, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed
+    public SqlScript(Database database, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
+                     String encoding, boolean mixed
 
 
 
@@ -166,6 +167,7 @@ public class SqlScript {
 
 
 
+
         for (SqlStatement sqlStatement : sqlStatements) {
             ErrorContextImpl errorContext = new ErrorContextImpl();
 
@@ -174,6 +176,14 @@ public class SqlScript {
 
             try {
                 sqlStatement.execute(errorContext, jdbcTemplate);
+
+
+
+
+
+
+
+
 
 
 
