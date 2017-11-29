@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.errorhandler.Error;
 import org.flywaydb.core.api.errorhandler.ErrorContext;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.errorhandler.Warning;
@@ -161,6 +162,10 @@ public class SqlScript {
      * @param jdbcTemplate The jdbcTemplate to use to execute this script.
      */
     public void execute(final JdbcTemplate jdbcTemplate) {
+        // [pro]
+        boolean suppressErrors = false;
+        // [pro]
+
         for (SqlStatement sqlStatement : sqlStatements) {
             ErrorContextImpl errorContext = new ErrorContextImpl();
 
@@ -170,19 +175,32 @@ public class SqlScript {
             try {
                 sqlStatement.execute(errorContext, jdbcTemplate);
                 // [pro]
+                if (errorContext.getSuppressErrors() != null) {
+                    suppressErrors = errorContext.getSuppressErrors();
+                }
                 if (handleWarnings(errorContext)) {
                     continue;
                 }
                 // [/pro]
                 printWarnings(errorContext);
             } catch (final SQLException e) {
+                // [pro]
                 SQLException sqle = e;
                 while (sqle != null) {
                     errorContext.addError(new ErrorImpl(sqle.getErrorCode(), sqle.getSQLState(), sqle.getMessage()));
                     sqle = sqle.getNextException();
                 }
-                // [pro]
                 if (handleErrors(errorContext)) {
+                    continue;
+                }
+                // [/pro]
+                printWarnings(errorContext);
+                // [pro]
+                if (suppressErrors) {
+                    for (Error error : errorContext.getErrors()) {
+                        LOG.warn("DB error ignored (Code: " + error.getCode() + ", State: " + error.getState() + "): "
+                                + error.getMessage());
+                    }
                     continue;
                 }
                 // [/pro]

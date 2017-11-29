@@ -10,6 +10,7 @@ import java.util.List;
 public class ErrorContextImpl implements ErrorContext {
     private final List<Warning> warnings = new ArrayList<Warning>();
     private final List<Error> errors = new ArrayList<Error>();
+    private Boolean suppressErrors;
 
     public void addWarning(Warning warning) {
         warnings.add(warning);
@@ -27,5 +28,13 @@ public class ErrorContextImpl implements ErrorContext {
     @Override
     public List<Error> getErrors() {
         return errors;
+    }
+
+    public Boolean getSuppressErrors() {
+        return suppressErrors;
+    }
+
+    public void setSuppressErrors(Boolean suppressErrors) {
+        this.suppressErrors = suppressErrors;
     }
 }

@@ -44,6 +44,12 @@ end;
 
 sho err
 
+WHENEVER SQLERROR CONTINUE;
+
+very_bad_sql;
+
+WHENEVER SQLERROR EXIT FAILURE
+
 PROMPT 3..2..1..go-;
 sho err procedure abc
 

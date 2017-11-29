@@ -51,6 +51,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     private static final String SUPPORTED_SHOW_OPTIONS = "CON_ID|ERR|ERRORS|REL|RELEASE|USER";
+    private static final String SUPPORTED_WHENEVER_SQLERROR_OPTIONS = "CONTINUE|EXIT FAILURE";
     private static final String UNSUPPORTED_SQLPLUS_COMMANDS =
             "ACC|ACCEPT|" +
                     "A|APPEND|" +
@@ -86,7 +87,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
                     "R|RUN|" +
                     "SAV|SAVE|" +
                     "SET|" +
-                    "((SHO|SHOW)((?! (" + SUPPORTED_SHOW_OPTIONS + "))))|" +
+                    "(SHO|SHOW)(?! (" + SUPPORTED_SHOW_OPTIONS + "))|" +
                     "SHUTDOWN|" +
                     "SPO|SPOOL|" +
                     "STA|START|" +
@@ -96,7 +97,8 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
                     "TTI|TTITLE|" +
                     "UNDEF|UNDEFINE|" +
                     "VAR|VARIABLE|" +
-                    "WHENEVER|" +
+                    "WHENEVER OSERROR|" +
+                    "WHENEVER SQLERROR(?! (" + SUPPORTED_WHENEVER_SQLERROR_OPTIONS + "))|" +
                     "XQUERY";
     private static final Pattern UNSUPPORTED_SQLPLUS_COMMANDS_REGEX = toRegex(UNSUPPORTED_SQLPLUS_COMMANDS);
 
@@ -104,12 +106,15 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     private static final Pattern EXECUTE_REGEX = toRegex(EXECUTE_COMMANDS);
     private static final String PROMPT_COMMANDS = "PRO|PROMPT";
     private static final Pattern PROMPT_REGEX = toRegex(PROMPT_COMMANDS);
-    private static final String SHOW_COMMANDS = "((SHO|SHOW) (" + SUPPORTED_SHOW_OPTIONS + "))";
+    private static final String SHOW_COMMANDS = "(SHO|SHOW) (" + SUPPORTED_SHOW_OPTIONS + ")";
     private static final Pattern SHOW_REGEX = toRegexNoSpace(SHOW_COMMANDS);
     private static final String REMARK_COMMANDS = "REM|REMARK";
     private static final Pattern REMARK_REGEX = toRegex(REMARK_COMMANDS);
+    private static final String WHENEVER_SQLERROR_COMMANDS = "WHENEVER SQLERROR (" + SUPPORTED_WHENEVER_SQLERROR_OPTIONS + ")";
+    private static final Pattern WHENEVER_SQLERROR_REGEX = toRegexNoSpace(WHENEVER_SQLERROR_COMMANDS);
     private static final Pattern SQLPLUS_REGEX =
-            toRegex(UNSUPPORTED_SQLPLUS_COMMANDS, EXECUTE_COMMANDS, PROMPT_COMMANDS, SHOW_COMMANDS, REMARK_COMMANDS);
+            toRegex(UNSUPPORTED_SQLPLUS_COMMANDS, EXECUTE_COMMANDS, PROMPT_COMMANDS, REMARK_COMMANDS, SHOW_COMMANDS,
+                    WHENEVER_SQLERROR_COMMANDS);
     // [/pro]
 
     private static final Pattern DECLARE_BEGIN_REGEX = toRegex("DECLARE|BEGIN");
@@ -146,6 +151,9 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
         }
         if (SHOW_REGEX.matcher(statementStart).matches()) {
             return new org.flywaydb.core.internal.database.oracle.pro.SQLPlusShowSqlStatement(lineNumber, statement.toString());
+        }
+        if (WHENEVER_SQLERROR_REGEX.matcher(statementStart).matches()) {
+            return new org.flywaydb.core.internal.database.oracle.pro.SQLPlusWheneverSqlerrorSqlStatement(lineNumber, statement.toString());
         }
         return super.getSqlStatement();
     }
