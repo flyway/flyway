@@ -311,6 +311,7 @@ public interface FlywayConfiguration {
      * Handlers for errors and warnings that occur during a migration. This can be used to customize Flyway's behavior by for example
      * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
      * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
+     * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @return The ErrorHandlers or an empty array if the default internal handler should be used instead. (default: none)
