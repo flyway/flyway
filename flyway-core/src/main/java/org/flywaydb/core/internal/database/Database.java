@@ -330,10 +330,12 @@ public abstract class Database<C extends Connection> implements Closeable {
         mainConnection.close();
     }
 
+    // [pro]
     /**
      * @return The output from the last procedure that executed on the database.
      */
     public List<String> getServerOutput() {
         return Collections.emptyList();
     }
+    // [/pro]
 }

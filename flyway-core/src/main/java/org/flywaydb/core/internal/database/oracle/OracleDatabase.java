@@ -329,6 +329,7 @@ public class OracleDatabase extends Database {
         return result;
     }
 
+    // [pro]
     @Override
     public List<String> getServerOutput() {
         List<String> result = new ArrayList<String>();
@@ -356,4 +357,5 @@ public class OracleDatabase extends Database {
         }
         return result;
     }
+    // [/pro]
 }
