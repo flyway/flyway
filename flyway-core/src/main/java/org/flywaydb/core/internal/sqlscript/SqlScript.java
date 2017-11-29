@@ -168,7 +168,7 @@ public class SqlScript {
             LOG.debug("Executing SQL: " + sql);
 
             try {
-                sqlStatement.execute(jdbcTemplate);
+                sqlStatement.execute(errorContext, jdbcTemplate);
                 // [pro]
                 if (handleWarnings(errorContext)) {
                     continue;

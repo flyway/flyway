@@ -1,6 +1,7 @@
 package org.flywaydb.core.internal.database.oracle.pro;
 
 import org.flywaydb.core.internal.database.AbstractSqlStatement;
+import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
@@ -14,8 +15,8 @@ public class SQLPlusExecuteSqlStatement extends AbstractSqlStatement {
     }
 
     @Override
-    public void execute(JdbcTemplate jdbcTemplate) throws SQLException {
-        jdbcTemplate.execute(transformSql());
+    public void execute(ErrorContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
+        jdbcTemplate.executeStatement(errorContext, transformSql());
     }
 
     String transformSql() {

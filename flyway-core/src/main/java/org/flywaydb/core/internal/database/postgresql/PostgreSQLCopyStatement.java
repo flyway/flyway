@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database.postgresql;
 
 import org.flywaydb.core.internal.database.AbstractSqlStatement;
+import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
@@ -39,7 +40,7 @@ public class PostgreSQLCopyStatement extends AbstractSqlStatement {
     }
 
     @Override
-    public void execute(JdbcTemplate jdbcTemplate) throws SQLException {
+    public void execute(ErrorContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
         int split = sql.indexOf(";");
         String statement = sql.substring(0, split);
         String data = sql.substring(split + 1).trim();

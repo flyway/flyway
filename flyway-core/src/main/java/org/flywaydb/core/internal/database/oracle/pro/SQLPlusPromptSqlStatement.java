@@ -3,6 +3,7 @@ package org.flywaydb.core.internal.database.oracle.pro;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.AbstractSqlStatement;
+import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
@@ -18,7 +19,7 @@ public class SQLPlusPromptSqlStatement extends AbstractSqlStatement {
     }
 
     @Override
-    public void execute(JdbcTemplate jdbcTemplate) throws SQLException {
+    public void execute(ErrorContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
         LOG.info(transformSql());
     }
 

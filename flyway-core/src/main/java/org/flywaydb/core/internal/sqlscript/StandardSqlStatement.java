@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.internal.database.AbstractSqlStatement;
+import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
@@ -35,7 +36,7 @@ public class StandardSqlStatement extends AbstractSqlStatement {
     }
 
     @Override
-    public void execute(JdbcTemplate jdbcTemplate) throws SQLException {
-        jdbcTemplate.execute(sql);
+    public void execute(ErrorContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
+        jdbcTemplate.executeStatement(errorContext, sql);
     }
 }

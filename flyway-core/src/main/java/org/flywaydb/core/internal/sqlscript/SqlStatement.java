@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
@@ -36,8 +37,9 @@ public interface SqlStatement {
     /**
      * Executes this statement against the database.
      *
+     * @param errorContext The error context.
      * @param jdbcTemplate The jdbcTemplate to use to execute this script.
      * @throws SQLException when the execution fails.
      */
-    void execute(JdbcTemplate jdbcTemplate) throws SQLException;
+    void execute(ErrorContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException;
 }
