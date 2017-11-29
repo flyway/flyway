@@ -17,11 +17,14 @@ package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -323,6 +326,34 @@ public class OracleDatabase extends Database {
         }
         // [/enterprise]
 
+        return result;
+    }
+
+    @Override
+    public List<String> getServerOutput() {
+        List<String> result = new ArrayList<String>();
+
+        CallableStatement stmt = null;
+        try {
+            stmt = getMigrationConnection().getJdbcConnection().prepareCall("BEGIN\ndbms_output.get_line(?,?);\nEND;");
+            stmt.registerOutParameter(1, java.sql.Types.VARCHAR);
+            stmt.registerOutParameter(2, java.sql.Types.NUMERIC);
+
+            int status;
+            do {
+                stmt.executeUpdate();
+                String line = stmt.getString(1);
+                if (line == null) line = "";
+                status = stmt.getInt(2);
+                if (status == 0) {
+                    result.add(line);
+                }
+            } while (status == 0);
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to get server output", e);
+        } finally {
+            JdbcUtils.closeStatement(stmt);
+        }
         return result;
     }
 }

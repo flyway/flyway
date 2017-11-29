@@ -51,7 +51,7 @@ public class SqlScript {
     /**
      * The database-specific support.
      */
-    private final Database database;
+    private final Database<?> database;
 
     // [pro]
     /**
@@ -113,7 +113,8 @@ public class SqlScript {
      * @param errorHandlers       The error handlers to use.
      *                            [/pro]
      */
-    public SqlScript(Database database, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed
+    public SqlScript(Database database, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
+                     String encoding, boolean mixed
                      // [pro]
             , ErrorHandler[] errorHandlers
                      // [/pro]
@@ -163,6 +164,7 @@ public class SqlScript {
      */
     public void execute(final JdbcTemplate jdbcTemplate) {
         // [pro]
+        boolean serverOutput = false;
         boolean suppressErrors = false;
         // [/pro]
 
@@ -175,6 +177,14 @@ public class SqlScript {
             try {
                 sqlStatement.execute(errorContext, jdbcTemplate);
                 // [pro]
+                if (errorContext.getServerOutput() != null) {
+                    serverOutput = errorContext.getServerOutput();
+                } else if (serverOutput) {
+                    List<String> output = database.getServerOutput();
+                    for (String line : output) {
+                        LOG.info("DB: " + line);
+                    }
+                }
                 if (errorContext.getSuppressErrors() != null) {
                     suppressErrors = errorContext.getSuppressErrors();
                 }
