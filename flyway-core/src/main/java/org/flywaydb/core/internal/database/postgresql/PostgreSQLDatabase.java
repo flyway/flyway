@@ -69,7 +69,7 @@ public class PostgreSQLDatabase extends Database {
         }
         // [enterprise-not]
         //if (majorVersion == 9 && minorVersion < 3) {
-        //    throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("PostgreSQL", "PostgreSQL", version);
+        //    throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("PostgreSQL", "PostgreSQL", version);
         //}
         // [/enterprise-not]
         if (majorVersion > 10) {

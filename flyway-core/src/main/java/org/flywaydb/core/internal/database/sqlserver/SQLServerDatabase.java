@@ -70,7 +70,7 @@ public class SQLServerDatabase extends Database {
         }
         // [enterprise-not]
         //if (majorVersion < 12) {
-        //throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("Microsoft", "SQL Server", release);
+        //throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("Microsoft", "SQL Server", release);
         //}
         // [/enterprise-not]
         if (majorVersion > 14 || (majorVersion == 14 && minorVersion > 0)) {

@@ -77,7 +77,7 @@ public class MySQLDatabase extends Database {
         if (majorVersion == 5) {
             // [enterprise-not]
             //if (minorVersion < 5) {
-            //    throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException(
+            //    throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException(
             //        isMariaDB ? "MariaDB" : "Oracle", productName, version);
             //}
             // [/enterprise-not]

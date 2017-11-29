@@ -164,7 +164,7 @@ public class SqlScript {
     public void execute(final JdbcTemplate jdbcTemplate) {
         // [pro]
         boolean suppressErrors = false;
-        // [pro]
+        // [/pro]
 
         for (SqlStatement sqlStatement : sqlStatements) {
             ErrorContextImpl errorContext = new ErrorContextImpl();

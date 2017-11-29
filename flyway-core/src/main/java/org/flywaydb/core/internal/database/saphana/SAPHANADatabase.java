@@ -63,7 +63,7 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
 
         // [enterprise-not]
         //if (majorVersion == 1) {
-        //    throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("SAP", "HANA", version);
+        //    throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("SAP", "HANA", version);
         //}
         // [/enterprise-not]
         if (majorVersion > 2) {

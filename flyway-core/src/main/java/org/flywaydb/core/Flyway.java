@@ -536,7 +536,7 @@ public class Flyway implements FlywayConfiguration {
     @Override
     public ErrorHandler[] getErrorHandlers() {
         // [opensource-only]
-        //throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("errorHandlers");
+        //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
         // [/opensource-only]
         // [pro]
         return errorHandlers;
@@ -546,7 +546,7 @@ public class Flyway implements FlywayConfiguration {
     @Override
     public OutputStream getDryRunOutput() {
         // [opensource-only]
-        //throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("dryRunOutput");
+        //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
         // [/opensource-only]
         // [pro]
         return dryRunOutput;
@@ -562,7 +562,7 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setDryRunOutput(OutputStream dryRunOutput) {
         // [opensource-only]
-        //throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("dryRunOutput");
+        //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
         // [/opensource-only]
         // [pro]
         this.dryRunOutput = dryRunOutput;
@@ -579,7 +579,7 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setDryRunOutputAsFile(File dryRunOutput) {
         // [opensource-only]
-        //throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("dryRunOutput");
+        //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
         // [/opensource-only]
         // [pro]
         File file;
@@ -626,7 +626,7 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
         // [opensource-only]
-        //throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("dryRunOutput");
+        //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
         // [/opensource-only]
         // [pro]
         setDryRunOutputAsFile(new File(dryRunOutputFileName));
@@ -644,7 +644,7 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setErrorHandlers(ErrorHandler... errorHandlers) {
         // [opensource-only]
-        //throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("errorHandlers");
+        //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
         // [/opensource-only]
         // [pro]
         this.errorHandlers = errorHandlers;
@@ -663,7 +663,7 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setErrorHandlersAsClassNames(String... errorHandlerClassNames) {
         // [opensource-only]
-        //throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("errorHandlers");
+        //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
         // [/opensource-only]
         // [pro]
         List<ErrorHandler> errorHandlerList = ClassUtils.instantiateAll(errorHandlerClassNames, classLoader);

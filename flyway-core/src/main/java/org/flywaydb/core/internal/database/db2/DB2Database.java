@@ -68,7 +68,7 @@ public class DB2Database extends Database {
         }
         // [enterprise-not]
         //if (majorVersion == 9 || (majorVersion == 10 && minorVersion < 5)) {
-        //throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("IBM", "DB2", version);
+        //throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("IBM", "DB2", version);
         //}
         // [/enterprise-not]
         if (majorVersion > 11 || (majorVersion == 11 && minorVersion > 1)) {
