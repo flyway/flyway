@@ -13,22 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.errorhandler;
+package org.flywaydb.core.internal.exception;
 
-import java.util.List;
+import org.flywaydb.core.api.FlywayException;
 
 /**
- * The context passed to an error handler.
- * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+ * Thrown when an attempt was made to use a Flyway Pro or Flyway Enterprise feature not supported by Flyway Open Source.
  */
-public interface ErrorContext {
-    /**
-     * @return The warnings that were raised during a migration.
-     */
-    List<Warning> getWarnings();
-
-    /**
-     * @return The errors that were thrown during a migration.
-     */
-    List<Error> getErrors();
+public class FlywayProUpgradeRequiredException extends FlywayException {
+    public FlywayProUpgradeRequiredException(String feature) {
+        super("Flyway Pro or Flyway Enterprise upgrade required: " + feature
+                + " is not supported by Flyway Open Source.");
+    }
 }

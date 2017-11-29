@@ -308,13 +308,14 @@ public interface FlywayConfiguration {
     String getInstalledBy();
 
     /**
-     * Handler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     * Handlers for errors and warnings that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
+     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
-     * @return The ErrorHandler or {@code null} if the default internal handler should be used instead. (default: {@code null})
+     * @return The ErrorHandlers or an empty array if the default internal handler should be used instead. (default: none)
      */
-    ErrorHandler getErrorHandler();
+    ErrorHandler[] getErrorHandlers();
 
     /**
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>

@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.database.oracle;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatement;
+import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -114,9 +114,9 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
     private static final Pattern DECLARE_BEGIN_REGEX = toRegex("DECLARE|BEGIN");
     private static final Pattern PLSQL_REGEX = Pattern.compile(
-            "CREATE(\\s+OR\\s+REPLACE)?(\\s+(NON)?EDITIONABLE)?\\s+(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*");
+            "^CREATE(\\s+OR\\s+REPLACE)?(\\s+(NON)?EDITIONABLE)?\\s+(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*");
     private static final Pattern JAVA_REGEX = Pattern.compile(
-            "CREATE(\\s+OR\\s+REPLACE)?(\\s+AND\\s+(RESOLVE|COMPILE))?(\\s+NOFORCE)?\\s+JAVA\\s+(SOURCE|RESOURCE|CLASS).*");
+            "^CREATE(\\s+OR\\s+REPLACE)?(\\s+AND\\s+(RESOLVE|COMPILE))?(\\s+NOFORCE)?\\s+JAVA\\s+(SOURCE|RESOURCE|CLASS).*");
 
     /**
      * Delimiter of PL/SQL blocks and statements.
@@ -229,11 +229,10 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     @Override
     public boolean canDiscard() {
         return super.canDiscard()
-                || statementStart.startsWith("/") // Lone / that can safely be ignored
                 // [pro]
                 || isUnsupportedSqlPlusStatement()
                 // [/pro]
-                ;
+                || statementStart.startsWith("/"); // Lone / that can safely be ignored
     }
 
     // [pro]

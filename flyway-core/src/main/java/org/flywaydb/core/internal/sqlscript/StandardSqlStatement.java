@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database;
+package org.flywaydb.core.internal.sqlscript;
+
+import org.flywaydb.core.internal.database.AbstractSqlStatement;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 
@@ -33,6 +36,6 @@ public class StandardSqlStatement extends AbstractSqlStatement {
 
     @Override
     public void execute(JdbcTemplate jdbcTemplate) throws SQLException {
-        jdbcTemplate.executeStatement(sql);
+        jdbcTemplate.execute(sql);
     }
 }

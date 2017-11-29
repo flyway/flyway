@@ -22,8 +22,8 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.JdbcTemplate;
-import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
@@ -103,7 +103,7 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
                     scripts.put(key, new SqlScript(database, resource, placeholderReplacer, configuration.getEncoding(),
                             configuration.isMixed()
                             /*[pro]*/
-                            , configuration.getErrorHandler()
+                            , configuration.getErrorHandlers()
                             /*[/pro]*/
                     ));
                 }

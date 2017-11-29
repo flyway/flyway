@@ -17,8 +17,7 @@ package org.flywaydb.core.internal.database.postgresql;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.FlywaySqlException;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -76,7 +75,7 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
     public void changeCurrentSchemaTo(Schema schema) {
         try {
             // First reset the role in case a migration or callback changed it
-            jdbcTemplate.executeStatement("RESET ROLE");
+            jdbcTemplate.execute("RESET ROLE");
 
             if (schema.getName().equals(originalSchema) || originalSchema.startsWith(schema.getName() + ",") || !schema.exists()) {
                 return;

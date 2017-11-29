@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.database.hsqldb;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
 

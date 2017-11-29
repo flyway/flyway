@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database;
+package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.errorhandler.ErrorContext;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
+import org.flywaydb.core.api.errorhandler.Warning;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.Delimiter;
+import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
+import org.flywaydb.core.internal.util.jdbc.ErrorImpl;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
@@ -45,12 +52,12 @@ public class SqlScript {
      */
     private final Database database;
 
-    //[pro]
+    // [pro]
     /**
-     * The error handler to use.
+     * The error handlers to use.
      */
-    private final ErrorHandler errorHandler;
-    //[/pro]
+    private final ErrorHandler[] errorHandlers;
+    // [/pro]
 
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
@@ -81,33 +88,33 @@ public class SqlScript {
      * Creates a new sql script from this source.
      *
      * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
-     * @param database       The database-specific support.
+     * @param database        The database-specific support.
      */
     public SqlScript(String sqlScriptSource, Database database) {
         this.database = database;
         this.mixed = false;
         this.sqlStatements = parse(sqlScriptSource);
         this.resource = null;
-        // [pro]
-        this.errorHandler = null;
-        // [/pro]
+        //[pro]
+        this.errorHandlers = new ErrorHandler[0];
+        //[/pro]
     }
 
     /**
      * Creates a new sql script from this resource.
      *
-     * @param database           The database-specific support.
+     * @param database            The database-specific support.
      * @param sqlScriptResource   The resource containing the statements.
      * @param placeholderReplacer The placeholder replacer.
      * @param encoding            The encoding to use.
      * @param mixed               Whether to allow mixing transactional and non-transactional statements within the same migration.
      *                            [pro]
-     * @param errorHandler        The error handler to use.
+     * @param errorHandlers       The error handlers to use.
      *                            [/pro]
      */
     public SqlScript(Database database, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed
                      // [pro]
-                     , ErrorHandler errorHandler
+            , ErrorHandler[] errorHandlers
                      // [/pro]
     ) {
         this.database = database;
@@ -118,7 +125,7 @@ public class SqlScript {
         this.sqlStatements = parse(placeholderReplacer.replacePlaceholders(sqlScriptSource));
 
         //[pro]
-        this.errorHandler = errorHandler;
+        this.errorHandlers = errorHandlers;
         //[/pro]
     }
 
@@ -155,26 +162,62 @@ public class SqlScript {
      */
     public void execute(final JdbcTemplate jdbcTemplate) {
         for (SqlStatement sqlStatement : sqlStatements) {
+            ErrorContextImpl errorContext = new ErrorContextImpl();
+
             String sql = sqlStatement.getSql();
             LOG.debug("Executing SQL: " + sql);
 
             try {
                 sqlStatement.execute(jdbcTemplate);
-            } catch (final SQLException e) {
-                //[pro]
-                if (errorHandler != null) {
-                    ErrorContext errorContext = new ErrorContext() {
-                        @Override
-                        public SQLException getSQLException() {
-                            return e;
-                        }
-                    };
-                    if (errorHandler.handleError(errorContext)) {
-                        continue;
-                    }
+                // [pro]
+                if (handleWarnings(errorContext)) {
+                    continue;
                 }
-                //[/pro]
+                // [/pro]
+                printWarnings(errorContext);
+            } catch (final SQLException e) {
+                SQLException sqle = e;
+                while (sqle != null) {
+                    errorContext.addError(new ErrorImpl(sqle.getErrorCode(), sqle.getSQLState(), sqle.getMessage()));
+                    sqle = sqle.getNextException();
+                }
+                // [pro]
+                if (handleErrors(errorContext)) {
+                    continue;
+                }
+                // [/pro]
                 throw new FlywaySqlScriptException(resource, sqlStatement, e);
+            }
+        }
+    }
+
+    // [pro]
+    private boolean handleWarnings(ErrorContext errorContext) {
+        for (ErrorHandler errorHandler : errorHandlers) {
+            if (errorHandler.handle(errorContext)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean handleErrors(ErrorContext errorContext) {
+        for (ErrorHandler errorHandler : errorHandlers) {
+            if (errorHandler.handle(errorContext)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    // [/pro]
+
+    private void printWarnings(ErrorContext context) {
+        for (Warning warning : context.getWarnings()) {
+            if ("00000".equals(warning.getState())) {
+                LOG.info("DB: " + warning.getMessage());
+            } else {
+                LOG.warn("DB: " + warning.getMessage()
+                        + " (SQL State: " + warning.getState() + " - Error Code: " + warning.getCode() + ")");
             }
         }
     }
@@ -233,7 +276,7 @@ public class SqlScript {
             try {
                 sqlStatementBuilder.addLine(line);
             } catch (Exception e) {
-                throw new FlywayException("Flyway parsing bug (" + e.getMessage() + ") at line " + lineNumber + ": " + line);
+                throw new FlywayException("Flyway parsing bug (" + e.getMessage() + ") at line " + lineNumber + ": " + line, e);
             }
 
             if (sqlStatementBuilder.canDiscard()) {

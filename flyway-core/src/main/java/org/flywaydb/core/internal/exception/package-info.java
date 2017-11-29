@@ -13,22 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.errorhandler;
-
-import java.util.List;
-
 /**
- * The context passed to an error handler.
- * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+ * Private API. No compatibility guarantees provided.
  */
-public interface ErrorContext {
-    /**
-     * @return The warnings that were raised during a migration.
-     */
-    List<Warning> getWarnings();
-
-    /**
-     * @return The errors that were thrown during a migration.
-     */
-    List<Error> getErrors();
-}
+package org.flywaydb.core.internal.exception;

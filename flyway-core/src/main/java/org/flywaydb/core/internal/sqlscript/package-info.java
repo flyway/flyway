@@ -13,16 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database;
-
-import org.flywaydb.core.api.FlywayException;
-
 /**
- * Thrown when an attempt was made to use a Flyway Pro or Flyway Enterprise feature not supported by Flyway Open Source.
+ * Private API. No compatibility guarantees provided.
  */
-public class FlywayProUpgradeRequiredException extends FlywayException {
-    public FlywayProUpgradeRequiredException(String feature) {
-        super("Flyway Pro or Flyway Enterprise upgrade required: " + feature
-                + " is not supported by Flyway Open Source.");
-    }
-}
+package org.flywaydb.core.internal.sqlscript;

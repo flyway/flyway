@@ -25,7 +25,7 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.DatabaseFactory;
-import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;

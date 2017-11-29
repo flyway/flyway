@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.database;
 
+import org.flywaydb.core.internal.sqlscript.SqlStatement;
+import org.flywaydb.core.internal.sqlscript.StandardSqlStatement;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.ArrayList;
@@ -102,7 +104,7 @@ public class SqlStatementBuilder {
     /**
      * @param lineNumber The initial line number of this statement.
      */
-    void setLineNumber(int lineNumber) {
+    public void setLineNumber(int lineNumber) {
         this.lineNumber = lineNumber;
     }
 

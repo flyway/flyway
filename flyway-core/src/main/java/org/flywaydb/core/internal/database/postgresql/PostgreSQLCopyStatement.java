@@ -16,7 +16,7 @@
 package org.flywaydb.core.internal.database.postgresql;
 
 import org.flywaydb.core.internal.database.AbstractSqlStatement;
-import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 

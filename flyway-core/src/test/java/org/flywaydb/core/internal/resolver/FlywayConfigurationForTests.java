@@ -260,7 +260,7 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     }
 
     @Override
-    public ErrorHandler getErrorHandler() {
+    public ErrorHandler[] getErrorHandlers() {
         return null;
     }
 

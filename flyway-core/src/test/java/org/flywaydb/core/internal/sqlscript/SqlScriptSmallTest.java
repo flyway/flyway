@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database;
+package org.flywaydb.core.internal.sqlscript;
 
+import org.flywaydb.core.internal.database.Delimiter;
+import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.database.mysql.MySQLSqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.junit.Ignore;
 import org.junit.Test;

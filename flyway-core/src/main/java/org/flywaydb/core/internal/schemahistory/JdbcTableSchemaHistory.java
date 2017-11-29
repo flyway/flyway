@@ -23,10 +23,10 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.FlywaySqlException;
-import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 

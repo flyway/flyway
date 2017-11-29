@@ -16,8 +16,8 @@
 package org.flywaydb.core.internal.database.postgresql;
 
 import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlScript;
-import org.flywaydb.core.internal.database.SqlStatement;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.junit.Test;

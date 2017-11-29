@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.database.saphana;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.migration.ConcurrentMigrationTestCase;

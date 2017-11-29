@@ -366,14 +366,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String installedBy;
 
     /**
-     * The fully qualified class name of the ErrorHandler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
-     * <p>{@code null} if the default internal handler should be used instead. (default: {@code null})</p>
-     * <p>Also configurable with Maven or System Property: ${flyway.errorHandler}</p>
+     * The fully qualified class names of handlers for errors and warnings that occur during a migration. This can be
+     * used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
+     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings. (default: none)
+     * <p>Also configurable with Maven or System Property: ${flyway.errorHandlers}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */
-    @Parameter(property = ConfigUtils.ERROR_HANDLER)
-    private String errorHandler;
+    @Parameter
+    private String[] errorHandlers;
 
     /**
      * The file where to output the SQL statements of a migration dry run. If the file specified is in a non-existent
@@ -549,7 +550,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate);
             putIfSet(conf, ConfigUtils.DRIVER, driver);
 
-            putIfSet(conf, ConfigUtils.ERROR_HANDLER, errorHandler);
+            putArrayIfSet(conf, ConfigUtils.ERROR_HANDLERS, errorHandlers);
             putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput);
 
             if (placeholders != null) {

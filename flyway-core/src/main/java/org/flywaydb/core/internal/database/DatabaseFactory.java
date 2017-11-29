@@ -32,6 +32,7 @@ import org.flywaydb.core.internal.database.saphana.SAPHANADatabase;
 import org.flywaydb.core.internal.database.sqlite.SQLiteDatabase;
 import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabase;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEDatabase;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 
 import java.sql.Connection;

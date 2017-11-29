@@ -306,12 +306,12 @@ public class Flyway implements FlywayConfiguration {
 
     //[pro]
     /**
-     * Handler errors that occur during a migration. This can be used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a
-     * FlywaySqlException. (default: {@code null}).
+     * Handlers for errors and warnings that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
+     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings. (default: none).
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */
-    private ErrorHandler errorHandler;
+    private ErrorHandler[] errorHandlers = new ErrorHandler[0];
 
     /**
      * The output stream to write the SQL statements of a migration dry run to. {@code null} if the SQL statements
@@ -355,7 +355,7 @@ public class Flyway implements FlywayConfiguration {
         setDataSource(configuration.getDataSource());
         // [pro]
         setDryRunOutput(configuration.getDryRunOutput());
-        setErrorHandler(configuration.getErrorHandler());
+        setErrorHandlers(configuration.getErrorHandlers());
         // [/pro]
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
@@ -532,12 +532,12 @@ public class Flyway implements FlywayConfiguration {
     }
 
     @Override
-    public ErrorHandler getErrorHandler() {
+    public ErrorHandler[] getErrorHandlers() {
         // [opensource-only]
-        //throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("errorHandler");
+        //throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("errorHandlers");
         // [/opensource-only]
         // [pro]
-        return errorHandler;
+        return errorHandlers;
         // [/pro]
     }
 
@@ -632,38 +632,38 @@ public class Flyway implements FlywayConfiguration {
     }
 
     /**
-     * Handler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     * Handlers for errors and warnings that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
+     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
-     * @param errorHandler The ErrorHandler or {@code null} if the default internal handler should be used instead. (default: {@code null})
+     * @param errorHandlers The ErrorHandlers or an empty array if the default internal handler should be used instead. (default: none)
      */
-    public void setErrorHandler(ErrorHandler errorHandler) {
+    public void setErrorHandlers(ErrorHandler... errorHandlers) {
         // [opensource-only]
-        //throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("errorHandler");
+        //throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("errorHandlers");
         // [/opensource-only]
         // [pro]
-        this.errorHandler = errorHandler;
+        this.errorHandlers = errorHandlers;
         // [/pro]
     }
 
     /**
-     * Handler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     * Handlers for errors and warnings that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
+     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
-     * @param errorHandlerClassName The fully qualified class name of the ErrorHandler or
-     *                              {@code null} if the default internal handler should be used instead. (default: {@code null})
+     * @param errorHandlerClassNames  The fully qualified class names of ErrorHandlers or an empty array if the default
+     *                               internal handler should be used instead. (default: none)
      */
-    public void setErrorHandlerAsClassName(String errorHandlerClassName) {
+    public void setErrorHandlersAsClassNames(String... errorHandlerClassNames) {
         // [opensource-only]
-        //throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("errorHandler");
+        //throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("errorHandlers");
         // [/opensource-only]
         // [pro]
-        if (errorHandlerClassName == null) {
-            this.errorHandler = null;
-        } else {
-            this.errorHandler = ClassUtils.instantiate(errorHandlerClassName, classLoader);
-        }
+        List<ErrorHandler> errorHandlerList = ClassUtils.instantiateAll(errorHandlerClassNames, classLoader);
+        setErrorHandlers(errorHandlerList.toArray(new ErrorHandler[errorHandlerList.size()]));
         // [/pro]
     }
 
@@ -1486,9 +1486,9 @@ public class Flyway implements FlywayConfiguration {
             setDryRunOutputAsFileName(dryRunOutputProp);
         }
 
-        String errorHandlerProp = props.remove(ConfigUtils.ERROR_HANDLER);
-        if (errorHandlerProp != null) {
-            setErrorHandlerAsClassName(errorHandlerProp);
+        String errorHandlersProp = props.remove(ConfigUtils.ERROR_HANDLERS);
+        if (errorHandlersProp != null) {
+            setErrorHandlersAsClassNames(StringUtils.tokenizeToStringArray(errorHandlersProp, ","));
         }
 
         for (String key : props.keySet()) {

@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.database;
 
+import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+
 import java.sql.SQLException;
 
 /**

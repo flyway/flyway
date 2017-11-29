@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.database;
 
+import org.flywaydb.core.internal.sqlscript.SqlStatement;
+
 /**
  * A sql statement from a script that can be executed at once against a database.
  */

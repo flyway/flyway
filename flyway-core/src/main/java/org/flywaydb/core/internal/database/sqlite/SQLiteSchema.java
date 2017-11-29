@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
-import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.api.logging.Log;
@@ -42,7 +42,7 @@ public class SQLiteSchema extends Schema<SQLiteDatabase> {
      * @param database    The database-specific support.
      * @param name         The name of the schema.
      */
-    public SQLiteSchema(JdbcTemplate jdbcTemplate, SQLiteDatabase database, String name) {
+    SQLiteSchema(JdbcTemplate jdbcTemplate, SQLiteDatabase database, String name) {
         super(jdbcTemplate, database, name);
     }
 
@@ -83,7 +83,7 @@ public class SQLiteSchema extends Schema<SQLiteDatabase> {
     protected void doClean() throws SQLException {
         List<String> viewNames = jdbcTemplate.queryForStringList("SELECT tbl_name FROM " + database.quote(name) + ".sqlite_master WHERE type='view'");
         for (String viewName : viewNames) {
-            jdbcTemplate.executeStatement("DROP VIEW " + database.quote(name, viewName));
+            jdbcTemplate.execute("DROP VIEW " + database.quote(name, viewName));
         }
 
         for (Table table : allTables()) {
@@ -91,7 +91,7 @@ public class SQLiteSchema extends Schema<SQLiteDatabase> {
         }
 
         if (getTable(SQLiteTable.SQLITE_SEQUENCE).exists()) {
-            jdbcTemplate.executeStatement("DELETE FROM " + SQLiteTable.SQLITE_SEQUENCE);
+            jdbcTemplate.execute("DELETE FROM " + SQLiteTable.SQLITE_SEQUENCE);
         }
     }
 

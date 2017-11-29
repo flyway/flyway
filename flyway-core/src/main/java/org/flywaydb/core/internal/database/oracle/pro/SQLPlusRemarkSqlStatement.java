@@ -1,7 +1,7 @@
 package org.flywaydb.core.internal.database.oracle.pro;
 
 import org.flywaydb.core.internal.database.AbstractSqlStatement;
-import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 

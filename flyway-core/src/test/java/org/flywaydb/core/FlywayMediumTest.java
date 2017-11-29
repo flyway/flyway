@@ -23,7 +23,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.errorhandler.ErrorContext;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.h2.H2Database;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -316,7 +316,7 @@ public class FlywayMediumTest {
         flyway.setLocations("migration/validate");
         flyway.baseline();
 
-        new JdbcTemplate(dataSource.getConnection(), 0).executeStatement("UPDATE \"new1\".\"schema_version\" SET \"type\"='BASELINE' WHERE \"type\"='BASELINE'");
+        new JdbcTemplate(dataSource.getConnection(), 0).execute("UPDATE \"new1\".\"schema_version\" SET \"type\"='BASELINE' WHERE \"type\"='BASELINE'");
         assertEquals("1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
 
@@ -1010,10 +1010,10 @@ public class FlywayMediumTest {
         flyway.setDataSource("jdbc:h2:mem:flyway_failed;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/failed");
         flyway.setPlaceholderReplacement(false);
-        flyway.setErrorHandler(new ErrorHandler() {
+        flyway.setErrorHandlers(new ErrorHandler() {
             @Override
-            public boolean handleError(ErrorContext context) {
-                int errorCode = context.getSQLException().getErrorCode();
+            public boolean handle(ErrorContext context) {
+                int errorCode = context.getErrors().get(0).getCode();
                 System.out.println("Intercepted error: " + errorCode);
                 error.set(errorCode);
                 return true;

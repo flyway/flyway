@@ -16,7 +16,7 @@
 package org.flywaydb.core.internal.database.mysql;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Test;
 import org.springframework.jdbc.datasource.AbstractDataSource;
