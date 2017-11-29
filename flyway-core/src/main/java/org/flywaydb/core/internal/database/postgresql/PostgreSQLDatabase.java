@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.database.postgresql;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -69,7 +69,7 @@ public class PostgreSQLDatabase extends Database {
         }
 
         if (majorVersion == 9 && minorVersion < 3) {
-            throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("PostgreSQL", "PostgreSQL", version);
+            throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("PostgreSQL", "PostgreSQL", version);
         }
 
         if (majorVersion > 10) {

@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
-import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
 

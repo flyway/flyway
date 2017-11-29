@@ -320,6 +320,8 @@ public class Flyway implements FlywayConfiguration {
 
 
 
+
+
     /**
      * Creates a new instance of Flyway. This is your starting point.
      */
@@ -532,9 +534,9 @@ public class Flyway implements FlywayConfiguration {
     }
 
     @Override
-    public ErrorHandler getErrorHandler() {
+    public ErrorHandler[] getErrorHandlers() {
 
-        throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("errorHandler");
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
 
 
 
@@ -544,7 +546,7 @@ public class Flyway implements FlywayConfiguration {
     @Override
     public OutputStream getDryRunOutput() {
 
-        throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -560,7 +562,7 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setDryRunOutput(OutputStream dryRunOutput) {
 
-        throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -577,7 +579,7 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setDryRunOutputAsFile(File dryRunOutput) {
 
-        throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -624,7 +626,7 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
 
-        throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -632,15 +634,17 @@ public class Flyway implements FlywayConfiguration {
     }
 
     /**
-     * Handler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     * Handlers for errors and warnings that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
+     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
+     * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
-     * @param errorHandler The ErrorHandler or {@code null} if the default internal handler should be used instead. (default: {@code null})
+     * @param errorHandlers The ErrorHandlers or an empty array if the default internal handler should be used instead. (default: none)
      */
-    public void setErrorHandler(ErrorHandler errorHandler) {
+    public void setErrorHandlers(ErrorHandler... errorHandlers) {
 
-        throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("errorHandler");
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
 
 
 
@@ -648,18 +652,18 @@ public class Flyway implements FlywayConfiguration {
     }
 
     /**
-     * Handler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     * Handlers for errors and warnings that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
+     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
+     * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
-     * @param errorHandlerClassName The fully qualified class name of the ErrorHandler or
-     *                              {@code null} if the default internal handler should be used instead. (default: {@code null})
+     * @param errorHandlerClassNames  The fully qualified class names of ErrorHandlers or an empty array if the default
+     *                               internal handler should be used instead. (default: none)
      */
-    public void setErrorHandlerAsClassName(String errorHandlerClassName) {
+    public void setErrorHandlersAsClassNames(String... errorHandlerClassNames) {
 
-        throw new org.flywaydb.core.internal.database.FlywayProUpgradeRequiredException("errorHandler");
-
-
-
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
 
 
 
@@ -1486,9 +1490,9 @@ public class Flyway implements FlywayConfiguration {
             setDryRunOutputAsFileName(dryRunOutputProp);
         }
 
-        String errorHandlerProp = props.remove(ConfigUtils.ERROR_HANDLER);
-        if (errorHandlerProp != null) {
-            setErrorHandlerAsClassName(errorHandlerProp);
+        String errorHandlersProp = props.remove(ConfigUtils.ERROR_HANDLERS);
+        if (errorHandlersProp != null) {
+            setErrorHandlersAsClassNames(StringUtils.tokenizeToStringArray(errorHandlersProp, ","));
         }
 
         for (String key : props.keySet()) {

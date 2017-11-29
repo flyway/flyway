@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
-import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
 
@@ -75,7 +75,7 @@ public class MySQLSchema extends Schema<MySQLDatabase> {
         }
 
         for (String statement : cleanRoutines()) {
-            jdbcTemplate.executeStatement(statement);
+            jdbcTemplate.execute(statement);
         }
 
         for (String statement : cleanViews()) {

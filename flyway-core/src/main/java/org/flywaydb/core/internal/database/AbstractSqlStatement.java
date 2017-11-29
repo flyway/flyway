@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.database;
 
+import org.flywaydb.core.internal.sqlscript.SqlStatement;
+
 /**
  * A sql statement from a script that can be executed at once against a database.
  */
@@ -29,9 +31,9 @@ public abstract class AbstractSqlStatement implements SqlStatement {
      */
     protected String sql;
 
-    public AbstractSqlStatement(String sql, int lineNumber) {
-        this.sql = sql;
+    public AbstractSqlStatement(int lineNumber, String sql) {
         this.lineNumber = lineNumber;
+        this.sql = sql;
     }
 
     @Override

@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database;
+package org.flywaydb.core.internal.util.jdbc;
 
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -256,7 +254,7 @@ public class JdbcTemplate {
      * @param sql The statement to execute.
      * @throws SQLException when the execution failed.
      */
-    public void executeStatement(String sql) throws SQLException {
+    public void executeStatement(ErrorContextImpl errorContext, String sql) throws SQLException {
         Statement statement = null;
         try {
             statement = connection.createStatement();
@@ -267,12 +265,7 @@ public class JdbcTemplate {
             } finally {
                 @SuppressWarnings("ThrowableResultOfMethodCallIgnored") SQLWarning warning = statement.getWarnings();
                 while (warning != null) {
-                    if ("00000".equals(warning.getSQLState())) {
-                        LOG.info("DB: " + warning.getMessage());
-                    } else {
-                        LOG.warn("DB: " + warning.getMessage()
-                                + " (SQL State: " + warning.getSQLState() + " - Error Code: " + warning.getErrorCode() + ")");
-                    }
+                    errorContext.addWarning(new WarningImpl(warning.getErrorCode(), warning.getSQLState(), warning.getMessage()));
                     warning = warning.getNextWarning();
                 }
                 // retrieve all results to ensure all errors are detected

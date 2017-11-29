@@ -13,22 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.util.jdbc;
+package org.flywaydb.core.internal.exception;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import org.flywaydb.core.api.FlywayException;
 
 /**
- * Mapper from ResultSet row to object.
- *
- * @param <T> The type of object to map to.
+ * Thrown when an attempt was made to use a Flyway Pro or Flyway Enterprise feature not supported by Flyway Open Source.
  */
-public interface RowMapper<T> {
-    /**
-     * Maps a row in this resultSet to an object.
-     * @param rs The resultset, already positioned on the row to map.
-     * @return The corresponding object.
-     * @throws SQLException when reading the resultset failed.
-     */
-    T mapRow(final ResultSet rs) throws SQLException;
+public class FlywayProUpgradeRequiredException extends FlywayException {
+    public FlywayProUpgradeRequiredException(String feature) {
+        super("Flyway Pro or Flyway Enterprise upgrade required: " + feature
+                + " is not supported by Flyway Open Source.");
+    }
 }

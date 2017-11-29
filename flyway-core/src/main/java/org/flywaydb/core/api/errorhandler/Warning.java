@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database;
-
-import org.flywaydb.core.api.FlywayException;
+package org.flywaydb.core.api.errorhandler;
 
 /**
- * Thrown when an attempt was made to migrate an outdated database version not supported by Flyway.
+ * A warning that occurred while executing a statement.
  */
-public class FlywayDbUpgradeRequiredException extends FlywayException {
-    public FlywayDbUpgradeRequiredException(String database, String version, String minimumVersion) {
-        super(database + " upgrade required: " + database + " " + version
-                + " is outdated and no longer supported by Flyway. Flyway currently supports " + database + " "
-                + minimumVersion + " and newer.");
-    }
+public interface Warning {
+    /**
+     * @return The warning code.
+     */
+    int getCode();
+
+    /**
+     * @return The warning state.
+     */
+    String getState();
+
+    /**
+     * @return The warning message.
+     */
+    String getMessage();
 }

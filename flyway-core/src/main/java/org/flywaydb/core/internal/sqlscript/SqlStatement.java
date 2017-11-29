@@ -13,26 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database;
+package org.flywaydb.core.internal.sqlscript;
+
+import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 
 /**
  * A sql statement from a script that can be executed at once against a database.
  */
-public class StandardSqlStatement extends AbstractSqlStatement {
+public interface SqlStatement {
     /**
-     * Creates a new sql statement.
-     *
-     * @param lineNumber The original line number where the statement was located in the script it came from.
-     * @param sql        The sql to send to the database.
+     * @return The original line number where the statement was located in the script it came from.
      */
-    public StandardSqlStatement(int lineNumber, String sql) {
-        super(sql, lineNumber);
-    }
+    int getLineNumber();
 
-    @Override
-    public void execute(JdbcTemplate jdbcTemplate) throws SQLException {
-        jdbcTemplate.executeStatement(sql);
-    }
+    /**
+     * @return The sql to send to the database.
+     */
+    String getSql();
+
+    /**
+     * Executes this statement against the database.
+     *
+     * @param errorContext The error context.
+     * @param jdbcTemplate The jdbcTemplate to use to execute this script.
+     * @throws SQLException when the execution fails.
+     */
+    void execute(ErrorContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException;
 }

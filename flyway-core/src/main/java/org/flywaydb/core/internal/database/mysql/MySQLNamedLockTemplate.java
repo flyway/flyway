@@ -18,8 +18,8 @@ package org.flywaydb.core.internal.database.mysql;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.FlywaySqlException;
-import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 import java.util.concurrent.Callable;

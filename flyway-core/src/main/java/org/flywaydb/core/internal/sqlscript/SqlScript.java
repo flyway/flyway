@@ -13,15 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database;
+package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.errorhandler.Error;
 import org.flywaydb.core.api.errorhandler.ErrorContext;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
+import org.flywaydb.core.api.errorhandler.Warning;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.Delimiter;
+import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
+import org.flywaydb.core.internal.util.jdbc.ErrorImpl;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
@@ -81,7 +89,7 @@ public class SqlScript {
      * Creates a new sql script from this source.
      *
      * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
-     * @param database       The database-specific support.
+     * @param database        The database-specific support.
      */
     public SqlScript(String sqlScriptSource, Database database) {
         this.database = database;
@@ -96,7 +104,7 @@ public class SqlScript {
     /**
      * Creates a new sql script from this resource.
      *
-     * @param database           The database-specific support.
+     * @param database            The database-specific support.
      * @param sqlScriptResource   The resource containing the statements.
      * @param placeholderReplacer The placeholder replacer.
      * @param encoding            The encoding to use.
@@ -154,12 +162,27 @@ public class SqlScript {
      * @param jdbcTemplate The jdbcTemplate to use to execute this script.
      */
     public void execute(final JdbcTemplate jdbcTemplate) {
+
+
+
+
         for (SqlStatement sqlStatement : sqlStatements) {
+            ErrorContextImpl errorContext = new ErrorContextImpl();
+
             String sql = sqlStatement.getSql();
             LOG.debug("Executing SQL: " + sql);
 
             try {
-                sqlStatement.execute(jdbcTemplate);
+                sqlStatement.execute(errorContext, jdbcTemplate);
+
+
+
+
+
+
+
+
+                printWarnings(errorContext);
             } catch (final SQLException e) {
 
 
@@ -171,10 +194,48 @@ public class SqlScript {
 
 
 
+                printWarnings(errorContext);
+
+
+
+
+
+
 
 
 
                 throw new FlywaySqlScriptException(resource, sqlStatement, e);
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private void printWarnings(ErrorContext context) {
+        for (Warning warning : context.getWarnings()) {
+            if ("00000".equals(warning.getState())) {
+                LOG.info("DB: " + warning.getMessage());
+            } else {
+                LOG.warn("DB: " + warning.getMessage()
+                        + " (SQL State: " + warning.getState() + " - Error Code: " + warning.getCode() + ")");
             }
         }
     }
@@ -233,7 +294,7 @@ public class SqlScript {
             try {
                 sqlStatementBuilder.addLine(line);
             } catch (Exception e) {
-                throw new FlywayException("Flyway parsing bug (" + e.getMessage() + ") at line " + lineNumber + ": " + line);
+                throw new FlywayException("Flyway parsing bug (" + e.getMessage() + ") at line " + lineNumber + ": " + line, e);
             }
 
             if (sqlStatementBuilder.canDiscard()) {

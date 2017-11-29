@@ -15,7 +15,10 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -26,6 +29,8 @@ import java.util.regex.Pattern;
  * SqlStatementBuilder supporting Oracle-specific PL/SQL constructs.
  */
 public class OracleSqlStatementBuilder extends SqlStatementBuilder {
+    private static final Log LOG = LogFactory.getLog(SqlStatementBuilder.class);
+
     /**
      * Regex for keywords that can appear before a string literal without being separated by a space.
      */
@@ -35,6 +40,88 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
      * Regex for keywords that can appear after a string literal without being separated by a space.
      */
     private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(USING|THEN|FROM|AND|OR|AS)(?!.)");
+
+    private static Pattern toRegex(String... commands) {
+        return Pattern.compile("^(" + StringUtils.arrayToDelimitedString("|", commands) + ")(\\s.*)?");
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private static final Pattern DECLARE_BEGIN_REGEX = toRegex("DECLARE|BEGIN");
+    private static final Pattern PLSQL_REGEX = Pattern.compile(
+            "^CREATE(\\s+OR\\s+REPLACE)?(\\s+(NON)?EDITIONABLE)?\\s+(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*");
+    private static final Pattern JAVA_REGEX = Pattern.compile(
+            "^CREATE(\\s+OR\\s+REPLACE)?(\\s+AND\\s+(RESOLVE|COMPILE))?(\\s+NOFORCE)?\\s+JAVA\\s+(SOURCE|RESOURCE|CLASS).*");
 
     /**
      * Delimiter of PL/SQL blocks and statements.
@@ -50,9 +137,37 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
         super(defaultDelimiter);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
-        if (line.matches("DECLARE|DECLARE\\s.*") || line.matches("BEGIN|BEGIN\\s.*")) {
+        if (DECLARE_BEGIN_REGEX.matcher(line).matches()) {
             return PLSQL_DELIMITER;
         }
 
@@ -62,8 +177,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
             statementStart = statementStart.replaceAll("\\s+", " ");
         }
 
-        if (statementStart.matches("CREATE(\\s+OR\\s+REPLACE)?(\\s+(NON)?EDITIONABLE)?\\s+(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*")
-                || statementStart.matches("CREATE(\\s+OR\\s+REPLACE)?(\\s+AND\\s+(RESOLVE|COMPILE))?(\\s+NOFORCE)?\\s+JAVA\\s+(SOURCE|RESOURCE|CLASS).*")) {
+        if (PLSQL_REGEX.matcher(statementStart).matches() || JAVA_REGEX.matcher(statementStart).matches()) {
             return PLSQL_DELIMITER;
         }
 
@@ -122,6 +236,21 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     public boolean canDiscard() {
-        return super.canDiscard() || statementStart.startsWith("/");
+        return super.canDiscard()
+
+
+
+                || statementStart.startsWith("/"); // Lone / that can safely be ignored
     }
+
+
+
+
+
+
+
+
+
+
+
 }

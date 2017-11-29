@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.database.saphana;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 
 import java.sql.Connection;
@@ -63,7 +63,7 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
 
 
         if (majorVersion == 1) {
-            throw new org.flywaydb.core.internal.database.FlywayEnterpriseUpgradeRequiredException("SAP", "HANA", version);
+            throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("SAP", "HANA", version);
         }
 
         if (majorVersion > 2) {
@@ -73,7 +73,7 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new SAPHANASqlStatementBuilder(DEFAULT_DELIMITER);
+        return new SAPHANASqlStatementBuilder(Delimiter.SEMICOLON);
     }
 
     public String getDbName() {

@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.resolver.sql;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 

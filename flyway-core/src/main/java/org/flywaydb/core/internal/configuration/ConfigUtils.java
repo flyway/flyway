@@ -59,7 +59,7 @@ public class ConfigUtils {
     public static final String DRIVER = "flyway.driver";
     public static final String DRYRUN_OUTPUT = "flyway.dryRunOutput";
     public static final String ENCODING = "flyway.encoding";
-    public static final String ERROR_HANDLER = "flyway.errorHandler";
+    public static final String ERROR_HANDLERS = "flyway.errorHandlers";
     public static final String GROUP = "flyway.group";
     public static final String IGNORE_FUTURE_MIGRATIONS = "flyway.ignoreFutureMigrations";
     public static final String IGNORE_MISSING_MIGRATIONS = "flyway.ignoreMissingMigrations";
@@ -156,8 +156,8 @@ public class ConfigUtils {
         if ("FLYWAY_ENCODING".equals(key)) {
             return ENCODING;
         }
-        if ("FLYWAY_ERROR_HANDLER".equals(key)) {
-            return ERROR_HANDLER;
+        if ("FLYWAY_ERROR_HANDLERS".equals(key)) {
+            return ERROR_HANDLERS;
         }
         if ("FLYWAY_GROUP".equals(key)) {
             return GROUP;

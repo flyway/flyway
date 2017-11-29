@@ -15,15 +15,20 @@
  */
 package org.flywaydb.core.api.errorhandler;
 
-import java.sql.SQLException;
+import java.util.List;
 
 /**
- * The context for an error passed to an error handler.
+ * The context passed to an error handler.
  * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
  */
 public interface ErrorContext {
     /**
-     * @return The SQL Exception that was thrown by the JDBC driver.
+     * @return The warnings that were raised during a migration.
      */
-    SQLException getSQLException();
+    List<Warning> getWarnings();
+
+    /**
+     * @return The errors that were thrown during a migration.
+     */
+    List<Error> getErrors();
 }

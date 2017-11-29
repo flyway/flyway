@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.database;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
@@ -34,7 +35,6 @@ import java.util.Map;
  */
 public abstract class Database<C extends Connection> implements Closeable {
     private static final Log LOG = LogFactory.getLog(Database.class);
-    public static final Delimiter DEFAULT_DELIMITER = new Delimiter(";", false);
 
     /**
      * The Flyway configuration.
@@ -143,7 +143,7 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @return The default delimiter for this database.
      */
     public Delimiter getDefaultDelimiter() {
-        return DEFAULT_DELIMITER;
+        return Delimiter.SEMICOLON;
     }
 
     /**
