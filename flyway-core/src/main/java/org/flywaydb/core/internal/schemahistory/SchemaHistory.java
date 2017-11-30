@@ -29,14 +29,14 @@ import java.util.concurrent.Callable;
  */
 public abstract class SchemaHistory {
     /**
-     * Acquires an exclusive read-write lock on the metadata table. This lock will be released automatically upon completion.
+     * Acquires an exclusive read-write lock on the schema history table. This lock will be released automatically upon completion.
      *
      * @return The result of the action.
      */
     public abstract <T> T lock(Callable<T> callable);
 
     /**
-     * @return Whether the metadata table exists.
+     * @return Whether the schema history table exists.
      */
     public abstract boolean exists();
 
@@ -46,7 +46,7 @@ public abstract class SchemaHistory {
     public abstract void create();
 
     /**
-     * Checks whether the metadata table contains at least one applied migration.
+     * Checks whether the schema history table contains at least one applied migration.
      *
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
@@ -59,7 +59,7 @@ public abstract class SchemaHistory {
     public abstract List<AppliedMigration> allAppliedMigrations();
 
     /**
-     * Creates and initializes the Flyway metadata table.
+     * Creates and initializes the Flyway schema history table.
      *
      * @param baselineVersion     The version to tag an existing schema with when executing baseline.
      * @param baselineDescription The description to tag an existing schema with when executing baseline.
@@ -70,14 +70,14 @@ public abstract class SchemaHistory {
     }
 
     /**
-     * Checks whether the metadata table contains a marker row for schema baseline.
+     * Checks whether the schema history table contains a marker row for schema baseline.
      *
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
     public abstract boolean hasBaselineMarker();
 
     /**
-     * Retrieves the baseline marker from the metadata table.
+     * Retrieves the baseline marker from the schema history table.
      *
      * @return The baseline marker or {@code null} if none could be found.
      */
@@ -85,18 +85,18 @@ public abstract class SchemaHistory {
 
     /**
      * <p>
-     * Repairs the metadata table after a failed migration.
+     * Repairs the schema history table after a failed migration.
      * This is only necessary for databases without DDL-transaction support.
      * </p>
      * <p>
      * On databases with DDL transaction support, a migration failure automatically triggers a rollback of all changes,
-     * including the ones in the metadata table.
+     * including the ones in the schema history table.
      * </p>
      */
     public abstract void removeFailedMigrations();
 
     /**
-     * Indicates in the metadata table that Flyway created these schemas.
+     * Indicates in the schema history table that Flyway created these schemas.
      *
      * @param schemas The schemas that were created by Flyway.
      */
@@ -108,7 +108,7 @@ public abstract class SchemaHistory {
     }
 
     /**
-     * Checks whether the metadata table contains a marker row for schema creation.
+     * Checks whether the schema history table contains a marker row for schema creation.
      *
      * @return {@code true} if it does, {@code false} if it doesn't.
      */

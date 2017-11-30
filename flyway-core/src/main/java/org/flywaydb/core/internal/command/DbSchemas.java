@@ -32,7 +32,7 @@ public class DbSchemas {
     private static final Log LOG = LogFactory.getLog(DbSchemas.class);
 
     /**
-     * The database connection to use for accessing the metadata table.
+     * The database connection to use for accessing the schema history table.
      */
     private final Connection connection;
 
@@ -42,7 +42,7 @@ public class DbSchemas {
     private final Schema[] schemas;
 
     /**
-     * The metadata table.
+     * The schema history table.
      */
     private final SchemaHistory schemaHistory;
 
@@ -51,7 +51,7 @@ public class DbSchemas {
      *
      * @param database      The database to use.
      * @param schemas       The schemas managed by Flyway.
-     * @param schemaHistory The metadata table.
+     * @param schemaHistory The schema history table.
      */
     public DbSchemas(Database database, Schema[] schemas, SchemaHistory schemaHistory) {
         this.connection = database.getMainConnection();

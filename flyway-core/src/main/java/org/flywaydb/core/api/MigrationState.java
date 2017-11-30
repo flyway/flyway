@@ -30,7 +30,7 @@ public enum MigrationState {
     ABOVE_TARGET("Above Target", true, false, false),
 
     /**
-     * This migration was not applied against this DB, because the metadata table was baselined with a higher version.
+     * This migration was not applied against this DB, because the schema history table was baselined with a higher version.
      */
     BELOW_BASELINE("Below Baseline", true, false, false),
 

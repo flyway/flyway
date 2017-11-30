@@ -283,10 +283,10 @@ public class MigrationInfoServiceImplSmallTest {
     }
 
     /**
-     * Creates a metadata table for testing.
+     * Creates a schema history table for testing.
      *
      * @param appliedMigrations The applied migrations.
-     * @return The metadata table.
+     * @return The schema history table.
      */
     private SchemaHistory createMetaDataTable(final AppliedMigration... appliedMigrations) {
         SchemaHistory schemaHistory = mock(SchemaHistory.class);

@@ -227,7 +227,7 @@ public class Main {
         LOG.info("info     : Prints the information about applied, current and pending migrations");
         LOG.info("validate : Validates the applied migrations against the ones on the classpath");
         LOG.info("baseline : Baselines an existing database at the baselineVersion");
-        LOG.info("repair   : Repairs the metadata table");
+        LOG.info("repair   : Repairs the schema history table");
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
         LOG.info("-------");
@@ -236,7 +236,7 @@ public class Main {
         LOG.info("user                         : User to use to connect to the database");
         LOG.info("password                     : Password to use to connect to the database");
         LOG.info("schemas                      : Comma-separated list of the schemas managed by Flyway");
-        LOG.info("table                        : Name of Flyway's metadata table");
+        LOG.info("table                        : Name of Flyway's schema history table");
         LOG.info("locations                    : Classpath locations to scan recursively for migrations");
         LOG.info("resolvers                    : Comma-separated list of custom MigrationResolvers");
         LOG.info("skipDefaultResolvers         : Skips default resolvers (jdbc, sql and Spring-jdbc)");
@@ -250,7 +250,7 @@ public class Main {
         LOG.info("placeholders                 : Placeholders to replace in sql migrations");
         LOG.info("placeholderPrefix            : Prefix of every placeholder");
         LOG.info("placeholderSuffix            : Suffix of every placeholder");
-        LOG.info("installedBy                  : Username that will be recorded in the metadata table");
+        LOG.info("installedBy                  : Username that will be recorded in the schema history table");
         LOG.info("target                       : Target version up to which Flyway should use migrations");
         LOG.info("outOfOrder                   : Allows migrations to be run \"out of order\"");
         LOG.info("callbacks                    : Comma-separated list of FlywayCallback classes");

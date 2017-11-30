@@ -96,9 +96,9 @@ public class MigrationInfoDumperSmallTest {
     }
 
     /**
-     * Creates a metadata table for testing.
+     * Creates a schema history table for testing.
      *
-     * @return The metadata table.
+     * @return The schema history table.
      */
     private SchemaHistory createMetaDataTable() {
         SchemaHistory schemaHistory = mock(SchemaHistory.class);

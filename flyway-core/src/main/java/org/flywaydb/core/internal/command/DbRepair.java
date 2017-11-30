@@ -45,7 +45,7 @@ public class DbRepair {
     private static final Log LOG = LogFactory.getLog(DbRepair.class);
 
     /**
-     * The database connection to use for accessing the metadata table.
+     * The database connection to use for accessing the schema history table.
      */
     private final Connection connection;
 
@@ -55,12 +55,12 @@ public class DbRepair {
     private final MigrationInfoServiceImpl migrationInfoService;
 
     /**
-     * The schema containing the metadata table.
+     * The schema containing the schema history table.
      */
     private final Schema schema;
 
     /**
-     * The metadata table.
+     * The schema history table.
      */
     private final SchemaHistory schemaHistory;
 
@@ -82,7 +82,7 @@ public class DbRepair {
      * @param database          The database-specific support.
      * @param schema            The database schema to use by default.
      * @param migrationResolver The migration resolver.
-     * @param schemaHistory     The metadata table.
+     * @param schemaHistory     The schema history table.
      * @param callbacks         Callbacks for the Flyway lifecycle.
      */
     public DbRepair(Database database, Schema schema, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
@@ -96,7 +96,7 @@ public class DbRepair {
     }
 
     /**
-     * Repairs the metadata table.
+     * Repairs the schema history table.
      */
     public void repair() {
         try {
@@ -125,7 +125,7 @@ public class DbRepair {
 
             stopWatch.stop();
 
-            LOG.info("Successfully repaired metadata table " + schemaHistory + " (execution time "
+            LOG.info("Successfully repaired schema history table " + schemaHistory + " (execution time "
                     + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
             if (!database.supportsDdlTransactions()) {
                 LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");

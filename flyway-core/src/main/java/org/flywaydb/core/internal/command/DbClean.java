@@ -43,7 +43,7 @@ public class DbClean {
     private final Connection connection;
 
     /**
-     * The metadata table.
+     * The schema history table.
      */
     private final SchemaHistory schemaHistory;
 
@@ -69,7 +69,7 @@ public class DbClean {
      * Creates a new database cleaner.
      *
      * @param database     The DB support for the connection.
-     * @param schemaHistory The metadata table.
+     * @param schemaHistory The schema history table.
      * @param schemas       The schemas to clean.
      * @param callbacks     The list of callbacks that fire before or after the clean task is executed.
      * @param cleanDisabled Whether to disable clean.

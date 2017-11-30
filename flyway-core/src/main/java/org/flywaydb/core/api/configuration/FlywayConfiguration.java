@@ -164,12 +164,12 @@ public interface FlywayConfiguration {
     MigrationVersion getTarget();
 
     /**
-     * <p>Retrieves the name of the schema metadata table that will be used by Flyway.</p><p> By default (single-schema
-     * mode) the metadata table is placed in the default schema for the connection provided by the datasource. </p> <p>
-     * When the <i>flyway.schemas</i> property is set (multi-schema mode), the metadata table is placed in the first
+     * <p>Retrieves the name of the schema schema history table that will be used by Flyway.</p><p> By default (single-schema
+     * mode) the schema history table is placed in the default schema for the connection provided by the datasource. </p> <p>
+     * When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first
      * schema of the list. </p>
      *
-     * @return The name of the schema metadata table that will be used by flyway. (default: schema_version)
+     * @return The name of the schema schema history table that will be used by flyway. (default: schema_version)
      */
     String getTable();
 
@@ -178,7 +178,7 @@ public interface FlywayConfiguration {
      * <p>Consequences:</p>
      * <ul>
      * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
-     * <li>The first schema in the list will also be the one containing the metadata table.</li>
+     * <li>The first schema in the list will also be the one containing the schema history table.</li>
      * <li>The schemas will be cleaned in the order of this list.</li>
      * </ul>
      *
@@ -208,7 +208,7 @@ public interface FlywayConfiguration {
 
     /**
      * <p>
-     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
+     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
      * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.
      * Only migrations above {@code baselineVersion} will then be applied.
      * </p>
@@ -234,12 +234,14 @@ public interface FlywayConfiguration {
     boolean isOutOfOrder();
 
     /**
-     * Ignore missing migrations when reading the metadata table. These are migrations that were performed by an
+     * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
      * older deployment of the application that are no longer available in this version. For example: we have migrations
-     * available on the classpath with versions 1.0 and 3.0. The metadata table indicates that a migration with version 2.0
+     * available on the classpath with versions 1.0 and 3.0. The schema history table indicates that a migration with version 2.0
      * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
+     * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
+     * mark it as future instead.
      *
      * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
      * (default: {@code false})
@@ -247,9 +249,9 @@ public interface FlywayConfiguration {
     boolean isIgnoreMissingMigrations();
 
     /**
-     * Ignore future migrations when reading the metadata table. These are migrations that were performed by a
+     * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
-     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
+     * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
      * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
      * an older version of the application after the database has been migrated by a newer one.
@@ -301,7 +303,7 @@ public interface FlywayConfiguration {
     boolean isGroup();
 
     /**
-     * The username that will be recorded in the metadata table as having applied the migration.
+     * The username that will be recorded in the schema history table as having applied the migration.
      *
      * @return The username or {@code null} for the current database user of the connection. (default: {@code null}).
      */

@@ -683,7 +683,7 @@ public class FlywayMediumTest {
         flyway.setDataSource("jdbc:h2:mem:flyway_empty;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/empty");
         assertEquals(0, flyway.migrate());
-        // Used to fail with exception due to non-empty schema and empty metadata table.
+        // Used to fail with exception due to non-empty schema and empty schema history table.
         assertEquals(0, flyway.migrate());
     }
 

@@ -232,7 +232,7 @@ public abstract class Database<C extends Connection> implements Closeable {
     public abstract boolean catalogIsSchema();
 
     /**
-     * @return Whether to only use a single connection for both metadata table management and applying migrations.
+     * @return Whether to only use a single connection for both schema history table management and applying migrations.
      */
     public boolean useSingleConnection() {
         return false;
