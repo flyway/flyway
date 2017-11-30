@@ -13,50 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.postgresql;
+package org.flywaydb.core.internal.database.sqlserver;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.util.jdbc.RowMapper;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
- * Spring-like template for executing with PostgreSQL advisory locks.
+ * Spring-like template for executing with SQL Server application locks.
  */
-public class PostgreSQLAdvisoryLockTemplate {
-    private static final Log LOG = LogFactory.getLog(PostgreSQLAdvisoryLockTemplate.class);
-
-    private static final long LOCK_MAGIC_NUM =
-            (0x46L << 40) // F
-                    + (0x6CL << 32) // l
-                    + (0x79L << 24) // y
-                    + (0x77 << 16) // w
-                    + (0x61 << 8) // a
-                    + 0x79; // y
+public class SQLServerApplicationLockTemplate {
+    private static final Log LOG = LogFactory.getLog(SQLServerApplicationLockTemplate.class);
 
     /**
      * The connection for the advisory lock.
      */
     private final JdbcTemplate jdbcTemplate;
 
-    private final long lockNum;
+    private final String lockName;
 
     /**
-     * Creates a new advisory lock template for this connection.
+     * Creates a new application lock template for this connection.
      *
-     * @param jdbcTemplate The jdbcTemplate for the connection.
+     * @param jdbcTemplate  The jdbcTemplate for the connection.
      * @param discriminator A number to discriminate between locks.
      */
-    PostgreSQLAdvisoryLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {
+    SQLServerApplicationLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {
         this.jdbcTemplate = jdbcTemplate;
-        lockNum = LOCK_MAGIC_NUM + discriminator;
+        lockName = "Flyway-" + discriminator;
     }
 
     /**
@@ -70,7 +59,7 @@ public class PostgreSQLAdvisoryLockTemplate {
             lock();
             return callable.call();
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to acquire PostgreSQL advisory lock", e);
+            throw new FlywaySqlException("Unable to acquire SQL Server application lock", e);
         } catch (Exception e) {
             RuntimeException rethrow;
             if (e instanceof RuntimeException) {
@@ -81,9 +70,9 @@ public class PostgreSQLAdvisoryLockTemplate {
             throw rethrow;
         } finally {
             try {
-                jdbcTemplate.execute("SELECT pg_advisory_unlock(" + lockNum + ")");
+                jdbcTemplate.execute("EXEC sp_releaseapplock @Resource = ?, @LockOwner = 'Session'", lockName);
             } catch (SQLException e) {
-                LOG.error("Unable to release PostgreSQL advisory lock", e);
+                LOG.error("Unable to release SQL Server application lock", e);
             }
         }
     }
@@ -93,20 +82,14 @@ public class PostgreSQLAdvisoryLockTemplate {
             try {
                 Thread.sleep(100L);
             } catch (InterruptedException e) {
-                throw new FlywayException("Interrupted while attempting to acquire PostgreSQL advisory lock", e);
+                throw new FlywayException("Interrupted while attempting to acquire SQL Server application lock", e);
             }
         }
     }
 
     private boolean tryLock() throws SQLException {
-        List<Boolean> results = jdbcTemplate.query(
-                "SELECT pg_try_advisory_lock(" + lockNum + ")",
-                new RowMapper<Boolean>() {
-                    @Override
-                    public Boolean mapRow(ResultSet rs) throws SQLException {
-                        return "t".equals(rs.getString("pg_try_advisory_lock"));
-                    }
-                });
-        return results.size() == 1 && results.get(0);
+        jdbcTemplate.execute(
+                "EXEC sp_getapplock @Resource = ?, @LockTimeout='3600000', @LockMode = 'Exclusive', @LockOwner = 'Session'", lockName);
+        return true;
     }
 }

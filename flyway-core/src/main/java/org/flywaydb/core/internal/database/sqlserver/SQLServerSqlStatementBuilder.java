@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.database.sqlserver;
 
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,8 +31,32 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
      */
     private static final Pattern KEYWORDS_BEFORE_STRING_LITERAL_REGEX = Pattern.compile("^(LIKE)('.*)");
 
+    /**
+     * Holds the beginning of the statement.
+     */
+    private String statementStart = "";
+
     public SQLServerSqlStatementBuilder(Delimiter defaultDelimiter) {
         super(defaultDelimiter);
+    }
+
+    @Override
+    protected void applyStateChanges(String line) {
+        super.applyStateChanges(line);
+
+        if (!executeInTransaction) {
+            return;
+        }
+
+        if (StringUtils.countOccurrencesOf(statementStart, " ") < 3) {
+            statementStart += line;
+            statementStart += " ";
+            statementStart = statementStart.replaceAll("\\s+", " ");
+        }
+
+        if (statementStart.matches("^(BACKUP|RESTORE|ALTER DATABASE) .*")) {
+            executeInTransaction = false;
+        }
     }
 
     @Override

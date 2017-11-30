@@ -58,7 +58,6 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
                 "jdbc:sqlserver://localhost:" + JDBC_PORT + ";databaseName=flyway_db_ms", JDBC_USER, JDBC_PASSWORD);
     }
 
-    @Ignore("No solution for this so far as it must be run outside of a transaction with no other transaction active in the system")
     @Test
     public void singleUser() throws Exception {
         flyway.setLocations("migration/database/sqlserver/sql/singleUser");

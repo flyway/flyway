@@ -161,6 +161,6 @@ public class SQLServerDatabase extends Database {
 
     @Override
     public boolean useSingleConnection() {
-        return false;
+        return true;
     }
 }
