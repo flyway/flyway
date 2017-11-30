@@ -19,10 +19,12 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Connection;
+import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.database.Schema;
 
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 
 /**
  * SQL Server connection.
@@ -76,5 +78,10 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     @Override
     public Schema getSchema(String name) {
         return new SQLServerSchema(jdbcTemplate, database, name);
+    }
+
+    @Override
+    public <T> T lock(Table table, Callable<T> callable) {
+        return new SQLServerApplicationLockTemplate(jdbcTemplate, table.toString().hashCode()).execute(callable);
     }
 }
