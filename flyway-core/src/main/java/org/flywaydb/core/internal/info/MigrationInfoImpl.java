@@ -209,6 +209,11 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @return The error message, or {@code null} if everything is fine.
      */
     public String validate() {
+        // Ignore any migrations above the current target as they are out of scope.
+        if (MigrationState.ABOVE_TARGET.equals(getState())) {
+            return null;
+        }
+
         if (getState().isFailed()
                 && (!context.future || MigrationState.FUTURE_FAILED != getState())) {
             if (getVersion() == null) {
