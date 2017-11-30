@@ -14,7 +14,7 @@ Windows, macOS, Linux, Java and Android
 Maven and Gradle
 
 #### Supported databases
-Oracle, SQL Server, DB2, MySQL, MariaDB, PostgreSQL, Redshift, CockroachDB, SAP HANA, H2, Hsql, Derby, SQLite
+Oracle, SQL Server, DB2, MySQL, MariaDB, PostgreSQL, Redshift, CockroachDB, SAP HANA, Sybase ASE, H2, Hsql, Derby, SQLite
 
 #### Third party plugins
 SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...
