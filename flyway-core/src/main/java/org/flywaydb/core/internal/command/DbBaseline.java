@@ -38,12 +38,12 @@ public class DbBaseline {
     private static final Log LOG = LogFactory.getLog(DbBaseline.class);
 
     /**
-     * The database connection to use for accessing the metadata table.
+     * The database connection to use for accessing the schema history table.
      */
     private final Connection connection;
 
     /**
-     * The metadata table.
+     * The schema history table.
      */
     private final SchemaHistory schemaHistory;
 
@@ -65,7 +65,7 @@ public class DbBaseline {
     private final List<FlywayCallback> callbacks;
 
     /**
-     * The schema containing the metadata table.
+     * The schema containing the schema history table.
      */
     private final Schema schema;
 
@@ -73,7 +73,7 @@ public class DbBaseline {
      * Creates a new DbBaseline.
      *
      * @param database           The database to use.
-     * @param schemaHistory       The database metadata table.
+     * @param schemaHistory       The database schema history table.
      * @param schema              The database schema to use by default.
      * @param baselineVersion     The version to tag an existing schema with when executing baseline.
      * @param baselineDescription The description to tag an existing schema with when executing baseline.
@@ -117,16 +117,16 @@ public class DbBaseline {
                                     + baselineVersion + "," + baselineDescription + "). Skipping.");
                             return null;
                         }
-                        throw new FlywayException("Unable to baseline metadata table " + schemaHistory + " with ("
+                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " with ("
                                 + baselineVersion + "," + baselineDescription
                                 + ") as it has already been initialized with ("
                                 + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")");
                     }
                     if (schemaHistory.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
-                        throw new FlywayException("Unable to baseline metadata table " + schemaHistory + " with version 0 as this version was used for schema creation");
+                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " with version 0 as this version was used for schema creation");
                     }
                     if (schemaHistory.hasAppliedMigrations()) {
-                        throw new FlywayException("Unable to baseline metadata table " + schemaHistory + " as it already contains migrations");
+                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations");
                     }
                     schemaHistory.addBaselineMarker(baselineVersion, baselineDescription);
 

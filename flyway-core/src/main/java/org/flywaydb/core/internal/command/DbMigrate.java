@@ -59,12 +59,12 @@ public class DbMigrate {
     private final Database database;
 
     /**
-     * The database metadata table.
+     * The database schema history table.
      */
     private final SchemaHistory schemaHistory;
 
     /**
-     * The schema containing the metadata table.
+     * The schema containing the schema history table.
      */
     private final Schema schema;
 
@@ -92,7 +92,7 @@ public class DbMigrate {
      * Creates a new database migrator.
      *
      * @param database           Database-specific functionality.
-     * @param schemaHistory      The database metadata table.
+     * @param schemaHistory      The database schema history table.
      * @param migrationResolver  The migration resolver.
      * @param configuration      The Flyway configuration.
      * @param effectiveCallbacks The callbacks to use.
@@ -135,7 +135,7 @@ public class DbMigrate {
 
             int count = configuration.isGroup() ?
                     // When group is active, start the transaction boundary early to
-                    // ensure that all changes to the metadata table are either committed or rolled back atomically.
+                    // ensure that all changes to the schema history table are either committed or rolled back atomically.
                     schemaHistory.lock(new Callable<Integer>() {
                         @Override
                         public Integer call() {
@@ -171,7 +171,7 @@ public class DbMigrate {
         while (true) {
             final boolean firstRun = total == 0;
             int count = configuration.isGroup()
-                    // With group active a lock on the metadata table has already been acquired.
+                    // With group active a lock on the schema history table has already been acquired.
                     ? migrateGroup(firstRun)
                     // Otherwise acquire the lock now. The lock will be released at the end of each migration.
                     : schemaHistory.lock(new Callable<Integer>() {
