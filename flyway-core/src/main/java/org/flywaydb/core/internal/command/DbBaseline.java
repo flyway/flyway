@@ -104,6 +104,7 @@ public class DbBaseline {
                 });
             }
 
+            schemaHistory.create();
             new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                 @Override
                 public Void call() {
