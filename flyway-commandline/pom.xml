@@ -23,8 +23,8 @@
     The OS-specific JREs are unfortunately not available from Maven Central due to licensing issues.
     Instructions for installing them: https://flywaydb.org/documentation/contribute/devEnvironmentSetup.html
 
-    To avoid building the OS-specific flyway-commandline assemblies you can run the build with:
-    mvn -P-CommandlinePlatformAssemblies
+    To build the OS-specific flyway-commandline assemblies you can run the build with:
+    mvn install -PCommandlinePlatformAssemblies
     -->
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -43,7 +43,7 @@
         </license>
     </licenses>
     <properties>
-        <jreversion>1.8.0_74</jreversion>
+        <jreversion>1.8.0_152</jreversion>
     </properties>
     <dependencies>
         <dependency>
