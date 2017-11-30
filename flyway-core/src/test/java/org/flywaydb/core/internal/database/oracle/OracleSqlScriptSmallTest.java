@@ -90,9 +90,11 @@ public class OracleSqlScriptSmallTest {
 
         SqlScript sqlScript = createSqlScript(source);
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
-        assertEquals(2, sqlStatements.size());
+        assertEquals(4, sqlStatements.size());
         assertEquals(17, sqlStatements.get(0).getLineNumber());
         assertEquals(33, sqlStatements.get(1).getLineNumber());
+        assertEquals(40, sqlStatements.get(2).getLineNumber());
+        assertEquals(51, sqlStatements.get(3).getLineNumber());
     }
 
     @Test
