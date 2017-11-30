@@ -56,7 +56,7 @@ public enum MigrationType {
     }
 
     /**
-     * @return Whether this is a synthetic migration type, which is only ever present in the metadata table,
+     * @return Whether this is a synthetic migration type, which is only ever present in the schema history table,
      * but never discovered by migration resolvers.
      */
     public boolean isSynthetic() {

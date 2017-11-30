@@ -48,12 +48,12 @@ public class DbValidate {
     private final MigrationVersion target;
 
     /**
-     * The database metadata table.
+     * The database schema history table.
      */
     private final SchemaHistory schemaHistory;
 
     /**
-     * The schema containing the metadata table.
+     * The schema containing the schema history table.
      */
     private final Schema schema;
 
@@ -101,7 +101,7 @@ public class DbValidate {
      * Creates a new database validator.
      *
      * @param database          The DB support for the connection.
-     * @param schemaHistory     The database metadata table.
+     * @param schemaHistory     The database schema history table.
      * @param schema            The database schema to use by default.
      * @param migrationResolver The migration resolver.
      * @param target            The target version of the migration.

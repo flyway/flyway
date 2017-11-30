@@ -22,7 +22,7 @@ import org.flywaydb.core.internal.util.ObjectUtils;
 import java.util.Date;
 
 /**
- * A migration applied to the database (maps to a row in the metadata table).
+ * A migration applied to the database (maps to a row in the schema history table).
  */
 public class AppliedMigration implements Comparable<AppliedMigration> {
     /**

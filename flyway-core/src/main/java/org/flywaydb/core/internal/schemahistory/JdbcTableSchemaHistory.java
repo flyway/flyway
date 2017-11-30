@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
- * Supports reading and writing to the metadata table.
+ * Supports reading and writing to the schema history table.
  */
 public class JdbcTableSchemaHistory extends SchemaHistory {
     private static final Log LOG = LogFactory.getLog(JdbcTableSchemaHistory.class);
@@ -71,7 +71,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
     private String installedBy;
 
     /**
-     * Creates a new instance of the metadata table support.
+     * Creates a new instance of the schema history table support.
      *
      * @param database    The database to use.
      * @param table       The schema history table used by flyway.
@@ -165,7 +165,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
     }
 
     /**
-     * Retrieve the applied migrations from the metadata table.
+     * Retrieve the applied migrations from the schema history table.
      *
      * @param migrationTypes The specific migration types to look for. (Optional) None means find all migrations.
      * @return The applied migrations.

@@ -46,7 +46,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     private final MigrationResolver migrationResolver;
 
     /**
-     * The metadata table for applied migrations.
+     * The schema history table for applied migrations.
      */
     private final SchemaHistory schemaHistory;
 
@@ -87,7 +87,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * Creates a new MigrationInfoServiceImpl.
      *
      * @param migrationResolver The migration resolver for available migrations.
-     * @param schemaHistory     The metadata table for applied migrations.
+     * @param schemaHistory     The schema history table for applied migrations.
      * @param target            The target version up to which to retrieve the info.
      * @param outOfOrder        Allows migrations to be run "out of order".
      * @param pending           Whether pending migrations are allowed.
