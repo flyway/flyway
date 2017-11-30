@@ -23,11 +23,11 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.database.Table;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
 import java.sql.ResultSet;
@@ -51,7 +51,12 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
     /**
      * The schema history table used by flyway.
      */
-    private final Table table;
+    private Table table;
+
+    /**
+     * Whether Flyway had to fall back to the old default table.
+     */
+    private boolean tableFallback;
 
     /**
      * Connection with access to the database.
@@ -92,7 +97,20 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
 
     @Override
     public boolean exists() {
-        return table.exists();
+        boolean exists = table.exists();
+        if (!tableFallback) {
+            Table fallbackTable = table.getSchema().getTable("schema_version");
+            if (fallbackTable.exists()) {
+                LOG.warn("Could not find schema history table " + table + ", but found " + fallbackTable + " instead." +
+                        " You are seeing this message because Flyway changed its default for flyway.table in" +
+                        " version 5.0.0 to flyway_schema_history and you are still relying on the old default (schema_version)." +
+                        " Set flyway.table=schema_version in your configuration to fix this." +
+                        " This fallback mechanism will be removed in Flyway 6.0.0.");
+                tableFallback = true;
+                table = fallbackTable;
+            }
+        }
+        return exists;
     }
 
     /**
@@ -100,7 +118,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
      */
     public void create() {
         int retries = 0;
-        while (!table.exists()) {
+        while (!exists()) {
             if (retries == 0) {
                 LOG.info("Creating Schema History table: " + table);
             }
@@ -171,7 +189,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
      * @return The applied migrations.
      */
     private List<AppliedMigration> findAppliedMigrations(MigrationType... migrationTypes) {
-        if (!table.exists()) {
+        if (!exists()) {
             return new ArrayList<>();
         }
 
@@ -236,7 +254,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
 
     @Override
     public void removeFailedMigrations() {
-        if (!table.exists()) {
+        if (!exists()) {
             LOG.info("Repair of failed migration in Schema History table " + table + " not necessary. No failed migration detected.");
             return;
         }
