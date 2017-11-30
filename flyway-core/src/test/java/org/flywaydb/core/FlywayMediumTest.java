@@ -316,7 +316,7 @@ public class FlywayMediumTest {
         flyway.setLocations("migration/validate");
         flyway.baseline();
 
-        new JdbcTemplate(dataSource.getConnection(), 0).execute("UPDATE \"new1\".\"schema_version\" SET \"type\"='BASELINE' WHERE \"type\"='BASELINE'");
+        new JdbcTemplate(dataSource.getConnection(), 0).execute("UPDATE \"new1\".\"flyway_schema_history\" SET \"type\"='BASELINE' WHERE \"type\"='BASELINE'");
         assertEquals("1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
 
