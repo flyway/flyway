@@ -68,7 +68,11 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String password;
 
     /**
-     * The name of Flyway's schema history table
+     * <p>The name of the schema schema history table that will be used by Flyway. (default: flyway_schema_history)</p><p> By default
+     * (single-schema mode) the schema history table is placed in the default schema for the connection provided by the
+     * datasource. </p> <p> When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is
+     * placed in the first schema of the list. </p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.table}</p>
      */
     public String table;
 

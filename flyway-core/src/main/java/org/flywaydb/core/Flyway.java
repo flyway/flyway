@@ -101,12 +101,12 @@ public class Flyway implements FlywayConfiguration {
     private String[] schemaNames = new String[0];
 
     /**
-     * <p>The name of the schema schema history table that will be used by Flyway. (default: schema_version)</p><p> By default
+     * <p>The name of the schema schema history table that will be used by Flyway. (default: flyway_schema_history)</p><p> By default
      * (single-schema mode) the schema history table is placed in the default schema for the connection provided by the
      * datasource. </p> <p> When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is
      * placed in the first schema of the list. </p>
      */
-    private String table = "schema_version";
+    private String table = "flyway_schema_history";
 
     /**
      * The target version up to which Flyway should consider migrations. Migrations with a higher version number will
@@ -813,7 +813,7 @@ public class Flyway implements FlywayConfiguration {
      * the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first schema
      * of the list. </p>
      *
-     * @param table The name of the schema schema history table that will be used by flyway. (default: schema_version)
+     * @param table The name of the schema schema history table that will be used by flyway. (default: flyway_schema_history)
      */
     public void setTable(String table) {
         this.table = table;

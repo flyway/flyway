@@ -111,7 +111,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String[] schemas;
 
     /**
-     * <p>The name of the schema history table that will be used by Flyway. (default: schema_version)</p>
+     * <p>The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)</p>
      * <p> By default (single-schema mode) the
      * schema history table is placed in the default schema for the connection provided by the datasource. <br/> When the
      * {@code flyway.schemas} property is set (multi-schema mode), the schema history table is placed in the first schema of

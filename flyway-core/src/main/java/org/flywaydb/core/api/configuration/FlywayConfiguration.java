@@ -169,7 +169,7 @@ public interface FlywayConfiguration {
      * When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first
      * schema of the list. </p>
      *
-     * @return The name of the schema schema history table that will be used by flyway. (default: schema_version)
+     * @return The name of the schema schema history table that will be used by flyway. (default: flyway_schema_history)
      */
     String getTable();
 

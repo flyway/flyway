@@ -899,6 +899,19 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void schemaVersionFallback() {
+        flyway.setDataSource("jdbc:h2:mem:flyway_schema_version_fallback;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setTable("schema_version");
+        flyway.setLocations("migration/sql");
+        assertEquals(4, flyway.migrate());
+
+        flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_schema_version_fallback;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        assertEquals(0, flyway.migrate());
+    }
+
+    @Test
     public void failed() {
         StringLogCreator logCreator = new StringLogCreator();
         LogFactory.setLogCreator(logCreator);
