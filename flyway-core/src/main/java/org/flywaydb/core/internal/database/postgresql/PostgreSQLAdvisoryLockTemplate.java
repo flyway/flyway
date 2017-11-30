@@ -70,7 +70,7 @@ public class PostgreSQLAdvisoryLockTemplate {
             lock();
             return callable.call();
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to acquire Flyway advisory lock", e);
+            throw new FlywaySqlException("Unable to acquire PostgreSQL advisory lock", e);
         } catch (Exception e) {
             RuntimeException rethrow;
             if (e instanceof RuntimeException) {
@@ -83,7 +83,7 @@ public class PostgreSQLAdvisoryLockTemplate {
             try {
                 jdbcTemplate.execute("SELECT pg_advisory_unlock(" + lockNum + ")");
             } catch (SQLException e) {
-                LOG.error("Unable to release Flyway advisory lock", e);
+                LOG.error("Unable to release PostgreSQL advisory lock", e);
             }
         }
     }
@@ -93,7 +93,7 @@ public class PostgreSQLAdvisoryLockTemplate {
             try {
                 Thread.sleep(100L);
             } catch (InterruptedException e) {
-                throw new FlywayException("Interrupted while attempting to acquire Flyway advisory lock", e);
+                throw new FlywayException("Interrupted while attempting to acquire PostgreSQL advisory lock", e);
             }
         }
     }
