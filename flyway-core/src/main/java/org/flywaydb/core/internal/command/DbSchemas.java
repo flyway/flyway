@@ -81,6 +81,7 @@ public class DbSchemas {
                             schema.create();
                         }
 
+                        schemaHistory.create();
                         schemaHistory.addSchemasMarker(schemas);
 
                         return null;

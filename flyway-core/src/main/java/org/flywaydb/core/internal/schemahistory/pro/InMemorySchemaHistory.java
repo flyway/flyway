@@ -67,6 +67,11 @@ public class InMemorySchemaHistory extends SchemaHistory {
     }
 
     @Override
+    public void create() {
+        exists = true;
+    }
+
+    @Override
     public boolean hasAppliedMigrations() {
         return !history.isEmpty();
     }

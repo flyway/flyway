@@ -98,13 +98,12 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
     /**
      * Creates the metatable if it doesn't exist, upgrades it if it does.
      */
-    private void createIfNotExists() {
+    public void create() {
         int retries = 0;
         while (!table.exists()) {
             if (retries == 0) {
                 LOG.info("Creating Schema History table: " + table);
             }
-
             try {
                 new SqlScript(database.getCreateScript(table), database).execute(connection.getJdbcTemplate());
                 LOG.debug("Schema History table " + table + " created.");
@@ -124,15 +123,12 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
 
     @Override
     public <T> T lock(Callable<T> callable) {
-        createIfNotExists();
         return connection.lock(table, callable);
     }
 
     @Override
     protected void doAddAppliedMigration(MigrationVersion version, String description, MigrationType type, String script, Integer checksum, int executionTime, boolean success) {
         connection.changeCurrentSchemaTo(table.getSchema());
-
-        createIfNotExists();
 
         // Lock again for databases with no DDL transactions to prevent implicit commits from triggering deadlocks
         // in highly concurrent environments
@@ -178,8 +174,6 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
         if (!table.exists()) {
             return new ArrayList<AppliedMigration>();
         }
-
-        createIfNotExists();
 
         int minInstalledRank = cache.isEmpty() ? -1 : cache.getLast().getInstalledRank();
 
@@ -247,8 +241,6 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
             return;
         }
 
-        createIfNotExists();
-
         try {
             int failedCount = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + table
                     + " WHERE " + database.quote("success") + "=" + database.getBooleanFalse());
@@ -270,8 +262,6 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
 
     @Override
     public void addSchemasMarker(final Schema[] schemas) {
-        createIfNotExists();
-
         // Lock again for databases with no DDL transactions to prevent implicit commits from triggering deadlocks
         // in highly concurrent environments
         table.lock();
@@ -284,8 +274,6 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
         if (!table.exists()) {
             return false;
         }
-
-        createIfNotExists();
 
         try {
             int count = jdbcTemplate.queryForInt(
@@ -301,8 +289,6 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
         if (!table.exists()) {
             return false;
         }
-
-        createIfNotExists();
 
         try {
             int count = jdbcTemplate.queryForInt(
@@ -324,8 +310,6 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
         if (!table.exists()) {
             return false;
         }
-
-        createIfNotExists();
 
         try {
             int count = jdbcTemplate.queryForInt(
