@@ -118,7 +118,7 @@
     <properties>
         <version.spring>2.5.6</version.spring>
         <version.maven>3.0</version.maven>
-        <version.gradle>2.3</version.gradle>
+        <version.gradle>3.0</version.gradle>
         <version.derby>10.12.1.1</version.derby>
         <version.h2>1.4.196</version.h2>
         <version.hsqldb>2.4.0</version.hsqldb>

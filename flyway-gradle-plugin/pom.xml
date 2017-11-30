@@ -48,12 +48,6 @@
         </dependency>
         <dependency>
             <groupId>org.gradle</groupId>
-            <artifactId>gradle-model-core</artifactId>
-            <version>${version.gradle}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.gradle</groupId>
             <artifactId>gradle-plugins</artifactId>
             <version>${version.gradle}</version>
             <scope>provided</scope>
