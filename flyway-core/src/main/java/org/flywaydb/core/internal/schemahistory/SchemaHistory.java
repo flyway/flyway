@@ -41,6 +41,11 @@ public abstract class SchemaHistory {
     public abstract boolean exists();
 
     /**
+     * Creates the schema history. Do nothing if it already exists.
+     */
+    public abstract void create();
+
+    /**
      * Checks whether the metadata table contains at least one applied migration.
      *
      * @return {@code true} if it does, {@code false} if it doesn't.
@@ -136,7 +141,7 @@ public abstract class SchemaHistory {
      * @param success       Flag indicating whether the migration was successful or not.
      */
     public final void addAppliedMigration(MigrationVersion version, String description, MigrationType type,
-                                             String script, Integer checksum, int executionTime, boolean success) {
+                                          String script, Integer checksum, int executionTime, boolean success) {
         doAddAppliedMigration(version, abbreviateDescription(description), type, abbreviateScript(script), checksum,
                 executionTime, success);
     }
