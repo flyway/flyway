@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                sh 'sh ./mvnw -s jenkins-settings.xml -e -U clean install -Dmaven.test.failure.ignore=false -T1C'
+                sh 'sh ./mvnw -s jenkins-settings.xml -e -U -PCommandlinePlatformAssemblies clean install -Dmaven.test.failure.ignore=false -T1C'
             }
         }
     }
