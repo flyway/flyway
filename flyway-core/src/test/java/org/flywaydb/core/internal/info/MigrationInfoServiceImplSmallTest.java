@@ -21,18 +21,16 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
-import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,6 +38,8 @@ import static org.mockito.Mockito.when;
  * Test for MigrationInfoServiceImpl.
  */
 public class MigrationInfoServiceImplSmallTest {
+    private int installedRank;
+
     @Test
     public void onlyPending() {
         MigrationInfoServiceImpl migrationInfoService =
@@ -195,6 +195,30 @@ public class MigrationInfoServiceImplSmallTest {
     }
 
     @Test
+    public void rAfterV() {
+        MigrationInfoServiceImpl migrationInfoService =
+                new MigrationInfoServiceImpl(
+                        createMigrationResolver(
+                                createResolvedMigration(1),
+                                createResolvedRepeatableMigration("xxx"),
+                                createResolvedMigration(2)
+                        ),
+                        createMetaDataTable(
+                                createAppliedMigration(1),
+                                createAppliedRepeatableMigration("xxx", 123)
+                        ),
+                        MigrationVersion.LATEST, false, true, true, true);
+        migrationInfoService.refresh();
+
+        assertEquals("1", migrationInfoService.current().getVersion().toString());
+        assertEquals(MigrationState.OUTDATED, migrationInfoService.all()[1].getState());
+        assertEquals(4, migrationInfoService.all().length);
+        assertEquals(2, migrationInfoService.pending().length);
+        assertEquals("2", migrationInfoService.pending()[0].getVersion().toString());
+        assertNull(migrationInfoService.pending()[1].getVersion());
+    }
+
+    @Test
     public void schemaCreation() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
@@ -226,6 +250,22 @@ public class MigrationInfoServiceImplSmallTest {
     }
 
     /**
+     * Creates a new resolved repeatable migration with this description.
+     *
+     * @param description The description of the migration.
+     * @return The resolved migration.
+     */
+    private ResolvedMigration createResolvedRepeatableMigration(String description) {
+        ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
+        migration.setVersion(null);
+        migration.setDescription(description);
+        migration.setChecksum(description.hashCode());
+        migration.setScript("x");
+        migration.setType(MigrationType.SQL);
+        return migration;
+    }
+
+    /**
      * Creates a new applied migration with this version.
      *
      * @param version The version of the migration.
@@ -243,8 +283,20 @@ public class MigrationInfoServiceImplSmallTest {
      * @return The applied migration.
      */
     private AppliedMigration createAppliedMigration(int version, String description) {
-        return new AppliedMigration(version, MigrationVersion.fromVersion(Integer.toString(version)), description,
+        return new AppliedMigration(installedRank++, MigrationVersion.fromVersion(Integer.toString(version)), description,
                 MigrationType.SQL, "x", null, new Date(), "sa", 123, true);
+    }
+
+    /**
+     * Creates a new applied repeatable migration with this description and this checksum.
+     *
+     * @param description The description of the migration.
+     * @param checksum    The checksum of the migration.
+     * @return The applied migration.
+     */
+    private AppliedMigration createAppliedRepeatableMigration(String description, int checksum) {
+        return new AppliedMigration(installedRank++, null, description,
+                MigrationType.SQL, "x", checksum, new Date(), "sa", 123, true);
     }
 
     /**
@@ -254,7 +306,7 @@ public class MigrationInfoServiceImplSmallTest {
      * @return The applied baseline migration.
      */
     private AppliedMigration createAppliedBaselineMigration(int version) {
-        return new AppliedMigration(version, MigrationVersion.fromVersion(Integer.toString(version)), "abc",
+        return new AppliedMigration(installedRank++, MigrationVersion.fromVersion(Integer.toString(version)), "abc",
                 MigrationType.BASELINE, "x", null, new Date(), "sa", 0, true);
     }
 
@@ -264,7 +316,7 @@ public class MigrationInfoServiceImplSmallTest {
      * @return The applied schema migration.
      */
     private AppliedMigration createAppliedSchemaMigration() {
-        return new AppliedMigration(0, MigrationVersion.fromVersion(Integer.toString(0)), "<< Schema Creation >>",
+        return new AppliedMigration(installedRank++, MigrationVersion.fromVersion(Integer.toString(0)), "<< Schema Creation >>",
                 MigrationType.SCHEMA, "x", null, new Date(), "sa", 0, true);
     }
 
