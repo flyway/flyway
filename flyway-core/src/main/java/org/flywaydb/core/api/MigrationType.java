@@ -25,22 +25,22 @@ public enum MigrationType {
     SCHEMA(true),
 
     /**
-     * The type for the metadata baseline migration.
+     * The type for the baseline migration.
      */
     BASELINE(true),
 
     /**
-     * The type for sql migrations.
+     * The type for SQL migrations.
      */
     SQL(false),
 
     /**
-     * The type for Jdbc java-based migrations.
+     * The type for JDBC java-based migrations.
      */
     JDBC(false),
 
     /**
-     * The type for Spring Jdbc java-based migrations.
+     * The type for Spring JDBC java-based migrations.
      */
     SPRING_JDBC(false),
 
