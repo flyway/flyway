@@ -453,6 +453,7 @@ public class Flyway implements FlywayConfiguration {
 
     @Override
     public String getSqlMigrationSuffix() {
+        LOG.warn("sqlMigrationSuffix has been deprecated and will be removed in Flyway 6.0.0. Use sqlMigrationSuffixes instead.");
         return sqlMigrationSuffixes[0];
     }
 
@@ -940,6 +941,7 @@ public class Flyway implements FlywayConfiguration {
      */
     @Deprecated
     public void setSqlMigrationSuffix(String sqlMigrationSuffix) {
+        LOG.warn("sqlMigrationSuffix has been deprecated and will be removed in Flyway 6.0.0. Use sqlMigrationSuffixes instead.");
         this.sqlMigrationSuffixes = new String[]{sqlMigrationSuffix};
     }
 
