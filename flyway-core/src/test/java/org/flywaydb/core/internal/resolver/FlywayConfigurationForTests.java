@@ -15,17 +15,15 @@
  */
 package org.flywaydb.core.internal.resolver;
 
-import java.io.File;
-import java.io.OutputStream;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+
+import javax.sql.DataSource;
+import java.io.OutputStream;
+import java.util.Map;
 
 /**
  * Dummy Implementation of {@link FlywayConfiguration} for unit tests.
@@ -147,6 +145,11 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     @Override
     public String getSqlMigrationSuffix() {
         return sqlMigrationSuffix;
+    }
+
+    @Override
+    public String[] getSqlMigrationSuffixes() {
+        return new String[0];
     }
 
     @Override

@@ -197,7 +197,7 @@ public abstract class MigrationTestCase {
     }
 
     @Test
-    public void repair() throws Exception {
+    public void repair() {
         flyway.setLocations(getFutureFailedLocation());
         assertEquals(4, flyway.info().all().length);
 

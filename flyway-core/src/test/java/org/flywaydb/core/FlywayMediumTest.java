@@ -513,6 +513,7 @@ public class FlywayMediumTest {
 
         flyway.setDataSource(dataSource);
         flyway.setTargetAsString("1.1");
+        flyway.setSqlMigrationSuffixes(".sql", ".pkg", ".pkb");
         flyway.setLocations("migration/sql", "migration/repeatable");
         assertEquals(4, flyway.migrate());
         assertEquals(0, flyway.info().pending().length);
@@ -613,6 +614,7 @@ public class FlywayMediumTest {
                 new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_repeatable_failed;DB_CLOSE_DELAY=-1", "sa", "", null);
 
         flyway.setDataSource(dataSource);
+        flyway.setSqlMigrationSuffixes(".sql", ".pkg", ".pkb");
 
         flyway.setLocations("migration/repeatable_failed");
         try {
@@ -643,6 +645,7 @@ public class FlywayMediumTest {
         DriverDataSource dataSource =
                 new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_repeatable_only;DB_CLOSE_DELAY=-1", "sa", "", null);
 
+        flyway.setSqlMigrationSuffixes(".sql", ".pkg", ".pkb");
         flyway.setDataSource(dataSource);
         flyway.setLocations("migration/repeatable");
         assertEquals(2, flyway.migrate());

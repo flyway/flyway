@@ -15,6 +15,8 @@
  */
 package org.flywaydb.gradle;
 
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
+
 import java.util.Map;
 
 /**
@@ -122,8 +124,20 @@ public class FlywayExtension {
      * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
+     * @deprecated Use {@link FlywayExtension#sqlMigrationSuffixes} instead. Will be removed in Flyway 6.0.0.
      */
+    @Deprecated
     public String sqlMigrationSuffix;
+
+    /**
+     * The file name suffixes for SQL migrations. (default: .sql)
+     * <p>SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     * <p>Multiple suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as
+     * editors with specific file associations.</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.sqlMigrationSuffixes}</p>
+     */
+    public String[] sqlMigrationSuffixes;
 
     /**
      * The encoding of Sql migrations

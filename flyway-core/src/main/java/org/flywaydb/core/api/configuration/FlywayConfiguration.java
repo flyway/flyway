@@ -88,13 +88,25 @@ public interface FlywayConfiguration {
 
     /**
      * Retrieves the file name suffix for sql migrations.
-     * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
      * @return The file name suffix for sql migrations. (default: .sql)
+     * @deprecated Use {@link FlywayConfiguration#getSqlMigrationSuffixes()} instead. Will be removed in Flyway 6.0.0.
      */
+    @Deprecated
     String getSqlMigrationSuffix();
+
+    /**
+     * The file name suffixes for SQL migrations. (default: .sql)
+     * <p>SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     * <p>Multiple suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as
+     * editors with specific file associations.</p>
+     *
+     * @return The file name suffixes for SQL migrations.
+     */
+    String[] getSqlMigrationSuffixes();
 
     /**
      * Retrieves the file name prefix for repeatable sql migrations.

@@ -203,9 +203,22 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
+     * @deprecated Use {@link AbstractFlywayMojo#sqlMigrationSuffixes} instead. Will be removed in Flyway 6.0.0.
      */
     @Parameter(property = ConfigUtils.SQL_MIGRATION_SUFFIX)
+    @Deprecated
     private String sqlMigrationSuffix;
+
+    /**
+     * The file name suffixes for SQL migrations. (default: .sql)
+     * <p>SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     * <p>Multiple suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as
+     * editors with specific file associations.</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.sqlMigrationSuffixes}</p>
+     */
+    @Parameter
+    private String[] sqlMigrationSuffixes;
 
     /**
      * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/>
@@ -538,6 +551,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_SUFFIX, sqlMigrationSuffix);
+            putArrayIfSet(conf, ConfigUtils.SQL_MIGRATION_SUFFIXES, sqlMigrationSuffixes);
             putIfSet(conf, ConfigUtils.MIXED, mixed);
             putIfSet(conf, ConfigUtils.GROUP, group);
             putIfSet(conf, ConfigUtils.INSTALLED_BY, installedBy);

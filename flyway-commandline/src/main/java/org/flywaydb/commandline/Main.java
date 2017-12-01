@@ -243,7 +243,7 @@ public class Main {
         LOG.info("sqlMigrationPrefix           : File name prefix for sql migrations");
         LOG.info("repeatableSqlMigrationPrefix : File name prefix for repeatable sql migrations");
         LOG.info("sqlMigrationSeparator        : File name separator for sql migrations");
-        LOG.info("sqlMigrationSuffix           : File name suffix for sql migrations");
+        LOG.info("sqlMigrationSuffixes         : Comma-separated list of file name suffixes for sql migrations");
         LOG.info("mixed                        : Allow mixing transactional and non-transactional statements");
         LOG.info("encoding                     : Encoding of sql migrations");
         LOG.info("placeholderReplacement       : Whether placeholders should be replaced");

@@ -123,7 +123,7 @@ public class SqlMigrationResolverSmallTest {
 
     @Test
     public void isSqlCallback() {
-        assertTrue(SqlMigrationResolver.isSqlCallback("afterMigrate.sql", ".sql"));
+        assertTrue(SqlMigrationResolver.isSqlCallback("afterMigrate.pkg", ".sql", ".pkg"));
         assertFalse(SqlMigrationResolver.isSqlCallback("V1__afterMigrate.sql", ".sql"));
     }
 

@@ -94,22 +94,22 @@ public class SqlMigrationResolver implements MigrationResolver {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
         for (Location location : locations.getLocations()) {
-            scanForMigrations(location, migrations, configuration.getSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix(), false);
-            scanForMigrations(location, migrations, configuration.getRepeatableSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix(), true);
+            scanForMigrations(location, migrations, configuration.getSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffixes(), false);
+            scanForMigrations(location, migrations, configuration.getRepeatableSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffixes(), true);
         }
 
         Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
     }
 
-    private void scanForMigrations(Location location, List<ResolvedMigration> migrations, String prefix, String separator, String suffix, boolean repeatable) {
-        for (LoadableResource resource : scanner.scanForResources(location, prefix, suffix)) {
+    private void scanForMigrations(Location location, List<ResolvedMigration> migrations, String prefix, String separator, String[] suffixes, boolean repeatable) {
+        for (LoadableResource resource : scanner.scanForResources(location, prefix, suffixes)) {
             String filename = resource.getFilename();
-            if (isSqlCallback(filename, suffix)) {
+            if (isSqlCallback(filename, suffixes)) {
                 continue;
             }
             Pair<MigrationVersion, String> info =
-                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffix, repeatable);
+                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffixes, repeatable);
 
             ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
             migration.setVersion(info.getLeft());
@@ -127,13 +127,19 @@ public class SqlMigrationResolver implements MigrationResolver {
      * Checks whether this filename is actually a sql-based callback instead of a regular migration.
      *
      * @param filename The filename to check.
-     * @param suffix   The sql migration suffix.
+     * @param suffixes The sql migration suffixes.
      * @return {@code true} if it is, {@code false} if it isn't.
      */
     /* private -> testing */
-    static boolean isSqlCallback(String filename, String suffix) {
-        String baseName = filename.substring(0, filename.length() - suffix.length());
-        return SqlScriptFlywayCallback.ALL_CALLBACKS.contains(baseName);
+    static boolean isSqlCallback(String filename, String... suffixes) {
+        for (String suffix : suffixes) {
+            String baseName = filename.substring(0, filename.length() - suffix.length());
+            if (SqlScriptFlywayCallback.ALL_CALLBACKS.contains(baseName)) {
+                return true;
+            }
+
+        }
+        return false;
     }
 
     /**

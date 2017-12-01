@@ -98,7 +98,7 @@ public class Flyway implements FlywayConfiguration {
      * <li>The schemas will be cleaned in the order of this list.</li>
      * </ul>
      */
-    private String[] schemaNames = new String[0];
+    private String[] schemaNames = {};
 
     /**
      * <p>The name of the schema schema history table that will be used by Flyway. (default: flyway_schema_history)</p><p> By default
@@ -159,12 +159,13 @@ public class Flyway implements FlywayConfiguration {
     private String sqlMigrationSeparator = "__";
 
     /**
-     * The file name suffix for sql migrations. (default: .sql)
-     * <p/>
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * The file name suffixes for SQL migrations. (default: .sql)
+     * <p>SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
+     * <p>Multiple suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as
+     * editors with specific file associations.</p>
      */
-    private String sqlMigrationSuffix = ".sql";
+    private String[] sqlMigrationSuffixes = {".sql"};
 
     /**
      * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
@@ -380,7 +381,7 @@ public class Flyway implements FlywayConfiguration {
         setSkipDefaultResolvers(configuration.isSkipDefaultResolvers());
         setSqlMigrationPrefix(configuration.getSqlMigrationPrefix());
         setSqlMigrationSeparator(configuration.getSqlMigrationSeparator());
-        setSqlMigrationSuffix(configuration.getSqlMigrationSuffix());
+        setSqlMigrationSuffixes(configuration.getSqlMigrationSuffixes());
         setTable(configuration.getTable());
         setTarget(configuration.getTarget());
         setValidateOnMigrate(configuration.isValidateOnMigrate());
@@ -452,7 +453,12 @@ public class Flyway implements FlywayConfiguration {
 
     @Override
     public String getSqlMigrationSuffix() {
-        return sqlMigrationSuffix;
+        return sqlMigrationSuffixes[0];
+    }
+
+    @Override
+    public String[] getSqlMigrationSuffixes() {
+        return sqlMigrationSuffixes;
     }
 
     @Override
@@ -660,7 +666,7 @@ public class Flyway implements FlywayConfiguration {
      * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
-     * @param errorHandlerClassNames  The fully qualified class names of ErrorHandlers or an empty array if the default
+     * @param errorHandlerClassNames The fully qualified class names of ErrorHandlers or an empty array if the default
      *                               internal handler should be used instead. (default: none)
      */
     public void setErrorHandlersAsClassNames(String... errorHandlerClassNames) {
@@ -930,9 +936,24 @@ public class Flyway implements FlywayConfiguration {
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
      * @param sqlMigrationSuffix The file name suffix for sql migrations (default: .sql)
+     * @deprecated Use {@link Flyway#setSqlMigrationSuffixes(String...)} instead. Will be removed in Flyway 6.0.0.
      */
+    @Deprecated
     public void setSqlMigrationSuffix(String sqlMigrationSuffix) {
-        this.sqlMigrationSuffix = sqlMigrationSuffix;
+        this.sqlMigrationSuffixes = new String[]{sqlMigrationSuffix};
+    }
+
+    /**
+     * The file name suffixes for SQL migrations. (default: .sql)
+     * <p>SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     * <p>Multiple suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as
+     * editors with specific file associations.</p>
+     *
+     * @param sqlMigrationSuffixes The file name suffixes for SQL migrations.
+     */
+    public void setSqlMigrationSuffixes(String... sqlMigrationSuffixes) {
+        this.sqlMigrationSuffixes = sqlMigrationSuffixes;
     }
 
     /**
@@ -1388,6 +1409,10 @@ public class Flyway implements FlywayConfiguration {
         String sqlMigrationSuffixProp = props.remove(ConfigUtils.SQL_MIGRATION_SUFFIX);
         if (sqlMigrationSuffixProp != null) {
             setSqlMigrationSuffix(sqlMigrationSuffixProp);
+        }
+        String sqlMigrationSuffixesProp = props.remove(ConfigUtils.SQL_MIGRATION_SUFFIXES);
+        if (sqlMigrationSuffixesProp != null) {
+            setSqlMigrationSuffixes(StringUtils.tokenizeToStringArray(sqlMigrationSuffixesProp, ","));
         }
         String encodingProp = props.remove(ConfigUtils.ENCODING);
         if (encodingProp != null) {
