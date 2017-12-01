@@ -330,6 +330,9 @@ public class DriverDataSource implements DataSource {
         if (url.startsWith("jdbc:sap:")) {
             return "com.sap.db.jdbc.Driver";
         }
+        if (url.startsWith("jdbc:com.nuodb:")) {
+            return "com.nuodb.jdbc.Driver";
+        }
 
         return null;
     }

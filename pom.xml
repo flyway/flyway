@@ -238,6 +238,12 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>com.nuodb.jdbc</groupId>
+                <artifactId>nuodb-jdbc</artifactId>
+                <version>3.0.0</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
                 <groupId>net.sourceforge.jtds</groupId>
                 <artifactId>jtds</artifactId>
                 <version>${version.jtds}</version>

@@ -25,6 +25,7 @@ import org.flywaydb.core.internal.database.derby.DerbyDatabase;
 import org.flywaydb.core.internal.database.h2.H2Database;
 import org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabase;
 import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
+import org.flywaydb.core.internal.database.nuodb.NuoDBDatabase;
 import org.flywaydb.core.internal.database.oracle.OracleDatabase;
 import org.flywaydb.core.internal.database.postgresql.PostgreSQLDatabase;
 import org.flywaydb.core.internal.database.redshift.RedshiftDatabase;
@@ -174,6 +175,9 @@ public class DatabaseFactory {
 
 
             );
+        }
+        if (databaseProductName.startsWith("NuoDB")) {
+            return new NuoDBDatabase(configuration, connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
