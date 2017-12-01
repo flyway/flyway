@@ -115,7 +115,7 @@ public class FileSystemScanner {
         Set<String> filteredResourceNames = new TreeSet<String>();
         for (String resourceName : resourceNames) {
             String fileName = resourceName.substring(resourceName.lastIndexOf(File.separator) + 1);
-            if (fileNameMatches(resourceName, prefix, suffixes)) {
+            if (fileNameMatches(fileName, prefix, suffixes)) {
                 filteredResourceNames.add(resourceName);
             } else {
                 LOG.debug("Filtering out resource: " + resourceName + " (filename: " + fileName + ")");

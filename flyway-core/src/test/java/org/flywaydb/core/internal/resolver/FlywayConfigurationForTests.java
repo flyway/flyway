@@ -31,18 +31,18 @@ import java.util.Map;
 public class FlywayConfigurationForTests implements FlywayConfiguration {
 
     private ClassLoader classLoader;
-    private String[] locations = new String[0];
+    private String[] locations;
     private String encoding;
     private String sqlMigrationPrefix;
     private String repeatableSqlMigrationPrefix;
     private String sqlMigrationSeparator;
-    private String sqlMigrationSuffix;
+    private String[] sqlMigrationSuffixes;
     private MyCustomMigrationResolver[] migrationResolvers = new MyCustomMigrationResolver[0];
     private boolean skipDefaultResolvers;
     private boolean skipDefaultCallbacks;
 
     public FlywayConfigurationForTests(ClassLoader contextClassLoader, String[] locations, String encoding,
-            String sqlMigrationPrefix, String repeatableSqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix,
+            String sqlMigrationPrefix, String repeatableSqlMigrationPrefix, String sqlMigrationSeparator, String[] sqlMigrationSuffixes,
             MyCustomMigrationResolver... myCustomMigrationResolver) {
         this.classLoader = contextClassLoader;
         this.locations = locations;
@@ -50,7 +50,7 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
         this.sqlMigrationPrefix = sqlMigrationPrefix;
         this.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix;
         this.sqlMigrationSeparator = sqlMigrationSeparator;
-        this.sqlMigrationSuffix = sqlMigrationSuffix;
+        this.sqlMigrationSuffixes = sqlMigrationSuffixes;
         this.migrationResolvers = myCustomMigrationResolver;
     }
 
@@ -70,28 +70,24 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
         this.sqlMigrationSeparator = sqlMigrationSeparator;
     }
 
-    public void setSqlMigrationSuffix(String sqlMigrationSuffix) {
-        this.sqlMigrationSuffix = sqlMigrationSuffix;
-    }
-
     public void setMigrationResolvers(MyCustomMigrationResolver[] migrationResolvers) {
         this.migrationResolvers = migrationResolvers;
     }
 
     public static FlywayConfigurationForTests create() {
-        return new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), new String[0], "UTF-8", "V", "R", "__", ".sql");
+        return new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), new String[0], "UTF-8", "V", "R", "__", new String[] {".sql"});
     }
 
     public static FlywayConfigurationForTests createWithLocations(String... locations) {
-        return new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), locations, "UTF-8", "V", "R", "__", ".sql");
+        return new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), locations, "UTF-8", "V", "R", "__", new String[] {".sql"});
     }
 
     public static FlywayConfigurationForTests createWithPrefix(String prefix) {
-        return new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), new String[0], "UTF-8", prefix, "R", "__", ".sql");
+        return new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), new String[0], "UTF-8", prefix, "R", "__", new String[] {".sql"});
     }
 
     public static FlywayConfigurationForTests createWithPrefixAndLocations(String prefix, String... locations) {
-        return new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), locations, "UTF-8", prefix, "R", "__", ".sql");
+        return new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), locations, "UTF-8", prefix, "R", "__", new String[] {".sql"});
     }
 
     @Override
@@ -144,12 +140,12 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
 
     @Override
     public String getSqlMigrationSuffix() {
-        return sqlMigrationSuffix;
+        return sqlMigrationSuffixes[0];
     }
 
     @Override
     public String[] getSqlMigrationSuffixes() {
-        return new String[] { ".sql" };
+        return sqlMigrationSuffixes;
     }
 
     @Override
