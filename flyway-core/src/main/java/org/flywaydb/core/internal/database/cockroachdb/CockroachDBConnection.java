@@ -89,6 +89,10 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
 
     @Override
     public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+        if (schema == null || schema.equals("")){
+            // avoid empty schema name when original schema was the default one
+            schema = "DEFAULT";
+        }
         jdbcTemplate.execute("SET database = " + schema);
     }
 }
