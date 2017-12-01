@@ -51,6 +51,10 @@ public class FlywayCallbackSmallTest {
 
         //make sure no other lifecycle events were fired
         assertEquals(0, callbackImpl.getAfterEachMigrate());
+        assertEquals(0, callbackImpl.getBeforeUndo());
+        assertEquals(0, callbackImpl.getAfterUndo());
+        assertEquals(0, callbackImpl.getBeforeEachUndo());
+        assertEquals(0, callbackImpl.getAfterEachUndo());
         assertEquals(0, callbackImpl.getAfterInfo());
         assertEquals(0, callbackImpl.getAfterBaseline());
         assertEquals(0, callbackImpl.getAfterMigrate());
@@ -92,6 +96,10 @@ public class FlywayCallbackSmallTest {
         assertEquals(0, callbackImpl.getAfterRepair());
         assertEquals(0, callbackImpl.getAfterValidate());
 
+        assertEquals(0, callbackImpl.getBeforeUndo());
+        assertEquals(0, callbackImpl.getAfterUndo());
+        assertEquals(0, callbackImpl.getBeforeEachUndo());
+        assertEquals(0, callbackImpl.getAfterEachUndo());
         assertEquals(0, callbackImpl.getBeforeEachMigrate());
         assertEquals(1, callbackImpl.getBeforeInfo());
         assertEquals(0, callbackImpl.getBeforeBaseline());
@@ -127,6 +135,10 @@ public class FlywayCallbackSmallTest {
         assertEquals(0, callbackImpl.getAfterRepair());
         assertEquals(0, callbackImpl.getAfterValidate());
 
+        assertEquals(0, callbackImpl.getBeforeUndo());
+        assertEquals(0, callbackImpl.getAfterUndo());
+        assertEquals(0, callbackImpl.getBeforeEachUndo());
+        assertEquals(0, callbackImpl.getAfterEachUndo());
         assertEquals(0, callbackImpl.getBeforeEachMigrate());
         assertEquals(0, callbackImpl.getBeforeInfo());
         assertEquals(1, callbackImpl.getBeforeBaseline());
@@ -162,6 +174,10 @@ public class FlywayCallbackSmallTest {
         assertEquals(0, callbackImpl.getAfterRepair());
         assertEquals(0, callbackImpl.getAfterValidate());
 
+        assertEquals(0, callbackImpl.getBeforeUndo());
+        assertEquals(0, callbackImpl.getAfterUndo());
+        assertEquals(0, callbackImpl.getBeforeEachUndo());
+        assertEquals(0, callbackImpl.getAfterEachUndo());
         assertEquals(1, callbackImpl.getBeforeEachMigrate());
         assertEquals(0, callbackImpl.getBeforeInfo());
         assertEquals(0, callbackImpl.getBeforeBaseline());
@@ -197,6 +213,10 @@ public class FlywayCallbackSmallTest {
         assertEquals(1, callbackImpl.getAfterRepair());
         assertEquals(0, callbackImpl.getAfterValidate());
 
+        assertEquals(0, callbackImpl.getBeforeUndo());
+        assertEquals(0, callbackImpl.getAfterUndo());
+        assertEquals(0, callbackImpl.getBeforeEachUndo());
+        assertEquals(0, callbackImpl.getAfterEachUndo());
         assertEquals(0, callbackImpl.getBeforeEachMigrate());
         assertEquals(0, callbackImpl.getBeforeInfo());
         assertEquals(0, callbackImpl.getBeforeBaseline());
@@ -233,6 +253,10 @@ public class FlywayCallbackSmallTest {
         assertEquals(0, callbackImpl.getAfterRepair());
         assertEquals(1, callbackImpl.getAfterValidate());
 
+        assertEquals(0, callbackImpl.getBeforeUndo());
+        assertEquals(0, callbackImpl.getAfterUndo());
+        assertEquals(0, callbackImpl.getBeforeEachUndo());
+        assertEquals(0, callbackImpl.getAfterEachUndo());
         assertEquals(0, callbackImpl.getBeforeEachMigrate());
         assertEquals(0, callbackImpl.getBeforeInfo());
         assertEquals(0, callbackImpl.getBeforeBaseline());
@@ -269,6 +293,10 @@ public class FlywayCallbackSmallTest {
         assertEquals(0, callbackImpl.getAfterRepair());
         assertEquals(0, callbackImpl.getAfterValidate());
 
+        assertEquals(0, callbackImpl.getBeforeUndo());
+        assertEquals(0, callbackImpl.getAfterUndo());
+        assertEquals(0, callbackImpl.getBeforeEachUndo());
+        assertEquals(0, callbackImpl.getAfterEachUndo());
         assertEquals(1, callbackImpl.getBeforeEachMigrate());
         assertEquals(0, callbackImpl.getBeforeInfo());
         assertEquals(0, callbackImpl.getBeforeBaseline());

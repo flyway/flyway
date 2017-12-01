@@ -47,6 +47,12 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
     private static final String AFTER_MIGRATE = "afterMigrate";
     private static final String BEFORE_EACH_MIGRATE = "beforeEachMigrate";
     private static final String AFTER_EACH_MIGRATE = "afterEachMigrate";
+    // [pro]
+    private static final String BEFORE_UNDO = "beforeUndo";
+    private static final String AFTER_UNDO = "afterUndo";
+    private static final String BEFORE_EACH_UNDO = "beforeEachUndo";
+    private static final String AFTER_EACH_UNDO = "afterEachUndo";
+    // [/pro]
     private static final String BEFORE_VALIDATE = "beforeValidate";
     private static final String AFTER_VALIDATE = "afterValidate";
     private static final String BEFORE_BASELINE = "beforeBaseline";
@@ -148,6 +154,34 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
     @Override
     public void afterEachMigrate(Connection connection, MigrationInfo info) {
         execute(AFTER_EACH_MIGRATE, connection);
+    }
+
+    @Override
+    public void beforeUndo(Connection connection) {
+        // [pro]
+        execute(BEFORE_UNDO, connection);
+        // [/pro]
+    }
+
+    @Override
+    public void afterUndo(Connection connection) {
+        // [pro]
+        execute(AFTER_UNDO, connection);
+        // [/pro]
+    }
+
+    @Override
+    public void beforeEachUndo(Connection connection, MigrationInfo info) {
+        // [pro]
+        execute(BEFORE_EACH_UNDO, connection);
+        // [/pro]
+    }
+
+    @Override
+    public void afterEachUndo(Connection connection, MigrationInfo info) {
+        // [pro]
+        execute(AFTER_EACH_UNDO, connection);
+        // [/pro]
     }
 
     @Override

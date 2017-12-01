@@ -26,9 +26,6 @@ import org.flywaydb.core.api.logging.LogFactory;
  * Default FlywayCallback implementation.  If you don't want to have to 
  * implement all of the FlywayCallback methods you can use this as your
  * base class and override the relavant callbacks you are interested in.
- * 
- * @author Dan Bunker
- *
  */
 public class DefaultFlywayCallback implements FlywayCallback {
     private static final Log LOG = LogFactory.getLog(DefaultFlywayCallback.class);
@@ -51,6 +48,26 @@ public class DefaultFlywayCallback implements FlywayCallback {
 	@Override
 	public void afterMigrate(Connection dataConnection) {
 		LOG.info("afterMigrate");
+	}
+
+	@Override
+	public void beforeUndo(Connection connection) {
+		LOG.info("beforeUndo");
+	}
+
+	@Override
+	public void beforeEachUndo(Connection connection, MigrationInfo info) {
+		LOG.info("beforeEachUndo");
+	}
+
+	@Override
+	public void afterEachUndo(Connection connection, MigrationInfo info) {
+		LOG.info("afterEachUndo");
+	}
+
+	@Override
+	public void afterUndo(Connection connection) {
+		LOG.info("afterUndo");
 	}
 
 	@Override

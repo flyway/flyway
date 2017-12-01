@@ -45,12 +45,9 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
- * Main workflow for migrating the database.
- *
- * @author Axel Fontaine
+ * Undoes the most recently applied versioned migration.
  */
 public class DbUndo {
-
     private static final Log LOG = LogFactory.getLog(DbUndo.class);
 
     /**
@@ -89,7 +86,7 @@ public class DbUndo {
     private final Connection connectionUserObjects;
 
     /**
-     * Creates a new database migrator.
+     * Creates a new undo command.
      *
      * @param database           Database-specific functionality.
      * @param schemaHistory      The database schema history table.

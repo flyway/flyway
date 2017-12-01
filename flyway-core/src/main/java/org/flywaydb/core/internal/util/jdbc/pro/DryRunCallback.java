@@ -45,6 +45,16 @@ public class DryRunCallback extends BaseFlywayCallback {
     }
 
     @Override
+    public void beforeUndo(Connection connection) {
+        dryRunStatementInterceptor.interceptCommand("undo");
+    }
+
+    @Override
+    public void beforeEachUndo(Connection connection, MigrationInfo info) {
+        dryRunStatementInterceptor.interceptCommand("undo -> v" + info.getVersion());
+    }
+
+    @Override
     public void beforeValidate(Connection connection) {
         dryRunStatementInterceptor.interceptCommand("validate");
     }

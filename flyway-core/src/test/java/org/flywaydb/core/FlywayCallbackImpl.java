@@ -31,7 +31,6 @@ import org.flywaydb.core.api.MigrationInfo;
  * @author Dan Bunker
  */
 public class FlywayCallbackImpl implements FlywayCallback, ConfigurationAware {
-
     private FlywayConfiguration flywayConfiguration;
 	private int beforeClean;
 	private int afterClean;
@@ -39,6 +38,10 @@ public class FlywayCallbackImpl implements FlywayCallback, ConfigurationAware {
 	private int afterMigrate;
 	private int beforeEachMigrate;
 	private int afterEachMigrate;
+	private int beforeUndo;
+	private int afterUndo;
+	private int beforeEachUndo;
+	private int afterEachUndo;
 	private int beforeValidate;
 	private int afterValidate;
 	private int beforeBaseline;
@@ -82,6 +85,32 @@ public class FlywayCallbackImpl implements FlywayCallback, ConfigurationAware {
 	@Override
 	public void afterEachMigrate(Connection dataConnection, MigrationInfo info) {
 		afterEachMigrate++;
+        assertNotNull(dataConnection);
+        assertNotNull(info);
+	}
+
+	@Override
+	public void beforeUndo(Connection dataConnection) {
+		beforeUndo++;
+        assertNotNull(dataConnection);
+	}
+
+	@Override
+	public void afterUndo(Connection dataConnection) {
+		afterUndo++;
+        assertNotNull(dataConnection);
+	}
+
+	@Override
+	public void beforeEachUndo(Connection dataConnection, MigrationInfo info) {
+		beforeEachUndo++;
+        assertNotNull(dataConnection);
+        assertNotNull(info);
+	}
+
+	@Override
+	public void afterEachUndo(Connection dataConnection, MigrationInfo info) {
+		afterEachUndo++;
         assertNotNull(dataConnection);
         assertNotNull(info);
 	}
@@ -161,6 +190,22 @@ public class FlywayCallbackImpl implements FlywayCallback, ConfigurationAware {
 
 	public int getAfterEachMigrate() {
 		return afterEachMigrate;
+	}
+
+	public int getBeforeUndo() {
+		return beforeUndo;
+	}
+
+	public int getAfterUndo() {
+		return afterUndo;
+	}
+
+	public int getBeforeEachUndo() {
+		return beforeEachUndo;
+	}
+
+	public int getAfterEachUndo() {
+		return afterEachUndo;
 	}
 
 	public int getBeforeValidate() {

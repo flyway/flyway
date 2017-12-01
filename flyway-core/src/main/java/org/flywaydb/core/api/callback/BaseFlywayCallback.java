@@ -28,7 +28,7 @@ import java.sql.Connection;
  * <p>This implementation also provides direct access to the {@link FlywayConfiguration} as field.</p>
  */
 public abstract class BaseFlywayCallback implements FlywayCallback, ConfigurationAware {
-
+    @SuppressWarnings("WeakerAccess")
     protected FlywayConfiguration flywayConfiguration;
 
     @Override
@@ -58,6 +58,22 @@ public abstract class BaseFlywayCallback implements FlywayCallback, Configuratio
 
     @Override
     public void afterEachMigrate(Connection connection, MigrationInfo info) {
+    }
+
+    @Override
+    public void beforeUndo(Connection connection) {
+    }
+
+    @Override
+    public void beforeEachUndo(Connection connection, MigrationInfo info) {
+    }
+
+    @Override
+    public void afterEachUndo(Connection connection, MigrationInfo info) {
+    }
+
+    @Override
+    public void afterUndo(Connection connection) {
     }
 
     @Override

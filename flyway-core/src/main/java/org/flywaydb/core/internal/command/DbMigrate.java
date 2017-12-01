@@ -46,11 +46,8 @@ import java.util.concurrent.Callable;
 
 /**
  * Main workflow for migrating the database.
- *
- * @author Axel Fontaine
  */
 public class DbMigrate {
-
     private static final Log LOG = LogFactory.getLog(DbMigrate.class);
 
     /**
