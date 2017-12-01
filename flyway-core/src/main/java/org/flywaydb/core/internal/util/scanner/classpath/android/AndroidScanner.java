@@ -50,13 +50,12 @@ public class AndroidScanner implements ResourceAndClassScanner {
         }
     }
 
-    public LoadableResource[] scanForResources(Location location, String prefix, String suffix) throws Exception {
+    public LoadableResource[] scanForResources(Location location, String prefix, String[] suffixes) throws Exception {
         List<LoadableResource> resources = new ArrayList<>();
 
         String path = location.getPath();
         for (String asset : context.getAssets().list(path)) {
-            if (asset.startsWith(prefix) && asset.endsWith(suffix)
-                    && (asset.length() > (prefix + suffix).length())) {
+            if (assetMatches(asset, prefix, suffixes)) {
                 resources.add(new AndroidResource(context.getAssets(), path, asset));
             } else {
                 LOG.debug("Filtering out asset: " + asset);
@@ -64,6 +63,16 @@ public class AndroidScanner implements ResourceAndClassScanner {
         }
 
         return resources.toArray(new LoadableResource[resources.size()]);
+    }
+
+    private boolean assetMatches(String asset, String prefix, String[] suffixes) {
+        for (String suffix : suffixes) {
+            if (asset.startsWith(prefix) && asset.endsWith(suffix)
+                    && (asset.length() > (prefix + suffix).length())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Class<?>[] scanForClasses(Location location, Class<?> implementedInterface) throws Exception {

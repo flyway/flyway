@@ -85,13 +85,13 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
         for (Location location : locations.getLocations()) {
             LoadableResource[] resources;
             try {
-                resources = scanner.scanForResources(location, "", configuration.getSqlMigrationSuffix());
+                resources = scanner.scanForResources(location, "", configuration.getSqlMigrationSuffixes());
             } catch (FlywayException e) {
                 // Ignore missing locations
                 continue;
             }
             for (LoadableResource resource : resources) {
-                String key = resource.getFilename().replace(configuration.getSqlMigrationSuffix(), "");
+                String key = stripSuffix(resource.getFilename(), configuration.getSqlMigrationSuffixes());
                 if (scripts.keySet().contains(key)) {
                     SqlScript existing = scripts.get(key);
                     if (existing != null) {
@@ -109,6 +109,15 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
                 }
             }
         }
+    }
+
+    private String stripSuffix(String fileName, String[] suffixes) {
+        for (String suffix : suffixes) {
+            if (fileName.endsWith(suffix)) {
+                return fileName.substring(0, fileName.length() - suffix.length());
+            }
+        }
+        return fileName;
     }
 
     @Override

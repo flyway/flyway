@@ -79,7 +79,11 @@ public class ConfigUtils {
     public static final String SKIP_DEFAULT_RESOLVERS = "flyway.skipDefaultResolvers";
     public static final String SQL_MIGRATION_PREFIX = "flyway.sqlMigrationPrefix";
     public static final String SQL_MIGRATION_SEPARATOR = "flyway.sqlMigrationSeparator";
+
+    @Deprecated
     public static final String SQL_MIGRATION_SUFFIX = "flyway.sqlMigrationSuffix";
+
+    public static final String SQL_MIGRATION_SUFFIXES = "flyway.sqlMigrationSuffixes";
     public static final String TABLE = "flyway.table";
     public static final String TARGET = "flyway.target";
     public static final String URL = "flyway.url";
@@ -216,8 +220,8 @@ public class ConfigUtils {
         if ("FLYWAY_SQL_MIGRATION_SEPARATOR".equals(key)) {
             return SQL_MIGRATION_SEPARATOR;
         }
-        if ("FLYWAY_SQL_MIGRATION_SUFFIX".equals(key)) {
-            return SQL_MIGRATION_SUFFIX;
+        if ("FLYWAY_SQL_MIGRATION_SUFFIXES".equals(key)) {
+            return SQL_MIGRATION_SUFFIXES;
         }
         if ("FLYWAY_TABLE".equals(key)) {
             return TABLE;
