@@ -135,15 +135,26 @@ public class Flyway implements FlywayConfiguration {
     private String placeholderSuffix = "}";
 
     /**
-     * The file name prefix for sql migrations. (default: V)
+     * The file name prefix for versioned SQL migrations. (default: V)
      * <p/>
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
     private String sqlMigrationPrefix = "V";
 
+    // [pro]
     /**
-     * The file name prefix for repeatable sql migrations. (default: R)
+     * The file name prefix for undo SQL migrations. (default: U)
+     * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
+     * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to U1.1__My_description.sql</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    private String undoSqlMigrationPrefix = "U";
+    // [/pro]
+
+    /**
+     * The file name prefix for repeatable SQL migrations. (default: R)
      * <p/>
      * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to R__My_description.sql</p>
@@ -361,6 +372,7 @@ public class Flyway implements FlywayConfiguration {
         // [pro]
         setDryRunOutput(configuration.getDryRunOutput());
         setErrorHandlers(configuration.getErrorHandlers());
+        setUndoSqlMigrationPrefix(configuration.getUndoSqlMigrationPrefix());
         // [/pro]
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
@@ -902,6 +914,34 @@ public class Flyway implements FlywayConfiguration {
         this.sqlMigrationPrefix = sqlMigrationPrefix;
     }
 
+    @Override
+    public String getUndoSqlMigrationPrefix() {
+        // [opensource-only]
+        //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
+        // [/opensource-only]
+        // [pro]
+        return undoSqlMigrationPrefix;
+        // [/pro]
+    }
+
+    /**
+     * Sets the file name prefix for undo SQL migrations. (default: U)
+     * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
+     * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to U1.1__My_description.sql</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param undoSqlMigrationPrefix The file name prefix for undo SQL migrations. (default: U)
+     */
+    public void setUndoSqlMigrationPrefix(String undoSqlMigrationPrefix) {
+        // [opensource-only]
+        //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
+        // [/opensource-only]
+        // [pro]
+        this.undoSqlMigrationPrefix = undoSqlMigrationPrefix;
+        // [/pro]
+    }
+
     /**
      * Sets the file name prefix for repeatable sql migrations.
      * <p/>
@@ -1176,6 +1216,32 @@ public class Flyway implements FlywayConfiguration {
     }
 
     /**
+     * <p>Undoes the most recently applied versioned migration. If target is specified, Flyway will attempt to undo
+     * versioned migrations in the order they were applied until it hits one with a version below the target. If there
+     * is no versioned migration to undo, calling undo has no effect.</p>
+     * <img src="https://flywaydb.org/assets/balsamiq/command-undo.png" alt="undo">
+     *
+     * @return The number of successfully undone migrations.
+     * @throws FlywayException when the undo failed.
+     */
+    public int undo() throws FlywayException {
+        // [opensource-only]
+        //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undo");
+        // [/opensource-only]
+        // [pro]
+        return execute(new Command<Integer>() {
+            public Integer execute(MigrationResolver migrationResolver,
+                                   SchemaHistory schemaHistory, Database database, Schema[] schemas, List<FlywayCallback> effectiveCallbacks
+                    , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+            ) {
+                return new org.flywaydb.core.internal.command.pro.DbUndo(database, schemaHistory, schemas[0],
+                        migrationResolver, Flyway.this, effectiveCallbacks).undo();
+            }
+        });
+        // [/pro]
+    }
+
+    /**
      * <p>Validate applied migrations against resolved ones (on the filesystem or classpath)
      * to detect accidental changes that may prevent the schema(s) from being recreated exactly.</p>
      * <p>Validation fails if</p>
@@ -1399,6 +1465,10 @@ public class Flyway implements FlywayConfiguration {
         String sqlMigrationPrefixProp = props.remove(ConfigUtils.SQL_MIGRATION_PREFIX);
         if (sqlMigrationPrefixProp != null) {
             setSqlMigrationPrefix(sqlMigrationPrefixProp);
+        }
+        String undoSqlMigrationPrefixProp = props.remove(ConfigUtils.UNDO_SQL_MIGRATION_PREFIX);
+        if (undoSqlMigrationPrefixProp != null) {
+            setUndoSqlMigrationPrefix(undoSqlMigrationPrefixProp);
         }
         String repeatableSqlMigrationPrefixProp = props.remove(ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX);
         if (repeatableSqlMigrationPrefixProp != null) {

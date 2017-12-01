@@ -15,8 +15,6 @@
  */
 package org.flywaydb.gradle;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-
 import java.util.Map;
 
 /**
@@ -96,18 +94,30 @@ public class FlywayExtension {
     public Boolean skipDefaultResolvers;
 
     /**
-     * The file name prefix for Sql migrations
+     * The file name prefix for versioned SQL migrations. (default: V)
      * <p>
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.sqlMigrationPrefix}</p>
      */
     public String sqlMigrationPrefix;
 
     /**
-     * The file name prefix for repeatable sql migrations (default: R).
+     * The file name prefix for undo SQL migrations. (default: U)
+     * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
+     * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to U1.1__My_description.sql</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.undoSqlMigrationPrefix}</p>
+     */
+    public String undoSqlMigrationPrefix;
+
+    /**
+     * The file name prefix for repeatable SQL migrations (default: R).
      * <p>
-     * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+     * <p>Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to R__My_description.sql</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.repeatableSqlMigrationPrefix}</p>
      */
     public String repeatableSqlMigrationPrefix;
 
@@ -124,6 +134,7 @@ public class FlywayExtension {
      * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
+     *
      * @deprecated Use {@link FlywayExtension#sqlMigrationSuffixes} instead. Will be removed in Flyway 6.0.0.
      */
     @Deprecated

@@ -142,6 +142,8 @@ public class Main {
             flyway.baseline();
         } else if ("migrate".equals(operation)) {
             flyway.migrate();
+        } else if ("undo".equals(operation)) {
+            flyway.undo();
         } else if ("validate".equals(operation)) {
             flyway.validate();
         } else if ("info".equals(operation)) {
@@ -223,6 +225,7 @@ public class Main {
         LOG.info("Commands");
         LOG.info("--------");
         LOG.info("migrate  : Migrates the database");
+        LOG.info("undo     : Undoes the most recently applied versioned migration");
         LOG.info("clean    : Drops all objects in the configured schemas");
         LOG.info("info     : Prints the information about applied, current and pending migrations");
         LOG.info("validate : Validates the applied migrations against the ones on the classpath");
@@ -240,8 +243,9 @@ public class Main {
         LOG.info("locations                    : Classpath locations to scan recursively for migrations");
         LOG.info("resolvers                    : Comma-separated list of custom MigrationResolvers");
         LOG.info("skipDefaultResolvers         : Skips default resolvers (jdbc, sql and Spring-jdbc)");
-        LOG.info("sqlMigrationPrefix           : File name prefix for sql migrations");
-        LOG.info("repeatableSqlMigrationPrefix : File name prefix for repeatable sql migrations");
+        LOG.info("sqlMigrationPrefix           : File name prefix for versioned SQL migrations");
+        LOG.info("undoSqlMigrationPrefix       : File name prefix for undo SQL migrations");
+        LOG.info("repeatableSqlMigrationPrefix : File name prefix for repeatable SQL migrations");
         LOG.info("sqlMigrationSeparator        : File name separator for sql migrations");
         LOG.info("sqlMigrationSuffixes         : Comma-separated list of file name suffixes for sql migrations");
         LOG.info("mixed                        : Allow mixing transactional and non-transactional statements");

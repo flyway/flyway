@@ -17,14 +17,14 @@ package org.flywaydb.gradle.task;
 
 import org.flywaydb.core.Flyway;
 
-public class FlywayMigrateTask extends AbstractFlywayTask {
-    public FlywayMigrateTask() {
+public class FlywayUndoTask extends AbstractFlywayTask {
+    public FlywayUndoTask() {
         super();
-        setDescription("Migrates the schema to the latest version.");
+        setDescription("Undoes the most recently applied versioned migration.");
     }
 
     @Override
     protected Object run(Flyway flyway) {
-        return flyway.migrate();
+        return flyway.undo();
     }
 }

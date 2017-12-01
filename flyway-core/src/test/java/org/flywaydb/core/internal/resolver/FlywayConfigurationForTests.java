@@ -164,6 +164,11 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     }
 
     @Override
+    public String getUndoSqlMigrationPrefix() {
+        return null;
+    }
+
+    @Override
     public boolean isPlaceholderReplacement() {
         return false;
     }
