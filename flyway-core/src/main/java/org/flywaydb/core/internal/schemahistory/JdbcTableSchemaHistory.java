@@ -97,7 +97,6 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
 
     @Override
     public boolean exists() {
-        boolean exists = table.exists();
         if (!tableFallback) {
             Table fallbackTable = table.getSchema().getTable("schema_version");
             if (fallbackTable.exists()) {
@@ -110,7 +109,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
                 table = fallbackTable;
             }
         }
-        return exists;
+        return table.exists();
     }
 
     /**

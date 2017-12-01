@@ -17,7 +17,7 @@
 version: "3"
 services:
   cockroachdb-11:
-    image: "cockroachdb/cockroach:v1.1.2"
+    image: "cockroachdb/cockroach:v1.1.3"
     ports:
       - "62000:26257"
     tmpfs:
