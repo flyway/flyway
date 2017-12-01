@@ -149,7 +149,7 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
 
     @Override
     public String[] getSqlMigrationSuffixes() {
-        return new String[0];
+        return new String[] { ".sql" };
     }
 
     @Override
