@@ -20,6 +20,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.UrlUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.classpath.jboss.JBossVFSv2UrlResolver;
@@ -78,12 +79,13 @@ public class ClassPathScanner implements ResourceAndClassScanner {
     }
 
     @Override
-    public LoadableResource[] scanForResources(Location path, String prefix, String suffix) throws IOException {
-        LOG.debug("Scanning for classpath resources at '" + path + "' (Prefix: '" + prefix + "', Suffix: '" + suffix + "')");
+    public LoadableResource[] scanForResources(Location path, String prefix, String... suffixes) throws IOException {
+        LOG.debug("Scanning for classpath resources at '" + path + "' (Prefix: '" + prefix
+                + "', Suffixes: '" + StringUtils.arrayToCommaDelimitedString(suffixes) + "')");
 
         Set<LoadableResource> resources = new TreeSet<>();
 
-        Set<String> resourceNames = findResourceNames(path, prefix, suffix);
+        Set<String> resourceNames = findResourceNames(path, prefix, suffixes);
         for (String resourceName : resourceNames) {
             resources.add(new ClassPathResource(resourceName, classLoader));
             LOG.debug("Found resource: " + resourceName);
@@ -151,11 +153,11 @@ public class ClassPathScanner implements ResourceAndClassScanner {
      *
      * @param location The location on the classpath to scan.
      * @param prefix   The filename prefix to match.
-     * @param suffix   The filename suffix to match.
+     * @param suffixes The filename suffixes to match.
      * @return The resource names.
      * @throws IOException when scanning this location failed.
      */
-    private Set<String> findResourceNames(Location location, String prefix, String suffix) throws IOException {
+    private Set<String> findResourceNames(Location location, String prefix, String... suffixes) throws IOException {
         Set<String> resourceNames = new TreeSet<>();
 
         List<URL> locationUrls = getLocationUrlsForPath(location);
@@ -218,8 +220,10 @@ public class ClassPathScanner implements ResourceAndClassScanner {
                                 String entryName = entries.nextElement().getName();
                                 if (entryName.startsWith(location.getPath())) {
                                     locationResolved = true;
-                                    if (entryName.endsWith(suffix)) {
-                                        resourceNames.add(entryName);
+                                    for (String suffix : suffixes) {
+                                        if (entryName.endsWith(suffix)) {
+                                            resourceNames.add(entryName);
+                                        }
                                     }
                                 }
                             }
@@ -235,7 +239,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             LOG.warn("Unable to resolve location " + location);
         }
 
-        return filterResourceNames(resourceNames, prefix, suffix);
+        return filterResourceNames(resourceNames, prefix, suffixes);
     }
 
     /**
@@ -359,20 +363,29 @@ public class ClassPathScanner implements ResourceAndClassScanner {
      *
      * @param resourceNames The names to filter.
      * @param prefix        The prefix to match.
-     * @param suffix        The suffix to match.
+     * @param suffixes      The suffixes to match.
      * @return The filtered names set.
      */
-    private Set<String> filterResourceNames(Set<String> resourceNames, String prefix, String suffix) {
+    private Set<String> filterResourceNames(Set<String> resourceNames, String prefix, String[] suffixes) {
         Set<String> filteredResourceNames = new TreeSet<>();
         for (String resourceName : resourceNames) {
             String fileName = resourceName.substring(resourceName.lastIndexOf("/") + 1);
-            if (fileName.startsWith(prefix) && fileName.endsWith(suffix)
-                    && (fileName.length() > (prefix + suffix).length())) {
+            if (fileNameMatches(fileName, prefix, suffixes)) {
                 filteredResourceNames.add(resourceName);
             } else {
                 LOG.debug("Filtering out resource: " + resourceName + " (filename: " + fileName + ")");
             }
         }
         return filteredResourceNames;
+    }
+
+    private boolean fileNameMatches(String fileName, String prefix, String[] suffixes) {
+        for (String suffix : suffixes) {
+            if (fileName.startsWith(prefix) && fileName.endsWith(suffix)
+                    && (fileName.length() > (prefix + suffix).length())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
