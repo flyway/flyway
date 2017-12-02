@@ -42,6 +42,11 @@ public class R_Migration implements JdbcMigration, MigrationInfoProvider, Migrat
     }
 
     @Override
+    public boolean isUndo() {
+        return false;
+    }
+
+    @Override
     public Integer getChecksum() {
         return ++count;
     }

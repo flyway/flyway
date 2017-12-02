@@ -40,4 +40,9 @@ public class Version3dot5 extends DummyAbstractJdbcMigration implements Migratio
     public String getDescription() {
         return "Three Dot Five";
     }
+
+    @Override
+    public boolean isUndo() {
+        return false;
+    }
 }

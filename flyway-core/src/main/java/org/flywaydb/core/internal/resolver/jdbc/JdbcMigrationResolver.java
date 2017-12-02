@@ -15,10 +15,12 @@
  */
 package org.flywaydb.core.internal.resolver.jdbc;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.MigrationChecksumProvider;
 import org.flywaydb.core.api.migration.MigrationInfoProvider;
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
@@ -28,7 +30,11 @@ import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
-import org.flywaydb.core.internal.util.*;
+import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.Locations;
+import org.flywaydb.core.internal.util.Pair;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import java.util.ArrayList;
@@ -36,10 +42,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Migration resolver for Jdbc migrations. The classes must have a name like R__My_description, V1__Description
+ * Migration resolver for JDBC migrations. The classes must have a name like R__My_description, V1__Description
  * or V1_1_3__Description.
  */
 public class JdbcMigrationResolver implements MigrationResolver {
+    private static final Log LOG = LogFactory.getLog(JdbcMigrationResolver.class);
+
     /**
      * The base package on the classpath where to migrations are located.
      */
@@ -83,8 +91,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
         return migrations;
     }
 
-    protected void resolveMigrationsForSingleLocation(Location location, List<ResolvedMigration> migrations) {
-
+    private void resolveMigrationsForSingleLocation(Location location, List<ResolvedMigration> migrations) {
         try {
             Class<?>[] classes = scanner.scanForClasses(location, JdbcMigration.class);
             for (Class<?> clazz : classes) {
@@ -98,7 +105,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
                 migrations.add(migrationInfo);
             }
         } catch (Exception e) {
-            throw new FlywayException("Unable to resolve Jdbc Java migrations in location " + location + " : " + e.getMessage(), e);
+            throw new FlywayException("Unable to resolve JDBC Java migrations in location " + location + " : " + e.getMessage(), e);
         }
     }
 
@@ -117,6 +124,9 @@ public class JdbcMigrationResolver implements MigrationResolver {
 
         MigrationVersion version;
         String description;
+        // [pro]
+        boolean undo;
+        // [/pro]
         if (jdbcMigration instanceof MigrationInfoProvider) {
             MigrationInfoProvider infoProvider = (MigrationInfoProvider) jdbcMigration;
             version = infoProvider.getVersion();
@@ -124,18 +134,40 @@ public class JdbcMigrationResolver implements MigrationResolver {
             if (!StringUtils.hasText(description)) {
                 throw new FlywayException("Missing description for migration " + version);
             }
+            // [pro]
+            try {
+                undo = infoProvider.isUndo();
+            } catch (NoSuchMethodError e) {
+                LOG.warn(jdbcMigration.getClass().getName() + " implements MigrationInfoProvider," +
+                        " yet is missing the isUndo() method which was added in Flyway 5.0.0." +
+                        " Add this method and return false to remove this warning." +
+                        " This check will be removed in Flyway 6.0.0.");
+                undo = false;
+            }
+            // [/pro]
         } else {
             String shortName = ClassUtils.getShortName(jdbcMigration.getClass());
             String prefix;
+            // [pro]
+            undo = shortName.startsWith("U");
+            // [/pro]
             boolean repeatable = shortName.startsWith("R");
-            if (shortName.startsWith("V") || repeatable) {
+            if (shortName.startsWith("V") || repeatable
+                    // [pro]
+                    || undo
+                    // [pro]
+                    ) {
                 prefix = shortName.substring(0, 1);
             } else {
-                throw new FlywayException("Invalid Jdbc migration class name: " + jdbcMigration.getClass().getName()
-                        + " => ensure it starts with V or R," +
+                throw new FlywayException("Invalid JDBC migration class name: " + jdbcMigration.getClass().getName()
+                        + " => ensure it starts with V" +
+                        // [pro]
+                        ", U" +
+                        // [/pro]
+                        " or R," +
                         " or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
             }
-            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", new String[] {""}, repeatable);
+            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", new String[]{""}, repeatable);
             version = info.getLeft();
             description = info.getRight();
         }
@@ -145,7 +177,11 @@ public class JdbcMigrationResolver implements MigrationResolver {
         resolvedMigration.setDescription(description);
         resolvedMigration.setScript(jdbcMigration.getClass().getName());
         resolvedMigration.setChecksum(checksum);
-        resolvedMigration.setType(MigrationType.JDBC);
+        resolvedMigration.setType(
+                // [pro]
+                undo ? MigrationType.UNDO_JDBC :
+                // [/pro]
+                        MigrationType.JDBC);
         return resolvedMigration;
     }
 }

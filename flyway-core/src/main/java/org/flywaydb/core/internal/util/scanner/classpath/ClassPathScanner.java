@@ -381,7 +381,8 @@ public class ClassPathScanner implements ResourceAndClassScanner {
 
     private boolean fileNameMatches(String fileName, String prefix, String[] suffixes) {
         for (String suffix : suffixes) {
-            if (fileName.startsWith(prefix) && fileName.endsWith(suffix)
+            if ((!StringUtils.hasLength(prefix) || fileName.startsWith(prefix))
+                    && fileName.endsWith(suffix)
                     && (fileName.length() > (prefix + suffix).length())) {
                 return true;
             }

@@ -165,7 +165,7 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
 
     @Override
     public String getUndoSqlMigrationPrefix() {
-        return null;
+        return "U";
     }
 
     @Override

@@ -50,6 +50,13 @@ public class MigrationInfoImpl implements MigrationInfo {
      */
     private final boolean outOfOrder;
 
+    // [pro]
+    /**
+     * Whether this migration has been undone.
+     */
+    private final boolean undone;
+    // [/pro]
+
     /**
      * Creates a new MigrationInfoImpl.
      *
@@ -57,13 +64,23 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @param appliedMigration  The applied migration to aggregate the info from.
      * @param context           The current context.
      * @param outOfOrder        Whether this migration was applied out of order.
+     *                          // [pro]
+     * @param undone            Whether this migration has been undone.
+     *                          // [/pro]
      */
     MigrationInfoImpl(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration,
-                      MigrationInfoContext context, boolean outOfOrder) {
+                      MigrationInfoContext context, boolean outOfOrder
+                      // [pro]
+            , boolean undone
+                      // [/pro]
+    ) {
         this.resolvedMigration = resolvedMigration;
         this.appliedMigration = appliedMigration;
         this.context = context;
         this.outOfOrder = outOfOrder;
+        // [pro]
+        this.undone = undone;
+        // [/pro]
     }
 
     /**
@@ -121,6 +138,11 @@ public class MigrationInfoImpl implements MigrationInfo {
                 if (resolvedMigration.getVersion().compareTo(context.baseline) < 0) {
                     return MigrationState.BELOW_BASELINE;
                 }
+                // [pro]
+                if (resolvedMigration.getType().isUndo()) {
+                    return MigrationState.AVAILABLE;
+                }
+                // [/pro]
                 if (resolvedMigration.getVersion().compareTo(context.target) > 0) {
                     return MigrationState.ABOVE_TARGET;
                 }
@@ -170,6 +192,11 @@ public class MigrationInfoImpl implements MigrationInfo {
         if (outOfOrder) {
             return MigrationState.OUT_OF_ORDER;
         }
+        // [pro]
+        if (undone) {
+            return MigrationState.UNDONE;
+        }
+        // [/pro]
         return MigrationState.SUCCESS;
     }
 
@@ -326,7 +353,22 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (getVersion() != null && o.getVersion() != null) {
-            return getVersion().compareTo(o.getVersion());
+            int v = getVersion().compareTo(o.getVersion());
+            if (v != 0) {
+                return v;
+            }
+            // [pro]
+            if (getType().isUndo() && o.getType().isUndo()) {
+                return 0;
+            }
+            // Undo goes after regular
+            if (getType().isUndo()) {
+                return Integer.MAX_VALUE;
+            } else if (o.getType().isUndo()) {
+                return Integer.MIN_VALUE;
+            }
+            // [/pro]
+            return 0;
         }
 
         // Versioned pending migrations go before repeatable ones

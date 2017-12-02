@@ -42,7 +42,7 @@ public class MigrationInfoImplSmallTest {
         AppliedMigration appliedMigration = new AppliedMigration(1, version, description, type, null, 123, new Date(), "abc", 0, true);
 
         MigrationInfoImpl migrationInfo =
-                new MigrationInfoImpl(resolvedMigration, appliedMigration, new MigrationInfoContext(), false);
+                new MigrationInfoImpl(resolvedMigration, appliedMigration, new MigrationInfoContext(), false, false);
         String message = migrationInfo.validate();
 
         assertTrue(message.contains("123"));
@@ -58,7 +58,7 @@ public class MigrationInfoImplSmallTest {
         AppliedMigration appliedMigration = new AppliedMigration(1, version, description, type, null, 123, new Date(), "abc", 0, true);
 
         MigrationInfoImpl migrationInfo =
-                new MigrationInfoImpl(null, appliedMigration, new MigrationInfoContext(), false);
+                new MigrationInfoImpl(null, appliedMigration, new MigrationInfoContext(), false, false);
         String message = migrationInfo.validate();
 
         assertTrue(message, message.contains("not resolved"));
@@ -74,7 +74,7 @@ public class MigrationInfoImplSmallTest {
         AppliedMigration appliedMigration = new AppliedMigration(1, version, description, type, null, 123, new Date(), "abc", 0, false);
 
         MigrationInfoImpl migrationInfo =
-                new MigrationInfoImpl(createResolvedMigration(versionStr, description), appliedMigration, new MigrationInfoContext(), false);
+                new MigrationInfoImpl(createResolvedMigration(versionStr, description), appliedMigration, new MigrationInfoContext(), false, false);
         String message = migrationInfo.validate();
 
         assertTrue(message, message.contains("Detected failed"));
@@ -89,12 +89,12 @@ public class MigrationInfoImplSmallTest {
         context.latestRepeatableRuns.put("B", 7);
         context.latestRepeatableRuns.put("C", 5);
 
-        MigrationInfoImpl r1 = new MigrationInfoImpl(createResolvedMigration(null, "C"), createAppliedMigration(5, null, "C"), context, false);
-        MigrationInfoImpl v2 = new MigrationInfoImpl(createResolvedMigration("1", "V1"), createAppliedMigration(6, "1", "V1"), context, false);
-        MigrationInfoImpl r3 = new MigrationInfoImpl(b, createAppliedMigration(7, null, "B", 123), context, false);
-        MigrationInfoImpl r4 = new MigrationInfoImpl(createResolvedMigration(null, "A"), createAppliedMigration(10, null, "A"), context, false);
-        MigrationInfoImpl r6 = new MigrationInfoImpl(b, null, context, false);
-        MigrationInfoImpl v5 = new MigrationInfoImpl(createResolvedMigration("6", "V2"), null, context, false);
+        MigrationInfoImpl r1 = new MigrationInfoImpl(createResolvedMigration(null, "C"), createAppliedMigration(5, null, "C"), context, false, false);
+        MigrationInfoImpl v2 = new MigrationInfoImpl(createResolvedMigration("1", "V1"), createAppliedMigration(6, "1", "V1"), context, false, false);
+        MigrationInfoImpl r3 = new MigrationInfoImpl(b, createAppliedMigration(7, null, "B", 123), context, false, false);
+        MigrationInfoImpl r4 = new MigrationInfoImpl(createResolvedMigration(null, "A"), createAppliedMigration(10, null, "A"), context, false, false);
+        MigrationInfoImpl r6 = new MigrationInfoImpl(b, null, context, false, false);
+        MigrationInfoImpl v5 = new MigrationInfoImpl(createResolvedMigration("6", "V2"), null, context, false, false);
 
         assertTrue(r1.compareTo(r1) == 0);
         assertTrue(r1.compareTo(v2) < 0);

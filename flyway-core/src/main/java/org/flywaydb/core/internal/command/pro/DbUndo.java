@@ -23,7 +23,6 @@ import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.Connection;
@@ -39,6 +38,8 @@ import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,7 +120,7 @@ public class DbUndo {
                     @Override
                     public Object call() throws SQLException {
                         connectionUserObjects.changeCurrentSchemaTo(schema);
-                        callback.beforeMigrate(connectionUserObjects.getJdbcConnection());
+                        callback.beforeUndo(connectionUserObjects.getJdbcConnection());
                         return null;
                     }
                 });
@@ -128,19 +129,20 @@ public class DbUndo {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            schemaHistory.create();
-
-            int count = configuration.isGroup() ?
-                    // When group is active, start the transaction boundary early to
-                    // ensure that all changes to the schema history table are either committed or rolled back atomically.
-                    schemaHistory.lock(new Callable<Integer>() {
-                        @Override
-                        public Integer call() {
-                            return migrateAll();
-                        }
-                    }) :
-                    // For all regular cases, proceed with the migration as usual.
-                    migrateAll();
+            int count = 0;
+            if (schemaHistory.exists()) {
+                count = configuration.isGroup() ?
+                        // When group is active, start the transaction boundary early to
+                        // ensure that all changes to the schema history table are either committed or rolled back atomically.
+                        schemaHistory.lock(new Callable<Integer>() {
+                            @Override
+                            public Integer call() {
+                                return undoAll();
+                            }
+                        }) :
+                        // For all regular cases, proceed with the migration as usual.
+                        undoAll();
+            }
 
             stopWatch.stop();
 
@@ -151,7 +153,7 @@ public class DbUndo {
                     @Override
                     public Object call() throws SQLException {
                         connectionUserObjects.changeCurrentSchemaTo(schema);
-                        callback.afterMigrate(connectionUserObjects.getJdbcConnection());
+                        callback.afterUndo(connectionUserObjects.getJdbcConnection());
                         return null;
                     }
                 });
@@ -163,18 +165,18 @@ public class DbUndo {
         }
     }
 
-    private int migrateAll() {
+    private int undoAll() {
         int total = 0;
         while (true) {
             final boolean firstRun = total == 0;
             int count = configuration.isGroup()
                     // With group active a lock on the schema history table has already been acquired.
-                    ? migrateGroup(firstRun)
-                    // Otherwise acquire the lock now. The lock will be released at the end of each migration.
+                    ? undoGroup(firstRun)
+                    // Otherwise acquire the lock now. The lock will be released at the end of each undo migration.
                     : schemaHistory.lock(new Callable<Integer>() {
                 @Override
                 public Integer call() {
-                    return migrateGroup(firstRun);
+                    return undoGroup(firstRun);
                 }
             });
             total += count;
@@ -187,14 +189,20 @@ public class DbUndo {
     }
 
     /**
-     * Migrate a group of one (group = false) or more (group = true) migrations.
+     * Undo a group of one (group = false) or more (group = true) migrations.
      *
-     * @param firstRun Where this is the first time this code runs in this migration run.
-     * @return The number of newly applied migrations.
+     * @param firstRun Where this is the first time this code runs in this undo run.
+     * @return The number of newly undone migrations.
      */
-    private Integer migrateGroup(boolean firstRun) {
+    private Integer undoGroup(boolean firstRun) {
+        if (configuration.getTarget() != null && !firstRun) {
+            // Only undo one migration if no target has been set.
+            return 0;
+        }
+
         MigrationInfoServiceImpl infoService =
-                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration.getTarget(), configuration.isOutOfOrder(), true, true, true);
+                new MigrationInfoServiceImpl(migrationResolver,
+                        schemaHistory, configuration.getTarget(), configuration.isOutOfOrder(), true, true, true);
         infoService.refresh();
 
         MigrationVersion currentSchemaVersion = MigrationVersion.EMPTY;
@@ -203,10 +211,6 @@ public class DbUndo {
         }
         if (firstRun) {
             LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
-
-            if (configuration.isOutOfOrder()) {
-                LOG.warn("outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.");
-            }
         }
 
         MigrationInfo[] future = infoService.future();
@@ -241,22 +245,52 @@ public class DbUndo {
             }
         }
 
-        LinkedHashMap<MigrationInfoImpl, Boolean> group = new LinkedHashMap<MigrationInfoImpl, Boolean>();
-        for (MigrationInfoImpl pendingMigration : infoService.pending()) {
-            boolean isOutOfOrder = pendingMigration.getVersion() != null
-                    && pendingMigration.getVersion().compareTo(currentSchemaVersion) < 0;
-            group.put(pendingMigration, isOutOfOrder);
+        List<MigrationInfoImpl> undoCandidates = new ArrayList<MigrationInfoImpl>();
+        for (MigrationInfoImpl migrationInfo : infoService.applied()) {
+            if (migrationInfo.getVersion() != null
+                    && !migrationInfo.getType().isSynthetic()
+                    && !migrationInfo.getType().isUndo()
+                    && migrationInfo.getState() != MigrationState.UNDONE) {
+                if (configuration.getTarget() == null
+                        || configuration.getTarget().compareTo(migrationInfo.getVersion()) >= 0) {
+                    undoCandidates.add(migrationInfo);
+                } else {
+                    break;
+                }
+            }
+        }
+        Collections.reverse(undoCandidates);
 
-            if (!configuration.isGroup()) {
-                // Only include one pending migration if group is disabled
+        MigrationInfoImpl[] undos = infoService.undo();
+
+        Map<ResolvedMigration, MigrationInfo> group = new LinkedHashMap<ResolvedMigration, MigrationInfo>();
+        for (MigrationInfoImpl undoCandidate : undoCandidates) {
+            ResolvedMigration undo = findUndo(undos, undoCandidate.getVersion());
+            if (undo == null) {
+                throw new FlywayException("Unable to undo migration to version " + undoCandidate.getVersion()
+                        + " as no corresponding undo migration has been found.");
+            }
+            group.put(undo, undoCandidate);
+
+            if (!configuration.isGroup() || configuration.getTarget() == null) {
+                // Only include one undo migration if group is disabled or no target has been set
                 break;
             }
         }
 
         if (!group.isEmpty()) {
-            applyMigrations(group);
+            undoMigrations(group);
         }
         return group.size();
+    }
+
+    private ResolvedMigration findUndo(MigrationInfoImpl[] undos, MigrationVersion version) {
+        for (MigrationInfoImpl undo : undos) {
+            if (undo.getVersion().equals(version)) {
+                return undo.getResolvedMigration();
+            }
+        }
+        return null;
     }
 
     /**
@@ -268,23 +302,23 @@ public class DbUndo {
 
     private void logSummary(int migrationSuccessCount, long executionTime) {
         if (migrationSuccessCount == 0) {
-            LOG.info("Schema " + schema + " is up to date. No migration necessary.");
+            LOG.info("Schema " + schema + " has no migrations to undo.");
             return;
         }
 
         if (migrationSuccessCount == 1) {
-            LOG.info("Successfully applied 1 migration to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ").");
+            LOG.info("Successfully undid 1 migration to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ").");
         } else {
-            LOG.info("Successfully applied " + migrationSuccessCount + " migrations to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ").");
+            LOG.info("Successfully undid " + migrationSuccessCount + " migrations to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ").");
         }
     }
 
     /**
-     * Applies this migration to the database. The migration state and the execution time are updated accordingly.
+     * Undoes these migration from the database. The migration state and the execution time are updated accordingly.
      *
      * @param group The group of migrations to apply.
      */
-    private void applyMigrations(final LinkedHashMap<MigrationInfoImpl, Boolean> group) {
+    private void undoMigrations(final Map<ResolvedMigration, MigrationInfo> group) {
         boolean executeGroupInTransaction = isExecuteGroupInTransaction(group);
         final StopWatch stopWatch = new StopWatch();
         try {
@@ -292,16 +326,16 @@ public class DbUndo {
                 new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        doMigrateGroup(group, stopWatch);
+                        doUndoGroup(group, stopWatch);
                         return null;
                     }
                 });
             } else {
-                doMigrateGroup(group, stopWatch);
+                doUndoGroup(group, stopWatch);
             }
-        } catch (FlywayMigrateSqlException e) {
-            MigrationInfoImpl migration = e.getMigration();
-            String failedMsg = "Migration of " + toMigrationText(migration, e.isOutOfOrder()) + " failed!";
+        } catch (FlywayUndoSqlException e) {
+            ResolvedMigration migration = e.getMigration();
+            String failedMsg = "Undo of " + toMigrationText(migration) + " failed!";
             if (database.supportsDdlTransactions() && executeGroupInTransaction) {
                 LOG.error(failedMsg + " Changes successfully rolled back.");
             } else {
@@ -310,28 +344,30 @@ public class DbUndo {
                 stopWatch.stop();
                 int executionTime = (int) stopWatch.getTotalTimeMillis();
                 schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(),
-                        migration.getType(), migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, false);
+                        migration.getType(),
+                        migration.getScript(),
+                        migration.getChecksum(),
+                        executionTime, false);
             }
             throw e;
         }
     }
 
-    private boolean isExecuteGroupInTransaction(LinkedHashMap<MigrationInfoImpl, Boolean> group) {
+    private boolean isExecuteGroupInTransaction(Map<ResolvedMigration, MigrationInfo> group) {
         boolean executeGroupInTransaction = true;
         boolean first = true;
-        for (Map.Entry<MigrationInfoImpl, Boolean> entry : group.entrySet()) {
-            ResolvedMigration resolvedMigration = entry.getKey().getResolvedMigration();
-            boolean inTransaction = resolvedMigration.getExecutor().executeInTransaction();
+        for (ResolvedMigration undoMigration : group.keySet()) {
+            boolean inTransaction = undoMigration.getExecutor().executeInTransaction();
             if (first) {
                 executeGroupInTransaction = inTransaction;
                 first = false;
             } else {
                 if (!configuration.isMixed() && executeGroupInTransaction != inTransaction) {
                     throw new FlywayException(
-                            "Detected both transactional and non-transactional migrations within the same migration group"
+                            "Detected both transactional and non-transactional undo migrations within the same undo migration group"
                                     + " (even though mixed is false). First offending migration:"
-                                    + (resolvedMigration.getVersion() == null ? "" : " " + resolvedMigration.getVersion())
-                                    + (StringUtils.hasLength(resolvedMigration.getDescription()) ? " " + resolvedMigration.getDescription() : "")
+                                    + undoMigration.getVersion()
+                                    + (StringUtils.hasLength(undoMigration.getDescription()) ? " " + undoMigration.getDescription() : "")
                                     + (inTransaction ? "" : " [non-transactional]"));
                 }
                 executeGroupInTransaction = executeGroupInTransaction && inTransaction;
@@ -340,78 +376,66 @@ public class DbUndo {
         return executeGroupInTransaction;
     }
 
-    private void doMigrateGroup(LinkedHashMap<MigrationInfoImpl, Boolean> group, StopWatch stopWatch) {
-        for (Map.Entry<MigrationInfoImpl, Boolean> entry : group.entrySet()) {
-            final MigrationInfoImpl migration = entry.getKey();
-            boolean isOutOfOrder = entry.getValue();
-
-            final String migrationText = toMigrationText(migration, isOutOfOrder);
+    private void doUndoGroup(Map<ResolvedMigration, MigrationInfo> group, StopWatch stopWatch) {
+        for (ResolvedMigration migration : group.keySet()) {
+            final String migrationText = toMigrationText(migration);
 
             stopWatch.start();
 
-            LOG.info("Migrating " + migrationText);
+            LOG.info("Undoing " + migrationText);
 
             connectionUserObjects.changeCurrentSchemaTo(schema);
 
             for (final FlywayCallback callback : effectiveCallbacks) {
-                callback.beforeEachMigrate(connectionUserObjects.getJdbcConnection(), migration);
+                callback.beforeEachUndo(connectionUserObjects.getJdbcConnection(), group.get(migration));
             }
 
             try {
-                migration.getResolvedMigration().getExecutor().execute(connectionUserObjects.getJdbcConnection());
+                migration.getExecutor().execute(connectionUserObjects.getJdbcConnection());
             } catch (FlywaySqlScriptException e) {
-                throw new FlywayMigrateSqlException(migration, isOutOfOrder, e);
+                throw new FlywayUndoSqlException(migration, e);
             } catch (SQLException e) {
-                throw new FlywayMigrateSqlException(migration, isOutOfOrder, e);
+                throw new FlywayUndoSqlException(migration, e);
             }
-            LOG.debug("Successfully completed migration of " + migrationText);
+            LOG.debug("Successfully completed undo of " + migrationText);
 
             for (final FlywayCallback callback : effectiveCallbacks) {
-                callback.afterEachMigrate(connectionUserObjects.getJdbcConnection(), migration);
+                callback.afterEachUndo(connectionUserObjects.getJdbcConnection(), group.get(migration));
             }
 
             stopWatch.stop();
             int executionTime = (int) stopWatch.getTotalTimeMillis();
 
-            schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(), migration.getType(),
-                    migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
+            schemaHistory.addAppliedMigration(migration.getVersion(),
+                    migration.getDescription(),
+                    migration.getType(),
+                    migration.getScript(),
+                    migration.getChecksum(),
+                    executionTime, true);
         }
     }
 
-    private String toMigrationText(MigrationInfoImpl migration, boolean isOutOfOrder) {
-        final MigrationExecutor migrationExecutor = migration.getResolvedMigration().getExecutor();
-        final String migrationText;
-        if (migration.getVersion() != null) {
-            migrationText = "schema " + schema + " to version " + migration.getVersion() + " - " + migration.getDescription() +
-                    (isOutOfOrder ? " [out of order]" : "") + (migrationExecutor.executeInTransaction() ? "" : " [non-transactional]");
-        } else {
-            migrationText = "schema " + schema + " with repeatable migration " + migration.getDescription() + (migrationExecutor.executeInTransaction() ? "" : " [non-transactional]");
-        }
-        return migrationText;
+    private String toMigrationText(ResolvedMigration migration) {
+        return "schema " + schema + " to version " + migration.getVersion()
+                + " - " + migration.getDescription()
+                + (migration.getExecutor().executeInTransaction() ? "" : " [non-transactional]");
     }
 
-    public static class FlywayMigrateSqlException extends FlywaySqlScriptException {
-        private final MigrationInfoImpl migration;
-        private final boolean outOfOrder;
+    public static class FlywayUndoSqlException extends FlywaySqlScriptException {
+        private final ResolvedMigration migration;
 
-        FlywayMigrateSqlException(MigrationInfoImpl migration, boolean outOfOrder, SQLException e) {
+        FlywayUndoSqlException(ResolvedMigration migration, SQLException e) {
             super(null, null, e);
             this.migration = migration;
-            this.outOfOrder = outOfOrder;
         }
 
-        FlywayMigrateSqlException(MigrationInfoImpl migration, boolean outOfOrder, FlywaySqlScriptException e) {
+        FlywayUndoSqlException(ResolvedMigration migration, FlywaySqlScriptException e) {
             super(e.getResource(), e.getSqlStatement(), (SQLException) e.getCause());
             this.migration = migration;
-            this.outOfOrder = outOfOrder;
         }
 
-        public MigrationInfoImpl getMigration() {
+        public ResolvedMigration getMigration() {
             return migration;
-        }
-
-        public boolean isOutOfOrder() {
-            return outOfOrder;
         }
     }
 }

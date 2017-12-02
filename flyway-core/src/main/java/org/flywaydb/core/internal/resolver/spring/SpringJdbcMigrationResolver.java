@@ -15,10 +15,12 @@
  */
 package org.flywaydb.core.internal.resolver.spring;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.MigrationChecksumProvider;
 import org.flywaydb.core.api.migration.MigrationInfoProvider;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
@@ -28,7 +30,11 @@ import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
-import org.flywaydb.core.internal.util.*;
+import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.Locations;
+import org.flywaydb.core.internal.util.Pair;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import java.util.ArrayList;
@@ -40,6 +46,8 @@ import java.util.List;
  * or V1_1_3__Description.
  */
 public class SpringJdbcMigrationResolver implements MigrationResolver {
+    private static final Log LOG = LogFactory.getLog(SpringJdbcMigrationResolver.class);
+
     /**
      * The base packages on the classpath where to migrations are located.
      */
@@ -83,7 +91,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         return migrations;
     }
 
-    protected void resolveMigrationsForSingleLocation(Location location, List<ResolvedMigration> migrations) {
+    private void resolveMigrationsForSingleLocation(Location location, List<ResolvedMigration> migrations) {
         try {
             Class<?>[] classes = scanner.scanForClasses(location, SpringJdbcMigration.class);
             for (Class<?> clazz : classes) {
@@ -97,7 +105,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
                 migrations.add(migrationInfo);
             }
         } catch (Exception e) {
-            throw new FlywayException("Unable to resolve Spring Jdbc Java migrations in location " + location + " : " + e.getMessage(), e);
+            throw new FlywayException("Unable to resolve Spring JDBC Java migrations in location " + location + " : " + e.getMessage(), e);
         }
     }
 
@@ -116,6 +124,9 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
 
         MigrationVersion version;
         String description;
+        // [pro]
+        boolean undo;
+        // [/pro]
         if (springJdbcMigration instanceof MigrationInfoProvider) {
             MigrationInfoProvider infoProvider = (MigrationInfoProvider) springJdbcMigration;
             version = infoProvider.getVersion();
@@ -123,18 +134,40 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
             if (!StringUtils.hasText(description)) {
                 throw new FlywayException("Missing description for migration " + version);
             }
+            // [pro]
+            try {
+                undo = infoProvider.isUndo();
+            } catch (NoSuchMethodError e) {
+                LOG.warn(springJdbcMigration.getClass().getName() + " implements MigrationInfoProvider," +
+                        " yet is missing the isUndo() method which was added in Flyway 5.0.0." +
+                        " Add this method and return false to remove this warning." +
+                        " This check will be removed in Flyway 6.0.0.");
+                undo = false;
+            }
+            // [/pro]
         } else {
             String shortName = ClassUtils.getShortName(springJdbcMigration.getClass());
             String prefix;
+            // [pro]
+            undo = shortName.startsWith("U");
+            // [/pro]
             boolean repeatable = shortName.startsWith("R");
-            if (shortName.startsWith("V") || repeatable) {
+            if (shortName.startsWith("V") || repeatable
+                    // [pro]
+                    || undo
+                // [pro]
+                    ) {
                 prefix = shortName.substring(0, 1);
             } else {
                 throw new FlywayException("Invalid Jdbc migration class name: " + springJdbcMigration.getClass().getName()
-                        + " => ensure it starts with V or R," +
+                        + " => ensure it starts with V" +
+                        // [pro]
+                        ", U" +
+                        // [/pro]
+                        " or R," +
                         " or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
             }
-            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", new String[] {""}, repeatable);
+            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", new String[]{""}, repeatable);
             version = info.getLeft();
             description = info.getRight();
         }
@@ -144,7 +177,11 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         resolvedMigration.setDescription(description);
         resolvedMigration.setScript(springJdbcMigration.getClass().getName());
         resolvedMigration.setChecksum(checksum);
-        resolvedMigration.setType(MigrationType.SPRING_JDBC);
+        resolvedMigration.setType(
+                // [pro]
+                undo ? MigrationType.UNDO_SPRING_JDBC :
+                        // [/pro]
+                        MigrationType.SPRING_JDBC);
         return resolvedMigration;
     }
 }

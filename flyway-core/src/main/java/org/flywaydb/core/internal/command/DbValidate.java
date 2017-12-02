@@ -30,7 +30,6 @@ import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -143,7 +142,7 @@ public class DbValidate {
             for (final FlywayCallback callback : callbacks) {
                 new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
-                    public Object call() throws SQLException {
+                    public Object call() {
                         connection.changeCurrentSchemaTo(schema);
                         callback.beforeValidate(connection.getJdbcConnection());
                         return null;
@@ -187,7 +186,7 @@ public class DbValidate {
             for (final FlywayCallback callback : callbacks) {
                 new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
-                    public Object call() throws SQLException {
+                    public Object call() {
                         connection.changeCurrentSchemaTo(schema);
                         callback.afterValidate(connection.getJdbcConnection());
                         return null;

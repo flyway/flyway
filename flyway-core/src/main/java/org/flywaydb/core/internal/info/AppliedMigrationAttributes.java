@@ -13,18 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.gradle.task;
+package org.flywaydb.core.internal.info;
 
-import org.flywaydb.core.Flyway;
-
-public class FlywayUndoTask extends AbstractFlywayTask {
-    public FlywayUndoTask() {
-        super();
-        setDescription("Undoes the most recently applied versioned migration. Flyway Pro and Flyway Enterprise only.");
-    }
-
-    @Override
-    protected Object run(Flyway flyway) {
-        return flyway.undo();
-    }
+class AppliedMigrationAttributes {
+    public boolean outOfOrder;
+    // [pro]
+    public boolean undone;
+    // [/pro]
 }
