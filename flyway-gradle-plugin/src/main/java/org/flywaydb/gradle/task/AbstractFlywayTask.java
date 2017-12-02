@@ -23,12 +23,15 @@ import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.ResolvedArtifact;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetOutput;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -336,9 +339,22 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                 JavaPluginConvention plugin = getProject().getConvention().getPlugin(JavaPluginConvention.class);
 
                 for (SourceSet sourceSet : plugin.getSourceSets()) {
-                    URL classesUrl = sourceSet.getOutput().getClassesDir().toURI().toURL();
-                    getLogger().debug("Adding directory to Classpath: " + classesUrl);
-                    extraURLs.add(classesUrl);
+                    try {
+                        Method getClassesDirs = SourceSetOutput.class.getMethod("getClassesDirs");
+
+                        // use alternative method available in Gradle 4.0
+                        FileCollection classesDirs = (FileCollection)getClassesDirs.invoke(sourceSet.getOutput());
+                        for (File directory: classesDirs.getFiles()) {
+                            URL classesUrl = directory.toURI().toURL();
+                            getLogger().debug("Adding directory to Classpath: " + classesUrl);
+                            extraURLs.add(classesUrl);
+                        }
+                    } catch (NoSuchMethodException e) {
+                        // use original method available in Gradle 3.x
+                        URL classesUrl = sourceSet.getOutput().getClassesDir().toURI().toURL();
+                        getLogger().debug("Adding directory to Classpath: " + classesUrl);
+                        extraURLs.add(classesUrl);
+                    }
 
                     URL resourcesUrl = sourceSet.getOutput().getResourcesDir().toURI().toURL();
                     getLogger().debug("Adding directory to Classpath: " + resourcesUrl);
