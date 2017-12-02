@@ -69,7 +69,8 @@ public class MigrationInfoDumper {
             stateWidth = Math.max(stateWidth, migrationInfo.getState().getDisplayName().length());
         }
 
-        String ruler = "+-" + StringUtils.trimOrPad("", versionWidth, '-')
+        String ruler = "+------------+-"
+                + StringUtils.trimOrPad("", versionWidth, '-')
                 + "-+-" + StringUtils.trimOrPad("", descriptionWidth, '-')
                 + "-+-" + StringUtils.trimOrPad("", typeWidth, '-')
                 + "-+--------------------"
@@ -81,7 +82,8 @@ public class MigrationInfoDumper {
 
         StringBuilder table = new StringBuilder();
         table.append(ruler);
-        table.append("| ").append(StringUtils.trimOrPad(VERSION_TITLE, versionWidth, ' '))
+        table.append("| Category   | ")
+                .append(StringUtils.trimOrPad(VERSION_TITLE, versionWidth, ' '))
                 .append(" | ").append(StringUtils.trimOrPad(DESCRIPTION_TITLE, descriptionWidth))
                 .append(" | ").append(StringUtils.trimOrPad(TYPE_TITLE, typeWidth))
                 .append(" | Installed on       ")
@@ -97,8 +99,8 @@ public class MigrationInfoDumper {
                     .append("|\n");
         } else {
             for (MigrationInfo migrationInfo : migrationInfos) {
-                String versionStr = migrationInfo.getVersion() == null ? "" : migrationInfo.getVersion().toString();
-                table.append("| ").append(StringUtils.trimOrPad(versionStr, versionWidth));
+                table.append("| ").append(StringUtils.trimOrPad(getCategory(migrationInfo), 10));
+                table.append(" | ").append(StringUtils.trimOrPad(getVersionStr(migrationInfo), versionWidth));
                 table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getDescription(), descriptionWidth));
                 table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getType().name(), typeWidth));
                 table.append(" | ").append(StringUtils.trimOrPad(DateUtils.formatDateAsIsoString(migrationInfo.getInstalledOn()), 19));
@@ -112,6 +114,22 @@ public class MigrationInfoDumper {
 
         table.append(ruler);
         return table.toString();
+    }
+
+    private static String getCategory(MigrationInfo migrationInfo) {
+        if (migrationInfo.getVersion() == null) {
+            return "Repeatable";
+        }
+        // [pro]
+        if (migrationInfo.getType().isUndo()) {
+            return "Undo";
+        }
+        // [/pro]
+        return "Versioned";
+    }
+
+    private static String getVersionStr(MigrationInfo migrationInfo) {
+        return migrationInfo.getVersion() == null ? "" : migrationInfo.getVersion().toString();
     }
 
     // [pro]
