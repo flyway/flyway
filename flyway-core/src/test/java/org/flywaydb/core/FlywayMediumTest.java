@@ -23,6 +23,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.errorhandler.ErrorContext;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.h2.H2Database;
@@ -967,6 +968,7 @@ public class FlywayMediumTest {
         } catch (FlywayException e) {
             assertTrue(e.getMessage().contains("2.0"));
         }
+        System.out.println(MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
     }
 
     @Test

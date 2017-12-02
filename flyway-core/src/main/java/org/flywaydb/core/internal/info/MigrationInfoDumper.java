@@ -16,8 +16,15 @@
 package org.flywaydb.core.internal.info;
 
 import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationState;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.util.DateUtils;
 import org.flywaydb.core.internal.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Dumps migrations in an ascii-art table in the logs and the console.
@@ -42,6 +49,11 @@ public class MigrationInfoDumper {
      * @return The ascii table, as one big multi-line string.
      */
     public static String dumpToAsciiTable(MigrationInfo[] migrationInfos) {
+        // [pro]
+        Set<MigrationVersion> undoableVersions = getUndoableVersions(migrationInfos);
+        migrationInfos = removeUndos(migrationInfos);
+        // [/pro]
+
         int versionWidth = VERSION_TITLE.length();
         int descriptionWidth = DESCRIPTION_TITLE.length();
         int typeWidth = TYPE_TITLE.length();
@@ -53,7 +65,7 @@ public class MigrationInfoDumper {
                             ? 0
                             : migrationInfo.getVersion().toString().length());
             descriptionWidth = Math.max(descriptionWidth, migrationInfo.getDescription().length());
-            typeWidth = Math.max(typeWidth, migrationInfo.getDescription().length());
+            typeWidth = Math.max(typeWidth, migrationInfo.getType().name().length());
             stateWidth = Math.max(stateWidth, migrationInfo.getState().getDisplayName().length());
         }
 
@@ -62,6 +74,9 @@ public class MigrationInfoDumper {
                 + "-+-" + StringUtils.trimOrPad("", typeWidth, '-')
                 + "-+--------------------"
                 + "-+-" + StringUtils.trimOrPad("", stateWidth, '-')
+                // [pro]
+                + "-+---------"
+                // [/pro]
                 + "-+\n";
 
         StringBuilder table = new StringBuilder();
@@ -71,6 +86,9 @@ public class MigrationInfoDumper {
                 .append(" | ").append(StringUtils.trimOrPad(TYPE_TITLE, typeWidth))
                 .append(" | Installed on       ")
                 .append(" | ").append(StringUtils.trimOrPad(STATE_TITLE, stateWidth))
+                // [pro]
+                .append(" | Undoable")
+                // [/pro]
                 .append(" |\n");
         table.append(ruler);
 
@@ -85,6 +103,9 @@ public class MigrationInfoDumper {
                 table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getType().name(), typeWidth));
                 table.append(" | ").append(StringUtils.trimOrPad(DateUtils.formatDateAsIsoString(migrationInfo.getInstalledOn()), 19));
                 table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getState().getDisplayName(), stateWidth));
+                // [pro]
+                table.append(" | ").append(StringUtils.trimOrPad(getUndoableStatus(migrationInfo, undoableVersions), 8));
+                // [/pro]
                 table.append(" |\n");
             }
         }
@@ -92,4 +113,37 @@ public class MigrationInfoDumper {
         table.append(ruler);
         return table.toString();
     }
+
+    // [pro]
+    private static String getUndoableStatus(MigrationInfo migrationInfo, Set<MigrationVersion> undoableVersions) {
+        if (migrationInfo.getVersion() != null && !migrationInfo.getState().equals(MigrationState.UNDONE)) {
+            if (migrationInfo.getState().equals(MigrationState.SUCCESS)
+                    && undoableVersions.contains(migrationInfo.getVersion())) {
+                return "Yes";
+            }
+            return "No";
+        }
+        return "";
+    }
+
+    private static Set<MigrationVersion> getUndoableVersions(MigrationInfo[] migrationInfos) {
+        Set<MigrationVersion> result = new HashSet<MigrationVersion>();
+        for (MigrationInfo migrationInfo : migrationInfos) {
+            if (migrationInfo.getType().isUndo()) {
+                result.add(migrationInfo.getVersion());
+            }
+        }
+        return result;
+    }
+
+    private static MigrationInfo[] removeUndos(MigrationInfo[] migrationInfos) {
+        List<MigrationInfo> result = new ArrayList<MigrationInfo>();
+        for (MigrationInfo migrationInfo : migrationInfos) {
+            if (!migrationInfo.getType().isUndo()) {
+                result.add(migrationInfo);
+            }
+        }
+        return result.toArray(new MigrationInfo[result.size()]);
+    }
+    // [/pro]
 }

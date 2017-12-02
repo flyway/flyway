@@ -40,6 +40,7 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     private MyCustomMigrationResolver[] migrationResolvers = new MyCustomMigrationResolver[0];
     private boolean skipDefaultResolvers;
     private boolean skipDefaultCallbacks;
+    private String undoSqlMigrationPrefix = "U";
 
     public FlywayConfigurationForTests(ClassLoader contextClassLoader, String[] locations, String encoding,
             String sqlMigrationPrefix, String repeatableSqlMigrationPrefix, String sqlMigrationSeparator, String[] sqlMigrationSuffixes,
@@ -165,7 +166,7 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
 
     @Override
     public String getUndoSqlMigrationPrefix() {
-        return "U";
+        return undoSqlMigrationPrefix;
     }
 
     @Override
@@ -283,5 +284,9 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
 
     public void setResolvers(MyCustomMigrationResolver... myCustomMigrationResolver) {
         this.migrationResolvers = myCustomMigrationResolver;
+    }
+
+    public void setUndoSqlMigrationPrefix(String undoSqlMigrationPrefix) {
+        this.undoSqlMigrationPrefix = undoSqlMigrationPrefix;
     }
 }
