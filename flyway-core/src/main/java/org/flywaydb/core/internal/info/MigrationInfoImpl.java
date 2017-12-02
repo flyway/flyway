@@ -143,7 +143,7 @@ public class MigrationInfoImpl implements MigrationInfo {
                     return MigrationState.AVAILABLE;
                 }
                 // [/pro]
-                if (resolvedMigration.getVersion().compareTo(context.target) > 0) {
+                if (context.target != null && resolvedMigration.getVersion().compareTo(context.target) > 0) {
                     return MigrationState.ABOVE_TARGET;
                 }
                 if ((resolvedMigration.getVersion().compareTo(context.lastApplied) < 0) && !context.outOfOrder) {
@@ -189,14 +189,14 @@ public class MigrationInfoImpl implements MigrationInfo {
             return MigrationState.SUPERSEDED;
         }
 
-        if (outOfOrder) {
-            return MigrationState.OUT_OF_ORDER;
-        }
         // [pro]
         if (undone) {
             return MigrationState.UNDONE;
         }
         // [/pro]
+        if (outOfOrder) {
+            return MigrationState.OUT_OF_ORDER;
+        }
         return MigrationState.SUCCESS;
     }
 

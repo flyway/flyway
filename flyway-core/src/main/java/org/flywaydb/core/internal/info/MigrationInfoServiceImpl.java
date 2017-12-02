@@ -167,13 +167,14 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         for (Pair<AppliedMigration, AppliedMigrationAttributes> av : appliedVersioned) {
             MigrationVersion version = av.getLeft().getVersion();
             if (version != null) {
-                if (version.compareTo(context.lastApplied) > 0
+                if (version.compareTo(context.lastApplied) > 0) {
+                    // [pro]
+                    if (!av.getLeft().getType().isUndo() && !av.getRight().undone) {
+                        // [/pro]
+                        context.lastApplied = version;
                         // [pro]
-                        && !av.getLeft().getType().isUndo()
-                        && !av.getRight().undone
+                    }
                     // [/pro]
-                        ) {
-                    context.lastApplied = version;
                 } else {
                     av.getRight().outOfOrder = true;
                 }
@@ -290,6 +291,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             if (migrationInfo.getState().isApplied()
                     // [pro]
                     && !MigrationState.UNDONE.equals(migrationInfo.getState())
+                    && !migrationInfo.getType().isUndo()
                     // [/pro]
                     && migrationInfo.getVersion() != null
                     && (current == null || migrationInfo.getVersion().compareTo(current.getVersion()) > 0)) {
@@ -303,7 +305,12 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         // If no versioned migration has been applied so far, fall back to the latest repeatable one
         for (int i = migrationInfos.size() - 1; i >= 0; i--) {
             MigrationInfoImpl migrationInfo = migrationInfos.get(i);
-            if (migrationInfo.getAppliedMigration() != null) {
+            if (migrationInfo.getState().isApplied()
+                    // [pro]
+                    && !MigrationState.UNDONE.equals(migrationInfo.getState())
+                    && !migrationInfo.getType().isUndo()
+                // [/pro]
+                    ) {
                 return migrationInfo;
             }
         }
@@ -325,11 +332,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     public MigrationInfoImpl[] applied() {
         List<MigrationInfoImpl> appliedMigrations = new ArrayList<MigrationInfoImpl>();
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
-            if (migrationInfo.getState().isApplied()
-                    // [pro]
-                    && !MigrationState.UNDONE.equals(migrationInfo.getState())
-                // [/pro]
-                    ) {
+            if (migrationInfo.getState().isApplied()) {
                 appliedMigrations.add(migrationInfo);
             }
         }
@@ -410,7 +413,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     public MigrationInfoImpl[] undo() {
         List<MigrationInfoImpl> result = new ArrayList<MigrationInfoImpl>();
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
-            if (migrationInfo.getState() == MigrationState.AVAILABLE) {
+            if (migrationInfo.getType().isUndo()) {
                 result.add(migrationInfo);
             }
         }

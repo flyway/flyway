@@ -195,7 +195,7 @@ public class DbUndo {
      * @return The number of newly undone migrations.
      */
     private Integer undoGroup(boolean firstRun) {
-        if (configuration.getTarget() != null && !firstRun) {
+        if (configuration.getTarget() == null && !firstRun) {
             // Only undo one migration if no target has been set.
             return 0;
         }
@@ -252,7 +252,7 @@ public class DbUndo {
                     && !migrationInfo.getType().isUndo()
                     && migrationInfo.getState() != MigrationState.UNDONE) {
                 if (configuration.getTarget() == null
-                        || configuration.getTarget().compareTo(migrationInfo.getVersion()) >= 0) {
+                        || configuration.getTarget().compareTo(migrationInfo.getVersion()) <= 0) {
                     undoCandidates.add(migrationInfo);
                 } else {
                     break;
@@ -335,7 +335,7 @@ public class DbUndo {
             }
         } catch (FlywayUndoSqlException e) {
             ResolvedMigration migration = e.getMigration();
-            String failedMsg = "Undo of " + toMigrationText(migration) + " failed!";
+            String failedMsg = "Undo of migration of " + toMigrationText(migration) + " failed!";
             if (database.supportsDdlTransactions() && executeGroupInTransaction) {
                 LOG.error(failedMsg + " Changes successfully rolled back.");
             } else {
@@ -382,7 +382,7 @@ public class DbUndo {
 
             stopWatch.start();
 
-            LOG.info("Undoing " + migrationText);
+            LOG.info("Undoing migration of " + migrationText);
 
             connectionUserObjects.changeCurrentSchemaTo(schema);
 
@@ -397,7 +397,7 @@ public class DbUndo {
             } catch (SQLException e) {
                 throw new FlywayUndoSqlException(migration, e);
             }
-            LOG.debug("Successfully completed undo of " + migrationText);
+            LOG.debug("Successfully undid migration of " + migrationText);
 
             for (final FlywayCallback callback : effectiveCallbacks) {
                 callback.afterEachUndo(connectionUserObjects.getJdbcConnection(), group.get(migration));
