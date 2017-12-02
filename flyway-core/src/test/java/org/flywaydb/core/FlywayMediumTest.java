@@ -961,6 +961,7 @@ public class FlywayMediumTest {
         assertEquals(2, flyway.undo());
         assertNull(flyway.info().current());
         flyway.setTarget(null);
+        System.out.println(MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
         assertEquals(4, flyway.migrate());
         try {
             flyway.undo();
@@ -968,7 +969,6 @@ public class FlywayMediumTest {
         } catch (FlywayException e) {
             assertTrue(e.getMessage().contains("2.0"));
         }
-        System.out.println(MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
     }
 
     @Test
