@@ -15,7 +15,6 @@
  */
 package org.flywaydb.gradle;
 
-import org.flywaydb.gradle.FlywayExtension;
 import org.flywaydb.gradle.task.FlywayBaselineTask;
 import org.flywaydb.gradle.task.FlywayCleanTask;
 import org.flywaydb.gradle.task.FlywayInfoTask;
