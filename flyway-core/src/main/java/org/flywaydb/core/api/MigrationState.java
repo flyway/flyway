@@ -74,7 +74,7 @@ public enum MigrationState {
     SUCCESS("Success", true, true, false),
 
     /**
-     * This migration succeeded, but has since been undone.
+     * This versioned migration succeeded, but has since been undone.
      */
     UNDONE("Undone", true, true, false),
 
