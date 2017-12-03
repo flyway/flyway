@@ -16,8 +16,15 @@
 package org.flywaydb.core.internal.info;
 
 import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationState;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.util.DateUtils;
 import org.flywaydb.core.internal.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Dumps migrations in an ascii-art table in the logs and the console.
@@ -42,6 +49,11 @@ public class MigrationInfoDumper {
      * @return The ascii table, as one big multi-line string.
      */
     public static String dumpToAsciiTable(MigrationInfo[] migrationInfos) {
+
+
+
+
+
         int versionWidth = VERSION_TITLE.length();
         int descriptionWidth = DESCRIPTION_TITLE.length();
         int typeWidth = TYPE_TITLE.length();
@@ -53,24 +65,32 @@ public class MigrationInfoDumper {
                             ? 0
                             : migrationInfo.getVersion().toString().length());
             descriptionWidth = Math.max(descriptionWidth, migrationInfo.getDescription().length());
-            typeWidth = Math.max(typeWidth, migrationInfo.getDescription().length());
+            typeWidth = Math.max(typeWidth, migrationInfo.getType().name().length());
             stateWidth = Math.max(stateWidth, migrationInfo.getState().getDisplayName().length());
         }
 
-        String ruler = "+-" + StringUtils.trimOrPad("", versionWidth, '-')
+        String ruler = "+------------+-"
+                + StringUtils.trimOrPad("", versionWidth, '-')
                 + "-+-" + StringUtils.trimOrPad("", descriptionWidth, '-')
                 + "-+-" + StringUtils.trimOrPad("", typeWidth, '-')
                 + "-+--------------------"
                 + "-+-" + StringUtils.trimOrPad("", stateWidth, '-')
+
+
+
                 + "-+\n";
 
         StringBuilder table = new StringBuilder();
         table.append(ruler);
-        table.append("| ").append(StringUtils.trimOrPad(VERSION_TITLE, versionWidth, ' '))
+        table.append("| Category   | ")
+                .append(StringUtils.trimOrPad(VERSION_TITLE, versionWidth, ' '))
                 .append(" | ").append(StringUtils.trimOrPad(DESCRIPTION_TITLE, descriptionWidth))
                 .append(" | ").append(StringUtils.trimOrPad(TYPE_TITLE, typeWidth))
                 .append(" | Installed on       ")
                 .append(" | ").append(StringUtils.trimOrPad(STATE_TITLE, stateWidth))
+
+
+
                 .append(" |\n");
         table.append(ruler);
 
@@ -79,12 +99,15 @@ public class MigrationInfoDumper {
                     .append("|\n");
         } else {
             for (MigrationInfo migrationInfo : migrationInfos) {
-                String versionStr = migrationInfo.getVersion() == null ? "" : migrationInfo.getVersion().toString();
-                table.append("| ").append(StringUtils.trimOrPad(versionStr, versionWidth));
+                table.append("| ").append(StringUtils.trimOrPad(getCategory(migrationInfo), 10));
+                table.append(" | ").append(StringUtils.trimOrPad(getVersionStr(migrationInfo), versionWidth));
                 table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getDescription(), descriptionWidth));
                 table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getType().name(), typeWidth));
                 table.append(" | ").append(StringUtils.trimOrPad(DateUtils.formatDateAsIsoString(migrationInfo.getInstalledOn()), 19));
                 table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getState().getDisplayName(), stateWidth));
+
+
+
                 table.append(" |\n");
             }
         }
@@ -92,4 +115,55 @@ public class MigrationInfoDumper {
         table.append(ruler);
         return table.toString();
     }
+
+    private static String getCategory(MigrationInfo migrationInfo) {
+        if (migrationInfo.getVersion() == null) {
+            return "Repeatable";
+        }
+
+
+
+
+
+        return "Versioned";
+    }
+
+    private static String getVersionStr(MigrationInfo migrationInfo) {
+        return migrationInfo.getVersion() == null ? "" : migrationInfo.getVersion().toString();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

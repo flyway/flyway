@@ -57,7 +57,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
     /**
      * Cache location lookups.
      */
-    private final Map<Location, List<URL>> locationUrlCache = new HashMap<Location, List<URL>>();
+    private final Map<Location, List<URL>> locationUrlCache = new HashMap<>();
 
     /**
      * Cache location scanners.
@@ -67,7 +67,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
     /**
      * Cache resource names.
      */
-    private final Map<ClassPathLocationScanner, Map<URL, Set<String>>> resourceNameCache = new HashMap<ClassPathLocationScanner, Map<URL, Set<String>>>();
+    private final Map<ClassPathLocationScanner, Map<URL, Set<String>>> resourceNameCache = new HashMap<>();
 
     /**
      * Creates a new Classpath scanner.
@@ -309,7 +309,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
         if ("file".equals(protocol)) {
             FileSystemClassPathLocationScanner locationScanner = new FileSystemClassPathLocationScanner();
             locationScannerCache.put(protocol, locationScanner);
-            resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
+            resourceNameCache.put(locationScanner, new HashMap<>());
             return locationScanner;
         }
 
@@ -317,7 +317,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             String separator = isTomcat(protocol) ? "*/" : "!/";
             ClassPathLocationScanner locationScanner = new JarFileClassPathLocationScanner(separator);
             locationScannerCache.put(protocol, locationScanner);
-            resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
+            resourceNameCache.put(locationScanner, new HashMap<>());
             return locationScanner;
         }
 
@@ -325,13 +325,13 @@ public class ClassPathScanner implements ResourceAndClassScanner {
         if (featureDetector.isJBossVFSv3Available() && "vfs".equals(protocol)) {
             JBossVFSv3ClassPathLocationScanner locationScanner = new JBossVFSv3ClassPathLocationScanner();
             locationScannerCache.put(protocol, locationScanner);
-            resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
+            resourceNameCache.put(locationScanner, new HashMap<>());
             return locationScanner;
         }
         if (featureDetector.isOsgiFrameworkAvailable() && (isFelix(protocol) || isEquinox(protocol))) {
             OsgiClassPathLocationScanner locationScanner = new OsgiClassPathLocationScanner();
             locationScannerCache.put(protocol, locationScanner);
-            resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
+            resourceNameCache.put(locationScanner, new HashMap<>());
             return locationScanner;
         }
 
@@ -381,7 +381,8 @@ public class ClassPathScanner implements ResourceAndClassScanner {
 
     private boolean fileNameMatches(String fileName, String prefix, String[] suffixes) {
         for (String suffix : suffixes) {
-            if (fileName.startsWith(prefix) && fileName.endsWith(suffix)
+            if ((!StringUtils.hasLength(prefix) || fileName.startsWith(prefix))
+                    && fileName.endsWith(suffix)
                     && (fileName.length() > (prefix + suffix).length())) {
                 return true;
             }

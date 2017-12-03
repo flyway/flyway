@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
@@ -36,6 +38,10 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase> {
      */
     CockroachDBSchema(JdbcTemplate jdbcTemplate, CockroachDBDatabase database, String name) {
         super(jdbcTemplate, database, name);
+        if (!StringUtils.hasLength(name)){
+            throw new FlywayException("Using Flyway without specifying a CockroachDB schema in the connection URL is" +
+                    " currently not supported due to CockroachDB limitations.");
+        }
     }
 
     @Override
