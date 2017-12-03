@@ -50,6 +50,13 @@ public class MigrationInfoImpl implements MigrationInfo {
      */
     private final boolean outOfOrder;
 
+
+
+
+
+
+
+
     /**
      * Creates a new MigrationInfoImpl.
      *
@@ -57,13 +64,23 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @param appliedMigration  The applied migration to aggregate the info from.
      * @param context           The current context.
      * @param outOfOrder        Whether this migration was applied out of order.
+
+
+
      */
     MigrationInfoImpl(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration,
-                      MigrationInfoContext context, boolean outOfOrder) {
+                      MigrationInfoContext context, boolean outOfOrder
+
+
+
+    ) {
         this.resolvedMigration = resolvedMigration;
         this.appliedMigration = appliedMigration;
         this.context = context;
         this.outOfOrder = outOfOrder;
+
+
+
     }
 
     /**
@@ -121,7 +138,12 @@ public class MigrationInfoImpl implements MigrationInfo {
                 if (resolvedMigration.getVersion().compareTo(context.baseline) < 0) {
                     return MigrationState.BELOW_BASELINE;
                 }
-                if (resolvedMigration.getVersion().compareTo(context.target) > 0) {
+
+
+
+
+
+                if (context.target != null && resolvedMigration.getVersion().compareTo(context.target) > 0) {
                     return MigrationState.ABOVE_TARGET;
                 }
                 if ((resolvedMigration.getVersion().compareTo(context.lastApplied) < 0) && !context.outOfOrder) {
@@ -166,6 +188,11 @@ public class MigrationInfoImpl implements MigrationInfo {
             }
             return MigrationState.SUPERSEDED;
         }
+
+
+
+
+
 
         if (outOfOrder) {
             return MigrationState.OUT_OF_ORDER;
@@ -326,7 +353,22 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (getVersion() != null && o.getVersion() != null) {
-            return getVersion().compareTo(o.getVersion());
+            int v = getVersion().compareTo(o.getVersion());
+            if (v != 0) {
+                return v;
+            }
+
+
+
+
+
+
+
+
+
+
+
+            return 0;
         }
 
         // Versioned pending migrations go before repeatable ones

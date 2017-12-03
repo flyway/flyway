@@ -20,39 +20,61 @@ package org.flywaydb.core.api;
  */
 public enum MigrationType {
     /**
-     * The type for the schema creation migration.
+     * Schema creation migration.
      */
-    SCHEMA(true),
+    SCHEMA(true, false),
 
     /**
-     * The type for the baseline migration.
+     * Bseline migration.
      */
-    BASELINE(true),
+    BASELINE(true, false),
 
     /**
-     * The type for SQL migrations.
+     * SQL migrations.
      */
-    SQL(false),
+    SQL(false, false),
 
     /**
-     * The type for JDBC java-based migrations.
+     * Undo SQL migrations.
      */
-    JDBC(false),
+    UNDO_SQL(false, true),
 
     /**
-     * The type for Spring JDBC java-based migrations.
+     * JDBC Java-based migrations.
      */
-    SPRING_JDBC(false),
+    JDBC(false, false),
 
     /**
-     * The type for other migrations by custom MigrationResolvers.
+     * Undo JDBC java-based migrations.
      */
-    CUSTOM(false);
+    UNDO_JDBC(false, true),
+
+    /**
+     * Spring JDBC Java-based migrations.
+     */
+    SPRING_JDBC(false, false),
+
+    /**
+     * Undo Spring JDBC java-based migrations.
+     */
+    UNDO_SPRING_JDBC(false, true),
+
+    /**
+     * Migrations using custom MigrationResolvers.
+     */
+    CUSTOM(false, false),
+
+    /**
+     * Undo migrations using custom MigrationResolvers.
+     */
+    UNDO_CUSTOM(false, true);
 
     private final boolean synthetic;
+    private final boolean undo;
 
-    MigrationType(boolean synthetic) {
+    MigrationType(boolean synthetic, boolean undo) {
         this.synthetic = synthetic;
+        this.undo = undo;
     }
 
     /**
@@ -61,5 +83,12 @@ public enum MigrationType {
      */
     public boolean isSynthetic() {
         return synthetic;
+    }
+
+    /**
+     * @return Whether this is an undo migration, which has undone an earlier migration present in the schema history table.
+     */
+    public boolean isUndo() {
+        return undo;
     }
 }

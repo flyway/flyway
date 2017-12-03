@@ -87,6 +87,47 @@ public interface FlywayConfiguration {
     boolean isSkipDefaultCallbacks();
 
     /**
+     * The file name prefix for versioned SQL migrations.
+     * <p/>
+     * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1.1__My_description.sql</p>
+     *
+     * @return The file name prefix for sql migrations. (default: V)
+     */
+    String getSqlMigrationPrefix();
+
+    /**
+     * The file name prefix for undo SQL migrations.
+     * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
+     * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to U1.1__My_description.sql</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @return The file name prefix for undo sql migrations. (default: U)
+     */
+    String getUndoSqlMigrationPrefix();
+
+    /**
+     * Retrieves the file name prefix for repeatable SQL migrations.
+     * <p/>
+     * <p>Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to R__My_description.sql</p>
+     *
+     * @return The file name prefix for repeatable sql migrations. (default: R)
+     */
+    String getRepeatableSqlMigrationPrefix();
+
+    /**
+     * Retrieves the file name separator for sql migrations.
+     * <p/>
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
+     * @return The file name separator for sql migrations. (default: __)
+     */
+    String getSqlMigrationSeparator();
+
+    /**
      * Retrieves the file name suffix for sql migrations.
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
@@ -107,36 +148,6 @@ public interface FlywayConfiguration {
      * @return The file name suffixes for SQL migrations.
      */
     String[] getSqlMigrationSuffixes();
-
-    /**
-     * Retrieves the file name prefix for repeatable sql migrations.
-     * <p/>
-     * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to R__My_description.sql</p>
-     *
-     * @return The file name prefix for repeatable sql migrations. (default: R)
-     */
-    String getRepeatableSqlMigrationPrefix();
-
-    /**
-     * Retrieves the file name separator for sql migrations.
-     * <p/>
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
-     *
-     * @return The file name separator for sql migrations. (default: __)
-     */
-    String getSqlMigrationSeparator();
-
-    /**
-     * Retrieves the file name prefix for sql migrations.
-     * <p/>
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
-     *
-     * @return The file name prefix for sql migrations. (default: V)
-     */
-    String getSqlMigrationPrefix();
 
     /**
      * Checks whether placeholders should be replaced.
@@ -333,10 +344,11 @@ public interface FlywayConfiguration {
     ErrorHandler[] getErrorHandlers();
 
     /**
+     * The stream where to output the SQL statements of a migration dry run. {@code null} if the SQL statements
+     * are executed against the database directly.
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
-     * @return The file where to output the SQL statements of a migration dry run. {@code null} if the SQL statements
-     * are executed against the database directly.
+     * @return The stream or {@code null} if the SQL statements are executed against the database directly.
      */
     OutputStream getDryRunOutput();
 }

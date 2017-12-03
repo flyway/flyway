@@ -47,6 +47,12 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
     private static final String AFTER_MIGRATE = "afterMigrate";
     private static final String BEFORE_EACH_MIGRATE = "beforeEachMigrate";
     private static final String AFTER_EACH_MIGRATE = "afterEachMigrate";
+
+
+
+
+
+
     private static final String BEFORE_VALIDATE = "beforeValidate";
     private static final String AFTER_VALIDATE = "afterValidate";
     private static final String BEFORE_BASELINE = "beforeBaseline";
@@ -148,6 +154,34 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
     @Override
     public void afterEachMigrate(Connection connection, MigrationInfo info) {
         execute(AFTER_EACH_MIGRATE, connection);
+    }
+
+    @Override
+    public void beforeUndo(Connection connection) {
+
+
+
+    }
+
+    @Override
+    public void afterUndo(Connection connection) {
+
+
+
+    }
+
+    @Override
+    public void beforeEachUndo(Connection connection, MigrationInfo info) {
+
+
+
+    }
+
+    @Override
+    public void afterEachUndo(Connection connection, MigrationInfo info) {
+
+
+
     }
 
     @Override

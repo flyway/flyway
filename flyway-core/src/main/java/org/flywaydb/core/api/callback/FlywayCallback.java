@@ -63,6 +63,36 @@ public interface FlywayCallback {
 	void afterMigrate(Connection connection);
 
 	/**
+	 * Runs before the undo task executes.
+	 *
+	 * @param connection A valid connection to the database.
+	 */
+	void beforeUndo(Connection connection);
+
+	/**
+	 * Runs before each migration script is undone.
+	 *
+	 * @param connection A valid connection to the database.
+	 * @param info The current MigrationInfo for the migration to be undone.
+	 */
+	void beforeEachUndo(Connection connection, MigrationInfo info);
+
+	/**
+	 * Runs after each migration script is undone.
+	 *
+	 * @param connection A valid connection to the database.
+	 * @param info The current MigrationInfo for the migration just undone.
+	 */
+	void afterEachUndo(Connection connection, MigrationInfo info);
+
+	/**
+	 * Runs after the undo task executes.
+	 *
+	 * @param connection A valid connection to the database.
+	 */
+	void afterUndo(Connection connection);
+
+	/**
 	 * Runs before each migration script is executed.
 	 * 
 	 * @param connection A valid connection to the database.

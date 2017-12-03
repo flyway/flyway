@@ -94,7 +94,7 @@ public class JdbcTemplate {
             }
             resultSet = statement.executeQuery();
 
-            result = new ArrayList<Map<String, String>>();
+            result = new ArrayList<>();
             while (resultSet.next()) {
                 Map<String, String> rowMap = new LinkedHashMap<>();
                 for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {

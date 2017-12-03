@@ -35,7 +35,7 @@ public class JdbcMigrationExecutor implements MigrationExecutor {
      *
      * @param jdbcMigration The JdbcMigration to execute.
      */
-    public JdbcMigrationExecutor(JdbcMigration jdbcMigration) {
+    JdbcMigrationExecutor(JdbcMigration jdbcMigration) {
         this.jdbcMigration = jdbcMigration;
     }
 

@@ -168,14 +168,25 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String encoding;
 
     /**
-     * The file name prefix for Sql migrations (default: V) <p>Also configurable with Maven or System Property:
-     * ${flyway.sqlMigrationPrefix}</p>
+     * The file name prefix for versioned SQL migrations (default: V)
      * <p>
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.sqlMigrationPrefix}</p>
      */
     @Parameter(property = ConfigUtils.SQL_MIGRATION_PREFIX)
     private String sqlMigrationPrefix;
+
+    /**
+     * The file name prefix for undo SQL migrations. (default: U)
+     * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
+     * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to U1.1__My_description.sql</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p>Also configurable with Maven or System Property: ${flyway.undoSqlMigrationPrefix}</p>
+     */
+    @Parameter(property = ConfigUtils.UNDO_SQL_MIGRATION_PREFIX)
+    private String undoSqlMigrationPrefix;
 
     /**
      * The file name prefix for repeatable sql migrations (default: R) <p>Also configurable with Maven or System Property:
@@ -548,6 +559,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks);
             putIfSet(conf, ConfigUtils.ENCODING, encoding);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix);
+            putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_SUFFIX, sqlMigrationSuffix);

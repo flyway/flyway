@@ -93,16 +93,37 @@ public class SqlMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<>();
 
+        String separator = configuration.getSqlMigrationSeparator();
+        String[] suffixes = configuration.getSqlMigrationSuffixes();
         for (Location location : locations.getLocations()) {
-            scanForMigrations(location, migrations, configuration.getSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffixes(), false);
-            scanForMigrations(location, migrations, configuration.getRepeatableSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffixes(), true);
+            scanForMigrations(location, migrations, configuration.getSqlMigrationPrefix(), separator, suffixes,
+                    false
+
+
+
+            );
+
+
+
+
+            scanForMigrations(location, migrations, configuration.getRepeatableSqlMigrationPrefix(), separator, suffixes,
+                    true
+
+
+
+            );
         }
 
         Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
     }
 
-    private void scanForMigrations(Location location, List<ResolvedMigration> migrations, String prefix, String separator, String[] suffixes, boolean repeatable) {
+    private void scanForMigrations(Location location, List<ResolvedMigration> migrations, String prefix,
+                                   String separator, String[] suffixes, boolean repeatable
+
+
+
+    ) {
         for (LoadableResource resource : scanner.scanForResources(location, prefix, suffixes)) {
             String filename = resource.getFilename();
             if (isSqlCallback(filename, suffixes)) {
@@ -116,7 +137,11 @@ public class SqlMigrationResolver implements MigrationResolver {
             migration.setDescription(info.getRight());
             migration.setScript(extractScriptName(resource, location));
             migration.setChecksum(calculateChecksum(resource, resource.loadAsString(configuration.getEncoding())));
-            migration.setType(MigrationType.SQL);
+            migration.setType(
+
+
+
+                            MigrationType.SQL);
             migration.setPhysicalLocation(resource.getLocationOnDisk());
             migration.setExecutor(new SqlMigrationExecutor(database, resource, placeholderReplacer, configuration));
             migrations.add(migration);
