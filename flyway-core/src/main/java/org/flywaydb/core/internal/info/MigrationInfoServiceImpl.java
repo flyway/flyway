@@ -409,6 +409,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         return outOfOrderMigrations.toArray(new MigrationInfo[outOfOrderMigrations.size()]);
     }
 
+    // [pro]
+
     /**
      * Retrieves the full set of infos about undo migrations.
      *
@@ -424,6 +426,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
 
         return result.toArray(new MigrationInfoImpl[result.size()]);
     }
+    // [/pro]
 
     /**
      * Validate all migrations for consistency.

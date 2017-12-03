@@ -225,10 +225,10 @@ public class Main {
         LOG.info("Commands");
         LOG.info("--------");
         LOG.info("migrate  : Migrates the database");
-        LOG.info("undo     : Undoes the most recently applied versioned migration");
         LOG.info("clean    : Drops all objects in the configured schemas");
         LOG.info("info     : Prints the information about applied, current and pending migrations");
         LOG.info("validate : Validates the applied migrations against the ones on the classpath");
+        LOG.info("undo     : Undoes the most recently applied versioned migration");
         LOG.info("baseline : Baselines an existing database at the baselineVersion");
         LOG.info("repair   : Repairs the schema history table");
         LOG.info("");
