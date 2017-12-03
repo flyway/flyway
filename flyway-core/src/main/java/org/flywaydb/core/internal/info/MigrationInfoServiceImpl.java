@@ -206,7 +206,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         Set<ResolvedMigration> pendingResolvedVersioned = new HashSet<ResolvedMigration>(resolvedVersioned.values());
         for (Pair<AppliedMigration, AppliedMigrationAttributes> av : appliedVersioned) {
             ResolvedMigration resolvedMigration = resolvedVersioned.get(Pair.of(av.getLeft().getVersion(), av.getLeft().getType().isUndo()));
-            if (resolvedMigration != null && !av.getRight().undone && av.getLeft().isSuccess()) {
+            if (resolvedMigration != null
+                    // [pro]
+                    && !av.getRight().undone
+                    // [/pro]
+                    && av.getLeft().isSuccess()) {
                 pendingResolvedVersioned.remove(resolvedMigration);
             }
             migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, av.getLeft(), context, av.getRight().outOfOrder

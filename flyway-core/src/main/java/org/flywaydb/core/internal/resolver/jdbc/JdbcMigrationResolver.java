@@ -155,7 +155,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
             if (shortName.startsWith("V") || repeatable
                     // [pro]
                     || undo
-                    // [pro]
+                    // [/pro]
                     ) {
                 prefix = shortName.substring(0, 1);
             } else {
