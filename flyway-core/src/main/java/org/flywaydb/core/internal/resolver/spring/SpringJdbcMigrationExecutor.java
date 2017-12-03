@@ -36,7 +36,7 @@ public class SpringJdbcMigrationExecutor implements MigrationExecutor {
      *
      * @param springJdbcMigration The Spring Jdbc Migration to execute.
      */
-    public SpringJdbcMigrationExecutor(SpringJdbcMigration springJdbcMigration) {
+    SpringJdbcMigrationExecutor(SpringJdbcMigration springJdbcMigration) {
         this.springJdbcMigration = springJdbcMigration;
     }
 
