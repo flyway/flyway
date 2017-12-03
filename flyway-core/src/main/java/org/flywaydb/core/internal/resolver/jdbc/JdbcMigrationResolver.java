@@ -39,7 +39,7 @@ public class JdbcMigrationResolver extends JavaMigrationResolver<JdbcMigration, 
     }
 
     @Override
-    protected String getMigrationType() {
+    protected String getMigrationTypeStr() {
         return "JDBC";
     }
 

@@ -102,14 +102,14 @@ public abstract class JavaMigrationResolver<M, E extends MigrationExecutor> impl
                 migrations.add(migrationInfo);
             }
         } catch (Exception e) {
-            throw new FlywayException("Unable to resolve " + getMigrationType() + " Java migrations in location " + location + " : " + e.getMessage(), e);
+            throw new FlywayException("Unable to resolve " + getMigrationTypeStr() + " Java migrations in location " + location + " : " + e.getMessage(), e);
         }
     }
 
     /**
      * @return The type of migration (for messages).
      */
-    protected abstract String getMigrationType();
+    protected abstract String getMigrationTypeStr();
 
     /**
      * @return The interface the migrations must implement to be resolved.
@@ -174,7 +174,7 @@ public abstract class JavaMigrationResolver<M, E extends MigrationExecutor> impl
                     ) {
                 prefix = shortName.substring(0, 1);
             } else {
-                throw new FlywayException("Invalid " + getMigrationType() + " migration class name: " + migration.getClass().getName()
+                throw new FlywayException("Invalid " + getMigrationTypeStr() + " migration class name: " + migration.getClass().getName()
                         + " => ensure it starts with V" +
                         // [pro]
                         ", U" +
