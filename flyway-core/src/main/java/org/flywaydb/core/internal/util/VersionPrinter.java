@@ -42,18 +42,18 @@ public class VersionPrinter {
         }
         printed = true;
         String version = new ClassPathResource("org/flywaydb/core/internal/version.txt", VersionPrinter.class.getClassLoader()).loadAsString("UTF-8");
-        LOG.info("Flyway "
+        LOG.info("Flyway"
                 //[opensource-only]
-                //+ "Open Source"
+                //+ " Open Source"
                 //[/opensource-only]
                 //[pro-only]
-                //+ "Pro"
+                //+ " Pro"
                 //[/pro-only]
                 //[enterprise-only]
-                //+ "Enterprise"
+                //+ " Enterprise"
                 //[/enterprise-only]
                 //[trial-only]
-                //+ "Trial"
+                //+ " Trial"
                 //[/trial-only]
                 + " " + version + " by Boxfuse"
         );
