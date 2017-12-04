@@ -61,12 +61,12 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         });
     }
 
-    public OracleMigrationMediumTest(String jdbcUrl) throws Exception {
+    public OracleMigrationMediumTest(String jdbcUrl) {
         this.jdbcUrl = jdbcUrl;
     }
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) throws Exception {
+    protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 jdbcUrl, JDBC_USER, JDBC_PASSWORD, null);
     }
@@ -251,7 +251,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      * This is also to ensure that skipping CREDENTIALs doesn't break migrations.
      */
     @Test
-    public void scheduler112Enhancement() throws Exception {
+    public void scheduler112Enhancement() {
         assumeDatabaseVersionNotLessThan(11, 2);
         assumeOracleEditionNotLessThan(OracleEdition.SE);
         flyway.setSchemas("FLYWAY_AUX");
@@ -267,6 +267,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     /**
      * @return {@code true} if the specified job exists in the schema, {@code false} if not.
      */
+    @SuppressWarnings("SameParameterValue")
     private boolean schedJobExists(String schemaName, String jobName) throws Exception {
         return ((OracleDatabase) database).queryReturnsRows("SELECT * FROM ALL_SCHEDULER_JOBS " +
                 "WHERE OWNER = ? AND JOB_NAME = ?", schemaName, jobName);
@@ -550,7 +551,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      * Tests support for cleaning together with MINING MODEL type.
      */
     @Test
-    public void mining() throws FlywayException, SQLException {
+    public void mining() throws FlywayException {
         assumeOracleEditionNotLessThan(OracleEdition.EE);
         // Starting from Oracle 11.1 Data Mining API works with non-default schemas.
         if (database.getMajorVersion() >= 11) {
@@ -628,7 +629,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      * Checks that cleaning can not be performed for the SYSTEM schema (Issue 102)
      */
     @Test(expected = FlywayException.class)
-    public void createCleanScriptWithSystem() throws Exception {
+    public void createCleanScriptWithSystem() {
         flyway.setSchemas("SYSTEM");
         flyway.clean();
     }
@@ -637,7 +638,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      * Checks that cleaning can not be performed for an Oracle-maintained schema
      */
     @Test(expected = FlywayException.class)
-    public void createCleanScriptWithOracleMaintainedSchema() throws Exception {
+    public void createCleanScriptWithOracleMaintainedSchema() {
         flyway.setSchemas("OUTLN");
         flyway.clean();
     }

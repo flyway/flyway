@@ -17,6 +17,8 @@ package org.flywaydb.gradle.largetest;
 
 import org.junit.Test;
 import org.flywaydb.core.internal.util.FileCopyUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,6 +28,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -36,8 +39,21 @@ import static org.junit.Assert.assertTrue;
  * Large Test for the Flyway Gradle Plugin.
  */
 @SuppressWarnings({"JavaDoc"})
+@RunWith(Parameterized.class)
 public class GradleLargeTest {
-    private String installDir = System.getProperty("installDir", "flyway-gradle-plugin-largetest/target/test-classes");
+    private final String installDir = System.getProperty("installDir", "flyway-gradle-plugin-largetest/target/test-classes");
+    private final String version;
+
+    public GradleLargeTest(String version) {
+        this.version = version;
+    }
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {"30"},
+                {"40"}});
+    }
 
     @Test(timeout = 60000)
     public void regular() throws Exception {
@@ -75,6 +91,7 @@ public class GradleLargeTest {
      * @return The standard output.
      * @throws Exception When the execution failed.
      */
+    @SuppressWarnings("SameParameterValue")
     private String runGradle(int expectedReturnCode, String dir, String... extraArgs) throws Exception {
         String flywayVersion = System.getProperty("flywayVersion", getPomVersion());
 
@@ -85,7 +102,7 @@ public class GradleLargeTest {
 
         List<String> args = new ArrayList<String>();
         addShellIfNeeded(args);
-        args.add(installDir + "/install/gradlew" + extension);
+        args.add(installDir + "/install/" + version + "/gradlew" + extension);
         args.add("-PflywayVersion=" + flywayVersion);
         //args.add("--debug");
         args.add("--stacktrace");
@@ -100,10 +117,9 @@ public class GradleLargeTest {
         builder.redirectErrorStream(true);
 
         Process process = builder.start();
-        int returnCode = process.waitFor();
-
         String stdOut = FileCopyUtils.copyToString(new InputStreamReader(process.getInputStream(), "UTF-8"));
         System.out.print(stdOut);
+        int returnCode = process.waitFor();
 
         assertEquals("Unexpected return code", expectedReturnCode, returnCode);
 
