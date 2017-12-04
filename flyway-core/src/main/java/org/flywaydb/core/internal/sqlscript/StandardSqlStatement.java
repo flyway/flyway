@@ -16,10 +16,12 @@
 package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.internal.database.AbstractSqlStatement;
-import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
+import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.Result;
 
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * A sql statement from a script that can be executed at once against a database.
@@ -36,7 +38,7 @@ public class StandardSqlStatement extends AbstractSqlStatement {
     }
 
     @Override
-    public void execute(ErrorContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
-        jdbcTemplate.executeStatement(errorContext, sql);
+    public List<Result> execute(ContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
+        return jdbcTemplate.executeStatement(errorContext, sql);
     }
 }

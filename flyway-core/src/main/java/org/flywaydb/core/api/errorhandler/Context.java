@@ -15,17 +15,20 @@
  */
 package org.flywaydb.core.api.errorhandler;
 
+import java.util.List;
+
 /**
- * Handler for warnings and errors that occur during a migration. This can be used to customize Flyway's behavior by for example
- * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
+ * The context passed to an error handler.
  * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
  */
-public interface ErrorHandler {
+public interface Context {
     /**
-     * Handles warnings and errors that occurred during a migration.
-     *
-     * @param context The context.
-     * @return {@code true} if they were handled, {@code false} if they weren't and Flyway should fall back to its default handling.
+     * @return The warnings that were raised during a migration.
      */
-    boolean handle(Context context);
+    List<Warning> getWarnings();
+
+    /**
+     * @return The errors that were thrown during a migration.
+     */
+    List<Error> getErrors();
 }

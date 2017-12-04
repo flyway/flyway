@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.errorhandler.Error;
-import org.flywaydb.core.api.errorhandler.ErrorContext;
+import org.flywaydb.core.api.errorhandler.Context;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.errorhandler.Warning;
 import org.flywaydb.core.api.logging.Log;
@@ -25,11 +25,13 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.util.AsciiTable;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
+import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 import org.flywaydb.core.internal.util.jdbc.ErrorImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.Result;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
@@ -166,48 +168,63 @@ public class SqlScript {
         // [pro]
         boolean serverOutput = false;
         boolean suppressErrors = false;
+        String nullText = "";
         // [/pro]
 
         for (SqlStatement sqlStatement : sqlStatements) {
-            ErrorContextImpl errorContext = new ErrorContextImpl();
+            ContextImpl context = new ContextImpl();
 
             String sql = sqlStatement.getSql();
             LOG.debug("Executing SQL: " + sql);
 
             try {
-                sqlStatement.execute(errorContext, jdbcTemplate);
+                List<Result> results = sqlStatement.execute(context, jdbcTemplate);
                 // [pro]
-                if (errorContext.getServerOutput() != null) {
-                    serverOutput = errorContext.getServerOutput();
+                if (context.getServerOutput() != null) {
+                    serverOutput = context.getServerOutput();
                 } else if (serverOutput) {
                     List<String> output = database.getServerOutput();
                     for (String line : output) {
                         LOG.info("DB: " + line);
                     }
                 }
-                if (errorContext.getSuppressErrors() != null) {
-                    suppressErrors = errorContext.getSuppressErrors();
+                if (context.getSuppressErrors() != null) {
+                    suppressErrors = context.getSuppressErrors();
                 }
-                if (handleWarnings(errorContext)) {
+                if (context.getNullText() != null) {
+                    nullText = context.getNullText();
+                }
+                if (handleWarnings(context)) {
                     continue;
                 }
                 // [/pro]
-                printWarnings(errorContext);
+                printWarnings(context);
+                for (Result result : results) {
+                    if (result.getUpdateCount() != -1) {
+                        LOG.debug("Update Count: " + result.getUpdateCount());
+                    }
+                    // [pro]
+                    if (result.getColumns() != null) {
+                        LOG.info(new AsciiTable(result.getColumns(), result.getData(),
+                                nullText, "No rows returned").render());
+                    }
+                    // [/pro]
+                }
             } catch (final SQLException e) {
                 // [pro]
                 SQLException sqle = e;
                 while (sqle != null) {
-                    errorContext.addError(new ErrorImpl(sqle.getErrorCode(), sqle.getSQLState(), sqle.getMessage()));
+                    context.addError(new ErrorImpl(sqle.getErrorCode(), sqle.getSQLState(), sqle.getMessage()));
                     sqle = sqle.getNextException();
                 }
-                if (handleErrors(errorContext)) {
+                if (handleErrors(context)) {
                     continue;
                 }
                 // [/pro]
-                printWarnings(errorContext);
+                printWarnings(context);
                 // [pro]
                 if (suppressErrors) {
-                    for (Error error : errorContext.getErrors()) {
+                    for (Error error : context.getErrors()) {
                         LOG.warn("DB error ignored (Code: " + error.getCode() + ", State: " + error.getState() + "): "
                                 + error.getMessage());
                     }
@@ -220,18 +237,18 @@ public class SqlScript {
     }
 
     // [pro]
-    private boolean handleWarnings(ErrorContext errorContext) {
+    private boolean handleWarnings(Context context) {
         for (ErrorHandler errorHandler : errorHandlers) {
-            if (errorHandler.handle(errorContext)) {
+            if (errorHandler.handle(context)) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean handleErrors(ErrorContext errorContext) {
+    private boolean handleErrors(Context context) {
         for (ErrorHandler errorHandler : errorHandlers) {
-            if (errorHandler.handle(errorContext)) {
+            if (errorHandler.handle(context)) {
                 return true;
             }
         }
@@ -239,7 +256,7 @@ public class SqlScript {
     }
     // [/pro]
 
-    private void printWarnings(ErrorContext context) {
+    private void printWarnings(Context context) {
         for (Warning warning : context.getWarnings()) {
             if ("00000".equals(warning.getState())) {
                 LOG.info("DB: " + warning.getMessage());

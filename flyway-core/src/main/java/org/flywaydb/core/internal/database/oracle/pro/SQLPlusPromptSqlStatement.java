@@ -18,10 +18,12 @@ package org.flywaydb.core.internal.database.oracle.pro;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.AbstractSqlStatement;
-import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
+import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.Result;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A SQL*Plus PROMPT statement.
@@ -34,8 +36,9 @@ public class SQLPlusPromptSqlStatement extends AbstractSqlStatement {
     }
 
     @Override
-    public void execute(ErrorContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
+    public List<Result> execute(ContextImpl errorContext, JdbcTemplate jdbcTemplate) {
         LOG.info(transformSql());
+        return new ArrayList<Result>();
     }
 
     String transformSql() {

@@ -18,11 +18,13 @@ package org.flywaydb.core.internal.database.oracle.pro;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.AbstractSqlStatement;
-import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
+import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.jdbc.Result;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -38,25 +40,20 @@ public class SQLPlusShowSqlStatement extends AbstractSqlStatement {
     }
 
     @Override
-    public void execute(ErrorContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
+    public List<Result> execute(ContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
         String option = sql.substring(sql.indexOf(" ") + 1).toUpperCase(Locale.ENGLISH);
         if ("CON_ID".equals(option)) {
             conId(jdbcTemplate);
-            return;
-        }
-        if (option.startsWith("ERR")) {
+        } else if (option.startsWith("ERR")) {
             err(jdbcTemplate, option);
-            return;
-        }
-        if (option.startsWith("REL")) {
+        } else if (option.startsWith("REL")) {
             rel(jdbcTemplate);
-            return;
-        }
-        if (option.startsWith("USER")) {
+        } else if (option.startsWith("USER")) {
             user(jdbcTemplate);
-            return;
+        } else {
+            LOG.warn("Unknown option for SHOW: " + option);
         }
-        LOG.warn("Unknown option for SHOW: " + option);
+        return new ArrayList<Result>();
     }
 
     private void conId(JdbcTemplate jdbcTemplate) throws SQLException {

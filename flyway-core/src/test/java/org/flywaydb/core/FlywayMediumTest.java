@@ -20,7 +20,7 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.errorhandler.ErrorContext;
+import org.flywaydb.core.api.errorhandler.Context;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Schema;
@@ -1068,7 +1068,7 @@ public class FlywayMediumTest {
         flyway.setPlaceholderReplacement(false);
         flyway.setErrorHandlers(new ErrorHandler() {
             @Override
-            public boolean handle(ErrorContext context) {
+            public boolean handle(Context context) {
                 int errorCode = context.getErrors().get(0).getCode();
                 System.out.println("Intercepted error: " + errorCode);
                 error.set(errorCode);

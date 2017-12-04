@@ -16,19 +16,20 @@
 package org.flywaydb.core.internal.util.jdbc;
 
 import org.flywaydb.core.api.errorhandler.Error;
-import org.flywaydb.core.api.errorhandler.ErrorContext;
+import org.flywaydb.core.api.errorhandler.Context;
 import org.flywaydb.core.api.errorhandler.Warning;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ErrorContextImpl implements ErrorContext {
+public class ContextImpl implements Context {
     private final List<Warning> warnings = new ArrayList<Warning>();
     private final List<Error> errors = new ArrayList<Error>();
 
     // [pro]
     private Boolean suppressErrors;
     private Boolean serverOutput;
+    private String nullText;
 
     public Boolean getSuppressErrors() {
         return suppressErrors;
@@ -44,6 +45,14 @@ public class ErrorContextImpl implements ErrorContext {
 
     public void setServerOutput(Boolean serverOutput) {
         this.serverOutput = serverOutput;
+    }
+
+    public String getNullText() {
+        return nullText;
+    }
+
+    public void setNullText(String nullText) {
+        this.nullText = nullText;
     }
     // [/pro]
 

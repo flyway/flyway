@@ -16,14 +16,17 @@
 package org.flywaydb.core.internal.database.postgresql;
 
 import org.flywaydb.core.internal.database.AbstractSqlStatement;
-import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
+import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.Result;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A PostgreSQL COPY FROM STDIN statement.
@@ -40,16 +43,23 @@ public class PostgreSQLCopyStatement extends AbstractSqlStatement {
     }
 
     @Override
-    public void execute(ErrorContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
+    public List<Result> execute(ContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
         int split = sql.indexOf(";");
         String statement = sql.substring(0, split);
         String data = sql.substring(split + 1).trim();
 
+        List<Result> results = new ArrayList<Result>();
         CopyManager copyManager = new CopyManager(jdbcTemplate.getConnection().unwrap(BaseConnection.class));
         try {
-            copyManager.copyIn(statement, new StringReader(data));
+            long updateCount = copyManager.copyIn(statement, new StringReader(data));
+            results.add(new Result(updateCount
+                    // [pro]
+                    , null, null
+                    // [/pro]
+            ));
         } catch (IOException e) {
             throw new SQLException("Unable to execute COPY operation", e);
         }
+        return results;
     }
 }

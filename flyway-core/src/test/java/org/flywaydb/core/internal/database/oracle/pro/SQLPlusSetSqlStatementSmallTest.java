@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.errorhandler;
+package org.flywaydb.core.internal.database.oracle.pro;
 
-import java.util.List;
+import org.junit.Test;
 
-/**
- * The context passed to an error handler.
- * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
- */
-public interface ErrorContext {
-    /**
-     * @return The warnings that were raised during a migration.
-     */
-    List<Warning> getWarnings();
+import static org.junit.Assert.assertEquals;
 
-    /**
-     * @return The errors that were thrown during a migration.
-     */
-    List<Error> getErrors();
+public class SQLPlusSetSqlStatementSmallTest {
+    @Test
+    public void nullText() {
+        assertEquals("", SQLPlusSetSqlStatement.getNullText("NULL \"\""));
+        assertEquals("abc", SQLPlusSetSqlStatement.getNullText("NULL abc"));
+        assertEquals("abc", SQLPlusSetSqlStatement.getNullText("NULL \"abc\""));
+    }
 }
