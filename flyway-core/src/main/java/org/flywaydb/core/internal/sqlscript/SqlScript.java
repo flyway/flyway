@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.errorhandler.Error;
-import org.flywaydb.core.api.errorhandler.ErrorContext;
+import org.flywaydb.core.api.errorhandler.Context;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.errorhandler.Warning;
 import org.flywaydb.core.api.logging.Log;
@@ -25,11 +25,13 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.util.AsciiTable;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
+import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 import org.flywaydb.core.internal.util.jdbc.ErrorImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.Result;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
@@ -168,14 +170,15 @@ public class SqlScript {
 
 
 
+
         for (SqlStatement sqlStatement : sqlStatements) {
-            ErrorContextImpl errorContext = new ErrorContextImpl();
+            ContextImpl context = new ContextImpl();
 
             String sql = sqlStatement.getSql();
             LOG.debug("Executing SQL: " + sql);
 
             try {
-                sqlStatement.execute(errorContext, jdbcTemplate);
+                List<Result> results = sqlStatement.execute(context, jdbcTemplate);
 
 
 
@@ -192,7 +195,21 @@ public class SqlScript {
 
 
 
-                printWarnings(errorContext);
+
+
+
+                printWarnings(context);
+                for (Result result : results) {
+                    if (result.getUpdateCount() != -1) {
+                        LOG.debug("Update Count: " + result.getUpdateCount());
+                    }
+
+
+
+
+
+
+                }
             } catch (final SQLException e) {
 
 
@@ -204,7 +221,7 @@ public class SqlScript {
 
 
 
-                printWarnings(errorContext);
+                printWarnings(context);
 
 
 
@@ -239,7 +256,7 @@ public class SqlScript {
 
 
 
-    private void printWarnings(ErrorContext context) {
+    private void printWarnings(Context context) {
         for (Warning warning : context.getWarnings()) {
             if ("00000".equals(warning.getState())) {
                 LOG.info("DB: " + warning.getMessage());

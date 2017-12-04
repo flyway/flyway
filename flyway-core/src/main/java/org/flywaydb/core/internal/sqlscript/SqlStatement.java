@@ -15,10 +15,12 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-import org.flywaydb.core.internal.util.jdbc.ErrorContextImpl;
+import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.Result;
 
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * A sql statement from a script that can be executed at once against a database.
@@ -41,5 +43,5 @@ public interface SqlStatement {
      * @param jdbcTemplate The jdbcTemplate to use to execute this script.
      * @throws SQLException when the execution fails.
      */
-    void execute(ErrorContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException;
+    List<Result> execute(ContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException;
 }

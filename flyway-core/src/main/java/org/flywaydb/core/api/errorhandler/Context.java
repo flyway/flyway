@@ -21,7 +21,7 @@ import java.util.List;
  * The context passed to an error handler.
  * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
  */
-public interface ErrorContext {
+public interface Context {
     /**
      * @return The warnings that were raised during a migration.
      */
