@@ -66,8 +66,9 @@ public class MigrationInfoDumper {
                     DateUtils.formatDateAsIsoString(migrationInfo.getInstalledOn()),
                     migrationInfo.getState().getDisplayName()
                     // [pro]
-                    , getUndoableStatus(migrationInfo, undoableVersions));
-            // [/pro]
+                    , getUndoableStatus(migrationInfo, undoableVersions)
+                    // [/pro]
+            );
             rows.add(row);
         }
 
