@@ -58,7 +58,7 @@ public class CockroachDBTable extends Table {
     }
 
     @Override
-    protected void doLock() throws SQLException {
+    protected void doLock() {
         LOG.debug("Unable to lock " + this + " as CockroachDB does not support locking. No concurrent migration supported.");
     }
 }

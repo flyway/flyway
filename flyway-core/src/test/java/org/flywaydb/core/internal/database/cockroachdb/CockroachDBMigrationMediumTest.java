@@ -37,7 +37,11 @@ public class CockroachDBMigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                "jdbc:postgresql://127.0.0.1:62000/flyway_db?sslmode=disable", "flyway", "");
+                getUrl("flyway_db"), "flyway", "");
+    }
+
+    private String getUrl(String database) {
+        return "jdbc:postgresql://127.0.0.1:62000/" + database + "?sslmode=disable";
     }
 
     @Override
@@ -50,14 +54,25 @@ public class CockroachDBMigrationMediumTest extends MigrationTestCase {
         return "migration/quote";
     }
 
+    @Ignore("Flaky due to CockroachDB bug")
     @Test
-    public void index() throws Exception {
+    public void root() {
+        flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                getUrl(""), "root", ""));
+        flyway.setSchemas("mydatabase");
+        flyway.setLocations(getBasedir());
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    @Test
+    public void index() {
         flyway.setLocations("migration/database/cockroachdb/sql/index");
         flyway.migrate();
     }
 
     @Test
-    public void cleanUnknown() throws Exception {
+    public void cleanUnknown() {
         flyway.setSchemas("non-existant");
         flyway.clean();
     }
