@@ -112,7 +112,7 @@ public class Flyway implements FlywayConfiguration {
      * The target version up to which Flyway should consider migrations. Migrations with a higher version number will
      * be ignored. The special value {@code current} designates the current version of the schema (default: the latest version)
      */
-    private MigrationVersion target = MigrationVersion.LATEST;
+    private MigrationVersion target;
 
     /**
      * Whether placeholders should be replaced. (default: true)
