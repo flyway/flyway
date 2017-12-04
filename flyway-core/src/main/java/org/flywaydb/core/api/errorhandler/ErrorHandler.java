@@ -27,5 +27,5 @@ public interface ErrorHandler {
      * @param context The context.
      * @return {@code true} if they were handled, {@code false} if they weren't and Flyway should fall back to its default handling.
      */
-    boolean handle(ErrorContext context);
+    boolean handle(Context context);
 }

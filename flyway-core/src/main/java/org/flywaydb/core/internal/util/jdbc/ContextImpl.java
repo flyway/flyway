@@ -16,15 +16,24 @@
 package org.flywaydb.core.internal.util.jdbc;
 
 import org.flywaydb.core.api.errorhandler.Error;
-import org.flywaydb.core.api.errorhandler.ErrorContext;
+import org.flywaydb.core.api.errorhandler.Context;
 import org.flywaydb.core.api.errorhandler.Warning;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ErrorContextImpl implements ErrorContext {
+public class ContextImpl implements Context {
     private final List<Warning> warnings = new ArrayList<>();
     private final List<Error> errors = new ArrayList<>();
+
+
+
+
+
+
+
+
+
 
 
 
