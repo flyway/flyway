@@ -1,0 +1,149 @@
+<!--
+
+    Copyright 2010-2017 Boxfuse GmbH
+
+    INTERNAL RELEASE. ALL RIGHTS RESERVED.
+
+    Must
+    be
+    exactly
+    13 lines
+    to match
+    community
+    edition
+    license
+    length.
+
+-->
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+    <id>distribution</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <baseDirectory>flyway-${project.version}</baseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>maven-install.cmd</include>
+            </includes>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+        <fileSet>
+            <directory>..</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>LICENSE.txt</include>
+            </includes>
+            <fileMode>644</fileMode>
+            <filtered>false</filtered>
+        </fileSet>
+        <fileSet>
+            <directory>..</directory>
+            <outputDirectory>flyway-parent</outputDirectory>
+            <includes>
+                <include>pom.xml</include>
+            </includes>
+            <fileMode>644</fileMode>
+            <filtered>false</filtered>
+        </fileSet>
+        <fileSet>
+            <directory>../flyway-core</directory>
+            <outputDirectory>flyway-core</outputDirectory>
+            <includes>
+                <include>pom.xml</include>
+            </includes>
+            <fileMode>644</fileMode>
+            <filtered>false</filtered>
+        </fileSet>
+        <fileSet>
+            <directory>../flyway-core/target</directory>
+            <outputDirectory>flyway-core</outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+            <!-- [trial-only] -->
+            <excludes>
+                <exclude>*-sources.jar</exclude>
+            </excludes>
+            <!-- [/trial-only] -->
+            <fileMode>644</fileMode>
+            <filtered>false</filtered>
+        </fileSet>
+        <fileSet>
+            <directory>../flyway-maven-plugin</directory>
+            <outputDirectory>flyway-maven-plugin</outputDirectory>
+            <includes>
+                <include>pom.xml</include>
+            </includes>
+            <fileMode>644</fileMode>
+            <filtered>false</filtered>
+        </fileSet>
+        <fileSet>
+            <directory>../flyway-maven-plugin/target</directory>
+            <outputDirectory>flyway-maven-plugin</outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+            <!-- [trial-only] -->
+            <excludes>
+                <exclude>*-sources.jar</exclude>
+            </excludes>
+            <!-- [/trial-only] -->
+            <fileMode>644</fileMode>
+            <filtered>false</filtered>
+        </fileSet>
+        <fileSet>
+            <directory>../flyway-gradle-plugin</directory>
+            <outputDirectory>flyway-gradle-plugin</outputDirectory>
+            <includes>
+                <include>pom.xml</include>
+            </includes>
+            <fileMode>644</fileMode>
+            <filtered>false</filtered>
+        </fileSet>
+        <fileSet>
+            <directory>../flyway-gradle-plugin/target</directory>
+            <outputDirectory>flyway-gradle-plugin</outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+            <!-- [trial-only] -->
+            <excludes>
+                <exclude>*-sources.jar</exclude>
+            </excludes>
+            <!-- [/trial-only] -->
+            <fileMode>644</fileMode>
+            <filtered>false</filtered>
+        </fileSet>
+        <fileSet>
+            <directory>../flyway-commandline</directory>
+            <outputDirectory>flyway-commandline</outputDirectory>
+            <includes>
+                <include>pom.xml</include>
+            </includes>
+            <fileMode>644</fileMode>
+            <filtered>false</filtered>
+        </fileSet>
+        <fileSet>
+            <directory>../flyway-commandline/target</directory>
+            <outputDirectory>flyway-commandline</outputDirectory>
+            <includes>
+                <include>*.zip</include>
+                <include>*.tar.gz</include>
+                <include>*.jar</include>
+            </includes>
+            <!-- [trial-only] -->
+            <excludes>
+                <exclude>*-sources.jar</exclude>
+            </excludes>
+            <!-- [/trial-only] -->
+            <fileMode>644</fileMode>
+            <filtered>false</filtered>
+        </fileSet>
+    </fileSets>
+</assembly>

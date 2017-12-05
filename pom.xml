@@ -68,6 +68,7 @@
         <module>flyway-sample-osgi-fragment</module>
         <module>flyway-osgi-largetest</module>
         <module>flyway-commandline-largetest</module>
+        <module>flyway-distribution</module>
         <!-- [/master] -->
     </modules>
 
@@ -97,11 +98,13 @@
             <id>flyway-repo</id>
             <url>https://flywaydb.org/repo</url>
         </repository>
-        <!-- [master] -->
+        <!-- [pro] -->
         <repository>
             <id>flyway-repo-private</id>
             <url>s3://flyway-repo/release</url>
         </repository>
+        <!-- [/pro] -->
+        <!-- [master] -->
         <repository>
             <id>git-tzolov</id>
             <url>https://github.com/tzolov/maven-repo/raw/master/</url>

@@ -28,15 +28,21 @@ call mvn clean install javadoc:jar -T3 || goto :error
 
 echo ============== BUILDING PRO
 cd c:\Workspaces\flyway-pro
-call mvn clean install javadoc:jar -T3 || goto :error
+call mvn -PCommandlinePlatformAssemblies clean install javadoc:jar -T3 || goto :error
+cd flyway-distribution
+call mvn clean package || goto :error
 
 echo ============== BUILDING ENTERPRISE
 cd c:\Workspaces\flyway-enterprise
-call mvn clean install javadoc:jar -T3 || goto :error
+call mvn -PCommandlinePlatformAssemblies clean install javadoc:jar -T3 || goto :error
+cd flyway-distribution
+call mvn clean package || goto :error
 
 echo ============== BUILDING TRIAL
 cd c:\Workspaces\flyway-trial
-call mvn clean install javadoc:jar -T3 || goto :error
+call mvn -PCommandlinePlatformAssemblies clean install javadoc:jar -T3 || goto :error
+cd flyway-distribution
+call mvn clean package || goto :error
 
 echo ============== SUCCESS
 cd c:\Workspaces\flyway-master
