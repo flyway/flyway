@@ -43,9 +43,9 @@ public class VersionPrinter {
         printed = true;
         String version = new ClassPathResource("org/flywaydb/core/internal/version.txt", VersionPrinter.class.getClassLoader()).loadAsString("UTF-8");
         LOG.info("Flyway"
-                //[opensource-only]
+                //[community-only]
                 //+ " Community Edition"
-                //[/opensource-only]
+                //[/community-only]
                 //[pro-only]
                 //+ " Pro Edition"
                 //[/pro-only]

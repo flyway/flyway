@@ -556,9 +556,9 @@ public class Flyway implements FlywayConfiguration {
 
     @Override
     public ErrorHandler[] getErrorHandlers() {
-        // [opensource-only]
+        // [community-only]
         //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
-        // [/opensource-only]
+        // [/community-only]
         // [pro]
         return errorHandlers;
         // [/pro]
@@ -566,9 +566,9 @@ public class Flyway implements FlywayConfiguration {
 
     @Override
     public OutputStream getDryRunOutput() {
-        // [opensource-only]
+        // [community-only]
         //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
-        // [/opensource-only]
+        // [/community-only]
         // [pro]
         return dryRunOutput;
         // [/pro]
@@ -582,9 +582,9 @@ public class Flyway implements FlywayConfiguration {
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
      */
     public void setDryRunOutput(OutputStream dryRunOutput) {
-        // [opensource-only]
+        // [community-only]
         //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
-        // [/opensource-only]
+        // [/community-only]
         // [pro]
         this.dryRunOutput = dryRunOutput;
         // [/pro]
@@ -599,9 +599,9 @@ public class Flyway implements FlywayConfiguration {
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
      */
     public void setDryRunOutputAsFile(File dryRunOutput) {
-        // [opensource-only]
+        // [community-only]
         //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
-        // [/opensource-only]
+        // [/community-only]
         // [pro]
         File file;
         try {
@@ -646,9 +646,9 @@ public class Flyway implements FlywayConfiguration {
      *                             against the database.
      */
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
-        // [opensource-only]
+        // [community-only]
         //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
-        // [/opensource-only]
+        // [/community-only]
         // [pro]
         setDryRunOutputAsFile(new File(dryRunOutputFileName));
         // [/pro]
@@ -664,9 +664,9 @@ public class Flyway implements FlywayConfiguration {
      * @param errorHandlers The ErrorHandlers or an empty array if the default internal handler should be used instead. (default: none)
      */
     public void setErrorHandlers(ErrorHandler... errorHandlers) {
-        // [opensource-only]
+        // [community-only]
         //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
-        // [/opensource-only]
+        // [/community-only]
         // [pro]
         this.errorHandlers = errorHandlers;
         // [/pro]
@@ -683,9 +683,9 @@ public class Flyway implements FlywayConfiguration {
      *                               internal handler should be used instead. (default: none)
      */
     public void setErrorHandlersAsClassNames(String... errorHandlerClassNames) {
-        // [opensource-only]
+        // [community-only]
         //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
-        // [/opensource-only]
+        // [/community-only]
         // [pro]
         List<ErrorHandler> errorHandlerList = ClassUtils.instantiateAll(errorHandlerClassNames, classLoader);
         setErrorHandlers(errorHandlerList.toArray(new ErrorHandler[errorHandlerList.size()]));
@@ -916,9 +916,9 @@ public class Flyway implements FlywayConfiguration {
 
     @Override
     public String getUndoSqlMigrationPrefix() {
-        // [opensource-only]
+        // [community-only]
         //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
-        // [/opensource-only]
+        // [/community-only]
         // [pro]
         return undoSqlMigrationPrefix;
         // [/pro]
@@ -934,9 +934,9 @@ public class Flyway implements FlywayConfiguration {
      * @param undoSqlMigrationPrefix The file name prefix for undo SQL migrations. (default: U)
      */
     public void setUndoSqlMigrationPrefix(String undoSqlMigrationPrefix) {
-        // [opensource-only]
+        // [community-only]
         //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
-        // [/opensource-only]
+        // [/community-only]
         // [pro]
         this.undoSqlMigrationPrefix = undoSqlMigrationPrefix;
         // [/pro]
@@ -1226,9 +1226,9 @@ public class Flyway implements FlywayConfiguration {
      * @throws FlywayException when the undo failed.
      */
     public int undo() throws FlywayException {
-        // [opensource-only]
+        // [community-only]
         //throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undo");
-        // [/opensource-only]
+        // [/community-only]
         // [pro]
         return execute(new Command<Integer>() {
             public Integer execute(MigrationResolver migrationResolver,
