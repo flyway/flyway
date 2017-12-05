@@ -377,7 +377,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void failedMigration() throws Exception {
-        doFailedMigration(11);
+        doFailedMigration(21);
     }
 
     protected final void doFailedMigration(int lineNumber) {

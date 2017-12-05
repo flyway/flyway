@@ -127,6 +127,6 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
     @Override
     public void failedMigration() {
         // It is line 12 as a go statement is added for Sybase
-        doFailedMigration(12);
+        doFailedMigration(22);
     }
 }

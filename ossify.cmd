@@ -24,7 +24,7 @@ java -jar target\flyway-ossifier-1.0-SNAPSHOT.jar
 
 echo ============== BUILDING COMMUNITY
 cd c:\Workspaces\flyway
-call mvn clean install -T3 || goto :error
+call mvn clean install javadoc:jar -T3 || goto :error
 
 echo ============== BUILDING PRO
 cd c:\Workspaces\flyway-pro
