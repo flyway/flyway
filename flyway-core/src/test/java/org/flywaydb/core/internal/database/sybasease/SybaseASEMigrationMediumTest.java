@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -67,7 +66,7 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void jTDS() throws Exception {
+    public void jTDS() {
         flyway = new Flyway();
         flyway.setDataSource(JDBC_URL_JTDS, JDBC_USER, JDBC_PASSWORD);
         flyway.clean();
@@ -93,31 +92,31 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
 
     @Override
     @Ignore("Not supported on Sybase ASE Server")
-    public void setCurrentSchema() throws Exception {
+    public void setCurrentSchema() {
         //Skip
     }
 
     @Override
     @Ignore("Schema reference is not supported on SAP ASE")
-    public void migrateMultipleSchemas() throws Exception {
+    public void migrateMultipleSchemas() {
         //Skip
     }
 
     @Override
     @Ignore("Schema reference is not supported on SAP ASE")
-    public void schemaExists() throws SQLException {
+    public void schemaExists() {
         //Skip
     }
 
     @Override
     @Ignore("Table name quote is not supported on SAP ASE")
-    public void quote() throws Exception {
+    public void quote() {
         //skip
     }
 
     @Override
-    public void failedMigration() throws Exception {
-        // It is line 22 as a go statement is added for Sybase
-        doFailedMigration(22);
+    public void failedMigration() {
+        // It is line 12 as a go statement is added for Sybase
+        doFailedMigration(12);
     }
 }

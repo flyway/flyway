@@ -92,7 +92,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
             assertTrue(e.getCause() instanceof SQLException);
             // and make sure the failed statement was properly recorded
             // Normal DB should fail at line 21. SqlServer fails at line 17 as statements are executed in batches.
-            assertEquals(17, e.getLineNumber());
+            assertEquals(7, e.getLineNumber());
             assertTrue(e.getStatement().contains("THIS IS NOT VALID SQL"));
         }
     }
@@ -371,7 +371,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
             assertNotNull(e.getCause());
             assertTrue(e.getCause() instanceof SQLException);
             // and make sure the failed statement was properly recorded
-            assertEquals(23, e.getLineNumber());
+            assertEquals(13, e.getLineNumber());
             assertTrue(e.getStatement().contains("INSERT INTO"));
             assertTrue(e.getStatement().contains("VALUES(1)"));
         }
