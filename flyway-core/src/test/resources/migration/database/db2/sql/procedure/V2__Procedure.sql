@@ -3,6 +3,16 @@
 --
 -- INTERNAL RELEASE. ALL RIGHTS RESERVED.
 --
+-- Must
+-- be
+-- exactly
+-- 13 lines
+-- to match
+-- community
+-- edition
+-- license
+-- length.
+--
 
 CREATE PROCEDURE SP_EQIP_HOURS_AGGRGT_DAY_VIS (
     IN "@MACH_CO_ID"	VARCHAR(15000),

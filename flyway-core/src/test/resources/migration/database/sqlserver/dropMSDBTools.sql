@@ -3,6 +3,16 @@
 --
 -- INTERNAL RELEASE. ALL RIGHTS RESERVED.
 --
+-- Must
+-- be
+-- exactly
+-- 13 lines
+-- to match
+-- community
+-- edition
+-- license
+-- length.
+--
 
 /*
 Drop the simulated Microsoft database tools assets.

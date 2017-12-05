@@ -3,6 +3,16 @@
 --
 -- INTERNAL RELEASE. ALL RIGHTS RESERVED.
 --
+-- Must
+-- be
+-- exactly
+-- 13 lines
+-- to match
+-- community
+-- edition
+-- license
+-- length.
+--
 
 create table employees ( i int, name varchar2(10), instime date);
 -- sample file has 1 create stmt, 3 insert stmts, 2 update stmts , 1 delete stmts

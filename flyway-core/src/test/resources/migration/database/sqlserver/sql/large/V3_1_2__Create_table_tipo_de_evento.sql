@@ -3,6 +3,16 @@
 --
 -- INTERNAL RELEASE. ALL RIGHTS RESERVED.
 --
+-- Must
+-- be
+-- exactly
+-- 13 lines
+-- to match
+-- community
+-- edition
+-- license
+-- length.
+--
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[EVENTO_TIPO]') AND type in (N'U'))
 BEGIN

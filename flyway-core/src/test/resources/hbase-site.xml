@@ -5,6 +5,16 @@
 
     INTERNAL RELEASE. ALL RIGHTS RESERVED.
 
+    Must
+    be
+    exactly
+    13 lines
+    to match
+    community
+    edition
+    license
+    length.
+
 -->
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>

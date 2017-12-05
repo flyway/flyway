@@ -3,6 +3,16 @@
 --
 -- INTERNAL RELEASE. ALL RIGHTS RESERVED.
 --
+-- Must
+-- be
+-- exactly
+-- 13 lines
+-- to match
+-- community
+-- edition
+-- license
+-- length.
+--
 
 CREATE TABLE "${schema}"."${table}" (
     "installed_rank" INT NOT NULL SORTKEY,

@@ -2,6 +2,16 @@
  * Copyright 2010-2017 Boxfuse GmbH
  *
  * INTERNAL RELEASE. ALL RIGHTS RESERVED.
+ *
+ * Must
+ * be
+ * exactly
+ * 13 lines
+ * to match
+ * community
+ * edition
+ * license
+ * length.
  */
 package org.flywaydb.core.api.configuration;
 
@@ -78,7 +88,7 @@ public interface FlywayConfiguration {
 
     /**
      * The file name prefix for versioned SQL migrations.
-     * <p/>
+     * <p>
      * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1.1__My_description.sql</p>
      *
@@ -99,7 +109,7 @@ public interface FlywayConfiguration {
 
     /**
      * Retrieves the file name prefix for repeatable SQL migrations.
-     * <p/>
+     * <p>
      * <p>Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to R__My_description.sql</p>
      *
@@ -109,7 +119,7 @@ public interface FlywayConfiguration {
 
     /**
      * Retrieves the file name separator for sql migrations.
-     * <p/>
+     * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -208,7 +218,7 @@ public interface FlywayConfiguration {
 
     /**
      * Retrieves the locations to scan recursively for migrations.
-     * <p/>
+     * <p>
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both sql and java-based migrations.

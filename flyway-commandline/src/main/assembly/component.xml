@@ -4,6 +4,16 @@
 
     INTERNAL RELEASE. ALL RIGHTS RESERVED.
 
+    Must
+    be
+    exactly
+    13 lines
+    to match
+    community
+    edition
+    license
+    length.
+
 -->
 <component xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2 http://maven.apache.org/xsd/component-1.1.2.xsd">

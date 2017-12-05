@@ -5,6 +5,16 @@
 
     INTERNAL RELEASE. ALL RIGHTS RESERVED.
 
+    Must
+    be
+    exactly
+    13 lines
+    to match
+    community
+    edition
+    license
+    length.
+
 -->
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

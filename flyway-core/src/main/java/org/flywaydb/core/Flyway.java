@@ -2,6 +2,16 @@
  * Copyright 2010-2017 Boxfuse GmbH
  *
  * INTERNAL RELEASE. ALL RIGHTS RESERVED.
+ *
+ * Must
+ * be
+ * exactly
+ * 13 lines
+ * to match
+ * community
+ * edition
+ * license
+ * length.
  */
 package org.flywaydb.core;
 
@@ -63,13 +73,12 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * The locations to scan recursively for migrations.
-     * <p/>
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both sql and java-based migrations.
      * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
      * migrations.</p>
-     * <p/>
+     * <p>
      * (default: db/migration)
      */
     private Locations locations = new Locations("db/migration");
@@ -126,7 +135,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * The file name prefix for versioned SQL migrations. (default: V)
-     * <p/>
+     * <p>
      * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
@@ -145,7 +154,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * The file name prefix for repeatable SQL migrations. (default: R)
-     * <p/>
+     * <p>
      * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to R__My_description.sql</p>
      */
@@ -153,7 +162,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * The file name separator for sql migrations. (default: __)
-     * <p/>
+     * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
@@ -779,7 +788,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Sets the locations to scan recursively for migrations.
-     * <p/>
+     * <p>
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both sql and java-based migrations.
@@ -894,7 +903,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Sets the file name prefix for sql migrations.
-     * <p/>
+     * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -934,7 +943,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Sets the file name prefix for repeatable sql migrations.
-     * <p/>
+     * <p>
      * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to R__My_description.sql</p>
      *
@@ -946,7 +955,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Sets the file name separator for sql migrations.
-     * <p/>
+     * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -962,7 +971,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Sets the file name suffix for sql migrations.
-     * <p/>
+     * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -999,7 +1008,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Sets the datasource to use. Must have the necessary privileges to execute ddl.
-     * <p/>
+     * <p>
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
      *
      * @param url      The JDBC URL of the database.
@@ -1329,7 +1338,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * <p>Baselines an existing database, excluding all migrations up to and including baselineVersion.</p>
-     * <p/>
+     * <p>
      * <img src="https://flywaydb.org/assets/balsamiq/command-baseline.png" alt="baseline">
      *
      * @throws FlywayException when the schema baselining failed.
@@ -1401,7 +1410,7 @@ public class Flyway implements FlywayConfiguration {
     /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
-     * <p/>
+     * <p>
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
      *
      * @param properties Properties used for configuration.
@@ -1415,7 +1424,7 @@ public class Flyway implements FlywayConfiguration {
     /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
-     * <p/>
+     * <p>
      * <p>To use a custom ClassLoader, it must be passed to the Flyway constructor prior to calling this method.</p>
      *
      * @param props Properties used for configuration.

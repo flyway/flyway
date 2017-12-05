@@ -3,6 +3,16 @@
 --
 -- INTERNAL RELEASE. ALL RIGHTS RESERVED.
 --
+-- Must
+-- be
+-- exactly
+-- 13 lines
+-- to match
+-- community
+-- edition
+-- license
+-- length.
+--
 
 CREATE TABLE tab (id int NOT NULL IDENTITY, qty INT, price INT
 CONSTRAINT [PK_Source] PRIMARY KEY CLUSTERED

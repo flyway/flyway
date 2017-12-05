@@ -5,6 +5,16 @@
 
     INTERNAL RELEASE. ALL RIGHTS RESERVED.
 
+    Must
+    be
+    exactly
+    13 lines
+    to match
+    community
+    edition
+    license
+    length.
+
 -->
 <project name="flyway-sample" basedir="." default="show-help" xmlns:ivy="antlib:org.apache.ivy.ant"
          xmlns:flyway="antlib:org.flywaydb.ant">

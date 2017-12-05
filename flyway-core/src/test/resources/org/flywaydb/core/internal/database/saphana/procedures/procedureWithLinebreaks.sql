@@ -3,6 +3,16 @@
 --
 -- INTERNAL RELEASE. ALL RIGHTS RESERVED.
 --
+-- Must
+-- be
+-- exactly
+-- 13 lines
+-- to match
+-- community
+-- edition
+-- license
+-- length.
+--
 
 -- just to have one statement before the actual test statement
 CREATE VIEW all_misters AS SELECT * FROM test_user WHERE name LIKE 'Mr.%';

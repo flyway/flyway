@@ -3,6 +3,16 @@
 @REM
 @REM INTERNAL RELEASE. ALL RIGHTS RESERVED.
 @REM
+@REM Must
+@REM be
+@REM exactly
+@REM 13 lines
+@REM to match
+@REM community
+@REM edition
+@REM license
+@REM length.
+@REM
 
 @echo off
 
@@ -18,15 +28,15 @@ call mvn clean install -T3 || goto :error
 
 echo ============== BUILDING PRO
 cd c:\Workspaces\flyway-pro
-call mvn clean install -T3 || goto :error
+call mvn clean install javadoc:jar -T3 || goto :error
 
 echo ============== BUILDING ENTERPRISE
 cd c:\Workspaces\flyway-enterprise
-call mvn clean install -T3 || goto :error
+call mvn clean install javadoc:jar -T3 || goto :error
 
 echo ============== BUILDING TRIAL
 cd c:\Workspaces\flyway-trial
-call mvn clean install -T3 || goto :error
+call mvn clean install javadoc:jar -T3 || goto :error
 
 echo ============== SUCCESS
 cd c:\Workspaces\flyway-master

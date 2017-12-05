@@ -4,6 +4,16 @@
 
     INTERNAL RELEASE. ALL RIGHTS RESERVED.
 
+    Must
+    be
+    exactly
+    13 lines
+    to match
+    community
+    edition
+    license
+    length.
+
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -16,13 +26,6 @@
     <artifactId>flyway-core</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://github.com/flyway/flyway/blob/master/LICENSE.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>

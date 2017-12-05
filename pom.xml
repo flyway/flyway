@@ -4,6 +4,16 @@
 
     INTERNAL RELEASE. ALL RIGHTS RESERVED.
 
+    Must
+    be
+    exactly
+    13 lines
+    to match
+    community
+    edition
+    license
+    length.
+
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -22,14 +32,12 @@
     <version>0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
-    <description>
-        Flyway: Database Migrations Made Easy.
-    </description>
+    <description>Flyway: Database Migrations Made Easy.</description>
     <url>https://flywaydb.org</url>
     <licenses>
         <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://github.com/flyway/flyway/blob/master/LICENSE.txt</url>
+            <name>LICENSE_NAME</name>
+            <url>https://flywaydb.org/licenses/flyway-EDITION.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -425,7 +433,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-plugin-plugin</artifactId>
-                    <version>3.2</version>
+                    <version>3.5</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.plexus</groupId>
@@ -497,7 +505,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.2</version>
+                <version>3.0.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -650,6 +658,7 @@
                 <version>2.10.1</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
+                    <failOnError>false</failOnError>
                 </configuration>
             </plugin>
         </plugins>

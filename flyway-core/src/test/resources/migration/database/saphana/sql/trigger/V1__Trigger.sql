@@ -3,6 +3,16 @@
 --
 -- INTERNAL RELEASE. ALL RIGHTS RESERVED.
 --
+-- Must
+-- be
+-- exactly
+-- 13 lines
+-- to match
+-- community
+-- edition
+-- license
+-- length.
+--
 
 CREATE TABLE TARGET ( A INT);
  CREATE TABLE control_tab(id INT PRIMARY KEY, name VARCHAR(30), payment INT);

@@ -3,6 +3,16 @@
 --
 -- INTERNAL RELEASE. ALL RIGHTS RESERVED.
 --
+-- Must
+-- be
+-- exactly
+-- 13 lines
+-- to match
+-- community
+-- edition
+-- license
+-- length.
+--
 
 CREATE TABLE my_table (my_uuid CHAR (16) FOR BIT DATA NOT NULL,
   CONSTRAINT pk_my_table PRIMARY KEY (my_uuid));

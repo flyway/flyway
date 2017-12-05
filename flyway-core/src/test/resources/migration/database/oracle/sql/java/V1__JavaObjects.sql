@@ -3,6 +3,16 @@
 --
 -- INTERNAL RELEASE. ALL RIGHTS RESERVED.
 --
+-- Must
+-- be
+-- exactly
+-- 13 lines
+-- to match
+-- community
+-- edition
+-- license
+-- length.
+--
 
 create and compile java source named "org/flywaydb/core/internal/database/oracle/sql/java/JavaSource" as
 package org.flywaydb.core.internal.database.oracle.sql.java;

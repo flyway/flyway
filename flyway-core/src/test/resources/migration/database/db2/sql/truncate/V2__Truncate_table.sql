@@ -3,6 +3,16 @@
 --
 -- INTERNAL RELEASE. ALL RIGHTS RESERVED.
 --
+-- Must
+-- be
+-- exactly
+-- 13 lines
+-- to match
+-- community
+-- edition
+-- license
+-- length.
+--
 
 TRUNCATE TABLE "CTP_STATUS" IGNORE DELETE TRIGGERS IMMEDIATE;
 ALTER TABLE "CTP_STATUS" RENAME COLUMN "STATUS_VALUE" TO "STATUS_ENABLED";

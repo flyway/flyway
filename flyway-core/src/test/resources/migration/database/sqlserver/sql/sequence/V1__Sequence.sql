@@ -3,6 +3,16 @@
 --
 -- INTERNAL RELEASE. ALL RIGHTS RESERVED.
 --
+-- Must
+-- be
+-- exactly
+-- 13 lines
+-- to match
+-- community
+-- edition
+-- license
+-- length.
+--
 
 CREATE SEQUENCE SEQ_ITEM_ID START WITH 1 INCREMENT BY 1 CACHE 20;
 CREATE SEQUENCE SEQ_PFM_USER_ID START WITH 1 INCREMENT BY 1 CACHE 20;

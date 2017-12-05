@@ -3,6 +3,16 @@
 --
 -- INTERNAL RELEASE. ALL RIGHTS RESERVED.
 --
+-- Must
+-- be
+-- exactly
+-- 13 lines
+-- to match
+-- community
+-- edition
+-- license
+-- length.
+--
 
 create table EMPLOYEE ( "ID" integer not null, "NAME" varchar(100) );
 alter table EMPLOYEE add primary KEY ("ID");
