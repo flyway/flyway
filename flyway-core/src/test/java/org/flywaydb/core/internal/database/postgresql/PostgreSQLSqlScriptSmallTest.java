@@ -37,8 +37,8 @@ public class PostgreSQLSqlScriptSmallTest {
         SqlScript sqlScript = createSqlScript(source);
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(3, sqlStatements.size());
-        assertEquals(17, sqlStatements.get(0).getLineNumber());
-        assertEquals(23, sqlStatements.get(1).getLineNumber());
-        assertEquals(28, sqlStatements.get(2).getLineNumber());
+        assertEquals(7, sqlStatements.get(0).getLineNumber());
+        assertEquals(13, sqlStatements.get(1).getLineNumber());
+        assertEquals(18, sqlStatements.get(2).getLineNumber());
     }
 }
