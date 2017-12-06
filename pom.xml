@@ -32,14 +32,12 @@
     <version>0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
-    <description>
-        Flyway: Database Migrations Made Easy.
-    </description>
+    <description>Flyway: Database Migrations Made Easy.</description>
     <url>https://flywaydb.org</url>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
-            <url>https://github.com/flyway/flyway/blob/master/LICENSE.txt</url>
+            <url>https://flywaydb.org/licenses/flyway-community.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -61,6 +59,7 @@
         <module>flyway-gradle-plugin</module>
         <module>flyway-maven-plugin</module>
         <module>flyway-commandline</module>
+
 
 
 
@@ -99,6 +98,8 @@
             <id>flyway-repo</id>
             <url>https://flywaydb.org/repo</url>
         </repository>
+
+
 
 
 
@@ -435,7 +436,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-plugin-plugin</artifactId>
-                    <version>3.2</version>
+                    <version>3.5</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.plexus</groupId>
@@ -507,7 +508,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.2</version>
+                <version>3.0.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -660,6 +661,7 @@
                 <version>2.10.1</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
+                    <failOnError>false</failOnError>
                 </configuration>
             </plugin>
         </plugins>

@@ -90,7 +90,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String baselineVersion;
 
     /**
-     * The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)
+     * The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
      */
     public String baselineDescription;
 
@@ -122,7 +122,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     /**
      * The file name prefix for versioned SQL migrations. (default: V)
-     * <p>
      * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      * <p>Also configurable with Gradle or System Property: ${flyway.sqlMigrationPrefix}</p>
@@ -141,7 +140,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     /**
      * The file name prefix for repeatable SQL migrations (default: R).
-     * <p>
      * <p>Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to R__My_description.sql</p>
      * <p>Also configurable with Gradle or System Property: ${flyway.repeatableSqlMigrationPrefix}</p>
@@ -150,7 +148,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     /**
      * The file name prefix for Sql migrations
-     * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
@@ -158,9 +155,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     /**
      * The file name suffix for Sql migrations
-     * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
+     *
      * @deprecated Use {@link AbstractFlywayTask#sqlMigrationSuffixes} instead. Will be removed in Flyway 6.0.0.
      */
     @Deprecated
@@ -243,7 +240,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
      * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
      * mark it as future instead.
-     * <p>
      * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
      * (default: {@code false})
      */
@@ -278,7 +274,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * Be careful when enabling this as it removes the safety net that ensures
      * Flyway does not migrate the wrong database in case of a configuration mistake!
      * </p>
-     * <p>
      * <p>{@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})</p>
      */
     public Boolean baselineOnMigrate;
@@ -297,7 +292,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     /**
      * The username that will be recorded in the schema history table as having applied the migration.
-     * <p>
      * {@code null} for the current database user of the connection. (default: {@code null}).
      */
     public String installedBy;
@@ -355,8 +349,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                         Method getClassesDirs = SourceSetOutput.class.getMethod("getClassesDirs");
 
                         // use alternative method available in Gradle 4.0
-                        FileCollection classesDirs = (FileCollection)getClassesDirs.invoke(sourceSet.getOutput());
-                        for (File directory: classesDirs.getFiles()) {
+                        FileCollection classesDirs = (FileCollection) getClassesDirs.invoke(sourceSet.getOutput());
+                        for (File directory : classesDirs.getFiles()) {
                             URL classesUrl = directory.toURI().toURL();
                             getLogger().debug("Adding directory to Classpath: " + classesUrl);
                             extraURLs.add(classesUrl);
@@ -402,6 +396,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     /**
      * Executes the task's custom behavior.
+     *
+     * @param flyway The Flyway instance to use.
+     * @return The result of the task.
      */
     protected abstract Object run(Flyway flyway);
 
