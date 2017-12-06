@@ -13,18 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.gradle.task;
+package org.flywaydb.core.internal.util.jdbc;
 
-import org.flywaydb.core.Flyway;
+import java.util.List;
 
-public class FlywayMigrateTask extends AbstractFlywayTask {
-    public FlywayMigrateTask() {
-        super();
-        setDescription("Migrates the schema to the latest version.");
+public class Result {
+    private final long updateCount;
+
+
+
+
+
+    public Result(long updateCount
+
+
+
+    ) {
+        this.updateCount = updateCount;
+
+
+
+
     }
 
-    @Override
-    protected Object run(Flyway flyway) {
-        return flyway.migrate();
+    public long getUpdateCount() {
+        return updateCount;
     }
+
+
+
+
+
+
+
+
+
+
 }

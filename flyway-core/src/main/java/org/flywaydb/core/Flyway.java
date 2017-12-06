@@ -73,13 +73,12 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * The locations to scan recursively for migrations.
-     * <p/>
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both sql and java-based migrations.
      * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
      * migrations.</p>
-     * <p/>
+     * <p>
      * (default: db/migration)
      */
     private Locations locations = new Locations("db/migration");
@@ -112,7 +111,7 @@ public class Flyway implements FlywayConfiguration {
      * The target version up to which Flyway should consider migrations. Migrations with a higher version number will
      * be ignored. The special value {@code current} designates the current version of the schema (default: the latest version)
      */
-    private MigrationVersion target = MigrationVersion.LATEST;
+    private MigrationVersion target;
 
     /**
      * Whether placeholders should be replaced. (default: true)
@@ -135,16 +134,27 @@ public class Flyway implements FlywayConfiguration {
     private String placeholderSuffix = "}";
 
     /**
-     * The file name prefix for sql migrations. (default: V)
-     * <p/>
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * The file name prefix for versioned SQL migrations. (default: V)
+     * <p>
+     * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
     private String sqlMigrationPrefix = "V";
 
+
+
+
+
+
+
+
+
+
+
+
     /**
-     * The file name prefix for repeatable sql migrations. (default: R)
-     * <p/>
+     * The file name prefix for repeatable SQL migrations. (default: R)
+     * <p>
      * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to R__My_description.sql</p>
      */
@@ -152,7 +162,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * The file name separator for sql migrations. (default: __)
-     * <p/>
+     * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
@@ -358,6 +368,7 @@ public class Flyway implements FlywayConfiguration {
         setCleanDisabled(configuration.isCleanDisabled());
         setCleanOnValidationError(configuration.isCleanOnValidationError());
         setDataSource(configuration.getDataSource());
+
 
 
 
@@ -777,7 +788,6 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Sets the locations to scan recursively for migrations.
-     * <p/>
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both sql and java-based migrations.
@@ -892,7 +902,6 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Sets the file name prefix for sql migrations.
-     * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -902,9 +911,36 @@ public class Flyway implements FlywayConfiguration {
         this.sqlMigrationPrefix = sqlMigrationPrefix;
     }
 
+    @Override
+    public String getUndoSqlMigrationPrefix() {
+
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
+
+
+
+
+    }
+
+    /**
+     * Sets the file name prefix for undo SQL migrations. (default: U)
+     * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
+     * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to U1.1__My_description.sql</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param undoSqlMigrationPrefix The file name prefix for undo SQL migrations. (default: U)
+     */
+    public void setUndoSqlMigrationPrefix(String undoSqlMigrationPrefix) {
+
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
+
+
+
+
+    }
+
     /**
      * Sets the file name prefix for repeatable sql migrations.
-     * <p/>
      * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to R__My_description.sql</p>
      *
@@ -916,7 +952,6 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Sets the file name separator for sql migrations.
-     * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -932,7 +967,6 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Sets the file name suffix for sql migrations.
-     * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -969,7 +1003,6 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Sets the datasource to use. Must have the necessary privileges to execute ddl.
-     * <p/>
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
      *
      * @param url      The JDBC URL of the database.
@@ -1176,6 +1209,33 @@ public class Flyway implements FlywayConfiguration {
     }
 
     /**
+     * <p>Undoes the most recently applied versioned migration. If target is specified, Flyway will attempt to undo
+     * versioned migrations in the order they were applied until it hits one with a version below the target. If there
+     * is no versioned migration to undo, calling undo has no effect.</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <img src="https://flywaydb.org/assets/balsamiq/command-undo.png" alt="undo">
+     *
+     * @return The number of successfully undone migrations.
+     * @throws FlywayException when the undo failed.
+     */
+    public int undo() throws FlywayException {
+
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undo");
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+
+    /**
      * <p>Validate applied migrations against resolved ones (on the filesystem or classpath)
      * to detect accidental changes that may prevent the schema(s) from being recreated exactly.</p>
      * <p>Validation fails if</p>
@@ -1272,7 +1332,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * <p>Baselines an existing database, excluding all migrations up to and including baselineVersion.</p>
-     * <p/>
+     * <p>
      * <img src="https://flywaydb.org/assets/balsamiq/command-baseline.png" alt="baseline">
      *
      * @throws FlywayException when the schema baselining failed.
@@ -1344,7 +1404,6 @@ public class Flyway implements FlywayConfiguration {
     /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
-     * <p/>
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
      *
      * @param properties Properties used for configuration.
@@ -1358,7 +1417,6 @@ public class Flyway implements FlywayConfiguration {
     /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
-     * <p/>
      * <p>To use a custom ClassLoader, it must be passed to the Flyway constructor prior to calling this method.</p>
      *
      * @param props Properties used for configuration.
@@ -1399,6 +1457,10 @@ public class Flyway implements FlywayConfiguration {
         String sqlMigrationPrefixProp = props.remove(ConfigUtils.SQL_MIGRATION_PREFIX);
         if (sqlMigrationPrefixProp != null) {
             setSqlMigrationPrefix(sqlMigrationPrefixProp);
+        }
+        String undoSqlMigrationPrefixProp = props.remove(ConfigUtils.UNDO_SQL_MIGRATION_PREFIX);
+        if (undoSqlMigrationPrefixProp != null) {
+            setUndoSqlMigrationPrefix(undoSqlMigrationPrefixProp);
         }
         String repeatableSqlMigrationPrefixProp = props.remove(ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX);
         if (repeatableSqlMigrationPrefixProp != null) {

@@ -86,6 +86,7 @@ public class ConfigUtils {
     public static final String SQL_MIGRATION_SUFFIXES = "flyway.sqlMigrationSuffixes";
     public static final String TABLE = "flyway.table";
     public static final String TARGET = "flyway.target";
+    public static final String UNDO_SQL_MIGRATION_PREFIX = "flyway.undoSqlMigrationPrefix";
     public static final String URL = "flyway.url";
     public static final String USER = "flyway.user";
     public static final String VALIDATE_ON_MIGRATE = "flyway.validateOnMigrate";
@@ -228,6 +229,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_TARGET".equals(key)) {
             return TARGET;
+        }
+        if ("FLYWAY_UNDO_SQL_MIGRATION_PREFIX".equals(key)) {
+            return UNDO_SQL_MIGRATION_PREFIX;
         }
         if ("FLYWAY_URL".equals(key)) {
             return URL;

@@ -21,6 +21,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
@@ -94,7 +95,7 @@ public class JdbcTemplate {
             }
             resultSet = statement.executeQuery();
 
-            result = new ArrayList<Map<String, String>>();
+            result = new ArrayList<>();
             while (resultSet.next()) {
                 Map<String, String> rowMap = new LinkedHashMap<>();
                 for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
@@ -254,12 +255,12 @@ public class JdbcTemplate {
      * @param sql The statement to execute.
      * @throws SQLException when the execution failed.
      */
-    public void executeStatement(ErrorContextImpl errorContext, String sql) throws SQLException {
+    public List<Result> executeStatement(ContextImpl errorContext, String sql) throws SQLException {
         Statement statement = null;
         try {
             statement = connection.createStatement();
             statement.setEscapeProcessing(false);
-            boolean hasResults = false;
+            boolean hasResults;
             try {
                 hasResults = statement.execute(sql);
             } finally {
@@ -268,18 +269,55 @@ public class JdbcTemplate {
                     errorContext.addWarning(new WarningImpl(warning.getErrorCode(), warning.getSQLState(), warning.getMessage()));
                     warning = warning.getNextWarning();
                 }
-                // retrieve all results to ensure all errors are detected
-                int updateCount = -1;
-                while (hasResults || (updateCount = statement.getUpdateCount()) != -1) {
-                    if (updateCount != -1) {
-                        LOG.debug("Update Count: " + updateCount);
-                    }
-                    hasResults = statement.getMoreResults();
-                }
             }
+            return extractResults(statement, hasResults);
         } finally {
             JdbcUtils.closeStatement(statement);
         }
+    }
+
+    private List<Result> extractResults(Statement statement, boolean hasResults) throws SQLException {
+        List<Result> results = new ArrayList<>();
+
+        // retrieve all results to ensure all errors are detected
+        int updateCount = -1;
+        while (hasResults || (updateCount = statement.getUpdateCount()) != -1) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            results.add(new Result(updateCount
+
+
+
+            ));
+            hasResults = statement.getMoreResults();
+        }
+
+        return results;
     }
 
     /**

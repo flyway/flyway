@@ -17,8 +17,9 @@ package org.flywaydb.core.internal.database.cockroachdb;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
 
@@ -89,6 +90,9 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
 
     @Override
     public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+        if (!StringUtils.hasLength(schema)) {
+            schema = "DEFAULT";
+        }
         jdbcTemplate.execute("SET database = " + schema);
     }
 }
