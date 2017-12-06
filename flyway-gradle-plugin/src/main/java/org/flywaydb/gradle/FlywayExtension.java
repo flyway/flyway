@@ -19,7 +19,6 @@ import java.util.Map;
 
 /**
  * The flyway's configuration properties.
- * <p>
  * <p>More info: <a href="https://flywaydb.org/documentation/gradle">https://flywaydb.org/documentation/gradle</a></p>
  */
 public class FlywayExtension {
@@ -63,7 +62,7 @@ public class FlywayExtension {
     public String baselineVersion;
 
     /**
-     * The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)
+     * The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
      */
     public String baselineDescription;
 
@@ -95,7 +94,6 @@ public class FlywayExtension {
 
     /**
      * The file name prefix for versioned SQL migrations. (default: V)
-     * <p>
      * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      * <p>Also configurable with Gradle or System Property: ${flyway.sqlMigrationPrefix}</p>
@@ -114,7 +112,6 @@ public class FlywayExtension {
 
     /**
      * The file name prefix for repeatable SQL migrations (default: R).
-     * <p>
      * <p>Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to R__My_description.sql</p>
      * <p>Also configurable with Gradle or System Property: ${flyway.repeatableSqlMigrationPrefix}</p>
@@ -123,7 +120,6 @@ public class FlywayExtension {
 
     /**
      * The file name prefix for Sql migrations
-     * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
@@ -131,7 +127,6 @@ public class FlywayExtension {
 
     /**
      * The file name suffix for Sql migrations
-     * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -252,15 +247,13 @@ public class FlywayExtension {
      * Be careful when enabling this as it removes the safety net that ensures
      * Flyway does not migrate the wrong database in case of a configuration mistake!
      * </p>
-     * <p>
-     * <p>{@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})</
+     * <p>{@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})</p>
      */
     public Boolean baselineOnMigrate;
 
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
-     * <p>
-     * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false}</)
+     * <p>{@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})</p>
      */
     public Boolean mixed;
 
@@ -272,7 +265,6 @@ public class FlywayExtension {
 
     /**
      * The username that will be recorded in the schema history table as having applied the migration.
-     * <p>
      * {@code null} for the current database user of the connection. (default: {@code null}).
      */
     public String installedBy;
