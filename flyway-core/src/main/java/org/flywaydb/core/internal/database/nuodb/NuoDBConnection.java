@@ -16,6 +16,8 @@
 package org.flywaydb.core.internal.database.nuodb;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 
@@ -25,18 +27,29 @@ import java.sql.SQLException;
  * Oracle connection.
  */
 public class NuoDBConnection extends Connection<NuoDBDatabase> {
+	private static final Log LOGGER = LogFactory.getLog(NuoDBConnection.class);
+
     NuoDBConnection(FlywayConfiguration configuration, NuoDBDatabase database, java.sql.Connection connection, int nullType) {
         super(configuration, database, connection, nullType);
     }
 
     @Override
     protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT CURRENT_SCHEMA FROM DUAL");
+        String currentSchema = jdbcTemplate.queryForString("SELECT CURRENT_SCHEMA FROM DUAL");
+        if ("".equals(currentSchema)) {
+        	LOGGER.info("NuoDB current schema seem to be empty: using USERS");
+        	currentSchema = "USER";
+        }
+        return currentSchema;
     }
 
     @Override
     public void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        jdbcTemplate.execute("USE SCHEMA " + database.quote(schema));
+    	if ("".equals(schema)) {
+    		LOGGER.info("NuoDB does not support setting the schema to empty string. Default schema NOT changed to " + schema);
+    	} else {
+    		jdbcTemplate.execute("USE " + database.quote(schema));
+    	}
     }
 
     @Override

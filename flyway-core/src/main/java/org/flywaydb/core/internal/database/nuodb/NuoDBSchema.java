@@ -39,7 +39,8 @@ public class NuoDBSchema extends Schema<NuoDBDatabase> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM system.schemas WHERE schema=?", database.quote(name)) > 0;
+        boolean exists = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM system.schemas WHERE schema=?", name) > 0;
+        return exists;
     }
 
     @Override

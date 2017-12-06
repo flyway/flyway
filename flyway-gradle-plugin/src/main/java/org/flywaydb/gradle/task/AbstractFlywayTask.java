@@ -146,8 +146,20 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
+     * @deprecated Use {@link AbstractFlywayTask#sqlMigrationSuffixes} instead. Will be removed in Flyway 6.0.0.
      */
+    @Deprecated
     public String sqlMigrationSuffix;
+
+    /**
+     * The file name suffixes for SQL migrations. (default: .sql)
+     * <p>SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     * <p>Multiple suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as
+     * editors with specific file associations.</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.sqlMigrationSuffixes}</p>
+     */
+    public String[] sqlMigrationSuffixes;
 
     /**
      * The encoding of Sql migrations
@@ -386,6 +398,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix, extension.repeatableSqlMigrationPrefix);
         putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator, extension.sqlMigrationSeparator);
         putIfSet(conf, ConfigUtils.SQL_MIGRATION_SUFFIX, sqlMigrationSuffix, extension.sqlMigrationSuffix);
+        putIfSet(conf, ConfigUtils.SQL_MIGRATION_SUFFIXES, StringUtils.arrayToCommaDelimitedString(sqlMigrationSuffixes), StringUtils.arrayToCommaDelimitedString(extension.sqlMigrationSuffixes));
         putIfSet(conf, ConfigUtils.MIXED, mixed, extension.mixed);
         putIfSet(conf, ConfigUtils.GROUP, group, extension.group);
         putIfSet(conf, ConfigUtils.INSTALLED_BY, installedBy, extension.installedBy);
