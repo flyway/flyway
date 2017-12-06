@@ -26,13 +26,6 @@
     <artifactId>flyway-gradle-plugin</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://github.com/flyway/flyway/blob/master/LICENSE.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
     <dependencies>
         <dependency>
             <!-- Force correct module ordering -->
