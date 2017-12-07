@@ -10,4 +10,4 @@ the Flyway License and Maintenance Agreement.
 This software is distributed with a LIMITED WARRANTY.
 See the Flyway License and Maintenance Agreement
 for more details:
-https://flywaydb.org/licenses/flyway-enterprise.txt
+https://flywaydb.org/licenses/flyway-trial.txt
