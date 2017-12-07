@@ -98,12 +98,10 @@
             <id>flyway-repo</id>
             <url>https://flywaydb.org/repo</url>
         </repository>
-        <!-- [pro] -->
         <repository>
             <id>flyway-repo-private</id>
             <url>s3://flyway-repo/release</url>
         </repository>
-        <!-- [/pro] -->
         <!-- [master] -->
         <repository>
             <id>git-tzolov</id>
