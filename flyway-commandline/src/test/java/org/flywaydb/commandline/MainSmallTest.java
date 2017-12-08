@@ -15,6 +15,7 @@
  */
 package org.flywaydb.commandline;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
 import org.junit.Before;
@@ -22,9 +23,7 @@ import org.junit.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Test for Main.
@@ -60,5 +59,23 @@ public class MainSmallTest {
         Main.overrideConfigurationWithArgs(properties, args);
 
         assertEquals("SA", properties.getProperty("flyway.user"));
+    }
+
+    @Test
+    public void validateArgs() {
+        String[] args = new String[]{"-url=jdbc:mydb", "migrate"};
+        Main.validateArgs(args);
+    }
+
+    @Test
+    public void validateArgsInvalid() {
+        String invalidArg = "-dryRunOutput:previewDeployment.sql";
+        String[] args = new String[]{invalidArg, "migrate"};
+
+        try {
+            Main.validateArgs(args);
+        } catch (FlywayException e) {
+            assertTrue(e.getMessage().contains(invalidArg));
+        }
     }
 }

@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -41,6 +42,9 @@ import java.util.Properties;
  */
 public class Main {
     private static Log LOG;
+
+    private static List<String> VALID_OPERATIONS_AND_FLAGS = Arrays.asList("-X", "-q", "-n", "-v", "-?",
+            "help", "migrate", "clean", "info", "validate", "undo", "baseline", "repair");
 
     /**
      * Initializes the logging.
@@ -72,6 +76,8 @@ public class Main {
                 printUsage();
                 return;
             }
+
+            validateArgs(args);
 
             Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
 
@@ -109,6 +115,14 @@ public class Main {
                 }
             }
             System.exit(1);
+        }
+    }
+
+    static void validateArgs(String[] args) {
+        for (String arg : args) {
+            if (!isPropertyArgument(arg) && !VALID_OPERATIONS_AND_FLAGS.contains(arg)) {
+                throw new FlywayException("Invalid argument: " + arg);
+            }
         }
     }
 
@@ -199,10 +213,8 @@ public class Main {
 
     /**
      * Prints the version number on the console.
-     *
-     * @throws IOException when the version could not be read.
      */
-    private static void printVersion() throws IOException {
+    private static void printVersion() {
         VersionPrinter.printVersion();
         LOG.info("");
 
