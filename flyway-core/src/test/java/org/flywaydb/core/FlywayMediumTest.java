@@ -916,6 +916,23 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void schemaVersionFallbackIncompatible() throws SQLException {
+        flyway.setDataSource("jdbc:h2:mem:flyway_schema_version_fallback_incompatible;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.setTable("schema_version2");
+        flyway.setBaselineVersionAsString("0");
+        flyway.setBaselineOnMigrate(true);
+        Connection connection = null;
+        try {
+            connection = flyway.getDataSource().getConnection();
+            new JdbcTemplate(connection).execute("CREATE TABLE \"schema_version\" ( abc INT )");
+        } finally {
+            JdbcUtils.closeConnection(connection);
+        }
+        assertEquals(4, flyway.migrate());
+    }
+
+    @Test
     public void failed() {
         StringLogCreator logCreator = new StringLogCreator();
         LogFactory.setLogCreator(logCreator);
