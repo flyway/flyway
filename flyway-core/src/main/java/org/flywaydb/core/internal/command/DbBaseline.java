@@ -113,7 +113,7 @@ public class DbBaseline {
                         AppliedMigration baselineMarker = schemaHistory.getBaselineMarker();
                         if (baselineVersion.equals(baselineMarker.getVersion())
                                 && baselineDescription.equals(baselineMarker.getDescription())) {
-                            LOG.info("Metadata table " + schemaHistory + " already initialized with ("
+                            LOG.info("Schema history table " + schemaHistory + " already initialized with ("
                                     + baselineVersion + "," + baselineDescription + "). Skipping.");
                             return null;
                         }
