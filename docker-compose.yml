@@ -193,12 +193,19 @@ services:
     volumes:
       - ./flyway-core/src/test/resources/migration/database/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
       - ./flyway-core/src/test/resources/migration/database/oracle/tuneDatabase.sh:/docker-entrypoint-initdb.d/tuneDatabase.sh
-  oracle-12:
+  oracle-121:
     image: "sath89/oracle-12c"
     ports:
       - "62042:1521"
     volumes:
       - ./flyway-core/src/test/resources/migration/database/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+#  oracle-122:
+#    image: "store/oracle/database-enterprise:12.2.0.1-slim"
+#    ports:
+#      - "62043:1521"
+#    volumes:
+#      - ./flyway-core/src/test/resources/migration/database/oracle/dockerInit.sh:/home/oracle/setup/dockerInit.sh
+#      - ./flyway-core/src/test/resources/migration/database/oracle/createDatabase.sql:/createDatabase.sql
   postgresql-92:
     image: "postgres:9.2.23-alpine"
     ports:
