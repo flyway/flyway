@@ -90,7 +90,7 @@ public class DbRepair {
         this.database = database;
         this.connection = database.getMainConnection();
         this.schema = schema;
-        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, MigrationVersion.LATEST, true, true, true, true);
+        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, MigrationVersion.LATEST, true, true, true, true, true);
         this.schemaHistory = schemaHistory;
         this.callbacks = callbacks;
     }
