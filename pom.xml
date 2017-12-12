@@ -102,6 +102,18 @@
             <id>flyway-repo-private</id>
             <url>s3://flyway-repo/release</url>
         </repository>
+        <!-- [pro-only] -->
+        <repository>
+            <id>flyway-pro-repo</id>
+            <url>s3://flyway-pro-repo/release</url>
+        </repository>
+        <!-- [/pro-only] -->
+        <!-- [enterprise-only] -->
+        <repository>
+            <id>flyway-enterprise-repo</id>
+            <url>s3://flyway-enterprise-repo/release</url>
+        </repository>
+        <!-- [/enterprise-only] -->
         <!-- [master] -->
         <repository>
             <id>git-tzolov</id>
@@ -376,7 +388,7 @@
     </dependencyManagement>
 
     <build>
-        <!-- [master] -->
+        <!-- [pro] -->
         <extensions>
             <extension>
                 <groupId>com.allogy.maven.wagon</groupId>
@@ -389,7 +401,7 @@
                 <version>2.8</version>
             </extension>
         </extensions>
-        <!-- [/master] -->
+        <!-- [/pro] -->
 
         <pluginManagement>
             <plugins>
