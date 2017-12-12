@@ -63,6 +63,7 @@ public class ConfigUtils {
     public static final String GROUP = "flyway.group";
     public static final String IGNORE_FUTURE_MIGRATIONS = "flyway.ignoreFutureMigrations";
     public static final String IGNORE_MISSING_MIGRATIONS = "flyway.ignoreMissingMigrations";
+    public static final String IGNORE_IGNORED_MIGRATIONS = "flyway.ignoreIgnoredMigrations";
     public static final String INSTALLED_BY = "flyway.installedBy";
     public static final String LOCATIONS = "flyway.locations";
     public static final String MIXED = "flyway.mixed";
