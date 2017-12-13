@@ -391,9 +391,9 @@
         <!-- [pro] -->
         <extensions>
             <extension>
-                <groupId>com.allogy.maven.wagon</groupId>
-                <artifactId>maven-s3-wagon</artifactId>
-                <version>1.0.1</version>
+                <groupId>org.zalando.org.springframework.build</groupId>
+                <artifactId>aws-maven</artifactId>
+                <version>5.0.0.RELEASE-zal-2</version>
             </extension>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
