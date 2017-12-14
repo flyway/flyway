@@ -95,25 +95,15 @@
             <url>https://jcenter.bintray.com/</url>
         </repository>
         <repository>
-            <id>flyway-repo</id>
+            <id>flyway-repo-public</id>
             <url>https://flywaydb.org/repo</url>
         </repository>
+        <!-- [pro] -->
         <repository>
-            <id>flyway-repo-private</id>
+            <id>flyway-repo</id>
             <url>s3://flyway-repo/release</url>
         </repository>
-        <!-- [pro-only] -->
-        <repository>
-            <id>flyway-pro-repo</id>
-            <url>s3://flyway-pro-repo/release</url>
-        </repository>
-        <!-- [/pro-only] -->
-        <!-- [enterprise-only] -->
-        <repository>
-            <id>flyway-enterprise-repo</id>
-            <url>s3://flyway-enterprise-repo/release</url>
-        </repository>
-        <!-- [/enterprise-only] -->
+        <!-- [/pro] -->
         <!-- [master] -->
         <repository>
             <id>git-tzolov</id>
@@ -391,9 +381,9 @@
         <!-- [pro] -->
         <extensions>
             <extension>
-                <groupId>org.zalando.org.springframework.build</groupId>
-                <artifactId>aws-maven</artifactId>
-                <version>5.0.0.RELEASE-zal-2</version>
+                <groupId>com.allogy.maven.wagon</groupId>
+                <artifactId>maven-s3-wagon</artifactId>
+                <version>1.0.1</version>
             </extension>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
