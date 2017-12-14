@@ -4,10 +4,8 @@ setlocal
 
 set VERSION=%1
 set GROUP_ID=org.flywaydb.enterprise
-set REPOSITORY=flyway-enterprise-repo
-set URL=s3://flyway-enterprise-repo/release
-set AWS_ACCESS_KEY=AKIAIJQWKVURPXMPGFCQ
-set AWS_SECRET_KEY=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
+set REPOSITORY=flyway-repo
+set URL=s3://flyway-repo/release
 
 call mvn -f pom.xml deploy:deploy-file -Durl=%URL% -Dfile=pom.xml -DgroupId=%GROUP_ID% -DartifactId=flyway-parent -Dversion=%VERSION% -Dpackaging=pom -DupdateReleaseInfo=true
 call mvn -f pom.xml deploy:deploy-file -Durl=%URL% -Dfile=flyway-core/target/flyway-core-%VERSION%.jar -DgroupId=%GROUP_ID% -DartifactId=flyway-core -Dversion=%VERSION% -Dpackaging=jar -Djavadoc=flyway-core/target/flyway-core-%VERSION%-javadoc.jar -Dsources=flyway-core/target/flyway-core-%VERSION%-sources.jar -DpomFile=flyway-core/pom.xml -DupdateReleaseInfo=true
