@@ -335,24 +335,52 @@ public class OracleDatabase extends Database {
         List<String> result = new ArrayList<String>();
 
         CallableStatement stmt = null;
+        ResultSet rs = null;
         try {
-            stmt = getMigrationConnection().getJdbcConnection().prepareCall("BEGIN\ndbms_output.get_line(?,?);\nEND;");
-            stmt.registerOutParameter(1, java.sql.Types.VARCHAR);
-            stmt.registerOutParameter(2, java.sql.Types.NUMERIC);
+            Connection connection = getMigrationConnection().getJdbcConnection();
+            if (getMajorVersion() >= 12) {
+                stmt = connection.prepareCall("declare "
+                        + "  lines dbms_output.chararr;"
+                        + "  num   integer := 65536;"
+                        + "  cur   sys_refcursor;"
+                        + "begin "
+                        // The below fetching the PL/SQL TABLE type into a SQL cursor works with Oracle 12c.
+                        // In an 11g version, you'd need an auxiliary SQL TABLE type
+                        + "  dbms_output.get_lines(lines, num);"
+                        + "  open cur for select * from table(lines);"
+                        + "  ? := cur;"
+                        + "end;"
+                );
+                stmt.registerOutParameter(1, -10); // OracleTypes.CURSOR
+                stmt.execute();
 
-            int status;
-            do {
-                stmt.executeUpdate();
-                String line = stmt.getString(1);
-                if (line == null) line = "";
-                status = stmt.getInt(2);
-                if (status == 0) {
-                    result.add(line);
+                rs = (ResultSet) stmt.getObject(1);
+                while (rs.next()) {
+                    String line = rs.getString(1);
+                    if (line != null) {
+                        result.add(line);
+                    }
                 }
-            } while (status == 0);
+            } else {
+                stmt = connection.prepareCall("BEGIN\ndbms_output.get_line(?,?);\nEND;");
+                stmt.registerOutParameter(1, java.sql.Types.VARCHAR);
+                stmt.registerOutParameter(2, java.sql.Types.NUMERIC);
+
+                int status;
+                do {
+                    stmt.executeUpdate();
+                    String line = stmt.getString(1);
+                    if (line == null) line = "";
+                    status = stmt.getInt(2);
+                    if (status == 0) {
+                        result.add(line);
+                    }
+                } while (status == 0);
+            }
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to get server output", e);
         } finally {
+            JdbcUtils.closeResultSet(rs);
             JdbcUtils.closeStatement(stmt);
         }
         return result;

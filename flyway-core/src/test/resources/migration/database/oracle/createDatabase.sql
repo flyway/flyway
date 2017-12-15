@@ -15,7 +15,6 @@
 --
 
 -- create test users
-alter session set "_ORACLE_SCRIPT"=true;
 CREATE USER FLYWAY IDENTIFIED BY "flyway";
 CREATE USER FLYWAY_AUX IDENTIFIED BY "flyway";
 CREATE USER "flyway_proxy" IDENTIFIED BY "flyway";
