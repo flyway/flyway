@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
+import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -335,52 +336,31 @@ public class OracleDatabase extends Database {
         List<String> result = new ArrayList<String>();
 
         CallableStatement stmt = null;
-        ResultSet rs = null;
         try {
-            Connection connection = getMigrationConnection().getJdbcConnection();
-            if (getMajorVersion() >= 12) {
-                stmt = connection.prepareCall("declare "
-                        + "  lines dbms_output.chararr;"
-                        + "  num   integer := 65536;"
-                        + "  cur   sys_refcursor;"
-                        + "begin "
-                        // The below fetching the PL/SQL TABLE type into a SQL cursor works with Oracle 12c.
-                        // In an 11g version, you'd need an auxiliary SQL TABLE type
-                        + "  dbms_output.get_lines(lines, num);"
-                        + "  open cur for select * from table(lines);"
-                        + "  ? := cur;"
-                        + "end;"
-                );
-                stmt.registerOutParameter(1, -10); // OracleTypes.CURSOR
-                stmt.execute();
-
-                rs = (ResultSet) stmt.getObject(1);
-                while (rs.next()) {
-                    String line = rs.getString(1);
+            stmt = getMigrationConnection().getJdbcConnection().prepareCall("DECLARE "
+                    + "  num INTEGER := 65536;"
+                    + "BEGIN "
+                    + "  dbms_output.get_lines(?, num);"
+                    + "END;");
+            stmt.registerOutParameter(1, Types.ARRAY, "DBMSOUTPUT_LINESARRAY");
+            stmt.execute();
+            Array array = null;
+            try {
+                array = stmt.getArray(1);
+                List<Object> list = Arrays.asList((Object[]) array.getArray());
+                for (Object line : list) {
                     if (line != null) {
-                        result.add(line);
+                        result.add(line.toString());
                     }
                 }
-            } else {
-                stmt = connection.prepareCall("BEGIN\ndbms_output.get_line(?,?);\nEND;");
-                stmt.registerOutParameter(1, java.sql.Types.VARCHAR);
-                stmt.registerOutParameter(2, java.sql.Types.NUMERIC);
-
-                int status;
-                do {
-                    stmt.executeUpdate();
-                    String line = stmt.getString(1);
-                    if (line == null) line = "";
-                    status = stmt.getInt(2);
-                    if (status == 0) {
-                        result.add(line);
-                    }
-                } while (status == 0);
+            } finally {
+                if (array != null) {
+                    array.free();
+                }
             }
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to get server output", e);
         } finally {
-            JdbcUtils.closeResultSet(rs);
             JdbcUtils.closeStatement(stmt);
         }
         return result;
