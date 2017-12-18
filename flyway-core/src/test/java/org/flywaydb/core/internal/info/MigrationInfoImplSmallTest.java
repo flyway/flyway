@@ -20,10 +20,12 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
+import org.flywaydb.core.internal.util.AbbreviationUtils;
 import org.junit.Test;
 
 import java.util.Date;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class MigrationInfoImplSmallTest {
@@ -47,6 +49,32 @@ public class MigrationInfoImplSmallTest {
 
         assertTrue(message.contains("123"));
         assertTrue(message.contains("456"));
+    }
+
+    @Test
+    public void validateUltralongDescription() {
+        MigrationVersion version = MigrationVersion.fromVersion("1");
+        String description = "test123456test123456test123456test123456test123456"
+                + "test123456test123456test123456test123456test123456"
+                + "test123456test123456test123456test123456test123456"
+                + "test123456test123456test123456test123456test123456"
+                + "test123456test123456test123456test123456test123456";
+        MigrationType type = MigrationType.SQL;
+        int checksum = 123;
+
+        ResolvedMigrationImpl resolvedMigration = new ResolvedMigrationImpl();
+        resolvedMigration.setVersion(version);
+        resolvedMigration.setDescription(description);
+        resolvedMigration.setType(type);
+        resolvedMigration.setChecksum(checksum);
+
+        AppliedMigration appliedMigration = new AppliedMigration(1, version,
+                AbbreviationUtils.abbreviateDescription(description), type, null, checksum, new Date(),
+                "abc", 0, true);
+
+        MigrationInfoImpl migrationInfo =
+                new MigrationInfoImpl(resolvedMigration, appliedMigration, new MigrationInfoContext(), false, false);
+        assertNull(migrationInfo.validate());
     }
 
     @Test
