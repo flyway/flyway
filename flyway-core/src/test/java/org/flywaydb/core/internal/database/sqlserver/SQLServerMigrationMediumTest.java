@@ -315,7 +315,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void sequence() {
-        assumeDatabaseVersionNotLessThan(12, 0);
+        assumeDatabaseVersionNotLessThan(11, 0);
         flyway.setLocations("migration/database/sqlserver/sql/sequence");
         flyway.migrate();
 
