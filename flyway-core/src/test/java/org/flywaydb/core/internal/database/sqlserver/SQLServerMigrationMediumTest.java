@@ -310,6 +310,15 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
         flyway.clean();
     }
 
+    @Test
+    public void rule() {
+        flyway.setLocations("migration/database/sqlserver/sql/rule");
+
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+    }
+
     /**
      * Tests clean and migrate for SQL Server sequences.
      */

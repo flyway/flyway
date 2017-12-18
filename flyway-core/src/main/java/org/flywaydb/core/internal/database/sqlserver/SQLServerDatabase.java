@@ -18,8 +18,8 @@ package org.flywaydb.core.internal.database.sqlserver;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
