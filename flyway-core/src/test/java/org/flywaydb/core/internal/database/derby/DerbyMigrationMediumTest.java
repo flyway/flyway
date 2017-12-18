@@ -26,7 +26,6 @@ import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
 import java.sql.DriverManager;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -51,7 +50,7 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:derby:memory:flyway_db;create=true", "", "", null);
     }
 
@@ -61,7 +60,7 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void bitdata() throws Exception {
+    public void bitdata() {
         flyway.setLocations("migration/database/derby/sql/bitdata");
         flyway.migrate();
 
@@ -69,7 +68,7 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void trigger() throws Exception {
+    public void trigger() {
         flyway.setLocations("migration/database/derby/sql/trigger");
         flyway.migrate();
 
@@ -86,7 +85,7 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void testFlyway1331() throws Exception {
+    public void testFlyway1331() {
         try {
             Flyway flyway = new Flyway();
             flyway.setDataSource("jdbc:derby:memory:fw1331db;create=true", "sa", "sa");

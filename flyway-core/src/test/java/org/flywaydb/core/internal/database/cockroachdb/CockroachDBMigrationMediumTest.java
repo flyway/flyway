@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -35,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 @Category(DbCategory.CockroachDB.class)
 public class CockroachDBMigrationMediumTest extends MigrationTestCase {
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 getUrl("flyway_db"), "flyway", "");
     }
@@ -102,16 +101,16 @@ public class CockroachDBMigrationMediumTest extends MigrationTestCase {
 
     @Ignore("Only works with root user")
     @Override
-    public void setCurrentSchema() throws Exception {
+    public void setCurrentSchema() {
     }
 
     @Ignore("Broken in CockroachDB")
     @Override
-    public void failedMigration() throws Exception {
+    public void failedMigration() {
     }
 
     @Ignore("Broken in CockroachDB")
     @Override
-    public void migrateMultipleSchemas() throws Exception {
+    public void migrateMultipleSchemas() {
     }
 }

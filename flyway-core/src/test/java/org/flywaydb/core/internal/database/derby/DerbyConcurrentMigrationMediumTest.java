@@ -15,13 +15,12 @@
  */
 package org.flywaydb.core.internal.database.derby;
 
-import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
-import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.junit.experimental.categories.Category;
 import org.flywaydb.core.DbCategory;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
+import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 /**
  * Test to demonstrate the concurrent migration functionality using Derby.
@@ -33,7 +32,7 @@ public class DerbyConcurrentMigrationMediumTest extends ConcurrentMigrationTestC
     }
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:derby:memory:flyway_db_concurrent;create=true", "", "", null);
     }
 }

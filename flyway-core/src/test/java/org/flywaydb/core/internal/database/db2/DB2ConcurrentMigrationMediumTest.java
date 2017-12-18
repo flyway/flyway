@@ -15,17 +15,16 @@
  */
 package org.flywaydb.core.internal.database.db2;
 
-import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
-import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.junit.experimental.categories.Category;
 import org.flywaydb.core.DbCategory;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Properties;
 
 import static org.flywaydb.core.internal.database.db2.DB2MigrationMediumTest.*;
 
@@ -45,12 +44,12 @@ public class DB2ConcurrentMigrationMediumTest extends ConcurrentMigrationTestCas
         });
     }
 
-    public DB2ConcurrentMigrationMediumTest(String jdbcUrl) throws Exception {
+    public DB2ConcurrentMigrationMediumTest(String jdbcUrl) {
         this.jdbcUrl = jdbcUrl;
     }
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) throws Exception {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 jdbcUrl, JDBC_USER, JDBC_PASSWORD, null);
     }

@@ -17,8 +17,8 @@ package org.flywaydb.core.internal.database.saphana;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
 import org.flywaydb.core.migration.MigrationTestCase;
@@ -29,13 +29,12 @@ import org.junit.experimental.categories.Category;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using SAP HANA.
- *
+ * <p>
  * Testing with SAP HANA 1
  * -----------------------
  * 1. Launch SAP HANA One on SUSE Linux Enterprise Server 11 SP 4 from AWS Marketplace (ami-28b25547) with known Keypair
@@ -59,7 +58,7 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
     private static final String JDBC_USER = "flywaydb";
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) throws SQLException {
+    protected DataSource createDataSource() throws SQLException {
         DriverDataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 JDBC_URL, "SYSTEM", JDBC_PASSWORD);
         Connection connection = null;
@@ -91,8 +90,8 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
     public void concurrent() throws Exception {
         ConcurrentMigrationTestCase testCase = new ConcurrentMigrationTestCase() {
             @Override
-            protected DataSource createDataSource(Properties customProperties) throws SQLException {
-                return SAPHANAMigrationMediumTest.this.createDataSource(customProperties);
+            protected DataSource createDataSource() throws SQLException {
+                return SAPHANAMigrationMediumTest.this.createDataSource();
             }
 
             @Override
@@ -111,7 +110,7 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void sequence() throws Exception {
+    public void sequence() {
         flyway.setLocations("migration/database/saphana/sql/sequence");
         flyway.migrate();
 
@@ -124,7 +123,7 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void trigger() throws Exception {
+    public void trigger() {
         flyway.setLocations("migration/database/saphana/sql/trigger");
         flyway.migrate();
 
@@ -137,7 +136,7 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void index() throws Exception {
+    public void index() {
         flyway.setLocations("migration/database/saphana/sql/index");
         flyway.migrate();
 
@@ -150,13 +149,13 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void block() throws Exception {
+    public void block() {
         flyway.setLocations("migration/database/saphana/sql/block");
         assertEquals(1, flyway.migrate());
     }
 
     @Test
-    public void statistics() throws Exception {
+    public void statistics() {
         flyway.setLocations("migration/database/saphana/sql/statistics");
         flyway.migrate();
 
@@ -169,7 +168,7 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void synonym() throws Exception {
+    public void synonym() {
         flyway.setLocations("migration/database/saphana/sql/synonym");
         flyway.migrate();
 
@@ -183,12 +182,12 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
 
     @Test
     @Ignore("Ignored as SAP HANA demo lacks create schema permissions")
-    public void migrateMultipleSchemas() throws Exception {
+    public void migrateMultipleSchemas() {
     }
 
     @Test
     @Ignore("Ignored as SAP HANA demo lacks create schema permissions")
-    public void setCurrentSchema() throws Exception {
+    public void setCurrentSchema() {
     }
 
     @Test

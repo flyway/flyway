@@ -15,13 +15,12 @@
  */
 package org.flywaydb.core.internal.database.h2;
 
-import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
-import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.junit.experimental.categories.Category;
 import org.flywaydb.core.DbCategory;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
+import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 /**
  * Test to demonstrate the migration functionality using H2.
@@ -29,7 +28,7 @@ import java.util.Properties;
 @Category(DbCategory.H2.class)
 public class H2ConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_concurrent;DB_CLOSE_DELAY=-1", "sa", "", null, "SET LOCK_TIMEOUT 100000");
     }
 

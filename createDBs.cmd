@@ -40,4 +40,7 @@ solsql -f flyway-core/src/test/resources/migration/database/solid/createDatabase
 echo CockroackDB
 cockroach sql --insecure < ./flyway-core/src/test/resources/migration/database/cockroachdb/createDatabase.sql
 
+echo SQL Server...
+sqlcmd -U sa -P flywayPWD000 -S localhost\SQLExpress -i flyway-core\src\test\resources\migration\database\sqlserver\createDatabase.sql
+
 echo Done.

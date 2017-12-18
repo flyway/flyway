@@ -21,7 +21,6 @@ import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 import static org.flywaydb.core.internal.database.redshift.RedshiftMigrationMediumTest.*;
 import static org.junit.Assume.assumeTrue;
@@ -37,7 +36,7 @@ public class RedshiftConcurrentMigrationMediumTest extends ConcurrentMigrationTe
     }
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 JDBC_URL, JDBC_USER, JDBC_PASSWORD);
     }

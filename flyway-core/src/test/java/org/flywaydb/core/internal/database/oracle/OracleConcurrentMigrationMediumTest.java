@@ -25,7 +25,6 @@ import org.junit.runners.Parameterized;
 import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Properties;
 
 import static org.flywaydb.core.internal.database.oracle.OracleMigrationMediumTest.*;
 
@@ -46,12 +45,12 @@ public class OracleConcurrentMigrationMediumTest extends ConcurrentMigrationTest
 
     private final String jdbcUrl;
 
-    public OracleConcurrentMigrationMediumTest(String jdbcUrl) throws Exception {
+    public OracleConcurrentMigrationMediumTest(String jdbcUrl) {
         this.jdbcUrl = jdbcUrl;
     }
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) throws Exception {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 jdbcUrl, JDBC_USER, JDBC_PASSWORD, null);
     }

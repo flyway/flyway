@@ -24,7 +24,6 @@ import org.junit.runners.Parameterized;
 import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Properties;
 
 /**
  * Test to demonstrate the migration functionality using Mysql.
@@ -56,7 +55,7 @@ public class MariaDBMigrationMediumTest extends MySQLMigrationTestCase {
     }
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 jdbcUrl, JDBC_USER, JDBC_PASSWORD);
     }

@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -41,7 +40,7 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
     private static final String JDBC_PASSWORD = "password";
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 JDBC_URL_JCONNECT, JDBC_USER, JDBC_PASSWORD);
     }
@@ -50,7 +49,7 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
     public void concurrent() throws Exception {
         ConcurrentMigrationTestCase testCase = new ConcurrentMigrationTestCase() {
             @Override
-            protected DataSource createDataSource(Properties customProperties) {
+            protected DataSource createDataSource() {
                 return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                         JDBC_URL_JTDS, JDBC_USER, JDBC_PASSWORD);
             }

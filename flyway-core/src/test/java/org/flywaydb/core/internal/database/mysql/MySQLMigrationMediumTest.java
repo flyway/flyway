@@ -26,7 +26,6 @@ import org.junit.runners.Parameterized;
 import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -62,15 +61,15 @@ public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
     }
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 jdbcUrl, JDBC_USER, JDBC_PASSWORD);
     }
 
     @Test
-    public void migrateWithNonExistingSchemaSetInPropertyButNotInUrl() throws Exception {
+    public void migrateWithNonExistingSchemaSetInPropertyButNotInUrl() {
         Flyway flyway = new Flyway();
-        flyway.setDataSource(createDataSource(null));
+        flyway.setDataSource(createDataSource());
         flyway.setSchemas("non-existing-schema");
         flyway.setLocations(getBasedir());
         flyway.clean();
@@ -78,9 +77,9 @@ public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
     }
 
     @Test
-    public void migrateWithExistingSchemaSetInPropertyButNotInUrl() throws Exception {
+    public void migrateWithExistingSchemaSetInPropertyButNotInUrl() {
         Flyway flyway = new Flyway();
-        flyway.setDataSource(createDataSource(null));
+        flyway.setDataSource(createDataSource());
         flyway.setSchemas("test");
         flyway.setLocations(getBasedir());
         flyway.clean();

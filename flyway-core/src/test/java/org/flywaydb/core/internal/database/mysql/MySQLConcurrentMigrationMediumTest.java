@@ -25,7 +25,6 @@ import org.junit.runners.Parameterized;
 import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Properties;
 
 import static org.flywaydb.core.internal.database.mysql.MySQLMigrationMediumTest.*;
 
@@ -59,7 +58,7 @@ public class MySQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestC
     }
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 jdbcUrl, JDBC_USER, JDBC_PASSWORD);
     }

@@ -17,13 +17,12 @@ package org.flywaydb.core.internal.database.hsqldb;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -33,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 @Category(DbCategory.HSQL.class)
 public class HSQLDBMigrationMediumTest extends MigrationTestCase {
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:hsqldb:mem:flyway_db", "SA", "", null);
     }
 
@@ -57,7 +56,7 @@ public class HSQLDBMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void trigger() throws Exception {
+    public void trigger() {
         flyway.setLocations("migration/database/hsqldb/sql/trigger");
         flyway.migrate();
 
@@ -66,7 +65,7 @@ public class HSQLDBMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void view() throws Exception {
+    public void view() {
         Schema schema = database.getMainConnection().getSchema("MY_VIEWS");
         schema.create();
 

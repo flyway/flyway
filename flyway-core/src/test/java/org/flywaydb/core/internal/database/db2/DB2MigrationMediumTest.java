@@ -28,7 +28,6 @@ import org.junit.runners.Parameterized;
 import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -53,12 +52,12 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         });
     }
 
-    public DB2MigrationMediumTest(String jdbcUrl) throws Exception {
+    public DB2MigrationMediumTest(String jdbcUrl) {
         this.jdbcUrl = jdbcUrl;
     }
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) throws Exception {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 jdbcUrl, JDBC_USER, JDBC_PASSWORD, null);
     }
@@ -92,7 +91,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void bitdata() throws Exception {
+    public void bitdata() {
         flyway.setLocations("migration/database/db2/sql/bitdata");
         flyway.migrate();
 
@@ -100,7 +99,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void truncate() throws Exception {
+    public void truncate() {
         flyway.setLocations("migration/database/db2/sql/truncate");
         flyway.migrate();
 
@@ -108,7 +107,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void delimiter() throws Exception {
+    public void delimiter() {
         flyway.setLocations("migration/database/db2/sql/delimiter");
         flyway.migrate();
 
@@ -144,7 +143,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void trigger() throws Exception {
+    public void trigger() {
         flyway.setLocations("migration/database/db2/sql/trigger");
         flyway.migrate();
 
@@ -153,7 +152,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void procedure() throws Exception {
+    public void procedure() {
         flyway.setLocations("migration/database/db2/sql/procedure");
         flyway.migrate();
 
@@ -162,7 +161,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void type() throws Exception {
+    public void type() {
         flyway.setLocations("migration/database/db2/sql/type");
         flyway.migrate();
 
@@ -171,7 +170,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void function() throws Exception {
+    public void function() {
         flyway.setLocations("migration/database/db2/sql/function");
         flyway.migrate();
 
@@ -180,7 +179,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void expressionBasedIndex() throws Exception {
+    public void expressionBasedIndex() {
         flyway.setLocations("migration/database/db2/sql/index");
         flyway.migrate();
 
@@ -189,7 +188,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void versioned() throws Exception {
+    public void versioned() {
         flyway.setLocations("migration/database/db2/sql/versioned");
         flyway.migrate();
 

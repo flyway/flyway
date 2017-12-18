@@ -20,8 +20,8 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException;
 import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
@@ -37,7 +37,6 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -47,14 +46,21 @@ import static org.junit.Assert.*;
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.SQLServer.class)
 public class SQLServerMigrationMediumTest extends MigrationTestCase {
+    // Enable for SQL Server 2008 on Win x64 testing
+    //static String JDBC_PORT = "1433";
+
     static String JDBC_PORT = "62070";
     static String JDBC_USER = "sa";
     static String JDBC_PASSWORD = "flywayPWD000";
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
+        return createDataSource("flyway_db_ms");
+    }
+
+    private DataSource createDataSource(String databaseName) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                "jdbc:sqlserver://localhost:" + JDBC_PORT + ";databaseName=flyway_db_ms", JDBC_USER, JDBC_PASSWORD);
+                "jdbc:sqlserver://localhost:" + JDBC_PORT + ";databaseName=" + databaseName, JDBC_USER, JDBC_PASSWORD);
     }
 
     @Test
@@ -65,6 +71,10 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void backup() {
+        // Fails on Windows due to relative path issues.
+        assumeDatabaseVersionNotLessThan(11, 0);
+
+        // Currently only works on SQL Server 2017 on Linux
         flyway.setLocations("migration/database/sqlserver/sql/backup");
         assertEquals(1, flyway.migrate());
     }
@@ -116,6 +126,26 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
 
         assertEquals("Hello", jdbcTemplate.queryForString("SELECT value FROM test_data"));
 
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
+    @Test
+    public void pk() {
+        flyway.setLocations("migration/database/sqlserver/sql/pk");
+
+        flyway.setDataSource(createDataSource("flyway_db_ms"));
+        flyway.clean();
+        flyway.setDataSource(createDataSource("flyway_db_jtds"));
+        flyway.clean();
+
+        flyway.migrate();
+
+        flyway.setDataSource(createDataSource("flyway_db_ms"));
+        flyway.clean();
+        flyway.setDataSource(createDataSource("flyway_db_jtds"));
         flyway.clean();
 
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
@@ -202,6 +232,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void assembly() throws Exception {
+        assumeDatabaseVersionNotLessThan(11, 0);
         CallableStatement stmt = jdbcTemplate.getConnection().prepareCall("EXEC sp_configure 'clr enabled', 1; RECONFIGURE;");
         stmt.execute();
         stmt.close();
@@ -284,6 +315,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void sequence() {
+        assumeDatabaseVersionNotLessThan(12, 0);
         flyway.setLocations("migration/database/sqlserver/sql/sequence");
         flyway.migrate();
 

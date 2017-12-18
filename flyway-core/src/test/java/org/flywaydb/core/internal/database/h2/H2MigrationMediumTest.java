@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -34,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 @Category(DbCategory.H2.class)
 public class H2MigrationMediumTest extends MigrationTestCase {
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "", null);
     }
 
@@ -44,7 +43,7 @@ public class H2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void mysqlMode() throws Exception {
+    public void mysqlMode() {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:mysql_db;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setSchemas("mysql_schema");
@@ -52,7 +51,7 @@ public class H2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void mysqlModePublic() throws Exception {
+    public void mysqlModePublic() {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:mysql_public_db;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setSchemas("PUBLIC");
@@ -60,7 +59,7 @@ public class H2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void schema() throws Exception {
+    public void schema() {
         flyway.setLocations("migration/database/h2/sql/schema");
         flyway.setSchemas("main", "other");
         assertEquals(2, flyway.migrate());

@@ -73,7 +73,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 jdbcUrl, JDBC_USER, JDBC_PASSWORD);
     }
@@ -87,7 +87,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
      * Tests clean and migrate for PostgreSQL Types.
      */
     @Test
-    public void type() throws Exception {
+    public void type() {
         flyway.setLocations("migration/database/postgresql/sql/type");
         flyway.migrate();
 
@@ -101,7 +101,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void vacuum() throws Exception {
+    public void vacuum() {
         flyway.setLocations("migration/database/postgresql/sql/vacuum");
         try {
             flyway.migrate();
@@ -113,20 +113,20 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void index() throws Exception {
+    public void index() {
         flyway.setLocations("migration/database/postgresql/sql/index");
         flyway.setMixed(true);
         flyway.migrate();
     }
 
     @Test
-    public void rule() throws Exception {
+    public void rule() {
         flyway.setLocations("migration/database/postgresql/sql/rule");
         assertEquals(1, flyway.migrate());
     }
 
     @Test
-    public void cleanUnknown() throws Exception {
+    public void cleanUnknown() {
         flyway.setSchemas("non-existant");
         flyway.clean();
     }
@@ -151,7 +151,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
      * Tests clean and migrate for PostgreSQL Functions.
      */
     @Test
-    public void function() throws Exception {
+    public void function() {
         flyway.setLocations("migration/database/postgresql/sql/function");
         flyway.migrate();
 
@@ -198,7 +198,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
      * Tests clean and migrate for PostgreSQL Materialized Views.
      */
     @Test
-    public void materializedview() throws Exception {
+    public void materializedview() {
         assumeDatabaseVersionNotLessThan(9, 3);
         flyway.setLocations("migration/database/postgresql/sql/materializedview");
         flyway.migrate();

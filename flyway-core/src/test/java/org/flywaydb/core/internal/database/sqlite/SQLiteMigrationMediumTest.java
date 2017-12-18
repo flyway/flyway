@@ -27,7 +27,6 @@ import org.sqlite.SQLiteDataSource;
 import org.sqlite.SQLiteOpenMode;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Properties;
 
 /**
@@ -36,7 +35,7 @@ import java.util.Properties;
 @Category(DbCategory.SQLite.class)
 public class SQLiteMigrationMediumTest extends MigrationTestCase {
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
         SQLiteConfig config = new SQLiteConfig();
         config.setOpenMode(SQLiteOpenMode.CREATE);
         config.setOpenMode(SQLiteOpenMode.DELETEONCLOSE);
@@ -58,22 +57,22 @@ public class SQLiteMigrationMediumTest extends MigrationTestCase {
     }
 
     @Ignore
-    public void migrateMultipleSchemas() throws Exception {
+    public void migrateMultipleSchemas() {
         //Not supported by SQLite
     }
 
     @Ignore
-    public void setCurrentSchema() throws Exception {
+    public void setCurrentSchema() {
         //Not supported by SQLite
     }
 
     @Ignore
-    public void schemaExists() throws SQLException {
+    public void schemaExists() {
         //Not supported by SQLite
     }
 
     @Test
-    public void trigger() throws Exception {
+    public void trigger() {
         flyway.setLocations("migration/database/sqlite/sql/trigger");
         flyway.migrate();
 
@@ -82,7 +81,7 @@ public class SQLiteMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void noDriverCrashIssue746() throws Exception {
+    public void noDriverCrashIssue746() {
         flyway.setLocations(getBasedir());
 
         Properties props = new Properties();
@@ -99,7 +98,7 @@ public class SQLiteMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void cleanWithSystemTables() throws Exception {
+    public void cleanWithSystemTables() {
         flyway.clean();
         // AUTOINCREMENT field causes sqlite_sequence table creation
         flyway.setLocations("migration/database/sqlite/sql/autoincrement");
@@ -109,7 +108,7 @@ public class SQLiteMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void foreignKey() throws Exception {
+    public void foreignKey() {
         flyway.clean();
         flyway.setLocations("migration/database/sqlite/sql/foreign_key");
         flyway.migrate();

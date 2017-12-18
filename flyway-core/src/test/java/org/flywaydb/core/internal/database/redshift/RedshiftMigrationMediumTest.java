@@ -28,7 +28,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
@@ -51,7 +50,7 @@ public class RedshiftMigrationMediumTest extends MigrationTestCase {
     static final String JDBC_PASSWORD = "flywayPWD000";
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 JDBC_URL, JDBC_USER, JDBC_PASSWORD);
     }
@@ -62,7 +61,7 @@ public class RedshiftMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void vacuum() throws Exception {
+    public void vacuum() {
         flyway.setLocations("migration/database/redshift/sql/vacuum");
         try {
             flyway.migrate();
@@ -74,7 +73,7 @@ public class RedshiftMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void cleanUnknown() throws Exception {
+    public void cleanUnknown() {
         flyway.setSchemas("non-existant");
         flyway.clean();
     }
@@ -93,7 +92,7 @@ public class RedshiftMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void function() throws Exception {
+    public void function() {
         flyway.setLocations("migration/database/redshift/sql/function");
         flyway.migrate();
 

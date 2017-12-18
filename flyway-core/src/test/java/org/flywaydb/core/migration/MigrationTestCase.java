@@ -25,7 +25,6 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.DatabaseFactory;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
@@ -33,10 +32,10 @@ import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -46,14 +45,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
@@ -74,22 +70,12 @@ public abstract class MigrationTestCase {
      */
     private static final String MIGRATIONDIR = "migration";
 
-    protected static Properties customProperties = new Properties();
-
     protected DataSource dataSource;
     private Connection connection;
     protected Database database;
 
     protected JdbcTemplate jdbcTemplate;
     protected Flyway flyway;
-
-    @BeforeClass
-    public static void loadProperties() throws Exception {
-        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
-        if (customPropertiesFile.canRead()) {
-            customProperties.load(new FileInputStream(customPropertiesFile));
-        }
-    }
 
     @Rule
     public TestName testName = new TestName();
@@ -98,7 +84,7 @@ public abstract class MigrationTestCase {
     public void setUp() throws Exception {
         ensureTestEnabled();
 
-        dataSource = createDataSource(customProperties);
+        dataSource = createDataSource();
 
         flyway = new Flyway();
         flyway.setDataSource(dataSource);
@@ -124,10 +110,9 @@ public abstract class MigrationTestCase {
     /**
      * Creates the datasource for this testcase based on these optional custom properties from the user home.
      *
-     * @param customProperties The optional custom properties.
      * @return The new datasource.
      */
-    protected abstract DataSource createDataSource(Properties customProperties) throws Exception;
+    protected abstract DataSource createDataSource() throws Exception;
 
     @After
     public void tearDown() throws Exception {

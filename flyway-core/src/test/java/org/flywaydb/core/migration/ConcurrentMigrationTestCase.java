@@ -18,26 +18,21 @@ package org.flywaydb.core.migration;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationType;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.DatabaseFactory;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileInputStream;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -57,8 +52,6 @@ public abstract class ConcurrentMigrationTestCase {
      * The number of threads to use in this test.
      */
     private static final int NUM_THREADS = 10;
-
-    protected static Properties customProperties = new Properties();
 
     /**
      * The quoted schema placeholder for the tests.
@@ -85,19 +78,11 @@ public abstract class ConcurrentMigrationTestCase {
         return "concurrent_test";
     }
 
-    @BeforeClass
-    public static void loadProperties() throws Exception {
-        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
-        if (customPropertiesFile.canRead()) {
-            customProperties.load(new FileInputStream(customPropertiesFile));
-        }
-    }
-
     @Before
     public void setUp() throws Exception {
         ensureTestEnabled();
 
-        concurrentMigrationDataSource = createDataSource(customProperties);
+        concurrentMigrationDataSource = createDataSource();
 
         flyway = createFlyway();
 
@@ -123,13 +108,7 @@ public abstract class ConcurrentMigrationTestCase {
         return "migration/concurrent";
     }
 
-    /**
-     * Creates the datasource for this testcase based on these optional custom properties from the user home.
-     *
-     * @param customProperties The optional custom properties.
-     * @return The new datasource.
-     */
-    protected abstract DataSource createDataSource(Properties customProperties) throws Exception;
+    protected abstract DataSource createDataSource() throws Exception;
 
     @Test
     public void migrateConcurrently() throws Exception {
@@ -182,7 +161,7 @@ public abstract class ConcurrentMigrationTestCase {
         return schemaQuoted + ".test_user";
     }
 
-    private Flyway createFlyway() throws SQLException {
+    private Flyway createFlyway() {
         Flyway newFlyway = new Flyway();
         newFlyway.setDataSource(concurrentMigrationDataSource);
         newFlyway.setLocations(getBasedir());
