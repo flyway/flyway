@@ -20,6 +20,7 @@ import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -30,6 +31,8 @@ import java.sql.Types;
  * SQL Server database.
  */
 public class SQLServerDatabase extends Database {
+    private final boolean azure;
+
     /**
      * Creates a new instance.
      *
@@ -46,6 +49,12 @@ public class SQLServerDatabase extends Database {
                 , dryRunStatementInterceptor
                 // [/pro]
         );
+        try {
+            azure = "SQL Azure".equals(mainConnection.getJdbcTemplate().queryForString(
+                    "SELECT CAST(SERVERPROPERTY('edition') AS VARCHAR)"));
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine database edition", e);
+        }
     }
 
     @Override
@@ -162,5 +171,12 @@ public class SQLServerDatabase extends Database {
     @Override
     public boolean useSingleConnection() {
         return true;
+    }
+
+    /**
+     * @return Whether this is a SQL Azure database.
+     */
+    public boolean isAzure() {
+        return azure;
     }
 }

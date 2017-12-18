@@ -56,7 +56,8 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
             throw new FlywaySqlException("Unable to determine current database", e);
         }
         try {
-            originalAnsiNulls = jdbcTemplate.queryForString("DECLARE @ANSI_NULLS VARCHAR(3) = 'OFF';\n" +
+            originalAnsiNulls = database.isAzure() ? null :
+                    jdbcTemplate.queryForString("DECLARE @ANSI_NULLS VARCHAR(3) = 'OFF';\n" +
                     "IF ( (32 & @@OPTIONS) = 32 ) SET @ANSI_NULLS = 'ON';\n" +
                     "SELECT @ANSI_NULLS AS ANSI_NULLS;");
         } catch (SQLException e) {
@@ -78,7 +79,9 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     public void doChangeCurrentSchemaTo(String schema) throws SQLException {
         // Always restore original database and connection state in case they were changed in a previous migration or callback.
         setCurrentDatabase(originalDatabaseName);
-        jdbcTemplate.execute("SET ANSI_NULLS " + originalAnsiNulls);
+        if (!database.isAzure()) {
+            jdbcTemplate.execute("SET ANSI_NULLS " + originalAnsiNulls);
+        }
 
         if (!schemaMessagePrinted) {
             LOG.info("SQLServer does not support setting the schema for the current session. Default schema NOT changed to " + schema);
