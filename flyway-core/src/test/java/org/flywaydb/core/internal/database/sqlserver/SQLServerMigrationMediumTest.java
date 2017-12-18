@@ -69,6 +69,17 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
     }
 
+    @Ignore("Broken as callbacks are currently always transactional. " +
+            "This would need an executeInTransaction() method on Flyway Callback to be able to determine the correct behavior")
+    @Test
+    public void callback() {
+        flyway.setLocations("migration/database/sqlserver/sql/callback");
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("DBNAME", "dyndb");
+        flyway.setPlaceholders(placeholders);
+        flyway.migrate();
+    }
+
     @Test
     public void backup() {
         // Fails on Windows due to relative path issues.
