@@ -691,6 +691,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         conf.remove(ConfigUtils.CONFIG_FILES);
         conf.remove(ConfigUtils.CONFIG_FILE_ENCODING);
         conf.remove("flyway.current");
+        conf.remove("flyway.skip");
         conf.remove("flyway.version");
         conf.remove("flyway.serverId");
     }
