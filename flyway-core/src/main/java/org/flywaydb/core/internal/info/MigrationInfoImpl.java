@@ -22,6 +22,7 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
+import org.flywaydb.core.internal.util.AbbreviationUtils;
 import org.flywaydb.core.internal.util.ObjectUtils;
 
 import java.util.Date;
@@ -288,7 +289,8 @@ public class MigrationInfoImpl implements MigrationInfo {
                                 appliedMigration.getChecksum(), resolvedMigration.getChecksum());
                     }
                 }
-                if (!resolvedMigration.getDescription().equals(appliedMigration.getDescription())) {
+                if (!AbbreviationUtils.abbreviateDescription(resolvedMigration.getDescription())
+                        .equals(appliedMigration.getDescription())) {
                     return createMismatchMessage("description", migrationIdentifier,
                             appliedMigration.getDescription(), resolvedMigration.getDescription());
                 }

@@ -19,6 +19,7 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.util.AbbreviationUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.List;
@@ -142,46 +143,16 @@ public abstract class SchemaHistory {
      */
     public final void addAppliedMigration(MigrationVersion version, String description, MigrationType type,
                                           String script, Integer checksum, int executionTime, boolean success) {
-        doAddAppliedMigration(version, abbreviateDescription(description), type, abbreviateScript(script), checksum,
-                executionTime, success);
+        doAddAppliedMigration(
+                version,
+                AbbreviationUtils.abbreviateDescription(description),
+                type,
+                AbbreviationUtils.abbreviateScript(script),
+                checksum,
+                executionTime,
+                success);
     }
 
     protected abstract void doAddAppliedMigration(MigrationVersion version, String description, MigrationType type,
                                                   String script, Integer checksum, int executionTime, boolean success);
-
-    /**
-     * Abbreviates this description to a length that will fit in the database.
-     *
-     * @param description The description to process.
-     * @return The abbreviated version.
-     */
-    private String abbreviateDescription(String description) {
-        if (description == null) {
-            return null;
-        }
-
-        if (description.length() <= 200) {
-            return description;
-        }
-
-        return description.substring(0, 197) + "...";
-    }
-
-    /**
-     * Abbreviates this script to a length that will fit in the database.
-     *
-     * @param script The script to process.
-     * @return The abbreviated version.
-     */
-    private String abbreviateScript(String script) {
-        if (script == null) {
-            return null;
-        }
-
-        if (script.length() <= 1000) {
-            return script;
-        }
-
-        return "..." + script.substring(3, 1000);
-    }
 }
