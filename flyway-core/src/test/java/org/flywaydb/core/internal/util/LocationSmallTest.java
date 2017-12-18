@@ -35,6 +35,14 @@ public class LocationSmallTest {
     }
 
     @Test
+    public void defaultPackage() {
+        assertEquals("classpath:", new Location(".").getDescriptor());
+        assertEquals("classpath:", new Location("/").getDescriptor());
+        assertEquals("classpath:", new Location("classpath:.").getDescriptor());
+        assertEquals("classpath:", new Location("classpath:/").getDescriptor());
+    }
+
+    @Test
     public void classpathPrefix() {
         Location location = new Location("classpath:db/migration");
         assertEquals("classpath:", location.getPrefix());
