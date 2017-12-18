@@ -33,7 +33,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
 
     /**
      * SQL server object types for which we support automatic clean-up. Those types can be used in conjunction with the
-     * {@code sys.ojects} catalog. The full list of object types is available in the
+     * {@code sys.objects} catalog. The full list of object types is available in the
      * <a href="https://msdn.microsoft.com/en-us/library/ms190324.aspx">MSDN documentation</a> (see the {@code type}
      * column description.
      */
@@ -79,6 +79,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
          */
         CLR_STORED_PROCEDURE("PC"),
         /**
+         * Rule (old-style, stand-alone).
+         */
+        RULE("R"),
+        /**
          * Synonym.
          */
         SYNONYM("SN"),
@@ -86,6 +90,14 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
          * Table-valued function.
          */
         TABLE_VALUED_FUNCTION("TF"),
+        /**
+         * Assembly (CLR) DML trigger.
+         */
+        ASSEMBLY_DML_TRIGGER("TA"),
+        /**
+         * SQL DML trigger.
+         */
+        SQL_DML_TRIGGER("TR"),
         /**
          * User table.
          */
@@ -180,6 +192,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
     protected void doClean() throws SQLException {
         List<DBObject> tables = queryDBObjects(ObjectType.USER_TABLE);
 
+        for (String statement : cleanTriggers()) {
+            jdbcTemplate.execute(statement);
+        }
+
         for (String statement : cleanForeignKeys(tables)) {
             jdbcTemplate.execute(statement);
         }
@@ -188,11 +204,13 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : cleanProcedure()) {
+        for (String statement : cleanObjects("PROCEDURE",
+                ObjectType.STORED_PROCEDURE,
+                ObjectType.CLR_STORED_PROCEDURE)) {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : cleanViews()) {
+        for (String statement : cleanObjects("VIEW", ObjectType.VIEW)) {
             jdbcTemplate.execute(statement);
         }
 
@@ -200,11 +218,16 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
             table.drop();
         }
 
-        for (String statement : cleanFunctions()) {
+        for (String statement : cleanObjects("FUNCTION",
+                ObjectType.SCALAR_FUNCTION,
+                ObjectType.CLR_SCALAR_FUNCTION,
+                ObjectType.CLR_TABLE_VALUED_FUNCTION,
+                ObjectType.TABLE_VALUED_FUNCTION,
+                ObjectType.INLINED_TABLE_FUNCTION)) {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : cleanAggregates()) {
+        for (String statement : cleanObjects("AGGREGATE", ObjectType.AGGREGATE)) {
             jdbcTemplate.execute(statement);
         }
 
@@ -216,14 +239,22 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : cleanSynonyms()) {
+        for (String statement : cleanObjects("SYNONYM", ObjectType.SYNONYM)) {
+            jdbcTemplate.execute(statement);
+        }
+
+        for (String statement : cleanObjects("RULE", ObjectType.RULE)) {
+            jdbcTemplate.execute(statement);
+        }
+
+        for (String statement : cleanObjects("DEFAULT", ObjectType.DEFAULT_CONSTRAINT)) {
             jdbcTemplate.execute(statement);
         }
 
 
 
 
-            for (String statement : cleanSequences()) {
+            for (String statement : cleanObjects("SEQUENCE", ObjectType.SEQUENCE_OBJECT)) {
                 jdbcTemplate.execute(statement);
             }
 
@@ -331,70 +362,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
     }
 
     /**
-     * Cleans the procedures in this schema.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanProcedure() throws SQLException {
-        List<String> statements = new ArrayList<>();
-        List<DBObject> procedures = queryDBObjects(ObjectType.STORED_PROCEDURE, ObjectType.CLR_STORED_PROCEDURE);
-        for (DBObject procedure : procedures) {
-            statements.add("DROP PROCEDURE " + database.quote(name, procedure.name));
-        }
-
-        return statements;
-    }
-
-    /**
-     * Cleans the functions in this schema.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanFunctions() throws SQLException {
-        List<String> statements = new ArrayList<>();
-        List<DBObject> functions = queryDBObjects(ObjectType.SCALAR_FUNCTION, ObjectType.CLR_SCALAR_FUNCTION,
-                ObjectType.CLR_TABLE_VALUED_FUNCTION, ObjectType.TABLE_VALUED_FUNCTION,
-                ObjectType.INLINED_TABLE_FUNCTION);
-        for (DBObject function : functions) {
-            statements.add("DROP FUNCTION " + database.quote(name, function.name));
-        }
-        return statements;
-    }
-
-    /**
-     * Cleans the aggregates in this schema.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanAggregates() throws SQLException {
-        List<String> statements = new ArrayList<>();
-        List<DBObject> aggregates = queryDBObjects(ObjectType.AGGREGATE);
-        for (DBObject aggregate : aggregates) {
-            statements.add("DROP AGGREGATE " + database.quote(name, aggregate.name));
-        }
-        return statements;
-    }
-
-    /**
-     * Cleans the views in this schema.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanViews() throws SQLException {
-        List<String> statements = new ArrayList<>();
-        List<DBObject> views = queryDBObjects(ObjectType.VIEW);
-        for (DBObject view : views) {
-            statements.add("DROP VIEW " + database.quote(name, view.name));
-        }
-
-        return statements;
-    }
-
-    /**
      * Cleans the types in this schema.
      *
      * @return The drop statements.
@@ -423,9 +390,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
      */
     private List<String> cleanAssemblies() throws SQLException {
         List<String> assemblyNames =
-                jdbcTemplate.queryForStringList(
-                        "SELECT * FROM sys.assemblies WHERE is_user_defined=1"
-                );
+                jdbcTemplate.queryForStringList("SELECT * FROM sys.assemblies WHERE is_user_defined=1");
         List<String> statements = new ArrayList<>();
         for (String assemblyName : assemblyNames) {
             statements.add("DROP ASSEMBLY " + database.quote(assemblyName));
@@ -434,32 +399,35 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
     }
 
     /**
-     * Cleans the synonyms in this schema.ter
+     * Cleans the triggers in this schema.
      *
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> cleanSynonyms() throws SQLException {
+    private List<String> cleanTriggers() throws SQLException {
+        List<String> triggerNames =
+                jdbcTemplate.queryForStringList("SELECT * FROM sys.triggers" +
+                        " WHERE is_ms_shipped=0 AND parent_id=0 AND parent_class_desc='DATABASE'");
         List<String> statements = new ArrayList<>();
-        List<DBObject> synonyms = queryDBObjects(ObjectType.SYNONYM);
-        for (DBObject synonym : synonyms) {
-            statements.add("DROP SYNONYM " + database.quote(name, synonym.name));
+        for (String triggerName : triggerNames) {
+            statements.add("DROP TRIGGER " + database.quote(triggerName) + " ON DATABASE");
         }
-
         return statements;
     }
 
     /**
-     * Cleans the sequences in this schema.
+     * Cleans the objects of these types in this schema.
      *
+     * @param dropQualifier The type of DROP statement to issue.
+     * @param objectTypes   The type of objects to drop.
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> cleanSequences() throws SQLException {
+    private List<String> cleanObjects(String dropQualifier, ObjectType... objectTypes) throws SQLException {
         List<String> statements = new ArrayList<>();
-        List<DBObject> sequences = queryDBObjects(ObjectType.SEQUENCE_OBJECT);
-        for (DBObject sequence : sequences) {
-            statements.add("DROP SEQUENCE " + database.quote(name, sequence.name));
+        List<DBObject> dbObjects = queryDBObjects(objectTypes);
+        for (DBObject dbObject : dbObjects) {
+            statements.add("DROP " + dropQualifier + " " + database.quote(name, dbObject.name));
         }
 
         return statements;
