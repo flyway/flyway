@@ -32,7 +32,7 @@ import java.util.concurrent.Callable;
 public class SQLServerConnection extends Connection<SQLServerDatabase> {
     private static final Log LOG = LogFactory.getLog(SQLServerConnection.class);
 
-    private final String originalDatabase;
+    private final String originalDatabaseName;
 
     /**
      * Whether the warning message has already been printed.
@@ -50,10 +50,14 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
 
         );
         try {
-            originalDatabase = jdbcTemplate.queryForString("SELECT DB_NAME()");
+            originalDatabaseName = jdbcTemplate.queryForString("SELECT DB_NAME()");
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine current database", e);
         }
+    }
+
+    public void setCurrentDatabase(String databaseName) throws SQLException {
+        jdbcTemplate.execute("USE " + database.quote(databaseName));
     }
 
 
@@ -65,7 +69,7 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     @Override
     public void doChangeCurrentSchemaTo(String schema) throws SQLException {
         // Always restore original database in case it was changed in a previous migration or callback.
-        jdbcTemplate.execute("USE " + database.quote(originalDatabase));
+        setCurrentDatabase(originalDatabaseName);
 
         if (!schemaMessagePrinted) {
             LOG.info("SQLServer does not support setting the schema for the current session. Default schema NOT changed to " + schema);
@@ -77,11 +81,11 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
 
     @Override
     public Schema getSchema(String name) {
-        return new SQLServerSchema(jdbcTemplate, database, name);
+        return new SQLServerSchema(jdbcTemplate, database, originalDatabaseName, name);
     }
 
     @Override
     public <T> T lock(Table table, Callable<T> callable) {
-        return new SQLServerApplicationLockTemplate(jdbcTemplate, table.toString().hashCode()).execute(callable);
+        return new SQLServerApplicationLockTemplate(this, jdbcTemplate, originalDatabaseName, table.toString().hashCode()).execute(callable);
     }
 }

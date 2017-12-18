@@ -150,7 +150,9 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
 
         // Lock again for databases with no DDL transactions to prevent implicit commits from triggering deadlocks
         // in highly concurrent environments
-        table.lock();
+        if (!database.supportsDdlTransactions()) {
+            table.lock();
+        }
 
         try {
             String versionStr = version == null ? null : version.toString();

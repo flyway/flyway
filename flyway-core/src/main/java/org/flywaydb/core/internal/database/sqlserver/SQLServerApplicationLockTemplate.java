@@ -30,21 +30,21 @@ import java.util.concurrent.Callable;
 public class SQLServerApplicationLockTemplate {
     private static final Log LOG = LogFactory.getLog(SQLServerApplicationLockTemplate.class);
 
-    /**
-     * The connection for the advisory lock.
-     */
+    private final SQLServerConnection connection;
     private final JdbcTemplate jdbcTemplate;
-
+    private final String databaseName;
     private final String lockName;
 
     /**
      * Creates a new application lock template for this connection.
-     *
+     *  @param connection The connection reference.
      * @param jdbcTemplate  The jdbcTemplate for the connection.
      * @param discriminator A number to discriminate between locks.
      */
-    SQLServerApplicationLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {
+    SQLServerApplicationLockTemplate(SQLServerConnection connection, JdbcTemplate jdbcTemplate, String databaseName, int discriminator) {
+        this.connection = connection;
         this.jdbcTemplate = jdbcTemplate;
+        this.databaseName = databaseName;
         lockName = "Flyway-" + discriminator;
     }
 
@@ -56,6 +56,7 @@ public class SQLServerApplicationLockTemplate {
      */
     public <T> T execute(Callable<T> callable) {
         try {
+            connection.setCurrentDatabase(databaseName);
             jdbcTemplate.execute("EXEC sp_getapplock @Resource = ?, @LockTimeout='3600000'," +
                     " @LockMode = 'Exclusive', @LockOwner = 'Session'", lockName);
             return callable.call();
@@ -71,6 +72,7 @@ public class SQLServerApplicationLockTemplate {
             throw rethrow;
         } finally {
             try {
+                connection.setCurrentDatabase(databaseName);
                 jdbcTemplate.execute("EXEC sp_releaseapplock @Resource = ?, @LockOwner = 'Session'", lockName);
             } catch (SQLException e) {
                 LOG.error("Unable to release SQL Server application lock", e);
