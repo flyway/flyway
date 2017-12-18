@@ -15,9 +15,9 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
 import java.sql.ResultSet;
@@ -29,6 +29,8 @@ import java.util.List;
  * SQLServer implementation of Schema.
  */
 public class SQLServerSchema extends Schema<SQLServerDatabase> {
+    private final String databaseName;
+
     /**
      * SQL server object types for which we support automatic clean-up. Those types can be used in conjunction with the
      * {@code sys.ojects} catalog. The full list of object types is available in the
@@ -129,11 +131,13 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
      * Creates a new SQLServer schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
+     * @param databaseName The database name.
      * @param name         The name of the schema.
      */
-    SQLServerSchema(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String name) {
+    SQLServerSchema(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, String name) {
         super(jdbcTemplate, database, name);
+        this.databaseName = databaseName;
     }
 
     @Override
@@ -277,7 +281,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
             query.append(" AND obj.parent_object_id = ").append(parent.objectId);
         }
 
-        query.append(" order by create_date desc");
+        query.append(" order by object_id desc");
 
         return jdbcTemplate.query(query.toString(), new RowMapper<DBObject>() {
             @Override
@@ -470,13 +474,13 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
-            tables[i] = new SQLServerTable(jdbcTemplate, database, this, tableNames.get(i));
+            tables[i] = new SQLServerTable(jdbcTemplate, database, databaseName, this, tableNames.get(i));
         }
         return tables;
     }
 
     @Override
     public Table getTable(String tableName) {
-        return new SQLServerTable(jdbcTemplate, database, this, tableName);
+        return new SQLServerTable(jdbcTemplate, database, databaseName, this, tableName);
     }
 }
