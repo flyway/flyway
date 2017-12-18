@@ -29,3 +29,6 @@ GO
 
 EXEC AddData
 GO
+
+exec sp_MSforeachtable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'
+GO

@@ -48,32 +48,31 @@ import static org.junit.Assert.*;
 @Category(DbCategory.SQLServer.class)
 public class SQLServerMigrationMediumTest extends MigrationTestCase {
     static String JDBC_PORT = "62070";
-    static String JDBC_URL_JTDS = "jdbc:jtds:sqlserver://localhost:" + JDBC_PORT + "/flyway_db_jtds";
     static String JDBC_USER = "sa";
     static String JDBC_PASSWORD = "flywayPWD000";
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) throws Exception {
+    protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 "jdbc:sqlserver://localhost:" + JDBC_PORT + ";databaseName=flyway_db_ms", JDBC_USER, JDBC_PASSWORD);
     }
 
     @Test
-    public void singleUser() throws Exception {
+    public void singleUser() {
         flyway.setLocations("migration/database/sqlserver/sql/singleUser");
         flyway.migrate();
     }
 
     @Test
-    public void backup() throws Exception {
+    public void backup() {
         flyway.setLocations("migration/database/sqlserver/sql/backup");
         assertEquals(1, flyway.migrate());
     }
 
     @Test
-    public void jTDS() throws Exception {
+    public void jTDS() {
         flyway = new Flyway();
-        flyway.setDataSource(JDBC_URL_JTDS, JDBC_USER, JDBC_PASSWORD);
+        flyway.setDataSource("jdbc:jtds:sqlserver://localhost:" + JDBC_PORT + "/flyway_db_jtds", JDBC_USER, JDBC_PASSWORD);
         flyway.clean();
         flyway.setLocations(getMigrationDir() + "/sql");
         assertEquals(4, flyway.migrate());
@@ -85,7 +84,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void failedMigration() throws Exception {
+    public void failedMigration() {
         String tableName = "before_the_error";
 
         flyway.setLocations("migration/failed");
@@ -111,7 +110,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
      * Tests clean and migrate for SQL Server Stored Procedures.
      */
     @Test
-    public void storedProcedure() throws Exception {
+    public void procedure() throws Exception {
         flyway.setLocations("migration/database/sqlserver/sql/procedure");
         flyway.migrate();
 
@@ -188,7 +187,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
      * Tests clean and migrate for SQL Server Types.
      */
     @Test
-    public void type() throws Exception {
+    public void type() {
         flyway.setLocations("migration/database/sqlserver/sql/type");
         flyway.migrate();
 
@@ -273,7 +272,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
      * Tests clean and migrate for SQL Server unicode strings.
      */
     @Test
-    public void nvarchar() throws Exception {
+    public void nvarchar() {
         flyway.setLocations("migration/database/sqlserver/sql/nvarchar");
         flyway.migrate();
 
@@ -284,7 +283,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
      * Tests clean and migrate for SQL Server sequences.
      */
     @Test
-    public void sequence() throws Exception {
+    public void sequence() {
         flyway.setLocations("migration/database/sqlserver/sql/sequence");
         flyway.migrate();
 
@@ -296,7 +295,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
      * Tests clean and migrate for default constraints with functions.
      */
     @Test
-    public void defaultConstraints() throws Exception {
+    public void defaultConstraints() {
         flyway.setLocations("migration/database/sqlserver/sql/default");
         flyway.migrate();
 
@@ -307,7 +306,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
      * Tests migrate error for pk constraints.
      */
     @Test(expected = FlywayException.class)
-    public void pkConstraints() throws Exception {
+    public void pkConstraints() {
         flyway.setLocations("migration/database/sqlserver/sql/pkConstraint");
         flyway.migrate();
     }
@@ -316,7 +315,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
      * Tests clean and migrate for synonyms.
      */
     @Test
-    public void synonym() throws Exception {
+    public void synonym() {
         flyway.setLocations("migration/database/sqlserver/sql/synonym");
         flyway.migrate();
 
@@ -325,13 +324,13 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void use() throws Exception {
+    public void use() {
         flyway.setLocations("migration/database/sqlserver/sql/use");
         assertEquals(2, flyway.migrate());
     }
 
     @Test
-    public void itShouldCleanCheckConstraint() throws Exception {
+    public void itShouldCleanCheckConstraint() {
         // given
         flyway.setLocations("migration/database/sqlserver/sql/checkConstraint");
         flyway.migrate();
@@ -365,7 +364,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
      * see issue 718
      */
     @Test
-    public void dmlErrorsCorrectlyDetected() throws Exception {
+    public void dmlErrorsCorrectlyDetected() {
         String tableName = "sample_table";
 
         flyway.setLocations("migration/database/sqlserver/sql/dmlErrorDetection");
@@ -388,7 +387,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void msDBToolsIgnoredForEmpty() throws Exception {
+    public void msDBToolsIgnoredForEmpty() {
         Schema schema = database.getMainConnection().getOriginalSchema();
 
         new SqlScript(new ClassPathResource("migration/database/sqlserver/createMSDBTools.sql",
@@ -439,7 +438,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
 
     @Override
     @Ignore("Not supported on SQL Server")
-    public void setCurrentSchema() throws Exception {
+    public void setCurrentSchema() {
         //Skip
     }
 }
