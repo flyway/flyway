@@ -307,9 +307,9 @@ public class DbUndo {
         }
 
         if (migrationSuccessCount == 1) {
-            LOG.info("Successfully undid 1 migration to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ").");
+            LOG.info("Successfully undid 1 migration to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ")");
         } else {
-            LOG.info("Successfully undid " + migrationSuccessCount + " migrations to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ").");
+            LOG.info("Successfully undid " + migrationSuccessCount + " migrations to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ")");
         }
     }
 
