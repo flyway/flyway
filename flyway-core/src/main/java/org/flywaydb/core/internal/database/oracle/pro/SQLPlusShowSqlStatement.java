@@ -18,9 +18,9 @@ package org.flywaydb.core.internal.database.oracle.pro;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.AbstractSqlStatement;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.Result;
 
 import java.sql.SQLException;
@@ -44,6 +44,8 @@ public class SQLPlusShowSqlStatement extends AbstractSqlStatement {
         String option = sql.substring(sql.indexOf(" ") + 1).toUpperCase(Locale.ENGLISH);
         if ("CON_ID".equals(option)) {
             conId(jdbcTemplate);
+        } else if ("EDITION".equals(option)) {
+            edition(jdbcTemplate);
         } else if (option.startsWith("ERR")) {
             err(jdbcTemplate, option);
         } else if (option.startsWith("REL")) {
@@ -59,6 +61,18 @@ public class SQLPlusShowSqlStatement extends AbstractSqlStatement {
     private void conId(JdbcTemplate jdbcTemplate) throws SQLException {
         LOG.info("CON_ID\n------------------------------\n"
                 + jdbcTemplate.queryForString("SELECT CON_ID FROM V$VERSION WHERE BANNER LIKE 'Oracle Database%'"));
+    }
+
+    private void edition(JdbcTemplate jdbcTemplate) throws SQLException {
+        if (jdbcTemplate.getConnection().getMetaData().getDatabaseMajorVersion() < 11) {
+            LOG.warn("SP2-0614: Server version too low for this feature\n" +
+                    "SP2-1539: Edition requires Oracle Database 11g or later.");
+        } else {
+            LOG.info("EDITION\n------------------------------\n"
+                    + jdbcTemplate.queryForString(
+                    "SELECT property_value FROM database_properties\n" +
+                            "WHERE  property_name = 'DEFAULT_EDITION'"));
+        }
     }
 
     private void err(JdbcTemplate jdbcTemplate, String option) throws SQLException {

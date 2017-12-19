@@ -35,6 +35,7 @@ PROMPT ready-
 to-
 execute
 
+show EDITION
 
 create or replace procedure update_test
 begin

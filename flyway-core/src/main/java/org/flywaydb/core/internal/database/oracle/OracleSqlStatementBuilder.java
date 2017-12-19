@@ -52,7 +52,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     private static final String SUPPORTED_SET_OPTIONS = "NULL|SERVEROUT(PUT)? (ON( SIZE ([0-9]{4,7}|UNL(IMITED)?))?|OFF)";
-    private static final String SUPPORTED_SHOW_OPTIONS = "CON_ID|ERR|ERRORS|REL|RELEASE|USER";
+    private static final String SUPPORTED_SHOW_OPTIONS = "CON_ID|EDITION|ERR|ERRORS|REL|RELEASE|USER";
     private static final String SUPPORTED_WHENEVER_SQLERROR_OPTIONS = "CONTINUE|EXIT FAILURE";
     private static final String UNSUPPORTED_SQLPLUS_COMMANDS =
             "ACC|ACCEPT|" +
