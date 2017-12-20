@@ -34,7 +34,7 @@ public class SAPHANATable extends Table {
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public SAPHANATable(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
+    SAPHANATable(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
         super(jdbcTemplate, database, schema, name);
     }
 

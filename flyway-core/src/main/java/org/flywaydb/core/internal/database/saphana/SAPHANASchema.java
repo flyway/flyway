@@ -73,8 +73,8 @@ public class SAPHANASchema extends Schema<SAPHANADatabase> {
             jdbcTemplate.execute(dropStatement);
         }
 
-        for (Table table : allTables()) {
-            table.drop();
+        for (String dropStatement : generateDropStatements("TABLE")) {
+            jdbcTemplate.execute(dropStatement);
         }
 
         for (String dropStatement : generateDropStatements("SEQUENCE")) {
@@ -91,17 +91,21 @@ public class SAPHANASchema extends Schema<SAPHANADatabase> {
      */
     private List<String> generateDropStatements(String objectType) throws SQLException {
         List<String> dropStatements = new ArrayList<String>();
-        List<String> dbObjects = jdbcTemplate.queryForStringList(
-                "select " + objectType + "_NAME from SYS." + objectType + "S where SCHEMA_NAME = '" + name + "'");
+        List<String> dbObjects = getDbObjects(objectType);
         for (String dbObject : dbObjects) {
             dropStatements.add("DROP " + objectType + " " + database.quote(name, dbObject) + " CASCADE");
         }
         return dropStatements;
     }
 
+    private List<String> getDbObjects(String objectType) throws SQLException {
+        return jdbcTemplate.queryForStringList(
+                "select " + objectType + "_NAME from SYS." + objectType + "S where SCHEMA_NAME = ?", name);
+    }
+
     @Override
     protected Table[] doAllTables() throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList("select TABLE_NAME from SYS.TABLES where SCHEMA_NAME = ?", name);
+        List<String> tableNames = getDbObjects("TABLE");
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new SAPHANATable(jdbcTemplate, database, this, tableNames.get(i));

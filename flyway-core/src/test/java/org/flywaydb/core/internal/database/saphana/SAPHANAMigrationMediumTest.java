@@ -181,6 +181,15 @@ public class SAPHANAMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
+    public void table() {
+        flyway.setLocations("migration/database/saphana/sql/table");
+        assertEquals(1, flyway.migrate());
+
+        flyway.clean();
+        flyway.migrate();
+    }
+
+    @Test
     @Ignore("Ignored as SAP HANA demo lacks create schema permissions")
     public void migrateMultipleSchemas() {
     }
