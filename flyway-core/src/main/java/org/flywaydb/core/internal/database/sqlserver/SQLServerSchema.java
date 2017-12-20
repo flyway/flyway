@@ -312,10 +312,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
             query.append(" AND obj.parent_object_id = ").append(parent.objectId);
         }
 
-        query.append(" order by create_date desc" +
+        query.append(" order by create_date desc"
                 // [enterprise]
                 // Necessary for SQL Server 2008
-                ", object_id desc"
+                + ", object_id desc"
                 // [/enterprise]
         );
 
