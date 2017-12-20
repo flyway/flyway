@@ -47,9 +47,9 @@ import static org.junit.Assert.*;
 @Category(DbCategory.SQLServer.class)
 public class SQLServerMigrationMediumTest extends MigrationTestCase {
     // Enable for SQL Server 2008 on Win x64 testing
-    //static String JDBC_PORT = "1433";
+    static String JDBC_PORT = "1433";
 
-    static String JDBC_PORT = "62070";
+    //static String JDBC_PORT = "62070";
     static String JDBC_USER = "sa";
     static String JDBC_PASSWORD = "flywayPWD000";
 
