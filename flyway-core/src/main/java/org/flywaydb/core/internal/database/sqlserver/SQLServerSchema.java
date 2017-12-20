@@ -312,7 +312,12 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
             query.append(" AND obj.parent_object_id = ").append(parent.objectId);
         }
 
-        query.append(" order by object_id desc");
+        query.append(" order by create_date desc"
+
+
+
+
+        );
 
         return jdbcTemplate.query(query.toString(), new RowMapper<DBObject>() {
             @Override
