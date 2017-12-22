@@ -65,9 +65,10 @@ public class RedshiftSqlStatementBuilder extends SqlStatementBuilder {
             statementStart = statementStart.replaceAll("\\s+", " ");
         }
 
-        if (statementStart.matches("(CREATE|DROP) (DATABASE|TABLESPACE) .*")
-                || statementStart.matches("ALTER SYSTEM .*")
-                || statementStart.matches("VACUUM .*")
+        if (statementStart.matches("^(CREATE|DROP) LIBRARY .*")
+                || statementStart.matches("^CREATE EXTERNAL TABLE .*")
+                || statementStart.matches("^ALTER TABLE .* APPEND FROM .*")
+                || statementStart.matches("^VACUUM .*")
                 ) {
             executeInTransaction = false;
         }

@@ -105,10 +105,17 @@ public class RedshiftSqlStatementBuilderSmallTest {
     }
 
     @Test
-    public void alterType() {
-        String line = "ALTER TYPE \"myschema\".\"colors\" ADD ATTRIBUTE f3 int";
+    public void alterTable() {
+        String line = "alter table venue rename column venueseats to venuesize";
         statementBuilder.addLine(line + ";\n");
         assertTrue(statementBuilder.executeInTransaction());
+    }
+
+    @Test
+    public void alterTableAppend() {
+        String line = "alter table sales_report append from sales_month filltarget";
+        statementBuilder.addLine(line + ";\n");
+        assertFalse(statementBuilder.executeInTransaction());
     }
 
     @Test
