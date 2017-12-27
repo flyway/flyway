@@ -19,6 +19,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.cloudspanner.CloudSpannerDatabase;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabase;
 import org.flywaydb.core.internal.database.db2.DB2Database;
 import org.flywaydb.core.internal.database.derby.DerbyDatabase;
@@ -170,6 +171,13 @@ public class DatabaseFactory {
         }
         if (databaseProductName.startsWith("HDB")) {
             return new SAPHANADatabase(configuration, connection
+
+
+
+            );
+        }
+        if (databaseProductName.startsWith("Google Cloud Spanner")) {
+            return new CloudSpannerDatabase(configuration, connection
 
 
 
