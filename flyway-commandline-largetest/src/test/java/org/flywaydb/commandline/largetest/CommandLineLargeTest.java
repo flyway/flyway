@@ -123,7 +123,7 @@ public class CommandLineLargeTest {
         List<String> args = new ArrayList<String>();
 
         String installDir = new File(getInstallDir()).getAbsolutePath();
-        args.add("flyway" + flywayCmdLineExtensionForCurrentSystem());
+        args.add(installDir + "/flyway" + flywayCmdLineExtensionForCurrentSystem());
 
         if (operation != null) {
             args.add(operation);
