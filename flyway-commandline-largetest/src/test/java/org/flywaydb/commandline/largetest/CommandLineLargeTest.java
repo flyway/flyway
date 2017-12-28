@@ -41,8 +41,10 @@ public class CommandLineLargeTest {
      */
     @Test
     public void migrate() throws Exception {
-        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate");
-        assertTrue(stdOut.contains("Successfully applied 4 migrations"));
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-callbacks=org.flywaydb.sample.callback.DefaultFlywayCallback");
+        assertTrue(stdOut, stdOut.contains("Successfully applied 4 migrations"));
+        assertTrue(stdOut, stdOut.contains("beforeMigrate"));
+        assertTrue(stdOut, stdOut.contains("afterMigrate"));
     }
 
     @Test
@@ -111,11 +113,11 @@ public class CommandLineLargeTest {
      * @return The standard output produced by the tool.
      * @throws Exception thrown when the invocation failed.
      */
-    protected String runFlywayCommandLine(int expectedReturnCode, String configFileName, String operation, String... extraArgs) throws Exception {
+    private String runFlywayCommandLine(int expectedReturnCode, String configFileName, String operation, String... extraArgs) throws Exception {
         List<String> args = new ArrayList<String>();
 
         String installDir = new File(getInstallDir()).getAbsolutePath();
-        args.add(installDir + "/flyway" + flywayCmdLineExtensionForCurrentSystem());
+        args.add("flyway" + flywayCmdLineExtensionForCurrentSystem());
 
         if (operation != null) {
             args.add(operation);
@@ -163,7 +165,7 @@ public class CommandLineLargeTest {
      */
     private String getInstallDir() {
         return System.getProperty("installDir",
-                "flyway-commandline-largetest/target/install dir/flyway-" + getPomVersion());
+                "target/install dir/flyway-" + getPomVersion());
     }
 
     /**
@@ -171,9 +173,9 @@ public class CommandLineLargeTest {
      *
      * @return The POM version.
      */
-    protected String getPomVersion() {
+    private String getPomVersion() {
         try {
-            File pom = new File("pom.xml");
+            File pom = new File("../pom.xml");
             if (!pom.exists()) {
                 return "unknown";
             }
