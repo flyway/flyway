@@ -48,6 +48,12 @@ public class CommandLineLargeTest {
     }
 
     @Test
+    public void root() throws Exception {
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "clean", "migrate", "-locations=classpath:", "-sqlMigrationPrefix=ROOT", "-repeatableSqlMigrationPrefix=REP", "-target=1.1");
+        assertTrue(stdOut, stdOut.contains("Successfully applied 2 migrations"));
+    }
+
+    @Test
     public void multipleCommands() throws Exception {
         String stdOut = runFlywayCommandLine(0, "largeTest.properties", "clean", "migrate");
         assertTrue(stdOut.contains("Successfully cleaned schema"));
@@ -98,7 +104,7 @@ public class CommandLineLargeTest {
 
     @Test
     public void jarFile() throws Exception {
-        String stdOut = runFlywayCommandLine(0, null, "migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db", "-jarDirs=jardir",
+        String stdOut = runFlywayCommandLine(0, null, "clean","migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db", "-jarDirs=jardir",
                 "-driver=org.hsqldb.jdbcDriver", "-locations=db/migration,org/flywaydb/sample/migration", "-resolvers=");
         assertTrue(stdOut.contains("Successfully applied 3 migrations"));
     }
@@ -134,6 +140,7 @@ public class CommandLineLargeTest {
         ProcessBuilder builder = new ProcessBuilder(args);
         builder.directory(new File(installDir));
         builder.redirectErrorStream(true);
+        builder.environment().remove("CLASSPATH");
 
         Process process = builder.start();
         String stdOut = FileCopyUtils.copyToString(new InputStreamReader(process.getInputStream(), "UTF-8"));
