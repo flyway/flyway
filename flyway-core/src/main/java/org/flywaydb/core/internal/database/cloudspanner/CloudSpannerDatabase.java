@@ -68,6 +68,9 @@ public class CloudSpannerDatabase extends Database {
         if (majorVersion < 1) {
             throw new FlywayDbUpgradeRequiredException("Google Cloud Spanner", version, "1.0");
         }
+        if (majorVersion > 1) {
+        	recommendFlywayUpgrade("Google Cloud Spanner", version);
+        }
     }
 
     public String getDbName() {
