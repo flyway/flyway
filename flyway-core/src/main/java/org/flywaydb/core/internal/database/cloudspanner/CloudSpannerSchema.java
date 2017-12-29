@@ -46,7 +46,7 @@ public class CloudSpannerSchema extends Schema<CloudSpannerDatabase> {
 
     @Override
     protected boolean doExists() throws SQLException {
-    	return "".equals(name);
+    	return "".equals(name) || "INFORMATION_SCHEMA".equalsIgnoreCase(name);
     }
 
     @Override
