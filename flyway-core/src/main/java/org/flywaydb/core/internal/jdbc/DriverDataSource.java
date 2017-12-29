@@ -357,6 +357,10 @@ public class DriverDataSource implements DataSource {
             return "com.informix.jdbc.IfxDriver";
         }
 
+        if (url.startsWith("jdbc:cloudspanner:")) {
+            return "nl.topicus.jdbc.CloudSpannerDriver";
+        }
+
         return null;
     }
 
