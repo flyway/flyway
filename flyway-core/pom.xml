@@ -63,6 +63,12 @@
             <artifactId>postgresql</artifactId>
             <optional>true</optional>
         </dependency>
+		<dependency>
+			<groupId>nl.topicus</groupId>
+			<artifactId>spanner-jdbc</artifactId>
+			<version>0.21</version>
+			<optional>true</optional>
+		</dependency>
 
 
 
