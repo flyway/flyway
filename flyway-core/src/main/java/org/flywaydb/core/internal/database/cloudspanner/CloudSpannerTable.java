@@ -61,8 +61,10 @@ public class CloudSpannerTable extends Table {
     	List<String> res = new ArrayList<>();
     	try(ResultSet rs = jdbcTemplate.getConnection().getMetaData().getIndexInfo("", "", name, false, false)) {
     		while(rs.next()) {
-    			if(!rs.getString("INDEX_NAME").equalsIgnoreCase("PRIMARY_KEY") && rs.getString("TABLE_NAME").equalsIgnoreCase(name)) {
-    				res.add("DROP INDEX " + database.quote(rs.getString("INDEX_NAME")));
+    			if(!rs.getString("INDEX_NAME").equalsIgnoreCase("PRIMARY_KEY")) {
+    				String sql = "DROP INDEX " + database.quote(rs.getString("INDEX_NAME"));
+    				if(!res.contains(sql))
+    					res.add(sql);
     			}
     		}
     	}
