@@ -15,16 +15,19 @@
  */
 package org.flywaydb.core.internal.database.cloudspanner;
 
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.Table;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.database.Table;
+import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
 /**
  * Google Cloud Spanner-specific table.
@@ -46,14 +49,26 @@ public class CloudSpannerTable extends Table {
 
     @Override
     protected void doDrop() throws SQLException {
+    	List<String> dropStatements = getDropStatements();
+    	Statement statement = jdbcTemplate.getConnection().createStatement();
+    	for(String sql : dropStatements)
+    	{
+    		statement.addBatch(sql);
+    	}
+    	statement.executeBatch();
+    }
+    
+    protected List<String> getDropStatements() throws SQLException {
+    	List<String> res = new ArrayList<>();
     	try(ResultSet rs = jdbcTemplate.getConnection().getMetaData().getIndexInfo("", "", name, false, false)) {
     		while(rs.next()) {
     			if(!rs.getString("INDEX_NAME").equalsIgnoreCase("PRIMARY_KEY")) {
-    				jdbcTemplate.execute("DROP INDEX " + database.quote(rs.getString("INDEX_NAME")));
+    				res.add("DROP INDEX " + database.quote(rs.getString("INDEX_NAME")));
     			}
     		}
     	}
-        jdbcTemplate.execute("DROP TABLE " + database.quote(name));
+        res.add("DROP TABLE " + database.quote(name));
+        return res;
     }
 
     @Override
