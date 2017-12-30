@@ -51,8 +51,7 @@ public class CloudSpannerTable extends Table {
     protected void doDrop() throws SQLException {
     	List<String> dropStatements = getDropStatements();
     	Statement statement = jdbcTemplate.getConnection().createStatement();
-    	for(String sql : dropStatements)
-    	{
+    	for(String sql : dropStatements) {
     		statement.addBatch(sql);
     	}
     	statement.executeBatch();
@@ -62,7 +61,7 @@ public class CloudSpannerTable extends Table {
     	List<String> res = new ArrayList<>();
     	try(ResultSet rs = jdbcTemplate.getConnection().getMetaData().getIndexInfo("", "", name, false, false)) {
     		while(rs.next()) {
-    			if(!rs.getString("INDEX_NAME").equalsIgnoreCase("PRIMARY_KEY")) {
+    			if(!rs.getString("INDEX_NAME").equalsIgnoreCase("PRIMARY_KEY") && rs.getString("TABLE_NAME").equalsIgnoreCase(name)) {
     				res.add("DROP INDEX " + database.quote(rs.getString("INDEX_NAME")));
     			}
     		}
