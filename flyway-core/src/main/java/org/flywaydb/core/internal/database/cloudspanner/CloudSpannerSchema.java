@@ -23,6 +23,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -67,25 +68,30 @@ public class CloudSpannerSchema extends Schema<CloudSpannerDatabase> {
 
     @Override
     protected void doClean() throws SQLException {
-        for (Table table : allTables()) {
-            table.drop();
+    	Statement statement = jdbcTemplate.getConnection().createStatement();
+        for (CloudSpannerTable table : doAllTables()) {
+        	List<String> dropStatements = table.getDropStatements();
+        	for(String sql : dropStatements) {
+        		statement.addBatch(sql);
+        	}
         }
+        statement.executeBatch();
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
-    	List<Table> tables = new ArrayList<>();
+    protected CloudSpannerTable[] doAllTables() throws SQLException {
+    	List<CloudSpannerTable> tables = new ArrayList<>();
         try(ResultSet rs = jdbcTemplate.getConnection().getMetaData().getTables("", "", null, null)) {
 	        while(rs.next())
 	        {
 	        	tables.add(new CloudSpannerTable(jdbcTemplate, database, this, rs.getString("TABLE_NAME")));
 	        }
         }
-        return tables.toArray(new Table[tables.size()]);
+        return tables.toArray(new CloudSpannerTable[tables.size()]);
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public CloudSpannerTable getTable(String tableName) {
         return new CloudSpannerTable(jdbcTemplate, database, this, tableName);
     }
 }
