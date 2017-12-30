@@ -48,7 +48,9 @@ public class CloudSpannerTable extends Table {
     protected void doDrop() throws SQLException {
     	try(ResultSet rs = jdbcTemplate.getConnection().getMetaData().getIndexInfo("", "", name, false, false)) {
     		while(rs.next()) {
-    			jdbcTemplate.execute("DROP INDEX " + database.quote(rs.getString("INDEX_NAME")));
+    			if(!rs.getString("INDEX_NAME").equalsIgnoreCase("PRIMARY_KEY")) {
+    				jdbcTemplate.execute("DROP INDEX " + database.quote(rs.getString("INDEX_NAME")));
+    			}
     		}
     	}
         jdbcTemplate.execute("DROP TABLE " + database.quote(name));
