@@ -184,38 +184,30 @@ public class ClassPathScanner implements ResourceAndClassScanner {
 
         boolean locationResolved = !locationUrls.isEmpty();
 
-        // Make an additional attempt at finding resources in jar files that don't contain directory entries
-        if (classLoader instanceof URLClassLoader) {
-            URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-            for (URL url : urlClassLoader.getURLs()) {
-                if ("file".equals(url.getProtocol())
-                        && url.getPath().endsWith(".jar")
-                        && !url.getPath().matches(".*" + Pattern.quote("/jre/lib/") + ".*")) {
-                    // All non-system jars on disk
-                    JarFile jarFile;
-                    try {
+        if (!locationResolved) {
+            // Make an additional attempt at finding resources in jar files
+            if (classLoader instanceof URLClassLoader) {
+                URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
+                for (URL url : urlClassLoader.getURLs()) {
+                    if ("file".equals(url.getProtocol())
+                            && url.getPath().endsWith(".jar")
+                            && !url.getPath().matches(".*" + Pattern.quote("/jre/lib/") + ".*")) {
+                        // All non-system jars on disk
+                        JarFile jarFile;
                         try {
-                            jarFile = new JarFile(url.toURI().getSchemeSpecificPart());
-                        } catch (URISyntaxException ex) {
-                            // Fallback for URLs that are not valid URIs (should hardly ever happen).
-                            jarFile = new JarFile(url.getPath().substring("file:".length()));
-                        }
-                    } catch (SecurityException e) {
-                        LOG.warn("Skipping unloadable jar file: " + url + " (" + e.getMessage() + ")");
-                        continue;
-                    }
-
-                    try {
-                        boolean directoryFound = false;
-                        Enumeration<JarEntry> entries = jarFile.entries();
-                        while (entries.hasMoreElements()) {
-                            if (entries.nextElement().isDirectory()) {
-                                directoryFound = true;
-                                break;
+                            try {
+                                jarFile = new JarFile(url.toURI().getSchemeSpecificPart());
+                            } catch (URISyntaxException ex) {
+                                // Fallback for URLs that are not valid URIs (should hardly ever happen).
+                                jarFile = new JarFile(url.getPath().substring("file:".length()));
                             }
+                        } catch (SecurityException e) {
+                            LOG.warn("Skipping unloadable jar file: " + url + " (" + e.getMessage() + ")");
+                            continue;
                         }
-                        if (!directoryFound) {
-                            entries = jarFile.entries();
+
+                        try {
+                            Enumeration<JarEntry> entries = jarFile.entries();
                             while (entries.hasMoreElements()) {
                                 String entryName = entries.nextElement().getName();
                                 if (entryName.startsWith(location.getPath())) {
@@ -227,9 +219,9 @@ public class ClassPathScanner implements ResourceAndClassScanner {
                                     }
                                 }
                             }
+                        } finally {
+                            jarFile.close();
                         }
-                    } finally {
-                        jarFile.close();
                     }
                 }
             }
