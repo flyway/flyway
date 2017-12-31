@@ -68,13 +68,26 @@ public class CloudSpannerSchema extends Schema<CloudSpannerDatabase> {
 
     @Override
     protected void doClean() throws SQLException {
-    	Statement statement = jdbcTemplate.getConnection().createStatement();
+    	List<CloudSpannerTable> tables = new ArrayList<>();
         for (CloudSpannerTable table : doAllTables()) {
-        	List<String> dropStatements = table.getDropStatements();
-        	for(String sql : dropStatements) {
-        		statement.addBatch(sql);
-        	}
+        	tables.add(table);
         }
+        // Sort the tables so that tables that are interleaved in others come first
+        try {
+        	tables.sort(new InterleavedTableComparator());
+        }
+        catch(RuntimeException e)
+        {
+        	// see InterleavedTableComparator#compare
+        	if(e.getCause() != null && e.getCause() instanceof SQLException)
+        		throw (SQLException) e.getCause();
+        	throw e;
+        }
+    	List<String> dropStatements = new ArrayList<>();
+    	Statement statement = jdbcTemplate.getConnection().createStatement();
+    	for(String sql : dropStatements) {
+    		statement.addBatch(sql);
+    	}
         statement.executeBatch();
     }
 
