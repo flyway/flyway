@@ -79,7 +79,7 @@ public class CloudSpannerTable extends Table {
      * @throws SQLException 
      */
     public boolean isInterleavedIn(CloudSpannerTable other) throws SQLException {
-    	try(ResultSet rs = jdbcTemplate.getConnection().getMetaData().getExportedKeys("", "", this.name)) {
+    	try(ResultSet rs = jdbcTemplate.getConnection().getMetaData().getImportedKeys("", "", this.name)) {
     		while(rs.next()) {
     			String parent = rs.getString("PKTABLE_NAME");
     			if(parent.equalsIgnoreCase(other.name))
