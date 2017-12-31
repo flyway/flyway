@@ -76,16 +76,14 @@ public class CloudSpannerSchema extends Schema<CloudSpannerDatabase> {
         try {
         	tables.sort(new InterleavedTableComparator());
         }
-        catch(RuntimeException e)
-        {
+        catch(RuntimeException e) {
         	// see InterleavedTableComparator#compare
         	if(e.getCause() != null && e.getCause() instanceof SQLException)
         		throw (SQLException) e.getCause();
         	throw e;
         }
     	List<String> dropStatements = new ArrayList<>();
-    	for(CloudSpannerTable table : tables)
-    	{
+    	for(CloudSpannerTable table : tables) {
     		dropStatements.addAll(table.getDropStatements());
     	}
     	Statement statement = jdbcTemplate.getConnection().createStatement();
