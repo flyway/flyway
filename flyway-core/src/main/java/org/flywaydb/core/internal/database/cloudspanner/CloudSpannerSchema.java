@@ -84,6 +84,10 @@ public class CloudSpannerSchema extends Schema<CloudSpannerDatabase> {
         	throw e;
         }
     	List<String> dropStatements = new ArrayList<>();
+    	for(CloudSpannerTable table : tables)
+    	{
+    		dropStatements.addAll(table.getDropStatements());
+    	}
     	Statement statement = jdbcTemplate.getConnection().createStatement();
     	for(String sql : dropStatements) {
     		statement.addBatch(sql);
