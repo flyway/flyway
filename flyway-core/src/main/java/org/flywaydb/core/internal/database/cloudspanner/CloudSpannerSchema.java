@@ -97,8 +97,7 @@ public class CloudSpannerSchema extends Schema<CloudSpannerDatabase> {
     protected CloudSpannerTable[] doAllTables() throws SQLException {
     	List<CloudSpannerTable> tables = new ArrayList<>();
         try(ResultSet rs = jdbcTemplate.getConnection().getMetaData().getTables("", "", null, null)) {
-	        while(rs.next())
-	        {
+	        while(rs.next()) {
 	        	tables.add(new CloudSpannerTable(jdbcTemplate, database, this, rs.getString("TABLE_NAME")));
 	        }
         }
