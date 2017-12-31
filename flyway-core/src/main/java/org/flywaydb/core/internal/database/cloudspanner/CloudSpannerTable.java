@@ -71,6 +71,23 @@ public class CloudSpannerTable extends Table {
         res.add("DROP TABLE " + database.quote(name));
         return res;
     }
+    
+    /**
+     * Checks whether this table is interleaved in the other table (this is a child of the other table). This check does not do a recursive check, i.e. if this table is a child of a child of the other table, then the method will return false.
+     * @param other The table to be checked for being a direct parent of this table
+     * @return true if this is a direct child of other
+     * @throws SQLException 
+     */
+    public boolean isInterleavedIn(CloudSpannerTable other) throws SQLException {
+    	try(ResultSet rs = jdbcTemplate.getConnection().getMetaData().getExportedKeys("", "", this.name)) {
+    		while(rs.next()) {
+    			String parent = rs.getString("PKTABLE_NAME");
+    			if(parent.equalsIgnoreCase(other.name))
+    				return true;
+    		}
+    	}
+    	return false;
+    }
 
     @Override
     protected boolean doExists() throws SQLException {
