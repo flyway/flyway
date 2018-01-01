@@ -31,5 +31,5 @@ PRIMARY KEY (`installed_rank`)
 -- Don't wait for the index creation to finish, but let it run in the background
 SET_CONNECTION_PROPERTY AsyncDdlOperations=true;
 CREATE INDEX `${table}_s_idx` ON `${table}` (`success`);
--- TODO: Reset to original instead of setting to false when the driver supports this
-SET_CONNECTION_PROPERTY AsyncDdlOperations=false;
+-- Reset to original value
+RESET_CONNECTION_PROPERTY AsyncDdlOperations;
