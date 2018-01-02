@@ -1,7 +1,7 @@
-Copyright 2010-2017 Boxfuse GmbH
+Copyright 2010-2018 Boxfuse GmbH
 
 
-Boxfuse GmbH grants the License the non-exclusive,
+Boxfuse GmbH grants the Licensee a non-exclusive,
 timely limited and non-transferable license
 to install and use the Software under the terms of
 the Flyway License and Maintenance Agreement.
