@@ -29,7 +29,7 @@ https://flywaydb.org/documentation/contribute/
 Flyway is brought to you by [Axel Fontaine](https://twitter.com/axelfontaine) and [Boxfuse](https://boxfuse.com) with the help of [many contributors](https://flywaydb.org/documentation/contribute/hallOfFame.html).
 
 ## License
-Copyright (C) 2010-2017 [Boxfuse GmbH](https://boxfuse.com)
+Copyright (C) 2010-2018 [Boxfuse GmbH](https://boxfuse.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
