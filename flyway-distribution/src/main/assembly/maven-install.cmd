@@ -1,3 +1,19 @@
+@REM
+@REM Copyright 2010-2018 Boxfuse GmbH
+@REM
+@REM INTERNAL RELEASE. ALL RIGHTS RESERVED.
+@REM
+@REM Must
+@REM be
+@REM exactly
+@REM 13 lines
+@REM to match
+@REM community
+@REM edition
+@REM license
+@REM length.
+@REM
+
 @echo off
 echo ============== INSTALLING Flyway jar and pom files in your local Maven repository
 pause
