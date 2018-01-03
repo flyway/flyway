@@ -15,16 +15,6 @@
  */
 package org.flywaydb.core.internal.util.jdbc;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.ExceptionUtils;
-import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.StringUtils;
-
-import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Driver;
@@ -33,6 +23,17 @@ import java.sql.SQLRecoverableException;
 import java.sql.Statement;
 import java.util.Properties;
 import java.util.logging.Logger;
+
+import javax.sql.DataSource;
+
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
+import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.ExceptionUtils;
+import org.flywaydb.core.internal.util.FeatureDetector;
+import org.flywaydb.core.internal.util.StringUtils;
 
 /**
  * YAGNI: The simplest DataSource implementation that works for Flyway.
@@ -323,11 +324,15 @@ public class DriverDataSource implements DataSource {
         if (url.startsWith("jdbc:sap:")) {
             return "com.sap.db.jdbc.Driver";
         }
-        
-        if (url.startsWith("jdbc:neo4j:")) {
-            return "org.flywaydb.core.internal.dbsupport.neo4j.Neo4JMigrationDriver";
+
+        if (url.startsWith("jdbc:neo4j:bolt")) {
+            return "org.flywaydb.core.internal.dbsupport.neo4j.Neo4JMigrationBoltDriver";
         }
-      
+
+        if (url.startsWith("jdbc:neo4j:http")) {
+            return "org.flywaydb.core.internal.dbsupport.neo4j.Neo4JMigrationHttpDriver";
+        }
+
         return null;
     }
 
@@ -459,30 +464,37 @@ public class DriverDataSource implements DataSource {
         this.autoCommit = autoCommit;
     }
 
+    @Override
     public int getLoginTimeout() throws SQLException {
         return 0;
     }
 
+    @Override
     public void setLoginTimeout(int timeout) throws SQLException {
         throw new UnsupportedOperationException("setLoginTimeout");
     }
 
+    @Override
     public PrintWriter getLogWriter() {
         throw new UnsupportedOperationException("getLogWriter");
     }
 
+    @Override
     public void setLogWriter(PrintWriter pw) throws SQLException {
         throw new UnsupportedOperationException("setLogWriter");
     }
 
+    @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
         throw new UnsupportedOperationException("unwrap");
     }
 
+    @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return DataSource.class.equals(iface);
     }
 
+    @Override
     public Logger getParentLogger() {
         throw new UnsupportedOperationException("getParentLogger");
     }

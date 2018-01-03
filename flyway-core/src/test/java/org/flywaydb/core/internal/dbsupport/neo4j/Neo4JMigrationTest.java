@@ -15,21 +15,13 @@
  */
 
 /**
- * 
+ *
  */
 package org.flywaydb.core.internal.dbsupport.neo4j;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -45,7 +37,7 @@ import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.migration.MigrationTestCase;
-import org.junit.ClassRule;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.util.Assert;
@@ -55,20 +47,25 @@ import org.springframework.util.Assert;
  *
  */
 public class Neo4JMigrationTest extends MigrationTestCase {
-	private static final String DOCKER_IMAGE_NAME = "neo4j:latest";
 
-	@ClassRule
-	public static Neo4JDockerContainer neo4jDockerContainer = new Neo4JDockerContainer(DOCKER_IMAGE_NAME);
+    private static final String JDBC_NEO4J_BOLT_URL = "jdbc:neo4j:bolt://localhost:7687";
+    private static final String JDBC_NEO4J_USERNAME = "neo4j";
+    private static final String JDBC_NEO4J_PASSWORD = "test";
 
 	protected static final String BASEDIR = "migration/dbsupport/neo4j/sql";
 
 	protected static final String MIGRATIONDIR = "migration/dbsupport/neo4j";
 
+	@Before
+	public void purgeBeforeTest() throws SQLException {
+	    jdbcTemplate.execute("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r");
+	}
+
 	@Test
 	public void getConnectionException() throws Exception {
 		String url = "jdbc:neo4j:bolt:<<<Invalid--URL>>";
-		String user = "neo4j";
-		String password = "test";
+		String user = "foo";
+		String password = "bar";
 
 		try {
 			new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null)
@@ -83,8 +80,8 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 
 	@Test
 	public void nullInitSqls() throws Exception {
-		new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, neo4jDockerContainer.getJdbcUrl(),
-				neo4jDockerContainer.getUsername(), neo4jDockerContainer.getPassword(), null).getConnection().close();
+		new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, JDBC_NEO4J_BOLT_URL,
+				JDBC_NEO4J_USERNAME, JDBC_NEO4J_PASSWORD, null).getConnection().close();
 	}
 
 	@Test
@@ -102,8 +99,8 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 	protected DataSource createDataSource(Properties customProperties) throws Exception {
 
 		return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-				neo4jDockerContainer.getJdbcUrl(), neo4jDockerContainer.getUsername(),
-				neo4jDockerContainer.getPassword(), null);
+		        JDBC_NEO4J_BOLT_URL, JDBC_NEO4J_USERNAME,
+		        JDBC_NEO4J_PASSWORD, null);
 	}
 
 	@Override
@@ -356,7 +353,8 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 	public void nonEmptySchema() throws Exception {
 	}
 
-	@Test
+	@Override
+    @Test
 	@Ignore("Ignoring this test because schema notion dosent exist on Neo4J")
 	public void migrateMultipleSchemas() throws Exception {
 	}
