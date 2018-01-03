@@ -13,7 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.flywaydb.core.internal.dbsupport.neo4j;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Properties;
+
+import org.neo4j.jdbc.bolt.BoltDriver;
+
 /**
- * Private API. No compatibility guarantees provided.
+ * @author Felipe Nascimento (ScuteraTech)
+ *
  */
-package org.flywaydb.core.internal.dbsupport.greenplum;
+public class Neo4JMigrationBoltDriver extends BoltDriver {
+
+	public Neo4JMigrationBoltDriver() throws SQLException {
+		super();
+	}
+
+	@Override
+	public Connection connect(String url, Properties info) throws SQLException {
+		Connection connection = super.connect(url, info);
+        return Neo4JConnectionEnhancer.enhancedConnection(connection, url, info);
+	}
+
+}

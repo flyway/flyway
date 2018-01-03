@@ -23,6 +23,10 @@ import org.flywaydb.core.DbCategory;
 import javax.sql.DataSource;
 import java.util.Properties;
 
+import static org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerMigrationTestCase.JDBC_PASSWORD;
+import static org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerMigrationTestCase.JDBC_PORT;
+import static org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerMigrationTestCase.JDBC_USER;
+
 /**
  * Test to demonstrate the migration functionality using SQL Server with the Microsoft driver.
  */
@@ -30,10 +34,7 @@ import java.util.Properties;
 public class MsSQLServerConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {
-        String user = customProperties.getProperty("sqlserver.user", "sa");
-        String password = customProperties.getProperty("sqlserver.password", "flyway");
-        String url = customProperties.getProperty("sqlserver.ms_url", "jdbc:sqlserver://localhost:1433;databaseName=flyway_db_ms_concurrent");
-
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                "jdbc:sqlserver://localhost:" + JDBC_PORT + ";databaseName=flyway_db_ms_concurrent", JDBC_USER, JDBC_PASSWORD);
     }
 }

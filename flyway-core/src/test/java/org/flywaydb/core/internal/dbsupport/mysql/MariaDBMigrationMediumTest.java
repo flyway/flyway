@@ -17,62 +17,47 @@ package org.flywaydb.core.internal.dbsupport.mysql;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.junit.ClassRule;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.ExternalResource;
-import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MariaDBContainer;
-import org.testcontainers.containers.wait.HostPortWaitStrategy;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Properties;
 
 /**
  * Test to demonstrate the migration functionality using Mysql.
  */
 @Category(DbCategory.MariaDB.class)
+@RunWith(Parameterized.class)
 public class MariaDBMigrationMediumTest extends MySQLMigrationTestCase {
-    private static final String DOCKER_IMAGE_NAME = "mariadb:10.0.31";
 
-    private static String jdbcUrl;
-    private static String jdbcUser;
-    private static String jdbcPassword;
 
-    @ClassRule
-    public static ExternalResource initMariaDB() {
-        return new ExternalResource() {
-            private MariaDBContainer mariadb;
 
-            @Override
-            protected void before() throws Throwable {
-                try {
-                    DockerClientFactory.instance().client();
-                    mariadb = new MariaDBContainer(DOCKER_IMAGE_NAME);
-                    mariadb.start();
-                    new HostPortWaitStrategy().waitUntilReady(mariadb);
-                    jdbcUrl = mariadb.getJdbcUrl();
-                    jdbcUser = "root";
-                    jdbcPassword = mariadb.getPassword();
-                } catch (Exception e) {
-                    // Docker not found, fall back to local MariaDB instance.
-                    jdbcUrl = customProperties.getProperty("mariadb.url", "jdbc:mariadb://localhost:3333/flyway_db");
-                    jdbcUser = customProperties.getProperty("mariadb.user", "flyway");
-                    jdbcPassword = customProperties.getProperty("mariadb.password", "flyway");
-                }
-            }
+    private static final String JDBC_URL_MARIADB_100 = "jdbc:mysql://localhost:62011/flyway_db";
+    private static final String JDBC_USER = "root";
+    private static final String JDBC_PASSWORD = "flywayPWD000";
 
-            @Override
-            protected void after() {
-                if (mariadb != null) {
-                    mariadb.stop();
-                }
-            }
-        };
+    private final String jdbcUrl;
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {JDBC_URL_MARIADB_100}
+
+
+
+        });
+    }
+
+    public MariaDBMigrationMediumTest(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
     }
 
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                jdbcUrl, jdbcUser, jdbcPassword, null);
+                jdbcUrl, JDBC_USER, JDBC_PASSWORD);
     }
 }
