@@ -20,9 +20,6 @@ setlocal
 
 echo Creating DBs...
 
-echo Oracle...
-sqlplus SYSTEM/flyway@XE < flyway-core/src/test/resources/migration/dbsupport/oracle/createDatabase.sql
-
 echo MySQL...
 mysql -uroot -pflyway < flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
 
@@ -36,12 +33,6 @@ edb-psql -Uenterprisedb < flyway-core/src/test/resources/migration/dbsupport/pos
 echo PostgreSQL
 set PGPASSWORD=flyway
 psql -Upostgres < flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
-
-echo SQL Server...
-sqlcmd -U sa -P flyway -S localhost\SQLExpress -i flyway-core\src\test\resources\migration\dbsupport\sqlserver\createDatabase.sql
-
-echo DB2...
-db2cmd -c "db2 -tvf flyway-core/src/test/resources/migration/dbsupport/db2/createDatabase.sql"
 
 echo SolidDB...
 solsql -f flyway-core/src/test/resources/migration/dbsupport/solid/createDatabase.sql "tcp localhost 1313"

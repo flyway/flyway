@@ -13,17 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.redshift;
+package org.flywaydb.core.internal.dbsupport.neo4j;
 
-import static org.junit.Assert.assertEquals;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Properties;
 
-import org.junit.Test;
+import org.neo4j.jdbc.bolt.BoltDriver;
 
-public class RedshiftDbSupportSmallTest {
-    @Test
-    public void doQuote() {
-        RedshiftDbSupport dbSupport = new RedshfitDbSupportViaPostgreSQLDriver(null);
-        assertEquals("\"abc\"", dbSupport.doQuote("abc"));
-        assertEquals("\"a\"\"b\"\"c\"", dbSupport.doQuote("a\"b\"c"));
+/**
+ * @author Felipe Nascimento (ScuteraTech)
+ *
+ */
+public class Neo4JMigrationHttpDriver extends BoltDriver {
+
+	public Neo4JMigrationHttpDriver() throws SQLException {
+		super();
+	}
+
+    @Override
+    public Connection connect(String url, Properties info) throws SQLException {
+        Connection connection = super.connect(url, info);
+        return Neo4JConnectionEnhancer.enhancedConnection(connection, url, info);
     }
+
 }
