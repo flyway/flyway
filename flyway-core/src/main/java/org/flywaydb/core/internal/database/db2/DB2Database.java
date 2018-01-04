@@ -16,9 +16,12 @@
 package org.flywaydb.core.internal.database.db2;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -77,6 +80,25 @@ public class DB2Database extends Database {
     }
 
     @Override
+    public SqlScript createSqlScript(String sqlScriptSource) {
+        return new DB2SqlScript(sqlScriptSource);
+    }
+
+    @Override
+    public SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
+                                     String encoding, boolean mixed
+
+
+
+    ) {
+        return new DB2SqlScript(sqlScriptResource, placeholderReplacer, encoding, mixed
+
+
+
+        );
+    }
+
+    @Override
     public String getRawCreateScript() {
         return "CREATE TABLE \"${schema}\".\"${table}\" (\n" +
                 "    \"installed_rank\" INT NOT NULL,\n" +
@@ -102,10 +124,7 @@ public class DB2Database extends Database {
                 "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");";
     }
 
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new DB2SqlStatementBuilder(getDefaultDelimiter());
-    }
-
+    @Override
     public String getDbName() {
         return "db2";
     }
@@ -115,14 +134,17 @@ public class DB2Database extends Database {
         return mainConnection.getJdbcTemplate().queryForString("select CURRENT_USER from sysibm.sysdummy1");
     }
 
+    @Override
     public boolean supportsDdlTransactions() {
         return true;
     }
 
+    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "0";
     }

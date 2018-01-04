@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.sqlscript;
+package org.flywaydb.core.internal.database;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.errorhandler.Error;
-import org.flywaydb.core.api.errorhandler.Context;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.errorhandler.Warning;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException;
+import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.AsciiTable;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -47,13 +44,8 @@ import java.util.List;
  * Sql script containing a series of statements terminated by a delimiter (eg: ;).
  * Single-line (--) and multi-line (/* * /) comments are stripped and ignored.
  */
-public class SqlScript {
+public abstract class SqlScript<C extends ContextImpl> {
     private static final Log LOG = LogFactory.getLog(SqlScript.class);
-
-    /**
-     * The database-specific support.
-     */
-    private final Database<?> database;
 
 
 
@@ -70,7 +62,7 @@ public class SqlScript {
     /**
      * The sql statements contained in this script.
      */
-    private final List<SqlStatement> sqlStatements;
+    private final List<SqlStatement<C>> sqlStatements;
 
     /**
      * The resource containing the statements.
@@ -91,10 +83,8 @@ public class SqlScript {
      * Creates a new sql script from this source.
      *
      * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
-     * @param database        The database-specific support.
      */
-    public SqlScript(String sqlScriptSource, Database database) {
-        this.database = database;
+    public SqlScript(String sqlScriptSource) {
         this.mixed = false;
         this.sqlStatements = parse(sqlScriptSource);
         this.resource = null;
@@ -106,7 +96,6 @@ public class SqlScript {
     /**
      * Creates a new sql script from this resource.
      *
-     * @param database            The database-specific support.
      * @param sqlScriptResource   The resource containing the statements.
      * @param placeholderReplacer The placeholder replacer.
      * @param encoding            The encoding to use.
@@ -115,13 +104,12 @@ public class SqlScript {
 
 
      */
-    public SqlScript(Database database, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
+    public SqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
                      String encoding, boolean mixed
 
 
 
     ) {
-        this.database = database;
         this.resource = sqlScriptResource;
         this.mixed = mixed;
 
@@ -148,7 +136,7 @@ public class SqlScript {
      *
      * @return The sql statements contained in this script.
      */
-    public List<SqlStatement> getSqlStatements() {
+    public List<SqlStatement<C>> getSqlStatements() {
         return sqlStatements;
     }
 
@@ -165,33 +153,14 @@ public class SqlScript {
      * @param jdbcTemplate The jdbcTemplate to use to execute this script.
      */
     public void execute(final JdbcTemplate jdbcTemplate) {
-
-
-
-
-
-
-        for (SqlStatement sqlStatement : sqlStatements) {
-            ContextImpl context = new ContextImpl();
+        for (SqlStatement<C> sqlStatement : sqlStatements) {
+            C context = createContext();
 
             String sql = sqlStatement.getSql();
             LOG.debug("Executing SQL: " + sql);
 
             try {
                 List<Result> results = sqlStatement.execute(context, jdbcTemplate);
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -222,18 +191,18 @@ public class SqlScript {
 
 
                 printWarnings(context);
-
-
-
-
-
-
-
-
-
-                throw new FlywaySqlScriptException(resource, sqlStatement, e);
+                handleException(e, sqlStatement, context);
             }
         }
+    }
+
+    protected void handleException(SQLException e, SqlStatement sqlStatement, C context) {
+        throw new FlywaySqlScriptException(resource, sqlStatement, e);
+    }
+
+    protected C createContext() {
+        //noinspection unchecked
+        return (C) new ContextImpl();
     }
 
 
@@ -256,7 +225,14 @@ public class SqlScript {
 
 
 
-    private void printWarnings(Context context) {
+
+
+
+
+
+
+
+    private void printWarnings(C context) {
         for (Warning warning : context.getWarnings()) {
             if ("00000".equals(warning.getState())) {
                 LOG.info("DB: " + warning.getMessage());
@@ -273,8 +249,7 @@ public class SqlScript {
      * @param sqlScriptSource The script source to parse.
      * @return The parsed statements.
      */
-    /* private -> for testing */
-    List<SqlStatement> parse(String sqlScriptSource) {
+    public List<SqlStatement<C>> parse(String sqlScriptSource) {
         if (resource != null) {
             LOG.debug("Parsing " + resource.getFilename() + " ...");
         }
@@ -287,9 +262,8 @@ public class SqlScript {
      * @param lines The lines to analyse.
      * @return The statements contained in these lines (in order).
      */
-    /* private -> for testing */
-    List<SqlStatement> linesToStatements(List<String> lines) {
-        List<SqlStatement> statements = new ArrayList<>();
+    public List<SqlStatement<C>> linesToStatements(List<String> lines) {
+        List<SqlStatement<C>> statements = new ArrayList<>();
 
         Delimiter nonStandardDelimiter = null;
         SqlStatementBuilder sqlStatementBuilder = createSqlStatementBuilder();
@@ -340,12 +314,10 @@ public class SqlScript {
         return statements;
     }
 
-    protected SqlStatementBuilder createSqlStatementBuilder() {
-        return database.createSqlStatementBuilder();
-    }
+    protected abstract SqlStatementBuilder createSqlStatementBuilder();
 
-    private void addStatement(List<SqlStatement> statements, SqlStatementBuilder sqlStatementBuilder) {
-        SqlStatement sqlStatement = sqlStatementBuilder.getSqlStatement();
+    private void addStatement(List<SqlStatement<C>> statements, SqlStatementBuilder sqlStatementBuilder) {
+        SqlStatement<C> sqlStatement = sqlStatementBuilder.getSqlStatement();
         statements.add(sqlStatement);
 
         if (sqlStatementBuilder.executeInTransaction()) {

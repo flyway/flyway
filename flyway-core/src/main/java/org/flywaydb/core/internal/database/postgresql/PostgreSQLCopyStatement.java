@@ -43,7 +43,7 @@ public class PostgreSQLCopyStatement extends AbstractSqlStatement {
     }
 
     @Override
-    public List<Result> execute(ContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
+    public List<Result> execute(ContextImpl context, JdbcTemplate jdbcTemplate) throws SQLException {
         int split = sql.indexOf(";");
         String statement = sql.substring(0, split);
         String data = sql.substring(split + 1).trim();

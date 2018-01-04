@@ -16,10 +16,13 @@
 package org.flywaydb.core.internal.database.postgresql;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -77,6 +80,26 @@ public class PostgreSQLDatabase extends Database {
         }
     }
 
+    @Override
+    public SqlScript createSqlScript(String sqlScriptSource) {
+        return new PostgreSQLSqlScript(sqlScriptSource);
+    }
+
+    @Override
+    public SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
+                                     String encoding, boolean mixed
+
+
+
+    ) {
+        return new PostgreSQLSqlScript(sqlScriptResource, placeholderReplacer, encoding, mixed
+
+
+
+        );
+    }
+
+    @Override
     public String getDbName() {
         return "postgresql";
     }
@@ -86,20 +109,19 @@ public class PostgreSQLDatabase extends Database {
         return mainConnection.getJdbcTemplate().queryForString("SELECT current_user");
     }
 
+    @Override
     public boolean supportsDdlTransactions() {
         return true;
     }
 
+    @Override
     public String getBooleanTrue() {
         return "TRUE";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "FALSE";
-    }
-
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new PostgreSQLSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override

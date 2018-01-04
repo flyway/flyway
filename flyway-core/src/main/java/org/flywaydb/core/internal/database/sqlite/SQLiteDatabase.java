@@ -16,12 +16,14 @@
 package org.flywaydb.core.internal.database.sqlite;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Types;
 
 /**
@@ -68,12 +70,31 @@ public class SQLiteDatabase extends Database {
         }
     }
 
+    @Override
+    public SqlScript createSqlScript(String sqlScriptSource) {
+        return new SQLiteSqlScript(sqlScriptSource);
+    }
+
+    @Override
+    public SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
+                                     String encoding, boolean mixed
+
+
+
+    ) {
+        return new SQLiteSqlScript(sqlScriptResource, placeholderReplacer, encoding, mixed
+
+
+
+        );
+    }
+
     public String getDbName() {
         return "sqlite";
     }
 
     @Override
-    protected String doGetCurrentUser() throws SQLException {
+    protected String doGetCurrentUser() {
         return "";
     }
 
@@ -97,11 +118,6 @@ public class SQLiteDatabase extends Database {
     @Override
     public String getBooleanFalse() {
         return "0";
-    }
-
-    @Override
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new SQLiteSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override

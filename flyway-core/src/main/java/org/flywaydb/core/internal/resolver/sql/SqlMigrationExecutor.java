@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.resolver.sql;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
@@ -77,7 +77,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     private synchronized SqlScript getSqlScript() {
         if (sqlScript == null) {
-            sqlScript = new SqlScript(database, sqlScriptResource, placeholderReplacer, configuration.getEncoding(), configuration.isMixed()
+            sqlScript = database.createSqlScript(sqlScriptResource, placeholderReplacer, configuration.getEncoding(), configuration.isMixed()
 
 
 

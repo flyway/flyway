@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.sqlscript;
+package org.flywaydb.core.internal.database;
 
-import org.flywaydb.core.internal.database.AbstractSqlStatement;
 import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.Result;
@@ -26,7 +25,7 @@ import java.util.List;
 /**
  * A sql statement from a script that can be executed at once against a database.
  */
-public class StandardSqlStatement extends AbstractSqlStatement {
+public class StandardSqlStatement extends AbstractSqlStatement<ContextImpl> {
     /**
      * Creates a new sql statement.
      *
@@ -38,7 +37,7 @@ public class StandardSqlStatement extends AbstractSqlStatement {
     }
 
     @Override
-    public List<Result> execute(ContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
-        return jdbcTemplate.executeStatement(errorContext, sql);
+    public List<Result> execute(ContextImpl context, JdbcTemplate jdbcTemplate) throws SQLException {
+        return jdbcTemplate.executeStatement(context, sql);
     }
 }

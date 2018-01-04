@@ -16,12 +16,15 @@
 package org.flywaydb.core.internal.database.sqlserver;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -118,6 +121,26 @@ public class SQLServerDatabase extends Database {
         return major + "." + minor;
     }
 
+    @Override
+    public SqlScript createSqlScript(String sqlScriptSource) {
+        return new SQLServerSqlScript(sqlScriptSource);
+    }
+
+    @Override
+    public SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
+                                     String encoding, boolean mixed
+
+
+
+    ) {
+        return new SQLServerSqlScript(sqlScriptResource, placeholderReplacer, encoding, mixed
+
+
+
+        );
+    }
+
+    @Override
     public String getDbName() {
         return "sqlserver";
     }
@@ -132,20 +155,19 @@ public class SQLServerDatabase extends Database {
         return mainConnection.getJdbcTemplate().queryForString("SELECT SUSER_SNAME()");
     }
 
+    @Override
     public boolean supportsDdlTransactions() {
         return true;
     }
 
+    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "0";
-    }
-
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new SQLServerSqlStatementBuilder(getDefaultDelimiter());
     }
 
     /**

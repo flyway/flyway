@@ -121,6 +121,14 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
 
 
+
+
+
+
+
+
+
+
     private static final Pattern DECLARE_BEGIN_REGEX = toRegex("DECLARE|BEGIN");
     private static final Pattern PLSQL_REGEX = Pattern.compile(
             "^CREATE(\\s+OR\\s+REPLACE)?(\\s+(NON)?EDITIONABLE)?\\s+(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*");
@@ -172,16 +180,23 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
 
 
+
+
     @Override
-    protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
-        if (DECLARE_BEGIN_REGEX.matcher(line).matches()) {
-            return PLSQL_DELIMITER;
-        }
+    protected void applyStateChanges(String line) {
+        super.applyStateChanges(line);
 
         if (StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
             statementStart += line;
             statementStart += " ";
             statementStart = statementStart.replaceAll("\\s+", " ");
+        }
+    }
+
+    @Override
+    protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
+        if (DECLARE_BEGIN_REGEX.matcher(line).matches()) {
+            return PLSQL_DELIMITER;
         }
 
         if (PLSQL_REGEX.matcher(statementStart).matches() || JAVA_REGEX.matcher(statementStart).matches()) {

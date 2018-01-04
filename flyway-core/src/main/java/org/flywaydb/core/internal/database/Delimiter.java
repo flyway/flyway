@@ -59,7 +59,7 @@ public class Delimiter {
 
     @Override
     public String toString() {
-        return delimiter;
+        return (aloneOnLine ? "\n" : "") + delimiter;
     }
 
     @Override

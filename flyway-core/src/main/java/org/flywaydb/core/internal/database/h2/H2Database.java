@@ -16,9 +16,12 @@
 package org.flywaydb.core.internal.database.h2;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -68,6 +71,26 @@ public class H2Database extends Database {
         }
     }
 
+    @Override
+    public SqlScript createSqlScript(String sqlScriptSource) {
+        return new H2SqlScript(sqlScriptSource);
+    }
+
+    @Override
+    public SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
+                                     String encoding, boolean mixed
+
+
+
+    ) {
+        return new H2SqlScript(sqlScriptResource, placeholderReplacer, encoding, mixed
+
+
+
+        );
+    }
+
+    @Override
     public String getDbName() {
         return "h2";
     }
@@ -77,20 +100,19 @@ public class H2Database extends Database {
         return mainConnection.getJdbcTemplate().queryForString("SELECT USER()");
     }
 
+    @Override
     public boolean supportsDdlTransactions() {
         return false;
     }
 
+    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "0";
-    }
-
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new H2SqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override
