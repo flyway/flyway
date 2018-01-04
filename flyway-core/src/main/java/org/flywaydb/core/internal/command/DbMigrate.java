@@ -28,17 +28,19 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
+import org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -211,19 +213,21 @@ public class DbMigrate {
 
         MigrationInfo[] future = infoService.future();
         if (future.length > 0) {
-            MigrationInfo[] resolved = infoService.resolved();
-            if (resolved.length == 0) {
+            List<MigrationInfo> resolved = Arrays.asList(infoService.resolved());
+            Collections.reverse(resolved);
+            if (resolved.isEmpty()) {
                 LOG.warn("Schema " + schema + " has version " + currentSchemaVersion
                         + ", but no migration could be resolved in the configured locations !");
             } else {
-                int offset = resolved.length - 1;
-                while (resolved[offset].getVersion() == null) {
-                    // Skip repeatable migrations
-                    offset--;
+                for (MigrationInfo migrationInfo : resolved) {
+                    // Only consider versioned migrations
+                    if (migrationInfo.getVersion() != null) {
+                        LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion
+                                + ") that is newer than the latest available migration ("
+                                + migrationInfo.getVersion() + ") !");
+                        break;
+                    }
                 }
-                LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion
-                        + ") that is newer than the latest available migration ("
-                        + resolved[offset].getVersion() + ") !");
             }
         }
 
