@@ -262,7 +262,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
 
 
-                || statementStart.startsWith("/"); // Lone / that can safely be ignored
+                || statementStart.equals("/ "); // Lone / that can safely be ignored
     }
 
 
