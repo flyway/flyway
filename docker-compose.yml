@@ -106,3 +106,14 @@ services:
      - ./flyway-core/src/test/resources/migration/dbsupport/sqlserver/createDatabase.sql:/createDatabase.sql
     entrypoint:
      - /entrypoint.sh
+     
+  
+  neo4j-316:
+    image: "neo4j:3.1.6"
+    environment:
+      - NEO4J_AUTH=neo4j/flywayPWD000
+    ports:
+      - "62060:7687"
+     
+     
+  

@@ -193,7 +193,12 @@
         </dependency>
         <dependency>
             <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-jdbc-driver</artifactId>
+            <artifactId>neo4j-jdbc-bolt</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-jdbc-http</artifactId>
             <version>3.1.0</version>
         </dependency>
         <dependency>
