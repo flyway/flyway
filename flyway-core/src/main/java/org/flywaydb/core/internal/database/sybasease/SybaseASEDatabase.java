@@ -16,10 +16,13 @@
 package org.flywaydb.core.internal.database.sybasease;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -74,8 +77,22 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     }
 
     @Override
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new SybaseASESqlStatementBuilder(getDefaultDelimiter());
+    public SqlScript createSqlScript(String sqlScriptSource) {
+        return new SybaseASESqlScript(sqlScriptSource);
+    }
+
+    @Override
+    public SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
+                                     String encoding, boolean mixed
+
+
+
+    ) {
+        return new SybaseASESqlScript(sqlScriptResource, placeholderReplacer, encoding, mixed
+
+
+
+        );
     }
 
     @Override

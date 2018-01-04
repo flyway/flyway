@@ -42,9 +42,16 @@
         </license>
     </licenses>
     <scm>
+
         <url>https://github.com/flyway/flyway</url>
         <connection>scm:git:https://github.com/flyway/flyway.git</connection>
         <developerConnection>scm:git:https://github.com/flyway/flyway.git</developerConnection>
+
+
+
+
+
+
         <tag>HEAD</tag>
     </scm>
     <developers>

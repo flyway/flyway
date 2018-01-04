@@ -16,16 +16,15 @@
 package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
-import java.sql.Array;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -97,6 +96,26 @@ public class OracleDatabase extends Database {
         }
     }
 
+    @Override
+    public SqlScript createSqlScript(String sqlScriptSource) {
+        return new OracleSqlScript(sqlScriptSource);
+    }
+
+    @Override
+    public SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
+                                     String encoding, boolean mixed
+
+
+
+    ) {
+        return new OracleSqlScript(sqlScriptResource, placeholderReplacer, encoding, mixed
+
+
+
+        );
+    }
+
+    @Override
     public String getDbName() {
         return "oracle";
     }
@@ -106,20 +125,19 @@ public class OracleDatabase extends Database {
         return mainConnection.getJdbcTemplate().queryForString("SELECT USER FROM DUAL");
     }
 
+    @Override
     public boolean supportsDdlTransactions() {
         return false;
     }
 
+    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "0";
-    }
-
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new OracleSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override
@@ -329,41 +347,4 @@ public class OracleDatabase extends Database {
 
         return result;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

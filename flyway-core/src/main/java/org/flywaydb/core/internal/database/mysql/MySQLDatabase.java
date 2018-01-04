@@ -16,10 +16,13 @@
 package org.flywaydb.core.internal.database.mysql;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -95,6 +98,26 @@ public class MySQLDatabase extends Database {
         }
     }
 
+    @Override
+    public SqlScript createSqlScript(String sqlScriptSource) {
+        return new MySQLSqlScript(sqlScriptSource);
+    }
+
+    @Override
+    public SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
+                                     String encoding, boolean mixed
+
+
+
+    ) {
+        return new MySQLSqlScript(sqlScriptResource, placeholderReplacer, encoding, mixed
+
+
+
+        );
+    }
+
+    @Override
     public String getDbName() {
         return "mysql";
     }
@@ -104,20 +127,19 @@ public class MySQLDatabase extends Database {
         return mainConnection.getJdbcTemplate().queryForString("SELECT SUBSTRING_INDEX(USER(),'@',1)");
     }
 
+    @Override
     public boolean supportsDdlTransactions() {
         return false;
     }
 
+    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "0";
-    }
-
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new MySQLSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override

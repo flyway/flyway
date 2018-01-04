@@ -16,20 +16,20 @@
 package org.flywaydb.core.internal.database;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
 import java.io.Closeable;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,7 +46,7 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * The JDBC metadata to use.
      */
-    protected  final DatabaseMetaData jdbcMetaData;
+    protected final DatabaseMetaData jdbcMetaData;
 
     /**
      * The main connection to use.
@@ -129,17 +129,37 @@ public abstract class Database<C extends Connection> implements Closeable {
      */
     protected abstract void ensureSupported();
 
-    protected void recommendFlywayUpgrade(String database, String version) {
+    protected final void recommendFlywayUpgrade(String database, String version) {
         LOG.warn("Flyway upgrade recommended: " + database + " " + version
                 + " is newer than this version of Flyway and support has not been tested.");
     }
 
     /**
-     * Creates a new SqlStatementBuilder for this specific database.
+     * Creates a new SqlScript for this specific database.
      *
-     * @return The new SqlStatementBuilder.
+     * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
+     * @return The new SqlScript.
      */
-    public abstract SqlStatementBuilder createSqlStatementBuilder();
+    public abstract SqlScript createSqlScript(String sqlScriptSource);
+
+    /**
+     * Creates a new SqlScript for this specific database.
+     *
+     * @param sqlScriptResource   The resource containing the statements.
+     * @param placeholderReplacer The placeholder replacer.
+     * @param encoding            The encoding to use.
+     * @param mixed               Whether to allow mixing transactional and non-transactional statements within the same migration.
+
+
+
+     * @return The new SqlScript.
+     */
+    public abstract SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
+                                              String encoding, boolean mixed
+
+
+
+    );
 
     /**
      * @return The default delimiter for this database.
@@ -329,13 +349,4 @@ public abstract class Database<C extends Connection> implements Closeable {
         }
         mainConnection.close();
     }
-
-
-
-
-
-
-
-
-
 }

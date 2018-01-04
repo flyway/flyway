@@ -16,11 +16,12 @@
 package org.flywaydb.core.internal.database;
 
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
+import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 
 /**
  * A sql statement from a script that can be executed at once against a database.
  */
-public abstract class AbstractSqlStatement implements SqlStatement {
+public abstract class AbstractSqlStatement<C extends ContextImpl> implements SqlStatement<C> {
     /**
      * The original line number where the statement was located in the script it came from.
      */

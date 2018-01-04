@@ -16,9 +16,11 @@
 package org.flywaydb.core.internal.database.saphana;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.Types;
@@ -72,26 +74,41 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
 
     }
 
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new SAPHANASqlStatementBuilder(Delimiter.SEMICOLON);
+    @Override
+    public SqlScript createSqlScript(String sqlScriptSource) {
+        return new SAPHANASqlScript(sqlScriptSource);
     }
 
+    @Override
+    public SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
+                                     String encoding, boolean mixed
+
+
+
+    ) {
+        return new SAPHANASqlScript(sqlScriptResource, placeholderReplacer, encoding, mixed
+
+
+
+        );
+    }
+
+    @Override
     public String getDbName() {
         return "saphana";
     }
 
-    public String getCurrentUserFunction() {
-        return "CURRENT_USER";
-    }
-
+    @Override
     public boolean supportsDdlTransactions() {
         return false;
     }
 
+    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "0";
     }

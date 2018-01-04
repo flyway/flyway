@@ -16,10 +16,13 @@
 package org.flywaydb.core.internal.database.redshift;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -79,6 +82,26 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
         // Always latest Redshift version.
     }
 
+    @Override
+    public SqlScript createSqlScript(String sqlScriptSource) {
+        return new RedshiftSqlScript(sqlScriptSource);
+    }
+
+    @Override
+    public SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
+                                     String encoding, boolean mixed
+
+
+
+    ) {
+        return new RedshiftSqlScript(sqlScriptResource, placeholderReplacer, encoding, mixed
+
+
+
+        );
+    }
+
+    @Override
     public String getDbName() {
         return "redshift";
     }
@@ -88,21 +111,19 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
         return getMainConnection().getJdbcTemplate().queryForString("SELECT current_user");
     }
 
-
+    @Override
     public boolean supportsDdlTransactions() {
         return true;
     }
 
+    @Override
     public String getBooleanTrue() {
         return "TRUE";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "FALSE";
-    }
-
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new RedshiftSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override

@@ -26,36 +26,6 @@ public class ContextImpl implements Context {
     private final List<Warning> warnings = new ArrayList<>();
     private final List<Error> errors = new ArrayList<>();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public void addWarning(Warning warning) {
         warnings.add(warning);
     }
