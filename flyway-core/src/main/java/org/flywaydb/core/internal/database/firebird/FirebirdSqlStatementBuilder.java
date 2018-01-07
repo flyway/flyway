@@ -29,7 +29,7 @@ public class FirebirdSqlStatementBuilder extends SqlStatementBuilder {
 
     private String statementStart = "";
 
-    private String startDeliminator = "SET TERM(.*);";
+    private String startDeliminator = "SET TERM(.*)";
 
     FirebirdSqlStatementBuilder(Delimiter defaultDelimiter) {
         super(defaultDelimiter);
