@@ -19,7 +19,7 @@ import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 
 /**
- * FirebirdSqlStatementBuilder borrowed from DB2, use --set term before stored procs or triggers
+ * FirebirdSqlStatementBuilder
  */
 public class FirebirdSqlStatementBuilder extends SqlStatementBuilder {
 
