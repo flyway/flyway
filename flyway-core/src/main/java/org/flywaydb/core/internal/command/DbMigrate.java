@@ -204,11 +204,19 @@ public class DbMigrate {
             currentSchemaVersion = infoService.current().getVersion();
         }
         if (firstRun) {
-            LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
-
-            if (configuration.isOutOfOrder()) {
-                LOG.warn("outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.");
+            if (schema.getName() != "null") {
+                LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
+                if (configuration.isOutOfOrder()) {
+                    LOG.warn("outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.");
+                }
+            } else { //Some databases do not work with a schema
+                LOG.info("Current version of database: "+currentSchemaVersion);
+                if (configuration.isOutOfOrder()) {
+                    LOG.warn("outOfOrder mode is active. Migration of database may not be reproducible.");
+                }
             }
+
+
         }
 
         MigrationInfo[] future = infoService.future();
@@ -272,14 +280,26 @@ public class DbMigrate {
 
     private void logSummary(int migrationSuccessCount, long executionTime) {
         if (migrationSuccessCount == 0) {
-            LOG.info("Schema " + schema + " is up to date. No migration necessary.");
+            if (schema.getName() != "null") {
+                LOG.info("Schema " + schema + " is up to date. No migration necessary.");
+            } else {
+                LOG.info("Database is up to date. No migration necessary.");
+            }
             return;
         }
 
         if (migrationSuccessCount == 1) {
-            LOG.info("Successfully applied 1 migration to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ")");
+            if (schema.getName() != "null") {
+                LOG.info("Successfully applied 1 migration to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ")");
+            }  else {
+                LOG.info("Successfully applied 1 migration to database (execution time " + TimeFormat.format(executionTime) + ")");
+            }
         } else {
-            LOG.info("Successfully applied " + migrationSuccessCount + " migrations to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ")");
+            if (schema.getName() != "null") {
+                LOG.info("Successfully applied " + migrationSuccessCount + " migrations to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ")");
+            } else {
+                LOG.info("Successfully applied " + migrationSuccessCount + " migrations to database  (execution time " + TimeFormat.format(executionTime) + ")");
+            }
         }
     }
 
@@ -386,10 +406,21 @@ public class DbMigrate {
         final MigrationExecutor migrationExecutor = migration.getResolvedMigration().getExecutor();
         final String migrationText;
         if (migration.getVersion() != null) {
-            migrationText = "schema " + schema + " to version " + migration.getVersion() + " - " + migration.getDescription() +
-                    (isOutOfOrder ? " [out of order]" : "") + (migrationExecutor.executeInTransaction() ? "" : " [non-transactional]");
+            if (schema.getName() != "null") {
+                migrationText = "schema " + schema + " to version " + migration.getVersion() + " - " + migration.getDescription() +
+                        (isOutOfOrder ? " [out of order]" : "") + (migrationExecutor.executeInTransaction() ? "" : " [non-transactional]");
+            } else {
+                migrationText = "database to version " + migration.getVersion() + " - " + migration.getDescription() +
+                        (isOutOfOrder ? " [out of order]" : "") + (migrationExecutor.executeInTransaction() ? "" : " [non-transactional]");
+
+            }
+
         } else {
-            migrationText = "schema " + schema + " with repeatable migration " + migration.getDescription() + (migrationExecutor.executeInTransaction() ? "" : " [non-transactional]");
+            if (schema.getName() != "null") {
+                migrationText = "schema " + schema + " with repeatable migration " + migration.getDescription() + (migrationExecutor.executeInTransaction() ? "" : " [non-transactional]");
+            } else {
+                migrationText = "database with repeatable migration " + migration.getDescription() + (migrationExecutor.executeInTransaction() ? "" : " [non-transactional]");
+            }
         }
         return migrationText;
     }
