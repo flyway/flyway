@@ -48,6 +48,10 @@
         <developerConnection>scm:git:https://github.com/flyway/flyway.git</developerConnection>
 
 
+
+
+
+
         <tag>HEAD</tag>
     </scm>
     <developers>
@@ -64,6 +68,15 @@
         <module>flyway-commandline</module>
 
 
+
+
+
+
+
+
+
+
+
     </modules>
 
     <distributionManagement>
@@ -78,6 +91,11 @@
             <name>Nexus Release Repository</name>
             <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
+
+
+
+
+
 
 
     </distributionManagement>
@@ -101,6 +119,14 @@
         </repository>
 
 
+
+
+
+
+
+
+
+
     </repositories>
 
     <properties>
@@ -115,7 +141,6 @@
         <version.mssql-jdbc>6.2.2.jre7</version.mssql-jdbc>
         <version.postgresql>42.1.4.jre6</version.postgresql>
         <version.sqlite>3.20.1</version.sqlite>
-        <version.firebird>3.0.3</version.firebird>
         <version.osgi>4.3.1</version.osgi>
         <version.equinox>3.12.0</version.equinox>
         <version.equinoxcommon>3.9.0</version.equinoxcommon>
@@ -221,12 +246,6 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
-                <groupId>org.firebirdsql.jdbc</groupId>
-                <artifactId>jaybird-jdk18</artifactId>
-                <version>${version.firebird}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
                 <groupId>org.mariadb.jdbc</groupId>
                 <artifactId>mariadb-java-client</artifactId>
                 <version>${version.mariadb}</version>
@@ -240,6 +259,65 @@
             </dependency>
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <dependency>
+                <groupId>org.firebirdsql.jdbc</groupId>
+                <artifactId>jaybird-jdk18</artifactId>
+                <version>${version.firebird}</version>
+            </dependency>
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
@@ -320,6 +398,19 @@
     <build>
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -347,6 +438,14 @@
                     <artifactId>maven-bundle-plugin</artifactId>
                     <version>2.3.7</version>
                 </plugin>
+
+
+
+
+
+
+
+
 
 
                 <plugin>
@@ -384,6 +483,27 @@
             </plugins>
         </pluginManagement>
         <plugins>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
             <plugin>
@@ -481,6 +601,69 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
             <plugin>

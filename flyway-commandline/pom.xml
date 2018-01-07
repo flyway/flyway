@@ -80,6 +80,12 @@
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
         </dependency>
+
+
+
+
+
+
         <dependency>
             <groupId>org.firebirdsql.jdbc</groupId>
             <artifactId>jaybird-jdk18</artifactId>
@@ -136,6 +142,12 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+
+
+
+
 
 
         </plugins>
@@ -226,6 +238,15 @@
                             </execution>
                         </executions>
                     </plugin>
+
+
+
+
+
+
+
+
+
 
 
                 </plugins>
