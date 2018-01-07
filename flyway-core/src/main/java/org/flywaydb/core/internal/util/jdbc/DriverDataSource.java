@@ -47,6 +47,7 @@ public class DriverDataSource implements DataSource {
     private static final String MYSQL_JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String REDSHIFT_JDBC41_DRIVER = "com.amazon.redshift.jdbc41.Driver";
     private static final String SQLDROID_DRIVER = "org.sqldroid.SQLDroidDriver";
+    private static final String FIREBIRD_JDBC_DRIVER = "org.firebirdsql.jdbc.FBDriver";
 
     /**
      * The JDBC Driver instance to use.
@@ -285,6 +286,10 @@ public class DriverDataSource implements DataSource {
                 return SQLDROID_DRIVER;
             }
             return "org.sqlite.JDBC";
+        }
+
+        if (url.startsWith("jdbc:firebirdsql:")) {
+            return FIREBIRD_JDBC_DRIVER;
         }
 
         if (url.startsWith("jdbc:sqldroid:")) {

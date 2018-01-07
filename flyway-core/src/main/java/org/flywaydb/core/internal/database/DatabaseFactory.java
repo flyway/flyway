@@ -30,6 +30,7 @@ import org.flywaydb.core.internal.database.postgresql.PostgreSQLDatabase;
 import org.flywaydb.core.internal.database.redshift.RedshiftDatabase;
 import org.flywaydb.core.internal.database.saphana.SAPHANADatabase;
 import org.flywaydb.core.internal.database.sqlite.SQLiteDatabase;
+import org.flywaydb.core.internal.database.firebird.FirebirdDatabase;
 import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabase;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEDatabase;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -173,6 +174,11 @@ public class DatabaseFactory {
 
 
 
+            );
+        }
+
+        if (databaseProductName.startsWith("Firebird")) {
+            return new FirebirdDatabase(configuration, connection
             );
         }
 

@@ -148,7 +148,7 @@ public abstract class Schema<D extends Database> {
         try {
             doClean();
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to clean schema " + this, e);
+            throw new FlywaySqlException("Unable to clean schema" + this, e);
         }
     }
 
