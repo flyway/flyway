@@ -19,8 +19,6 @@ import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 
 import java.sql.SQLException;
 
@@ -28,10 +26,6 @@ import java.sql.SQLException;
  * Firebird-specific table.
  */
 public class FirebirdTable extends Table {
-    private static final Log LOG = LogFactory.getLog(FirebirdTable.class);
-
-    private final boolean undroppable = false;
-
     /**
      * Creates a new Firebird table.
      *
@@ -46,12 +40,7 @@ public class FirebirdTable extends Table {
 
     @Override
     protected void doDrop() throws SQLException {
-        if (undroppable) {
-            LOG.debug("Firebird system table " + this + " cannot be dropped. Ignoring.");
-        } else {
-            LOG.info("Dropping table "+ database.quote(name));
             jdbcTemplate.execute("DROP TABLE " + database.quote(name));
-        }
     }
 
     @Override
@@ -67,7 +56,7 @@ public class FirebirdTable extends Table {
 
     @Override
     protected void doLock() throws SQLException {
-        //TODO: Implement Firebird Locking
+        //TODO: Implement Firebird Locking ???
     }
 
     @Override

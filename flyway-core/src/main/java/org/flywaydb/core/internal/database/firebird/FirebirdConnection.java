@@ -34,15 +34,8 @@ public class FirebirdConnection extends Connection<FirebirdDatabase> {
      */
     private static boolean schemaMessagePrinted;
 
-    FirebirdConnection(FlywayConfiguration configuration, FirebirdDatabase database, java.sql.Connection connection, int nullType
-
-
-
-    ) {
+    FirebirdConnection(FlywayConfiguration configuration, FirebirdDatabase database, java.sql.Connection connection, int nullType) {
         super(configuration, database, connection, nullType
-
-
-
         );
     }
 
@@ -50,7 +43,6 @@ public class FirebirdConnection extends Connection<FirebirdDatabase> {
     @Override
     public void doChangeCurrentSchemaTo(String schema) throws SQLException {
         if (!schemaMessagePrinted) {
-            LOG.info("Firebird does not support setting the schema. Default schema NOT changed to " + schema);
             schemaMessagePrinted = true;
         }
     }
@@ -62,6 +54,6 @@ public class FirebirdConnection extends Connection<FirebirdDatabase> {
 
     @Override
     protected String doGetCurrentSchemaName() throws SQLException {
-        return "main";
+        return "null";
     }
 }
