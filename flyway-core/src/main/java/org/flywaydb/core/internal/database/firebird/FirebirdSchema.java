@@ -18,8 +18,7 @@ package org.flywaydb.core.internal.database.firebird;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,8 +29,6 @@ import java.util.List;
  * Firebird implementation of Schema.
  */
 public class FirebirdSchema extends Schema<FirebirdDatabase> {
-    private static final Log LOG = LogFactory.getLog(FirebirdSchema.class);
-
     private static final List<String> IGNORED_SYSTEM_TABLE_NAMES =
             Arrays.asList(
                     "RDB$BACKUP_HISTORY",
@@ -104,12 +101,10 @@ public class FirebirdSchema extends Schema<FirebirdDatabase> {
 
     @Override
     protected void doCreate() throws SQLException {
-        LOG.info("Firebird does not support creating schemas. Schema not created: " + name);
     }
 
     @Override
     protected void doDrop() throws SQLException {
-        LOG.info("Firebird does not support dropping schemas. Schema not dropped: " + name);
     }
 
     @Override
@@ -121,7 +116,6 @@ public class FirebirdSchema extends Schema<FirebirdDatabase> {
                 "and (rdb$system_flag is null or rdb$system_flag = 0)");
 
         for (String viewName : viewNames) {
-            LOG.info("Dropping view "+database.quote(viewName));
             jdbcTemplate.execute("DROP VIEW " + database.quote(viewName));
         }
 
@@ -136,7 +130,6 @@ public class FirebirdSchema extends Schema<FirebirdDatabase> {
         }
 
         for (String storedProcName : storedProcNames) {
-            LOG.info("Dropping stored procedure "+database.quote(storedProcName));
             jdbcTemplate.execute("DROP PROCEDURE " + database.quote(storedProcName));
         }
 
@@ -144,8 +137,15 @@ public class FirebirdSchema extends Schema<FirebirdDatabase> {
             table.drop();
         }
 
+        //Finally get rid of generators
+         List<String> generatorNames = jdbcTemplate.queryForStringList(
+                "select rdb$generator_name as generatorName \n" +
+                        "from rdb$generators \n" +
+                        "where (rdb$system_flag is null or  rdb$system_flag = 0)");
 
-        //Set generators to zero
+        for (String generatorName : generatorNames) {
+            jdbcTemplate.execute("DROP GENERATOR " + database.quote(generatorName));
+        }
     }
 
     @Override
