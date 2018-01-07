@@ -115,15 +115,29 @@ public class FirebirdSchema extends Schema<FirebirdDatabase> {
     @Override
     protected void doClean() throws SQLException {
         //Get all views to drop
-        List<String> viewNames = jdbcTemplate.queryForStringList("select rdb$relation_name\n" +
+        List<String> viewNames = jdbcTemplate.queryForStringList("select rdb$relation_name as viewName\n" +
                 "from rdb$relations\n" +
                 "where rdb$view_blr is not null\n" +
                 "and (rdb$system_flag is null or rdb$system_flag = 0)");
 
-
-
         for (String viewName : viewNames) {
-            jdbcTemplate.execute("DROP VIEW " + database.quote(name, viewName));
+            LOG.info("Dropping view "+database.quote(viewName));
+            jdbcTemplate.execute("DROP VIEW " + database.quote(viewName));
+        }
+
+        List<String> storedProcNames = jdbcTemplate.queryForStringList(
+                "select rdb$procedure_name as procName\n" +
+                        "from rdb$procedures \n" +
+                        "where (rdb$system_flag is null or rdb$system_flag = 0)");
+
+        //First make the procs all blank in case of dependencies
+        for (String storedProcName : storedProcNames) {
+            jdbcTemplate.execute("ALTER PROCEDURE " + database.quote(storedProcName)+" as begin\n --blank for deleting by flyway\n end");
+        }
+
+        for (String storedProcName : storedProcNames) {
+            LOG.info("Dropping stored procedure "+database.quote(storedProcName));
+            jdbcTemplate.execute("DROP PROCEDURE " + database.quote(storedProcName));
         }
 
         for (Table table : allTables()) {
@@ -142,13 +156,15 @@ public class FirebirdSchema extends Schema<FirebirdDatabase> {
 
     @Override
     protected Table[] doAllTables() throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList("select rdb$relation_name\n" +
+        List<String> tableNames = jdbcTemplate.queryForStringList(
+                "select rdb$relation_name as tableName\n" +
                 "from rdb$relations\n" +
                 "where rdb$view_blr is null\n" +
                 "and (rdb$system_flag is null or rdb$system_flag = 0)");
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
+
             tables[i] = new FirebirdTable(jdbcTemplate, database, this, tableNames.get(i));
         }
         return tables;

@@ -30,7 +30,7 @@ import java.sql.SQLException;
 public class FirebirdTable extends Table {
     private static final Log LOG = LogFactory.getLog(FirebirdTable.class);
 
-    private final boolean undroppable = true;
+    private final boolean undroppable = false;
 
     /**
      * Creates a new Firebird table.
@@ -49,7 +49,8 @@ public class FirebirdTable extends Table {
         if (undroppable) {
             LOG.debug("Firebird system table " + this + " cannot be dropped. Ignoring.");
         } else {
-            jdbcTemplate.execute("DROP TABLE " + database.quote(schema.getName(), name));
+            LOG.info("Dropping table "+ database.quote(name));
+            jdbcTemplate.execute("DROP TABLE " + database.quote(name));
         }
     }
 
