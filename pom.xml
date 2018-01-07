@@ -314,11 +314,6 @@
 
 
             <dependency>
-                <groupId>org.firebirdsql.jdbc</groupId>
-                <artifactId>jaybird-jdk18</artifactId>
-                <version>${version.firebird}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
                 <version>${version.mssql-jdbc}</version>
