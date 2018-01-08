@@ -323,13 +323,13 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         MigrationState state = getState();
         MigrationState oState = o.getState();
-        if (state != oState) {
-            if (state == MigrationState.BELOW_BASELINE && oState == MigrationState.BASELINE) {
-                return Integer.MIN_VALUE;
-            }
-            if (state == MigrationState.BASELINE && oState == MigrationState.BELOW_BASELINE) {
-                return Integer.MAX_VALUE;
-            }
+
+        // Below baseline migrations come before applied ones
+        if (state == MigrationState.BELOW_BASELINE && oState.isApplied()) {
+            return Integer.MIN_VALUE;
+        }
+        if (state.isApplied() && oState == MigrationState.BELOW_BASELINE) {
+            return Integer.MAX_VALUE;
         }
 
         if (state == MigrationState.IGNORED && oState.isApplied()) {
@@ -345,15 +345,16 @@ public class MigrationInfoImpl implements MigrationInfo {
             return Integer.MAX_VALUE;
         }
 
-        if (getInstalledRank() != null || o.getInstalledRank() != null) {
-            if (getInstalledRank() != null) {
-                return Integer.MIN_VALUE;
-            }
-            if (o.getInstalledRank() != null) {
-                return Integer.MAX_VALUE;
-            }
+        // Sort installed before pending
+        if (getInstalledRank() != null) {
+            return Integer.MIN_VALUE;
+        }
+        if (o.getInstalledRank() != null) {
+            return Integer.MAX_VALUE;
         }
 
+        // No migration installed, sort according to other criteria
+        // Two versioned migrations: sort by version
         if (getVersion() != null && o.getVersion() != null) {
             int v = getVersion().compareTo(o.getVersion());
             if (v != 0) {
@@ -373,7 +374,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             return 0;
         }
 
-        // Versioned pending migrations go before repeatable ones
+        // One versioned and one repeatable migration: versioned migration goes before repeatable one
         if (getVersion() != null) {
             return Integer.MIN_VALUE;
         }
@@ -381,6 +382,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             return Integer.MAX_VALUE;
         }
 
+        // Two repeatable migrations: sort by description
         return getDescription().compareTo(o.getDescription());
     }
 
