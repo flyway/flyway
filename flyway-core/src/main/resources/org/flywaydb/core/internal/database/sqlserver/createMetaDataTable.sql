@@ -14,7 +14,7 @@
 -- limitations under the License.
 --
 
-CREATE TABLE [${schema}].[${table}] (
+CREATE TABLE ${table_quoted} (
     [installed_rank] INT NOT NULL,
     [version] NVARCHAR(50),
     [description] NVARCHAR(200),
@@ -26,7 +26,7 @@ CREATE TABLE [${schema}].[${table}] (
     [execution_time] INT NOT NULL,
     [success] BIT NOT NULL
 );
-ALTER TABLE [${schema}].[${table}] ADD CONSTRAINT [${table}_pk] PRIMARY KEY ([installed_rank]);
+ALTER TABLE ${table_quoted} ADD CONSTRAINT [${table}_pk] PRIMARY KEY ([installed_rank]);
 
-CREATE INDEX [${table}_s_idx] ON [${schema}].[${table}] ([success]);
+CREATE INDEX [${table}_s_idx] ON ${table_quoted} ([success]);
 GO

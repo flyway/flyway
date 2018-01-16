@@ -23,7 +23,7 @@ import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
 import java.io.Closeable;
@@ -137,25 +137,43 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * Creates a new SqlScript for this specific database.
      *
+     * @param resource        The resource containing the SQL script.
      * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
+     * @param mixed           Whether to allow mixing transactional and non-transactional statements within the same migration.
+
+
+
      * @return The new SqlScript.
      */
-    public abstract SqlScript createSqlScript(String sqlScriptSource);
+    public final SqlScript createSqlScript(Resource resource, String sqlScriptSource, boolean mixed
+
+
+
+    ) {
+
+
+
+
+
+        return doCreateSqlScript(resource, sqlScriptSource, mixed
+
+
+
+        );
+    }
 
     /**
      * Creates a new SqlScript for this specific database.
      *
-     * @param sqlScriptResource   The resource containing the statements.
-     * @param placeholderReplacer The placeholder replacer.
-     * @param encoding            The encoding to use.
-     * @param mixed               Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * @param resource        The resource containing the SQL script.
+     * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
+     * @param mixed           Whether to allow mixing transactional and non-transactional statements within the same migration.
 
 
 
      * @return The new SqlScript.
      */
-    public abstract SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
-                                              String encoding, boolean mixed
+    protected abstract SqlScript doCreateSqlScript(Resource resource, String sqlScriptSource, boolean mixed
 
 
 
@@ -320,6 +338,7 @@ public abstract class Database<C extends Connection> implements Closeable {
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("schema", table.getSchema().getName());
         placeholders.put("table", table.getName());
+        placeholders.put("table_quoted", table.toString());
         return new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
     }
 

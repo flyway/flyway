@@ -18,10 +18,10 @@ package org.flywaydb.core.internal.database.h2;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlScript;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -72,18 +72,12 @@ public class H2Database extends Database {
     }
 
     @Override
-    public SqlScript createSqlScript(String sqlScriptSource) {
-        return new H2SqlScript(sqlScriptSource);
-    }
-
-    @Override
-    public SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
-                                     String encoding, boolean mixed
+    protected SqlScript doCreateSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
 
 
 
     ) {
-        return new H2SqlScript(sqlScriptResource, placeholderReplacer, encoding, mixed
+        return new H2SqlScript(sqlScriptResource, sqlScriptSource, mixed
 
 
 

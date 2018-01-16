@@ -17,26 +17,20 @@ package org.flywaydb.core.internal.database.sqlserver;
 
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.scanner.Resource;
 
 /**
  * SQL Server-specific SQL script.
  */
-class SQLServerSqlScript extends SqlScript {
-    SQLServerSqlScript(String sqlScriptSource) {
-        super(sqlScriptSource);
-    }
-
-    SQLServerSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
-                       String encoding, boolean mixed
+class SQLServerSqlScript extends ExecutableSqlScript {
+    SQLServerSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
 
 
 
     ) {
-        super(sqlScriptResource, placeholderReplacer, encoding, mixed
+        super(sqlScriptResource, sqlScriptSource, mixed
 
 
 

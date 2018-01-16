@@ -19,8 +19,7 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
 import java.sql.Types;
@@ -75,18 +74,12 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     }
 
     @Override
-    public SqlScript createSqlScript(String sqlScriptSource) {
-        return new SAPHANASqlScript(sqlScriptSource);
-    }
-
-    @Override
-    public SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
-                                     String encoding, boolean mixed
+    protected SqlScript doCreateSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
 
 
 
     ) {
-        return new SAPHANASqlScript(sqlScriptResource, placeholderReplacer, encoding, mixed
+        return new SAPHANASqlScript(sqlScriptResource, sqlScriptSource, mixed
 
 
 

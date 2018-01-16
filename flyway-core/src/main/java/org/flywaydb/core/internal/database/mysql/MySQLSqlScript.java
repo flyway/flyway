@@ -17,27 +17,21 @@ package org.flywaydb.core.internal.database.mysql;
 
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.ContextImpl;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.scanner.Resource;
 
 /**
  * MySQL-specific SQL script.
  */
-class MySQLSqlScript extends SqlScript<ContextImpl> {
-    MySQLSqlScript(String sqlScriptSource) {
-        super(sqlScriptSource);
-    }
-
-    MySQLSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
-                   String encoding, boolean mixed
+class MySQLSqlScript extends ExecutableSqlScript<ContextImpl> {
+    MySQLSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
 
 
 
     ) {
-        super(sqlScriptResource, placeholderReplacer, encoding, mixed
+        super(sqlScriptResource, sqlScriptSource, mixed
 
 
 
