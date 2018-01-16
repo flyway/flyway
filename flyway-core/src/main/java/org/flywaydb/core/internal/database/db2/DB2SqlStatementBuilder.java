@@ -19,8 +19,6 @@ import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,19 +32,15 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
     private static final String DELIMITER_KEYWORD = "--#SET TERMINATOR";
 
     /**
-     * Regex to check for a BEGIN statement of a SQL PL block (Optional label followed by BEGIN).
-     */
-    private static final Pattern BEGIN_REGEX = Pattern.compile("((([A-Z]+[A-Z0-9]*)\\s?:\\s?)|(.*\\s))?BEGIN(\\sATOMIC)?(\\s.*)?");
-
-    /**
      * Regex for keywords that can appear after a string literal without being separated by a space.
      */
     private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(DO)(?!.)");
 
     /**
-     * The labels associated with nested BEGIN ... END blocks.
+     * Regex for statements that accept blocks.
      */
-    private Deque<String> beginEndLabels = new LinkedList<>();
+    private static final Pattern BLOCK_STATEMENT_REGEX =
+            Pattern.compile("^CREATE( OR REPLACE)? (FUNCTION|PROCEDURE|TRIGGER)(\\s.*)?");
 
     /**
      * Holds the beginning of the statement.
@@ -109,46 +103,26 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
             statementStart += " ";
         }
 
-        if (!";".equals(currentDelimiter.getDelimiter())) {
-            return currentDelimiter;
-        }
-
-        if (statementStart.matches("^CREATE( OR REPLACE)? (FUNCTION|PROCEDURE|TRIGGER)(\\s.*)?")) {
-            if (isBegin(line) || line.matches("(.*\\s)?CASE(\\sWHEN)?(\\s.*)?")) {
-                beginEndLabels.addLast(extractLabel(line));
-            }
-
-            if (isEnd(line, beginEndLabels.isEmpty() ? null : beginEndLabels.getLast(), currentDelimiter, beginEndLabels.size())) {
-                beginEndLabels.removeLast();
-            }
-        }
-
-        if (!beginEndLabels.isEmpty()) {
-            return null;
-        }
         return currentDelimiter;
     }
 
-    static boolean isBegin(String line) {
-        return BEGIN_REGEX.matcher(line).find();
+    @Override
+    protected boolean isBlockStatement() {
+        return BLOCK_STATEMENT_REGEX.matcher(statementStart).matches();
     }
 
-    static String extractLabel(String line) {
-        Matcher matcher = BEGIN_REGEX.matcher(line);
-        return line.contains(":") && matcher.matches() ? matcher.group(3) : null;
+    @Override
+    protected boolean isBlockBeginToken(String token) {
+        return "BEGIN".equals(token) || "CASE".equals(token) || "IF".equals(token);
     }
 
-    static boolean isEnd(String line, String label, Delimiter currentDelimiter, int beginEndDepth) {
-        String actualDelimiter = beginEndDepth > 1 ? ";" : currentDelimiter.getDelimiter();
+    @Override
+    protected boolean isBlockEndToken(String token) {
+        return "END".equals(token);
+    }
 
-        return line.matches(
-                // First optionally match preceding part of statement
-                "(.*\\s)?"
-                        // Then require END
-                        + "END"
-                        // Now optionally match label
-                        + (label == null ? "" : "(\\s" + Pattern.quote(label) + ")?")
-                        // Finally optionally match delimitert
-                        + "\\s?(" + Pattern.quote(actualDelimiter) + ")?");
+    @Override
+    protected String[] tokenizeLine(String line) {
+        return super.tokenizeLine(line.replace("END IF", "END"));
     }
 }
