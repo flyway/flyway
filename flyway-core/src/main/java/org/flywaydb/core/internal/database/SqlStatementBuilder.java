@@ -77,6 +77,11 @@ public class SqlStatementBuilder {
     private boolean nonCommentStatementPartSeen = false;
 
     /**
+     * How deeply nested are we within blocks.
+     */
+    private int nestedBlockDepth = 0;
+
+    /**
      * Whether this statement should be executed within a transaction or not.
      */
     protected boolean executeInTransaction = true;
@@ -257,7 +262,7 @@ public class SqlStatementBuilder {
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
     private boolean lineTerminatesStatement(String line, Delimiter delimiter) {
-        if (delimiter == null) {
+        if (delimiter == null || nestedBlockDepth > 0) {
             return false;
         }
 
@@ -347,10 +352,26 @@ public class SqlStatementBuilder {
             }
 
             if (!insideMultiLineComment && !insideQuoteStringLiteral && !insideAlternateQuoteStringLiteral &&
-                    TokenType.OTHER.equals(delimitingToken)) {
+                    (TokenType.OTHER.equals(delimitingToken)
+                            || TokenType.BLOCK_BEGIN.equals(delimitingToken)
+                            || TokenType.BLOCK_END.equals(delimitingToken))) {
                 nonCommentStatementPartSeen = true;
+                if (isBlockStatement()) {
+                    if (TokenType.BLOCK_BEGIN.equals(delimitingToken)) {
+                        nestedBlockDepth++;
+                    } else if (TokenType.BLOCK_END.equals(delimitingToken)) {
+                        nestedBlockDepth--;
+                    }
+                }
             }
         }
+    }
+
+    /**
+     * @return Whether this is a statement that can contain blocks.
+     */
+    protected boolean isBlockStatement() {
+        return false;
     }
 
     /**
@@ -433,11 +454,25 @@ public class SqlStatementBuilder {
             }
 
             if (!handled) {
-                delimitingTokens.add(TokenType.OTHER);
+                if (isBlockBeginToken(cleanToken)) {
+                    delimitingTokens.add(TokenType.BLOCK_BEGIN);
+                } else if (isBlockEndToken(cleanToken)) {
+                    delimitingTokens.add(TokenType.BLOCK_END);
+                } else {
+                    delimitingTokens.add(TokenType.OTHER);
+                }
             }
         }
 
         return delimitingTokens;
+    }
+
+    protected boolean isBlockBeginToken(String token) {
+        return false;
+    }
+
+    protected boolean isBlockEndToken(String token) {
+        return false;
     }
 
     /**
@@ -503,6 +538,16 @@ public class SqlStatementBuilder {
         /**
          * Token closes a multi-line comment
          */
-        MULTI_LINE_COMMENT_CLOSE
+        MULTI_LINE_COMMENT_CLOSE,
+
+        /**
+         * Token begins a block
+         */
+        BLOCK_BEGIN,
+
+        /**
+         * Token ends a block
+         */
+        BLOCK_END
     }
 }
