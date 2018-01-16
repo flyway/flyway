@@ -44,7 +44,7 @@ public class SQLServerTable extends Table {
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP TABLE " + database.quote(schema.getName(), name));
+        jdbcTemplate.execute("DROP TABLE " + this);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class SQLServerTable extends Table {
         return jdbcTemplate.queryForBoolean(
                 "SELECT CAST(" +
                         "CASE WHEN EXISTS(" +
-                        "  SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=?" +
+                        "  SELECT 1 FROM [" + databaseName + "].INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=? AND TABLE_NAME=?" +
                         ") " +
                         "THEN 1 ELSE 0 " +
                         "END " +

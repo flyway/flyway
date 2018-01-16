@@ -22,11 +22,11 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
@@ -75,7 +75,7 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
     /**
      * Creates a new instance.
      *
-     * @param database           The database-specific support.
+     * @param database            The database-specific support.
      * @param scanner             The Scanner for loading migrations on the classpath.
      * @param locations           The locations where migrations are located.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
@@ -106,7 +106,8 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
                                 "-> " + existing.getResource().getLocationOnDisk() + "\n" +
                                 "-> " + resource.getLocationOnDisk());
                     }
-                    scripts.put(key, database.createSqlScript(resource, placeholderReplacer, configuration.getEncoding(),
+                    scripts.put(key, database.createSqlScript(resource,
+                            placeholderReplacer.replacePlaceholders(resource.loadAsString(configuration.getEncoding())),
                             configuration.isMixed()
 
 

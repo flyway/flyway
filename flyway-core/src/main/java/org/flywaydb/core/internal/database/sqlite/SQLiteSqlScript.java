@@ -17,26 +17,20 @@ package org.flywaydb.core.internal.database.sqlite;
 
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.scanner.Resource;
 
 /**
  * SQLite-specific SQL script.
  */
-class SQLiteSqlScript extends SqlScript {
-    SQLiteSqlScript(String sqlScriptSource) {
-        super(sqlScriptSource);
-    }
-
-    SQLiteSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
-                    String encoding, boolean mixed
+class SQLiteSqlScript extends ExecutableSqlScript {
+    SQLiteSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
 
 
 
     ) {
-        super(sqlScriptResource, placeholderReplacer, encoding, mixed
+        super(sqlScriptResource, sqlScriptSource, mixed
 
 
 

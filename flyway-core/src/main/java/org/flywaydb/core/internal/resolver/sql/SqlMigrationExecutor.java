@@ -43,7 +43,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      * The complete sql script is not held as a member field here because this would use the total size of all
      * sql migrations files in heap space during db migration, see issue 184.
      */
-    private final LoadableResource sqlScriptResource;
+    private final LoadableResource resource;
 
     /**
      * The Flyway configuration.
@@ -59,13 +59,13 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      * Creates a new sql script migration based on this sql script.
      *
      * @param database            The database-specific support.
-     * @param sqlScriptResource   The resource containing the sql script.
+     * @param resource            The resource containing the sql script.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param configuration       The Flyway configuration.
      */
-    public SqlMigrationExecutor(Database database, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
+    SqlMigrationExecutor(Database database, LoadableResource resource, PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
         this.database = database;
-        this.sqlScriptResource = sqlScriptResource;
+        this.resource = resource;
         this.placeholderReplacer = placeholderReplacer;
         this.configuration = configuration;
     }
@@ -77,7 +77,9 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     private synchronized SqlScript getSqlScript() {
         if (sqlScript == null) {
-            sqlScript = database.createSqlScript(sqlScriptResource, placeholderReplacer, configuration.getEncoding(), configuration.isMixed()
+            sqlScript = database.createSqlScript(resource,
+                    placeholderReplacer.replacePlaceholders(resource.loadAsString(configuration.getEncoding())),
+                    configuration.isMixed()
 
 
 

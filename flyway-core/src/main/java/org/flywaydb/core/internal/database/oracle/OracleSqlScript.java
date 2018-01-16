@@ -20,14 +20,13 @@ import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Delimiter;
+import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Array;
 import java.sql.CallableStatement;
@@ -42,7 +41,7 @@ import java.util.Map;
 /**
  * Oracle-specific SQL script.
  */
-class OracleSqlScript extends SqlScript<OracleContextImpl> {
+class OracleSqlScript extends ExecutableSqlScript<OracleContextImpl> {
     private static final Log LOG = LogFactory.getLog(OracleSqlScript.class);
 
 
@@ -54,17 +53,12 @@ class OracleSqlScript extends SqlScript<OracleContextImpl> {
 
 
 
-    OracleSqlScript(String sqlScriptSource) {
-        super(sqlScriptSource);
-    }
-
-    OracleSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
-                    String encoding, boolean mixed
+    OracleSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
 
 
 
     ) {
-        super(sqlScriptResource, placeholderReplacer, encoding, mixed
+        super(sqlScriptResource, sqlScriptSource, mixed
 
 
 

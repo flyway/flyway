@@ -16,28 +16,21 @@
 package org.flywaydb.core.internal.database.hsqldb;
 
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
-import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Delimiter;
+import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.database.SqlScript;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.scanner.Resource;
 
 /**
  * HSQLDB-specific SQL script.
  */
-class HSQLDBSqlScript extends SqlScript {
-    HSQLDBSqlScript(String sqlScriptSource) {
-        super(sqlScriptSource);
-    }
-
-    HSQLDBSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer,
-                    String encoding, boolean mixed
+class HSQLDBSqlScript extends ExecutableSqlScript {
+    HSQLDBSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
 
 
 
     ) {
-        super(sqlScriptResource, placeholderReplacer, encoding, mixed
+        super(sqlScriptResource, sqlScriptSource, mixed
 
 
 
