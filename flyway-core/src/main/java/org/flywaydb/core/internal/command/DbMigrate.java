@@ -119,7 +119,7 @@ public class DbMigrate {
             for (final FlywayCallback callback : effectiveCallbacks) {
                 new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
-                    public Object call() throws SQLException {
+                    public Object call() {
                         connectionUserObjects.changeCurrentSchemaTo(schema);
                         callback.beforeMigrate(connectionUserObjects.getJdbcConnection());
                         return null;
@@ -151,7 +151,7 @@ public class DbMigrate {
             for (final FlywayCallback callback : effectiveCallbacks) {
                 new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
-                    public Object call() throws SQLException {
+                    public Object call() {
                         connectionUserObjects.changeCurrentSchemaTo(schema);
                         callback.afterMigrate(connectionUserObjects.getJdbcConnection());
                         return null;
@@ -199,10 +199,8 @@ public class DbMigrate {
                 new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration.getTarget(), configuration.isOutOfOrder(), true, true, true);
         infoService.refresh();
 
-        MigrationVersion currentSchemaVersion = MigrationVersion.EMPTY;
-        if (infoService.current() != null) {
-            currentSchemaVersion = infoService.current().getVersion();
-        }
+        MigrationInfo current = infoService.current();
+        MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
         if (firstRun) {
             LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
 
@@ -295,7 +293,7 @@ public class DbMigrate {
             if (executeGroupInTransaction) {
                 new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
-                    public Object call() throws SQLException {
+                    public Object call() {
                         doMigrateGroup(group, stopWatch);
                         return null;
                     }
