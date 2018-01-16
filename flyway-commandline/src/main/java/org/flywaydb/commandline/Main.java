@@ -17,6 +17,9 @@ package org.flywaydb.commandline;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationInfoService;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
@@ -161,7 +164,12 @@ public class Main {
         } else if ("validate".equals(operation)) {
             flyway.validate();
         } else if ("info".equals(operation)) {
-            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
+            MigrationInfoService info = flyway.info();
+            MigrationInfo current = info.current();
+            MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
+            LOG.info("Schema version: " + currentSchemaVersion);
+            LOG.info("");
+            LOG.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));
         } else if ("repair".equals(operation)) {
             flyway.repair();
         } else {
