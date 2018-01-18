@@ -15,6 +15,12 @@
  */
 package org.flywaydb.core.internal.util.scanner.classpath;
 
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.dbsupport.cockroachdb.CockroachDBSqlStatementBuilder;
@@ -28,12 +34,6 @@ import org.flywaydb.core.internal.util.scanner.classpath.jboss.JBossVFSv2UrlReso
 import org.junit.Test;
 import org.mockito.MockSettings;
 import org.mockito.internal.creation.MockSettingsImpl;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.Assert.*;
 
 /**
  * Tests for ClassPathScanner.
@@ -57,38 +57,34 @@ public class ClassPathScannerSmallTest {
     public void scanForResourcesRoot() throws Exception {
         LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:"), "CheckValidate", ".sql");
 
-        // changed to 4 as new test cases are added for SybaseASE , DB2 z/OS and Neo4J
-        assertEquals(4, resources.length);
+        // changed to 3 as new test cases are added for SybaseASE and Neo4J
+        assertEquals(3, resources.length);
 
-        Set<String> validPaths = new HashSet<String>();
+        Set<String> validPaths = new HashSet<>();
         validPaths.add("migration/validate/CheckValidate1__First.sql");
         validPaths.add("migration/dbsupport/sybaseASE/validate/CheckValidate1__First.sql");
-        validPaths.add("migration/dbsupport/db2zos/sql/validate/CheckValidate1_1__First.sql");
         validPaths.add("migration/dbsupport/neo4j/validate/CheckValidate1__First.sql");
 
         assertEquals(true, validPaths.contains(resources[0].getLocation()));
         assertEquals(true, validPaths.contains(resources[1].getLocation()));
         assertEquals(true, validPaths.contains(resources[2].getLocation()));
-        assertEquals(true, validPaths.contains(resources[3].getLocation()));
     }
 
     @Test
     public void scanForResourcesSomewhereInSubDir() throws Exception {
         LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:migration"), "CheckValidate", ".sql");
 
-        // changed to 4 as new test cases are added for SybaseASE , DB2 z/OS and Neo4J
-        assertEquals(4, resources.length);
+        // changed to 3 as new test cases are added for SybaseASE and Neo4J
+        assertEquals(3, resources.length);
 
-        Set<String> validPaths = new HashSet<String>();
+        Set<String> validPaths = new HashSet<>();
         validPaths.add("migration/dbsupport/sybaseASE/validate/CheckValidate1__First.sql");
         validPaths.add("migration/validate/CheckValidate1__First.sql");
-        validPaths.add("migration/dbsupport/db2zos/sql/validate/CheckValidate1_1__First.sql");
         validPaths.add("migration/dbsupport/neo4j/validate/CheckValidate1__First.sql");
 
         assertEquals(true, validPaths.contains(resources[0].getLocation()));
         assertEquals(true, validPaths.contains(resources[1].getLocation()));
         assertEquals(true, validPaths.contains(resources[2].getLocation()));
-        assertEquals(true, validPaths.contains(resources[3].getLocation()));
     }
 
     @Test
