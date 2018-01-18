@@ -813,5 +813,5 @@
             </build>
         </profile>
     </profiles>
-    <version>4.2.1-ScuteraTech</version>
+    <version>0-SNAPSHOT</version>
 </project>
