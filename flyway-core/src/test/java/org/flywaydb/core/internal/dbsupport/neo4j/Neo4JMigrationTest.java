@@ -109,6 +109,16 @@ public class Neo4JMigrationTest extends MigrationTestCase {
         assertTrue(jdbcTemplate.queryForStringList("CALL db.constraints").isEmpty());
     }
 
+    @Test
+    public void migrateWithConstraintCreation() throws SQLException {
+        assertNotNull(dataSource);
+        assertNotNull(flyway);
+        flyway.setLocations(getMigrationDir() + "/constraintcreation");
+
+        assertEquals(2, flyway.migrate());
+        assertEquals(1, jdbcTemplate.queryForStringList("CALL db.constraints").size());
+    }
+
 	@Override
 	protected DataSource createDataSource(Properties customProperties) throws Exception {
 
