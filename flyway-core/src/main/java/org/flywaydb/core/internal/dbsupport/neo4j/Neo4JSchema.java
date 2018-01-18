@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.dbsupport.neo4j;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -24,6 +25,7 @@ import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
 /**
  * @author Ricardo Silva (ScuteraTech)
@@ -56,13 +58,29 @@ public class Neo4JSchema extends Schema<DbSupport> {
 	@Override
 	protected void doDrop() throws SQLException {
 		LOG.info("Neo4J does not dropping creating schemas. Schema not created: " + name);
-
 	}
 
 	@Override
 	protected void doClean() throws SQLException {
-		jdbcTemplate.queryForString("MATCH (n) DETACH DELETE n");
-
+        new TransactionTemplate(jdbcTemplate.getConnection()).execute(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                LOG.info("Dropping existing nodes...");
+                jdbcTemplate.queryForString("MATCH (n) DETACH DELETE n");
+                return null;
+            }
+        });
+		new TransactionTemplate(jdbcTemplate.getConnection()).execute(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                List<String> constraints = jdbcTemplate.queryForStringList("CALL db.constraints");
+                for (String constraint : constraints) {
+                    LOG.info("Dropping existing constraint: " + constraint);
+                    jdbcTemplate.executeStatement(String.format("DROP %s", constraint));
+                }
+                return null;
+            }
+        });
 	}
 
 	@Override

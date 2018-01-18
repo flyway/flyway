@@ -18,12 +18,7 @@ package org.flywaydb.core.internal.dbsupport.neo4j;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,7 +40,6 @@ import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
-import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
 /**
@@ -60,7 +54,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 	private final Table table;
 	private final JdbcTemplate jdbcTemplate;
 
-	private final LinkedList<AppliedMigration> cache = new LinkedList<AppliedMigration>();
+	private final LinkedList<AppliedMigration> cache = new LinkedList<>();
 
 	private String installedBy;
 
@@ -93,6 +87,16 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 		try {
 			String versionStr = version == null ? "null" : version.toString();
 
+			/*
+			 * To prevent Schema changes to interfeer with updating the metadata table updates
+			 * we will force a commit here.
+			 *
+			 * See https://neo4j.com/developer/kb/explanation-of-error-database-constraints-have-changed-txid-84-after-this-transaction-txid-81-started/
+			 */
+			if(!jdbcTemplate.getConnection().getAutoCommit()) {
+			    jdbcTemplate.getConnection().commit();
+			}
+
 			jdbcTemplate.execute("MERGE (schemaVersion :schema_version);");
 			String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName()
 					+ "/insertIntoMetaDataTable.sql";
@@ -100,7 +104,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 			int installedRank = calculateInstalledRank();
 			if (classPathResource.exists()) {
 				String source = classPathResource.loadAsString("UTF-8");
-				Map<String, String> placeholders = new HashMap<String, String>();
+				Map<String, String> placeholders = new HashMap<>();
 
 				// Placeholders for schema and table
 				placeholders.put("schema", table.getSchema().getName());
@@ -277,7 +281,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
 	private List<AppliedMigration> findAppliedMigrations(MigrationType... migrationTypes) {
 		if (!table.exists()) {
-			return new ArrayList<AppliedMigration>();
+			return new ArrayList<>();
 		}
 
 		int minInstalledRank = cache.isEmpty() ? -1 : cache.getLast().getInstalledRank();
@@ -289,7 +293,8 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
 		try {
 			cache.addAll(jdbcTemplate.query(query, new RowMapper<AppliedMigration>() {
-				public AppliedMigration mapRow(final ResultSet rs) throws SQLException {
+				@Override
+                public AppliedMigration mapRow(final ResultSet rs) throws SQLException {
 					Integer checksum = rs.getInt("m.checksum");
 					if (rs.wasNull()) {
 						checksum = null;

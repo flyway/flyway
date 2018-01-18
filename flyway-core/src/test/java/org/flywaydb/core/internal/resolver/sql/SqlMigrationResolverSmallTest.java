@@ -15,6 +15,12 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.util.Location;
@@ -24,12 +30,6 @@ import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.flywaydb.core.internal.util.scanner.filesystem.FileSystemResource;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * Testcase for SqlMigration.
@@ -47,7 +47,7 @@ public class SqlMigrationResolverSmallTest {
 
         assertEquals(3, migrations.size());
 
-        List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
+        List<ResolvedMigration> migrationList = new ArrayList<>(migrations);
 
         assertEquals("1", migrationList.get(0).getVersion().toString());
         assertEquals("1.1", migrationList.get(1).getVersion().toString());
@@ -65,8 +65,8 @@ public class SqlMigrationResolverSmallTest {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver(null, scanner, new Locations(""), PlaceholderReplacer.NO_PLACEHOLDERS, configuration);
 
-        // changed to 4 as new test cases are added for SybaseASE , DB2 and Neo4J
-        assertEquals(4, sqlMigrationResolver.resolveMigrations().size());
+        // changed to 3 as new test cases are added for SybaseASE, Neo4J
+        assertEquals(3, sqlMigrationResolver.resolveMigrations().size());
     }
 
     @Test

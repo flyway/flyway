@@ -34,13 +34,13 @@ import org.flywaydb.core.internal.util.StringUtils;
  *
  */
 public class Neo4JDbSupport extends DbSupport {
-	 
+
 	private static final Log LOG = LogFactory.getLog(Neo4JDbSupport.class);
-	
+
 	public Neo4JDbSupport(JdbcTemplate jdbcTemplate) {
 		super(jdbcTemplate);
 	}
-	
+
 	public Neo4JDbSupport(Connection connection) {
 		 super(new JdbcTemplate(connection, Types.NULL));
 	}
@@ -52,7 +52,7 @@ public class Neo4JDbSupport extends DbSupport {
 
 	@Override
 	public SqlStatementBuilder createSqlStatementBuilder() {
-		return new SqlStatementBuilder();
+		return new Neo4jSqlStatementBuilder();
 	}
 
 	@Override
@@ -99,10 +99,15 @@ public class Neo4JDbSupport extends DbSupport {
 	public boolean catalogIsSchema() {
 		return false;
 	}
-	
+
 	@Override
 	public MetaDataTable getMetadataTable(Table table, String installedBy) {
 		return new Neo4JMetaDataTable(this,table, installedBy);
+	}
+
+	@Override
+	public boolean useSingleConnection() {
+	    return true;
 	}
 
 }

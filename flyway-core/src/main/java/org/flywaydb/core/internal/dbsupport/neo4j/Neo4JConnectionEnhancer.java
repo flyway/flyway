@@ -37,9 +37,9 @@ public class Neo4JConnectionEnhancer  {
         Enhancer enhancer = new Enhancer();
         enhancer.setCallback(new MethodInterceptor() {
             @Override
-            public Object intercept(Object arg0, Method arg1, Object[] arg2, MethodProxy arg3) throws Throwable {
-                if (arg1.getName().equals("createStatement")) {
-                    Statement statement = (Statement) arg1.invoke(connection, arg2);
+            public Object intercept(Object target, Method method, Object[] arguments, MethodProxy methodProxy) throws Throwable {
+                if (method.getName().equals("createStatement")) {
+                    Statement statement = (Statement) method.invoke(connection, arguments);
 
                     Statement proxyStatement = (Statement) Proxy.newProxyInstance(
                             Neo4JStatementProxy.class.getClassLoader(), new Class[] { Statement.class },
@@ -47,7 +47,7 @@ public class Neo4JConnectionEnhancer  {
 
                     return proxyStatement;
                 }
-                return arg1.invoke(connection, arg2);
+                return method.invoke(connection, arguments);
             }
         });
 
