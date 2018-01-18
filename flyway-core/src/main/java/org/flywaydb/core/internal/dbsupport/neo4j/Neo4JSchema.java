@@ -62,7 +62,11 @@ public class Neo4JSchema extends Schema<DbSupport> {
 	@Override
 	protected void doClean() throws SQLException {
 		jdbcTemplate.queryForString("MATCH (n) DETACH DELETE n");
-
+		List<String> constraints = jdbcTemplate.queryForStringList("CALL db.constraints");
+		for (String constraint : constraints) {
+		    LOG.info("Dropping existing constraint: " + constraint);
+		    jdbcTemplate.executeStatement(String.format("DROP %s", constraint));
+        }
 	}
 
 	@Override

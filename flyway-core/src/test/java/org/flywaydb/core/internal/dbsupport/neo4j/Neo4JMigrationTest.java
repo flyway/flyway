@@ -40,7 +40,6 @@ import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.util.Assert;
 
 /**
  * @author Ricardo Silva (ScuteraTech)
@@ -58,7 +57,7 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 
 	@Before
 	public void purgeBeforeTest() throws SQLException {
-	    jdbcTemplate.execute("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r");
+	    dbSupport.getSchema(flyway.getSchemas()[0]).clean();
 	}
 
 	@Test
@@ -86,14 +85,29 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 
 	@Test
 	public void migrateWithMixedMigrationsWorks() throws Exception {
-		Assert.notNull(dataSource);
-		Assert.notNull(flyway);
+	    assertNotNull(dataSource);
+		assertNotNull(flyway);
 
 		flyway.setLocations("migration/dbsupport/neo4j/sql");
 		flyway.setMixed(true);
 
-		Assert.isTrue(flyway.migrate() == 4);
+		assertTrue(flyway.migrate() == 4);
 	}
+
+    @Test
+    public void cleanShouldDropConstraints() throws Exception {
+        assertNotNull(dataSource);
+        assertNotNull(flyway);
+
+        jdbcTemplate.executeStatement("CREATE CONSTRAINT ON ( sample:SampleNode ) ASSERT sample.uuid IS UNIQUE");
+        jdbcTemplate.executeStatement("CREATE CONSTRAINT ON ( other:OtherNode ) ASSERT other.uuid IS UNIQUE");
+
+        assertEquals(2, jdbcTemplate.queryForStringList("CALL db.constraints").size());
+
+        dbSupport.getSchema(flyway.getSchemas()[0]).clean();
+
+        assertTrue(jdbcTemplate.queryForStringList("CALL db.constraints").isEmpty());
+    }
 
 	@Override
 	protected DataSource createDataSource(Properties customProperties) throws Exception {
@@ -253,7 +267,7 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 		String tableName = "before_the_error";
 
 		flyway.setLocations(getMigrationDir() + "/failed");
-		Map<String, String> placeholders = new HashMap<String, String>();
+		Map<String, String> placeholders = new HashMap<>();
 		placeholders.put("tableName", dbSupport.quote(tableName));
 		flyway.setPlaceholders(placeholders);
 
