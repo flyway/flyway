@@ -53,6 +53,8 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
      */
     private Delimiter currentDelimiter = defaultDelimiter;
 
+    private String previousLine = "";
+
     /**
      * Creates a new SqlStatementBuilder.
      *
@@ -113,7 +115,12 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected boolean isBlockBeginToken(String token) {
-        return "BEGIN".equals(token) || "CASE".equals(token) || "IF".equals(token);
+        return "BEGIN".equals(token)
+                || "CASE".equals(token)
+                || "IF".equals(token)
+                || "DO".equals(token) // Used by FOR and WHILE loops
+                || "LOOP".equals(token)
+                || "REPEAT".equals(token);
     }
 
     @Override
@@ -123,6 +130,34 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected String[] tokenizeLine(String line) {
-        return super.tokenizeLine(line.replace("END IF", "END"));
+        String processedLine = line;
+        if (previousLine.endsWith("END")) {
+            if (line.startsWith("IF")) {
+                processedLine = processedLine.substring(2);
+            } else if (line.startsWith("FOR")) {
+                processedLine = processedLine.substring(3);
+            } else if (line.startsWith("CASE")) {
+                processedLine = processedLine.substring(4);
+            } else if (line.startsWith("LOOP")) {
+                processedLine = processedLine.substring(4);
+            } else if (line.startsWith("WHILE")) {
+                processedLine = processedLine.substring(5);
+            } else if (line.startsWith("REPEAT")) {
+                processedLine = processedLine.substring(6);
+            }
+        }
+
+        if (StringUtils.hasLength(line)) {
+            previousLine = line;
+        }
+
+        return super.tokenizeLine(processedLine
+                .replace("END IF", "END")
+                .replace("END FOR", "END")
+                .replace("END CASE", "END")
+                .replace("END LOOP", "END")
+                .replace("END WHILE", "END")
+                .replace("END REPEAT", "END")
+        );
     }
 }
