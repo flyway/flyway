@@ -151,13 +151,7 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
             previousLine = line;
         }
 
-        return super.tokenizeLine(processedLine
-                .replace("END IF", "END")
-                .replace("END FOR", "END")
-                .replace("END CASE", "END")
-                .replace("END LOOP", "END")
-                .replace("END WHILE", "END")
-                .replace("END REPEAT", "END")
-        );
+        return super.tokenizeLine(
+                processedLine.replaceAll("END (IF|FOR|CASE|LOOP|WHILE|REPEAT)", "END"));
     }
 }
