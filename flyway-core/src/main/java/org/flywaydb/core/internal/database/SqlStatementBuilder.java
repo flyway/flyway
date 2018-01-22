@@ -262,7 +262,7 @@ public class SqlStatementBuilder {
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
     private boolean lineTerminatesStatement(String line, Delimiter delimiter) {
-        if (delimiter == null || nestedBlockDepth > 0) {
+        if (delimiter == null || (defaultDelimiter.equals(delimiter) && nestedBlockDepth > 0)) {
             return false;
         }
 
