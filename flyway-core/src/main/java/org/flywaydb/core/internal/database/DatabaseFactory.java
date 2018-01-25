@@ -177,10 +177,11 @@ public class DatabaseFactory {
             );
         }
         if (databaseProductName.startsWith("Snowflake")) {
-            return new SnowflakeDatabase(connection);
+            return new SnowflakeDatabase(configuration, connection
 
 
 
+            );
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);

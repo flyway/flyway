@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,33 +62,33 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase> {
 
     @Override
     protected void doCreate() throws SQLException {
-        jdbcTemplate.executeStatement("CREATE SCHEMA " + database.quote(name));
+        jdbcTemplate.execute("CREATE SCHEMA " + database.quote(name));
     }
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.executeStatement("DROP SCHEMA " + database.quote(name) + " CASCADE");
+        jdbcTemplate.execute("DROP SCHEMA " + database.quote(name) + " CASCADE");
     }
 
     @Override
     protected void doClean() throws SQLException {
         for (String statement : generateDropStatementsForViews()) {
-            jdbcTemplate.executeStatement(statement);
+            jdbcTemplate.execute(statement);
         }
         for (Table table : allTables()) {
             table.drop();
         }
         for (String statement : generateDropStatementsForStages()) {
-            jdbcTemplate.executeStatement(statement);
+            jdbcTemplate.execute(statement);
         }
         for (String statement : generateDropStatementsForFileFormats()) {
-            jdbcTemplate.executeStatement(statement);
+            jdbcTemplate.execute(statement);
         }
         for (String statement : generateDropStatementsForSequences()) {
-            jdbcTemplate.executeStatement(statement);
+            jdbcTemplate.execute(statement);
         }
         for (String statement : generateDropStatementsForFunctions()) {
-            jdbcTemplate.executeStatement(statement);
+            jdbcTemplate.execute(statement);
         }
     }
 
