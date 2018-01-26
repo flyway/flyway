@@ -325,8 +325,8 @@ public class Main {
 
         // see javadoc of listFiles(): null if given path is not a real directory
         if (files == null) {
-            LOG.error("Directory for Jdbc Drivers not found: " + driversDir.getAbsolutePath());
-            System.exit(1);
+            LOG.debug("Directory for Jdbc Drivers not found: " + driversDir.getAbsolutePath());
+            return classLoader;
         }
 
         for (File file : files) {
