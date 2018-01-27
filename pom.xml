@@ -126,7 +126,6 @@
 
 
 
-
     </repositories>
 
     <properties>
@@ -249,6 +248,12 @@
                 <groupId>org.mariadb.jdbc</groupId>
                 <artifactId>mariadb-java-client</artifactId>
                 <version>${version.mariadb}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.nuodb.jdbc</groupId>
+                <artifactId>nuodb-jdbc</artifactId>
+                <version>3.0.0</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
