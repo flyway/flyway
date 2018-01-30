@@ -1624,6 +1624,11 @@ public class Flyway implements FlywayConfiguration {
 
 
 
+
+
+
+
+
         Database database = null;
         try {
             database = DatabaseFactory.createDatabase(this, !dbConnectionInfoPrinted
