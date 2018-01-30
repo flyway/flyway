@@ -52,7 +52,7 @@ public abstract class SchemaObject {
      * @param schema       The schema the object lives in.
      * @param name         The name of the object.
      */
-    public SchemaObject(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
+    SchemaObject(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
         this.name = name;
         this.jdbcTemplate = jdbcTemplate;
         this.database = database;

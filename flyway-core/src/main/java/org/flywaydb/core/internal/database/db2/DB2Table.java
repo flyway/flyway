@@ -40,7 +40,7 @@ public class DB2Table extends Table {
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP TABLE " + database.quote(schema.getName(), name));
+        jdbcTemplate.execute("DROP TABLE " + this);
     }
 
     @Override
