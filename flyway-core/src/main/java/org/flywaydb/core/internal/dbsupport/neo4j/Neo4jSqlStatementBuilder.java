@@ -14,7 +14,7 @@ public class Neo4jSqlStatementBuilder extends SqlStatementBuilder{
 
 
         String cleanSingleLine = line.replaceAll("\\s+", " ");
-        if(cleanSingleLine.trim().matches("^(CREATE|DROP) CONSTRAINT.*")) {
+        if(cleanSingleLine.trim().matches("^(CREATE|DROP) (CONSTRAINT|INDEX).*")) {
             executeInTransaction = false;
         }
     }
