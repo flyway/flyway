@@ -47,9 +47,9 @@ import org.junit.Test;
  */
 public class Neo4JMigrationTest extends MigrationTestCase {
 
-    private static final String JDBC_NEO4J_BOLT_URL = "jdbc:neo4j:bolt://localhost:17687";
+    private static final String JDBC_NEO4J_BOLT_URL = "jdbc:neo4j:bolt://localhost:7687";
     private static final String JDBC_NEO4J_USERNAME = "neo4j";
-    private static final String JDBC_NEO4J_PASSWORD = "sxsuite";
+    private static final String JDBC_NEO4J_PASSWORD = "neo4j";
 
 	protected static final String BASEDIR = "migration/dbsupport/neo4j/sql";
 
