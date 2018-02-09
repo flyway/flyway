@@ -20,3 +20,4 @@
  */
 
 CREATE CONSTRAINT ON ( sample:SampleNode ) ASSERT sample.uuid IS UNIQUE;
+CREATE INDEX ON :SampleNode(name);
