@@ -17,7 +17,6 @@ package org.flywaydb.maven;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -41,8 +40,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.putArrayIfSet;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
@@ -214,6 +215,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
+     *
      * @deprecated Use {@link AbstractFlywayMojo#sqlMigrationSuffixes} instead. Will be removed in Flyway 6.0.0.
      */
     @Parameter(property = ConfigUtils.SQL_MIGRATION_SUFFIX)
@@ -505,7 +507,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         return mavenPropertyValue;
     }
 
-    public final void execute() throws MojoExecutionException, MojoFailureException {
+    public final void execute() throws MojoExecutionException {
         LogFactory.setLogCreator(new MavenLogCreator(this));
         log = LogFactory.getLog(getClass());
 
@@ -515,9 +517,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         }
 
         try {
+            Set<String> classpathElements = new HashSet<>();
+            classpathElements.addAll(mavenProject.getCompileClasspathElements());
+            classpathElements.addAll(mavenProject.getRuntimeClasspathElements());
+            System.out.println("CPE: " + classpathElements);
+
             ClassRealm classLoader = (ClassRealm) Thread.currentThread().getContextClassLoader();
-            for (String runtimeClasspathElement : mavenProject.getRuntimeClasspathElements()) {
-                classLoader.addURL(new File(runtimeClasspathElement).toURI().toURL());
+            for (String classpathElement : classpathElements) {
+                classLoader.addURL(new File(classpathElement).toURI().toURL());
             }
 
             if (locations != null) {

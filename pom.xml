@@ -77,7 +77,6 @@
 
 
 
-
     </modules>
 
     <distributionManagement>
@@ -419,7 +418,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>2.5.1</version>
+                    <version>2.5.2</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
@@ -459,7 +458,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.10.1</version>
+                    <version>3.0.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -640,6 +639,25 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
@@ -653,7 +671,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.1</version>
+                <version>3.0.0</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <failOnError>false</failOnError>
