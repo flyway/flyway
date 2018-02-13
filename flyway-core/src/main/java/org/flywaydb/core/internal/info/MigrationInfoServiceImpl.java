@@ -75,6 +75,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     private final boolean missing;
 
     /**
+     * Whether ignored migrations are allowed.
+     */
+    private final boolean ignored;
+
+    /**
      * Whether future migrations are allowed.
      */
     private final boolean future;
@@ -93,17 +98,19 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @param outOfOrder        Allows migrations to be run "out of order".
      * @param pending           Whether pending migrations are allowed.
      * @param missing           Whether missing migrations are allowed.
+     * @param ignored           Whether ignored migrations are allowed.
      * @param future            Whether future migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver,
                                     SchemaHistory schemaHistory,
-                                    MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean future) {
+                                    MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean ignored, boolean future) {
         this.migrationResolver = migrationResolver;
         this.schemaHistory = schemaHistory;
         this.target = target;
         this.outOfOrder = outOfOrder;
         this.pending = pending;
         this.missing = missing;
+        this.ignored = ignored;
         this.future = future;
     }
 
@@ -118,6 +125,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         context.outOfOrder = outOfOrder;
         context.pending = pending;
         context.missing = missing;
+        context.ignored = ignored;
         context.future = future;
         context.target = target;
 

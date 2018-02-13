@@ -193,6 +193,21 @@ public class Flyway implements FlywayConfiguration {
     private boolean ignoreMissingMigrations;
 
     /**
+     * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
+     * already migrated migrations in this version. For example: we have migrations available on the classpath with
+     * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
+     * one was 2.0.0. But with the next release a new migration was added to version 1: 1.0.16. Such scenario is ignored
+     * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
+     * will not be reported by validate command. This is useful for situations where one must be able to deliver
+     * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
+     * development of older versions.
+     * <p>
+     * {@code true} to continue normally, {@code false} to fail fast with an exception.
+     * (default: {@code false})
+     */
+    private boolean ignoreIgnoredMigrations;
+
+    /**
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
@@ -377,6 +392,7 @@ public class Flyway implements FlywayConfiguration {
         setGroup(configuration.isGroup());
         setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
         setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
+        setIgnoreIgnoredMigrations(configuration.isIgnoreIgnoredMigrations());
         setInstalledBy(configuration.getInstalledBy());
         setLocations(configuration.getLocations());
         setMixed(configuration.isMixed());
@@ -476,6 +492,11 @@ public class Flyway implements FlywayConfiguration {
     @Override
     public boolean isIgnoreMissingMigrations() {
         return ignoreMissingMigrations;
+    }
+
+    @Override
+    public boolean isIgnoreIgnoredMigrations() {
+        return ignoreIgnoredMigrations;
     }
 
     @Override
@@ -736,6 +757,23 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setIgnoreMissingMigrations(boolean ignoreMissingMigrations) {
         this.ignoreMissingMigrations = ignoreMissingMigrations;
+    }
+
+    /**
+     * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
+     * already migrated migrations in this version. For example: we have migrations available on the classpath with
+     * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
+     * one was 2.0.0. But with the next release a new migration was added to version 1: 1.0.16. Such scenario is ignored
+     * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
+     * will not be reported by validate command. This is useful for situations where one must be able to deliver
+     * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
+     * development of older versions.
+     *
+     * @param ignoreIgnoredMigrations {@code true} to continue normally, {@code false} to fail fast with an exception.
+     *                                (default: {@code false})
+     */
+    public void setIgnoreIgnoredMigrations(boolean ignoreIgnoredMigrations) {
+        this.ignoreIgnoredMigrations = ignoreIgnoredMigrations;
     }
 
     /**
@@ -1277,7 +1315,7 @@ public class Flyway implements FlywayConfiguration {
                             SchemaHistory schemaHistory, Schema[] schemas, List<FlywayCallback> effectiveCallbacks, boolean pending) {
         String validationError =
                 new DbValidate(database, schemaHistory, schemas[0], migrationResolver,
-                        target, outOfOrder, pending, ignoreMissingMigrations, ignoreFutureMigrations, effectiveCallbacks).validate();
+                        target, outOfOrder, pending, ignoreMissingMigrations, ignoreIgnoredMigrations, ignoreFutureMigrations, effectiveCallbacks).validate();
 
         if (validationError != null) {
             if (cleanOnValidationError) {
@@ -1517,6 +1555,10 @@ public class Flyway implements FlywayConfiguration {
         Boolean ignoreMissingMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_MISSING_MIGRATIONS);
         if (ignoreMissingMigrationsProp != null) {
             setIgnoreMissingMigrations(ignoreMissingMigrationsProp);
+        }
+        Boolean ignoreIgnoredMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_IGNORED_MIGRATIONS);
+        if (ignoreIgnoredMigrationsProp != null) {
+            setIgnoreIgnoredMigrations(ignoreIgnoredMigrationsProp);
         }
         Boolean ignoreFutureMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_FUTURE_MIGRATIONS);
         if (ignoreFutureMigrationsProp != null) {

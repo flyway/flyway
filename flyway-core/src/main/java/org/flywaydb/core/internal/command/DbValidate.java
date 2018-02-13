@@ -85,6 +85,11 @@ public class DbValidate {
     private final boolean missing;
 
     /**
+     * Whether ignored migrations are allowed.
+     */
+    private final boolean ignored;
+
+    /**
      * Whether future migrations are allowed.
      */
     private final boolean future;
@@ -111,7 +116,7 @@ public class DbValidate {
      * @param callbacks         The lifecycle callbacks.
      */
     public DbValidate(Database database, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
-                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean future,
+                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean ignored, boolean future,
                       List<FlywayCallback> callbacks) {
         this.connection = database.getMainConnection();
         this.schemaHistory = schemaHistory;
@@ -121,6 +126,7 @@ public class DbValidate {
         this.outOfOrder = outOfOrder;
         this.pending = pending;
         this.missing = missing;
+        this.ignored = ignored;
         this.future = future;
         this.callbacks = callbacks;
     }
@@ -159,7 +165,7 @@ public class DbValidate {
                 public Pair<Integer, String> call() {
                     connection.changeCurrentSchemaTo(schema);
                     MigrationInfoServiceImpl migrationInfoService =
-                            new MigrationInfoServiceImpl(migrationResolver, schemaHistory, target, outOfOrder, pending, missing, future);
+                            new MigrationInfoServiceImpl(migrationResolver, schemaHistory, target, outOfOrder, pending, missing, ignored, future);
 
                     migrationInfoService.refresh();
 
