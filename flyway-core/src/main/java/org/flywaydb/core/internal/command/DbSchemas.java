@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@
  */
 package org.flywaydb.core.internal.command;
 
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
-import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.Connection;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
+import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
-import java.sql.Connection;
 import java.util.concurrent.Callable;
 
 /**
@@ -31,7 +32,7 @@ public class DbSchemas {
     private static final Log LOG = LogFactory.getLog(DbSchemas.class);
 
     /**
-     * The database connection to use for accessing the metadata table.
+     * The database connection to use for accessing the schema history table.
      */
     private final Connection connection;
 
@@ -41,21 +42,21 @@ public class DbSchemas {
     private final Schema[] schemas;
 
     /**
-     * The metadata table.
+     * The schema history table.
      */
-    private final MetaDataTable metaDataTable;
+    private final SchemaHistory schemaHistory;
 
     /**
      * Creates a new DbSchemas.
      *
-     * @param connection    The database connection to use for accessing the metadata table.
+     * @param database      The database to use.
      * @param schemas       The schemas managed by Flyway.
-     * @param metaDataTable The metadata table.
+     * @param schemaHistory The schema history table.
      */
-    public DbSchemas(Connection connection, Schema[] schemas, MetaDataTable metaDataTable) {
-        this.connection = connection;
+    public DbSchemas(Database database, Schema[] schemas, SchemaHistory schemaHistory) {
+        this.connection = database.getMainConnection();
         this.schemas = schemas;
-        this.metaDataTable = metaDataTable;
+        this.schemaHistory = schemaHistory;
     }
 
     /**
@@ -65,7 +66,7 @@ public class DbSchemas {
         int retries = 0;
         while (true) {
             try {
-                new TransactionTemplate(connection).execute(new Callable<Object>() {
+                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Void call() {
                         for (Schema schema : schemas) {
@@ -80,7 +81,8 @@ public class DbSchemas {
                             schema.create();
                         }
 
-                        metaDataTable.addSchemasMarker(schemas);
+                        schemaHistory.create();
+                        schemaHistory.addSchemasMarker(schemas);
 
                         return null;
                     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,14 +43,14 @@ public class FileSystemResource implements LoadableResource, Comparable<FileSyst
      * @param location The location of the resource on the filesystem.
      */
     public FileSystemResource(String location) {
-        this.location = new File(location);
+        this.location = new File(location.replace("\\", "/").replace("//", "/"));
     }
 
     /**
      * @return The location of the resource on the filesystem.
      */
     public String getLocation() {
-        return StringUtils.replaceAll(location.getPath(), "\\", "/");
+        return location.getPath().replace("\\", "/");
     }
 
     /**

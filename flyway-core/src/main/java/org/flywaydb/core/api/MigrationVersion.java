@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @param displayText The alternative text to display instead of the version number.
      */
     private MigrationVersion(BigInteger version, String displayText) {
-        this.versionParts = new ArrayList<BigInteger>();
+        this.versionParts = new ArrayList<>();
         this.versionParts.add(version);
         this.displayText = displayText;
     }
@@ -157,11 +157,11 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         if (o == LATEST) {
             return Integer.MIN_VALUE;
         }
-        final List<BigInteger> elements1 = versionParts;
-        final List<BigInteger> elements2 = o.versionParts;
-        int largestNumberOfElements = Math.max(elements1.size(), elements2.size());
-        for (int i = 0; i < largestNumberOfElements; i++) {
-            final int compared = getOrZero(elements1, i).compareTo(getOrZero(elements2, i));
+        final List<BigInteger> parts1 = versionParts;
+        final List<BigInteger> parts2 = o.versionParts;
+        int largestNumberOfParts = Math.max(parts1.size(), parts2.size());
+        for (int i = 0; i < largestNumberOfParts; i++) {
+            final int compared = getOrZero(parts1, i).compareTo(getOrZero(parts2, i));
             if (compared != 0) {
                 return compared;
             }
@@ -180,20 +180,22 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @return The resulting array.
      */
     private List<BigInteger> tokenize(String str) {
-        List<BigInteger> numbers = new ArrayList<BigInteger>();
-        for (String number : splitPattern.split(str)) {
-            try {
-                numbers.add(new BigInteger(number));
-            } catch (NumberFormatException e) {
-                throw new FlywayException(
-                        "Invalid version containing non-numeric characters. Only 0..9 and . are allowed. Invalid version: "
-                                + str);
+        List<BigInteger> parts = new ArrayList<>();
+        try {
+            for (String part : splitPattern.split(str)) {
+                parts.add(new BigInteger(part));
             }
+        } catch (NumberFormatException e) {
+            throw new FlywayException(
+                    "Invalid version containing non-numeric characters. Only 0..9 and . are allowed. Invalid version: "
+                            + str);
         }
-        for (int i = numbers.size() - 1; i > 0; i--) {
-            if (!numbers.get(i).equals(BigInteger.ZERO)) break;
-            numbers.remove(i);
+        for (int i = parts.size() - 1; i > 0; i--) {
+            if (!parts.get(i).equals(BigInteger.ZERO)) {
+                break;
+            }
+            parts.remove(i);
         }
-        return numbers;
+        return parts;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,13 +50,12 @@ public class AndroidScanner implements ResourceAndClassScanner {
         }
     }
 
-    public LoadableResource[] scanForResources(Location location, String prefix, String suffix) throws Exception {
-        List<LoadableResource> resources = new ArrayList<LoadableResource>();
+    public LoadableResource[] scanForResources(Location location, String prefix, String[] suffixes) throws Exception {
+        List<LoadableResource> resources = new ArrayList<>();
 
         String path = location.getPath();
         for (String asset : context.getAssets().list(path)) {
-            if (asset.startsWith(prefix) && asset.endsWith(suffix)
-                    && (asset.length() > (prefix + suffix).length())) {
+            if (assetMatches(asset, prefix, suffixes)) {
                 resources.add(new AndroidResource(context.getAssets(), path, asset));
             } else {
                 LOG.debug("Filtering out asset: " + asset);
@@ -66,30 +65,46 @@ public class AndroidScanner implements ResourceAndClassScanner {
         return resources.toArray(new LoadableResource[resources.size()]);
     }
 
+    private boolean assetMatches(String asset, String prefix, String[] suffixes) {
+        for (String suffix : suffixes) {
+            if (asset.startsWith(prefix) && asset.endsWith(suffix)
+                    && (asset.length() > (prefix + suffix).length())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Class<?>[] scanForClasses(Location location, Class<?> implementedInterface) throws Exception {
         String pkg = location.getPath().replace("/", ".");
 
-        List<Class> classes = new ArrayList<Class>();
+        List<Class> classes = new ArrayList<>();
+        DexFile dex = null;
+        try {
+            dex = new DexFile(context.getApplicationInfo().sourceDir);
+            Enumeration<String> entries = dex.entries();
+            while (entries.hasMoreElements()) {
+                String className = entries.nextElement();
+                if (className.startsWith(pkg)) {
+                    Class<?> clazz = classLoader.loadClass(className);
+                    if (Modifier.isAbstract(clazz.getModifiers())) {
+                        LOG.debug("Skipping abstract class: " + className);
+                        continue;
+                    }
 
-        DexFile dex = new DexFile(context.getApplicationInfo().sourceDir);
-        Enumeration<String> entries = dex.entries();
-        while (entries.hasMoreElements()) {
-            String className = entries.nextElement();
-            if (className.startsWith(pkg)) {
-                Class<?> clazz = classLoader.loadClass(className);
-                if (Modifier.isAbstract(clazz.getModifiers())) {
-                    LOG.debug("Skipping abstract class: " + className);
-                    continue;
+                    if (!implementedInterface.isAssignableFrom(clazz)) {
+                        continue;
+                    }
+
+                    ClassUtils.instantiate(className, classLoader);
+
+                    classes.add(clazz);
+                    LOG.debug("Found class: " + className);
                 }
-
-                if (!implementedInterface.isAssignableFrom(clazz)) {
-                    continue;
-                }
-
-                ClassUtils.instantiate(className, classLoader);
-
-                classes.add(clazz);
-                LOG.debug("Found class: " + className);
+            }
+        } finally {
+            if (dex != null) {
+                dex.close();
             }
         }
         return classes.toArray(new Class<?>[classes.size()]);

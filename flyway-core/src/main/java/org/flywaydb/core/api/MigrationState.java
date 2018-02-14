@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,17 +27,17 @@ public enum MigrationState {
     /**
      * This migration has not been applied yet, and won't be applied because target is set to a lower version.
      */
-    ABOVE_TARGET(">Target", true, false, false),
+    ABOVE_TARGET("Above Target", true, false, false),
 
     /**
-     * This migration was not applied against this DB, because the metadata table was baselined with a higher version.
+     * This migration was not applied against this DB, because the schema history table was baselined with a higher version.
      */
-    BELOW_BASELINE("<Baseln", true, false, false),
+    BELOW_BASELINE("Below Baseline", true, false, false),
 
     /**
      * This migration has baselined this DB.
      */
-    BASELINE("Baselin", true, true, false),
+    BASELINE("Baseline", true, true, false),
 
     /**
      * <p>This usually indicates a problem.</p>
@@ -66,12 +66,22 @@ public enum MigrationState {
      * </p>
      * <p>This should rarely, if ever, occur in practice.</p>
      */
-    MISSING_FAILED("MisFail", false, true, true),
+    MISSING_FAILED("Failed (Missing)", false, true, true),
 
     /**
      * This migration succeeded.
      */
     SUCCESS("Success", true, true, false),
+
+    /**
+     * This versioned migration succeeded, but has since been undone.
+     */
+    UNDONE("Undone", true, true, false),
+
+    /**
+     * This undo migration is ready to be applied if desired.
+     */
+    AVAILABLE("Available", true, false, false),
 
     /**
      * This migration failed.
@@ -85,7 +95,7 @@ public enum MigrationState {
      * Rerunning the entire migration history might produce different results!
      * </p>
      */
-    OUT_OF_ORDER("OutOrdr", true, true, false),
+    OUT_OF_ORDER("Out of Order", true, true, false),
 
     /**
      * <p>This migration succeeded.</p>
@@ -105,17 +115,17 @@ public enum MigrationState {
      * It most likely failed during the installation of a future version of this deployable.
      * </p>
      */
-    FUTURE_FAILED("FutFail", false, true, true),
+    FUTURE_FAILED("Failed (Future)", false, true, true),
 
     /**
      * This is a repeatable migration that is outdated and should be re-applied.
      */
-    OUTDATED("Outdate", true, true, false),
+    OUTDATED("Outdated", true, true, false),
 
     /**
-     * This is a repeatable migration that is outdated and has already been superseeded by a newer run.
+     * This is a repeatable migration that is outdated and has already been superseded by a newer run.
      */
-    SUPERSEEDED("Superse", true, true, false);
+    SUPERSEDED("Superseded", true, true, false);
 
     /**
      * The name suitable for display to the end-user.

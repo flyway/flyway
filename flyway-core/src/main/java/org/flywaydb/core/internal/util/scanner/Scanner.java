@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,15 +46,15 @@ public class Scanner {
      *
      * @param location The location to start searching. Subdirectories are also searched.
      * @param prefix   The prefix of the resource names to match.
-     * @param suffix   The suffix of the resource names to match.
+     * @param suffixes   The suffixes of the resource names to match.
      * @return The resources that were found.
      */
-    public LoadableResource[] scanForResources(Location location, String prefix, String suffix) {
+    public LoadableResource[] scanForResources(Location location, String prefix, String[] suffixes) {
         try {
             if (location.isFileSystem()) {
-                return fileSystemScanner.scanForResources(location, prefix, suffix);
+                return fileSystemScanner.scanForResources(location, prefix, suffixes);
             }
-            return resourceAndClassScanner.scanForResources(location, prefix, suffix);
+            return resourceAndClassScanner.scanForResources(location, prefix, suffixes);
         } catch (Exception e) {
             throw new FlywayException("Unable to scan for SQL migrations in location: " + location, e);
         }

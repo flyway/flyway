@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -173,5 +173,18 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         result = 31 * result + (checksum != null ? checksum.hashCode() : 0);
         result = 31 * result + type.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "ResolvedMigrationImpl{" +
+                "version=" + version +
+                ", description='" + description + '\'' +
+                ", script='" + script + '\'' +
+                ", checksum=" + checksum +
+                ", type=" + type +
+                ", physicalLocation='" + physicalLocation + '\'' +
+                ", executor=" + executor +
+                '}';
     }
 }

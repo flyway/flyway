@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,6 +149,17 @@ public class StringUtils {
      * @return The new comma-delimited string. An empty string if {@code strings} is empty. {@code null} if strings is {@code null}.
      */
     public static String arrayToCommaDelimitedString(Object[] strings) {
+        return arrayToDelimitedString(",", strings);
+    }
+
+    /**
+     * Turns this string array in one delimited string.
+     *
+     * @param delimiter The delimiter to use.
+     * @param strings The array to process.
+     * @return The new delimited string. An empty string if {@code strings} is empty. {@code null} if strings is {@code null}.
+     */
+    public static String arrayToDelimitedString(String delimiter, Object[] strings) {
         if (strings == null) {
             return null;
         }
@@ -156,7 +167,7 @@ public class StringUtils {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < strings.length; i++) {
             if (i > 0) {
-                builder.append(",");
+                builder.append(delimiter);
             }
             builder.append(String.valueOf(strings[i]));
         }

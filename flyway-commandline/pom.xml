@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2010-2017 Boxfuse GmbH
+    Copyright 2010-2018 Boxfuse GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@
     The OS-specific JREs are unfortunately not available from Maven Central due to licensing issues.
     Instructions for installing them: https://flywaydb.org/documentation/contribute/devEnvironmentSetup.html
 
-    To avoid building the OS-specific flyway-commandline assemblies you can run the build with:
-    mvn -P-CommandlinePlatformAssemblies
+    To build the OS-specific flyway-commandline assemblies you can run the build with:
+    mvn install -PCommandlinePlatformAssemblies
     -->
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -35,15 +35,8 @@
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://github.com/flyway/flyway/blob/master/LICENSE.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
     <properties>
-        <jreversion>1.8.0_74</jreversion>
+        <jreversion>1.8.0_152</jreversion>
     </properties>
     <dependencies>
         <dependency>
@@ -68,12 +61,12 @@
             <artifactId>hsqldb</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.sourceforge.jtds</groupId>
-            <artifactId>jtds</artifactId>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.pivotal.jdbc</groupId>
-            <artifactId>greenplumdriver</artifactId>
+            <groupId>net.sourceforge.jtds</groupId>
+            <artifactId>jtds</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -87,19 +80,15 @@
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
+
+
+
+
+
+
+
     </dependencies>
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -144,23 +133,36 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
+
+
+
+
+
+
+
+
         </plugins>
     </build>
     <profiles>
+        <!-- Not needed until the default for Command-line becomes Java 9 or until Microsoft fixes their JDBC driver -->
+        <!--
         <profile>
-            <id>CommercialDBTest</id>
-            <!--
-            Should work, but somehow doesn't as any attempt to disable this profile for TravisCI fails
-            <id>CommandlinePlatformAssemblies</id>
-            -->
+            <id>jdk9</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <jdk>9</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        -->
+        <profile>
+            <id>CommandlinePlatformAssemblies</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <dependencies>
                 <dependency>
@@ -227,15 +229,17 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <skip>false</skip>
-                            <systemProperties>
-                                <target.dir>${project.build.directory}</target.dir>
-                            </systemProperties>
-                        </configuration>
-                    </plugin>
+
+
+
+
+
+
+
+
+
+
+
                 </plugins>
             </build>
         </profile>

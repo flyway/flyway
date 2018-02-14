@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.UrlUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.classpath.jboss.JBossVFSv2UrlResolver;
@@ -56,17 +57,17 @@ public class ClassPathScanner implements ResourceAndClassScanner {
     /**
      * Cache location lookups.
      */
-    private final Map<Location, List<URL>> locationUrlCache = new HashMap<Location, List<URL>>();
+    private final Map<Location, List<URL>> locationUrlCache = new HashMap<>();
 
     /**
      * Cache location scanners.
      */
-    private final Map<String, ClassPathLocationScanner> locationScannerCache = new HashMap<String, ClassPathLocationScanner>();
+    private final Map<String, ClassPathLocationScanner> locationScannerCache = new HashMap<>();
 
     /**
      * Cache resource names.
      */
-    private final Map<ClassPathLocationScanner, Map<URL, Set<String>>> resourceNameCache = new HashMap<ClassPathLocationScanner, Map<URL, Set<String>>>();
+    private final Map<ClassPathLocationScanner, Map<URL, Set<String>>> resourceNameCache = new HashMap<>();
 
     /**
      * Creates a new Classpath scanner.
@@ -78,12 +79,13 @@ public class ClassPathScanner implements ResourceAndClassScanner {
     }
 
     @Override
-    public LoadableResource[] scanForResources(Location path, String prefix, String suffix) throws IOException {
-        LOG.debug("Scanning for classpath resources at '" + path + "' (Prefix: '" + prefix + "', Suffix: '" + suffix + "')");
+    public LoadableResource[] scanForResources(Location path, String prefix, String... suffixes) throws IOException {
+        LOG.debug("Scanning for classpath resources at '" + path + "' (Prefix: '" + prefix
+                + "', Suffixes: '" + StringUtils.arrayToCommaDelimitedString(suffixes) + "')");
 
-        Set<LoadableResource> resources = new TreeSet<LoadableResource>();
+        Set<LoadableResource> resources = new TreeSet<>();
 
-        Set<String> resourceNames = findResourceNames(path, prefix, suffix);
+        Set<String> resourceNames = findResourceNames(path, prefix, suffixes);
         for (String resourceName : resourceNames) {
             resources.add(new ClassPathResource(resourceName, classLoader));
             LOG.debug("Found resource: " + resourceName);
@@ -120,7 +122,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
                 LOG.debug("Skipping invalid class: " + className);
                 continue;
             } catch (IncompatibleClassChangeError e) {
-                LOG.debug("Skipping incompatibly changed class: " + className);
+                LOG.warn("Skipping incompatibly changed class: " + className);
                 continue;
             } catch (NoClassDefFoundError e) {
                 LOG.debug("Skipping non-loadable class: " + className);
@@ -151,12 +153,12 @@ public class ClassPathScanner implements ResourceAndClassScanner {
      *
      * @param location The location on the classpath to scan.
      * @param prefix   The filename prefix to match.
-     * @param suffix   The filename suffix to match.
+     * @param suffixes The filename suffixes to match.
      * @return The resource names.
      * @throws IOException when scanning this location failed.
      */
-    private Set<String> findResourceNames(Location location, String prefix, String suffix) throws IOException {
-        Set<String> resourceNames = new TreeSet<String>();
+    private Set<String> findResourceNames(Location location, String prefix, String... suffixes) throws IOException {
+        Set<String> resourceNames = new TreeSet<>();
 
         List<URL> locationUrls = getLocationUrlsForPath(location);
         for (URL locationUrl : locationUrls) {
@@ -182,45 +184,44 @@ public class ClassPathScanner implements ResourceAndClassScanner {
 
         boolean locationResolved = !locationUrls.isEmpty();
 
-        // Make an additional attempt at finding resources in jar files that don't contain directory entries
-        if (classLoader instanceof URLClassLoader) {
-            URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-            for (URL url : urlClassLoader.getURLs()) {
-                if ("file".equals(url.getProtocol())
-                        && url.getPath().endsWith(".jar")
-                        && !url.getPath().matches(".*" + Pattern.quote("/jre/lib/") + ".*")) {
-                    // All non-system jars on disk
-                    JarFile jarFile;
-                    try {
-                        jarFile = new JarFile(url.toURI().getSchemeSpecificPart());
-                    } catch (URISyntaxException ex) {
-                        // Fallback for URLs that are not valid URIs (should hardly ever happen).
-                        jarFile = new JarFile(url.getPath().substring("file:".length()));
-                    }
-
-                    try {
-                        boolean directoryFound = false;
-                        Enumeration<JarEntry> entries = jarFile.entries();
-                        while (entries.hasMoreElements()) {
-                            if (entries.nextElement().isDirectory()) {
-                                directoryFound = true;
-                                break;
+        if (!locationResolved) {
+            // Make an additional attempt at finding resources in jar files
+            if (classLoader instanceof URLClassLoader) {
+                URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
+                for (URL url : urlClassLoader.getURLs()) {
+                    if ("file".equals(url.getProtocol())
+                            && url.getPath().endsWith(".jar")
+                            && !url.getPath().matches(".*" + Pattern.quote("/jre/lib/") + ".*")) {
+                        // All non-system jars on disk
+                        JarFile jarFile;
+                        try {
+                            try {
+                                jarFile = new JarFile(url.toURI().getSchemeSpecificPart());
+                            } catch (URISyntaxException ex) {
+                                // Fallback for URLs that are not valid URIs (should hardly ever happen).
+                                jarFile = new JarFile(url.getPath().substring("file:".length()));
                             }
+                        } catch (SecurityException e) {
+                            LOG.warn("Skipping unloadable jar file: " + url + " (" + e.getMessage() + ")");
+                            continue;
                         }
-                        if (!directoryFound) {
-                            entries = jarFile.entries();
+
+                        try {
+                            Enumeration<JarEntry> entries = jarFile.entries();
                             while (entries.hasMoreElements()) {
                                 String entryName = entries.nextElement().getName();
                                 if (entryName.startsWith(location.getPath())) {
                                     locationResolved = true;
-                                    if (entryName.endsWith(suffix)) {
-                                        resourceNames.add(entryName);
+                                    for (String suffix : suffixes) {
+                                        if (entryName.endsWith(suffix)) {
+                                            resourceNames.add(entryName);
+                                        }
                                     }
                                 }
                             }
+                        } finally {
+                            jarFile.close();
                         }
-                    } finally {
-                        jarFile.close();
                     }
                 }
             }
@@ -230,7 +231,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             LOG.warn("Unable to resolve location " + location);
         }
 
-        return filterResourceNames(resourceNames, prefix, suffix);
+        return filterResourceNames(resourceNames, prefix, suffixes);
     }
 
     /**
@@ -247,7 +248,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
 
         LOG.debug("Determining location urls for " + location + " using ClassLoader " + classLoader + " ...");
 
-        List<URL> locationUrls = new ArrayList<URL>();
+        List<URL> locationUrls = new ArrayList<>();
 
         if (classLoader.getClass().getName().startsWith("com.ibm")) {
             // WebSphere
@@ -300,23 +301,15 @@ public class ClassPathScanner implements ResourceAndClassScanner {
         if ("file".equals(protocol)) {
             FileSystemClassPathLocationScanner locationScanner = new FileSystemClassPathLocationScanner();
             locationScannerCache.put(protocol, locationScanner);
-            resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
+            resourceNameCache.put(locationScanner, new HashMap<>());
             return locationScanner;
         }
 
-        if ("jar".equals(protocol)
-                || "war".equals(protocol) //Tomcat
-                || "zip".equals(protocol) //WebLogic
-                || "wsjar".equals(protocol) //WebSphere
-                ) {
-            JarFileClassPathLocationScanner locationScanner;
-            if ("war".equals(protocol)) {
-                locationScanner = new JarFileClassPathLocationScanner("*/");
-            } else {
-                locationScanner = new JarFileClassPathLocationScanner();
-            }
+        if ("jar".equals(protocol) || isTomcat(protocol) || isWebLogic(protocol) || isWebSphere(protocol)) {
+            String separator = isTomcat(protocol) ? "*/" : "!/";
+            ClassPathLocationScanner locationScanner = new JarFileClassPathLocationScanner(separator);
             locationScannerCache.put(protocol, locationScanner);
-            resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
+            resourceNameCache.put(locationScanner, new HashMap<>());
             return locationScanner;
         }
 
@@ -324,20 +317,37 @@ public class ClassPathScanner implements ResourceAndClassScanner {
         if (featureDetector.isJBossVFSv3Available() && "vfs".equals(protocol)) {
             JBossVFSv3ClassPathLocationScanner locationScanner = new JBossVFSv3ClassPathLocationScanner();
             locationScannerCache.put(protocol, locationScanner);
-            resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
+            resourceNameCache.put(locationScanner, new HashMap<>());
             return locationScanner;
         }
-        if (featureDetector.isOsgiFrameworkAvailable() && (
-                "bundle".equals(protocol) // Felix
-                        || "bundleresource".equals(protocol)) //Equinox
-                ) {
+        if (featureDetector.isOsgiFrameworkAvailable() && (isFelix(protocol) || isEquinox(protocol))) {
             OsgiClassPathLocationScanner locationScanner = new OsgiClassPathLocationScanner();
             locationScannerCache.put(protocol, locationScanner);
-            resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
+            resourceNameCache.put(locationScanner, new HashMap<>());
             return locationScanner;
         }
 
         return null;
+    }
+
+    private boolean isEquinox(String protocol) {
+        return "bundleresource".equals(protocol);
+    }
+
+    private boolean isFelix(String protocol) {
+        return "bundle".equals(protocol);
+    }
+
+    private boolean isWebSphere(String protocol) {
+        return "wsjar".equals(protocol);
+    }
+
+    private boolean isWebLogic(String protocol) {
+        return "zip".equals(protocol);
+    }
+
+    private boolean isTomcat(String protocol) {
+        return "war".equals(protocol);
     }
 
     /**
@@ -345,20 +355,30 @@ public class ClassPathScanner implements ResourceAndClassScanner {
      *
      * @param resourceNames The names to filter.
      * @param prefix        The prefix to match.
-     * @param suffix        The suffix to match.
+     * @param suffixes      The suffixes to match.
      * @return The filtered names set.
      */
-    private Set<String> filterResourceNames(Set<String> resourceNames, String prefix, String suffix) {
-        Set<String> filteredResourceNames = new TreeSet<String>();
+    private Set<String> filterResourceNames(Set<String> resourceNames, String prefix, String[] suffixes) {
+        Set<String> filteredResourceNames = new TreeSet<>();
         for (String resourceName : resourceNames) {
             String fileName = resourceName.substring(resourceName.lastIndexOf("/") + 1);
-            if (fileName.startsWith(prefix) && fileName.endsWith(suffix)
-                    && (fileName.length() > (prefix + suffix).length())) {
+            if (fileNameMatches(fileName, prefix, suffixes)) {
                 filteredResourceNames.add(resourceName);
             } else {
                 LOG.debug("Filtering out resource: " + resourceName + " (filename: " + fileName + ")");
             }
         }
         return filteredResourceNames;
+    }
+
+    private boolean fileNameMatches(String fileName, String prefix, String[] suffixes) {
+        for (String suffix : suffixes) {
+            if ((!StringUtils.hasLength(prefix) || fileName.startsWith(prefix))
+                    && fileName.endsWith(suffix)
+                    && (fileName.length() > (prefix + suffix).length())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

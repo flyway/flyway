@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@ import org.flywaydb.core.internal.util.logging.javautil.JavaUtilLogCreator;
 import org.flywaydb.core.internal.util.logging.slf4j.Slf4jLogCreator;
 
 /**
- * Factory for loggers.
+ * Factory for loggers. Custom MigrationResolver, MigrationExecutor, FlywayCallback, ErrorHandler and JdbcMigration
+ * implementations should use this to obtain a logger that will work with any logging framework across all environments
+ * (API, Maven, Gradle, CLI, etc).
  */
 public class LogFactory {
     /**

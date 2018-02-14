@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package org.flywaydb.core.internal.util.scanner.filesystem;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -37,13 +37,13 @@ public class FileSystemScanner {
      *
      * @param location The location in the filesystem to start searching. Subdirectories are also searched.
      * @param prefix   The prefix of the resource names to match.
-     * @param suffix   The suffix of the resource names to match.
+     * @param suffixes The suffixes of the resource names to match.
      * @return The resources that were found.
-     * @throws java.io.IOException when the location could not be scanned.
      */
-    public LoadableResource[] scanForResources(Location location, String prefix, String suffix) throws IOException {
+    public LoadableResource[] scanForResources(Location location, String prefix, String... suffixes) {
         String path = location.getPath();
-        LOG.debug("Scanning for filesystem resources at '" + path + "' (Prefix: '" + prefix + "', Suffix: '" + suffix + "')");
+        LOG.debug("Scanning for filesystem resources at '" + path + "' (Prefix: '" + prefix + "', Suffixes: '"
+                + StringUtils.arrayToCommaDelimitedString(suffixes) + "')");
 
         File dir = new File(path);
         if (!dir.isDirectory() || !dir.canRead()) {
@@ -51,9 +51,9 @@ public class FileSystemScanner {
             return new LoadableResource[0];
         }
 
-        Set<LoadableResource> resources = new TreeSet<LoadableResource>();
+        Set<LoadableResource> resources = new TreeSet<>();
 
-        Set<String> resourceNames = findResourceNames(path, prefix, suffix);
+        Set<String> resourceNames = findResourceNames(path, prefix, suffixes);
         for (String resourceName : resourceNames) {
             resources.add(new FileSystemResource(resourceName));
             LOG.debug("Found filesystem resource: " + resourceName);
@@ -66,15 +66,14 @@ public class FileSystemScanner {
      * Finds the resources names present at this location and below on the classpath starting with this prefix and
      * ending with this suffix.
      *
-     * @param path   The path on the classpath to scan.
-     * @param prefix The filename prefix to match.
-     * @param suffix The filename suffix to match.
+     * @param path     The path on the classpath to scan.
+     * @param prefix   The filename prefix to match.
+     * @param suffixes The filename suffixes to match.
      * @return The resource names.
-     * @throws java.io.IOException when scanning this location failed.
      */
-    private Set<String> findResourceNames(String path, String prefix, String suffix) throws IOException {
+    private Set<String> findResourceNames(String path, String prefix, String[] suffixes) {
         Set<String> resourceNames = findResourceNamesFromFileSystem(path, new File(path));
-        return filterResourceNames(resourceNames, prefix, suffix);
+        return filterResourceNames(resourceNames, prefix, suffixes);
     }
 
     /**
@@ -83,13 +82,12 @@ public class FileSystemScanner {
      * @param scanRootLocation The root location of the scan on disk.
      * @param folder           The folder to look for resources under on disk.
      * @return The resource names;
-     * @throws IOException when the folder could not be read.
      */
     @SuppressWarnings("ConstantConditions")
-    private Set<String> findResourceNamesFromFileSystem(String scanRootLocation, File folder) throws IOException {
+    private Set<String> findResourceNamesFromFileSystem(String scanRootLocation, File folder) {
         LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
 
-        Set<String> resourceNames = new TreeSet<String>();
+        Set<String> resourceNames = new TreeSet<>();
 
         File[] files = folder.listFiles();
         for (File file : files) {
@@ -110,20 +108,29 @@ public class FileSystemScanner {
      *
      * @param resourceNames The names to filter.
      * @param prefix        The prefix to match.
-     * @param suffix        The suffix to match.
+     * @param suffixes      The suffixes to match.
      * @return The filtered names set.
      */
-    private Set<String> filterResourceNames(Set<String> resourceNames, String prefix, String suffix) {
-        Set<String> filteredResourceNames = new TreeSet<String>();
+    private Set<String> filterResourceNames(Set<String> resourceNames, String prefix, String[] suffixes) {
+        Set<String> filteredResourceNames = new TreeSet<>();
         for (String resourceName : resourceNames) {
             String fileName = resourceName.substring(resourceName.lastIndexOf(File.separator) + 1);
-            if (fileName.startsWith(prefix) && fileName.endsWith(suffix)
-                    && (fileName.length() > (prefix + suffix).length())) {
+            if (fileNameMatches(fileName, prefix, suffixes)) {
                 filteredResourceNames.add(resourceName);
             } else {
                 LOG.debug("Filtering out resource: " + resourceName + " (filename: " + fileName + ")");
             }
         }
         return filteredResourceNames;
+    }
+
+    private boolean fileNameMatches(String fileName, String prefix, String[] suffixes) {
+        for (String suffix : suffixes) {
+            if (fileName.startsWith(prefix) && fileName.endsWith(suffix)
+                    && (fileName.length() > (prefix + suffix).length())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

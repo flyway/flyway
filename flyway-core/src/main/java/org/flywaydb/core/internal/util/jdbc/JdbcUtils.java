@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 package org.flywaydb.core.internal.util.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -50,11 +50,11 @@ public class JdbcUtils {
         try {
             Connection connection = dataSource.getConnection();
             if (connection == null) {
-                throw new FlywayException("Unable to obtain Jdbc connection from DataSource");
+                throw new FlywayException("Unable to obtain database connection");
             }
             return connection;
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to obtain Jdbc connection from DataSource", e);
+            throw new FlywaySqlException("Unable to obtain database connection", e);
         }
     }
 
@@ -71,7 +71,7 @@ public class JdbcUtils {
         try {
             connection.close();
         } catch (SQLException e) {
-            LOG.error("Error while closing Jdbc connection", e);
+            LOG.error("Error while closing database connection: " + e.getMessage(), e);
         }
     }
 
@@ -88,7 +88,7 @@ public class JdbcUtils {
         try {
             statement.close();
         } catch (SQLException e) {
-            LOG.error("Error while closing Jdbc statement", e);
+            LOG.error("Error while closing JDBC statement", e);
         }
     }
 
@@ -105,7 +105,7 @@ public class JdbcUtils {
         try {
             resultSet.close();
         } catch (SQLException e) {
-            LOG.error("Error while closing Jdbc resultSet", e);
+            LOG.error("Error while closing JDBC resultSet", e);
         }
     }
 }
