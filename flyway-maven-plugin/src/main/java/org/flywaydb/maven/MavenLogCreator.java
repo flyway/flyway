@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public class MavenLogCreator implements LogCreator {
      *
      * @param mojo The Maven Mojo to log for.
      */
-    public MavenLogCreator(AbstractMojo mojo) {
+    MavenLogCreator(AbstractMojo mojo) {
         this.mojo = mojo;
     }
 

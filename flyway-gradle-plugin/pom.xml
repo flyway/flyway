@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2010-2017 Boxfuse GmbH
+    Copyright 2010-2018 Boxfuse GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -26,13 +26,6 @@
     <artifactId>flyway-gradle-plugin</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://github.com/flyway/flyway/blob/master/LICENSE.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
     <dependencies>
         <dependency>
             <!-- Force correct module ordering -->
@@ -43,12 +36,6 @@
         <dependency>
             <groupId>org.gradle</groupId>
             <artifactId>gradle-core</artifactId>
-            <version>${version.gradle}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.gradle</groupId>
-            <artifactId>gradle-model-core</artifactId>
             <version>${version.gradle}</version>
             <scope>provided</scope>
         </dependency>
@@ -70,11 +57,13 @@
             <version>1</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
+
+
+
+
+
+
+
     </dependencies>
     <build>
         <plugins>

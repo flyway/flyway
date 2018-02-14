@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,20 @@
  */
 package org.flywaydb.maven;
 
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.flywaydb.core.Flyway;
 
 /**
  * Maven goal that drops all database objects (tables, views, procedures, triggers, ...) in the configured schemas.
  * The schemas are cleaned in the order specified by the {@code schemas} property..
- *
- * @phase clean
- * @goal clean
- * @since 0.7
  */
 @SuppressWarnings({"JavaDoc", "UnusedDeclaration"})
+@Mojo(name = "clean",
+        requiresDependencyResolution = ResolutionScope.TEST,
+        defaultPhase = LifecyclePhase.CLEAN,
+        threadSafe = true)
 public class CleanMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.util.scanner.classpath;
 
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
-import org.flywaydb.core.internal.util.scanner.Resource;
 
 /**
  * Scanner for both resources and classes.
@@ -29,11 +28,11 @@ public interface ResourceAndClassScanner {
      *
      * @param location The location in the classpath to start searching. Subdirectories are also searched.
      * @param prefix   The prefix of the resource names to match.
-     * @param suffix   The suffix of the resource names to match.
+     * @param suffixes The suffixes of the resource names to match.
      * @return The resources that were found.
      * @throws Exception when the location could not be scanned.
      */
-    LoadableResource[] scanForResources(Location location, String prefix, String suffix) throws Exception;
+    LoadableResource[] scanForResources(Location location, String prefix, String[] suffixes) throws Exception;
 
     /**
      * Scans the classpath for concrete classes under the specified package implementing this interface.

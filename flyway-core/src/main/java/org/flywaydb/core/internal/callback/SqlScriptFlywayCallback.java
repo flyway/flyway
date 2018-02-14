@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.SqlScript;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
@@ -47,6 +47,12 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
     private static final String AFTER_MIGRATE = "afterMigrate";
     private static final String BEFORE_EACH_MIGRATE = "beforeEachMigrate";
     private static final String AFTER_EACH_MIGRATE = "afterEachMigrate";
+
+
+
+
+
+
     private static final String BEFORE_VALIDATE = "beforeValidate";
     private static final String AFTER_VALIDATE = "afterValidate";
     private static final String BEFORE_BASELINE = "beforeBaseline";
@@ -64,18 +70,18 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
             BEFORE_REPAIR, AFTER_REPAIR,
             BEFORE_INFO, AFTER_INFO);
 
-    private final Map<String, SqlScript> scripts = new HashMap<String, SqlScript>();
+    private final Map<String, SqlScript> scripts = new HashMap<>();
 
     /**
      * Creates a new instance.
      *
-     * @param dbSupport           The database-specific support.
+     * @param database            The database-specific support.
      * @param scanner             The Scanner for loading migrations on the classpath.
      * @param locations           The locations where migrations are located.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param configuration       The Flyway configuration.
      */
-    public SqlScriptFlywayCallback(DbSupport dbSupport, Scanner scanner, Locations locations,
+    public SqlScriptFlywayCallback(Database database, Scanner scanner, Locations locations,
                                    PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
         for (String callback : ALL_CALLBACKS) {
             scripts.put(callback, null);
@@ -85,13 +91,13 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
         for (Location location : locations.getLocations()) {
             LoadableResource[] resources;
             try {
-                resources = scanner.scanForResources(location, "", configuration.getSqlMigrationSuffix());
+                resources = scanner.scanForResources(location, "", configuration.getSqlMigrationSuffixes());
             } catch (FlywayException e) {
                 // Ignore missing locations
                 continue;
             }
             for (LoadableResource resource : resources) {
-                String key = resource.getFilename().replace(configuration.getSqlMigrationSuffix(), "");
+                String key = stripSuffix(resource.getFilename(), configuration.getSqlMigrationSuffixes());
                 if (scripts.keySet().contains(key)) {
                     SqlScript existing = scripts.get(key);
                     if (existing != null) {
@@ -100,13 +106,25 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
                                 "-> " + existing.getResource().getLocationOnDisk() + "\n" +
                                 "-> " + resource.getLocationOnDisk());
                     }
-                    scripts.put(key, new SqlScript(dbSupport, resource, placeholderReplacer, configuration.getEncoding(),
+                    scripts.put(key, database.createSqlScript(resource,
+                            placeholderReplacer.replacePlaceholders(resource.loadAsString(configuration.getEncoding())),
                             configuration.isMixed()
+
+
 
                     ));
                 }
             }
         }
+    }
+
+    private String stripSuffix(String fileName, String[] suffixes) {
+        for (String suffix : suffixes) {
+            if (fileName.endsWith(suffix)) {
+                return fileName.substring(0, fileName.length() - suffix.length());
+            }
+        }
+        return fileName;
     }
 
     @Override
@@ -137,6 +155,34 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
     @Override
     public void afterEachMigrate(Connection connection, MigrationInfo info) {
         execute(AFTER_EACH_MIGRATE, connection);
+    }
+
+    @Override
+    public void beforeUndo(Connection connection) {
+
+
+
+    }
+
+    @Override
+    public void afterUndo(Connection connection) {
+
+
+
+    }
+
+    @Override
+    public void beforeEachUndo(Connection connection, MigrationInfo info) {
+
+
+
+    }
+
+    @Override
+    public void afterEachUndo(Connection connection, MigrationInfo info) {
+
+
+
     }
 
     @Override

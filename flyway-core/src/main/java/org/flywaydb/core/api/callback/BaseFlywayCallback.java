@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import java.sql.Connection;
  * <p>This implementation also provides direct access to the {@link FlywayConfiguration} as field.</p>
  */
 public abstract class BaseFlywayCallback implements FlywayCallback, ConfigurationAware {
-
+    @SuppressWarnings("WeakerAccess")
     protected FlywayConfiguration flywayConfiguration;
 
     @Override
@@ -58,6 +58,22 @@ public abstract class BaseFlywayCallback implements FlywayCallback, Configuratio
 
     @Override
     public void afterEachMigrate(Connection connection, MigrationInfo info) {
+    }
+
+    @Override
+    public void beforeUndo(Connection connection) {
+    }
+
+    @Override
+    public void beforeEachUndo(Connection connection, MigrationInfo info) {
+    }
+
+    @Override
+    public void afterEachUndo(Connection connection, MigrationInfo info) {
+    }
+
+    @Override
+    public void afterUndo(Connection connection) {
     }
 
     @Override

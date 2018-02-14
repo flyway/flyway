@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public class Locations {
     /**
      * The backing list.
      */
-    private final List<Location> locations = new ArrayList<Location>();
+    private final List<Location> locations = new ArrayList<>();
 
     /**
      * Creates a new Locations wrapper with these raw locations.
@@ -39,7 +39,7 @@ public class Locations {
      * @param rawLocations The raw locations to process.
      */
     public Locations(String... rawLocations) {
-        List<Location> normalizedLocations = new ArrayList<Location>();
+        List<Location> normalizedLocations = new ArrayList<>();
         for (String rawLocation : rawLocations) {
             normalizedLocations.add(new Location(rawLocation));
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,32 +20,75 @@ package org.flywaydb.core.api;
  */
 public enum MigrationType {
     /**
-     * The type for the schema creation migration.
+     * Schema creation migration.
      */
-    SCHEMA,
+    SCHEMA(true, false),
 
     /**
-     * The type for the metadata baseline migration.
+     * Bseline migration.
      */
-    BASELINE,
+    BASELINE(true, false),
 
     /**
-     * The type for sql migrations.
+     * SQL migrations.
      */
-    SQL,
+    SQL(false, false),
 
     /**
-     * The type for Jdbc java-based migrations.
+     * Undo SQL migrations.
      */
-    JDBC,
+    UNDO_SQL(false, true),
 
     /**
-     * The type for Spring Jdbc java-based migrations.
+     * JDBC Java-based migrations.
      */
-    SPRING_JDBC,
+    JDBC(false, false),
 
     /**
-     * The type for other migrations by custom MigrationResolvers.
+     * Undo JDBC java-based migrations.
      */
-    CUSTOM
+    UNDO_JDBC(false, true),
+
+    /**
+     * Spring JDBC Java-based migrations.
+     */
+    SPRING_JDBC(false, false),
+
+    /**
+     * Undo Spring JDBC java-based migrations.
+     */
+    UNDO_SPRING_JDBC(false, true),
+
+    /**
+     * Migrations using custom MigrationResolvers.
+     */
+    CUSTOM(false, false),
+
+    /**
+     * Undo migrations using custom MigrationResolvers.
+     */
+    UNDO_CUSTOM(false, true);
+
+    private final boolean synthetic;
+    private final boolean undo;
+
+    MigrationType(boolean synthetic, boolean undo) {
+        this.synthetic = synthetic;
+        this.undo = undo;
+    }
+
+    /**
+     * @return Whether this is a synthetic migration type, which is only ever present in the schema history table,
+     * but never discovered by migration resolvers.
+     */
+    public boolean isSynthetic() {
+        return synthetic;
+    }
+
+    /**
+     * @return Whether this is an undo migration, which has undone an earlier migration present in the schema history table.
+     */
+    public boolean isUndo() {
+        return undo;
+    }
 }

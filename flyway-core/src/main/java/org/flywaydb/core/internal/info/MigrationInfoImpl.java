@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 package org.flywaydb.core.internal.info;
 
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
+import org.flywaydb.core.internal.schemahistory.AppliedMigration;
+import org.flywaydb.core.internal.util.AbbreviationUtils;
 import org.flywaydb.core.internal.util.ObjectUtils;
 
 import java.util.Date;
@@ -51,6 +51,13 @@ public class MigrationInfoImpl implements MigrationInfo {
      */
     private final boolean outOfOrder;
 
+
+
+
+
+
+
+
     /**
      * Creates a new MigrationInfoImpl.
      *
@@ -58,13 +65,23 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @param appliedMigration  The applied migration to aggregate the info from.
      * @param context           The current context.
      * @param outOfOrder        Whether this migration was applied out of order.
+
+
+
      */
-    public MigrationInfoImpl(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration,
-                             MigrationInfoContext context, boolean outOfOrder) {
+    MigrationInfoImpl(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration,
+                      MigrationInfoContext context, boolean outOfOrder
+
+
+
+    ) {
         this.resolvedMigration = resolvedMigration;
         this.appliedMigration = appliedMigration;
         this.context = context;
         this.outOfOrder = outOfOrder;
+
+
+
     }
 
     /**
@@ -122,7 +139,12 @@ public class MigrationInfoImpl implements MigrationInfo {
                 if (resolvedMigration.getVersion().compareTo(context.baseline) < 0) {
                     return MigrationState.BELOW_BASELINE;
                 }
-                if (resolvedMigration.getVersion().compareTo(context.target) > 0) {
+
+
+
+
+
+                if (context.target != null && resolvedMigration.getVersion().compareTo(context.target) > 0) {
                     return MigrationState.ABOVE_TARGET;
                 }
                 if ((resolvedMigration.getVersion().compareTo(context.lastApplied) < 0) && !context.outOfOrder) {
@@ -165,8 +187,13 @@ public class MigrationInfoImpl implements MigrationInfo {
                 }
                 return MigrationState.OUTDATED;
             }
-            return MigrationState.SUPERSEEDED;
+            return MigrationState.SUPERSEDED;
         }
+
+
+
+
+
 
         if (outOfOrder) {
             return MigrationState.OUT_OF_ORDER;
@@ -210,6 +237,11 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @return The error message, or {@code null} if everything is fine.
      */
     public String validate() {
+        // Ignore any migrations above the current target as they are out of scope.
+        if (MigrationState.ABOVE_TARGET.equals(getState())) {
+            return null;
+        }
+
         if (getState().isFailed()
                 && (!context.future || MigrationState.FUTURE_FAILED != getState())) {
             if (getVersion() == null) {
@@ -227,7 +259,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             return "Detected applied migration not resolved locally: " + getVersion();
         }
 
-        if (!context.pending && MigrationState.PENDING == getState() || MigrationState.IGNORED == getState()) {
+        if (!context.pending && MigrationState.PENDING == getState() || (!context.ignored && MigrationState.IGNORED == getState())) {
             if (getVersion() != null) {
                 return "Detected resolved migration not applied to database: " + getVersion();
             }
@@ -239,11 +271,11 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (resolvedMigration != null && appliedMigration != null) {
-            Object migrationIdentifier = appliedMigration.getVersion();
-            if (migrationIdentifier == null) {
-                // Repeatable migrations
-                migrationIdentifier = appliedMigration.getScript();
-            }
+            String migrationIdentifier = appliedMigration.getVersion() == null ?
+                    // Repeatable migrations
+                    appliedMigration.getScript() :
+                    // Versioned migrations
+                    "version " + appliedMigration.getVersion();
             if (getVersion() == null || getVersion().compareTo(context.baseline) > 0) {
                 if (resolvedMigration.getType() != appliedMigration.getType()) {
                     return createMismatchMessage("type", migrationIdentifier,
@@ -251,13 +283,14 @@ public class MigrationInfoImpl implements MigrationInfo {
                 }
                 if (resolvedMigration.getVersion() != null
                         || (context.pending &&
-                        ((MigrationState.OUTDATED != getState()) && (MigrationState.SUPERSEEDED != getState())))) {
+                        ((MigrationState.OUTDATED != getState()) && (MigrationState.SUPERSEDED != getState())))) {
                     if (!ObjectUtils.nullSafeEquals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
                         return createMismatchMessage("checksum", migrationIdentifier,
                                 appliedMigration.getChecksum(), resolvedMigration.getChecksum());
                     }
                 }
-                if (!resolvedMigration.getDescription().equals(appliedMigration.getDescription())) {
+                if (!AbbreviationUtils.abbreviateDescription(resolvedMigration.getDescription())
+                        .equals(appliedMigration.getDescription())) {
                     return createMismatchMessage("description", migrationIdentifier,
                             appliedMigration.getDescription(), resolvedMigration.getDescription());
                 }
@@ -275,7 +308,7 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @param resolved            The resolved value.
      * @return The message.
      */
-    private String createMismatchMessage(String mismatch, Object migrationIdentifier, Object applied, Object resolved) {
+    private String createMismatchMessage(String mismatch, String migrationIdentifier, Object applied, Object resolved) {
         return String.format("Migration " + mismatch + " mismatch for migration %s\n" +
                         "-> Applied to database : %s\n" +
                         "-> Resolved locally    : %s",
@@ -291,22 +324,57 @@ public class MigrationInfoImpl implements MigrationInfo {
         MigrationState state = getState();
         MigrationState oState = o.getState();
 
-        if (((getInstalledRank() != null) || (o.getInstalledRank() != null))
-                && (!(state == MigrationState.BELOW_BASELINE || oState == MigrationState.BELOW_BASELINE
-                || state == MigrationState.IGNORED || oState == MigrationState.IGNORED))) {
-            if (getInstalledRank() != null) {
-                return Integer.MIN_VALUE;
-            }
-            if (o.getInstalledRank() != null) {
-                return Integer.MAX_VALUE;
-            }
+        // Below baseline migrations come before applied ones
+        if (state == MigrationState.BELOW_BASELINE && oState.isApplied()) {
+            return Integer.MIN_VALUE;
+        }
+        if (state.isApplied() && oState == MigrationState.BELOW_BASELINE) {
+            return Integer.MAX_VALUE;
         }
 
+        if (state == MigrationState.IGNORED && oState.isApplied()) {
+            if (getVersion() != null && o.getVersion() != null) {
+                return getVersion().compareTo(o.getVersion());
+            }
+            return Integer.MIN_VALUE;
+        }
+        if (state.isApplied() && oState == MigrationState.IGNORED) {
+            if (getVersion() != null && o.getVersion() != null) {
+                return getVersion().compareTo(o.getVersion());
+            }
+            return Integer.MAX_VALUE;
+        }
+
+        // Sort installed before pending
+        if (getInstalledRank() != null) {
+            return Integer.MIN_VALUE;
+        }
+        if (o.getInstalledRank() != null) {
+            return Integer.MAX_VALUE;
+        }
+
+        // No migration installed, sort according to other criteria
+        // Two versioned migrations: sort by version
         if (getVersion() != null && o.getVersion() != null) {
-            return getVersion().compareTo(o.getVersion());
+            int v = getVersion().compareTo(o.getVersion());
+            if (v != 0) {
+                return v;
+            }
+
+
+
+
+
+
+
+
+
+
+
+            return 0;
         }
 
-        // Versioned pending migrations go before repeatable ones
+        // One versioned and one repeatable migration: versioned migration goes before repeatable one
         if (getVersion() != null) {
             return Integer.MIN_VALUE;
         }
@@ -314,6 +382,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             return Integer.MAX_VALUE;
         }
 
+        // Two repeatable migrations: sort by description
         return getDescription().compareTo(o.getDescription());
     }
 

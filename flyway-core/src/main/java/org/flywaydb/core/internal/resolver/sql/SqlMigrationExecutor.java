@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,8 @@ package org.flywaydb.core.internal.resolver.sql;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.SqlScript;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
@@ -32,7 +31,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
     /**
      * Database-specific support.
      */
-    private final DbSupport dbSupport;
+    private final Database database;
 
     /**
      * The placeholder replacer to apply to sql migration scripts.
@@ -44,7 +43,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      * The complete sql script is not held as a member field here because this would use the total size of all
      * sql migrations files in heap space during db migration, see issue 184.
      */
-    private final LoadableResource sqlScriptResource;
+    private final LoadableResource resource;
 
     /**
      * The Flyway configuration.
@@ -59,30 +58,30 @@ public class SqlMigrationExecutor implements MigrationExecutor {
     /**
      * Creates a new sql script migration based on this sql script.
      *
-     * @param dbSupport           The database-specific support.
-     * @param sqlScriptResource   The resource containing the sql script.
+     * @param database            The database-specific support.
+     * @param resource            The resource containing the sql script.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param configuration       The Flyway configuration.
      */
-    public SqlMigrationExecutor(DbSupport dbSupport, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
-        this.dbSupport = dbSupport;
-        this.sqlScriptResource = sqlScriptResource;
+    SqlMigrationExecutor(Database database, LoadableResource resource, PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
+        this.database = database;
+        this.resource = resource;
         this.placeholderReplacer = placeholderReplacer;
         this.configuration = configuration;
     }
 
     @Override
     public void execute(Connection connection) {
-        JdbcTemplate jdbcTemplate = connection == dbSupport.getJdbcTemplate().getConnection()
-                ? dbSupport.getJdbcTemplate()
-                : new JdbcTemplate(connection, 0);
-
-        getSqlScript().execute(jdbcTemplate);
+        getSqlScript().execute(database.getMigrationConnection().getJdbcTemplate());
     }
 
     private synchronized SqlScript getSqlScript() {
         if (sqlScript == null) {
-            sqlScript = new SqlScript(dbSupport, sqlScriptResource, placeholderReplacer, configuration.getEncoding(), configuration.isMixed()
+            sqlScript = database.createSqlScript(resource,
+                    placeholderReplacer.replacePlaceholders(resource.loadAsString(configuration.getEncoding())),
+                    configuration.isMixed()
+
+
 
             );
         }

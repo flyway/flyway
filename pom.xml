@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2010-2017 Boxfuse GmbH
+    Copyright 2010-2018 Boxfuse GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -20,25 +20,11 @@
     <!--
     Detailed information how to contribute: https://flywaydb.org/documentation/contribute/code/
 
-    A number of Jdbc drivers are unfortunately not available from Maven Central due to licensing issues.
-    Instructions for installing them: https://flywaydb.org/documentation/contribute/devEnvironmentSetup.html
-
-    If your contribution does not require changes to the database-specific code it is also possible to run the build
-    without having to install the Jdbc drivers or databases using:
-    mvn -P-InstallableDBTest -P-CommercialDBTest
-
-    If you do not wish to install Oracle, DB2 and SqlServer you can run the build with:
-    mvn -P-CommercialDBTest
-
-    If you wish to run to Vertica, RedShift oder DB2 zOS tests, you can run the build with on of the following:
-    mvn -PVerticaRedshiftDBTest
-    mvn -PDB2zOSDBTest
-
     The OS-specific JREs are unfortunately not available from Maven Central due to licensing issues.
     Instructions for installing them: https://flywaydb.org/documentation/contribute/devEnvironmentSetup.html
 
-    To avoid building the OS-specific flyway-commandline assemblies you can run the build with:
-    mvn -P-CommandlinePlatformAssemblies
+    To build the OS-specific flyway-commandline assemblies you can run the build with:
+    mvn clean install -PCommandlinePlatformAssemblies
     -->
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
@@ -46,21 +32,26 @@
     <version>0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
-    <description>
-        Flyway: Database Migrations Made Easy.
-    </description>
+    <description>Flyway: Database Migrations Made Easy.</description>
     <url>https://flywaydb.org</url>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
-            <url>https://github.com/flyway/flyway/blob/master/LICENSE.txt</url>
+            <url>https://flywaydb.org/licenses/flyway-community.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
     <scm>
+
         <url>https://github.com/flyway/flyway</url>
         <connection>scm:git:https://github.com/flyway/flyway.git</connection>
         <developerConnection>scm:git:https://github.com/flyway/flyway.git</developerConnection>
+
+
+
+
+
+
         <tag>HEAD</tag>
     </scm>
     <developers>
@@ -73,23 +64,23 @@
     <modules>
         <module>flyway-core</module>
         <module>flyway-gradle-plugin</module>
-        <module>flyway-gradle-plugin-largetest</module>
         <module>flyway-maven-plugin</module>
-        <module>flyway-maven-plugin-largetest</module>
-        <module>flyway-sample</module>
-        <module>flyway-sample-webapp</module>
-        <module>flyway-sample-osgi</module>
-        <module>flyway-sample-osgi-fragment</module>
-        <module>flyway-osgi-largetest</module>
         <module>flyway-commandline</module>
-        <module>flyway-commandline-largetest</module>
-        <module>flyway-ant</module>
-        <module>flyway-ant-largetest</module>
-        <module>flyway-sbt</module>
-        <module>flyway-sbt-largetest</module>
+
+
+
+
+
+
+
+
+
+
+
     </modules>
 
     <distributionManagement>
+
         <snapshotRepository>
             <id>sonatype-nexus-snapshots</id>
             <name>Sonatype Nexus Snapshots</name>
@@ -100,6 +91,13 @@
             <name>Nexus Release Repository</name>
             <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
+
+
+
+
+
+
+
     </distributionManagement>
 
     <repositories>
@@ -112,40 +110,43 @@
             <url>https://jcenter.bintray.com/</url>
         </repository>
         <repository>
-            <id>flyway-repo</id>
+            <id>flyway-repo-public</id>
             <url>https://flywaydb.org/repo</url>
         </repository>
         <repository>
-            <id>flyway-repo-private</id>
+            <id>flyway-repo</id>
             <url>s3://flyway-repo/release</url>
         </repository>
-        <repository>
-            <id>git-tzolov</id>
-            <name>tzolov's Git based repo</name>
-            <url>https://github.com/tzolov/maven-repo/raw/master/</url>
-        </repository>
+
+
+
+
+
+
+
+
+
+
     </repositories>
 
     <properties>
         <version.spring>2.5.6</version.spring>
-        <version.appengine>1.9.10</version.appengine>
-        <version.maven>2.2.1</version.maven>
-        <version.gradle>2.3</version.gradle>
+        <version.maven>3.0</version.maven>
+        <version.gradle>3.0</version.gradle>
         <version.derby>10.12.1.1</version.derby>
-        <version.h2>1.4.193</version.h2>
-        <version.hsqldb>2.3.4</version.hsqldb>
+        <version.h2>1.4.196</version.h2>
+        <version.hsqldb>2.4.0</version.hsqldb>
         <version.jtds>1.3.1</version.jtds>
-        <version.mariadb>1.4.5</version.mariadb>
-        <version.postgresql>9.4.1208.jre6</version.postgresql>
-        <version.sqlite>3.7.15-M1</version.sqlite>
-        <version.phoenix>4.4.0-HBase-0.98</version.phoenix>
-        <version.hbase>0.98.12-hadoop2</version.hbase>
-        <version.equinox>3.6.0.v20100517</version.equinox>
-        <version.equinoxcommon>3.6.0.v20100503</version.equinoxcommon>
+        <version.mariadb>2.2.0</version.mariadb>
+        <version.mssql-jdbc>6.2.2.jre7</version.mssql-jdbc>
+        <version.postgresql>42.1.4.jre6</version.postgresql>
+        <version.sqlite>3.20.1</version.sqlite>
+        <version.osgi>4.3.1</version.osgi>
+        <version.equinox>3.12.0</version.equinox>
+        <version.equinoxcommon>3.9.0</version.equinoxcommon>
         <version.android>4.0.1.2</version.android>
         <version.slf4j>1.7.16</version.slf4j>
-        <version.jre>8.74</version.jre>
-        <version.testcontainers>1.4.2</version.testcontainers>
+        <version.jre>8.152</version.jre>
     </properties>
 
     <dependencyManagement>
@@ -193,44 +194,25 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.equinox</groupId>
+                <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.equinox.common</artifactId>
                 <version>${version.equinoxcommon}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.osgi</groupId>
+                <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.osgi</artifactId>
                 <version>${version.equinox}</version>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.12</version>
-                <scope>test</scope>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>${version.osgi}</version>
             </dependency>
             <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>1.9.5</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>1.1.2</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.hsqldb</groupId>
-                <artifactId>hsqldb</artifactId>
-                <version>${version.hsqldb}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>${version.h2}</version>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${version.postgresql}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -246,15 +228,21 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
-                <groupId>org.xerial</groupId>
-                <artifactId>sqlite-jdbc</artifactId>
-                <version>${version.sqlite}</version>
+                <groupId>org.hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>${version.hsqldb}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>5.1.12</version>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${version.h2}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.xerial</groupId>
+                <artifactId>sqlite-jdbc</artifactId>
+                <version>${version.sqlite}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -264,161 +252,77 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
-                <groupId>com.oracle</groupId>
-                <artifactId>ojdbc6</artifactId>
-                <version>12.1.0.1</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.edb</groupId>
-                <artifactId>edb-jdbc17</artifactId>
-                <version>9.5.1.6</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.ibm.db2</groupId>
-                <artifactId>db2jcc4</artifactId>
-                <version>4.17.29</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>${version.postgresql}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
                 <groupId>net.sourceforge.jtds</groupId>
                 <artifactId>jtds</artifactId>
                 <version>${version.jtds}</version>
                 <optional>true</optional>
             </dependency>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
-                <artifactId>sqljdbc4</artifactId>
-                <version>4.0.2206.100</version>
+                <artifactId>mssql-jdbc</artifactId>
+                <version>${version.mssql-jdbc}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
-                <groupId>com.vertica</groupId>
-                <artifactId>vertica-jdbc</artifactId>
-                <version>7.0.0-0</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.pivotal.jdbc</groupId>
-                <artifactId>greenplumdriver</artifactId>
-                <version>5.1.1</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.phoenix</groupId>
-                <artifactId>phoenix-core</artifactId>
-                <version>${version.phoenix}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>log4j</artifactId>
-                        <groupId>log4j</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>org.slf4j</artifactId>
-                        <groupId>slf4j-api</groupId>
-                    </exclusion>
-                </exclusions>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-it</artifactId>
-                <version>${version.hbase}</version>
-                <type>test-jar</type>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>commons-logging</artifactId>
-                        <groupId>commons-logging</groupId>
-                    </exclusion>
-                </exclusions>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-testing-util</artifactId>
-                <version>${version.hbase}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>slf4j-log4j12</artifactId>
-                        <groupId>org.slf4j</groupId>
-                    </exclusion>
-                </exclusions>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-hadoop-compat</artifactId>
-                <version>${version.hbase}</version>
-                <type>test-jar</type>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>commons-logging</artifactId>
-                        <groupId>commons-logging</groupId>
-                    </exclusion>
-                </exclusions>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-hadoop2-compat</artifactId>
-                <version>${version.hbase}</version>
-                <type>test-jar</type>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>commons-logging</artifactId>
-                        <groupId>commons-logging</groupId>
-                    </exclusion>
-                </exclusions>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <!-- force transitive dependency of HBase to a version available in Maven Central -->
-                <groupId>sqlline</groupId>
-                <artifactId>sqlline</artifactId>
-                <version>1.1.9</version>
-            </dependency>
-            <dependency>
-                <groupId>com.ibm</groupId>
-                <artifactId>SolidDriver</artifactId>
-                <version>6.5.0.14_IF21</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.db.jdbc</groupId>
-                <artifactId>ngdbc</artifactId>
-                <version>1.103.0</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.google.appengine</groupId>
-                <artifactId>appengine-api-1.0-sdk</artifactId>
-                <version>${version.appengine}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.google.appengine</groupId>
-                <artifactId>appengine-api-labs</artifactId>
-                <version>${version.appengine}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.google.appengine</groupId>
-                <artifactId>appengine-testing</artifactId>
-                <version>${version.appengine}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.google.appengine</groupId>
-                <artifactId>appengine-api-stubs</artifactId>
-                <version>${version.appengine}</version>
-                <optional>true</optional>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.3.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.android</groupId>
@@ -438,13 +342,13 @@
                 <version>${version.maven}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.maven</groupId>
-                <artifactId>maven-artifact</artifactId>
+                <groupId>org.apache.maven.plugin-tools</groupId>
+                <artifactId>maven-plugin-annotations</artifactId>
                 <version>${version.maven}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
-                <artifactId>maven-project</artifactId>
+                <artifactId>maven-artifact</artifactId>
                 <version>${version.maven}</version>
             </dependency>
             <dependency>
@@ -483,60 +387,38 @@
                 <classifier>macosx-x64</classifier>
                 <type>tar.gz</type>
             </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>${version.testcontainers}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>mysql</artifactId>
-                <version>${version.testcontainers}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>mariadb</artifactId>
-                <version>1.3.0</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>oracle-xe</artifactId>
-                <version>1.2.1</version>
-                <scope>test</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
-        <extensions>
-            <extension>
-                <groupId>com.allogy.maven.wagon</groupId>
-                <artifactId>maven-s3-wagon</artifactId>
-                <version>1.0.1</version>
-            </extension>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-http</artifactId>
-                <version>2.8</version>
-            </extension>
-        </extensions>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         <pluginManagement>
             <plugins>
                 <plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.1.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.1</version>
+                    <version>3.7.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>2.5.1</version>
+                    <version>2.5.2</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
@@ -544,28 +426,30 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.4</version>
+                    <version>3.0.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
                     <version>2.3.7</version>
                 </plugin>
-                <plugin>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.19.1</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.19.1</version>
-                </plugin>
+
+
+
+
+
+
+
+
+
+
                 <plugin>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>3.0.1</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-plugin-plugin</artifactId>
-                    <version>3.2</version>
+                    <version>3.5</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.plexus</groupId>
@@ -574,7 +458,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.10.1</version>
+                    <version>3.0.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -595,29 +479,9 @@
         </pluginManagement>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.14</version>
-                <configuration>
-                    <signature>
-                        <groupId>org.codehaus.mojo.signature</groupId>
-                        <artifactId>java16</artifactId>
-                        <version>1.1</version>
-                    </signature>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>jdk6-apis-only</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
+                    <release>8</release>
                     <source>1.8</source>
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
@@ -635,7 +499,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.2</version>
+                <version>3.0.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -649,7 +513,10 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
-                <version>2.1</version>
+                <version>2.5</version>
+                <configuration>
+                    <generateBackupPoms>false</generateBackupPoms>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-scm-plugin</artifactId>
@@ -707,69 +574,90 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <includes>
-                        <include>**/*SmallTest.java</include>
-                    </includes>
-                    <excludes>
-                        <exclude>**/*MediumTest.java</exclude>
-                    </excludes>
-                    <parallel>methods</parallel>
-                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                    <threadCount>2</threadCount>
-                    <!--perCoreThreadCount>true</perCoreThreadCount-->
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>MediumTests</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                        <configuration>
-                            <encoding>UTF-8</encoding>
-                            <includes>
-                                <include>**/*MediumTest.java</include>
-                            </includes>
-                            <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                            <systemPropertyVariables>
-                                <user.timezone>+00:00</user.timezone>
-                            </systemPropertyVariables>
-                            <parallel>classes</parallel>
-                            <threadCount>2</threadCount>
-                            <perCoreThreadCount>false</perCoreThreadCount>
-                            <argLine>-XX:ReservedCodeCacheSize=128m -Xmx1536m</argLine>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.0.1</version>
-                <executions>
-                    <execution>
-                        <id>enforce-jdk6-or-later</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <requireJavaVersion>
-                                    <version>[1.6,)</version>
-                                </requireJavaVersion>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
@@ -783,9 +671,10 @@
         <plugins>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.1</version>
+                <version>3.0.0</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
+                    <failOnError>false</failOnError>
                 </configuration>
             </plugin>
         </plugins>

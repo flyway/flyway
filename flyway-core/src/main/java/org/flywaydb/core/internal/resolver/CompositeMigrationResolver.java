@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,11 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Scanner;
@@ -45,7 +44,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * The migration resolvers to use internally.
      */
-    private Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
+    private Collection<MigrationResolver> migrationResolvers = new ArrayList<>();
 
     /**
      * The available migrations, sorted by version, newest first. An empty list is returned when no migrations can be
@@ -56,19 +55,19 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * Creates a new CompositeMigrationResolver.
      *
-     * @param dbSupport                The database-specific support.
+     * @param database                The database-specific support.
      * @param scanner                  The Scanner for loading migrations on the classpath.
      * @param configuration            The Flyway configuration.
      * @param locations                The locations where migrations are located.
      * @param placeholderReplacer      The placeholder replacer to use.
      * @param customMigrationResolvers Custom Migration Resolvers.
      */
-    public CompositeMigrationResolver(DbSupport dbSupport, Scanner scanner, FlywayConfiguration configuration, Locations locations,
+    public CompositeMigrationResolver(Database database, Scanner scanner, FlywayConfiguration configuration, Locations locations,
                                       PlaceholderReplacer placeholderReplacer,
                                       MigrationResolver... customMigrationResolvers) {
         if (!configuration.isSkipDefaultResolvers()) {
 
-            migrationResolvers.add(new SqlMigrationResolver(dbSupport, scanner, locations, placeholderReplacer, configuration));
+            migrationResolvers.add(new SqlMigrationResolver(database, scanner, locations, placeholderReplacer, configuration));
             migrationResolvers.add(new JdbcMigrationResolver(scanner, locations, configuration));
 
             if (new FeatureDetector(scanner.getClassLoader()).isSpringJdbcAvailable()) {
@@ -102,7 +101,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @throws FlywayException when the available migrations have overlapping versions.
      */
     private List<ResolvedMigration> doFindAvailableMigrations() throws FlywayException {
-        List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>(collectMigrations(migrationResolvers));
+        List<ResolvedMigration> migrations = new ArrayList<>(collectMigrations(migrationResolvers));
         Collections.sort(migrations, new ResolvedMigrationComparator());
 
         checkForIncompatibilities(migrations);
@@ -118,7 +117,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      */
     /* private -> for testing */
     static Collection<ResolvedMigration> collectMigrations(Collection<MigrationResolver> migrationResolvers) {
-        Set<ResolvedMigration> migrations = new HashSet<ResolvedMigration>();
+        Set<ResolvedMigration> migrations = new HashSet<>();
         for (MigrationResolver migrationResolver : migrationResolvers) {
             migrations.addAll(migrationResolver.resolveMigrations());
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,21 @@ public class ResolvedMigrationComparator implements Comparator<ResolvedMigration
     @Override
     public int compare(ResolvedMigration o1, ResolvedMigration o2) {
         if ((o1.getVersion() != null) && o2.getVersion() != null) {
-            return o1.getVersion().compareTo(o2.getVersion());
+            int v = o1.getVersion().compareTo(o2.getVersion());
+
+
+
+
+
+
+
+
+
+
+
+
+
+            return v;
         }
         if (o1.getVersion() != null) {
             return Integer.MIN_VALUE;

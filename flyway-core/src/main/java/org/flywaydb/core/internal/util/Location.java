@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package org.flywaydb.core.internal.util;
 
 import org.flywaydb.core.api.FlywayException;
+
+import java.io.File;
 
 /**
  * A location to load migrations from.
@@ -34,7 +36,7 @@ public final class Location implements Comparable<Location> {
     /**
      * The prefix part of the location. Can be either classpath: or filesystem:.
      */
-    private String prefix;
+    private final String prefix;
 
     /**
      * The path part of the location.
@@ -47,7 +49,8 @@ public final class Location implements Comparable<Location> {
      * @param descriptor The location descriptor.
      */
     public Location(String descriptor) {
-        String normalizedDescriptor = descriptor.trim().replace("\\", "/");
+        String normalizedDescriptor = descriptor.trim()
+                .replace("\\\\", "\\").replace("\\", "/");
 
         if (normalizedDescriptor.contains(":")) {
             prefix = normalizedDescriptor.substring(0, normalizedDescriptor.indexOf(":") + 1);
@@ -62,11 +65,11 @@ public final class Location implements Comparable<Location> {
             if (path.startsWith("/")) {
                 path = path.substring(1);
             }
+        } else if (isFileSystem()) {
+            path = new File(path).getPath().replace("\\", "/");
         } else {
-            if (!isFileSystem()) {
-                throw new FlywayException("Unknown prefix for location (should be either filesystem: or classpath:): "
-                        + normalizedDescriptor);
-            }
+            throw new FlywayException("Unknown prefix for location (should be either filesystem: or classpath:): "
+                    + normalizedDescriptor);
         }
 
         if (path.endsWith("/")) {
