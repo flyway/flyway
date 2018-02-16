@@ -22,6 +22,7 @@ import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -32,9 +33,12 @@ import org.gradle.api.tasks.TaskAction;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -314,6 +318,14 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String installedBy;
 
     /**
+     * Configurations that will be added to the classpath for running flyway tasks.
+     * <p>
+     * By default flyway respects <code>compile</code>, <code>runtime</code>, <code>testCompile</code>, <code>testRuntime</code> (in this order).
+     * {@code empty list or null} for accepting the default classpath. (default: {@code null}).
+     */
+    public List<Configuration> classpathExtensions;
+
+    /**
      * The fully qualified class names of handlers for errors and warnings that occur during a migration. This can be
      * used to customize Flyway's behavior by for example
      * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
@@ -386,10 +398,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                     extraURLs.add(resourcesUrl);
                 }
 
-                addDependenciesWithScope(extraURLs, "compile");
-                addDependenciesWithScope(extraURLs, "runtime");
-                addDependenciesWithScope(extraURLs, "testCompile");
-                addDependenciesWithScope(extraURLs, "testRuntime");
+                addClasspathDependencies(extraURLs);
             }
 
             ClassLoader classLoader = new URLClassLoader(
@@ -403,10 +412,35 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         }
     }
 
-    private void addDependenciesWithScope(List<URL> urls, String scope) throws IOException {
-        for (ResolvedArtifact artifact : getProject().getConfigurations().getByName(scope).getResolvedConfiguration().getResolvedArtifacts()) {
+    // classpath methods having protected access to allow for adaption/override in a users custom flyway tasks
+    protected void addClasspathDependencies(List<URL> urls) throws IOException {
+        addDefaultClasspathDependencies(urls);
+        addClasspathExtensionDependencies(urls);
+    }
+
+    protected void addDefaultClasspathDependencies(List<URL> urls) throws IOException {
+        for (String scope : Arrays.asList("compile", "runtime", "testCompile", "testRuntime")) {
+            addDependenciesWithScope(urls, scope);
+        }
+    }
+
+    protected void addDependenciesWithScope(List<URL> urls, String scope) throws IOException {
+        final Configuration configuration = getProject().getConfigurations().getByName(scope);
+        addDependenciesWithScope(urls, configuration);
+    }
+
+    protected void addClasspathExtensionDependencies(List<URL> urls) throws IOException {
+        List<Configuration> classPathConfigs = this.classpathExtensions != null ? this.classpathExtensions : nullToEmpty(this.extension.classpathExtensions);
+        for (Configuration configuration : classPathConfigs) {
+            getLogger().debug("Adding extension to classpath: " + configuration);
+            addDependenciesWithScope(urls, configuration);
+        }
+    }
+
+    protected void addDependenciesWithScope(List<URL> urls, Configuration configuration) throws MalformedURLException {
+        for (ResolvedArtifact artifact : configuration.getResolvedConfiguration().getResolvedArtifacts()) {
             URL artifactUrl = artifact.getFile().toURI().toURL();
-            getLogger().debug("Adding Dependency to Classpath: " + artifactUrl);
+            getLogger().debug("Adding dependency to classpath: " + artifactUrl);
             urls.add(artifactUrl);
         }
     }
@@ -649,6 +683,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             return collectMessages(throwable.getCause(), message);
         }
         return message;
+    }
+
+    private List<Configuration> nullToEmpty(List<Configuration> input) {
+        if (input != null) {
+            return input;
+        }
+        return Collections.emptyList();
     }
 
     private boolean isJavaProject() {
