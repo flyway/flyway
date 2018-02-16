@@ -15,9 +15,6 @@
  */
 package org.flywaydb.gradle;
 
-import org.gradle.api.artifacts.Configuration;
-
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -288,12 +285,11 @@ public class FlywayExtension {
     public String installedBy;
 
     /**
-     * Configurations that will be added to the classpath for running flyway tasks.
-     * <p>
-     * By default flyway respects <code>compile</code>, <code>runtime</code>, <code>testCompile</code>, <code>testRuntime</code> (in this order).
-     * {@code empty list or null} for accepting the default classpath. (default: {@code null}).
+     * Gradle configurations that will be added to the classpath for running Flyway tasks.
+     * (default: <code>compile</code>, <code>runtime</code>, <code>testCompile</code>, <code>testRuntime</code>)
+     * <p>Also configurable with Gradle or System Property: ${flyway.configurations}</p>
      */
-    public List<Configuration> classpathExtensions;
+    public String[] configurations;
 
     /**
      * The fully qualified class names of handlers for errors and warnings that occur during a migration. This can be
