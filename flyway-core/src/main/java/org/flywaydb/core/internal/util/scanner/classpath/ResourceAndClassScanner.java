@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.util.scanner.classpath;
 
-import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 /**

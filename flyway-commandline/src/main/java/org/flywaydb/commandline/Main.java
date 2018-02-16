@@ -100,9 +100,8 @@ public class Main {
             classLoader = loadJdbcDrivers(classLoader);
             classLoader = loadJavaMigrationsFromJarDirs(classLoader, properties);
 
-            Flyway flyway = new Flyway(classLoader);
             filterProperties(properties);
-            flyway.configure(properties);
+            Flyway flyway = Flyway.config(classLoader).configure(properties).load();
 
             for (String operation : operations) {
                 executeOperation(flyway, operation);

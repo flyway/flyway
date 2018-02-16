@@ -33,7 +33,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ExceptionUtils;
-import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.File;
@@ -53,10 +53,11 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
  */
 @SuppressWarnings({"JavaDoc", "FieldCanBeLocal", "UnusedDeclaration"})
 abstract class AbstractFlywayMojo extends AbstractMojo {
-    /**
-     * Property name prefix for placeholders that are configured through properties.
-     */
-    private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
+    private static final String CONFIG_WORKING_DIRECTORY = "flyway.workingDirectory";
+    private static final String CONFIG_SERVER_ID = "flyway.serverId";
+    private static final String CONFIG_VERSION = "flyway.version";
+    private static final String CONFIG_SKIP = "flyway.skip";
+    private static final String CONFIG_CURRENT = "flyway.current";
 
     Log log;
 
@@ -64,7 +65,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * Whether to skip the execution of the Maven Plugin for this module.<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.skip}</p>
      */
-    @Parameter(property = "flyway.skip")
+    @Parameter(property = CONFIG_SKIP)
     /* private -> for testing */ boolean skip;
 
     /**
@@ -454,18 +455,28 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * Config files from which to load the Flyway configuration. The names of the individual properties match the ones you would
      * use as Maven or System properties. The encoding of the files is defined by the
-     * flyway.configFileEncoding property, which is UTF-8 by default. Relative paths are relative to the POM.
+     * flyway.configFileEncoding property, which is UTF-8 by default. Relative paths are relative to the POM or
+     * <code>workingDirectory</code> if set.
      * <p/>
      * <p>Also configurable with Maven or System Property: ${flyway.configFiles}</p>
      */
     private File[] configFiles;
 
     /**
+     * The working directory to consider when dealing with relative paths for both config files and location.
+     * (default: basedir, the directory where the POM resides)
+     * <p/>
+     * <p>Also configurable with Maven or System Property: ${flyway.workingDirectory}</p>
+     */
+    @Parameter(property = CONFIG_WORKING_DIRECTORY)
+    private File workingDirectory;
+
+    /**
      * The id of the server tag in settings.xml (default: flyway-db)<br/>
      * The credentials can be specified by user/password or {@code serverId} from settings.xml<br>
      * <p>Also configurable with Maven or System Property: ${flyway.serverId}</p>
      */
-    @Parameter(property = "flyway.serverId")
+    @Parameter(property = CONFIG_SERVER_ID)
     private String serverId = "flyway-db";
 
     /**
@@ -527,7 +538,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         LogFactory.setLogCreator(new MavenLogCreator(this));
         log = LogFactory.getLog(getClass());
 
-        if (getBooleanProperty("flyway.skip", skip)) {
+        if (getBooleanProperty(CONFIG_SKIP, skip)) {
             log.info("Skipping Flyway execution");
             return;
         }
@@ -536,12 +547,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             Set<String> classpathElements = new HashSet<>();
             classpathElements.addAll(mavenProject.getCompileClasspathElements());
             classpathElements.addAll(mavenProject.getRuntimeClasspathElements());
-            System.out.println("CPE: " + classpathElements);
 
             ClassRealm classLoader = (ClassRealm) Thread.currentThread().getContextClassLoader();
             for (String classpathElement : classpathElements) {
                 classLoader.addURL(new File(classpathElement).toURI().toURL());
             }
+
+            File workDir = workingDirectory == null ? mavenProject.getBasedir() : workingDirectory;
 
             if (locations != null) {
                 for (int i = 0; i < locations.length; i++) {
@@ -549,21 +561,20 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                         String newLocation = locations[i].substring(Location.FILESYSTEM_PREFIX.length());
                         File file = new File(newLocation);
                         if (!file.isAbsolute()) {
-                            file = new File(mavenProject.getBasedir(), newLocation);
+                            file = new File(workDir, newLocation);
                         }
                         locations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
                     }
                 }
             } else {
                 locations = new String[]{
-                        Location.FILESYSTEM_PREFIX + mavenProject.getBasedir().getAbsolutePath() + "/src/main/resources/db/migration"
+                        Location.FILESYSTEM_PREFIX + workDir.getAbsolutePath() + "/src/main/resources/db/migration"
                 };
             }
 
             Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
 
-            Map<String, String> conf = new HashMap<>();
-            conf.putAll(loadConfigurationFromDefaultConfigFiles(envVars));
+            Map<String, String> conf = new HashMap<>(loadConfigurationFromDefaultConfigFiles(envVars));
 
             loadCredentialsFromSettings();
 
@@ -615,14 +626,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             }
 
             conf.putAll(ConfigUtils.propertiesToMap(mavenProject.getProperties()));
-            conf.putAll(loadConfigurationFromConfigFiles(envVars));
+            conf.putAll(loadConfigurationFromConfigFiles(workDir, envVars));
             conf.putAll(envVars);
             conf.putAll(ConfigUtils.propertiesToMap(System.getProperties()));
             removeMavenPluginSpecificPropertiesToAvoidWarnings(conf);
 
-            Flyway flyway = new Flyway(classLoader);
-            flyway.configure(conf);
-            doExecute(flyway);
+            doExecute(Flyway.config(classLoader).configure(conf).load());
         } catch (Exception e) {
             throw new MojoExecutionException(e.toString(), ExceptionUtils.getRootCause(e));
         }
@@ -631,40 +640,41 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * Determines the files to use for loading the configuration.
      *
+     * @param workDir The working directory to use.
      * @param envVars The environment variables converted to Flyway properties.
      * @return The configuration files.
      */
-    private List<File> determineConfigFiles(Map<String, String> envVars) {
+    private List<File> determineConfigFiles(File workDir, Map<String, String> envVars) {
         List<File> configFiles = new ArrayList<>();
 
         if (envVars.containsKey(ConfigUtils.CONFIG_FILES)) {
             for (String file : StringUtils.tokenizeToStringArray(envVars.get(ConfigUtils.CONFIG_FILES), ",")) {
-                configFiles.add(toFile(file));
+                configFiles.add(toFile(workDir, file));
             }
             return configFiles;
         }
 
         if (System.getProperties().containsKey(ConfigUtils.CONFIG_FILE)) {
             log.warn(ConfigUtils.CONFIG_FILE + " is deprecated and will be removed in Flyway 6.0. Use " + ConfigUtils.CONFIG_FILES + " instead.");
-            configFiles.add(toFile(System.getProperties().getProperty(ConfigUtils.CONFIG_FILE)));
+            configFiles.add(toFile(workDir, System.getProperties().getProperty(ConfigUtils.CONFIG_FILE)));
             return configFiles;
         }
         if (System.getProperties().containsKey(ConfigUtils.CONFIG_FILES)) {
             for (String file : StringUtils.tokenizeToStringArray(System.getProperties().getProperty(ConfigUtils.CONFIG_FILES), ",")) {
-                configFiles.add(toFile(file));
+                configFiles.add(toFile(workDir, file));
             }
             return configFiles;
         }
 
         if (mavenProject.getProperties().containsKey(ConfigUtils.CONFIG_FILE)) {
             log.warn(ConfigUtils.CONFIG_FILE + " is deprecated and will be removed in Flyway 6.0. Use " + ConfigUtils.CONFIG_FILES + " instead.");
-            configFiles.add(toFile(mavenProject.getProperties().getProperty(ConfigUtils.CONFIG_FILE)));
+            configFiles.add(toFile(workDir, mavenProject.getProperties().getProperty(ConfigUtils.CONFIG_FILE)));
         } else if (configFile != null) {
             configFiles.add(configFile);
         }
         if (mavenProject.getProperties().containsKey(ConfigUtils.CONFIG_FILES)) {
             for (String file : StringUtils.tokenizeToStringArray(mavenProject.getProperties().getProperty(ConfigUtils.CONFIG_FILES), ",")) {
-                configFiles.add(toFile(file));
+                configFiles.add(toFile(workDir, file));
             }
         } else if (this.configFiles != null) {
             configFiles.addAll(Arrays.asList(this.configFiles));
@@ -675,15 +685,16 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * Converts this fileName into a file, adjusting relative paths if necessary to make them relative to the pom.
      *
+     * @param workDir  The working directory to use.
      * @param fileName The name of the file, relative or absolute.
      * @return The resulting file.
      */
-    private File toFile(String fileName) {
+    private File toFile(File workDir, String fileName) {
         File file = new File(fileName);
         if (file.isAbsolute()) {
             return file;
         }
-        return new File(mavenProject.getBasedir(), fileName);
+        return new File(workDir, fileName);
     }
 
     /**
@@ -714,23 +725,25 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         conf.remove(ConfigUtils.CONFIG_FILE);
         conf.remove(ConfigUtils.CONFIG_FILES);
         conf.remove(ConfigUtils.CONFIG_FILE_ENCODING);
-        conf.remove("flyway.current");
-        conf.remove("flyway.skip");
-        conf.remove("flyway.version");
-        conf.remove("flyway.serverId");
+        conf.remove(CONFIG_CURRENT);
+        conf.remove(CONFIG_SKIP);
+        conf.remove(CONFIG_VERSION);
+        conf.remove(CONFIG_SERVER_ID);
+        conf.remove(CONFIG_WORKING_DIRECTORY);
     }
 
     /**
      * Retrieve the properties from the config files (if specified).
      *
+     * @param workDir The working directory to use.
      * @param envVars The environment variables converted to Flyway properties.
      * @return The properties.
      */
-    private Map<String, String> loadConfigurationFromConfigFiles(Map<String, String> envVars) {
+    private Map<String, String> loadConfigurationFromConfigFiles(File workDir, Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(envVars);
 
         Map<String, String> conf = new HashMap<>();
-        for (File configFile : determineConfigFiles(envVars)) {
+        for (File configFile : determineConfigFiles(workDir, envVars)) {
             conf.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
         }
         return conf;
@@ -744,11 +757,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     private Map<String, String> loadConfigurationFromDefaultConfigFiles(Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(envVars);
+        File configFile = new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME);
 
-        Map<String, String> conf = new HashMap<>();
-        conf.putAll(ConfigUtils.loadConfigurationFile(
-                new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
-        return conf;
+        return new HashMap<>(ConfigUtils.loadConfigurationFile(configFile, encoding, false));
     }
 
     /**

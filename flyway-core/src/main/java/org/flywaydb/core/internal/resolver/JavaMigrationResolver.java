@@ -28,7 +28,7 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -48,7 +48,7 @@ public abstract class JavaMigrationResolver<M, E extends MigrationExecutor> impl
     /**
      * The base package on the classpath where to migrations are located.
      */
-    private final Locations locations;
+    private final List<Location> locations;
 
     /**
      * The Scanner to use.
@@ -67,7 +67,7 @@ public abstract class JavaMigrationResolver<M, E extends MigrationExecutor> impl
      * @param scanner       The Scanner for loading migrations on the classpath.
      * @param configuration The configuration to inject (if necessary) in the migration classes.
      */
-    public JavaMigrationResolver(Scanner scanner, Locations locations, FlywayConfiguration configuration) {
+    public JavaMigrationResolver(Scanner scanner, List<Location> locations, FlywayConfiguration configuration) {
         this.locations = locations;
         this.scanner = scanner;
         this.configuration = configuration;
@@ -77,7 +77,7 @@ public abstract class JavaMigrationResolver<M, E extends MigrationExecutor> impl
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<>();
 
-        for (Location location : locations.getLocations()) {
+        for (Location location : locations) {
             if (!location.isClassPath()) {
                 continue;
             }

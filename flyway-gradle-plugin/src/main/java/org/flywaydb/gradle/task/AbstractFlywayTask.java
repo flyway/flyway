@@ -17,8 +17,8 @@ package org.flywaydb.gradle.task;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
@@ -45,11 +45,13 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 /**
  * A base class for all flyway tasks.
  */
+@SuppressWarnings("WeakerAccess")
 public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * The flyway {} block in the build script.
      */
     protected FlywayExtension extension;
+
     /**
      * The fully qualified classname of the jdbc driver to use to connect to the database
      */
@@ -352,6 +354,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         extension = (FlywayExtension) getProject().getExtensions().getByName("flyway");
     }
 
+    @SuppressWarnings("unused")
     @TaskAction
     public Object runTask() {
         try {
@@ -361,6 +364,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
                 for (SourceSet sourceSet : plugin.getSourceSets()) {
                     try {
+                        @SuppressWarnings("JavaReflectionMemberAccess")
                         Method getClassesDirs = SourceSetOutput.class.getMethod("getClassesDirs");
 
                         // use alternative method available in Gradle 4.0
@@ -392,9 +396,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                     extraURLs.toArray(new URL[extraURLs.size()]),
                     getProject().getBuildscript().getClassLoader());
 
-            Flyway flyway = new Flyway(classLoader);
-            flyway.configure(createFlywayConfig());
-            return run(flyway);
+            return run(Flyway.config(classLoader).configure(createFlywayConfig()).load());
         } catch (Exception e) {
             handleException(e);
             return null;
@@ -511,11 +513,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     private Map<String, String> loadConfigurationFromDefaultConfigFiles(Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(envVars);
+        File configFile = new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME);
 
-        Map<String, String> conf = new HashMap<>();
-        conf.putAll(ConfigUtils.loadConfigurationFile(
-                new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
-        return conf;
+        return new HashMap<>(ConfigUtils.loadConfigurationFile(configFile, encoding, false));
     }
 
     /**
