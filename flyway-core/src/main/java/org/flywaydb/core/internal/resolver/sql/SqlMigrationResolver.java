@@ -26,7 +26,7 @@ import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
-import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
@@ -60,7 +60,7 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * The base directories on the classpath where the migrations are located.
      */
-    private final Locations locations;
+    private final List<Location> locations;
 
     /**
      * The placeholder replacer to apply to sql migration scripts.
@@ -81,7 +81,7 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param configuration       The Flyway configuration.
      */
-    public SqlMigrationResolver(Database database, Scanner scanner, Locations locations,
+    public SqlMigrationResolver(Database database, Scanner scanner, List<Location> locations,
                                 PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
         this.database = database;
         this.scanner = scanner;
@@ -95,7 +95,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
         String separator = configuration.getSqlMigrationSeparator();
         String[] suffixes = configuration.getSqlMigrationSuffixes();
-        for (Location location : locations.getLocations()) {
+        for (Location location : locations) {
             scanForMigrations(location, migrations, configuration.getSqlMigrationPrefix(), separator, suffixes,
                     false
 

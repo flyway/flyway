@@ -1,8 +1,12 @@
-###### What version of Flyway are you using?
+###### What version and edition of Flyway are you using?
 
 
 
-###### Which client are you using? (Command-line, Java API, Maven plugin, Gradle plugin, SBT plugin, ANT tasks)
+###### If this is not the latest version, can you reproduce the issue with the latest one as well?
+
+
+
+###### Which client are you using? (Command-line, Java API, Maven plugin, Gradle plugin)
 
 
 
@@ -15,7 +19,7 @@
 
 
 ###### What did you do?
-(Please include the content causing the issue, any relevant configuration settings, and the command you ran)
+(Please include the content causing the issue, any relevant configuration settings, the SQL statement that failed (if relevant) and the command you ran.)
 
 
 

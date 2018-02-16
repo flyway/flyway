@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.api.configuration;
 
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
@@ -221,9 +222,9 @@ public interface FlywayConfiguration {
      * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
      * migrations.</p>
      *
-     * @return Locations to scan recursively for migrations. (default: db/migration)
+     * @return Locations to scan recursively for migrations. (default: classpath:db/migration)
      */
-    String[] getLocations();
+    Location[] getLocations();
 
     /**
      * <p>

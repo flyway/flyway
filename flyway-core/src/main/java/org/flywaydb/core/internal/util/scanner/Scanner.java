@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.util.scanner;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.util.scanner.classpath.ResourceAndClassScanner;
 import org.flywaydb.core.internal.util.scanner.classpath.android.AndroidScanner;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathScanner;

@@ -23,7 +23,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
-import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
@@ -81,14 +81,14 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param configuration       The Flyway configuration.
      */
-    public SqlScriptFlywayCallback(Database database, Scanner scanner, Locations locations,
+    public SqlScriptFlywayCallback(Database database, Scanner scanner, List<Location> locations,
                                    PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
         for (String callback : ALL_CALLBACKS) {
             scripts.put(callback, null);
         }
 
         LOG.debug("Scanning for SQL callbacks ...");
-        for (Location location : locations.getLocations()) {
+        for (Location location : locations) {
             LoadableResource[] resources;
             try {
                 resources = scanner.scanForResources(location, "", configuration.getSqlMigrationSuffixes());

@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
@@ -62,7 +63,8 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param placeholderReplacer      The placeholder replacer to use.
      * @param customMigrationResolvers Custom Migration Resolvers.
      */
-    public CompositeMigrationResolver(Database database, Scanner scanner, FlywayConfiguration configuration, Locations locations,
+    public CompositeMigrationResolver(Database database, Scanner scanner, FlywayConfiguration configuration,
+                                      List<Location> locations,
                                       PlaceholderReplacer placeholderReplacer,
                                       MigrationResolver... customMigrationResolvers) {
         if (!configuration.isSkipDefaultResolvers()) {
