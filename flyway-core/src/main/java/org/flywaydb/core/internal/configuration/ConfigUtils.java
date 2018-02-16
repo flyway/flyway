@@ -95,6 +95,9 @@ public class ConfigUtils {
     // Command-line specific
     public static final String JAR_DIRS = "flyway.jarDirs";
 
+    // Gradle specific
+    public static final String CONFIGURATIONS = "flyway.configurations";
+
     private ConfigUtils() {
         // Utility class
     }
@@ -250,6 +253,11 @@ public class ConfigUtils {
         // Command-line specific
         if ("FLYWAY_JAR_DIRS".equals(key)) {
             return JAR_DIRS;
+        }
+
+        // Gradle specific
+        if ("FLYWAY_CONFIGURATIONS".equals(key)) {
+            return CONFIGURATIONS;
         }
 
         return null;
