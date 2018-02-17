@@ -1,8 +1,9 @@
-###### What version and edition of Flyway are you using?
+###### Which version and edition of Flyway are you using?
 
 
 
 ###### If this is not the latest version, can you reproduce the issue with the latest one as well?
+(Many bugs are fixed in newer releases and upgrading will often resolve the issue)
 
 
 
@@ -10,11 +11,11 @@
 
 
 
-###### What database are you using (type & version)?
+###### Which database are you using (type & version)?
 
 
 
-###### What operating system are you using?
+###### Which operating system are you using?
 
 
 
