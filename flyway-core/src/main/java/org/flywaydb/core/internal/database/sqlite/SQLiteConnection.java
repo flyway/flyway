@@ -21,7 +21,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 
-import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * SQLite connection.
@@ -34,12 +34,12 @@ public class SQLiteConnection extends Connection<SQLiteDatabase> {
      */
     private static boolean schemaMessagePrinted;
 
-    SQLiteConnection(FlywayConfiguration configuration, SQLiteDatabase database, java.sql.Connection connection, int nullType
+    SQLiteConnection(FlywayConfiguration configuration, SQLiteDatabase database, java.sql.Connection connection
 
 
 
     ) {
-        super(configuration, database, connection, nullType
+        super(configuration, database, connection, Types.VARCHAR
 
 
 
@@ -48,7 +48,7 @@ public class SQLiteConnection extends Connection<SQLiteDatabase> {
 
 
     @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaTo(String schema) {
         if (!schemaMessagePrinted) {
             LOG.info("SQLite does not support setting the schema. Default schema NOT changed to " + schema);
             schemaMessagePrinted = true;
@@ -61,7 +61,7 @@ public class SQLiteConnection extends Connection<SQLiteDatabase> {
     }
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String doGetCurrentSchemaName() {
         return "main";
     }
 }

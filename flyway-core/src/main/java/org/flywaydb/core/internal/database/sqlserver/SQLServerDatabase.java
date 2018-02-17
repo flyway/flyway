@@ -27,12 +27,11 @@ import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * SQL Server database.
  */
-public class SQLServerDatabase extends Database {
+public class SQLServerDatabase extends Database<SQLServerConnection> {
     private final boolean azure;
 
     /**
@@ -46,13 +45,13 @@ public class SQLServerDatabase extends Database {
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection
 
 
 
         );
         try {
-            azure = "SQL Azure".equals(mainConnection.getJdbcTemplate().queryForString(
+            azure = "SQL Azure".equals(getMainConnection().getJdbcTemplate().queryForString(
                     "SELECT CAST(SERVERPROPERTY('edition') AS VARCHAR)"));
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine database edition", e);
@@ -60,12 +59,12 @@ public class SQLServerDatabase extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+    protected SQLServerConnection getConnection(Connection connection
 
 
 
     ) {
-        return new SQLServerConnection(configuration, this, connection, nullType
+        return new SQLServerConnection(configuration, this, connection
 
 
 
@@ -145,7 +144,7 @@ public class SQLServerDatabase extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return mainConnection.getJdbcTemplate().queryForString("SELECT SUSER_SNAME()");
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT SUSER_SNAME()");
     }
 
     @Override

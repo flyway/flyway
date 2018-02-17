@@ -24,12 +24,11 @@ import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * DB2 database.
  */
-public class DB2Database extends Database {
+public class DB2Database extends Database<DB2Connection> {
     /**
      * Creates a new instance.
      *
@@ -41,7 +40,7 @@ public class DB2Database extends Database {
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection
 
 
 
@@ -49,12 +48,12 @@ public class DB2Database extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+    protected DB2Connection getConnection(Connection connection
 
 
 
     ) {
-        return new DB2Connection(configuration, this, connection, nullType
+        return new DB2Connection(configuration, this, connection
 
 
 
@@ -124,7 +123,7 @@ public class DB2Database extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return mainConnection.getJdbcTemplate().queryForString("select CURRENT_USER from sysibm.sysdummy1");
+        return getMainConnection().getJdbcTemplate().queryForString("select CURRENT_USER from sysibm.sysdummy1");
     }
 
     @Override

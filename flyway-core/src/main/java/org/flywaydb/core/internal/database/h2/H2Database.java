@@ -18,19 +18,17 @@ package org.flywaydb.core.internal.database.h2;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * H2 database.
  */
-public class H2Database extends Database {
+public class H2Database extends Database<H2Connection> {
     /**
      * Creates a new instance.
      *
@@ -42,7 +40,7 @@ public class H2Database extends Database {
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection
 
 
 
@@ -50,12 +48,12 @@ public class H2Database extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+    protected H2Connection getConnection(Connection connection
 
 
 
     ) {
-        return new H2Connection(configuration, this, connection, nullType
+        return new H2Connection(configuration, this, connection
 
 
 
@@ -91,7 +89,7 @@ public class H2Database extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return mainConnection.getJdbcTemplate().queryForString("SELECT USER()");
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT USER()");
     }
 
     @Override

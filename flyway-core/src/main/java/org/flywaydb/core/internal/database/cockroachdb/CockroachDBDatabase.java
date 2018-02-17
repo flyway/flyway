@@ -28,12 +28,11 @@ import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * CockroachDB database.
  */
-public class CockroachDBDatabase extends Database {
+public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     /**
      * Checks whether this connection is pointing at a CockroachDB instance.
      *
@@ -59,7 +58,7 @@ public class CockroachDBDatabase extends Database {
 
 
     ) {
-        super(configuration, connection, Types.NULL
+        super(configuration, connection
 
 
 
@@ -67,12 +66,12 @@ public class CockroachDBDatabase extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+    protected CockroachDBConnection getConnection(Connection connection
 
 
 
     ) {
-        return new CockroachDBConnection(configuration, this, connection, nullType
+        return new CockroachDBConnection(configuration, this, connection
 
 
 
@@ -107,9 +106,9 @@ public class CockroachDBDatabase extends Database {
     protected Pair<Integer, Integer> determineMajorAndMinorVersion() {
         String version;
         try {
-            version = mainConnection.getJdbcTemplate().queryForString("SELECT value FROM crdb_internal.node_build_info where field='Version'");
+            version = getMainConnection().getJdbcTemplate().queryForString("SELECT value FROM crdb_internal.node_build_info where field='Version'");
             if (version == null) {
-                version = mainConnection.getJdbcTemplate().queryForString("SELECT value FROM crdb_internal.node_build_info where field='Tag'");
+                version = getMainConnection().getJdbcTemplate().queryForString("SELECT value FROM crdb_internal.node_build_info where field='Tag'");
             }
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine CockroachDB version", e);
@@ -127,7 +126,7 @@ public class CockroachDBDatabase extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return mainConnection.getJdbcTemplate().queryForString("(SELECT * FROM [SHOW SESSION_USER])");
+        return getMainConnection().getJdbcTemplate().queryForString("(SELECT * FROM [SHOW SESSION_USER])");
     }
 
     public boolean supportsDdlTransactions() {

@@ -22,17 +22,18 @@ import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * HSQLDB connection.
  */
 public class HSQLDBConnection extends Connection<HSQLDBDatabase> {
-    HSQLDBConnection(FlywayConfiguration configuration, HSQLDBDatabase database, java.sql.Connection connection, int nullType
+    HSQLDBConnection(FlywayConfiguration configuration, HSQLDBDatabase database, java.sql.Connection connection
 
 
 
     ) {
-        super(configuration, database, connection, nullType
+        super(configuration, database, connection, Types.VARCHAR
 
 
 

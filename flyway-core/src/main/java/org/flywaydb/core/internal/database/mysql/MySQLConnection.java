@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -33,12 +34,12 @@ import java.util.concurrent.Callable;
 public class MySQLConnection extends Connection<MySQLDatabase> {
     private static final Log LOG = LogFactory.getLog(MySQLConnection.class);
 
-    MySQLConnection(FlywayConfiguration configuration, MySQLDatabase database, java.sql.Connection connection, int nullType
+    MySQLConnection(FlywayConfiguration configuration, MySQLDatabase database, java.sql.Connection connection
 
 
 
     ) {
-        super(configuration, database, connection, nullType
+        super(configuration, database, connection, Types.VARCHAR
 
 
 

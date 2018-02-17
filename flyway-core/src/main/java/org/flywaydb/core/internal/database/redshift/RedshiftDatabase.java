@@ -25,7 +25,6 @@ import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * Redshift database.
@@ -56,7 +55,7 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection
 
 
 
@@ -64,12 +63,12 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
     }
 
     @Override
-    protected RedshiftConnection getConnection(Connection connection, int nullType
+    protected RedshiftConnection getConnection(Connection connection
 
 
 
     ) {
-        return new RedshiftConnection(configuration, this, connection, nullType
+        return new RedshiftConnection(configuration, this, connection
 
 
 
