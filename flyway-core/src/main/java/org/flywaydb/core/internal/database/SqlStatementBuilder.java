@@ -196,7 +196,7 @@ public class SqlStatementBuilder {
         String lineSimplified = simplifyLine(line);
 
         applyStateChanges(lineSimplified);
-        if (endWithOpenMultilineStringLiteral() || insideMultiLineComment || isSingleLineComment(lineSimplified)) {
+        if (endWithOpenMultilineStringLiteral() || insideMultiLineComment) {
             statement.append(line);
             return;
         }
