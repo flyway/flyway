@@ -20,17 +20,18 @@ import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * Derby connection.
  */
 public class DerbyConnection extends Connection<DerbyDatabase> {
-    DerbyConnection(FlywayConfiguration configuration, DerbyDatabase database, java.sql.Connection connection, int nullType
+    DerbyConnection(FlywayConfiguration configuration, DerbyDatabase database, java.sql.Connection connection
 
 
 
     ) {
-        super(configuration, database, connection, nullType
+        super(configuration, database, connection, Types.VARCHAR
 
 
 

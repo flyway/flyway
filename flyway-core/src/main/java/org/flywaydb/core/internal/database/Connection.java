@@ -163,7 +163,14 @@ public abstract class Connection<D extends Database> implements Closeable {
 
     @Override
     public void close() {
+        restoreOriginalState();
         JdbcUtils.closeConnection(jdbcConnection);
+    }
+
+    /**
+     * Restores this connection to its original state.
+     */
+    protected void restoreOriginalState() {
     }
 
     public java.sql.Connection getJdbcConnection() {

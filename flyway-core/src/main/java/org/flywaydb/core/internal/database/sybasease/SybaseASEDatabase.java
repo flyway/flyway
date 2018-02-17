@@ -25,12 +25,13 @@ import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * Sybase ASE database.
  */
 public class SybaseASEDatabase extends Database<SybaseASEConnection> {
+    private final boolean jconnect;
+
     /**
      * Creates a new Sybase ASE database.
      *
@@ -43,20 +44,21 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
 
 
     ) {
-        super(configuration, connection, jconnect ? Types.VARCHAR : Types.NULL
+        super(configuration, connection
 
 
 
         );
+        this.jconnect = jconnect;
     }
 
     @Override
-    protected SybaseASEConnection getConnection(Connection connection, int nullType
+    protected SybaseASEConnection getConnection(Connection connection
 
 
 
     ) {
-        return new SybaseASEConnection(configuration, this, connection, nullType
+        return new SybaseASEConnection(configuration, this, connection, jconnect
 
 
 
@@ -100,7 +102,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return mainConnection.getJdbcTemplate().queryForString("SELECT user_name()");
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT user_name()");
     }
 
     @Override

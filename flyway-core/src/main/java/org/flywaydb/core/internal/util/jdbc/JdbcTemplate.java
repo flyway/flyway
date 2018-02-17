@@ -15,9 +15,6 @@
  */
 package org.flywaydb.core.internal.util.jdbc;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,8 +32,6 @@ import java.util.Map;
  * Collection of utility methods for querying the DB. Inspired by Spring's JdbcTemplate.
  */
 public class JdbcTemplate {
-    private static final Log LOG = LogFactory.getLog(JdbcTemplate.class);
-
     /**
      * The DB connection to use.
      */
@@ -51,9 +46,8 @@ public class JdbcTemplate {
      * Creates a new JdbcTemplate.
      *
      * @param connection The DB connection to use.
-     * @throws SQLException when the database metadata could not be retrieved.
      */
-    public JdbcTemplate(Connection connection) throws SQLException {
+    public JdbcTemplate(Connection connection) {
         this(connection, Types.NULL);
     }
 

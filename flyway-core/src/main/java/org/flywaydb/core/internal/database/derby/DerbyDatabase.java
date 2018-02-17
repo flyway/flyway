@@ -24,12 +24,11 @@ import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * Derby database.
  */
-public class DerbyDatabase extends Database {
+public class DerbyDatabase extends Database<DerbyConnection> {
     /**
      * Creates a new instance.
      *
@@ -41,7 +40,7 @@ public class DerbyDatabase extends Database {
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection
 
 
 
@@ -49,12 +48,12 @@ public class DerbyDatabase extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+    protected DerbyConnection getConnection(Connection connection
 
 
 
     ) {
-        return new DerbyConnection(configuration, this, connection, nullType
+        return new DerbyConnection(configuration, this, connection
 
 
 
@@ -90,7 +89,7 @@ public class DerbyDatabase extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return mainConnection.getJdbcTemplate().queryForString("SELECT CURRENT_USER FROM SYSIBM.SYSDUMMY1");
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT CURRENT_USER FROM SYSIBM.SYSDUMMY1");
     }
 
     @Override

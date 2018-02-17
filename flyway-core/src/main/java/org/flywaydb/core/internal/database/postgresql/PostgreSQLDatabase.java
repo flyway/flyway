@@ -25,12 +25,11 @@ import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * PostgreSQL database.
  */
-public class PostgreSQLDatabase extends Database {
+public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
     /**
      * Creates a new instance.
      *
@@ -42,7 +41,7 @@ public class PostgreSQLDatabase extends Database {
 
 
     ) {
-        super(configuration, connection, Types.NULL
+        super(configuration, connection
 
 
 
@@ -50,12 +49,12 @@ public class PostgreSQLDatabase extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+    protected PostgreSQLConnection getConnection(Connection connection
 
 
 
     ) {
-        return new PostgreSQLConnection(configuration, this, connection, nullType
+        return new PostgreSQLConnection(configuration, this, connection
 
 
 
@@ -99,7 +98,7 @@ public class PostgreSQLDatabase extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return mainConnection.getJdbcTemplate().queryForString("SELECT current_user");
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT current_user");
     }
 
     @Override

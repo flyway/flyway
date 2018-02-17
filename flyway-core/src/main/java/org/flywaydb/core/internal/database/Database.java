@@ -49,9 +49,14 @@ public abstract class Database<C extends Connection> implements Closeable {
     protected final DatabaseMetaData jdbcMetaData;
 
     /**
+     * The main JDBC connection to use.
+     */
+    private final java.sql.Connection mainJdbcConnection;
+
+    /**
      * The main connection to use.
      */
-    protected final C mainConnection;
+    protected C mainConnection;
 
     /**
      * The connection to use for migrations.
@@ -61,11 +66,6 @@ public abstract class Database<C extends Connection> implements Closeable {
 
 
 
-
-    /**
-     * The type to assign to a null value.
-     */
-    private final int nullType;
 
     /**
      * The major version of the database.
@@ -82,25 +82,19 @@ public abstract class Database<C extends Connection> implements Closeable {
      *
      * @param configuration The Flyway configuration.
      * @param connection    The main connection to use.
-     * @param nullType      The type to assign to a null value.
      */
-    public Database(FlywayConfiguration configuration, java.sql.Connection connection, int nullType
+    public Database(FlywayConfiguration configuration, java.sql.Connection connection
 
 
 
     ) {
         this.configuration = configuration;
+        this.mainJdbcConnection = connection;
         try {
             this.jdbcMetaData = connection.getMetaData();
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to get metadata for connection", e);
         }
-        this.mainConnection = getConnection(connection, nullType
-
-
-
-        );
-        this.nullType = nullType;
 
 
 
@@ -108,17 +102,15 @@ public abstract class Database<C extends Connection> implements Closeable {
         Pair<Integer, Integer> majorMinor = determineMajorAndMinorVersion();
         majorVersion = majorMinor.getLeft();
         minorVersion = majorMinor.getRight();
-        ensureSupported();
     }
 
     /**
      * Retrieves a Flyway Connection for this JDBC connection.
      *
      * @param connection The JDBC connection to wrap.
-     * @param nullType   The JDBC type to assign to a null value.
      * @return The Flyway Connection.
      */
-    protected abstract C getConnection(java.sql.Connection connection, int nullType
+    protected abstract C getConnection(java.sql.Connection connection
 
 
 
@@ -284,6 +276,13 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @return The main connection, used to manipulate the schema history.
      */
     public final C getMainConnection() {
+        if (mainConnection == null) {
+            this.mainConnection = getConnection(mainJdbcConnection
+
+
+
+            );
+        }
         return mainConnection;
     }
 
@@ -294,7 +293,7 @@ public abstract class Database<C extends Connection> implements Closeable {
         if (migrationConnection == null) {
             this.migrationConnection = useSingleConnection()
                     ? mainConnection
-                    : getConnection(JdbcUtils.openConnection(configuration.getDataSource()), nullType
+                    : getConnection(JdbcUtils.openConnection(configuration.getDataSource())
 
 
 
@@ -366,6 +365,8 @@ public abstract class Database<C extends Connection> implements Closeable {
         if (!useSingleConnection() && migrationConnection != null) {
             migrationConnection.close();
         }
-        mainConnection.close();
+        if (mainConnection != null) {
+            mainConnection.close();
+        }
     }
 }

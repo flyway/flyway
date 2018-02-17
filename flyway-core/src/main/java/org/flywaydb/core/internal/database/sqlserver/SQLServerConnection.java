@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.concurrent.Callable;
 
 /**
@@ -40,12 +41,12 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
      */
     private static boolean schemaMessagePrinted;
 
-    SQLServerConnection(FlywayConfiguration configuration, SQLServerDatabase database, java.sql.Connection connection, int nullType
+    SQLServerConnection(FlywayConfiguration configuration, SQLServerDatabase database, java.sql.Connection connection
 
 
 
     ) {
-        super(configuration, database, connection, nullType
+        super(configuration, database, connection, Types.VARCHAR
 
 
 
