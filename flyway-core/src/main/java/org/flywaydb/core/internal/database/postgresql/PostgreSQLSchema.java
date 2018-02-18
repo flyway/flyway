@@ -15,10 +15,10 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.database.Type;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
      * Creates a new PostgreSQL schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param name         The name of the schema.
      */
     PostgreSQLSchema(JdbcTemplate jdbcTemplate, PostgreSQLDatabase database, String name) {
@@ -142,7 +142,6 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> generateDropStatementsForBaseTypes(boolean recreate) throws SQLException {
-
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
                         "select typname, typcategory from pg_catalog.pg_type t "
