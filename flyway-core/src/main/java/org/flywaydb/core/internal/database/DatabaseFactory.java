@@ -73,6 +73,20 @@ public class DatabaseFactory {
             LOG.info("Database: " + getJdbcUrl(connection) + " (" + databaseProductName + ")");
         }
 
+        Database database = createDatabase(configuration, connection, databaseProductName
+
+
+
+        );
+        database.ensureSupported();
+        return database;
+    }
+
+    private static Database createDatabase(FlywayConfiguration configuration, Connection connection, String databaseProductName
+
+
+
+    ) {
         if (databaseProductName.startsWith("Apache Derby")) {
             return new DerbyDatabase(configuration, connection
 

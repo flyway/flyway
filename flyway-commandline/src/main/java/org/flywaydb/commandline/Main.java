@@ -100,9 +100,8 @@ public class Main {
             classLoader = loadJdbcDrivers(classLoader);
             classLoader = loadJavaMigrationsFromJarDirs(classLoader, properties);
 
-            Flyway flyway = new Flyway(classLoader);
             filterProperties(properties);
-            flyway.configure(properties);
+            Flyway flyway = Flyway.config(classLoader).configure(properties).load();
 
             for (String operation : operations) {
                 executeOperation(flyway, operation);
@@ -248,7 +247,7 @@ public class Main {
         LOG.info("clean    : Drops all objects in the configured schemas");
         LOG.info("info     : Prints the information about applied, current and pending migrations");
         LOG.info("validate : Validates the applied migrations against the ones on the classpath");
-        LOG.info("undo     : Undoes the most recently applied versioned migration");
+        LOG.info("undo     : [" + "pro] Undoes the most recently applied versioned migration");
         LOG.info("baseline : Baselines an existing database at the baselineVersion");
         LOG.info("repair   : Repairs the schema history table");
         LOG.info("");
@@ -264,7 +263,7 @@ public class Main {
         LOG.info("resolvers                    : Comma-separated list of custom MigrationResolvers");
         LOG.info("skipDefaultResolvers         : Skips default resolvers (jdbc, sql and Spring-jdbc)");
         LOG.info("sqlMigrationPrefix           : File name prefix for versioned SQL migrations");
-        LOG.info("undoSqlMigrationPrefix       : File name prefix for undo SQL migrations");
+        LOG.info("undoSqlMigrationPrefix       : [" + "pro] File name prefix for undo SQL migrations");
         LOG.info("repeatableSqlMigrationPrefix : File name prefix for repeatable SQL migrations");
         LOG.info("sqlMigrationSeparator        : File name separator for sql migrations");
         LOG.info("sqlMigrationSuffixes         : Comma-separated list of file name suffixes for sql migrations");
@@ -281,6 +280,7 @@ public class Main {
         LOG.info("skipDefaultCallbacks         : Skips default callbacks (sql)");
         LOG.info("validateOnMigrate            : Validate when running migrate");
         LOG.info("ignoreMissingMigrations      : Allow missing migrations when validating");
+        LOG.info("ignoreIgnoredMigrations      : Allow ignored migrations when validating");
         LOG.info("ignoreFutureMigrations       : Allow future migrations when validating");
         LOG.info("cleanOnValidationError       : Automatically clean on a validation error");
         LOG.info("cleanDisabled                : Whether to disable clean");
@@ -290,8 +290,8 @@ public class Main {
         LOG.info("configFiles                  : Comma-separated list of config files to use");
         LOG.info("configFileEncoding           : Encoding to use when loading the config files");
         LOG.info("jarDirs                      : Comma-separated list of dirs for Jdbc drivers & Java migrations");
-        LOG.info("dryRunOutput                 : File where to output the SQL statements of a migration dry run");
-        LOG.info("errorHandlers                : Comma-separated list of handlers for errors and warnings");
+        LOG.info("dryRunOutput                 : [" + "pro] File where to output the SQL statements of a migration dry run");
+        LOG.info("errorHandlers                : [" + "pro] Comma-separated list of handlers for errors and warnings");
         LOG.info("");
         LOG.info("Flags");
         LOG.info("-----");

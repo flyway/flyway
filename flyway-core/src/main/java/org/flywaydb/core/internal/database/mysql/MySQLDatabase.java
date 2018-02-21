@@ -25,12 +25,11 @@ import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * MySQL database.
  */
-public class MySQLDatabase extends Database {
+public class MySQLDatabase extends Database<MySQLConnection> {
     /**
      * Creates a new instance.
      *
@@ -42,7 +41,7 @@ public class MySQLDatabase extends Database {
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection
 
 
 
@@ -50,12 +49,12 @@ public class MySQLDatabase extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+    protected MySQLConnection getConnection(Connection connection
 
 
 
     ) {
-        return new MySQLConnection(configuration, this, connection, nullType
+        return new MySQLConnection(configuration, this, connection
 
 
 
@@ -117,7 +116,7 @@ public class MySQLDatabase extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return mainConnection.getJdbcTemplate().queryForString("SELECT SUBSTRING_INDEX(USER(),'@',1)");
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT SUBSTRING_INDEX(USER(),'@',1)");
     }
 
     @Override

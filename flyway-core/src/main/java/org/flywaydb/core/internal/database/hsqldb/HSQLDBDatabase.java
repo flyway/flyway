@@ -23,12 +23,11 @@ import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
-import java.sql.Types;
 
 /**
  * HSQLDB database.
  */
-public class HSQLDBDatabase extends Database {
+public class HSQLDBDatabase extends Database<HSQLDBConnection> {
     /**
      * Creates a new instance.
      *
@@ -40,7 +39,7 @@ public class HSQLDBDatabase extends Database {
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection
 
 
 
@@ -48,12 +47,12 @@ public class HSQLDBDatabase extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+    protected HSQLDBConnection getConnection(Connection connection
 
 
 
     ) {
-        return new HSQLDBConnection(configuration, this, connection, nullType
+        return new HSQLDBConnection(configuration, this, connection
 
 
 

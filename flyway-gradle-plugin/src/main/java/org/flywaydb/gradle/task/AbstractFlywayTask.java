@@ -17,12 +17,13 @@ package org.flywaydb.gradle.task;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.ResolvedArtifact;
+import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
@@ -31,25 +32,36 @@ import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
 /**
  * A base class for all flyway tasks.
  */
+@SuppressWarnings("WeakerAccess")
 public abstract class AbstractFlywayTask extends DefaultTask {
+    /**
+     * The default Gradle configurations to use.
+     */
+    private static final String[] DEFAULT_CONFIGURATIONS = {"compile", "runtime", "testCompile", "testRuntime"};
+
     /**
      * The flyway {} block in the build script.
      */
     protected FlywayExtension extension;
+
     /**
      * The fully qualified classname of the jdbc driver to use to connect to the database
      */
@@ -246,6 +258,21 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean ignoreMissingMigrations;
 
     /**
+     * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
+     * already migrated migrations in this version. For example: we have migrations available on the classpath with
+     * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
+     * one was 2.0.0. But with the next release a new migration was added to version 1: 1.0.16. Such scenario is ignored
+     * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
+     * will not be reported by validate command. This is useful for situations where one must be able to deliver
+     * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
+     * development of older versions.
+     * <p>
+     * {@code true} to continue normally, {@code false} to fail fast with an exception.
+     * (default: {@code false})
+     */
+    public Boolean ignoreIgnoredMigrations;
+
+    /**
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
@@ -297,6 +324,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String installedBy;
 
     /**
+     * Gradle configurations that will be added to the classpath for running Flyway tasks.
+     * (default: <code>compile</code>, <code>runtime</code>, <code>testCompile</code>, <code>testRuntime</code>)
+     * <p>Also configurable with Gradle or System Property: ${flyway.configurations}</p>
+     */
+    public String[] configurations;
+
+    /**
      * The fully qualified class names of handlers for errors and warnings that occur during a migration. This can be
      * used to customize Flyway's behavior by for example
      * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
@@ -337,61 +371,84 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         extension = (FlywayExtension) getProject().getExtensions().getByName("flyway");
     }
 
+    @SuppressWarnings("unused")
     @TaskAction
     public Object runTask() {
         try {
-            List<URL> extraURLs = new ArrayList<>();
+            Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
+
+            Set<URL> extraURLs = new HashSet<>();
             if (isJavaProject()) {
-                JavaPluginConvention plugin = getProject().getConvention().getPlugin(JavaPluginConvention.class);
-
-                for (SourceSet sourceSet : plugin.getSourceSets()) {
-                    try {
-                        Method getClassesDirs = SourceSetOutput.class.getMethod("getClassesDirs");
-
-                        // use alternative method available in Gradle 4.0
-                        FileCollection classesDirs = (FileCollection) getClassesDirs.invoke(sourceSet.getOutput());
-                        for (File directory : classesDirs.getFiles()) {
-                            URL classesUrl = directory.toURI().toURL();
-                            getLogger().debug("Adding directory to Classpath: " + classesUrl);
-                            extraURLs.add(classesUrl);
-                        }
-                    } catch (NoSuchMethodException e) {
-                        // use original method available in Gradle 3.x
-                        URL classesUrl = sourceSet.getOutput().getClassesDir().toURI().toURL();
-                        getLogger().debug("Adding directory to Classpath: " + classesUrl);
-                        extraURLs.add(classesUrl);
-                    }
-
-                    URL resourcesUrl = sourceSet.getOutput().getResourcesDir().toURI().toURL();
-                    getLogger().debug("Adding directory to Classpath: " + resourcesUrl);
-                    extraURLs.add(resourcesUrl);
-                }
-
-                addDependenciesWithScope(extraURLs, "compile");
-                addDependenciesWithScope(extraURLs, "runtime");
-                addDependenciesWithScope(extraURLs, "testCompile");
-                addDependenciesWithScope(extraURLs, "testRuntime");
+                addClassesAndResourcesDirs(extraURLs);
+                addConfigurationArtifacts(determineConfigurations(envVars), extraURLs);
             }
 
             ClassLoader classLoader = new URLClassLoader(
                     extraURLs.toArray(new URL[extraURLs.size()]),
                     getProject().getBuildscript().getClassLoader());
 
-            Flyway flyway = new Flyway(classLoader);
-            flyway.configure(createFlywayConfig());
-            return run(flyway);
+            return run(Flyway.config(classLoader).configure(createFlywayConfig(envVars)).load());
         } catch (Exception e) {
             handleException(e);
             return null;
         }
     }
 
-    private void addDependenciesWithScope(List<URL> urls, String scope) throws IOException {
-        for (ResolvedArtifact artifact : getProject().getConfigurations().getByName(scope).getResolvedConfiguration().getResolvedArtifacts()) {
-            URL artifactUrl = artifact.getFile().toURI().toURL();
-            getLogger().debug("Adding Dependency to Classpath: " + artifactUrl);
-            urls.add(artifactUrl);
+    private void addClassesAndResourcesDirs(Set<URL> extraURLs) throws IllegalAccessException, InvocationTargetException, MalformedURLException {
+        JavaPluginConvention plugin = getProject().getConvention().getPlugin(JavaPluginConvention.class);
+
+        for (SourceSet sourceSet : plugin.getSourceSets()) {
+            try {
+                @SuppressWarnings("JavaReflectionMemberAccess")
+                Method getClassesDirs = SourceSetOutput.class.getMethod("getClassesDirs");
+
+                // use alternative method available in Gradle 4.0
+                FileCollection classesDirs = (FileCollection) getClassesDirs.invoke(sourceSet.getOutput());
+                for (File directory : classesDirs.getFiles()) {
+                    URL classesUrl = directory.toURI().toURL();
+                    getLogger().debug("Adding directory to Classpath: " + classesUrl);
+                    extraURLs.add(classesUrl);
+                }
+            } catch (NoSuchMethodException e) {
+                // use original method available in Gradle 3.x
+                URL classesUrl = sourceSet.getOutput().getClassesDir().toURI().toURL();
+                getLogger().debug("Adding directory to Classpath: " + classesUrl);
+                extraURLs.add(classesUrl);
+            }
+
+            URL resourcesUrl = sourceSet.getOutput().getResourcesDir().toURI().toURL();
+            getLogger().debug("Adding directory to Classpath: " + resourcesUrl);
+            extraURLs.add(resourcesUrl);
         }
+    }
+
+    private void addConfigurationArtifacts(String[] configurations, Set<URL> urls) throws IOException {
+        for (String configuration : configurations) {
+            getLogger().debug("Adding configuration to classpath: " + configuration);
+            ResolvedConfiguration resolvedConfiguration =
+                    getProject().getConfigurations().getByName(configuration).getResolvedConfiguration();
+            for (ResolvedArtifact artifact : resolvedConfiguration.getResolvedArtifacts()) {
+                URL artifactUrl = artifact.getFile().toURI().toURL();
+                getLogger().debug("Adding artifact to classpath: " + artifactUrl);
+                urls.add(artifactUrl);
+            }
+        }
+    }
+
+    private String[] determineConfigurations(Map<String, String> envVars) {
+        if (envVars.containsKey(ConfigUtils.CONFIGURATIONS)) {
+            return StringUtils.tokenizeToStringArray(envVars.get(ConfigUtils.CONFIGURATIONS), ",");
+        }
+        if (System.getProperties().containsKey(ConfigUtils.CONFIGURATIONS)) {
+            return StringUtils.tokenizeToStringArray(System.getProperties().getProperty(ConfigUtils.CONFIGURATIONS), ",");
+        }
+        if (configurations != null) {
+            return configurations;
+        }
+        if (extension.configurations != null) {
+            return extension.configurations;
+        }
+        return DEFAULT_CONFIGURATIONS;
     }
 
     /**
@@ -405,11 +462,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * Creates the Flyway config to use.
      */
-    private Map<String, String> createFlywayConfig() {
+    private Map<String, String> createFlywayConfig(Map<String, String> envVars) {
         Map<String, String> conf = new HashMap<>();
         conf.put(ConfigUtils.LOCATIONS, Location.FILESYSTEM_PREFIX + getProject().getProjectDir().getAbsolutePath() + "/src/main/resources/db/migration");
 
-        Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
         addConfigFromProperties(conf, loadConfigurationFromDefaultConfigFiles(envVars));
 
         putIfSet(conf, ConfigUtils.DRIVER, driver, extension.driver);
@@ -437,6 +493,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate, extension.validateOnMigrate);
         putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError, extension.cleanOnValidationError);
         putIfSet(conf, ConfigUtils.IGNORE_MISSING_MIGRATIONS, ignoreMissingMigrations, extension.ignoreMissingMigrations);
+        putIfSet(conf, ConfigUtils.IGNORE_IGNORED_MIGRATIONS, ignoreIgnoredMigrations, extension.ignoreIgnoredMigrations);
         putIfSet(conf, ConfigUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations, extension.ignoreFutureMigrations);
         putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled, extension.cleanDisabled);
         putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate, extension.baselineOnMigrate);
@@ -495,11 +552,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     private Map<String, String> loadConfigurationFromDefaultConfigFiles(Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(envVars);
+        File configFile = new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME);
 
-        Map<String, String> conf = new HashMap<>();
-        conf.putAll(ConfigUtils.loadConfigurationFile(
-                new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
-        return conf;
+        return new HashMap<>(ConfigUtils.loadConfigurationFile(configFile, encoding, false));
     }
 
     /**
@@ -593,6 +648,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     private static void removeGradlePluginSpecificPropertiesToAvoidWarnings(Map<String, String> conf) {
         conf.remove(ConfigUtils.CONFIG_FILES);
         conf.remove(ConfigUtils.CONFIG_FILE_ENCODING);
+        conf.remove(ConfigUtils.CONFIGURATIONS);
         conf.remove("flyway.version");
     }
 

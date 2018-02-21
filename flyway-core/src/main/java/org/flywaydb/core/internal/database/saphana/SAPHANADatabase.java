@@ -22,7 +22,6 @@ import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
-import java.sql.Types;
 
 /**
  * SAP HANA database.
@@ -38,7 +37,7 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection
 
 
 
@@ -46,12 +45,12 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     }
 
     @Override
-    protected SAPHANAConnection getConnection(Connection connection, int nullType
+    protected SAPHANAConnection getConnection(Connection connection
 
 
 
     ) {
-        return new SAPHANAConnection(configuration, this, connection, nullType
+        return new SAPHANAConnection(configuration, this, connection
 
 
 

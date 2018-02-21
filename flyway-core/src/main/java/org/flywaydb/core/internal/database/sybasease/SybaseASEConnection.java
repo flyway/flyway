@@ -21,7 +21,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 
-import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * Sybase ASE Connection.
@@ -34,12 +34,12 @@ public class SybaseASEConnection extends Connection<SybaseASEDatabase> {
      */
     private static boolean schemaMessagePrinted;
 
-    SybaseASEConnection(FlywayConfiguration configuration, SybaseASEDatabase database, java.sql.Connection connection, int nullType
+    SybaseASEConnection(FlywayConfiguration configuration, SybaseASEDatabase database, java.sql.Connection connection, boolean jconnect
 
 
 
     ) {
-        super(configuration, database, connection, nullType
+        super(configuration, database, connection, jconnect ? Types.VARCHAR : Types.NULL
 
 
 
@@ -54,12 +54,12 @@ public class SybaseASEConnection extends Connection<SybaseASEDatabase> {
     }
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String doGetCurrentSchemaName() {
         return "dbo";
     }
 
     @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaTo(String schema) {
         if (!schemaMessagePrinted) {
             LOG.info("Sybase ASE does not support setting the schema for the current session. Default schema NOT changed to " + schema);
             schemaMessagePrinted = true;

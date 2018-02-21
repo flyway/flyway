@@ -20,17 +20,18 @@ import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * H2 connection.
  */
 public class H2Connection extends Connection<H2Database> {
-    H2Connection(FlywayConfiguration configuration, H2Database database, java.sql.Connection connection, int nullType
+    H2Connection(FlywayConfiguration configuration, H2Database database, java.sql.Connection connection
 
 
 
     ) {
-        super(configuration, database, connection, nullType
+        super(configuration, database, connection, Types.VARCHAR
 
 
 
