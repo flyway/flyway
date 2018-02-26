@@ -16,10 +16,10 @@
 package org.flywaydb.core.internal.database.sqlite;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
@@ -63,8 +63,14 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     protected final void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
 
-        if (majorVersion < 3) {
+        FeatureDetector featureDetector = new FeatureDetector(configuration.getClassLoader());
+
+        if (majorVersion < 3 && !featureDetector.isAndroidAvailable()) {
             throw new FlywayDbUpgradeRequiredException("SQLite", version, "3.7.2");
+        }
+
+        if (majorVersion < 1 && featureDetector.isAndroidAvailable()) {
+            throw new FlywayDbUpgradeRequiredException("SQLite", version, "1.0.3");
         }
     }
 
