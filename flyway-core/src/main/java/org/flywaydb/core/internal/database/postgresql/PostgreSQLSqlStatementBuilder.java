@@ -75,6 +75,10 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected void applyStateChanges(String line) {
+        if (pgCopy) {
+            return;
+        }
+
         super.applyStateChanges(line);
 
         if (!executeInTransaction) {
