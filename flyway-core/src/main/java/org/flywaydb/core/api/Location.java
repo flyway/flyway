@@ -47,8 +47,7 @@ public final class Location implements Comparable<Location> {
      * @param descriptor The location descriptor.
      */
     public Location(String descriptor) {
-        String normalizedDescriptor = descriptor.trim()
-                .replace("\\\\", "\\").replace("\\", "/");
+        String normalizedDescriptor = descriptor.trim();
 
         if (normalizedDescriptor.contains(":")) {
             prefix = normalizedDescriptor.substring(0, normalizedDescriptor.indexOf(":") + 1);
@@ -63,14 +62,17 @@ public final class Location implements Comparable<Location> {
             if (path.startsWith("/")) {
                 path = path.substring(1);
             }
+            if (path.endsWith("/")) {
+                path = path.substring(0, path.length() - 1);
+            }
         } else if (isFileSystem()) {
-            path = new File(path).getPath().replace("\\", "/");
+            path = new File(path).getPath();
         } else {
             throw new FlywayException("Unknown prefix for location (should be either filesystem: or classpath:): "
                     + normalizedDescriptor);
         }
 
-        if (path.endsWith("/")) {
+        if (path.endsWith(File.separator)) {
             path = path.substring(0, path.length() - 1);
         }
     }
@@ -99,8 +101,15 @@ public final class Location implements Comparable<Location> {
      * @param other The other location.
      * @return {@code true} if it is, {@code false} if it isn't.
      */
+    @SuppressWarnings("SimplifiableIfStatement")
     public boolean isParentOf(Location other) {
-        return (other.getDescriptor() + "/").startsWith(getDescriptor() + "/");
+        if (isClassPath() && other.isClassPath()) {
+            return (other.getDescriptor() + "/").startsWith(getDescriptor() + "/");
+        }
+        if (isFileSystem() && other.isFileSystem()) {
+            return (other.getPath() + File.separator).startsWith(getDescriptor() + File.separator);
+        }
+        return false;
     }
 
     /**

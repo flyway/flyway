@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.util.scanner.filesystem;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.FileCopyUtils;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.io.File;
@@ -43,14 +42,14 @@ public class FileSystemResource implements LoadableResource, Comparable<FileSyst
      * @param location The location of the resource on the filesystem.
      */
     public FileSystemResource(String location) {
-        this.location = new File(location.replace("\\", "/").replace("//", "/"));
+        this.location = new File(new File(location).getPath());
     }
 
     /**
      * @return The location of the resource on the filesystem.
      */
     public String getLocation() {
-        return location.getPath().replace("\\", "/");
+        return location.getPath();
     }
 
     /**
