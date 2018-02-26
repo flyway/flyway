@@ -95,6 +95,11 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
         return true;
     }
 
+    @Override
+    protected boolean supportsChangingCurrentSchema() {
+        return false;
+    }
+
 
 
 

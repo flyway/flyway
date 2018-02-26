@@ -39,12 +39,12 @@ public class DB2Connection extends Connection<DB2Database> {
     }
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         return jdbcTemplate.queryForString("select current_schema from sysibm.sysdummy1");
     }
 
     @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + database.quote(schema));
     }
 

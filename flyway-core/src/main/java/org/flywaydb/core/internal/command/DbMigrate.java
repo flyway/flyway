@@ -115,54 +115,52 @@ public class DbMigrate {
      * @throws FlywayException when migration failed.
      */
     public int migrate() throws FlywayException {
-        try {
-            for (final FlywayCallback callback : effectiveCallbacks) {
-                new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() {
-                        connectionUserObjects.changeCurrentSchemaTo(schema);
-                        callback.beforeMigrate(connectionUserObjects.getJdbcConnection());
-                        return null;
-                    }
-                });
-            }
-
-            StopWatch stopWatch = new StopWatch();
-            stopWatch.start();
-
-            schemaHistory.create();
-
-            int count = configuration.isGroup() ?
-                    // When group is active, start the transaction boundary early to
-                    // ensure that all changes to the schema history table are either committed or rolled back atomically.
-                    schemaHistory.lock(new Callable<Integer>() {
-                        @Override
-                        public Integer call() {
-                            return migrateAll();
-                        }
-                    }) :
-                    // For all regular cases, proceed with the migration as usual.
-                    migrateAll();
-
-            stopWatch.stop();
-
-            logSummary(count, stopWatch.getTotalTimeMillis());
-
-            for (final FlywayCallback callback : effectiveCallbacks) {
-                new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() {
-                        connectionUserObjects.changeCurrentSchemaTo(schema);
-                        callback.afterMigrate(connectionUserObjects.getJdbcConnection());
-                        return null;
-                    }
-                });
-            }
-
-            return count;
-        } finally {
-            connectionUserObjects.restoreCurrentSchema();
+        for (final FlywayCallback callback : effectiveCallbacks) {
+            new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
+                @Override
+                public Object call() {
+                    connectionUserObjects.restoreOriginalState();
+                    connectionUserObjects.changeCurrentSchemaTo(schema);
+                    callback.beforeMigrate(connectionUserObjects.getJdbcConnection());
+                    return null;
+                }
+            });
         }
+
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        schemaHistory.create();
+
+        int count = configuration.isGroup() ?
+                // When group is active, start the transaction boundary early to
+                // ensure that all changes to the schema history table are either committed or rolled back atomically.
+                schemaHistory.lock(new Callable<Integer>() {
+                    @Override
+                    public Integer call() {
+                        return migrateAll();
+                    }
+                }) :
+                // For all regular cases, proceed with the migration as usual.
+                migrateAll();
+
+        stopWatch.stop();
+
+        logSummary(count, stopWatch.getTotalTimeMillis());
+
+        for (final FlywayCallback callback : effectiveCallbacks) {
+            new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
+                @Override
+                public Object call() {
+                    connectionUserObjects.restoreOriginalState();
+                    connectionUserObjects.changeCurrentSchemaTo(schema);
+                    callback.afterMigrate(connectionUserObjects.getJdbcConnection());
+                    return null;
+                }
+            });
+        }
+
+        return count;
     }
 
     private int migrateAll() {
@@ -353,6 +351,7 @@ public class DbMigrate {
 
             LOG.info("Migrating " + migrationText);
 
+            connectionUserObjects.restoreOriginalState();
             connectionUserObjects.changeCurrentSchemaTo(schema);
 
             for (final FlywayCallback callback : effectiveCallbacks) {

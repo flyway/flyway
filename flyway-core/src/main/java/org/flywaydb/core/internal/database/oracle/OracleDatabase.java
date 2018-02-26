@@ -122,6 +122,11 @@ public class OracleDatabase extends Database<OracleConnection> {
     }
 
     @Override
+    protected boolean supportsChangingCurrentSchema() {
+        return true;
+    }
+
+    @Override
     public String getBooleanTrue() {
         return "1";
     }

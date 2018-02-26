@@ -48,12 +48,12 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         return jdbcTemplate.getConnection().getCatalog();
     }
 
     @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
         if (!StringUtils.hasLength(schema)) {
             try {
                 // Weird hack to switch back to no database selected...

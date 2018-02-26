@@ -78,6 +78,12 @@ public class DatabaseFactory {
 
         );
         database.ensureSupported();
+
+        if (!database.supportsChangingCurrentSchema() && configuration.getSchemas().length > 0) {
+            LOG.warn(databaseProductName + " does not support setting the schema for the current session. " +
+                    "Default schema will NOT be changed to " + configuration.getSchemas()[0] + " !");
+        }
+
         return database;
     }
 

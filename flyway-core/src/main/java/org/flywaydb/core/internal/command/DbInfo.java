@@ -26,7 +26,6 @@ import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -50,37 +49,35 @@ public class DbInfo {
     }
 
     public MigrationInfoService info() {
-        try {
-            for (final FlywayCallback callback : effectiveCallbacks) {
-                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() throws SQLException {
-                        connection.changeCurrentSchemaTo(schemas[0]);
-                        callback.beforeInfo(connection.getJdbcConnection());
-                        return null;
-                    }
-                });
-            }
-
-            MigrationInfoServiceImpl migrationInfoService =
-                    new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration.getTarget(),
-                            configuration.isOutOfOrder(), true, true, true, true);
-            migrationInfoService.refresh();
-
-            for (final FlywayCallback callback : effectiveCallbacks) {
-                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() throws SQLException {
-                        connection.changeCurrentSchemaTo(schemas[0]);
-                        callback.afterInfo(connection.getJdbcConnection());
-                        return null;
-                    }
-                });
-            }
-
-            return migrationInfoService;
-        } finally {
-            connection.restoreCurrentSchema();
+        for (final FlywayCallback callback : effectiveCallbacks) {
+            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+                @Override
+                public Object call() {
+                    connection.restoreOriginalState();
+                    connection.changeCurrentSchemaTo(schemas[0]);
+                    callback.beforeInfo(connection.getJdbcConnection());
+                    return null;
+                }
+            });
         }
+
+        MigrationInfoServiceImpl migrationInfoService =
+                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration.getTarget(),
+                        configuration.isOutOfOrder(), true, true, true, true);
+        migrationInfoService.refresh();
+
+        for (final FlywayCallback callback : effectiveCallbacks) {
+            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+                @Override
+                public Object call() {
+                    connection.restoreOriginalState();
+                    connection.changeCurrentSchemaTo(schemas[0]);
+                    callback.afterInfo(connection.getJdbcConnection());
+                    return null;
+                }
+            });
+        }
+
+        return migrationInfoService;
     }
 }

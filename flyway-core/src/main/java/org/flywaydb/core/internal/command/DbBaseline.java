@@ -18,14 +18,14 @@ package org.flywaydb.core.internal.command;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -72,7 +72,7 @@ public class DbBaseline {
     /**
      * Creates a new DbBaseline.
      *
-     * @param database           The database to use.
+     * @param database            The database to use.
      * @param schemaHistory       The database schema history table.
      * @param schema              The database schema to use by default.
      * @param baselineVersion     The version to tag an existing schema with when executing baseline.
@@ -92,62 +92,61 @@ public class DbBaseline {
      * Baselines the database.
      */
     public void baseline() {
-        try {
-            for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() throws SQLException {
-                        connection.changeCurrentSchemaTo(schema);
-                        callback.beforeBaseline(connection.getJdbcConnection());
-                        return null;
-                    }
-                });
-            }
-
-            schemaHistory.create();
+        for (final FlywayCallback callback : callbacks) {
             new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                 @Override
-                public Void call() {
+                public Object call() {
+                    connection.restoreOriginalState();
                     connection.changeCurrentSchemaTo(schema);
-                    if (schemaHistory.hasBaselineMarker()) {
-                        AppliedMigration baselineMarker = schemaHistory.getBaselineMarker();
-                        if (baselineVersion.equals(baselineMarker.getVersion())
-                                && baselineDescription.equals(baselineMarker.getDescription())) {
-                            LOG.info("Schema history table " + schemaHistory + " already initialized with ("
-                                    + baselineVersion + "," + baselineDescription + "). Skipping.");
-                            return null;
-                        }
-                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " with ("
-                                + baselineVersion + "," + baselineDescription
-                                + ") as it has already been initialized with ("
-                                + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")");
-                    }
-                    if (schemaHistory.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
-                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " with version 0 as this version was used for schema creation");
-                    }
-                    if (schemaHistory.hasAppliedMigrations()) {
-                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations");
-                    }
-                    schemaHistory.addBaselineMarker(baselineVersion, baselineDescription);
-
+                    callback.beforeBaseline(connection.getJdbcConnection());
                     return null;
                 }
             });
+        }
 
-            LOG.info("Successfully baselined schema with version: " + baselineVersion);
-
-            for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() throws SQLException {
-                        connection.changeCurrentSchemaTo(schema);
-                        callback.afterBaseline(connection.getJdbcConnection());
+        schemaHistory.create();
+        new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+            @Override
+            public Void call() {
+                connection.restoreOriginalState();
+                connection.changeCurrentSchemaTo(schema);
+                AppliedMigration baselineMarker = schemaHistory.getBaselineMarker();
+                if (baselineMarker != null) {
+                    if (baselineVersion.equals(baselineMarker.getVersion())
+                            && baselineDescription.equals(baselineMarker.getDescription())) {
+                        LOG.info("Schema history table " + schemaHistory + " already initialized with ("
+                                + baselineVersion + "," + baselineDescription + "). Skipping.");
                         return null;
                     }
-                });
+                    throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " with ("
+                            + baselineVersion + "," + baselineDescription
+                            + ") as it has already been initialized with ("
+                            + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")");
+                }
+                if (schemaHistory.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
+                    throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " with version 0 as this version was used for schema creation");
+                }
+                if (schemaHistory.hasNonSyntheticAppliedMigrations()) {
+                    throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations");
+                }
+                schemaHistory.addBaselineMarker(baselineVersion, baselineDescription);
+
+                return null;
             }
-        } finally {
-            connection.restoreCurrentSchema();
+        });
+
+        LOG.info("Successfully baselined schema with version: " + baselineVersion);
+
+        for (final FlywayCallback callback : callbacks) {
+            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+                @Override
+                public Object call() {
+                    connection.restoreOriginalState();
+                    connection.changeCurrentSchemaTo(schema);
+                    callback.afterBaseline(connection.getJdbcConnection());
+                    return null;
+                }
+            });
         }
     }
 }

@@ -39,7 +39,7 @@ public class H2Connection extends Connection<H2Database> {
     }
 
     @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + database.quote(schema));
     }
 
@@ -49,7 +49,7 @@ public class H2Connection extends Connection<H2Database> {
     }
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         return jdbcTemplate.queryForString("CALL SCHEMA()");
     }
 }

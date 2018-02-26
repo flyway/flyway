@@ -81,7 +81,7 @@ public class H2Schema extends Schema<H2Database> {
 
         List<String> domainNames = listObjectNames("DOMAIN", "");
         if (!domainNames.isEmpty()) {
-            if (name.equals(database.getMainConnection().getCurrentSchemaName())) {
+            if (name.equals(database.getMainConnection().getCurrentSchema().getName())) {
                 for (String statement : generateDropStatementsForCurrentSchema("DOMAIN", domainNames)) {
                     jdbcTemplate.execute(statement);
                 }

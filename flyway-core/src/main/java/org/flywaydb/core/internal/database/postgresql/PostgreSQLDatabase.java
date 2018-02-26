@@ -107,6 +107,11 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
     }
 
     @Override
+    protected boolean supportsChangingCurrentSchema() {
+        return true;
+    }
+
+    @Override
     public String getBooleanTrue() {
         return "TRUE";
     }

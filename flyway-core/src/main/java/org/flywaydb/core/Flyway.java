@@ -1367,7 +1367,7 @@ public class Flyway implements FlywayConfiguration {
     private Schema[] prepareSchemas(Database database) {
         String[] schemaNames = configuration.getSchemas();
         if (schemaNames.length == 0) {
-            Schema currentSchema = database.getMainConnection().getOriginalSchema();
+            Schema currentSchema = database.getMainConnection().getCurrentSchema();
             if (currentSchema == null) {
                 throw new FlywayException("Unable to determine schema for the schema history table." +
                         " Set a default schema for the connection or specify one using the schemas property!");
