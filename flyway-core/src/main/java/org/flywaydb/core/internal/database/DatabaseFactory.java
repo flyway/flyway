@@ -220,6 +220,9 @@ public class DatabaseFactory {
      * @return The filtered url.
      */
     static String filterUrl(String url) {
+        if (url == null) {
+            return "";
+        }
         int questionMark = url.indexOf("?");
         if (questionMark >= 0 && !url.contains("?databaseName=")) {
             url = url.substring(0, questionMark);
