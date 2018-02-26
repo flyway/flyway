@@ -154,13 +154,13 @@ public class MigrationInfoImpl implements MigrationInfo {
             return MigrationState.PENDING;
         }
 
+        if (MigrationType.BASELINE == appliedMigration.getType()) {
+            return MigrationState.BASELINE;
+        }
+
         if (resolvedMigration == null) {
             if (MigrationType.SCHEMA == appliedMigration.getType()) {
                 return MigrationState.SUCCESS;
-            }
-
-            if (MigrationType.BASELINE == appliedMigration.getType()) {
-                return MigrationState.BASELINE;
             }
 
             if ((appliedMigration.getVersion() == null) || getVersion().compareTo(context.lastResolved) < 0) {
