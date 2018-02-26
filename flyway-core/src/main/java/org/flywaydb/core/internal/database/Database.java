@@ -56,7 +56,7 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * The main connection to use.
      */
-    protected C mainConnection;
+    private C mainConnection;
 
     /**
      * The connection to use for migrations.
@@ -204,6 +204,11 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @return {@code true} if DDL transactions are supported, {@code false} if not.
      */
     public abstract boolean supportsDdlTransactions();
+
+    /**
+     * @return {@code true} if this database supports changing a connection's current schema. {@code false if not}.
+     */
+    protected abstract boolean supportsChangingCurrentSchema();
 
 
 

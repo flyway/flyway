@@ -39,12 +39,12 @@ public class OracleConnection extends Connection<OracleDatabase> {
     }
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         return jdbcTemplate.queryForString("SELECT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') FROM DUAL");
     }
 
     @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
         jdbcTemplate.execute("ALTER SESSION SET CURRENT_SCHEMA=" + database.quote(schema));
     }
 

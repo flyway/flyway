@@ -47,11 +47,22 @@ public abstract class SchemaHistory {
     public abstract void create();
 
     /**
-     * Checks whether the schema history table contains at least one applied migration.
+     * Checks whether the schema history table contains at least one non-synthetic applied migration.
      *
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
-    public abstract boolean hasAppliedMigrations();
+    public final boolean hasNonSyntheticAppliedMigrations() {
+        for (AppliedMigration appliedMigration : allAppliedMigrations()) {
+            if (!appliedMigration.getType().isSynthetic()
+
+
+
+                    ) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * @return The list of all migrations applied on the schema in the order they were applied (oldest first).
@@ -71,18 +82,21 @@ public abstract class SchemaHistory {
     }
 
     /**
-     * Checks whether the schema history table contains a marker row for schema baseline.
-     *
-     * @return {@code true} if it does, {@code false} if it doesn't.
-     */
-    public abstract boolean hasBaselineMarker();
-
-    /**
      * Retrieves the baseline marker from the schema history table.
      *
      * @return The baseline marker or {@code null} if none could be found.
      */
-    public abstract AppliedMigration getBaselineMarker();
+    public final AppliedMigration getBaselineMarker() {
+        List<AppliedMigration> appliedMigrations = allAppliedMigrations();
+        // BASELINE can only be the first or second (in case there is a SCHEMA one) migration.
+        for (int i = 0; i < Math.min(appliedMigrations.size(), 2); i++) {
+            AppliedMigration appliedMigration = appliedMigrations.get(i);
+            if (appliedMigration.getType() == MigrationType.BASELINE) {
+                return appliedMigration;
+            }
+        }
+        return null;
+    }
 
     /**
      * <p>
@@ -101,9 +115,7 @@ public abstract class SchemaHistory {
      *
      * @param schemas The schemas that were created by Flyway.
      */
-    public abstract void addSchemasMarker(Schema[] schemas);
-
-    protected final void doAddSchemasMarker(Schema[] schemas) {
+    public final void addSchemasMarker(Schema[] schemas) {
         addAppliedMigration(null, "<< Flyway Schema Creation >>",
                 MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true);
     }
@@ -113,7 +125,11 @@ public abstract class SchemaHistory {
      *
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
-    public abstract boolean hasSchemasMarker();
+    public final boolean hasSchemasMarker() {
+        List<AppliedMigration> appliedMigrations = allAppliedMigrations();
+        return !appliedMigrations.isEmpty() && appliedMigrations.get(0).getType() == MigrationType.SCHEMA;
+    }
+
 
     /**
      * Updates this applied migration to match this resolved migration.
@@ -143,7 +159,9 @@ public abstract class SchemaHistory {
      */
     public final void addAppliedMigration(MigrationVersion version, String description, MigrationType type,
                                           String script, Integer checksum, int executionTime, boolean success) {
+        int installedRank = type == MigrationType.SCHEMA ? 0 : calculateInstalledRank();
         doAddAppliedMigration(
+                installedRank,
                 version,
                 AbbreviationUtils.abbreviateDescription(description),
                 type,
@@ -153,6 +171,20 @@ public abstract class SchemaHistory {
                 success);
     }
 
-    protected abstract void doAddAppliedMigration(MigrationVersion version, String description, MigrationType type,
-                                                  String script, Integer checksum, int executionTime, boolean success);
+    /**
+     * Calculates the installed rank for the new migration to be inserted.
+     *
+     * @return The installed rank.
+     */
+    private int calculateInstalledRank() {
+        List<AppliedMigration> appliedMigrations = allAppliedMigrations();
+        if (appliedMigrations.isEmpty()) {
+            return 1;
+        }
+        return appliedMigrations.get(appliedMigrations.size() - 1).getInstalledRank() + 1;
+    }
+
+    protected abstract void doAddAppliedMigration(int installedRank, MigrationVersion version, String description,
+                                                  MigrationType type, String script, Integer checksum,
+                                                  int executionTime, boolean success);
 }

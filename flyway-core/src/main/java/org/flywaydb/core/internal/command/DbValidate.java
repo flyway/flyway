@@ -144,65 +144,62 @@ public class DbValidate {
             return null;
         }
 
-        try {
-            for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() {
-                        connection.changeCurrentSchemaTo(schema);
-                        callback.beforeValidate(connection.getJdbcConnection());
-                        return null;
-                    }
-                });
-            }
-
-            LOG.debug("Validating migrations ...");
-            StopWatch stopWatch = new StopWatch();
-            stopWatch.start();
-
-            Pair<Integer, String> result = new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Pair<Integer, String>>() {
+        for (final FlywayCallback callback : callbacks) {
+            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                 @Override
-                public Pair<Integer, String> call() {
+                public Object call() {
+                    connection.restoreOriginalState();
                     connection.changeCurrentSchemaTo(schema);
-                    MigrationInfoServiceImpl migrationInfoService =
-                            new MigrationInfoServiceImpl(migrationResolver, schemaHistory, target, outOfOrder, pending, missing, ignored, future);
-
-                    migrationInfoService.refresh();
-
-                    int count = migrationInfoService.all().length;
-                    String validationError = migrationInfoService.validate();
-                    return Pair.of(count, validationError);
+                    callback.beforeValidate(connection.getJdbcConnection());
+                    return null;
                 }
             });
-
-            stopWatch.stop();
-
-            String error = result.getRight();
-            if (error == null) {
-                int count = result.getLeft();
-                if (count == 1) {
-                    LOG.info(String.format("Successfully validated 1 migration (execution time %s)",
-                            TimeFormat.format(stopWatch.getTotalTimeMillis())));
-                } else {
-                    LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
-                            count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
-                }
-            }
-
-            for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() {
-                        connection.changeCurrentSchemaTo(schema);
-                        callback.afterValidate(connection.getJdbcConnection());
-                        return null;
-                    }
-                });
-            }
-
-            return error;
-        } finally {
-            connection.restoreCurrentSchema();
         }
+
+        LOG.debug("Validating migrations ...");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        Pair<Integer, String> result = new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Pair<Integer, String>>() {
+            @Override
+            public Pair<Integer, String> call() {
+                MigrationInfoServiceImpl migrationInfoService =
+                        new MigrationInfoServiceImpl(migrationResolver, schemaHistory, target, outOfOrder, pending, missing, ignored, future);
+
+                migrationInfoService.refresh();
+
+                int count = migrationInfoService.all().length;
+                String validationError = migrationInfoService.validate();
+                return Pair.of(count, validationError);
+            }
+        });
+
+        stopWatch.stop();
+
+        String error = result.getRight();
+        if (error == null) {
+            int count = result.getLeft();
+            if (count == 1) {
+                LOG.info(String.format("Successfully validated 1 migration (execution time %s)",
+                        TimeFormat.format(stopWatch.getTotalTimeMillis())));
+            } else {
+                LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
+                        count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+            }
+        }
+
+        for (final FlywayCallback callback : callbacks) {
+            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+                @Override
+                public Object call() {
+                    connection.restoreOriginalState();
+                    connection.changeCurrentSchemaTo(schema);
+                    callback.afterValidate(connection.getJdbcConnection());
+                    return null;
+                }
+            });
+        }
+
+        return error;
     }
 }

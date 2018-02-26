@@ -153,6 +153,11 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     @Override
+    protected boolean supportsChangingCurrentSchema() {
+        return false;
+    }
+
+    @Override
     public String getBooleanTrue() {
         return "1";
     }

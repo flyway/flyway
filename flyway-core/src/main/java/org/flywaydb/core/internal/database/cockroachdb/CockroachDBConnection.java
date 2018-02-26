@@ -42,28 +42,8 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
     }
 
     @Override
-    public Schema getOriginalSchema() {
-        if (originalSchema == null) {
-            return null;
-        }
-
-        return getSchema(getFirstSchemaFromSearchPath(this.originalSchema));
-    }
-
-    private String getFirstSchemaFromSearchPath(String searchPath) {
-        String result = searchPath.replace(database.doQuote("$user"), "").trim();
-        if (result.startsWith(",")) {
-            result = result.substring(1);
-        }
-        if (result.contains(",")) {
-            result = result.substring(0, result.indexOf(","));
-        }
-        result = result.trim();
-        // Unquote if necessary
-        if (result.startsWith("\"") && result.endsWith("\"") && !result.endsWith("\\\"") && (result.length() > 1)) {
-            result = result.substring(1, result.length() - 1);
-        }
-        return result;
+    public Schema doGetCurrentSchema() throws SQLException {
+        return getSchema(jdbcTemplate.queryForString("SELECT current_schema"));
     }
 
     @Override
@@ -72,7 +52,7 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
     }
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         return jdbcTemplate.queryForString("SHOW database");
     }
 
@@ -80,17 +60,17 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
     public void changeCurrentSchemaTo(Schema schema) {
         try {
             // Avoid unnecessary schema changes as this trips up CockroachDB
-            if (schema.getName().equals(originalSchema) || !schema.exists()) {
+            if (schema.getName().equals(originalSchemaNameOrSearchPath) || !schema.exists()) {
                 return;
             }
-            doChangeCurrentSchemaTo(schema.getName());
+            doChangeCurrentSchemaOrSearchPathTo(schema.getName());
         } catch (SQLException e) {
             throw new FlywaySqlException("Error setting current schema to " + schema, e);
         }
     }
 
     @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
         if (!StringUtils.hasLength(schema)) {
             schema = "DEFAULT";
         }

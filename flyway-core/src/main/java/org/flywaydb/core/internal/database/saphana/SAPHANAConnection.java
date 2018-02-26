@@ -36,12 +36,12 @@ public class SAPHANAConnection extends Connection<SAPHANADatabase> {
     }
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         return jdbcTemplate.queryForString("SELECT CURRENT_SCHEMA FROM DUMMY");
     }
 
     @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + database.doQuote(schema));
     }
 

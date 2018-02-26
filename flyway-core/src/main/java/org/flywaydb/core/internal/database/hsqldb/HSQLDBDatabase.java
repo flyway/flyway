@@ -92,6 +92,11 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
     }
 
     @Override
+    protected boolean supportsChangingCurrentSchema() {
+        return true;
+    }
+
+    @Override
     public String getBooleanTrue() {
         return "1";
     }

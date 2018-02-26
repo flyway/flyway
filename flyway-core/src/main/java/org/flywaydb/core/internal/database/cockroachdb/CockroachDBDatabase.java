@@ -133,6 +133,11 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
         return false;
     }
 
+    @Override
+    protected boolean supportsChangingCurrentSchema() {
+        return true;
+    }
+
 
 
 

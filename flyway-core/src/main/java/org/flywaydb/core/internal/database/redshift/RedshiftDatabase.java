@@ -109,6 +109,11 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
     }
 
     @Override
+    protected boolean supportsChangingCurrentSchema() {
+        return true;
+    }
+
+    @Override
     public String getBooleanTrue() {
         return "TRUE";
     }

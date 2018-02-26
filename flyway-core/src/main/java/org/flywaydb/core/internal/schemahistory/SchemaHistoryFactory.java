@@ -32,7 +32,7 @@ public class SchemaHistoryFactory {
      * Obtains a reference to the schema history.
      *
      * @param configuration The current Flyway configuration.
-     * @param database     The Database object.
+     * @param database      The Database object.
      * @param schema        The schema whose history to track.
      * @return The schema history.
      */

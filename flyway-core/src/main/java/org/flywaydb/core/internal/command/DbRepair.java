@@ -99,50 +99,47 @@ public class DbRepair {
      * Repairs the schema history table.
      */
     public void repair() {
-        try {
-            for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() throws SQLException {
-                        connection.changeCurrentSchemaTo(schema);
-                        callback.beforeRepair(connection.getJdbcConnection());
-                        return null;
-                    }
-                });
-            }
-
-            StopWatch stopWatch = new StopWatch();
-            stopWatch.start();
-
+        for (final FlywayCallback callback : callbacks) {
             new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                public Void call() {
+                @Override
+                public Object call() {
+                    connection.restoreOriginalState();
                     connection.changeCurrentSchemaTo(schema);
-                    schemaHistory.removeFailedMigrations();
-                    alignAppliedMigrationsWithResolvedMigrations();
+                    callback.beforeRepair(connection.getJdbcConnection());
                     return null;
                 }
             });
+        }
 
-            stopWatch.stop();
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
 
-            LOG.info("Successfully repaired schema history table " + schemaHistory + " (execution time "
-                    + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
-            if (!database.supportsDdlTransactions()) {
-                LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
+        new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+            public Void call() {
+                schemaHistory.removeFailedMigrations();
+                alignAppliedMigrationsWithResolvedMigrations();
+                return null;
             }
+        });
 
-            for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() throws SQLException {
-                        connection.changeCurrentSchemaTo(schema);
-                        callback.afterRepair(connection.getJdbcConnection());
-                        return null;
-                    }
-                });
-            }
-        } finally {
-            connection.restoreCurrentSchema();
+        stopWatch.stop();
+
+        LOG.info("Successfully repaired schema history table " + schemaHistory + " (execution time "
+                + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
+        if (!database.supportsDdlTransactions()) {
+            LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
+        }
+
+        for (final FlywayCallback callback : callbacks) {
+            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+                @Override
+                public Object call() {
+                    connection.restoreOriginalState();
+                    connection.changeCurrentSchemaTo(schema);
+                    callback.afterRepair(connection.getJdbcConnection());
+                    return null;
+                }
+            });
         }
     }
 
