@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
@@ -30,9 +30,8 @@ import java.util.concurrent.Callable;
  * PostgreSQL connection.
  */
 public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
-    private final String originalSearchPath;
 
-    PostgreSQLConnection(FlywayConfiguration configuration, PostgreSQLDatabase database, java.sql.Connection connection
+    PostgreSQLConnection(Configuration configuration, PostgreSQLDatabase database, java.sql.Connection connection
 
 
 
@@ -42,24 +41,6 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
 
 
         );
-
-        this.originalSearchPath = getSearchPath();
-    }
-
-    String getSearchPath() {
-        try {
-            return jdbcTemplate.queryForString("SHOW search_path");
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to read search_path", e);
-        }
-    }
-
-    private void setSearchPath(String searchPath) {
-        try {
-            jdbcTemplate.execute("SELECT set_config('search_path', ?, false)", searchPath);
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to set search_path to " + searchPath, e);
-        }
     }
 
     @Override
@@ -74,8 +55,8 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
     }
 
     @Override
-    protected String getCurrentSchemaNameOrSearchPath() {
-        return getSearchPath();
+    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
+        return jdbcTemplate.queryForString("SHOW search_path");
     }
 
     @Override
@@ -97,7 +78,7 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
 
     @Override
     public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
-        setSearchPath(schema);
+        jdbcTemplate.execute("SELECT set_config('search_path', ?, false)", schema);
     }
 
     @Override

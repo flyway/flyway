@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Connection;
@@ -34,7 +34,7 @@ import java.util.concurrent.Callable;
 public class MySQLConnection extends Connection<MySQLDatabase> {
     private static final Log LOG = LogFactory.getLog(MySQLConnection.class);
 
-    MySQLConnection(FlywayConfiguration configuration, MySQLDatabase database, java.sql.Connection connection
+    MySQLConnection(Configuration configuration, MySQLDatabase database, java.sql.Connection connection
 
 
 

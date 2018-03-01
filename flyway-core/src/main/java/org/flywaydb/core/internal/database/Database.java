@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -41,7 +41,7 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * The Flyway configuration.
      */
-    protected final FlywayConfiguration configuration;
+    protected final Configuration configuration;
 
     /**
      * The JDBC metadata to use.
@@ -83,7 +83,7 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @param configuration The Flyway configuration.
      * @param connection    The main connection to use.
      */
-    public Database(FlywayConfiguration configuration, java.sql.Connection connection
+    public Database(Configuration configuration, java.sql.Connection connection
 
 
 

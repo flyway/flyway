@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
@@ -36,7 +36,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public MySQLDatabase(FlywayConfiguration configuration, Connection connection
+    public MySQLDatabase(Configuration configuration, Connection connection
 
 
 

@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.derby;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 
@@ -26,7 +26,7 @@ import java.sql.Types;
  * Derby connection.
  */
 public class DerbyConnection extends Connection<DerbyDatabase> {
-    DerbyConnection(FlywayConfiguration configuration, DerbyDatabase database, java.sql.Connection connection
+    DerbyConnection(Configuration configuration, DerbyDatabase database, java.sql.Connection connection
 
 
 

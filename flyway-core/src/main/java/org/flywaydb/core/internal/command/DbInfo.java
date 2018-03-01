@@ -15,10 +15,13 @@
  */
 package org.flywaydb.core.internal.command;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Schema;
@@ -32,51 +35,34 @@ import java.util.concurrent.Callable;
 public class DbInfo {
     private final MigrationResolver migrationResolver;
     private final SchemaHistory schemaHistory;
-    private final Connection connection;
-    private final FlywayConfiguration configuration;
-    private final Schema[] schemas;
-    private final List<FlywayCallback> effectiveCallbacks;
+    private final Configuration configuration;
+    private final CallbackExecutor callbackExecutor;
 
     public DbInfo(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                  final Database database, FlywayConfiguration configuration, Schema[] schemas, List<FlywayCallback> effectiveCallbacks) {
+                  Configuration configuration, CallbackExecutor callbackExecutor) {
 
         this.migrationResolver = migrationResolver;
         this.schemaHistory = schemaHistory;
-        this.connection = database.getMainConnection();
         this.configuration = configuration;
-        this.schemas = schemas;
-        this.effectiveCallbacks = effectiveCallbacks;
+        this.callbackExecutor = callbackExecutor;
     }
 
     public MigrationInfoService info() {
-        for (final FlywayCallback callback : effectiveCallbacks) {
-            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                @Override
-                public Object call() {
-                    connection.restoreOriginalState();
-                    connection.changeCurrentSchemaTo(schemas[0]);
-                    callback.beforeInfo(connection.getJdbcConnection());
-                    return null;
-                }
-            });
+        callbackExecutor.executeOnMainConnection(Event.BEFORE_INFO);
+
+
+        MigrationInfoServiceImpl migrationInfoService;
+        try {
+            migrationInfoService =
+                    new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration.getTarget(),
+                            configuration.isOutOfOrder(), true, true, true, true);
+            migrationInfoService.refresh();
+        } catch (FlywayException e) {
+            callbackExecutor.executeOnMainConnection(Event.AFTER_INFO_ERROR);
+            throw e;
         }
 
-        MigrationInfoServiceImpl migrationInfoService =
-                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration.getTarget(),
-                        configuration.isOutOfOrder(), true, true, true, true);
-        migrationInfoService.refresh();
-
-        for (final FlywayCallback callback : effectiveCallbacks) {
-            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                @Override
-                public Object call() {
-                    connection.restoreOriginalState();
-                    connection.changeCurrentSchemaTo(schemas[0]);
-                    callback.afterInfo(connection.getJdbcConnection());
-                    return null;
-                }
-            });
-        }
+        callbackExecutor.executeOnMainConnection(Event.AFTER_INFO);
 
         return migrationInfoService;
     }

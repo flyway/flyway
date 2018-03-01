@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 
@@ -26,7 +26,7 @@ import java.sql.Types;
  * Oracle connection.
  */
 public class OracleConnection extends Connection<OracleDatabase> {
-    OracleConnection(FlywayConfiguration configuration, OracleDatabase database, java.sql.Connection connection
+    OracleConnection(Configuration configuration, OracleDatabase database, java.sql.Connection connection
 
 
 

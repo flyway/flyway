@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.redshift;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
@@ -50,7 +50,7 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public RedshiftDatabase(FlywayConfiguration configuration, Connection connection
+    public RedshiftDatabase(Configuration configuration, Connection connection
 
 
 

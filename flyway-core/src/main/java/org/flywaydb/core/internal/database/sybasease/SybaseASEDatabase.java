@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Delimiter;
@@ -39,7 +39,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
      * @param connection    The initial connection.
      * @param jconnect      Whether we are using the official jConnect driver or not (jTDS).
      */
-    public SybaseASEDatabase(FlywayConfiguration configuration, Connection connection, boolean jconnect
+    public SybaseASEDatabase(Configuration configuration, Connection connection, boolean jconnect
 
 
 

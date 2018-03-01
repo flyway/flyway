@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.db2;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 
@@ -26,7 +26,7 @@ import java.sql.Types;
  * DB2 connection.
  */
 public class DB2Connection extends Connection<DB2Database> {
-    DB2Connection(FlywayConfiguration configuration, DB2Database database, java.sql.Connection connection
+    DB2Connection(Configuration configuration, DB2Database database, java.sql.Connection connection
 
 
 

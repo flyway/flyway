@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.derby;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
@@ -35,7 +35,7 @@ public class DerbyDatabase extends Database<DerbyConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public DerbyDatabase(FlywayConfiguration configuration, Connection connection
+    public DerbyDatabase(Configuration configuration, Connection connection
 
 
 

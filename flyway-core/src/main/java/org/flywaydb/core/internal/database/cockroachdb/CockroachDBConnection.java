@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -28,7 +28,7 @@ import java.sql.Types;
  * CockroachDB connection.
  */
 public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
-    CockroachDBConnection(FlywayConfiguration configuration, CockroachDBDatabase database,
+    CockroachDBConnection(Configuration configuration, CockroachDBDatabase database,
                           java.sql.Connection connection
 
 

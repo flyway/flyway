@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
@@ -36,7 +36,7 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public PostgreSQLDatabase(FlywayConfiguration configuration, Connection connection
+    public PostgreSQLDatabase(Configuration configuration, Connection connection
 
 
 
