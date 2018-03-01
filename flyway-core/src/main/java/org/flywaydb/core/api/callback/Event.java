@@ -166,4 +166,9 @@ public enum Event {
         }
         return null;
     }
+
+    @Override
+    public String toString() {
+        return id;
+    }
 }

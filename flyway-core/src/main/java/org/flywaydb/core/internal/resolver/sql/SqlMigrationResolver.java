@@ -23,7 +23,6 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.callback.SqlScriptFlywayCallbackFactory;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
@@ -126,7 +125,7 @@ public class SqlMigrationResolver implements MigrationResolver {
     ) {
         for (LoadableResource resource : scanner.scanForResources(location, prefix, suffixes)) {
             String filename = resource.getFilename();
-            if (isSqlCallback(filename, suffixes)) {
+            if (isSqlCallback(filename, separator, suffixes)) {
                 continue;
             }
             Pair<MigrationVersion, String> info =
@@ -151,14 +150,19 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Checks whether this filename is actually a sql-based callback instead of a regular migration.
      *
-     * @param filename The filename to check.
-     * @param suffixes The sql migration suffixes.
+     * @param filename  The filename to check.
+     * @param separator The separator to use.
+     * @param suffixes  The sql migration suffixes.
      * @return {@code true} if it is, {@code false} if it isn't.
      */
     /* private -> testing */
-    static boolean isSqlCallback(String filename, String... suffixes) {
+    static boolean isSqlCallback(String filename, String separator, String... suffixes) {
         for (String suffix : suffixes) {
             String baseName = filename.substring(0, filename.length() - suffix.length());
+            int index = baseName.indexOf(separator);
+            if (index >= 0) {
+                baseName = baseName.substring(0, index);
+            }
             if (Event.fromId(baseName) != null) {
                 return true;
             }

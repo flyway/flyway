@@ -146,6 +146,13 @@ public class Flyway implements FlywayConfiguration {
         this.configuration = new ClassicConfiguration(configuration);
     }
 
+    /**
+     * @return The configuration that Flyway is using.
+     */
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
     @Override
     @Deprecated
     public Location[] getLocations() {

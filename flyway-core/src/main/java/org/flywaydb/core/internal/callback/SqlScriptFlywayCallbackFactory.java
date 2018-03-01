@@ -31,6 +31,7 @@ import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ import java.util.Map;
 public class SqlScriptFlywayCallbackFactory {
     private static final Log LOG = LogFactory.getLog(SqlScriptFlywayCallbackFactory.class);
 
-    private final List<Callback> callbacks = new ArrayList<>();
+    private final List<SqlScriptCallback> callbacks = new ArrayList<>();
 
     /**
      * Creates a new instance.
@@ -54,7 +55,7 @@ public class SqlScriptFlywayCallbackFactory {
      */
     public SqlScriptFlywayCallbackFactory(Database database, Scanner scanner, List<Location> locations,
                                           PlaceholderReplacer placeholderReplacer, Configuration configuration) {
-        Map<Event, SqlScript> callbacksFound = new HashMap<>();
+        Map<String, SqlScript> callbacksFound = new HashMap<>();
 
         LOG.debug("Scanning for SQL callbacks ...");
         for (Location location : locations) {
@@ -66,12 +67,22 @@ public class SqlScriptFlywayCallbackFactory {
                 continue;
             }
             for (LoadableResource resource : resources) {
-                String key = stripSuffix(resource.getFilename(), configuration.getSqlMigrationSuffixes());
-                Event event = Event.fromId(key);
+                String name = stripSuffix(resource.getFilename(), configuration.getSqlMigrationSuffixes());
+                String id;
+                String description;
+                int separatorIndex = name.indexOf(configuration.getSqlMigrationSeparator());
+                if (separatorIndex >= 0) {
+                    id = name.substring(0, separatorIndex);
+                    description = name.substring(separatorIndex + configuration.getSqlMigrationSeparator().length());
+                } else {
+                    id = name;
+                    description = null;
+                }
+                Event event = Event.fromId(id);
                 if (event != null) {
-                    SqlScript existing = callbacksFound.get(event);
+                    SqlScript existing = callbacksFound.get(name);
                     if (existing != null) {
-                        throw new FlywayException("Found more than 1 SQL callback script for " + key + "!\n" +
+                        throw new FlywayException("Found more than 1 SQL callback script called " + name + "!\n" +
                                 "Offenders:\n" +
                                 "-> " + existing.getResource().getLocationOnDisk() + "\n" +
                                 "-> " + resource.getLocationOnDisk());
@@ -83,15 +94,16 @@ public class SqlScriptFlywayCallbackFactory {
 
 
                     );
-                    callbacksFound.put(event, sqlScript);
-                    callbacks.add(new SqlScriptCallback(event, sqlScript));
+                    callbacksFound.put(name, sqlScript);
+                    callbacks.add(new SqlScriptCallback(event, description, sqlScript));
                 }
             }
         }
+        Collections.sort(callbacks);
     }
 
     public List<Callback> getCallbacks() {
-        return callbacks;
+        return new ArrayList<>(callbacks);
     }
 
     private String stripSuffix(String fileName, String[] suffixes) {
@@ -103,12 +115,14 @@ public class SqlScriptFlywayCallbackFactory {
         return fileName;
     }
 
-    private static class SqlScriptCallback implements Callback {
+    private static class SqlScriptCallback implements Callback, Comparable<SqlScriptCallback> {
         private final Event event;
+        private final String description;
         private final SqlScript sqlScript;
 
-        private SqlScriptCallback(Event event, SqlScript sqlScript) {
+        private SqlScriptCallback(Event event, String description, SqlScript sqlScript) {
             this.event = event;
+            this.description = description;
             this.sqlScript = sqlScript;
         }
 
@@ -125,8 +139,24 @@ public class SqlScriptFlywayCallbackFactory {
         @Override
         public void handle(Event event, Context context) {
             LOG.info("Executing SQL callback: " + event.getId()
+                    + (description == null ? "" : " - " + description)
                     + (sqlScript.executeInTransaction() ? "" : " [non-transactional]"));
             sqlScript.execute(new JdbcTemplate(context.getConnection(), 0));
+        }
+
+        @Override
+        public int compareTo(SqlScriptCallback o) {
+            int result = event.compareTo(o.event);
+            if (result == 0) {
+                if (description == null) {
+                    return Integer.MIN_VALUE;
+                }
+                if (o.description == null) {
+                    return Integer.MAX_VALUE;
+                }
+                result = description.compareTo(o.description);
+            }
+            return result;
         }
     }
 }
