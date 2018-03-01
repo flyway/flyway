@@ -55,6 +55,21 @@ import java.util.Properties;
 public class ClassicConfiguration implements Configuration {
     private static final Log LOG = LogFactory.getLog(ClassicConfiguration.class);
 
+    private String driver;
+    private String url;
+    private String user;
+    private String password;
+
+    /**
+     * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
+     */
+    private DataSource dataSource;
+
+    /**
+     * The ClassLoader to use for resolving migrations on the classpath. (default: Thread.currentThread().getContextClassLoader() )
+     */
+    private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
     /**
      * The locations to scan recursively for migrations.
      * <p>The location type is determined by its prefix.
@@ -281,16 +296,6 @@ public class ClassicConfiguration implements Configuration {
     private boolean skipDefaultResolvers;
 
     /**
-     * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
-     */
-    private DataSource dataSource;
-
-    /**
-     * The ClassLoader to use for resolving migrations on the classpath. (default: Thread.currentThread().getContextClassLoader() )
-     */
-    private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
-    /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
      * <p>
      * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
@@ -330,14 +335,14 @@ public class ClassicConfiguration implements Configuration {
 
 
     /**
-     * Creates a new instance of Flyway. This is your starting point.
+     * Creates a new default configuration.
      */
     public ClassicConfiguration() {
         // Nothing to do.
     }
 
     /**
-     * Creates a new instance of Flyway. This is your starting point.
+     * Creates a new default configuration with this classloader.
      *
      * @param classLoader The ClassLoader to use for loading migrations, resolvers, etc from the classpath. (default: Thread.currentThread().getContextClassLoader() )
      */
@@ -348,7 +353,7 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Creates a new instance of Flyway. This is your starting point.
+     * Creates a new configuration with the same values as this existing one.
      *
      * @param configuration The configuration to use.
      */
@@ -520,6 +525,10 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public DataSource getDataSource() {
+        if (dataSource == null &&
+                (StringUtils.hasLength(driver) || StringUtils.hasLength(user) || StringUtils.hasLength(password))) {
+            LOG.warn("Discarding INCOMPLETE dataSource configuration! " + ConfigUtils.URL + " must be set.");
+        }
         return dataSource;
     }
 
@@ -1022,6 +1031,10 @@ public class ClassicConfiguration implements Configuration {
      * @param dataSource The datasource to use. Must have the necessary privileges to execute ddl.
      */
     public void setDataSource(DataSource dataSource) {
+        driver = null;
+        url = null;
+        user = null;
+        password = null;
         this.dataSource = dataSource;
     }
 
@@ -1203,16 +1216,29 @@ public class ClassicConfiguration implements Configuration {
         props = new HashMap<>(props);
 
         String driverProp = props.remove(ConfigUtils.DRIVER);
+        if (driverProp != null) {
+            dataSource = null;
+            driver = driverProp;
+        }
         String urlProp = props.remove(ConfigUtils.URL);
+        if (urlProp != null) {
+            dataSource = null;
+            url = urlProp;
+        }
         String userProp = props.remove(ConfigUtils.USER);
+        if (userProp != null) {
+            dataSource = null;
+            user = userProp;
+        }
         String passwordProp = props.remove(ConfigUtils.PASSWORD);
+        if (passwordProp != null) {
+            dataSource = null;
+            password = passwordProp;
+        }
 
-        if (StringUtils.hasText(urlProp)) {
-            setDataSource(
-                    new DriverDataSource(getClassLoader(), driverProp, urlProp, userProp, passwordProp));
-        } else if (!StringUtils.hasText(urlProp) &&
-                (StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
-            LOG.warn("Discarding INCOMPLETE dataSource configuration! " + ConfigUtils.URL + " must be set.");
+        if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) ||
+                StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
+            setDataSource(new DriverDataSource(classLoader, driver, url, user, password));
         }
 
         String locationsProp = props.remove(ConfigUtils.LOCATIONS);
@@ -1382,5 +1408,12 @@ public class ClassicConfiguration implements Configuration {
             throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value);
         }
         return value == null ? null : Boolean.valueOf(value);
+    }
+
+    /**
+     * Configures Flyway using FLYWAY_* environment variables.
+     */
+    public void configureUsingEnvVars() {
+        configure(ConfigUtils.environmentVariablesToPropertyMap());
     }
 }

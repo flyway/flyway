@@ -40,14 +40,14 @@ public class FluentConfiguration implements Configuration {
     private final ClassicConfiguration config;
 
     /**
-     * Creates a new instance of Flyway. This is your starting point.
+     * Creates a new default configuration.
      */
     public FluentConfiguration() {
         config = new ClassicConfiguration();
     }
 
     /**
-     * Creates a new instance of Flyway. This is your starting point.
+     * Creates a new default configuration with this class loader.
      *
      * @param classLoader The ClassLoader to use for loading migrations, resolvers, etc from the classpath. (default: Thread.currentThread().getContextClassLoader() )
      */
@@ -56,7 +56,7 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Creates a new instance of Flyway. This is your starting point.
+     * Creates a new configuration with the same values as this existing one.
      *
      * @param configuration The configuration to use.
      */
@@ -834,6 +834,16 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration configure(Map<String, String> props) {
         config.configure(props);
+        return this;
+    }
+
+    /**
+     * Configures Flyway using FLYWAY_* environment variables.
+     *
+     * @throws FlywayException when the configuration failed.
+     */
+    public FluentConfiguration envVars() {
+        config.configureUsingEnvVars();
         return this;
     }
 
