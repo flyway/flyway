@@ -16,8 +16,8 @@
 package org.flywaydb.core.api.configuration;
 
 /**
- * Marks a class as configuration aware (callbacks, resolvers and migrations). Configuration aware classes
- * get the flyway master configuration injected upon creation. The implementer is responsible for correctly storing
+ * Marks a class as configuration aware (executors, resolvers and migrations). Configuration aware classes
+ * get the Flyway master configuration injected upon creation. The implementer is responsible for correctly storing
  * the provided {@link FlywayConfiguration} (usually in a field).
  */
 public interface ConfigurationAware {

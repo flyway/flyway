@@ -15,16 +15,17 @@
  */
 package org.flywaydb.core.internal.command;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
@@ -34,8 +35,6 @@ import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
-import java.sql.SQLException;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -55,21 +54,14 @@ public class DbRepair {
     private final MigrationInfoServiceImpl migrationInfoService;
 
     /**
-     * The schema containing the schema history table.
-     */
-    private final Schema schema;
-
-    /**
      * The schema history table.
      */
     private final SchemaHistory schemaHistory;
 
     /**
-     * This is a list of callbacks that fire before or after the repair task is executed.
-     * You can add as many callbacks as you want.  These should be set on the Flyway class
-     * by the end user as Flyway will set them automatically for you here.
+     * The callback executor.
      */
-    private final List<FlywayCallback> callbacks;
+    private final CallbackExecutor callbackExecutor;
 
     /**
      * The database-specific support.
@@ -80,67 +72,51 @@ public class DbRepair {
      * Creates a new DbRepair.
      *
      * @param database          The database-specific support.
-     * @param schema            The database schema to use by default.
      * @param migrationResolver The migration resolver.
      * @param schemaHistory     The schema history table.
-     * @param callbacks         Callbacks for the Flyway lifecycle.
+     * @param callbackExecutor  The callback executor.
      */
-    public DbRepair(Database database, Schema schema, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                    List<FlywayCallback> callbacks) {
+    public DbRepair(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
+                    CallbackExecutor callbackExecutor) {
         this.database = database;
         this.connection = database.getMainConnection();
-        this.schema = schema;
-        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, MigrationVersion.LATEST, true, true, true, true, true);
+        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory,
+                MigrationVersion.LATEST, true, true, true, true, true);
         this.schemaHistory = schemaHistory;
-        this.callbacks = callbacks;
+        this.callbackExecutor = callbackExecutor;
     }
 
     /**
      * Repairs the schema history table.
      */
     public void repair() {
-        for (final FlywayCallback callback : callbacks) {
+        callbackExecutor.executeOnMainConnection(Event.BEFORE_REPAIR);
+
+        try {
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+
             new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                @Override
-                public Object call() {
-                    connection.restoreOriginalState();
-                    connection.changeCurrentSchemaTo(schema);
-                    callback.beforeRepair(connection.getJdbcConnection());
+                public Void call() {
+                    schemaHistory.removeFailedMigrations();
+                    alignAppliedMigrationsWithResolvedMigrations();
                     return null;
                 }
             });
-        }
 
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+            stopWatch.stop();
 
-        new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-            public Void call() {
-                schemaHistory.removeFailedMigrations();
-                alignAppliedMigrationsWithResolvedMigrations();
-                return null;
+            LOG.info("Successfully repaired schema history table " + schemaHistory + " (execution time "
+                    + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
+            if (!database.supportsDdlTransactions()) {
+                LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
             }
-        });
-
-        stopWatch.stop();
-
-        LOG.info("Successfully repaired schema history table " + schemaHistory + " (execution time "
-                + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
-        if (!database.supportsDdlTransactions()) {
-            LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
+        } catch (FlywayException e) {
+            callbackExecutor.executeOnMainConnection(Event.AFTER_REPAIR_ERROR);
+            throw e;
         }
 
-        for (final FlywayCallback callback : callbacks) {
-            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                @Override
-                public Object call() {
-                    connection.restoreOriginalState();
-                    connection.changeCurrentSchemaTo(schema);
-                    callback.afterRepair(connection.getJdbcConnection());
-                    return null;
-                }
-            });
-        }
+        callbackExecutor.executeOnMainConnection(Event.AFTER_REPAIR);
     }
 
     private void alignAppliedMigrationsWithResolvedMigrations() {

@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
@@ -48,7 +48,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
     /**
      * The Flyway configuration.
      */
-    private final FlywayConfiguration configuration;
+    private final Configuration configuration;
 
     /**
      * The SQL script that will be executed.
@@ -63,7 +63,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param configuration       The Flyway configuration.
      */
-    SqlMigrationExecutor(Database database, LoadableResource resource, PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
+    SqlMigrationExecutor(Database database, LoadableResource resource, PlaceholderReplacer placeholderReplacer, Configuration configuration) {
         this.database = database;
         this.resource = resource;
         this.placeholderReplacer = placeholderReplacer;

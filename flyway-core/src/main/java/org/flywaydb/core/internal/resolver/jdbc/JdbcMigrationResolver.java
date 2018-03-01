@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.resolver.jdbc;
 
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationType;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
 import org.flywaydb.core.internal.resolver.JavaMigrationResolver;
@@ -37,7 +38,7 @@ public class JdbcMigrationResolver extends JavaMigrationResolver<JdbcMigration, 
      * @param scanner       The Scanner for loading migrations on the classpath.
      * @param configuration The configuration to inject (if necessary) in the migration classes.
      */
-    public JdbcMigrationResolver(Scanner scanner, List<Location> locations, FlywayConfiguration configuration) {
+    public JdbcMigrationResolver(Scanner scanner, List<Location> locations, Configuration configuration) {
         super(scanner, locations, configuration);
     }
 

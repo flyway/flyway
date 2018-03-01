@@ -16,18 +16,18 @@
 package org.flywaydb.core.internal.resolver.sql;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.callback.Event;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
+import org.flywaydb.core.internal.callback.SqlScriptFlywayCallbackFactory;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
@@ -70,7 +70,7 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * The Flyway configuration.
      */
-    private final FlywayConfiguration configuration;
+    private final Configuration configuration;
 
     /**
      * Creates a new instance.
@@ -82,7 +82,7 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param configuration       The Flyway configuration.
      */
     public SqlMigrationResolver(Database database, Scanner scanner, List<Location> locations,
-                                PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
+                                PlaceholderReplacer placeholderReplacer, Configuration configuration) {
         this.database = database;
         this.scanner = scanner;
         this.locations = locations;
@@ -159,10 +159,9 @@ public class SqlMigrationResolver implements MigrationResolver {
     static boolean isSqlCallback(String filename, String... suffixes) {
         for (String suffix : suffixes) {
             String baseName = filename.substring(0, filename.length() - suffix.length());
-            if (SqlScriptFlywayCallback.ALL_CALLBACKS.contains(baseName)) {
+            if (Event.fromId(baseName) != null) {
                 return true;
             }
-
         }
         return false;
     }

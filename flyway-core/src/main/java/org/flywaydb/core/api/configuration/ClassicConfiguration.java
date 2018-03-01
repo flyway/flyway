@@ -18,11 +18,13 @@ package org.flywaydb.core.api.configuration;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.internal.callback.LegacyCallback;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
@@ -50,7 +52,7 @@ import java.util.Properties;
  * This configuration can then be passed to Flyway using the <code>new Flyway(FlywayConfiguration)</code> constructor.
  * </p>
  */
-public class ClassicConfiguration implements FlywayConfiguration {
+public class ClassicConfiguration implements Configuration {
     private static final Log LOG = LogFactory.getLog(ClassicConfiguration.class);
 
     /**
@@ -258,7 +260,7 @@ public class ClassicConfiguration implements FlywayConfiguration {
      * This is a list of custom callbacks that fire before and after tasks are executed.  You can
      * add as many custom callbacks as you want. (default: none)
      */
-    private final List<FlywayCallback> callbacks = new ArrayList<>();
+    private final List<Callback> callbacks = new ArrayList<>();
 
     /**
      * Whether Flyway should skip the default callbacks. If true, only custom callbacks are used.
@@ -350,7 +352,7 @@ public class ClassicConfiguration implements FlywayConfiguration {
      *
      * @param configuration The configuration to use.
      */
-    public ClassicConfiguration(FlywayConfiguration configuration) {
+    public ClassicConfiguration(Configuration configuration) {
         this(configuration.getClassLoader());
 
         setBaselineDescription(configuration.getBaselineDescription());
@@ -449,12 +451,6 @@ public class ClassicConfiguration implements FlywayConfiguration {
     @Override
     public String getSqlMigrationSeparator() {
         return sqlMigrationSeparator;
-    }
-
-    @Override
-    public String getSqlMigrationSuffix() {
-        LOG.warn("sqlMigrationSuffix has been deprecated and will be removed in Flyway 6.0.0. Use sqlMigrationSuffixes instead.");
-        return sqlMigrationSuffixes[0];
     }
 
     @Override
@@ -606,6 +602,11 @@ public class ClassicConfiguration implements FlywayConfiguration {
     public void setDryRunOutputAsFile(File dryRunOutput) {
 
         throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
+
+
+
+
+
 
 
 
@@ -1101,8 +1102,8 @@ public class ClassicConfiguration implements FlywayConfiguration {
      * @return The callbacks for lifecycle notifications. An empty array if none. (default: none)
      */
     @Override
-    public FlywayCallback[] getCallbacks() {
-        return callbacks.toArray(new FlywayCallback[callbacks.size()]);
+    public Callback[] getCallbacks() {
+        return callbacks.toArray(new Callback[callbacks.size()]);
     }
 
     @Override
@@ -1115,7 +1116,7 @@ public class ClassicConfiguration implements FlywayConfiguration {
      *
      * @param callbacks The callbacks for lifecycle notifications. (default: none)
      */
-    public void setCallbacks(FlywayCallback... callbacks) {
+    public void setCallbacks(Callback... callbacks) {
         this.callbacks.clear();
         this.callbacks.addAll(Arrays.asList(callbacks));
     }
@@ -1127,7 +1128,16 @@ public class ClassicConfiguration implements FlywayConfiguration {
      */
     public void setCallbacksAsClassNames(String... callbacks) {
         this.callbacks.clear();
-        this.callbacks.addAll(ClassUtils.<FlywayCallback>instantiateAll(callbacks, classLoader));
+        for (String callback : callbacks) {
+            Object o = ClassUtils.instantiate(callback, classLoader);
+            if (o instanceof Callback) {
+                this.callbacks.add((Callback) o);
+            } else if (o instanceof FlywayCallback) {
+                this.callbacks.add(new LegacyCallback((FlywayCallback) o));
+            } else {
+                throw new FlywayException("Invalid callback: " + callback + " (" + o.getClass().getName() + ")");
+            }
+        }
     }
 
     /**

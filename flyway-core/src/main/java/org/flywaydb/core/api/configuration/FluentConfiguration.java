@@ -19,7 +19,7 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
@@ -36,7 +36,7 @@ import java.util.Properties;
  * a new Flyway instance by calling the <code>load()</code> method.
  * </p>
  */
-public class FluentConfiguration implements FlywayConfiguration {
+public class FluentConfiguration implements Configuration {
     private final ClassicConfiguration config;
 
     /**
@@ -60,7 +60,7 @@ public class FluentConfiguration implements FlywayConfiguration {
      *
      * @param configuration The configuration to use.
      */
-    public FluentConfiguration config(FlywayConfiguration configuration) {
+    public FluentConfiguration config(Configuration configuration) {
         config.setBaselineDescription(configuration.getBaselineDescription());
         config.setBaselineOnMigrate(configuration.isBaselineOnMigrate());
         config.setBaselineVersion(configuration.getBaselineVersion());
@@ -158,11 +158,6 @@ public class FluentConfiguration implements FlywayConfiguration {
     @Override
     public String getSqlMigrationSeparator() {
         return config.getSqlMigrationSeparator();
-    }
-
-    @Override
-    public String getSqlMigrationSuffix() {
-        return config.getSqlMigrationSuffix();
     }
 
     @Override
@@ -746,7 +741,7 @@ public class FluentConfiguration implements FlywayConfiguration {
      * @return The callbacks for lifecycle notifications. An empty array if none. (default: none)
      */
     @Override
-    public FlywayCallback[] getCallbacks() {
+    public Callback[] getCallbacks() {
         return config.getCallbacks();
     }
 
@@ -760,7 +755,7 @@ public class FluentConfiguration implements FlywayConfiguration {
      *
      * @param callbacks The callbacks for lifecycle notifications. (default: none)
      */
-    public FluentConfiguration callbacks(FlywayCallback... callbacks) {
+    public FluentConfiguration callbacks(Callback... callbacks) {
         config.setCallbacks(callbacks);
         return this;
     }

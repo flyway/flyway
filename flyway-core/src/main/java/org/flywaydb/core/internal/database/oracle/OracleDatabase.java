@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
@@ -45,7 +45,7 @@ public class OracleDatabase extends Database<OracleConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public OracleDatabase(FlywayConfiguration configuration, Connection connection
+    public OracleDatabase(Configuration configuration, Connection connection
 
 
 

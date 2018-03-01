@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.h2;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
@@ -35,7 +35,7 @@ public class H2Database extends Database<H2Connection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public H2Database(FlywayConfiguration configuration, Connection connection
+    public H2Database(Configuration configuration, Connection connection
 
 
 

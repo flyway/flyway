@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.saphana;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
@@ -32,7 +32,7 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
      *
      * @param connection The connection to use.
      */
-    public SAPHANADatabase(FlywayConfiguration configuration, Connection connection
+    public SAPHANADatabase(Configuration configuration, Connection connection
 
 
 

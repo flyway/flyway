@@ -16,10 +16,11 @@
 package org.flywaydb.core.internal.command;
 
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Schema;
@@ -30,7 +31,6 @@ import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -95,11 +95,9 @@ public class DbValidate {
     private final boolean future;
 
     /**
-     * This is a list of callbacks that fire before or after the validate task is executed.
-     * You can add as many callbacks as you want.  These should be set on the Flyway class
-     * by the end user as Flyway will set them automatically for you here.
+     * The callback executor.
      */
-    private final List<FlywayCallback> callbacks;
+    private final CallbackExecutor callbackExecutor;
 
     /**
      * Creates a new database validator.
@@ -113,11 +111,11 @@ public class DbValidate {
      * @param pending           Whether pending migrations are allowed.
      * @param missing           Whether missing migrations are allowed.
      * @param future            Whether future migrations are allowed.
-     * @param callbacks         The lifecycle callbacks.
+     * @param callbackExecutor  The callback executor.
      */
     public DbValidate(Database database, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
                       MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean ignored, boolean future,
-                      List<FlywayCallback> callbacks) {
+                      CallbackExecutor callbackExecutor) {
         this.connection = database.getMainConnection();
         this.schemaHistory = schemaHistory;
         this.schema = schema;
@@ -128,7 +126,7 @@ public class DbValidate {
         this.missing = missing;
         this.ignored = ignored;
         this.future = future;
-        this.callbacks = callbacks;
+        this.callbackExecutor = callbackExecutor;
     }
 
     /**
@@ -144,17 +142,7 @@ public class DbValidate {
             return null;
         }
 
-        for (final FlywayCallback callback : callbacks) {
-            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                @Override
-                public Object call() {
-                    connection.restoreOriginalState();
-                    connection.changeCurrentSchemaTo(schema);
-                    callback.beforeValidate(connection.getJdbcConnection());
-                    return null;
-                }
-            });
-        }
+        callbackExecutor.executeOnMainConnection(Event.BEFORE_VALIDATE);
 
         LOG.debug("Validating migrations ...");
         StopWatch stopWatch = new StopWatch();
@@ -186,19 +174,11 @@ public class DbValidate {
                 LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
                         count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
             }
+            callbackExecutor.executeOnMainConnection(Event.AFTER_VALIDATE);
+        } else {
+            callbackExecutor.executeOnMainConnection(Event.AFTER_VALIDATE_ERROR);
         }
 
-        for (final FlywayCallback callback : callbacks) {
-            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                @Override
-                public Object call() {
-                    connection.restoreOriginalState();
-                    connection.changeCurrentSchemaTo(schema);
-                    callback.afterValidate(connection.getJdbcConnection());
-                    return null;
-                }
-            });
-        }
 
         return error;
     }

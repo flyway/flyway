@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -59,7 +60,7 @@ public class DatabaseFactory {
      * @param printInfo     Where the DB info should be printed in the logs.
      * @return The appropriate Database class.
      */
-    public static Database createDatabase(FlywayConfiguration configuration, boolean printInfo
+    public static Database createDatabase(Configuration configuration, boolean printInfo
 
 
 
@@ -87,7 +88,7 @@ public class DatabaseFactory {
         return database;
     }
 
-    private static Database createDatabase(FlywayConfiguration configuration, Connection connection, String databaseProductName
+    private static Database createDatabase(Configuration configuration, Connection connection, String databaseProductName
 
 
 

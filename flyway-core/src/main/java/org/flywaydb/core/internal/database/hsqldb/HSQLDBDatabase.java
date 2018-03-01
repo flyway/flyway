@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.hsqldb;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
@@ -34,7 +34,7 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public HSQLDBDatabase(FlywayConfiguration configuration, Connection connection
+    public HSQLDBDatabase(Configuration configuration, Connection connection
 
 
 

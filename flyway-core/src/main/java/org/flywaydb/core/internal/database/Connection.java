@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
@@ -35,7 +35,7 @@ public abstract class Connection<D extends Database> implements Closeable {
      */
     protected final String originalSchemaNameOrSearchPath;
 
-    protected Connection(FlywayConfiguration configuration, D database, java.sql.Connection connection, int nullType
+    protected Connection(Configuration configuration, D database, java.sql.Connection connection, int nullType
 
 
 

@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 
@@ -25,7 +25,7 @@ import java.sql.Types;
  * Sybase ASE Connection.
  */
 public class SybaseASEConnection extends Connection<SybaseASEDatabase> {
-    SybaseASEConnection(FlywayConfiguration configuration, SybaseASEDatabase database, java.sql.Connection connection, boolean jconnect
+    SybaseASEConnection(Configuration configuration, SybaseASEDatabase database, java.sql.Connection connection, boolean jconnect
 
 
 

@@ -16,17 +16,26 @@
 package org.flywaydb.core.internal.configuration;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.callback.Callback;
+import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.ConfigurationAware;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Locale;
@@ -109,9 +118,189 @@ public class ConfigUtils {
      * @param target        The object to inject the configuration into.
      * @param configuration The configuration to inject.
      */
-    public static void injectFlywayConfiguration(Object target, FlywayConfiguration configuration) {
+    public static void injectFlywayConfiguration(Object target, final Configuration configuration) {
         if (target instanceof ConfigurationAware) {
-            ((ConfigurationAware) target).setFlywayConfiguration(configuration);
+            ((ConfigurationAware) target).setFlywayConfiguration(new FlywayConfiguration() {
+                @Override
+                public String getSqlMigrationSuffix() {
+                    return configuration.getSqlMigrationSuffixes()[0];
+                }
+
+                @Override
+                public ClassLoader getClassLoader() {
+                    return configuration.getClassLoader();
+                }
+
+                @Override
+                public DataSource getDataSource() {
+                    return configuration.getDataSource();
+                }
+
+                @Override
+                public MigrationVersion getBaselineVersion() {
+                    return configuration.getBaselineVersion();
+                }
+
+                @Override
+                public String getBaselineDescription() {
+                    return configuration.getBaselineDescription();
+                }
+
+                @Override
+                public MigrationResolver[] getResolvers() {
+                    return configuration.getResolvers();
+                }
+
+                @Override
+                public boolean isSkipDefaultResolvers() {
+                    return configuration.isSkipDefaultResolvers();
+                }
+
+                @Override
+                public Callback[] getCallbacks() {
+                    return configuration.getCallbacks();
+                }
+
+                @Override
+                public boolean isSkipDefaultCallbacks() {
+                    return configuration.isSkipDefaultCallbacks();
+                }
+
+                @Override
+                public String getSqlMigrationPrefix() {
+                    return configuration.getSqlMigrationPrefix();
+                }
+
+                @Override
+                public String getUndoSqlMigrationPrefix() {
+                    return configuration.getUndoSqlMigrationPrefix();
+                }
+
+                @Override
+                public String getRepeatableSqlMigrationPrefix() {
+                    return configuration.getRepeatableSqlMigrationPrefix();
+                }
+
+                @Override
+                public String getSqlMigrationSeparator() {
+                    return configuration.getSqlMigrationSeparator();
+                }
+
+                @Override
+                public String[] getSqlMigrationSuffixes() {
+                    return configuration.getSqlMigrationSuffixes();
+                }
+
+                @Override
+                public boolean isPlaceholderReplacement() {
+                    return configuration.isPlaceholderReplacement();
+                }
+
+                @Override
+                public String getPlaceholderSuffix() {
+                    return configuration.getPlaceholderSuffix();
+                }
+
+                @Override
+                public String getPlaceholderPrefix() {
+                    return configuration.getPlaceholderPrefix();
+                }
+
+                @Override
+                public Map<String, String> getPlaceholders() {
+                    return configuration.getPlaceholders();
+                }
+
+                @Override
+                public MigrationVersion getTarget() {
+                    return configuration.getTarget();
+                }
+
+                @Override
+                public String getTable() {
+                    return configuration.getTable();
+                }
+
+                @Override
+                public String[] getSchemas() {
+                    return configuration.getSchemas();
+                }
+
+                @Override
+                public String getEncoding() {
+                    return configuration.getEncoding();
+                }
+
+                @Override
+                public Location[] getLocations() {
+                    return configuration.getLocations();
+                }
+
+                @Override
+                public boolean isBaselineOnMigrate() {
+                    return configuration.isBaselineOnMigrate();
+                }
+
+                @Override
+                public boolean isOutOfOrder() {
+                    return configuration.isOutOfOrder();
+                }
+
+                @Override
+                public boolean isIgnoreMissingMigrations() {
+                    return configuration.isIgnoreMissingMigrations();
+                }
+
+                @Override
+                public boolean isIgnoreIgnoredMigrations() {
+                    return configuration.isIgnoreIgnoredMigrations();
+                }
+
+                @Override
+                public boolean isIgnoreFutureMigrations() {
+                    return configuration.isIgnoreFutureMigrations();
+                }
+
+                @Override
+                public boolean isValidateOnMigrate() {
+                    return configuration.isValidateOnMigrate();
+                }
+
+                @Override
+                public boolean isCleanOnValidationError() {
+                    return configuration.isCleanOnValidationError();
+                }
+
+                @Override
+                public boolean isCleanDisabled() {
+                    return configuration.isCleanDisabled();
+                }
+
+                @Override
+                public boolean isMixed() {
+                    return configuration.isMixed();
+                }
+
+                @Override
+                public boolean isGroup() {
+                    return configuration.isGroup();
+                }
+
+                @Override
+                public String getInstalledBy() {
+                    return configuration.getInstalledBy();
+                }
+
+                @Override
+                public ErrorHandler[] getErrorHandlers() {
+                    return configuration.getErrorHandlers();
+                }
+
+                @Override
+                public OutputStream getDryRunOutput() {
+                    return configuration.getDryRunOutput();
+                }
+            });
         }
     }
 
@@ -161,6 +350,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_DRIVER".equals(key)) {
             return DRIVER;
+        }
+        if ("FLYWAY_DRYRUN_OUTPUT".equals(key)) {
+            return DRYRUN_OUTPUT;
         }
         if ("FLYWAY_ENCODING".equals(key)) {
             return ENCODING;

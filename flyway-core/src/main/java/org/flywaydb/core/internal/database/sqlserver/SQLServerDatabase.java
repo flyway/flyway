@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Delimiter;
@@ -40,7 +40,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public SQLServerDatabase(FlywayConfiguration configuration, Connection connection
+    public SQLServerDatabase(Configuration configuration, Connection connection
 
 
 
