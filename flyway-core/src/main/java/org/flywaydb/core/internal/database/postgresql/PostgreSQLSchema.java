@@ -48,11 +48,22 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        return !jdbcTemplate.queryForBoolean("SELECT EXISTS (" +
-                "   SELECT 1\n" +
-                "   FROM   pg_catalog.pg_class c\n" +
-                "   JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
-                "   WHERE  n.nspname = ?)", name);
+        return !jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
+                "    SELECT c.oid FROM pg_catalog.pg_class c\n" +
+                "    JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
+                "    LEFT JOIN pg_catalog.pg_depend d ON d.objid = c.oid AND d.deptype = 'e'\n" +
+                "    WHERE  n.nspname = ? AND d.objid IS NULL AND c.relkind IN ('r', 'v', 'S', 't')\n" +
+                "  UNION ALL\n" +
+                "    SELECT t.oid FROM pg_catalog.pg_type t\n" +
+                "    JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace\n" +
+                "    LEFT JOIN pg_catalog.pg_depend d ON d.objid = t.oid AND d.deptype = 'e'\n" +
+                "    WHERE n.nspname = ? AND d.objid IS NULL AND t.typcategory NOT IN ('A', 'C')\n" +
+                "  UNION ALL\n" +
+                "    SELECT p.oid FROM pg_catalog.pg_proc p\n" +
+                "    JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace\n" +
+                "    LEFT JOIN pg_catalog.pg_depend d ON d.objid = p.oid AND d.deptype = 'e'\n" +
+                "    WHERE n.nspname = ? AND d.objid IS NULL\n" +
+                ")", name, name, name);
     }
 
     @Override
