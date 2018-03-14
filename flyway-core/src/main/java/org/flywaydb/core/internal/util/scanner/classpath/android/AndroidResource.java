@@ -17,24 +17,30 @@ package org.flywaydb.core.internal.util.scanner.classpath.android;
 
 import android.content.res.AssetManager;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.BomStrippingReader;
 import org.flywaydb.core.internal.util.FileCopyUtils;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.line.DefaultLineReader;
+import org.flywaydb.core.internal.util.line.LineReader;
+import org.flywaydb.core.internal.util.scanner.AbstractLoadableResource;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 /**
  * Resource within an Android App.
  */
-public class AndroidResource implements LoadableResource {
+public class AndroidResource extends AbstractLoadableResource {
     private final AssetManager assetManager;
     private final String path;
     private final String name;
+    private final Charset encoding;
 
-    public AndroidResource(AssetManager assetManager, String path, String name) {
+    AndroidResource(AssetManager assetManager, String path, String name, Charset encoding) {
         this.assetManager = assetManager;
         this.path = path;
         this.name = name;
+        this.encoding = encoding;
     }
 
     @Override
@@ -48,9 +54,9 @@ public class AndroidResource implements LoadableResource {
     }
 
     @Override
-    public String loadAsString(String encoding) {
+    public LineReader loadAsString() {
         try {
-            return FileCopyUtils.copyToString(new InputStreamReader(assetManager.open(getLocation()), encoding));
+            return new DefaultLineReader(new BomStrippingReader(new InputStreamReader(assetManager.open(getLocation()), encoding)));
         } catch (IOException e) {
             throw new FlywayException("Unable to load asset: " + getLocation(), e);
         }

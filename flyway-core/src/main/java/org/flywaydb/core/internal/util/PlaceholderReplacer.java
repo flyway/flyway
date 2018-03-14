@@ -53,6 +53,8 @@ public class PlaceholderReplacer {
      */
     private final String placeholderSuffix;
 
+    private final Pattern pattern;
+
     /**
      * Creates a new PlaceholderReplacer.
      *
@@ -64,6 +66,7 @@ public class PlaceholderReplacer {
         this.placeholders = placeholders;
         this.placeholderPrefix = placeholderPrefix;
         this.placeholderSuffix = placeholderSuffix;
+        this.pattern = Pattern.compile(Pattern.quote(placeholderPrefix) + "(.+?)" + Pattern.quote(placeholderSuffix));
     }
 
     /**
@@ -78,7 +81,7 @@ public class PlaceholderReplacer {
         for (String placeholder : placeholders.keySet()) {
             String searchTerm = placeholderPrefix + placeholder + placeholderSuffix;
             String value = placeholders.get(placeholder);
-            noPlaceholders = StringUtils.replaceAll(noPlaceholders, searchTerm, value == null ? "" : value);
+            noPlaceholders = noPlaceholders.replace(searchTerm, value == null ? "" : value);
         }
         checkForUnmatchedPlaceholderExpression(noPlaceholders);
 
@@ -93,8 +96,7 @@ public class PlaceholderReplacer {
      * @throws FlywayException An exception listing the unmatched expressions.
      */
     private void checkForUnmatchedPlaceholderExpression(String input) {
-        String regex = Pattern.quote(placeholderPrefix) + "(.+?)" + Pattern.quote(placeholderSuffix);
-        Matcher matcher = Pattern.compile(regex).matcher(input);
+        Matcher matcher = pattern.matcher(input);
 
         Set<String> unmatchedPlaceHolderExpressions = new TreeSet<>();
         while (matcher.find()) {

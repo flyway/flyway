@@ -51,7 +51,7 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
         if (StringUtils.countOccurrencesOf(statementStart, " ") < 3) {
             statementStart += line;
             statementStart += " ";
-            statementStart = statementStart.replaceAll("\\s+", " ");
+            statementStart = StringUtils.collapseWhitespace(statementStart);
         }
 
         if (statementStart.matches("^(BACKUP|RESTORE|ALTER DATABASE) .*")) {

@@ -19,19 +19,20 @@ import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.ContextImpl;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 /**
  * MySQL-specific SQL script.
  */
 class MySQLSqlScript extends ExecutableSqlScript<ContextImpl> {
-    MySQLSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
+    MySQLSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-        super(sqlScriptResource, sqlScriptSource, mixed
+        super(sqlScriptResource, placeholderReplacer, mixed
 
 
 

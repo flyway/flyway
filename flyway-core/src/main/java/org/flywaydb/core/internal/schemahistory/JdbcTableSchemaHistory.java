@@ -26,6 +26,7 @@ import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
@@ -126,11 +127,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                 LOG.info("Creating Schema History table: " + table);
             }
             try {
-                database.createSqlScript(null, database.getCreateScript(table), false
-
-
-
-                ).execute(jdbcTemplate);
+                database.getCreateScript(table).execute(jdbcTemplate);
                 LOG.debug("Created Schema History table: " + table);
             } catch (FlywayException e) {
                 if (++retries >= 10) {

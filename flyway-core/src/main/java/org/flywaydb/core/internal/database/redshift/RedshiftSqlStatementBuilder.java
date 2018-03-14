@@ -16,11 +16,10 @@
 package org.flywaydb.core.internal.database.redshift;
 
 import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.database.StandardSqlStatement;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,14 +42,6 @@ public class RedshiftSqlStatementBuilder extends SqlStatementBuilder {
         super(defaultDelimiter);
     }
 
-    /**
-     * @return The assembled statement, with the delimiter stripped off.
-     */
-    @Override
-    public SqlStatement getSqlStatement() {
-        return new StandardSqlStatement(lineNumber, statement.toString());
-    }
-
     @Override
     protected void applyStateChanges(String line) {
         super.applyStateChanges(line);
@@ -62,7 +53,7 @@ public class RedshiftSqlStatementBuilder extends SqlStatementBuilder {
         if (StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
             statementStart += line;
             statementStart += " ";
-            statementStart = statementStart.replaceAll("\\s+", " ");
+            statementStart = StringUtils.collapseWhitespace(statementStart);
         }
 
         if (statementStart.matches("^(CREATE|DROP) LIBRARY .*")
@@ -75,8 +66,8 @@ public class RedshiftSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
-    protected String[] tokenizeLine(String line) {
-        return StringUtils.tokenizeToStringArray(line, " @<>;:=|(),+{}\\[\\]");
+    protected Collection<String> tokenizeLine(String line) {
+        return StringUtils.tokenizeToStringCollection(line, " @<>;:=|(),+{}[]");
     }
 
     @Override

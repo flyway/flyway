@@ -18,6 +18,8 @@ package org.flywaydb.core.internal.util.scanner.classpath;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
+import java.nio.charset.Charset;
+
 /**
  * Scanner for both resources and classes.
  */

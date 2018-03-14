@@ -23,6 +23,7 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import javax.sql.DataSource;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
@@ -201,7 +202,7 @@ public interface Configuration {
      *
      * @return The encoding of Sql migrations. (default: UTF-8)
      */
-    String getEncoding();
+    Charset getEncoding();
 
     /**
      * Retrieves the locations to scan recursively for migrations.

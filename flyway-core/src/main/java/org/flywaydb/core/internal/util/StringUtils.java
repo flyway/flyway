@@ -15,8 +15,10 @@
  */
 package org.flywaydb.core.internal.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +26,8 @@ import java.util.regex.Pattern;
  * Various string-related utilities.
  */
 public class StringUtils {
+    private static final char[] WHITESPACE_CHARS = {' ', '\t', '\n', '\f', '\r'};
+
     /**
      * Prevents instantiation.
      */
@@ -97,7 +101,27 @@ public class StringUtils {
      * @return The input string, with all whitespace collapsed.
      */
     public static String collapseWhitespace(String str) {
-        return str.replaceAll("\\s+", " ");
+        StringBuilder result = new StringBuilder();
+        char previous = 0;
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            boolean whitespace = false;
+            for (char w : WHITESPACE_CHARS) {
+                if (c == w) {
+                    if (previous != ' ') {
+                        result.append(' ');
+                    }
+                    previous = ' ';
+                    whitespace = true;
+                    break;
+                }
+            }
+            if (!whitespace) {
+                result.append(c);
+                previous = c;
+            }
+        }
+        return result.toString();
     }
 
     /**
@@ -156,7 +180,7 @@ public class StringUtils {
      * Turns this string array in one delimited string.
      *
      * @param delimiter The delimiter to use.
-     * @param strings The array to process.
+     * @param strings   The array to process.
      * @return The new delimited string. An empty string if {@code strings} is empty. {@code null} if strings is {@code null}.
      */
     public static String arrayToDelimitedString(String delimiter, Object[] strings) {
@@ -195,9 +219,49 @@ public class StringUtils {
         if (str == null) {
             return null;
         }
-        String[] tokens = str.split("[" + delimiters + "]");
-        for (int i = 0; i < tokens.length; i++) {
-            tokens[i] = tokens[i].trim();
+        Collection<String> tokens = tokenizeToStringCollection(str, delimiters);
+        return tokens.toArray(new String[tokens.size()]);
+    }
+
+    /**
+     * Splits this string into a collection using these delimiters.
+     *
+     * @param str        The string to split.
+     * @param delimiters The delimiters to use.
+     * @return The resulting array.
+     */
+    public static Collection<String> tokenizeToStringCollection(String str, String delimiters) {
+        if (str == null) {
+            return null;
+        }
+        List<String> tokens = new ArrayList<>(str.length() / 5);
+        char[] delimiterChars = delimiters.toCharArray();
+        int start = 0;
+        int end = 0;
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            boolean delimiter = false;
+            for (char d : delimiterChars) {
+                if (c == d) {
+                    tokens.add(str.substring(start, end));
+                    start = i + 1;
+                    end = start;
+                    delimiter = true;
+                    break;
+                }
+            }
+            if (!delimiter) {
+                if (i == start && c == ' ') {
+                    start++;
+                    end++;
+                }
+                if (i >= start && c != ' ') {
+                    end = i + 1;
+                }
+            }
+        }
+        if (start < end) {
+            tokens.add(str.substring(start, end));
         }
         return tokens;
     }

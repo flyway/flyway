@@ -32,6 +32,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -53,6 +54,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
      * The ClassLoader for loading migrations on the classpath.
      */
     private final ClassLoader classLoader;
+    private final Charset encoding;
 
     /**
      * Cache location lookups.
@@ -74,8 +76,9 @@ public class ClassPathScanner implements ResourceAndClassScanner {
      *
      * @param classLoader The ClassLoader for loading migrations on the classpath.
      */
-    public ClassPathScanner(ClassLoader classLoader) {
+    public ClassPathScanner(ClassLoader classLoader, Charset encoding) {
         this.classLoader = classLoader;
+        this.encoding = encoding;
     }
 
     @Override
@@ -87,7 +90,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
 
         Set<String> resourceNames = findResourceNames(path, prefix, suffixes);
         for (String resourceName : resourceNames) {
-            resources.add(new ClassPathResource(resourceName, classLoader));
+            resources.add(new ClassPathResource(resourceName, classLoader, encoding));
             LOG.debug("Found resource: " + resourceName);
         }
 

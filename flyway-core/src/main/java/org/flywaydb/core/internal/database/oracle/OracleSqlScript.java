@@ -24,9 +24,10 @@ import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Array;
 import java.sql.CallableStatement;
@@ -53,12 +54,12 @@ class OracleSqlScript extends ExecutableSqlScript<OracleContextImpl> {
 
 
 
-    OracleSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
+    OracleSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-        super(sqlScriptResource, sqlScriptSource, mixed
+        super(sqlScriptResource, placeholderReplacer, mixed
 
 
 

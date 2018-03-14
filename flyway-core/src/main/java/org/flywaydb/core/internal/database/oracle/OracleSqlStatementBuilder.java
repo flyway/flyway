@@ -18,8 +18,8 @@ package org.flywaydb.core.internal.database.oracle;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.regex.Matcher;
@@ -182,6 +182,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
 
 
+
     @Override
     protected void applyStateChanges(String line) {
         super.applyStateChanges(line);
@@ -189,7 +190,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
         if (StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
             statementStart += line;
             statementStart += " ";
-            statementStart = statementStart.replaceAll("\\s+", " ");
+            statementStart = StringUtils.collapseWhitespace(statementStart);
         }
     }
 

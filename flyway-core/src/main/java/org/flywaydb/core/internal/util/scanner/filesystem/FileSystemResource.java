@@ -16,40 +16,45 @@
 package org.flywaydb.core.internal.util.scanner.filesystem;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.BomStrippingReader;
 import org.flywaydb.core.internal.util.FileCopyUtils;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.line.DefaultLineReader;
+import org.flywaydb.core.internal.util.line.LineReader;
+import org.flywaydb.core.internal.util.scanner.AbstractLoadableResource;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.Charset;
 
 /**
  * A resource on the filesystem.
  */
-public class FileSystemResource implements LoadableResource, Comparable<FileSystemResource> {
+public class FileSystemResource extends AbstractLoadableResource implements Comparable<FileSystemResource> {
     /**
      * The location of the resource on the filesystem.
      */
-    private File location;
+    private final File file;
+    private final Charset encoding;
 
     /**
      * Creates a new ClassPathResource.
      *
      * @param location The location of the resource on the filesystem.
      */
-    public FileSystemResource(String location) {
-        this.location = new File(new File(location).getPath());
+    public FileSystemResource(String location, Charset encoding) {
+        this.file = new File(new File(location).getPath());
+        this.encoding = encoding;
     }
 
     /**
      * @return The location of the resource on the filesystem.
      */
+    @Override
     public String getLocation() {
-        return location.getPath();
+        return file.getPath();
     }
 
     /**
@@ -57,24 +62,27 @@ public class FileSystemResource implements LoadableResource, Comparable<FileSyst
      *
      * @return The location of this resource on disk.
      */
+    @Override
     public String getLocationOnDisk() {
-        return location.getAbsolutePath();
+        return file.getAbsolutePath();
     }
 
     /**
      * Loads this resource as a string.
      *
-     * @param encoding The encoding to use.
      * @return The string contents of the resource.
      */
-    public String loadAsString(String encoding) {
+    @Override
+    public LineReader loadAsString() {
         try {
-            InputStream inputStream = new FileInputStream(location);
-            Reader reader = new InputStreamReader(inputStream, Charset.forName(encoding));
 
-            return FileCopyUtils.copyToString(reader);
+
+
+
+
+            return new DefaultLineReader(new BomStrippingReader(new InputStreamReader(new FileInputStream(file), encoding)));
         } catch (IOException e) {
-            throw new FlywayException("Unable to load filesystem resource: " + location.getPath() + " (encoding: " + encoding + ")", e);
+            throw new FlywayException("Unable to load filesystem resource: " + file.getPath() + " (encoding: " + encoding + ")", e);
         }
     }
 
@@ -83,24 +91,27 @@ public class FileSystemResource implements LoadableResource, Comparable<FileSyst
      *
      * @return The contents of the resource.
      */
+    @Override
     public byte[] loadAsBytes() {
         try {
-            InputStream inputStream = new FileInputStream(location);
+            InputStream inputStream = new FileInputStream(file);
             return FileCopyUtils.copyToByteArray(inputStream);
         } catch (IOException e) {
-            throw new FlywayException("Unable to load filesystem resource: " + location.getPath(), e);
+            throw new FlywayException("Unable to load filesystem resource: " + file.getPath(), e);
         }
     }
 
     /**
      * @return The filename of this resource, without the path.
      */
+    @Override
     public String getFilename() {
-        return location.getName();
+        return file.getName();
     }
 
     @SuppressWarnings("NullableProblems")
+    @Override
     public int compareTo(FileSystemResource o) {
-        return location.compareTo(o.location);
+        return file.compareTo(o.file);
     }
 }

@@ -57,7 +57,7 @@ public class MigrationInfoHelper {
         }
 
         String version = cleanMigrationName.substring(0, descriptionPos);
-        String description = cleanMigrationName.substring(descriptionPos + separator.length()).replaceAll("_", " ");
+        String description = cleanMigrationName.substring(descriptionPos + separator.length()).replace("_", " ");
         if (StringUtils.hasText(version)) {
             if (repeatable) {
                 throw new FlywayException("Wrong repeatable migration name format: " + migrationName

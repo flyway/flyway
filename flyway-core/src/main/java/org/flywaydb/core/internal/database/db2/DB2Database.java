@@ -20,7 +20,9 @@ import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.scanner.StringResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -78,12 +80,13 @@ public class DB2Database extends Database<DB2Connection> {
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(Resource resource, String sqlScriptSource, boolean mixed
+    protected SqlScript doCreateSqlScript(LoadableResource resource,
+                                          PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-        return new DB2SqlScript(resource, sqlScriptSource, mixed
+        return new DB2SqlScript(resource, placeholderReplacer, mixed
 
 
 
@@ -91,8 +94,8 @@ public class DB2Database extends Database<DB2Connection> {
     }
 
     @Override
-    public String getRawCreateScript() {
-        return "CREATE TABLE \"${schema}\".\"${table}\" (\n" +
+    public LoadableResource getRawCreateScript() {
+        return new StringResource("CREATE TABLE \"${schema}\".\"${table}\" (\n" +
                 "    \"installed_rank\" INT NOT NULL,\n" +
                 "    \"version\" VARCHAR(50),\n" +
                 "    \"description\" VARCHAR(200) NOT NULL,\n" +
@@ -113,7 +116,7 @@ public class DB2Database extends Database<DB2Connection> {
 
                 + "ALTER TABLE \"${schema}\".\"${table}\" ADD CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\");\n" +
                 "\n" +
-                "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");";
+                "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");");
     }
 
     @Override

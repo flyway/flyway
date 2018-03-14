@@ -88,7 +88,7 @@ public class SqlScriptFlywayCallbackFactory {
                                 "-> " + resource.getLocationOnDisk());
                     }
                     SqlScript sqlScript = database.createSqlScript(resource,
-                            placeholderReplacer.replacePlaceholders(resource.loadAsString(configuration.getEncoding())),
+                            placeholderReplacer,
                             configuration.isMixed()
 
 
