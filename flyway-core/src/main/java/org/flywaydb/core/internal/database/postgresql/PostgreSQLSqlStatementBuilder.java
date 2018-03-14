@@ -118,6 +118,11 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
+    protected String simplifyLine(String line) {
+        return super.simplifyLine(line.replace("$$", " $$ "));
+    }
+
+    @Override
     protected String extractAlternateOpenQuote(String token) {
         Matcher matcher = DOLLAR_QUOTE_REGEX.matcher(token);
         if (matcher.find()) {
