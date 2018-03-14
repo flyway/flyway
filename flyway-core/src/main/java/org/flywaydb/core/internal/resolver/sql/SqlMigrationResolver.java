@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
@@ -33,13 +32,9 @@ import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.zip.CRC32;
 
 /**
  * Migration resolver for SQL files on the classpath. The SQL files must have names like
@@ -135,7 +130,7 @@ public class SqlMigrationResolver implements MigrationResolver {
             migration.setVersion(info.getLeft());
             migration.setDescription(info.getRight());
             migration.setScript(extractScriptName(resource, location));
-            migration.setChecksum(calculateChecksum(resource, resource.loadAsString(configuration.getEncoding())));
+            migration.setChecksum(resource.checksum());
             migration.setType(
 
 
@@ -182,32 +177,5 @@ public class SqlMigrationResolver implements MigrationResolver {
         }
 
         return resource.getLocation().substring(location.getPath().length() + 1);
-    }
-
-    /**
-     * Calculates the checksum of this string.
-     *
-     * @param str The string to calculate the checksum for.
-     * @return The crc-32 checksum of the bytes.
-     */
-    /* private -> for testing */
-    static int calculateChecksum(Resource resource, String str) {
-        final CRC32 crc32 = new CRC32();
-
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(str));
-        try {
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                crc32.update(line.getBytes("UTF-8"));
-            }
-        } catch (IOException e) {
-            String message = "Unable to calculate checksum";
-            if (resource != null) {
-                message += " for " + resource.getLocation() + " (" + resource.getLocationOnDisk() + ")";
-            }
-            throw new FlywayException(message, e);
-        }
-
-        return (int) crc32.getValue();
     }
 }

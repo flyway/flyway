@@ -86,16 +86,8 @@ public class FileCopyUtils {
             }
             out.flush();
         } finally {
-            try {
-                in.close();
-            } catch (IOException ex) {
-                //Ignore
-            }
-            try {
-                out.close();
-            } catch (IOException ex) {
-                //Ignore
-            }
+            IOUtils.close(in);
+            IOUtils.close(out);
         }
     }
 
@@ -120,16 +112,8 @@ public class FileCopyUtils {
             out.flush();
             return byteCount;
         } finally {
-            try {
-                in.close();
-            } catch (IOException ex) {
-                //Ignore
-            }
-            try {
-                out.close();
-            } catch (IOException ex) {
-                //Ignore
-            }
+            IOUtils.close(in);
+            IOUtils.close(out);
         }
     }
 }

@@ -26,6 +26,7 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Properties;
 
@@ -106,7 +107,7 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public String getEncoding() {
+    public Charset getEncoding() {
         return config.getEncoding();
     }
 
@@ -482,6 +483,16 @@ public class FluentConfiguration implements Configuration {
      * @param encoding The encoding of Sql migrations. (default: UTF-8)
      */
     public FluentConfiguration encoding(String encoding) {
+        config.setEncodingAsString(encoding);
+        return this;
+    }
+
+    /**
+     * Sets the encoding of Sql migrations.
+     *
+     * @param encoding The encoding of Sql migrations. (default: UTF-8)
+     */
+    public FluentConfiguration encoding(Charset encoding) {
         config.setEncoding(encoding);
         return this;
     }

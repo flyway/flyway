@@ -18,28 +18,20 @@ package org.flywaydb.core.internal.database;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.ContextImpl;
+import org.flywaydb.core.internal.util.line.Line;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
  * Builds a SQL statement, one line at a time.
  */
-public class SqlStatementBuilder {
+public abstract class SqlStatementBuilder {
     /**
      * The current statement, as it is being built.
      */
-    protected StringBuilder statement = new StringBuilder();
-
-    /**
-     * The initial line number of this statement.
-     */
-    protected int lineNumber;
-
-    /**
-     * Flag indicating whether the current statement is still empty.
-     */
-    private boolean empty = true;
+    protected final List<Line> lines = new ArrayList<>();
 
     /**
      * Flag indicating whether the current statement is properly terminated.
@@ -107,13 +99,6 @@ public class SqlStatementBuilder {
     }
 
     /**
-     * @param lineNumber The initial line number of this statement.
-     */
-    public void setLineNumber(int lineNumber) {
-        this.lineNumber = lineNumber;
-    }
-
-    /**
      * @param delimiter The current delimiter to look for to terminate the statement.
      */
     public void setDelimiter(Delimiter delimiter) {
@@ -125,8 +110,8 @@ public class SqlStatementBuilder {
      *
      * @return {@code true} if it is, {@code false} if it isn't.
      */
-    public boolean isEmpty() {
-        return empty;
+    public final boolean isEmpty() {
+        return lines.isEmpty();
     }
 
     /**
@@ -143,7 +128,7 @@ public class SqlStatementBuilder {
      */
     public <C extends ContextImpl> SqlStatement<C> getSqlStatement() {
         //noinspection unchecked
-        return (SqlStatement<C>) new StandardSqlStatement(lineNumber, statement.toString());
+        return (SqlStatement<C>) new StandardSqlStatement(lines, delimiter);
     }
 
     /**
@@ -180,35 +165,35 @@ public class SqlStatementBuilder {
     /**
      * Adds this line to the current statement being built.
      *
-     * @param line The line to add.
+     * @param sqlLine The line to add.
      */
-    public void addLine(String line) {
-        if (isEmpty()) {
-            empty = false;
-        } else {
-            statement.append("\n");
+    public void addLine(Line sqlLine) {
+        String line = sqlLine.getLine();
+        String lineTrimmed = line.trim();
+        String lineSimplified = simplifyLine(lineTrimmed);
+
+        // Skip empty lone ; or GO statements
+        if (isEmpty() && delimiter != null && lineSimplified.equals(delimiter.getDelimiter().toUpperCase())) {
+            return;
         }
 
-        if (isCommentDirective(line.trim())) {
+        if (isCommentDirective(lineTrimmed)) {
             nonCommentStatementPartSeen = true;
         }
 
-        String lineSimplified = simplifyLine(line);
-
         applyStateChanges(lineSimplified);
         if (endWithOpenMultilineStringLiteral() || insideMultiLineComment) {
-            statement.append(line);
+            lines.add(sqlLine);
             return;
         }
 
         delimiter = changeDelimiterIfNecessary(lineSimplified, delimiter);
 
-        statement.append(line);
-
         if (!lineEndsWithSingleLineComment && lineTerminatesStatement(lineSimplified, delimiter)) {
-            stripDelimiter(statement, delimiter);
             terminated = true;
         }
+
+        lines.add(sqlLine);
     }
 
     /**
@@ -234,11 +219,11 @@ public class SqlStatementBuilder {
      * @return The simplified line.
      */
     protected String simplifyLine(String line) {
-        return removeEscapedQuotes(line)
+        String cleanLine = removeEscapedQuotes(line)
                 .replace("--", " -- ")
                 .replace("/*", " /* ")
-                .replace("*/", " */ ")
-                .replaceAll("\\s+", " ").trim().toUpperCase();
+                .replace("*/", " */ ");
+        return StringUtils.collapseWhitespace(cleanLine).trim().toUpperCase();
     }
 
     /**
@@ -276,25 +261,6 @@ public class SqlStatementBuilder {
     }
 
     /**
-     * Strips this delimiter from this sql statement.
-     *
-     * @param sql       The statement to parse.
-     * @param delimiter The delimiter to strip.
-     */
-    /* private -> testing */
-    static void stripDelimiter(StringBuilder sql, Delimiter delimiter) {
-        int last;
-
-        for (last = sql.length(); last > 0; last--) {
-            if (!Character.isWhitespace(sql.charAt(last - 1))) {
-                break;
-            }
-        }
-
-        sql.delete(last - delimiter.getDelimiter().length(), sql.length());
-    }
-
-    /**
      * Extracts the alternate open quote from this token (if any).
      *
      * @param token The token to check.
@@ -320,7 +286,7 @@ public class SqlStatementBuilder {
      * @param line The line that was just added to the statement.
      */
     protected void applyStateChanges(String line) {
-        String[] tokens = tokenizeLine(line);
+        Collection<String> tokens = tokenizeLine(line);
 
         List<TokenType> delimitingTokens = extractStringLiteralDelimitingTokens(tokens);
 
@@ -380,8 +346,8 @@ public class SqlStatementBuilder {
      * @param line The line to tokenize.
      * @return The tokens.
      */
-    protected String[] tokenizeLine(String line) {
-        return StringUtils.tokenizeToStringArray(line, " @<>;:=|(),+{}");
+    protected Collection<String> tokenizeLine(String line) {
+        return StringUtils.tokenizeToStringCollection(line, " @<>;:=|(),+{}");
     }
 
     /**
@@ -391,7 +357,7 @@ public class SqlStatementBuilder {
      * @return The list of potentially delimiting string literals token types per token. Tokens that do not have any
      * impact on string delimiting are discarded.
      */
-    private List<TokenType> extractStringLiteralDelimitingTokens(String[] tokens) {
+    private List<TokenType> extractStringLiteralDelimitingTokens(Collection<String> tokens) {
         List<TokenType> delimitingTokens = new ArrayList<>();
         for (String token : tokens) {
             String cleanToken = cleanToken(token);
@@ -482,7 +448,7 @@ public class SqlStatementBuilder {
      * @return The cleaned token.
      */
     protected String removeEscapedQuotes(String token) {
-        return StringUtils.replaceAll(token, "''", "");
+        return token.replace("''", "");
     }
 
     /**

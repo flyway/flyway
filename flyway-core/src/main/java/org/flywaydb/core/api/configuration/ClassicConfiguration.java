@@ -37,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -85,7 +86,7 @@ public class ClassicConfiguration implements Configuration {
     /**
      * The encoding of Sql migrations. (default: UTF-8)
      */
-    private String encoding = "UTF-8";
+    private Charset encoding = Charset.forName("UTF-8");
 
     /**
      * The schemas managed by Flyway.  These schema names are case-sensitive. (default: The default schema for the datasource connection)
@@ -404,7 +405,7 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public String getEncoding() {
+    public Charset getEncoding() {
         return encoding;
     }
 
@@ -852,8 +853,17 @@ public class ClassicConfiguration implements Configuration {
      *
      * @param encoding The encoding of Sql migrations. (default: UTF-8)
      */
-    public void setEncoding(String encoding) {
+    public void setEncoding(Charset encoding) {
         this.encoding = encoding;
+    }
+
+    /**
+     * Sets the encoding of Sql migrations.
+     *
+     * @param encoding The encoding of Sql migrations. (default: UTF-8)
+     */
+    public void setEncodingAsString(String encoding) {
+        this.encoding = Charset.forName(encoding);
     }
 
     /**
@@ -1283,7 +1293,7 @@ public class ClassicConfiguration implements Configuration {
         }
         String encodingProp = props.remove(ConfigUtils.ENCODING);
         if (encodingProp != null) {
-            setEncoding(encodingProp);
+            setEncodingAsString(encodingProp);
         }
         String schemasProp = props.remove(ConfigUtils.SCHEMAS);
         if (schemasProp != null) {

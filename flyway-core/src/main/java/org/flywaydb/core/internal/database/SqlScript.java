@@ -15,30 +15,50 @@
  */
 package org.flywaydb.core.internal.database;
 
+import org.flywaydb.core.internal.sqlscript.SqlStatement;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
-public abstract class SqlScript {
+import java.util.List;
+
+public abstract class SqlScript<C extends ContextImpl> {
     /**
      * The resource containing the statements.
      */
-    protected final Resource resource;
+    protected final LoadableResource resource;
+
+    /**
+     * The placeholder replacer.
+     */
+    protected final PlaceholderReplacer placeholderReplacer;
 
     /**
      * Creates a new sql script from this source.
      *
-     * @param resource The sql script resource.
+     * @param resource            The sql script resource.
+     * @param placeholderReplacer The placeholder replacer.
      */
-    protected SqlScript(Resource resource) {
+    protected SqlScript(LoadableResource resource, PlaceholderReplacer placeholderReplacer) {
         this.resource = resource;
+        this.placeholderReplacer = placeholderReplacer;
     }
+
+    /**
+     * For increased testability.
+     *
+     * @return The sql statements contained in this script.
+     */
+    public abstract List<SqlStatement<C>> getSqlStatements();
 
     /**
      * @return The resource containing the statements.
      */
-    public Resource getResource() {
+    public final LoadableResource getResource() {
         return resource;
     }
+
     /**
      * Whether the execution should take place inside a transaction. This is useful for databases
      * like PostgreSQL where certain statement can only execute outside a transaction.

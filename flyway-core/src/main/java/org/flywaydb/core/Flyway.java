@@ -55,6 +55,7 @@ import org.flywaydb.core.internal.util.scanner.Scanner;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -162,7 +163,7 @@ public class Flyway implements FlywayConfiguration {
 
     @Override
     @Deprecated
-    public String getEncoding() {
+    public Charset getEncoding() {
         LOG.warn("Flyway.getEncoding() has been deprecated and will be removed in Flyway 6.0. Use the same method on Flyway.getConfiguration() instead.");
         return configuration.getEncoding();
     }
@@ -624,7 +625,7 @@ public class Flyway implements FlywayConfiguration {
     @Deprecated
     public void setEncoding(String encoding) {
         LOG.warn("Flyway.setEncoding() has been deprecated and will be removed in Flyway 6.0. Use the matching method on Flyway.config() instead.");
-        configuration.setEncoding(encoding);
+        configuration.setEncodingAsString(encoding);
     }
 
     /**
@@ -1364,7 +1365,7 @@ public class Flyway implements FlywayConfiguration {
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
 
             Schema[] schemas = prepareSchemas(database);
-            Scanner scanner = new Scanner(configuration.getClassLoader());
+            Scanner scanner = new Scanner(configuration.getClassLoader(), configuration.getEncoding());
             PlaceholderReplacer placeholderReplacer = createPlaceholderReplacer();
             result = command.execute(
                     createMigrationResolver(database, scanner, placeholderReplacer),

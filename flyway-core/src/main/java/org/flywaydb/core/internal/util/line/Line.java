@@ -13,32 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.util.scanner;
-
-import org.flywaydb.core.internal.util.line.LineReader;
+package org.flywaydb.core.internal.util.line;
 
 /**
- * A loadable resource.
+ * A line in a SQL statement.
  */
-public interface LoadableResource extends Resource {
+public interface Line {
     /**
-     * Loads this resource as a string.
-     *
-     * @return The string contents of the resource.
+     * @return The number of the line.
      */
-    LineReader loadAsString();
+    int getLineNumber();
 
     /**
-     * Loads this resource as a byte array.
-     *
-     * @return The contents of the resource.
+     * @return The line.
      */
-    byte[] loadAsBytes();
-
-    /**
-     * Calculates the checksum of this resource. The checksum is encoding and line-ending independent.
-     *
-     * @return The crc-32 checksum of the bytes.
-     */
-    int checksum();
+    String getLine();
 }

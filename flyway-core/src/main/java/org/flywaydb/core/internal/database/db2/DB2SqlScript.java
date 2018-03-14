@@ -19,19 +19,20 @@ import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.ContextImpl;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 /**
  * DB2-specific SQL script.
  */
 class DB2SqlScript extends ExecutableSqlScript<ContextImpl> {
-    DB2SqlScript(Resource resource, String sqlScriptSource, boolean mixed
+    DB2SqlScript(LoadableResource resource, PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-        super(resource, sqlScriptSource, mixed
+        super(resource, placeholderReplacer, mixed
 
 
 

@@ -15,13 +15,14 @@
  */
 package org.flywaydb.core.internal.util.scanner.filesystem;
 
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -30,6 +31,16 @@ import java.util.TreeSet;
  */
 public class FileSystemScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
+    private final Charset encoding;
+
+    /**
+     * Creates a new filesystem scanner.
+     *
+     * @param encoding Encoding to use when loading a resource as a string.
+     */
+    public FileSystemScanner(Charset encoding) {
+        this.encoding = encoding;
+    }
 
     /**
      * Scans the FileSystem for resources under the specified location, starting with the specified prefix and ending with
@@ -46,8 +57,16 @@ public class FileSystemScanner {
                 + StringUtils.arrayToCommaDelimitedString(suffixes) + "')");
 
         File dir = new File(path);
-        if (!dir.isDirectory() || !dir.canRead()) {
-            LOG.warn("Unable to resolve location filesystem:" + path);
+        if (!dir.exists()) {
+            LOG.warn("Skipping filesystem location:" + path + " (not found)");
+            return new LoadableResource[0];
+        }
+        if (!dir.canRead()) {
+            LOG.warn("Skipping filesystem location:" + path + " (not readable)");
+            return new LoadableResource[0];
+        }
+        if (!dir.isDirectory()) {
+            LOG.warn("Skipping filesystem location:" + path + " (not a directory)");
             return new LoadableResource[0];
         }
 
@@ -55,7 +74,7 @@ public class FileSystemScanner {
 
         Set<String> resourceNames = findResourceNames(path, prefix, suffixes);
         for (String resourceName : resourceNames) {
-            resources.add(new FileSystemResource(resourceName));
+            resources.add(new FileSystemResource(resourceName, encoding));
             LOG.debug("Found filesystem resource: " + resourceName);
         }
 

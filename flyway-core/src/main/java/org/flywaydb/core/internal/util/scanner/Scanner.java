@@ -23,6 +23,8 @@ import org.flywaydb.core.internal.util.scanner.classpath.android.AndroidScanner;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.util.scanner.filesystem.FileSystemScanner;
 
+import java.nio.charset.Charset;
+
 /**
  * Scanner for Resources and Classes.
  */
@@ -30,15 +32,16 @@ public class Scanner {
     private final ResourceAndClassScanner resourceAndClassScanner;
 
     private final ClassLoader classLoader;
-    private final FileSystemScanner fileSystemScanner = new FileSystemScanner();
+    private final FileSystemScanner fileSystemScanner;
 
-    public Scanner(ClassLoader classLoader) {
+    public Scanner(ClassLoader classLoader, Charset encoding) {
         this.classLoader = classLoader;
         if (new FeatureDetector(classLoader).isAndroidAvailable()) {
-            resourceAndClassScanner = new AndroidScanner(classLoader);
+            resourceAndClassScanner = new AndroidScanner(classLoader, encoding);
         } else {
-            resourceAndClassScanner = new ClassPathScanner(classLoader);
+            resourceAndClassScanner = new ClassPathScanner(classLoader, encoding);
         }
+        fileSystemScanner = new FileSystemScanner(encoding);
     }
 
     /**

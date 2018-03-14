@@ -15,30 +15,40 @@
  */
 package org.flywaydb.core.internal.util.scanner;
 
+import org.flywaydb.core.internal.util.line.DefaultLineReader;
 import org.flywaydb.core.internal.util.line.LineReader;
 
-/**
- * A loadable resource.
- */
-public interface LoadableResource extends Resource {
-    /**
-     * Loads this resource as a string.
-     *
-     * @return The string contents of the resource.
-     */
-    LineReader loadAsString();
+import java.io.StringReader;
 
-    /**
-     * Loads this resource as a byte array.
-     *
-     * @return The contents of the resource.
-     */
-    byte[] loadAsBytes();
+public class StringResource extends AbstractLoadableResource {
+    private final String str;
 
-    /**
-     * Calculates the checksum of this resource. The checksum is encoding and line-ending independent.
-     *
-     * @return The crc-32 checksum of the bytes.
-     */
-    int checksum();
+    public StringResource(String str) {
+        this.str = str;
+    }
+
+    @Override
+    public LineReader loadAsString() {
+        return new DefaultLineReader(new StringReader(str));
+    }
+
+    @Override
+    public byte[] loadAsBytes() {
+        return new byte[0];
+    }
+
+    @Override
+    public String getLocation() {
+        return "";
+    }
+
+    @Override
+    public String getLocationOnDisk() {
+        return "";
+    }
+
+    @Override
+    public String getFilename() {
+        return "";
+    }
 }

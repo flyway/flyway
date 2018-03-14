@@ -19,18 +19,19 @@ import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 /**
  * SQL Server-specific SQL script.
  */
 class SQLServerSqlScript extends ExecutableSqlScript {
-    SQLServerSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
+    SQLServerSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-        super(sqlScriptResource, sqlScriptSource, mixed
+        super(sqlScriptResource, placeholderReplacer, mixed
 
 
 

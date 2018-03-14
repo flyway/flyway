@@ -37,7 +37,7 @@ public class SQLiteSqlStatementBuilder extends SqlStatementBuilder {
         if (StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
             statementStart += line;
             statementStart += " ";
-            statementStart = statementStart.replaceAll("\\s+", " ");
+            statementStart = StringUtils.collapseWhitespace(statementStart);
         }
         boolean createTriggerStatement = statementStart.matches("CREATE( TEMP| TEMPORARY)? TRIGGER.*");
 

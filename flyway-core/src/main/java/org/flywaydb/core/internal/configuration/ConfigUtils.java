@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -226,7 +227,7 @@ public class ConfigUtils {
                 }
 
                 @Override
-                public String getEncoding() {
+                public Charset getEncoding() {
                     return configuration.getEncoding();
                 }
 
