@@ -19,6 +19,7 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -29,6 +30,12 @@ import java.util.concurrent.Callable;
  * The schema history used to track all applied migrations.
  */
 public abstract class SchemaHistory {
+    /**
+     * The schema history table used by flyway.
+     * Non-final due to the table name fallback mechanism. Will be made final in Flyway 6.0.
+     */
+    protected Table table;
+
     /**
      * Acquires an exclusive read-write lock on the schema history table. This lock will be released automatically upon completion.
      *
@@ -187,4 +194,9 @@ public abstract class SchemaHistory {
     protected abstract void doAddAppliedMigration(int installedRank, MigrationVersion version, String description,
                                                   MigrationType type, String script, Integer checksum,
                                                   int executionTime, boolean success);
+
+    @Override
+    public String toString() {
+        return table.toString();
+    }
 }
