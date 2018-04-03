@@ -18,7 +18,6 @@ package org.flywaydb.core.internal.schemahistory;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
@@ -26,7 +25,6 @@ import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
@@ -47,11 +45,6 @@ class JdbcTableSchemaHistory extends SchemaHistory {
      * The database to use.
      */
     private final Database database;
-
-    /**
-     * The schema history table used by flyway.
-     */
-    private final Table table;
 
     /**
      * Connection with access to the database.
@@ -78,10 +71,10 @@ class JdbcTableSchemaHistory extends SchemaHistory {
      * @param installedBy The user invoking Flyway, for audit purposes.
      */
     JdbcTableSchemaHistory(Database database, Table table, String installedBy) {
+        this.table = determineTable(table);
         this.database = database;
         this.connection = database.getMainConnection();
         this.jdbcTemplate = connection.getJdbcTemplate();
-        this.table = determineTable(table);
         this.installedBy = installedBy;
     }
 
@@ -287,10 +280,5 @@ class JdbcTableSchemaHistory extends SchemaHistory {
             throw new FlywaySqlException("Unable to repair Schema History table " + table
                     + " for version " + version, e);
         }
-    }
-
-    @Override
-    public String toString() {
-        return table.toString();
     }
 }

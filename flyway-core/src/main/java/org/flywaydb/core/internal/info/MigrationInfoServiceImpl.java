@@ -321,7 +321,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
 
-        return pendingMigrations.toArray(new MigrationInfoImpl[pendingMigrations.size()]);
+        return pendingMigrations.toArray(new MigrationInfoImpl[0]);
     }
 
     public MigrationInfoImpl[] applied() {
@@ -332,7 +332,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
 
-        return appliedMigrations.toArray(new MigrationInfoImpl[appliedMigrations.size()]);
+        return appliedMigrations.toArray(new MigrationInfoImpl[0]);
     }
 
     /**
@@ -381,7 +381,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
 
-        return futureMigrations.toArray(new MigrationInfo[futureMigrations.size()]);
+        return futureMigrations.toArray(new MigrationInfo[0]);
     }
 
     /**
@@ -397,7 +397,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
 
-        return outOfOrderMigrations.toArray(new MigrationInfo[outOfOrderMigrations.size()]);
+        return outOfOrderMigrations.toArray(new MigrationInfo[0]);
     }
 
 
