@@ -21,6 +21,7 @@ import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Adapter for executing migrations implementing SpringJdbcMigration.
@@ -41,10 +42,12 @@ public class SpringJdbcMigrationExecutor implements MigrationExecutor {
     }
 
     @Override
-    public void execute(Connection connection) {
+    public void execute(Connection connection) throws SQLException {
         try {
             springJdbcMigration.migrate(new org.springframework.jdbc.core.JdbcTemplate(
                     new SingleConnectionDataSource(connection, true)));
+        } catch (SQLException e) {
+            throw e;
         } catch (Exception e) {
             throw new FlywayException("Migration failed !", e);
         }

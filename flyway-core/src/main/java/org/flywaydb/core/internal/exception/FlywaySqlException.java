@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.exception;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
@@ -38,18 +39,6 @@ public class FlywaySqlException extends FlywayException {
         String title = super.getMessage();
         String underline = StringUtils.trimOrPad("", title.length(), '-');
 
-        SQLException cause = (SQLException) getCause();
-        while (cause.getNextException() != null) {
-            cause = cause.getNextException();
-        }
-
-        String message = "\n" + title + "\n" + underline + "\n";
-        message += "SQL State  : " + cause.getSQLState() + "\n";
-        message += "Error Code : " + cause.getErrorCode() + "\n";
-        if (cause.getMessage() != null) {
-            message += "Message    : " + cause.getMessage().trim() + "\n";
-        }
-
-        return message;
+        return "\n" + title + "\n" + underline + "\n" + ExceptionUtils.toMessage((SQLException) getCause());
     }
 }

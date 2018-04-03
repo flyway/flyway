@@ -33,7 +33,7 @@ import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
-import org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException;
+import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.TimeFormat;
@@ -285,7 +285,7 @@ public class DbMigrate {
             } else {
                 doMigrateGroup(group, stopWatch);
             }
-        } catch (FlywayMigrateSqlException e) {
+        } catch (FlywayMigrateException e) {
             MigrationInfoImpl migration = e.getMigration();
             String failedMsg = "Migration of " + toMigrationText(migration, e.isOutOfOrder()) + " failed!";
             if (database.supportsDdlTransactions() && executeGroupInTransaction) {
@@ -344,12 +344,12 @@ public class DbMigrate {
 
             try {
                 migration.getResolvedMigration().getExecutor().execute(connectionUserObjects.getJdbcConnection());
-            } catch (FlywaySqlScriptException e) {
+            } catch (FlywayException e) {
                 callbackExecutor.executeOnMigrationConnection(Event.AFTER_EACH_MIGRATE_ERROR, migration);
-                throw new FlywayMigrateSqlException(migration, isOutOfOrder, e);
+                throw new FlywayMigrateException(migration, isOutOfOrder, e);
             } catch (SQLException e) {
                 callbackExecutor.executeOnMigrationConnection(Event.AFTER_EACH_MIGRATE_ERROR, migration);
-                throw new FlywayMigrateSqlException(migration, isOutOfOrder, e);
+                throw new FlywayMigrateException(migration, isOutOfOrder, e);
             }
 
             LOG.debug("Successfully completed migration of " + migrationText);
@@ -375,18 +375,18 @@ public class DbMigrate {
         return migrationText;
     }
 
-    public static class FlywayMigrateSqlException extends FlywaySqlScriptException {
+    public static class FlywayMigrateException extends FlywayException {
         private final MigrationInfoImpl migration;
         private final boolean outOfOrder;
 
-        FlywayMigrateSqlException(MigrationInfoImpl migration, boolean outOfOrder, SQLException e) {
-            super(null, null, e);
+        FlywayMigrateException(MigrationInfoImpl migration, boolean outOfOrder, SQLException e) {
+            super(ExceptionUtils.toMessage(e), e);
             this.migration = migration;
             this.outOfOrder = outOfOrder;
         }
 
-        FlywayMigrateSqlException(MigrationInfoImpl migration, boolean outOfOrder, FlywaySqlScriptException e) {
-            super(e.getResource(), e.getSqlStatement(), (SQLException) e.getCause());
+        FlywayMigrateException(MigrationInfoImpl migration, boolean outOfOrder, FlywayException e) {
+            super(e.getMessage(), e);
             this.migration = migration;
             this.outOfOrder = outOfOrder;
         }

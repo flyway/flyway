@@ -41,12 +41,12 @@ public abstract class SqlStatementBuilder {
     /**
      * Are we currently inside a ' multi-line string literal.
      */
-    private boolean insideQuoteStringLiteral = false;
+    protected boolean insideQuoteStringLiteral = false;
 
     /**
      * Are we currently inside an alternate multi-line string literal.
      */
-    private boolean insideAlternateQuoteStringLiteral = false;
+    protected boolean insideAlternateQuoteStringLiteral = false;
 
     /**
      * The alternate quote that is expected to close the string literal.
@@ -61,7 +61,7 @@ public abstract class SqlStatementBuilder {
     /**
      * Are we inside a multi-line /*  *&#47; comment.
      */
-    private boolean insideMultiLineComment = false;
+    protected boolean insideMultiLineComment = false;
 
     /**
      * Whether a non-comment part of a statement has already been seen.

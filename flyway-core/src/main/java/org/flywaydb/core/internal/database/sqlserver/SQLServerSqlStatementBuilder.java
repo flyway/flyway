@@ -31,6 +31,8 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
      */
     private static final Pattern KEYWORDS_BEFORE_STRING_LITERAL_REGEX = Pattern.compile("^(LIKE)('.*)");
 
+    private static final Pattern NON_TRANSACTIONAL_STATEMENT_REGEX = Pattern.compile("^(BACKUP|RESTORE|(CREATE|DROP|ALTER) DATABASE) .*");
+
     /**
      * Holds the beginning of the statement.
      */
@@ -54,7 +56,10 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
             statementStart = StringUtils.collapseWhitespace(statementStart);
         }
 
-        if (statementStart.matches("^(BACKUP|RESTORE|ALTER DATABASE) .*")) {
+        if (NON_TRANSACTIONAL_STATEMENT_REGEX.matcher(statementStart).matches() ||
+                // Handle statements inside nested blocks
+                (!insideQuoteStringLiteral && !insideAlternateQuoteStringLiteral && !insideMultiLineComment
+                        && NON_TRANSACTIONAL_STATEMENT_REGEX.matcher(line).matches())) {
             executeInTransaction = false;
         }
     }
