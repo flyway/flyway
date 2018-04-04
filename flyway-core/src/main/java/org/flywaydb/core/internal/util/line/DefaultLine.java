@@ -33,4 +33,9 @@ public class DefaultLine implements Line {
     public String getLine() {
         return line;
     }
+
+    @Override
+    public String toString() {
+        return lineNumber + ":" + line;
+    }
 }

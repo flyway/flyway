@@ -124,6 +124,13 @@ public abstract class SqlStatementBuilder {
     }
 
     /**
+     * @return Whether this statement contains more than just comments.
+     */
+    public boolean hasNonCommentPart() {
+        return nonCommentStatementPartSeen;
+    }
+
+    /**
      * @return The assembled statement, with the delimiter stripped off.
      */
     public <C extends ContextImpl> SqlStatement<C> getSqlStatement() {
@@ -209,7 +216,9 @@ public abstract class SqlStatementBuilder {
      * @return Whether the current statement is only closed comments so far and can be discarded.
      */
     public boolean canDiscard() {
-        return !insideAlternateQuoteStringLiteral && !insideQuoteStringLiteral && !insideMultiLineComment && !nonCommentStatementPartSeen;
+        return !insideAlternateQuoteStringLiteral && !insideQuoteStringLiteral && !insideMultiLineComment
+                && !nonCommentStatementPartSeen
+                && (lines.isEmpty() || !StringUtils.hasText(lines.get(lines.size() - 1).getLine()));
     }
 
     /**

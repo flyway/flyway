@@ -43,7 +43,8 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     public Delimiter extractNewDelimiterFromLine(String line) {
-        if (line.toUpperCase().startsWith(DELIMITER_KEYWORD)) {
+        if (!insideMultiLineComment && !insideQuoteStringLiteral && !insideAlternateQuoteStringLiteral &&
+                line.toUpperCase().startsWith(DELIMITER_KEYWORD)) {
             return new Delimiter(line.substring(DELIMITER_KEYWORD.length()).trim(), false);
         }
 

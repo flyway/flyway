@@ -116,12 +116,12 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
         while ((line = reader.readLine()) != null) {
             line = new PlaceholderReplacingLine(line, placeholderReplacer);
             String lineStr = line.getLine();
-            if (sqlStatementBuilder.isEmpty()) {
-                if (!StringUtils.hasText(lineStr)) {
-                    // Skip empty line between statements.
-                    continue;
-                }
+            if (sqlStatementBuilder.isEmpty() && !StringUtils.hasText(lineStr)) {
+                // Skip empty line between statements.
+                continue;
+            }
 
+            if (!sqlStatementBuilder.hasNonCommentPart()) {
                 Delimiter newDelimiter = sqlStatementBuilder.extractNewDelimiterFromLine(lineStr);
                 if (newDelimiter != null) {
                     nonStandardDelimiter = newDelimiter;
@@ -150,7 +150,7 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
         }
 
         // Catch any statements not followed by delimiter.
-        if (!sqlStatementBuilder.isEmpty()) {
+        if (!sqlStatementBuilder.isEmpty() && sqlStatementBuilder.hasNonCommentPart()) {
             addStatement(statements, sqlStatementBuilder);
         }
 
