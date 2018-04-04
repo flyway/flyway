@@ -187,7 +187,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     protected void applyStateChanges(String line) {
         super.applyStateChanges(line);
 
-        if (StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
+        if (hasNonCommentPart() && StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
             statementStart += line;
             statementStart += " ";
             statementStart = StringUtils.collapseWhitespace(statementStart);
