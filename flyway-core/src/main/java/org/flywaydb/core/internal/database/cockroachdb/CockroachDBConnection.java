@@ -15,65 +15,57 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import java.sql.SQLException;
+import java.sql.Types;
+
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.sql.SQLException;
-import java.sql.Types;
-
 /**
  * CockroachDB connection.
  */
 public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
-    CockroachDBConnection(Configuration configuration, CockroachDBDatabase database,
-                          java.sql.Connection connection
+	CockroachDBConnection(Configuration configuration, CockroachDBDatabase database, java.sql.Connection connection) {
+		super( configuration, database, connection, Types.NULL );
+	}
 
+	@Override
+	public Schema doGetCurrentSchema() throws SQLException {
+		return getSchema( getCurrentSchemaNameOrSearchPath() );
+	}
 
+	@Override
+	public Schema getSchema(String name) {
+		return new CockroachDBSchema( jdbcTemplate, database, name );
+	}
 
-    ) {
-        super(configuration, database, connection, Types.NULL
+	@Override
+	protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
+		return jdbcTemplate.queryForString( "SHOW database" );
+	}
 
+	@Override
+	public void changeCurrentSchemaTo(Schema schema) {
+		try {
+			// Avoid unnecessary schema changes as this trips up CockroachDB
+			if ( schema.getName().equals( originalSchemaNameOrSearchPath ) || !schema.exists() ) {
+				return;
+			}
+			doChangeCurrentSchemaOrSearchPathTo( schema.getName() );
+		}
+		catch (SQLException e) {
+			throw new FlywaySqlException( "Error setting current schema to " + schema, e );
+		}
+	}
 
-
-        );
-    }
-
-    @Override
-    public Schema doGetCurrentSchema() throws SQLException {
-        return getSchema(jdbcTemplate.queryForString("SELECT current_schema"));
-    }
-
-    @Override
-    public Schema getSchema(String name) {
-        return new CockroachDBSchema(jdbcTemplate, database, name);
-    }
-
-    @Override
-    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
-        return jdbcTemplate.queryForString("SHOW database");
-    }
-
-    @Override
-    public void changeCurrentSchemaTo(Schema schema) {
-        try {
-            // Avoid unnecessary schema changes as this trips up CockroachDB
-            if (schema.getName().equals(originalSchemaNameOrSearchPath) || !schema.exists()) {
-                return;
-            }
-            doChangeCurrentSchemaOrSearchPathTo(schema.getName());
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error setting current schema to " + schema, e);
-        }
-    }
-
-    @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
-        if (!StringUtils.hasLength(schema)) {
-            schema = "DEFAULT";
-        }
-        jdbcTemplate.execute("SET database = " + schema);
-    }
+	@Override
+	public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+		if ( !StringUtils.hasLength( schema ) ) {
+			schema = "DEFAULT";
+		}
+		jdbcTemplate.execute( "SET database = " + schema );
+	}
 }
