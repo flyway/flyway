@@ -279,6 +279,7 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
                             + (sqlStatementBuilder.executeInTransaction() ? "" : " [non-transactional]"));
         }
 
-        LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql() + (sqlStatementBuilder.executeInTransaction() ? "" : " [non-transactional]"));
+        LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
+                + (sqlStatementBuilder.executeInTransaction() ? "" : " [non-transactional]"));
     }
 }

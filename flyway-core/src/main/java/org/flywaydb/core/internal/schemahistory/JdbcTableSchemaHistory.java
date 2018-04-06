@@ -181,19 +181,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     private void refreshCache() {
         int maxCachedInstalledRank = cache.isEmpty() ? -1 : cache.getLast().getInstalledRank();
 
-        String query = "SELECT " + database.quote("installed_rank")
-                + "," + database.quote("version")
-                + "," + database.quote("description")
-                + "," + database.quote("type")
-                + "," + database.quote("script")
-                + "," + database.quote("checksum")
-                + "," + database.quote("installed_on")
-                + "," + database.quote("installed_by")
-                + "," + database.quote("execution_time")
-                + "," + database.quote("success")
-                + " FROM " + table
-                + " WHERE " + database.quote("installed_rank") + " > " + maxCachedInstalledRank
-                + " ORDER BY " + database.quote("installed_rank");
+        String query = database.getSelectStatement(table, maxCachedInstalledRank);
 
         try {
             cache.addAll(jdbcTemplate.query(query, new RowMapper<AppliedMigration>() {

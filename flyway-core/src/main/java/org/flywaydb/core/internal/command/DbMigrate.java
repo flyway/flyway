@@ -305,24 +305,29 @@ public class DbMigrate {
     private boolean isExecuteGroupInTransaction(LinkedHashMap<MigrationInfoImpl, Boolean> group) {
         boolean executeGroupInTransaction = true;
         boolean first = true;
+
         for (Map.Entry<MigrationInfoImpl, Boolean> entry : group.entrySet()) {
             ResolvedMigration resolvedMigration = entry.getKey().getResolvedMigration();
             boolean inTransaction = resolvedMigration.getExecutor().executeInTransaction();
+
             if (first) {
                 executeGroupInTransaction = inTransaction;
                 first = false;
-            } else {
-                if (!configuration.isMixed() && executeGroupInTransaction != inTransaction) {
-                    throw new FlywayException(
-                            "Detected both transactional and non-transactional migrations within the same migration group"
-                                    + " (even though mixed is false). First offending migration:"
-                                    + (resolvedMigration.getVersion() == null ? "" : " " + resolvedMigration.getVersion())
-                                    + (StringUtils.hasLength(resolvedMigration.getDescription()) ? " " + resolvedMigration.getDescription() : "")
-                                    + (inTransaction ? "" : " [non-transactional]"));
-                }
-                executeGroupInTransaction = executeGroupInTransaction && inTransaction;
+                continue;
             }
+
+            if (!configuration.isMixed() && executeGroupInTransaction != inTransaction) {
+                throw new FlywayException(
+                        "Detected both transactional and non-transactional migrations within the same migration group"
+                                + " (even though mixed is false). First offending migration:"
+                                + (resolvedMigration.getVersion() == null ? "" : " " + resolvedMigration.getVersion())
+                                + (StringUtils.hasLength(resolvedMigration.getDescription()) ? " " + resolvedMigration.getDescription() : "")
+                                + (inTransaction ? "" : " [non-transactional]"));
+            }
+
+            executeGroupInTransaction &= inTransaction;
         }
+
         return executeGroupInTransaction;
     }
 

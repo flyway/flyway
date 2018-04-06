@@ -1128,7 +1128,7 @@ public class Flyway implements FlywayConfiguration {
      * <li>versions have been applied that aren't resolved locally anymore</li>
      * <li>versions have been resolved that haven't been applied yet</li>
      * </ul>
-     * <p>
+     *
      * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
      *
      * @throws FlywayException when the validation failed.
@@ -1224,7 +1224,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * <p>Baselines an existing database, excluding all migrations up to and including baselineVersion.</p>
-     * <p>
+     *
      * <img src="https://flywaydb.org/assets/balsamiq/command-baseline.png" alt="baseline">
      *
      * @throws FlywayException when the schema baselining failed.
