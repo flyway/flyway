@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.configuration;
+package org.flywaydb.core.internal.configuration;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.LegacyCallback;
-import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -401,7 +401,7 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public Location[] getLocations() {
-        return locations.getLocations().toArray(new Location[locations.getLocations().size()]);
+        return locations.getLocations().toArray(new Location[0]);
     }
 
     @Override
@@ -1126,7 +1126,7 @@ public class ClassicConfiguration implements Configuration {
      */
     @Override
     public Callback[] getCallbacks() {
-        return callbacks.toArray(new Callback[callbacks.size()]);
+        return callbacks.toArray(new Callback[0]);
     }
 
     @Override

@@ -16,7 +16,7 @@
 package org.flywaydb.core.api.configuration;
 
 /**
- * Readonly interface for main flyway configuration. Can be used to provide configuration data to migrations and callbacks.
+ * Readonly interface for main Flyway configuration. Can be used to provide configuration data to migrations and callbacks.
  *
  * @deprecated Use {@link Configuration} instead. Will be removed in Flyway 6.0.
  */
