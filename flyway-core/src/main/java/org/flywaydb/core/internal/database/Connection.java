@@ -147,12 +147,22 @@ public abstract class Connection<D extends Database> implements Closeable {
     @Override
     public final void close() {
         restoreOriginalState();
-        try {
-            doChangeCurrentSchemaOrSearchPathTo(originalSchemaNameOrSearchPath);
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to restore original schema", e);
-        }
+        restoreOriginalSchema();
         JdbcUtils.closeConnection(jdbcConnection);
+    }
+
+    private void restoreOriginalSchema() {
+        new TransactionTemplate(jdbcConnection).execute(new Callable<Void>() {
+            @Override
+            public Void call() {
+                try {
+                    doChangeCurrentSchemaOrSearchPathTo(originalSchemaNameOrSearchPath);
+                } catch (SQLException e) {
+                    throw new FlywaySqlException("Unable to restore original schema", e);
+                }
+                return null;
+            }
+        });
     }
 
     /**
