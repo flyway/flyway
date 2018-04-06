@@ -101,7 +101,8 @@ public class Main {
             classLoader = loadJavaMigrationsFromJarDirs(classLoader, properties);
 
             filterProperties(properties);
-            Flyway flyway = Flyway.config(classLoader).configure(properties).load();
+            Flyway flyway = new Flyway(classLoader);
+            flyway.configure(properties);
 
             for (String operation : operations) {
                 executeOperation(flyway, operation);

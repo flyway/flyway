@@ -384,10 +384,12 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             }
 
             ClassLoader classLoader = new URLClassLoader(
-                    extraURLs.toArray(new URL[extraURLs.size()]),
+                    extraURLs.toArray(new URL[0]),
                     getProject().getBuildscript().getClassLoader());
 
-            return run(Flyway.config(classLoader).configure(createFlywayConfig(envVars)).load());
+            Flyway flyway = new Flyway(classLoader);
+            flyway.configure(createFlywayConfig(envVars));
+            return run(flyway);
         } catch (Exception e) {
             handleException(e);
             return null;
