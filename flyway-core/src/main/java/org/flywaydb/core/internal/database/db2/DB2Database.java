@@ -19,6 +19,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
@@ -117,6 +118,13 @@ public class DB2Database extends Database<DB2Connection> {
                 + "ALTER TABLE \"${schema}\".\"${table}\" ADD CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\");\n" +
                 "\n" +
                 "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");");
+    }
+
+    @Override
+    public String getSelectStatement(Table table, int maxCachedInstalledRank) {
+        return super.getSelectStatement(table, maxCachedInstalledRank)
+                // Allow uncommitted reads so info can be invoked while migrate is running
+                + " WITH UR";
     }
 
     @Override

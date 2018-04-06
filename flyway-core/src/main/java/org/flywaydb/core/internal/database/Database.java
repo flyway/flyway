@@ -373,6 +373,22 @@ public abstract class Database<C extends Connection> implements Closeable {
                 + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
+    public String getSelectStatement(Table table, int maxCachedInstalledRank) {
+        return "SELECT " + quote("installed_rank")
+                + "," + quote("version")
+                + "," + quote("description")
+                + "," + quote("type")
+                + "," + quote("script")
+                + "," + quote("checksum")
+                + "," + quote("installed_on")
+                + "," + quote("installed_by")
+                + "," + quote("execution_time")
+                + "," + quote("success")
+                + " FROM " + table
+                + " WHERE " + quote("installed_rank") + " > " + maxCachedInstalledRank
+                + " ORDER BY " + quote("installed_rank");
+    }
+
     public void close() {
         if (!useSingleConnection() && migrationConnection != null) {
             migrationConnection.close();
