@@ -16,13 +16,13 @@
 package org.flywaydb.core.internal.util.scanner.filesystem;
 
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -31,15 +31,15 @@ import java.util.TreeSet;
  */
 public class FileSystemScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
-    private final Charset encoding;
+    private final Configuration configuration;
 
     /**
      * Creates a new filesystem scanner.
      *
-     * @param encoding Encoding to use when loading a resource as a string.
+     * @param configuration The Flyway configuration.
      */
-    public FileSystemScanner(Charset encoding) {
-        this.encoding = encoding;
+    public FileSystemScanner(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     /**
@@ -74,11 +74,15 @@ public class FileSystemScanner {
 
         Set<String> resourceNames = findResourceNames(path, prefix, suffixes);
         for (String resourceName : resourceNames) {
-            resources.add(new FileSystemResource(resourceName, encoding));
+            resources.add(new FileSystemResource(resourceName, configuration.getEncoding()
+
+
+
+            ));
             LOG.debug("Found filesystem resource: " + resourceName);
         }
 
-        return resources.toArray(new LoadableResource[resources.size()]);
+        return resources.toArray(new LoadableResource[0]);
     }
 
     /**

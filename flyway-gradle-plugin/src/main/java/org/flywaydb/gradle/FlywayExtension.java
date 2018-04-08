@@ -313,6 +313,16 @@ public class FlywayExtension {
     public String dryRunOutput;
 
     /**
+     * Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at
+     * once. Instead each statement is loaded individually. This is particularly useful for very large SQL migrations
+     * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
+     * (default: {@code false}
+     * <p>Also configurable with Gradle or System Property: ${flyway.stream}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    public Boolean stream;
+
+    /**
      * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).
      * <p>Also configurable with Gradle or System Property: ${flyway.configFileEncoding}</p>
      */

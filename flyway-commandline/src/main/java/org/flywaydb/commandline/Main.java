@@ -266,10 +266,11 @@ public class Main {
         LOG.info("sqlMigrationPrefix           : File name prefix for versioned SQL migrations");
         LOG.info("undoSqlMigrationPrefix       : [" + "pro] File name prefix for undo SQL migrations");
         LOG.info("repeatableSqlMigrationPrefix : File name prefix for repeatable SQL migrations");
-        LOG.info("sqlMigrationSeparator        : File name separator for sql migrations");
-        LOG.info("sqlMigrationSuffixes         : Comma-separated list of file name suffixes for sql migrations");
+        LOG.info("sqlMigrationSeparator        : File name separator for SQL migrations");
+        LOG.info("sqlMigrationSuffixes         : Comma-separated list of file name suffixes for SQL migrations");
+        LOG.info("stream                       : [" + "pro] Stream SQL migrations when executing them");
         LOG.info("mixed                        : Allow mixing transactional and non-transactional statements");
-        LOG.info("encoding                     : Encoding of sql migrations");
+        LOG.info("encoding                     : Encoding of SQL migrations");
         LOG.info("placeholderReplacement       : Whether placeholders should be replaced");
         LOG.info("placeholders                 : Placeholders to replace in sql migrations");
         LOG.info("placeholderPrefix            : Prefix of every placeholder");

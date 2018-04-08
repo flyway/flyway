@@ -293,6 +293,11 @@ public class Flyway implements Configuration {
         return configuration.getDryRunOutput();
     }
 
+    @Override
+    public boolean isStream() {
+        return configuration.isStream();
+    }
+
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.
@@ -824,6 +829,18 @@ public class Flyway implements Configuration {
     }
 
     /**
+     * Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at
+     * once. Instead each statement is loaded individually. This is particularly useful for very large SQL migrations
+     * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param stream {@code true} to stream SQL migrations. {@code false} to fully loaded them in memory instead. (default: {@code false})
+     */
+    public void setStream(boolean stream) {
+        configuration.setStream(stream);
+    }
+
+    /**
      * <p>Starts the database migration. All pending migrations will be applied in order.
      * Calling migrate on an up-to-date database has no effect.</p>
      * <img src="https://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
@@ -1147,7 +1164,7 @@ public class Flyway implements Configuration {
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
 
             Schema[] schemas = prepareSchemas(database);
-            Scanner scanner = new Scanner(configuration.getClassLoader(), configuration.getEncoding());
+            Scanner scanner = new Scanner(configuration);
             PlaceholderReplacer placeholderReplacer = createPlaceholderReplacer();
             result = command.execute(
                     createMigrationResolver(database, scanner, placeholderReplacer),

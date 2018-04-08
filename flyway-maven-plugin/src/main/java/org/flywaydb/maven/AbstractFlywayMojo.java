@@ -434,6 +434,17 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String dryRunOutput;
 
     /**
+     * Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at
+     * once. Instead each statement is loaded individually. This is particularly useful for very large SQL migrations
+     * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
+     * (default: {@code false}
+     * <p>Also configurable with Maven or System Property: ${flyway.stream}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    @Parameter(property = ConfigUtils.STREAM)
+    private Boolean stream;
+
+    /**
      * Properties file from which to load the Flyway configuration. The names of the individual properties match the ones you would
      * use as Maven or System properties. The encoding of the file must be the same as the encoding defined with the
      * {@code flyway.encoding) property, which is UTF-8 by default. Relative paths are relative to the POM. (default: flyway.properties)
@@ -617,6 +628,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
             putArrayIfSet(conf, ConfigUtils.ERROR_HANDLERS, errorHandlers);
             putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput);
+            putIfSet(conf, ConfigUtils.STREAM, stream);
 
             if (placeholders != null) {
                 for (String placeholder : placeholders.keySet()) {
