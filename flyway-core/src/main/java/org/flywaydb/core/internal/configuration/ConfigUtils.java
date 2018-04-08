@@ -94,6 +94,7 @@ public class ConfigUtils {
     public static final String SQL_MIGRATION_SUFFIX = "flyway.sqlMigrationSuffix";
 
     public static final String SQL_MIGRATION_SUFFIXES = "flyway.sqlMigrationSuffixes";
+    public static final String STREAM = "flyway.stream";
     public static final String TABLE = "flyway.table";
     public static final String TARGET = "flyway.target";
     public static final String UNDO_SQL_MIGRATION_PREFIX = "flyway.undoSqlMigrationPrefix";
@@ -300,6 +301,11 @@ public class ConfigUtils {
                 public OutputStream getDryRunOutput() {
                     return configuration.getDryRunOutput();
                 }
+
+                @Override
+                public boolean isStream() {
+                    return configuration.isStream();
+                }
             });
         }
     }
@@ -422,6 +428,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_SQL_MIGRATION_SUFFIXES".equals(key)) {
             return SQL_MIGRATION_SUFFIXES;
+        }
+        if ("FLYWAY_STREAM".equals(key)) {
+            return STREAM;
         }
         if ("FLYWAY_TABLE".equals(key)) {
             return TABLE;

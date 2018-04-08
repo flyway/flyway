@@ -33,20 +33,38 @@ import java.nio.charset.Charset;
  * A resource on the filesystem.
  */
 public class FileSystemResource extends AbstractLoadableResource implements Comparable<FileSystemResource> {
+
+
+
+
+
+
+
+
     /**
      * The location of the resource on the filesystem.
      */
     private final File file;
     private final Charset encoding;
 
+
+
+
     /**
      * Creates a new ClassPathResource.
      *
      * @param location The location of the resource on the filesystem.
      */
-    public FileSystemResource(String location, Charset encoding) {
+    public FileSystemResource(String location, Charset encoding
+
+
+
+    ) {
         this.file = new File(new File(location).getPath());
         this.encoding = encoding;
+
+
+
     }
 
     /**

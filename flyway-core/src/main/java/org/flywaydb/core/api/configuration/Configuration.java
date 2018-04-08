@@ -353,4 +353,14 @@ public interface Configuration {
      * @return The stream or {@code null} if the SQL statements are executed against the database directly.
      */
     OutputStream getDryRunOutput();
+
+    /**
+     * Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at
+     * once. Instead each statement is loaded individually. This is particularly useful for very large SQL migrations
+     * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @return {@code true} to stream SQL migrations. {@code false} to fully loaded them in memory instead. (default: {@code false})
+     */
+    boolean isStream();
 }
