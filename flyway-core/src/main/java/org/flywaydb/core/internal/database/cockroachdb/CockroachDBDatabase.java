@@ -85,7 +85,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
         if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 1)) {
             throw new FlywayDbUpgradeRequiredException("CockroachDB", version, "1.1");
         }
-        if (majorVersion > 1) {
+        if (majorVersion > 2 || (majorVersion == 2 && minorVersion > 0)) {
             recommendFlywayUpgrade("CockroachDB", version);
         }
     }

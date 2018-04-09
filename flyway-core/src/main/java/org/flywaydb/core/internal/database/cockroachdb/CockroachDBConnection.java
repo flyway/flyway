@@ -42,11 +42,6 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
     }
 
     @Override
-    public Schema doGetCurrentSchema() throws SQLException {
-        return getSchema(jdbcTemplate.queryForString("SELECT current_schema"));
-    }
-
-    @Override
     public Schema getSchema(String name) {
         return new CockroachDBSchema(jdbcTemplate, database, name);
     }
@@ -65,7 +60,7 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
             }
             doChangeCurrentSchemaOrSearchPathTo(schema.getName());
         } catch (SQLException e) {
-            throw new FlywaySqlException("Error setting current schema to " + schema, e);
+            throw new FlywaySqlException("Error setting current database to " + schema, e);
         }
     }
 
