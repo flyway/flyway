@@ -65,10 +65,10 @@ public class DatabaseFactory {
 
 
     ) {
+        OracleDatabase.enableTnsnamesOraSupport();
+
         Connection connection = JdbcUtils.openConnection(configuration.getDataSource());
-
         String databaseProductName = getDatabaseProductName(connection);
-
         if (printInfo) {
             LOG.info("Database: " + getJdbcUrl(connection) + " (" + databaseProductName + ")");
         }
