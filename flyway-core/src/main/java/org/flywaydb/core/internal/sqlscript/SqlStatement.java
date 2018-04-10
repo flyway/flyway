@@ -36,6 +36,13 @@ public interface SqlStatement<C extends ContextImpl> {
      */
     String getSql();
 
+
+
+
+
+
+
+
     /**
      * Executes this statement against the database.
      *

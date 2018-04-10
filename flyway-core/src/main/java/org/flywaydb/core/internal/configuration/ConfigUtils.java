@@ -62,6 +62,7 @@ public class ConfigUtils {
     public static final String BASELINE_DESCRIPTION = "flyway.baselineDescription";
     public static final String BASELINE_ON_MIGRATE = "flyway.baselineOnMigrate";
     public static final String BASELINE_VERSION = "flyway.baselineVersion";
+    public static final String BATCH = "flyway.batch";
     public static final String CALLBACKS = "flyway.callbacks";
     public static final String CLEAN_DISABLED = "flyway.cleanDisabled";
     public static final String CLEAN_ON_VALIDATION_ERROR = "flyway.cleanOnValidationError";
@@ -306,6 +307,11 @@ public class ConfigUtils {
                 public boolean isStream() {
                     return configuration.isStream();
                 }
+
+                @Override
+                public boolean isBatch() {
+                    return configuration.isBatch();
+                }
             });
         }
     }
@@ -338,6 +344,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_BASELINE_VERSION".equals(key)) {
             return BASELINE_VERSION;
+        }
+        if ("FLYWAY_BATCH".equals(key)) {
+            return BATCH;
         }
         if ("FLYWAY_CALLBACKS".equals(key)) {
             return CALLBACKS;

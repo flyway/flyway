@@ -36,8 +36,13 @@ public class ConsoleLog implements Log {
         this.level = level;
     }
 
+    @Override
+    public boolean isDebugEnabled() {
+        return level == Level.DEBUG;
+    }
+
     public void debug(String message) {
-        if (level == Level.DEBUG) {
+        if (isDebugEnabled()) {
             System.out.println("DEBUG: " + message);
         }
     }

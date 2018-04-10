@@ -23,11 +23,19 @@ import org.flywaydb.core.internal.util.line.Line;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Builds a SQL statement, one line at a time.
  */
 public abstract class SqlStatementBuilder {
+
+
+
+
+
+
+
     /**
      * The current statement, as it is being built.
      */
@@ -64,9 +72,9 @@ public abstract class SqlStatementBuilder {
     protected boolean insideMultiLineComment = false;
 
     /**
-     * Whether a non-comment part of a statement has already been seen.
+     * The first line where a non-comment part of a statement has been seen.
      */
-    private boolean nonCommentStatementPartSeen = false;
+    private int firstNonCommentLine = -1;
 
     /**
      * How deeply nested are we within blocks.
@@ -127,15 +135,26 @@ public abstract class SqlStatementBuilder {
      * @return Whether this statement contains more than just comments.
      */
     public boolean hasNonCommentPart() {
-        return nonCommentStatementPartSeen;
+        return firstNonCommentLine >= 0;
     }
+
+
+
+
+
+
+
 
     /**
      * @return The assembled statement, with the delimiter stripped off.
      */
     public <C extends ContextImpl> SqlStatement<C> getSqlStatement() {
         //noinspection unchecked
-        return (SqlStatement<C>) new StandardSqlStatement(lines, delimiter);
+        return (SqlStatement<C>) new StandardSqlStatement(lines, delimiter
+
+
+
+        );
     }
 
     /**
@@ -185,7 +204,7 @@ public abstract class SqlStatementBuilder {
         }
 
         if (isCommentDirective(lineTrimmed)) {
-            nonCommentStatementPartSeen = true;
+            firstNonCommentLine = lines.size();
         }
 
         applyStateChanges(lineSimplified);
@@ -199,6 +218,12 @@ public abstract class SqlStatementBuilder {
         if (!lineEndsWithSingleLineComment && lineTerminatesStatement(lineSimplified, delimiter)) {
             terminated = true;
         }
+
+
+
+
+
+
 
         lines.add(sqlLine);
     }
@@ -217,7 +242,7 @@ public abstract class SqlStatementBuilder {
      */
     public boolean canDiscard() {
         return !insideAlternateQuoteStringLiteral && !insideQuoteStringLiteral && !insideMultiLineComment
-                && !nonCommentStatementPartSeen
+                && (firstNonCommentLine < 0)
                 && (lines.isEmpty() || !StringUtils.hasText(lines.get(lines.size() - 1).getLine()));
     }
 
@@ -330,7 +355,7 @@ public abstract class SqlStatementBuilder {
                     (TokenType.OTHER.equals(delimitingToken)
                             || TokenType.BLOCK_BEGIN.equals(delimitingToken)
                             || TokenType.BLOCK_END.equals(delimitingToken))) {
-                nonCommentStatementPartSeen = true;
+                firstNonCommentLine = lines.size();
                 if (isBlockStatement()) {
                     if (TokenType.BLOCK_BEGIN.equals(delimitingToken)) {
                         nestedBlockDepth++;

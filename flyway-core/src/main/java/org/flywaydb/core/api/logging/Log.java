@@ -20,6 +20,11 @@ package org.flywaydb.core.api.logging;
  */
 public interface Log {
     /**
+     * @return Whether debug logging is enabled.
+     */
+    boolean isDebugEnabled();
+
+    /**
      * Logs a debug message.
      *
      * @param message The message to log.

@@ -27,8 +27,16 @@ import java.util.List;
  * A SQL statement from a script that can be executed at once against a database.
  */
 public class StandardSqlStatement extends AbstractSqlStatement<ContextImpl> {
-    public StandardSqlStatement(List<Line> lines, Delimiter delimiter) {
-        super(lines, delimiter);
+    public StandardSqlStatement(List<Line> lines, Delimiter delimiter
+
+
+
+    ) {
+        super(lines, delimiter
+
+
+
+        );
     }
 
     @Override

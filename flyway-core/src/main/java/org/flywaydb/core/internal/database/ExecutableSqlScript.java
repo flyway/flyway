@@ -34,7 +34,9 @@ import org.flywaydb.core.internal.util.line.LineReader;
 import org.flywaydb.core.internal.util.line.PlaceholderReplacingLine;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
+import java.sql.BatchUpdateException;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +46,16 @@ import java.util.List;
  */
 public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScript<C> {
     private static final Log LOG = LogFactory.getLog(ExecutableSqlScript.class);
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -81,6 +93,7 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
 
 
 
+
      */
     public ExecutableSqlScript(LoadableResource resource, PlaceholderReplacer placeholderReplacer, boolean mixed
 
@@ -92,6 +105,7 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
 
         LOG.debug("Parsing " + resource.getFilename() + " ...");
         this.sqlStatements = extractStatements(resource.loadAsString());
+
 
 
 
@@ -169,47 +183,110 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
 
     @Override
     public void execute(final JdbcTemplate jdbcTemplate) {
-        for (SqlStatement<C> sqlStatement : sqlStatements) {
-            C context = createContext();
 
+
+
+
+        for (int i = 0; i < sqlStatements.size(); i++) {
+            SqlStatement<C> sqlStatement = sqlStatements.get(i);
             String sql = sqlStatement.getSql();
-            LOG.debug("Executing SQL: " + sql);
-
-            try {
-                List<Result> results = sqlStatement.execute(context, jdbcTemplate);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Executing "
 
 
 
-
-
-
-                printWarnings(context);
-                for (Result result : results) {
-                    if (result.getUpdateCount() != -1) {
-                        LOG.debug("Update Count: " + result.getUpdateCount());
-                    }
-
-
-
-
-
-
-                }
-            } catch (final SQLException e) {
-
-
-
-
-
-
-
-
-
-
-                printWarnings(context);
-                handleException(e, sqlStatement, context);
+                        + "SQL: " + sql);
             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            executeStatement(jdbcTemplate, sqlStatement);
         }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private void executeStatement(JdbcTemplate jdbcTemplate, SqlStatement<C> sqlStatement) {
+        C context = createContext();
+
+        try {
+            List<Result> results = sqlStatement.execute(context, jdbcTemplate);
+
+
+
+
+
+
+            printWarnings(context);
+            handleResults(results);
+        } catch (final SQLException e) {
+
+
+
+
+
+
+
+
+
+
+            printWarnings(context);
+            handleException(e, sqlStatement, context);
+        }
+    }
+
+    private void handleResults(List<Result> results) {
+        for (Result result : results) {
+            long updateCount = result.getUpdateCount();
+            if (updateCount != -1) {
+                handleUpdateCount(updateCount);
+            }
+
+
+
+
+
+
+        }
+    }
+
+    private void handleUpdateCount(long updateCount) {
+        LOG.debug("Update Count: " + updateCount);
     }
 
     protected void handleException(SQLException e, SqlStatement sqlStatement, C context) {

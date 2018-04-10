@@ -345,6 +345,17 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Creates a new default configuration.
      */
@@ -378,6 +389,7 @@ public class ClassicConfiguration implements Configuration {
         setCleanDisabled(configuration.isCleanDisabled());
         setCleanOnValidationError(configuration.isCleanOnValidationError());
         setDataSource(configuration.getDataSource());
+
 
 
 
@@ -1034,6 +1046,35 @@ public class ClassicConfiguration implements Configuration {
 
     }
 
+    @Override
+    public boolean isBatch() {
+
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("batch");
+
+
+
+
+    }
+
+    /**
+     * Whether to batch SQL statements when executing them. Batching can save up to 99 percent of network roundtrips by
+     * sending up to 100 statements at once over the network to the database, instead of sending each statement
+     * individually. This is particularly useful for very large SQL migrations composed of multiple MB or even GB of
+     * reference data, as this can dramatically reduce the network overhead. This is supported for INSERT, UPDATE,
+     * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param batch {@code true} to batch SQL statements. {@code false} to execute them individually instead. (default: {@code false})
+     */
+    public void setBatch(boolean batch) {
+
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("batch");
+
+
+
+
+    }
+
     /**
      * Sets the file name prefix for repeatable sql migrations.
      * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
@@ -1446,6 +1487,11 @@ public class ClassicConfiguration implements Configuration {
         Boolean streamProp = getBooleanProp(props, ConfigUtils.STREAM);
         if (streamProp != null) {
             setStream(streamProp);
+        }
+
+        Boolean batchProp = getBooleanProp(props, ConfigUtils.BATCH);
+        if (batchProp != null) {
+            setBatch(batchProp);
         }
 
         for (String key : props.keySet()) {

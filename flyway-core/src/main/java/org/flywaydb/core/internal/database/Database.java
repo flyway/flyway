@@ -20,6 +20,7 @@ import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
@@ -68,6 +69,11 @@ public abstract class Database<C extends Connection> implements Closeable {
 
 
 
+
+
+
+
+
     /**
      * The major version of the database.
      */
@@ -96,6 +102,7 @@ public abstract class Database<C extends Connection> implements Closeable {
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to get metadata for connection", e);
         }
+
 
 
 
@@ -130,8 +137,8 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * Creates a new SqlScript for this specific database.
      *
-     * @param resource        The resource containing the SQL script.
-     * @param mixed           Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * @param resource      The resource containing the SQL script.
+     * @param mixed         Whether to allow mixing transactional and non-transactional statements within the same migration.
 
 
 
@@ -162,6 +169,7 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @param resource            The resource containing the SQL script.
      * @param placeholderReplacer The placeholder replacer.
      * @param mixed               Whether to allow mixing transactional and non-transactional statements within the same migration.
+
 
 
 
@@ -212,6 +220,20 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @return {@code true} if this database supports changing a connection's current schema. {@code false if not}.
      */
     protected abstract boolean supportsChangingCurrentSchema();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

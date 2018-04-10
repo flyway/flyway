@@ -269,6 +269,7 @@ public class Main {
         LOG.info("sqlMigrationSeparator        : File name separator for SQL migrations");
         LOG.info("sqlMigrationSuffixes         : Comma-separated list of file name suffixes for SQL migrations");
         LOG.info("stream                       : [" + "pro] Stream SQL migrations when executing them");
+        LOG.info("batch                        : [" + "pro] Batch SQL statements when executing them");
         LOG.info("mixed                        : Allow mixing transactional and non-transactional statements");
         LOG.info("encoding                     : Encoding of SQL migrations");
         LOG.info("placeholderReplacement       : Whether placeholders should be replaced");
