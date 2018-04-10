@@ -36,11 +36,25 @@ public abstract class AbstractSqlStatement<C extends ContextImpl> implements Sql
      */
     private final Delimiter delimiter;
 
+
+
+
+
+
+
+
     private String sql;
 
-    public AbstractSqlStatement(List<Line> lines, Delimiter delimiter) {
+    public AbstractSqlStatement(List<Line> lines, Delimiter delimiter
+
+
+
+    ) {
         this.lines = lines;
         this.delimiter = delimiter;
+
+
+
     }
 
     @Override
@@ -84,4 +98,11 @@ public abstract class AbstractSqlStatement<C extends ContextImpl> implements Sql
             sql.delete(sql.length() - length, sql.length());
         }
     }
+
+
+
+
+
+
+
 }

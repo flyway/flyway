@@ -445,6 +445,19 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean stream;
 
     /**
+     * Whether to batch SQL statements when executing them. Batching can save up to 99 percent of network roundtrips by
+     * sending up to 100 statements at once over the network to the database, instead of sending each statement
+     * individually. This is particularly useful for very large SQL migrations composed of multiple MB or even GB of
+     * reference data, as this can dramatically reduce the network overhead. This is supported for INSERT, UPDATE,
+     * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
+     * (default: {@code false})
+     * <p>Also configurable with Maven or System Property: ${flyway.batch}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    @Parameter(property = ConfigUtils.BATCH)
+    private Boolean batch;
+
+    /**
      * Properties file from which to load the Flyway configuration. The names of the individual properties match the ones you would
      * use as Maven or System properties. The encoding of the file must be the same as the encoding defined with the
      * {@code flyway.encoding) property, which is UTF-8 by default. Relative paths are relative to the POM. (default: flyway.properties)
@@ -629,6 +642,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putArrayIfSet(conf, ConfigUtils.ERROR_HANDLERS, errorHandlers);
             putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput);
             putIfSet(conf, ConfigUtils.STREAM, stream);
+            putIfSet(conf, ConfigUtils.BATCH, batch);
 
             if (placeholders != null) {
                 for (String placeholder : placeholders.keySet()) {

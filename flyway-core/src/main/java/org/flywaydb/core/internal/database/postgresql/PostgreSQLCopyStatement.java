@@ -45,7 +45,11 @@ public class PostgreSQLCopyStatement extends AbstractSqlStatement<ContextImpl> {
      * @param lines The lines of the statement.
      */
     PostgreSQLCopyStatement(List<Line> lines) {
-        super(lines, COPY_DELIMITER);
+        super(lines, COPY_DELIMITER
+
+
+
+        );
     }
 
     @Override

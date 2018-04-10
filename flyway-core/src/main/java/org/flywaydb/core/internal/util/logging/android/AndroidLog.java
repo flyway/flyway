@@ -27,6 +27,11 @@ public class AndroidLog implements Log {
     private static final String TAG = "Flyway";
 
     @Override
+    public boolean isDebugEnabled() {
+        return android.util.Log.isLoggable(TAG, android.util.Log.DEBUG);
+    }
+
+    @Override
     public void debug(String message) {
         android.util.Log.d(TAG, message);
     }

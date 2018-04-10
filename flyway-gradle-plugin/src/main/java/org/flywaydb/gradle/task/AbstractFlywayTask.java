@@ -362,6 +362,18 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean stream;
 
     /**
+     * Whether to batch SQL statements when executing them. Batching can save up to 99 percent of network roundtrips by
+     * sending up to 100 statements at once over the network to the database, instead of sending each statement
+     * individually. This is particularly useful for very large SQL migrations composed of multiple MB or even GB of
+     * reference data, as this can dramatically reduce the network overhead. This is supported for INSERT, UPDATE,
+     * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
+     * (default: {@code false})
+     * <p>Also configurable with Gradle or System Property: ${flyway.batch}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    public Boolean batch;
+
+    /**
      * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).
      * <p>Also configurable with Gradle or System Property: ${flyway.configFileEncoding}</p>
      */
@@ -520,6 +532,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
         putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput, extension.dryRunOutput);
         putIfSet(conf, ConfigUtils.STREAM, stream, extension.stream);
+        putIfSet(conf, ConfigUtils.BATCH, batch, extension.batch);
 
         if (placeholders != null) {
             for (Map.Entry<Object, Object> entry : placeholders.entrySet()) {

@@ -39,6 +39,11 @@ public class JavaUtilLog implements Log {
         this.logger = logger;
     }
 
+    @Override
+    public boolean isDebugEnabled() {
+        return logger.isLoggable(Level.FINE);
+    }
+
     public void debug(String message) {
         log(Level.FINE, message, null);
     }
