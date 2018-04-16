@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.concurrent.Callable;
 
 /**
@@ -32,9 +33,9 @@ import java.util.concurrent.Callable;
 public class SnowflakeConnection extends Connection<SnowflakeDatabase> {
     //protected final JdbcTemplate jdbcTemplate;
 
-    SnowflakeConnection(FlywayConfiguration configuration, SnowflakeDatabase database, java.sql.Connection connection, int nullType
+    SnowflakeConnection(FlywayConfiguration configuration, SnowflakeDatabase database, java.sql.Connection connection
     ) {
-        super(configuration, database, connection, nullType);
+        super(configuration, database, connection, Types.NULL);
     }
 
 

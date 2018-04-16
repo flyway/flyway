@@ -44,12 +44,12 @@ public class SnowflakeDatabase extends Database {
      * @param connection    The connection to use.
      */
     public SnowflakeDatabase(FlywayConfiguration configuration, Connection connection) {
-        super(configuration, connection, Types.NULL);
+        super(configuration, connection);
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType) {
-        return new SnowflakeConnection(configuration, this, connection, nullType);
+    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection) {
+        return new SnowflakeConnection(configuration, this, connection);
     }
 
     @Override
