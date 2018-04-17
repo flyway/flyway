@@ -123,6 +123,14 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                 database.getCreateScript(table).execute(jdbcTemplate);
                 LOG.debug("Created Schema History table: " + table);
             } catch (FlywayException e) {
+                try {
+                    final java.sql.Connection jdbcConnection = connection.getJdbcConnection();
+                    if (!jdbcConnection.getAutoCommit()) {
+                        jdbcConnection.rollback();
+                    }
+                } catch (SQLException e1) {
+                    //Ignore
+                }
                 if (++retries >= 10) {
                     throw e;
                 }
