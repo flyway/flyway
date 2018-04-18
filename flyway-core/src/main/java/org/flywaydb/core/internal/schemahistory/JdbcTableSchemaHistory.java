@@ -123,6 +123,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                 database.getCreateScript(table).execute(jdbcTemplate);
                 LOG.debug("Created Schema History table: " + table);
             } catch (FlywayException e) {
+                rollback();
                 if (++retries >= 10) {
                     throw e;
                 }
@@ -133,6 +134,17 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                     // Ignore
                 }
             }
+        }
+    }
+
+    private void rollback() {
+        final java.sql.Connection jdbcConnection = connection.getJdbcConnection();
+        try {
+            if (!jdbcConnection.getAutoCommit()) {
+                jdbcConnection.rollback();
+            }
+        } catch (SQLException e1) {
+            //Ignore
         }
     }
 
