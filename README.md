@@ -8,13 +8,13 @@
 Simple, focused and powerful.
 
 #### Works on
-Windows, macOS, Linux, Java and Android
+Windows, macOS, Linux, Docker, Java and Android
 
 #### Supported build tools
 Maven and Gradle
 
 #### Supported databases
-Oracle, SQL Server, DB2, MySQL, MariaDB, PostgreSQL, Redshift, CockroachDB, SAP HANA, Sybase ASE, H2, HSQLDB, Derby, SQLite
+Oracle, SQL Server, DB2, MySQL, MariaDB, PostgreSQL, Redshift, CockroachDB, SAP HANA, Sybase ASE, Informix, H2, HSQLDB, Derby, SQLite
 
 #### Third party plugins
 SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...

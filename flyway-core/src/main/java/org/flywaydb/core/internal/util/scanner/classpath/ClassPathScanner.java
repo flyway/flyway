@@ -94,7 +94,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             LOG.debug("Found resource: " + resourceName);
         }
 
-        return resources.toArray(new LoadableResource[resources.size()]);
+        return resources.toArray(new LoadableResource[0]);
     }
 
     @Override
@@ -136,7 +136,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             LOG.debug("Found class: " + className);
         }
 
-        return classes.toArray(new Class<?>[classes.size()]);
+        return classes.toArray(new Class<?>[0]);
     }
 
     /**
@@ -365,23 +365,12 @@ public class ClassPathScanner implements ResourceAndClassScanner {
         Set<String> filteredResourceNames = new TreeSet<>();
         for (String resourceName : resourceNames) {
             String fileName = resourceName.substring(resourceName.lastIndexOf("/") + 1);
-            if (fileNameMatches(fileName, prefix, suffixes)) {
+            if (StringUtils.startsAndEndsWith(fileName, prefix, suffixes)) {
                 filteredResourceNames.add(resourceName);
             } else {
                 LOG.debug("Filtering out resource: " + resourceName + " (filename: " + fileName + ")");
             }
         }
         return filteredResourceNames;
-    }
-
-    private boolean fileNameMatches(String fileName, String prefix, String[] suffixes) {
-        for (String suffix : suffixes) {
-            if ((!StringUtils.hasLength(prefix) || fileName.startsWith(prefix))
-                    && fileName.endsWith(suffix)
-                    && (fileName.length() > (prefix + suffix).length())) {
-                return true;
-            }
-        }
-        return false;
     }
 }

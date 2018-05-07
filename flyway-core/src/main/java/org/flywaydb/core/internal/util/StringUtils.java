@@ -55,11 +55,11 @@ public class StringUtils {
      * @return The adjusted string.
      */
     public static String trimOrPad(String str, int length, char padChar) {
-        String result;
+        StringBuilder result;
         if (str == null) {
-            result = "";
+            result = new StringBuilder();
         } else {
-            result = str;
+            result = new StringBuilder(str);
         }
 
         if (result.length() > length) {
@@ -67,9 +67,9 @@ public class StringUtils {
         }
 
         while (result.length() < length) {
-            result += padChar;
+            result.append(padChar);
         }
-        return result;
+        return result.toString();
     }
 
     /**
@@ -220,7 +220,7 @@ public class StringUtils {
             return null;
         }
         Collection<String> tokens = tokenizeToStringCollection(str, delimiters);
-        return tokens.toArray(new String[tokens.size()]);
+        return tokens.toArray(new String[0]);
     }
 
     /**
@@ -306,7 +306,7 @@ public class StringUtils {
         // the index of an occurrence we've found, or -1
         int patLen = oldPattern.length();
         while (index >= 0) {
-            sb.append(inString.substring(pos, index));
+            sb.append(inString, pos, index);
             sb.append(newPattern);
             pos = index + patLen;
             index = inString.indexOf(oldPattern, pos);
@@ -384,5 +384,25 @@ public class StringUtils {
             buf.deleteCharAt(buf.length() - 1);
         }
         return buf.toString();
+    }
+
+    /**
+     * Checks whether this strings both begins with this prefix and ends withs either of these suffixes.
+     *
+     * @param str      The string to check.
+     * @param prefix   The prefix.
+     * @param suffixes The suffixes.
+     * @return {@code true} if it does, {@code false} if not.
+     */
+    public static boolean startsAndEndsWith(String str, String prefix, String... suffixes) {
+        if (StringUtils.hasLength(prefix) && !str.startsWith(prefix)) {
+            return false;
+        }
+        for (String suffix : suffixes) {
+            if (str.endsWith(suffix) && (str.length() > (prefix + suffix).length())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
