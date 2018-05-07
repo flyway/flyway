@@ -91,7 +91,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
                 if (majorVersion > 10 || (majorVersion == 10 && minorVersion > 2)) {
                     recommendFlywayUpgrade(productName, version);
                 }
-            } else {
+            } else if (majorVersion > 8 || (majorVersion == 8 && minorVersion > 0)) {
                 recommendFlywayUpgrade(productName, version);
             }
         }
