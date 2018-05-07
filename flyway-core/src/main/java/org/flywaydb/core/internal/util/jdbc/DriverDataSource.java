@@ -331,6 +331,10 @@ public class DriverDataSource implements DataSource {
             return "com.sap.db.jdbc.Driver";
         }
 
+        if (url.startsWith("jdbc:informix-sqli:")) {
+            return "com.informix.jdbc.IfxDriver";
+        }
+
         return null;
     }
 

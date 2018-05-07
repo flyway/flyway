@@ -256,6 +256,12 @@
                 <version>${version.jtds}</version>
                 <optional>true</optional>
             </dependency>
+            <dependency>
+                <groupId>com.ibm.informix</groupId>
+                <artifactId>jdbc</artifactId>
+                <version>4.10.10.0</version>
+                <optional>true</optional>
+            </dependency>
 
 
 

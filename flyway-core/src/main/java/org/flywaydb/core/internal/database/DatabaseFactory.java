@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.database;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabase;
@@ -25,6 +24,7 @@ import org.flywaydb.core.internal.database.db2.DB2Database;
 import org.flywaydb.core.internal.database.derby.DerbyDatabase;
 import org.flywaydb.core.internal.database.h2.H2Database;
 import org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabase;
+import org.flywaydb.core.internal.database.informix.InformixDatabase;
 import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
 import org.flywaydb.core.internal.database.oracle.OracleDatabase;
 import org.flywaydb.core.internal.database.postgresql.PostgreSQLDatabase;
@@ -191,6 +191,13 @@ public class DatabaseFactory {
         }
         if (databaseProductName.startsWith("HDB")) {
             return new SAPHANADatabase(configuration, connection
+
+
+
+            );
+        }
+        if (databaseProductName.startsWith("Informix")) {
+            return new InformixDatabase(configuration, connection
 
 
 
