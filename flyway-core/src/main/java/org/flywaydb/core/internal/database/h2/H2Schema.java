@@ -49,7 +49,7 @@ public class H2Schema extends Schema<H2Database> {
     }
 
     @Override
-    protected boolean doEmpty() throws SQLException {
+    protected boolean doEmpty() {
         return allTables().length == 0;
     }
 
@@ -60,7 +60,8 @@ public class H2Schema extends Schema<H2Database> {
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP SCHEMA " + database.quote(name));
+        jdbcTemplate.execute("DROP SCHEMA " + database.quote(name)
+                + (database.supportsDropSchemaCascade ? " CASCADE" : ""));
     }
 
     @Override
