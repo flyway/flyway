@@ -29,7 +29,12 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Regex for keywords that can appear before a string literal without being separated by a space.
      */
-    private static final Pattern KEYWORDS_BEFORE_STRING_LITERAL_REGEX = Pattern.compile("^(LIKE)('.*)");
+    private static final Pattern KEYWORDS_BEFORE_STRING_LITERAL_REGEX = Pattern.compile("^(LIKE|AS)('.*)");
+
+    /**
+     * Regex for keywords that can appear after a string literal without being separated by a space.
+     */
+    private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(LIKE|AS)");
 
     private static final Pattern NON_TRANSACTIONAL_STATEMENT_REGEX = Pattern.compile("^(BACKUP|RESTORE|(CREATE|DROP|ALTER) DATABASE) .*");
 
@@ -73,6 +78,11 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
         Matcher beforeMatcher = KEYWORDS_BEFORE_STRING_LITERAL_REGEX.matcher(token);
         if (beforeMatcher.find()) {
             token = beforeMatcher.group(2);
+        }
+
+        Matcher afterMatcher = KEYWORDS_AFTER_STRING_LITERAL_REGEX.matcher(token);
+        if (afterMatcher.find()) {
+            token = afterMatcher.group(1);
         }
 
         return token;
