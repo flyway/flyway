@@ -22,6 +22,7 @@ import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
@@ -38,7 +39,6 @@ import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.command.DbRepair;
 import org.flywaydb.core.internal.command.DbSchemas;
 import org.flywaydb.core.internal.command.DbValidate;
-import org.flywaydb.core.internal.configuration.ClassicConfiguration;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.DatabaseFactory;
@@ -46,7 +46,9 @@ import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.DefaultPlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.NoopPlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.VersionPrinter;
 import org.flywaydb.core.internal.util.scanner.Scanner;
@@ -301,6 +303,11 @@ public class Flyway implements Configuration {
     @Override
     public boolean isBatch() {
         return configuration.isBatch();
+    }
+
+    @Override
+    public boolean isOracleSqlplus() {
+        return configuration.isOracleSqlplus();
     }
 
     /**
@@ -860,6 +867,16 @@ public class Flyway implements Configuration {
     }
 
     /**
+     * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param oracleSqlplus {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
+     */
+    public void setOracleSqlplus(boolean oracleSqlplus) {
+        configuration.setOracleSqlplus(oracleSqlplus);
+    }
+
+    /**
      * <p>Starts the database migration. All pending migrations will be applied in order.
      * Calling migrate on an up-to-date database has no effect.</p>
      * <img src="https://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
@@ -1116,10 +1133,10 @@ public class Flyway implements Configuration {
      */
     private PlaceholderReplacer createPlaceholderReplacer() {
         if (configuration.isPlaceholderReplacement()) {
-            return new PlaceholderReplacer(configuration.getPlaceholders(), configuration.getPlaceholderPrefix(),
+            return new DefaultPlaceholderReplacer(configuration.getPlaceholders(), configuration.getPlaceholderPrefix(),
                     configuration.getPlaceholderSuffix());
         }
-        return PlaceholderReplacer.NO_PLACEHOLDERS;
+        return NoopPlaceholderReplacer.INSTANCE;
     }
 
     /**

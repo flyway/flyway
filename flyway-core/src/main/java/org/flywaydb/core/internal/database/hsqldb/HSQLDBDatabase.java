@@ -20,7 +20,7 @@ import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
@@ -64,8 +64,16 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
     protected final void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
 
-        if (majorVersion < 1 || (majorVersion == 18 && minorVersion < 8)) {
+        if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 8)) {
             throw new FlywayDbUpgradeRequiredException("HSQLDB", version, "1.8");
+        }
+
+        if (majorVersion == 1 || (majorVersion == 2 && minorVersion < 3)) {
+        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("HSQL Development Group", "HSQLDB", version);
+        }
+
+        if (majorVersion > 2 || (majorVersion == 2 && minorVersion > 4)) {
+            recommendFlywayUpgrade("HSQLDB", version);
         }
     }
 
@@ -76,11 +84,11 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
 
 
     ) {
-        return new HSQLDBSqlScript(sqlScriptResource, placeholderReplacer, mixed
+        return new HSQLDBSqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

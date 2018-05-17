@@ -15,28 +15,30 @@
  */
 package org.flywaydb.core.internal.database.informix;
 
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.ContextImpl;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 /**
  * DB2-specific SQL script.
  */
 class InformixSqlScript extends ExecutableSqlScript<ContextImpl> {
-    InformixSqlScript(LoadableResource resource, PlaceholderReplacer placeholderReplacer, boolean mixed
+    InformixSqlScript(Configuration configuration, LoadableResource resource, boolean mixed
 
 
 
-    ) {
-        super(resource, placeholderReplacer, mixed
+
+            , PlaceholderReplacer placeholderReplacer) {
+        super(configuration, resource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

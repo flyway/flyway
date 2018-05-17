@@ -21,7 +21,7 @@ import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.StringResource;
 
@@ -87,11 +87,11 @@ public class DB2Database extends Database<DB2Connection> {
 
 
     ) {
-        return new DB2SqlScript(resource, placeholderReplacer, mixed
+        return new DB2SqlScript(configuration, resource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

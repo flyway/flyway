@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.util;
+package org.flywaydb.core.internal.util.placeholder;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.StringUtils;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -27,19 +27,9 @@ import java.util.regex.Pattern;
 /**
  * Tool for replacing placeholders.
  */
-public class PlaceholderReplacer {
+public class DefaultPlaceholderReplacer implements PlaceholderReplacer {
     /**
-     * PlaceholderReplacer that doesn't replace any placeholders.
-     */
-    public static final PlaceholderReplacer NO_PLACEHOLDERS = new PlaceholderReplacer(new HashMap<>(), "", "") {
-        @Override
-        public String replacePlaceholders(String input) {
-            return input;
-        }
-    };
-
-    /**
-     * A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      */
     private final Map<String, String> placeholders;
 
@@ -53,7 +43,10 @@ public class PlaceholderReplacer {
      */
     private final String placeholderSuffix;
 
-    private final Pattern pattern;
+    /**
+     * Regex pattern that matches any placeholder.
+     */
+    private final Pattern anyPlaceholderPattern;
 
     /**
      * Creates a new PlaceholderReplacer.
@@ -62,26 +55,26 @@ public class PlaceholderReplacer {
      * @param placeholderPrefix The prefix of every placeholder. Usually ${
      * @param placeholderSuffix The suffix of every placeholder. Usually }
      */
-    public PlaceholderReplacer(Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
+    public DefaultPlaceholderReplacer(Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
         this.placeholders = placeholders;
         this.placeholderPrefix = placeholderPrefix;
         this.placeholderSuffix = placeholderSuffix;
-        this.pattern = Pattern.compile(Pattern.quote(placeholderPrefix) + "(.+?)" + Pattern.quote(placeholderSuffix));
+        this.anyPlaceholderPattern = Pattern.compile(Pattern.quote(placeholderPrefix) + "(.+?)" + Pattern.quote(placeholderSuffix));
     }
 
-    /**
-     * Replaces the placeholders in this input string with their corresponding values.
-     *
-     * @param input The input to process.
-     * @return The input string with all placeholders replaced.
-     */
+    @Override
+    public Map<String, String> getPlaceholderReplacements() {
+        return placeholders;
+    }
+
+    @Override
     public String replacePlaceholders(String input) {
         String noPlaceholders = input;
 
-        for (String placeholder : placeholders.keySet()) {
-            String searchTerm = placeholderPrefix + placeholder + placeholderSuffix;
-            String value = placeholders.get(placeholder);
-            noPlaceholders = noPlaceholders.replace(searchTerm, value == null ? "" : value);
+        for (Map.Entry<String, String> placeholder : getPlaceholderReplacements().entrySet()) {
+            String searchTerm = placeholderPrefix + placeholder.getKey() + placeholderSuffix;
+            String value = placeholder.getValue() == null ? "" : placeholder.getValue();
+            noPlaceholders = StringUtils.replace(noPlaceholders, searchTerm, value);
         }
         checkForUnmatchedPlaceholderExpression(noPlaceholders);
 
@@ -96,7 +89,7 @@ public class PlaceholderReplacer {
      * @throws FlywayException An exception listing the unmatched expressions.
      */
     private void checkForUnmatchedPlaceholderExpression(String input) {
-        Matcher matcher = pattern.matcher(input);
+        Matcher matcher = anyPlaceholderPattern.matcher(input);
 
         Set<String> unmatchedPlaceHolderExpressions = new TreeSet<>();
         while (matcher.find()) {

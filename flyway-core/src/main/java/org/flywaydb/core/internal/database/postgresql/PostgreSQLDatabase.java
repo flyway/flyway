@@ -20,7 +20,7 @@ import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
@@ -86,11 +86,11 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
 
     ) {
-        return new PostgreSQLSqlScript(sqlScriptResource, placeholderReplacer, mixed
+        return new PostgreSQLSqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

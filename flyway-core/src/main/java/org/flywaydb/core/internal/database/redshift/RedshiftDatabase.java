@@ -19,9 +19,9 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
@@ -88,11 +88,11 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
 
 
     ) {
-        return new RedshiftSqlScript(sqlScriptResource, placeholderReplacer, mixed
+        return new RedshiftSqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

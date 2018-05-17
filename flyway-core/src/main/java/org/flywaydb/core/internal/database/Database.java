@@ -22,7 +22,8 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.DefaultPlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
@@ -150,12 +151,6 @@ public abstract class Database<C extends Connection> implements Closeable {
 
 
     ) {
-
-
-
-
-
-
         return doCreateSqlScript(resource, placeholderReplacer, mixed
 
 
@@ -366,7 +361,7 @@ public abstract class Database<C extends Connection> implements Closeable {
         placeholders.put("schema", table.getSchema().getName());
         placeholders.put("table", table.getName());
         placeholders.put("table_quoted", table.toString());
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
+        PlaceholderReplacer placeholderReplacer = new DefaultPlaceholderReplacer(placeholders, "${", "}");
 
         return createSqlScript(getRawCreateScript(), placeholderReplacer, false
 

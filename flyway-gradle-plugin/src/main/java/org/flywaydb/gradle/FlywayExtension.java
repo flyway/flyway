@@ -15,6 +15,8 @@
  */
 package org.flywaydb.gradle;
 
+import org.flywaydb.core.internal.configuration.ConfigUtils;
+
 import java.util.Map;
 
 /**
@@ -333,6 +335,14 @@ public class FlywayExtension {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */
     public Boolean batch;
+
+    /**
+     * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
+     * (default: {@code false})
+     * <p>Also configurable with Gradle or System Property: ${flyway.oracle.sqlplus}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    public Boolean oracleSqlplus;
 
     /**
      * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).

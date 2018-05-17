@@ -22,7 +22,7 @@ import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
@@ -97,11 +97,11 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
 
 
     ) {
-        return new CockroachDBSqlScript(sqlScriptResource, placeholderReplacer, mixed
+        return new CockroachDBSqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

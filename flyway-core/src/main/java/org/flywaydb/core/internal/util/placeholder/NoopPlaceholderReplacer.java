@@ -13,38 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.oracle;
+package org.flywaydb.core.internal.util.placeholder;
 
-import org.flywaydb.core.internal.util.jdbc.ContextImpl;
+import java.util.Collections;
+import java.util.Map;
 
-public class OracleContextImpl extends ContextImpl {
+/**
+ * A placeholder replacer that does nothing.
+ */
+public enum NoopPlaceholderReplacer implements PlaceholderReplacer {
+    INSTANCE;
 
+    @Override
+    public Map<String, String> getPlaceholderReplacements() {
+        return Collections.emptyMap();
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    @Override
+    public String replacePlaceholders(String input) {
+        return input;
+    }
 }

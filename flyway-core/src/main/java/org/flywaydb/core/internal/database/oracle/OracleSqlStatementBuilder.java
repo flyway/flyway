@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Delimiter;
@@ -128,7 +129,6 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
 
 
-
     private static final Pattern DECLARE_BEGIN_REGEX = toRegex("DECLARE|BEGIN");
     private static final Pattern PLSQL_REGEX = Pattern.compile(
             "^CREATE(\\s+OR\\s+REPLACE)?(\\s+(NON)?EDITIONABLE)?\\s+(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*");
@@ -140,14 +140,38 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
      */
     private static final Delimiter PLSQL_DELIMITER = new Delimiter("/", true);
 
+    private final Configuration configuration;
+
+
+
+
+
     /**
      * Holds the beginning of the statement.
      */
     private String statementStart = "";
 
-    public OracleSqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    public OracleSqlStatementBuilder(Configuration configuration
+
+
+
+    ) {
+        super(Delimiter.SEMICOLON);
+        this.configuration = configuration;
+
+
+
     }
+
+
+
+
+
+
+
+
+
+
 
 
 

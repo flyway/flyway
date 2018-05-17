@@ -21,7 +21,7 @@ import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
@@ -85,11 +85,11 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
 
 
     ) {
-        return new SybaseASESqlScript(sqlScriptResource, placeholderReplacer, mixed
+        return new SybaseASESqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

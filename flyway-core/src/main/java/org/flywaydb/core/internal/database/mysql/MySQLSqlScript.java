@@ -15,28 +15,30 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.ContextImpl;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 /**
  * MySQL-specific SQL script.
  */
 class MySQLSqlScript extends ExecutableSqlScript<ContextImpl> {
-    MySQLSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, boolean mixed
+    MySQLSqlScript(Configuration configuration, LoadableResource sqlScriptResource, boolean mixed
 
 
 
-    ) {
-        super(sqlScriptResource, placeholderReplacer, mixed
+
+            , PlaceholderReplacer placeholderReplacer) {
+        super(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

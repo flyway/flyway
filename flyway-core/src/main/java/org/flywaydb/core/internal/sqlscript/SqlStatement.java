@@ -36,6 +36,11 @@ public interface SqlStatement<C extends ContextImpl> {
      */
     String getSql();
 
+    /**
+     * @return The delimiter for the statement.
+     */
+    String getDelimiter();
+
 
 
 

@@ -103,6 +103,9 @@ public class ConfigUtils {
     public static final String USER = "flyway.user";
     public static final String VALIDATE_ON_MIGRATE = "flyway.validateOnMigrate";
 
+    // Oracle-specific
+    public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
+
     // Command-line specific
     public static final String JAR_DIRS = "flyway.jarDirs";
 
@@ -312,6 +315,11 @@ public class ConfigUtils {
                 public boolean isBatch() {
                     return configuration.isBatch();
                 }
+
+                @Override
+                public boolean isOracleSqlplus() {
+                    return configuration.isOracleSqlplus();
+                }
             });
         }
     }
@@ -458,6 +466,11 @@ public class ConfigUtils {
         }
         if ("FLYWAY_VALIDATE_ON_MIGRATE".equals(key)) {
             return VALIDATE_ON_MIGRATE;
+        }
+
+        // Oracle-specific
+        if ("FLYWAY_ORACLE_SQLPLUS".equals(key)) {
+            return ORACLE_SQLPLUS;
         }
 
         // Command-line specific

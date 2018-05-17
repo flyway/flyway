@@ -375,4 +375,13 @@ public interface Configuration {
      * @return {@code true} to batch SQL statements. {@code false} to execute them individually instead. (default: {@code false})
      */
     boolean isBatch();
+
+    /**
+     * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
+     *
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @return {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
+     */
+    boolean isOracleSqlplus();
 }

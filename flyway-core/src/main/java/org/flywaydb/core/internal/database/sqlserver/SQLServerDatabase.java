@@ -22,7 +22,7 @@ import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
@@ -127,11 +127,11 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
 
     ) {
-        return new SQLServerSqlScript(sqlScriptResource, placeholderReplacer, mixed
+        return new SQLServerSqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

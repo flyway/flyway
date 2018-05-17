@@ -20,7 +20,7 @@ import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
@@ -65,8 +65,16 @@ public class DerbyDatabase extends Database<DerbyConnection> {
     protected final void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
 
-        if (majorVersion < 10 || (majorVersion == 10 && minorVersion < 8)) {
-            throw new FlywayDbUpgradeRequiredException("Derby", version, "10.8.1.2");
+        if (majorVersion < 10 || (majorVersion == 10 && minorVersion < 11)) {
+            throw new FlywayDbUpgradeRequiredException("Derby", version, "10.11.1.1");
+        }
+
+        if (majorVersion == 10 && minorVersion < 14) {
+        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("Apache", "Derby", version);
+        }
+
+        if ((majorVersion == 10 && minorVersion > 14) || majorVersion > 10) {
+            recommendFlywayUpgrade("Derby", version);
         }
     }
 
@@ -77,11 +85,11 @@ public class DerbyDatabase extends Database<DerbyConnection> {
 
 
     ) {
-        return new DerbySqlScript(sqlScriptResource, placeholderReplacer, mixed
+        return new DerbySqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

@@ -458,6 +458,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean batch;
 
     /**
+     * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
+     * (default: {@code false})
+     * <p>Also configurable with Maven or System Property: ${flyway.oracle.sqlplus}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    @Parameter(property = ConfigUtils.ORACLE_SQLPLUS)
+    private Boolean oracleSqlplus;
+
+    /**
      * Properties file from which to load the Flyway configuration. The names of the individual properties match the ones you would
      * use as Maven or System properties. The encoding of the file must be the same as the encoding defined with the
      * {@code flyway.encoding) property, which is UTF-8 by default. Relative paths are relative to the POM. (default: flyway.properties)
@@ -643,6 +652,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput);
             putIfSet(conf, ConfigUtils.STREAM, stream);
             putIfSet(conf, ConfigUtils.BATCH, batch);
+
+            putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus);
 
             if (placeholders != null) {
                 for (String placeholder : placeholders.keySet()) {

@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.util.line;
 
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 
 public class PlaceholderReplacingLine implements Line {
     private final Line line;

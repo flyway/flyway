@@ -76,6 +76,11 @@ public abstract class AbstractSqlStatement<C extends ContextImpl> implements Sql
         return sql;
     }
 
+    @Override
+    public String getDelimiter() {
+        return delimiter.toString();
+    }
+
     /**
      * Strips this delimiter from this sql statement.
      *

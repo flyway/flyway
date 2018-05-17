@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.errorhandler.Warning;
 import org.flywaydb.core.api.logging.Log;
@@ -23,7 +24,6 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.AsciiTable;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 import org.flywaydb.core.internal.util.jdbc.ErrorImpl;
@@ -32,6 +32,7 @@ import org.flywaydb.core.internal.util.jdbc.Result;
 import org.flywaydb.core.internal.util.line.Line;
 import org.flywaydb.core.internal.util.line.LineReader;
 import org.flywaydb.core.internal.util.line.PlaceholderReplacingLine;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.BatchUpdateException;
@@ -46,6 +47,16 @@ import java.util.List;
  */
 public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScript<C> {
     private static final Log LOG = LogFactory.getLog(ExecutableSqlScript.class);
+
+    /**
+     * The configuration to use.
+     */
+    protected final Configuration configuration;
+
+
+
+
+
 
 
 
@@ -72,7 +83,7 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
     /**
      * The sql statements contained in this script.
      */
-    private final List<SqlStatement<C>> sqlStatements;
+    private List<SqlStatement<C>> sqlStatements;
 
     /**
      * Whether this SQL script contains at least one transactional statement.
@@ -87,29 +98,35 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
     /**
      * Creates a new sql script from this source.
      *
-     * @param resource            The sql script resource.
-     * @param placeholderReplacer The placeholder replacer to use.
-     * @param mixed               Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * @param configuration              The configuration to use.
+     * @param resource                   The sql script resource.
+     * @param mixed                      Whether to allow mixing transactional and non-transactional statements within the same migration.
 
 
 
 
+
+     * @param placeholderReplacer        The placeholder replacer to use.
      */
-    public ExecutableSqlScript(LoadableResource resource, PlaceholderReplacer placeholderReplacer, boolean mixed
+    public ExecutableSqlScript(Configuration configuration, LoadableResource resource, boolean mixed
 
 
 
+
+            , PlaceholderReplacer placeholderReplacer
     ) {
         super(resource, placeholderReplacer);
+        this.configuration = configuration;
         this.mixed = mixed;
+
+
+
+
+
+
 
         LOG.debug("Parsing " + resource.getFilename() + " ...");
         this.sqlStatements = extractStatements(resource.loadAsString());
-
-
-
-
-
     }
 
     /**
@@ -187,8 +204,13 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
 
 
 
-        for (int i = 0; i < sqlStatements.size(); i++) {
-            SqlStatement<C> sqlStatement = sqlStatements.get(i);
+
+
+
+
+
+        for (int i = 0; i < getSqlStatements().size(); i++) {
+            SqlStatement<C> sqlStatement = getSqlStatements().get(i);
             String sql = sqlStatement.getSql();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Executing "
@@ -245,7 +267,7 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
         C context = createContext();
 
         try {
-            List<Result> results = sqlStatement.execute(context, jdbcTemplate);
+            List<Result> results = postProcess(sqlStatement).execute(context, jdbcTemplate);
 
 
 
@@ -268,6 +290,16 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
             printWarnings(context);
             handleException(e, sqlStatement, context);
         }
+    }
+
+    /**
+     * Postprocesses this SQL statement if necessary.
+     *
+     * @param sqlStatement The original SQL statement.
+     * @return The post-processed SQL statement.
+     */
+    protected SqlStatement<C> postProcess(SqlStatement<C> sqlStatement) {
+        return sqlStatement;
     }
 
     private void handleResults(List<Result> results) {

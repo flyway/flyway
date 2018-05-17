@@ -16,9 +16,9 @@
 package org.flywaydb.core.internal.database;
 
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.util.List;

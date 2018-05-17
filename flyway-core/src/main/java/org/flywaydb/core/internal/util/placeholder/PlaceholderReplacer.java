@@ -13,38 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.oracle;
+package org.flywaydb.core.internal.util.placeholder;
 
-import org.flywaydb.core.internal.util.jdbc.ContextImpl;
+import java.util.Map;
 
-public class OracleContextImpl extends ContextImpl {
+/**
+ * Tool for replacing placeholders.
+ */
+public interface PlaceholderReplacer {
+    /**
+     * @return The placeholder name-value mapping used for replacement.
+     */
+    Map<String, String> getPlaceholderReplacements();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Replaces the placeholders in this input string with their corresponding values.
+     *
+     * @param input The input to process.
+     * @return The input string with all placeholders replaced.
+     */
+    String replacePlaceholders(String input);
 }

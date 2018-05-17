@@ -20,9 +20,10 @@ import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
@@ -52,6 +53,13 @@ public class OracleDatabase extends Database<OracleConnection> {
         }
     }
 
+
+
+
+
+
+
+
     /**
      * Creates a new instance.
      *
@@ -68,6 +76,17 @@ public class OracleDatabase extends Database<OracleConnection> {
 
 
         );
+
+
+
+
+
+
+
+
+
+
+
     }
 
     @Override
@@ -99,17 +118,16 @@ public class OracleDatabase extends Database<OracleConnection> {
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource,
-                                          PlaceholderReplacer placeholderReplacer, boolean mixed
+    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-        return new OracleSqlScript(sqlScriptResource, placeholderReplacer, mixed
+        return new OracleSqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

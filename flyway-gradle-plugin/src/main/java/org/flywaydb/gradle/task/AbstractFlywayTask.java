@@ -374,6 +374,14 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean batch;
 
     /**
+     * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
+     * (default: {@code false})
+     * <p>Also configurable with Gradle or System Property: ${flyway.oracle.sqlplus}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    public Boolean oracleSqlplus;
+
+    /**
      * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).
      * <p>Also configurable with Gradle or System Property: ${flyway.configFileEncoding}</p>
      */
@@ -533,6 +541,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput, extension.dryRunOutput);
         putIfSet(conf, ConfigUtils.STREAM, stream, extension.stream);
         putIfSet(conf, ConfigUtils.BATCH, batch, extension.batch);
+
+        putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus, extension.oracleSqlplus);
 
         if (placeholders != null) {
             for (Map.Entry<Object, Object> entry : placeholders.entrySet()) {

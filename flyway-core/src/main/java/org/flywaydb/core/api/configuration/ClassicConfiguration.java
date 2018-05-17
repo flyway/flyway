@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.configuration;
+package org.flywaydb.core.api.configuration;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.LegacyCallback;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -47,10 +47,10 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Classic JavaBean-style configuration for Flyway. This is primarily meant for compatibility with scenarios where the
+ * JavaBean-style configuration for Flyway. This is primarily meant for compatibility with scenarios where the
  * new FluentConfiguration isn't an easy fit, such as Spring XML bean configuration.
  * <p>
- * This configuration can then be passed to Flyway using the <code>new Flyway(FlywayConfiguration)</code> constructor.
+ * This configuration can then be passed to Flyway using the <code>new Flyway(Configuration)</code> constructor.
  * </p>
  */
 public class ClassicConfiguration implements Configuration {
@@ -420,6 +420,10 @@ public class ClassicConfiguration implements Configuration {
         setTable(configuration.getTable());
         setTarget(configuration.getTarget());
         setValidateOnMigrate(configuration.isValidateOnMigrate());
+
+
+
+
     }
 
     @Override
@@ -1279,6 +1283,40 @@ public class ClassicConfiguration implements Configuration {
         this.skipDefaultResolvers = skipDefaultResolvers;
     }
 
+
+
+
+
+
+
+
+
+
+    @Override
+    public boolean isOracleSqlplus() {
+
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("oracle.sqlplus");
+
+
+
+
+    }
+
+    /**
+     * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param oracleSqlplus {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
+     */
+    public void setOracleSqlplus(boolean oracleSqlplus) {
+
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("oracle.sqlplus");
+
+
+
+
+    }
+
     /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
@@ -1492,6 +1530,11 @@ public class ClassicConfiguration implements Configuration {
         Boolean batchProp = getBooleanProp(props, ConfigUtils.BATCH);
         if (batchProp != null) {
             setBatch(batchProp);
+        }
+
+        Boolean oracleSqlplusProp = getBooleanProp(props, ConfigUtils.ORACLE_SQLPLUS);
+        if (oracleSqlplusProp != null) {
+            setOracleSqlplus(oracleSqlplusProp);
         }
 
         for (String key : props.keySet()) {

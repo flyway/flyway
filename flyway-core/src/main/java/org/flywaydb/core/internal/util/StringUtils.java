@@ -317,6 +317,26 @@ public class StringUtils {
     }
 
     /**
+     * Replaces this group matched from this regex against this source with this replacement.
+     *
+     * @param source         The source string.
+     * @param regex          The regex to use.
+     * @param groupToReplace The number of the matching group to replace.
+     * @param replacement    The replacement.
+     * @return The resulting string with the group replaced.
+     */
+    public static String replaceGroup(String source, String regex, int groupToReplace, String replacement) {
+        return replaceGroup(source, regex, groupToReplace, 1, replacement);
+    }
+
+    private static String replaceGroup(String source, String regex, int groupToReplace, int groupOccurrence, String replacement) {
+        Matcher m = Pattern.compile(regex).matcher(source);
+        for (int i = 0; i < groupOccurrence; i++)
+            if (!m.find()) return source; // pattern not met, may also throw an exception here
+        return new StringBuilder(source).replace(m.start(groupToReplace), m.end(groupToReplace), replacement).toString();
+    }
+
+    /**
      * Convenience method to return a Collection as a comma-delimited
      * String. E.g. useful for {@code toString()} implementations.
      *

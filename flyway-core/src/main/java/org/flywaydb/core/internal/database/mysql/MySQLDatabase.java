@@ -21,7 +21,7 @@ import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
@@ -104,11 +104,11 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
 
     ) {
-        return new MySQLSqlScript(sqlScriptResource, placeholderReplacer, mixed
+        return new MySQLSqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

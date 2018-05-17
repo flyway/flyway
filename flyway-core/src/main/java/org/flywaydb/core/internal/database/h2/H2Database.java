@@ -23,7 +23,7 @@ import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
@@ -93,6 +93,11 @@ public class H2Database extends Database<H2Connection> {
         if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 2)) {
             throw new FlywayDbUpgradeRequiredException("H2", version, "1.2.137");
         }
+
+        if (majorVersion == 1 && minorVersion < 4) {
+        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("H2", "H2", version);
+        }
+
         if ((majorVersion == 1 && (minorVersion > 4 || (minorVersion == 4 && buildId > 197))) || majorVersion > 1) {
             recommendFlywayUpgrade("H2", version);
         }
@@ -108,11 +113,11 @@ public class H2Database extends Database<H2Connection> {
 
 
     ) {
-        return new H2SqlScript(sqlScriptResource, placeholderReplacer, mixed
+        return new H2SqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

@@ -18,7 +18,6 @@ package org.flywaydb.core.internal.resolver;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.Database;
@@ -26,8 +25,7 @@ import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.Locations;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import java.util.ArrayList;

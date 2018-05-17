@@ -20,7 +20,7 @@ import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.StringResource;
 
@@ -81,11 +81,11 @@ public class InformixDatabase extends Database<InformixConnection> {
 
 
     ) {
-        return new InformixSqlScript(resource, placeholderReplacer, mixed
+        return new InformixSqlScript(configuration, resource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

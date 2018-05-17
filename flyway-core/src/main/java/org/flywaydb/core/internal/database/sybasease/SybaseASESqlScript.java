@@ -15,26 +15,29 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 /**
  * Sybase ASE-specific SQL script.
  */
 class SybaseASESqlScript extends ExecutableSqlScript {
-    SybaseASESqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, boolean mixed
+    SybaseASESqlScript(Configuration configuration, LoadableResource sqlScriptResource, boolean mixed
 
 
 
-    ) {
-        super(sqlScriptResource, placeholderReplacer, mixed
+
+            , PlaceholderReplacer placeholderReplacer) {
+        super(configuration, sqlScriptResource, mixed
 
 
 
+                , placeholderReplacer
         );
     }
 
