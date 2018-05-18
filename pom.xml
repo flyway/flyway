@@ -145,7 +145,7 @@
         <version.equinoxcommon>3.9.0</version.equinoxcommon>
         <version.android>4.0.1.2</version.android>
         <version.slf4j>1.7.16</version.slf4j>
-        <version.jre>8.152</version.jre>
+        <version.jre>8.172</version.jre>
     </properties>
 
     <dependencyManagement>

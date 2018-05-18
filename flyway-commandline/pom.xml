@@ -36,7 +36,7 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <properties>
-        <jreversion>1.8.0_152</jreversion>
+        <jreversion>1.8.0_172</jreversion>
     </properties>
     <dependencies>
         <dependency>
