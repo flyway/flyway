@@ -267,7 +267,7 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
         C context = createContext();
 
         try {
-            List<Result> results = postProcess(sqlStatement).execute(context, jdbcTemplate);
+            List<Result> results = sqlStatement.execute(context, jdbcTemplate);
 
 
 
@@ -290,16 +290,6 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
             printWarnings(context);
             handleException(e, sqlStatement, context);
         }
-    }
-
-    /**
-     * Postprocesses this SQL statement if necessary.
-     *
-     * @param sqlStatement The original SQL statement.
-     * @return The post-processed SQL statement.
-     */
-    protected SqlStatement<C> postProcess(SqlStatement<C> sqlStatement) {
-        return sqlStatement;
     }
 
     private void handleResults(List<Result> results) {

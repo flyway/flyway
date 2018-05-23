@@ -466,11 +466,11 @@ public class DriverDataSource implements DataSource {
         this.autoCommit = autoCommit;
     }
 
-    public int getLoginTimeout() throws SQLException {
+    public int getLoginTimeout() {
         return 0;
     }
 
-    public void setLoginTimeout(int timeout) throws SQLException {
+    public void setLoginTimeout(int timeout) {
         throw new UnsupportedOperationException("setLoginTimeout");
     }
 
@@ -478,15 +478,15 @@ public class DriverDataSource implements DataSource {
         throw new UnsupportedOperationException("getLogWriter");
     }
 
-    public void setLogWriter(PrintWriter pw) throws SQLException {
+    public void setLogWriter(PrintWriter pw) {
         throw new UnsupportedOperationException("setLogWriter");
     }
 
-    public <T> T unwrap(Class<T> iface) throws SQLException {
+    public <T> T unwrap(Class<T> iface) {
         throw new UnsupportedOperationException("unwrap");
     }
 
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+    public boolean isWrapperFor(Class<?> iface) {
         return DataSource.class.equals(iface);
     }
 

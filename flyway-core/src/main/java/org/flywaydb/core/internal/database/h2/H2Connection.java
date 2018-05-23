@@ -27,11 +27,12 @@ import java.sql.Types;
  */
 public class H2Connection extends Connection<H2Database> {
     H2Connection(Configuration configuration, H2Database database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 

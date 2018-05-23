@@ -35,12 +35,12 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public HSQLDBDatabase(Configuration configuration, Connection connection
+    public HSQLDBDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -53,7 +53,7 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
 
 
     ) {
-        return new HSQLDBConnection(configuration, this, connection
+        return new HSQLDBConnection(configuration, this, connection, originalAutoCommit
 
 
 

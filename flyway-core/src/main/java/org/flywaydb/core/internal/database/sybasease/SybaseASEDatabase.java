@@ -40,12 +40,12 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
      * @param connection    The initial connection.
      * @param jconnect      Whether we are using the official jConnect driver or not (jTDS).
      */
-    public SybaseASEDatabase(Configuration configuration, Connection connection, boolean jconnect
+    public SybaseASEDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit, boolean jconnect
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -59,7 +59,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
 
 
     ) {
-        return new SybaseASEConnection(configuration, this, connection, jconnect
+        return new SybaseASEConnection(configuration, this, connection, originalAutoCommit, jconnect
 
 
 

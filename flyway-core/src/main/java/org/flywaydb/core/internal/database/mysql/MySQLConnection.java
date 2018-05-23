@@ -35,11 +35,12 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
     private static final Log LOG = LogFactory.getLog(MySQLConnection.class);
 
     MySQLConnection(Configuration configuration, MySQLDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 

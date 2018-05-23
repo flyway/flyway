@@ -37,12 +37,12 @@ public class InformixDatabase extends Database<InformixConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public InformixDatabase(Configuration configuration, Connection connection
+    public InformixDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -55,7 +55,7 @@ public class InformixDatabase extends Database<InformixConnection> {
 
 
     ) {
-        return new InformixConnection(configuration, this, connection
+        return new InformixConnection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -102,9 +102,9 @@ public class InformixDatabase extends Database<InformixConnection> {
                 "    execution_time INT NOT NULL,\n" +
                 "    success SMALLINT NOT NULL\n" +
                 ");\n" +
-                "ALTER TABLE ${schema}.${table} ADD CONSTRAINT ${table}_s CHECK (success in(0,1));\n" +
-                "ALTER TABLE ${schema}.${table} ADD CONSTRAINT ${table}_pk PRIMARY KEY (installed_rank);\n" +
-                "CREATE INDEX ${schema}.${table}_s_idx ON ${schema}.${table} (success);");
+                "ALTER TABLE ${table} ADD CONSTRAINT CHECK (success in (0,1)) CONSTRAINT ${table}_s;\n" +
+                "ALTER TABLE ${table} ADD CONSTRAINT PRIMARY KEY (installed_rank) CONSTRAINT ${table}_pk;\n" +
+                "CREATE INDEX ${table}_s_idx ON ${table} (success);");
     }
 
     @Override

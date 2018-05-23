@@ -54,12 +54,12 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public CockroachDBDatabase(Configuration configuration, Connection connection
+    public CockroachDBDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -72,7 +72,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
 
 
     ) {
-        return new CockroachDBConnection(configuration, this, connection
+        return new CockroachDBConnection(configuration, this, connection, originalAutoCommit
 
 
 

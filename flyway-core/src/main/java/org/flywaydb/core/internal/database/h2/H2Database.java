@@ -49,12 +49,12 @@ public class H2Database extends Database<H2Connection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public H2Database(Configuration configuration, Connection connection
+    public H2Database(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -67,7 +67,7 @@ public class H2Database extends Database<H2Connection> {
 
 
     ) {
-        return new H2Connection(configuration, this, connection
+        return new H2Connection(configuration, this, connection, originalAutoCommit
 
 
 

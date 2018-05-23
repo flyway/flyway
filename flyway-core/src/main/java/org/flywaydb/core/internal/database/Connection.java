@@ -35,12 +35,19 @@ public abstract class Connection<D extends Database> implements Closeable {
      */
     protected final String originalSchemaNameOrSearchPath;
 
-    protected Connection(Configuration configuration, D database, java.sql.Connection connection, int nullType
+    /**
+     * The original autocommit state of the connection.
+     */
+    private boolean originalAutoCommit;
+
+    protected Connection(Configuration configuration, D database, java.sql.Connection connection
+            , boolean originalAutoCommit, int nullType
 
 
 
     ) {
         this.database = database;
+        this.originalAutoCommit = originalAutoCommit;
 
 
 
@@ -61,7 +68,7 @@ public abstract class Connection<D extends Database> implements Closeable {
 
         jdbcTemplate = new JdbcTemplate(jdbcConnection, nullType);
         try {
-            originalSchemaNameOrSearchPath = jdbcTemplate.getConnection() == null ? null : getCurrentSchemaNameOrSearchPath();
+            originalSchemaNameOrSearchPath = getCurrentSchemaNameOrSearchPath();
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to retrieve the current schema for the connection", e);
         }
@@ -148,6 +155,7 @@ public abstract class Connection<D extends Database> implements Closeable {
     public final void close() {
         restoreOriginalState();
         restoreOriginalSchema();
+        restoreOriginalAutoCommit();
         JdbcUtils.closeConnection(jdbcConnection);
     }
 
@@ -173,6 +181,17 @@ public abstract class Connection<D extends Database> implements Closeable {
             doRestoreOriginalState();
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to restore connection to its original state", e);
+        }
+    }
+
+    /**
+     * Restores this connection to its original auto-commit setting.
+     */
+    private void restoreOriginalAutoCommit() {
+        try {
+            jdbcConnection.setAutoCommit(originalAutoCommit);
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to restore connection to its original auto-commit setting", e);
         }
     }
 

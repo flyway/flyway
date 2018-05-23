@@ -51,12 +51,12 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public RedshiftDatabase(Configuration configuration, Connection connection
+    public RedshiftDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -69,7 +69,7 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
 
 
     ) {
-        return new RedshiftConnection(configuration, this, connection
+        return new RedshiftConnection(configuration, this, connection, originalAutoCommit
 
 
 

@@ -22,9 +22,9 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Pair;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.placeholder.DefaultPlaceholderReplacer;
 import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
@@ -55,6 +55,11 @@ public abstract class Database<C extends Connection> implements Closeable {
      * The main JDBC connection to use.
      */
     private final java.sql.Connection mainJdbcConnection;
+
+    /**
+     * The original auto-commit state for connections to this database.
+     */
+    protected final boolean originalAutoCommit;
 
     /**
      * The main connection to use.
@@ -88,16 +93,18 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * Creates a new Database instance with this JdbcTemplate.
      *
-     * @param configuration The Flyway configuration.
-     * @param connection    The main connection to use.
+     * @param configuration      The Flyway configuration.
+     * @param connection         The main connection to use.
+     * @param originalAutoCommit The original auto-commit state for connections to this database.
      */
-    public Database(Configuration configuration, java.sql.Connection connection
+    public Database(Configuration configuration, java.sql.Connection connection, boolean originalAutoCommit
 
 
 
     ) {
         this.configuration = configuration;
         this.mainJdbcConnection = connection;
+        this.originalAutoCommit = originalAutoCommit;
         try {
             this.jdbcMetaData = connection.getMetaData();
         } catch (SQLException e) {

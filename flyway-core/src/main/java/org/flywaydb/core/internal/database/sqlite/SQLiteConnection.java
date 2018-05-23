@@ -26,11 +26,12 @@ import java.sql.Types;
  */
 public class SQLiteConnection extends Connection<SQLiteDatabase> {
     SQLiteConnection(Configuration configuration, SQLiteDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 

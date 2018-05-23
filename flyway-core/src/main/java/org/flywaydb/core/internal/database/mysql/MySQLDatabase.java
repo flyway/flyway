@@ -37,12 +37,12 @@ public class MySQLDatabase extends Database<MySQLConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public MySQLDatabase(Configuration configuration, Connection connection
+    public MySQLDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -55,7 +55,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
 
     ) {
-        return new MySQLConnection(configuration, this, connection
+        return new MySQLConnection(configuration, this, connection, originalAutoCommit
 
 
 

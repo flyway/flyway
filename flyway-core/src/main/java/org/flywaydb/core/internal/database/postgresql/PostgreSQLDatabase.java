@@ -37,12 +37,12 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public PostgreSQLDatabase(Configuration configuration, Connection connection
+    public PostgreSQLDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -55,7 +55,7 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
 
     ) {
-        return new PostgreSQLConnection(configuration, this, connection
+        return new PostgreSQLConnection(configuration, this, connection, originalAutoCommit
 
 
 

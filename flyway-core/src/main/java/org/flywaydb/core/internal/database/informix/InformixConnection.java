@@ -27,11 +27,12 @@ import java.sql.Types;
  */
 public class InformixConnection extends Connection<InformixDatabase> {
     InformixConnection(Configuration configuration, InformixDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 

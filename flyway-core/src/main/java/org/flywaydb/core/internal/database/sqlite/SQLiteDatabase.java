@@ -35,12 +35,12 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public SQLiteDatabase(Configuration configuration, Connection connection
+    public SQLiteDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -53,7 +53,7 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
 
 
     ) {
-        return new SQLiteConnection(configuration, this, connection
+        return new SQLiteConnection(configuration, this, connection, originalAutoCommit
 
 
 

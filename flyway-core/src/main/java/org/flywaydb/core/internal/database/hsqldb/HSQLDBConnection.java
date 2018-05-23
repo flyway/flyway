@@ -29,11 +29,12 @@ import java.sql.Types;
  */
 public class HSQLDBConnection extends Connection<HSQLDBDatabase> {
     HSQLDBConnection(Configuration configuration, HSQLDBDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 

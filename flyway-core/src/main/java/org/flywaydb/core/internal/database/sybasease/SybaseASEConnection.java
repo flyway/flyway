@@ -25,12 +25,13 @@ import java.sql.Types;
  * Sybase ASE Connection.
  */
 public class SybaseASEConnection extends Connection<SybaseASEDatabase> {
-    SybaseASEConnection(Configuration configuration, SybaseASEDatabase database, java.sql.Connection connection, boolean jconnect
+    SybaseASEConnection(Configuration configuration, SybaseASEDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit, boolean jconnect
 
 
 
     ) {
-        super(configuration, database, connection, jconnect ? Types.VARCHAR : Types.NULL
+        super(configuration, database, connection, originalAutoCommit, jconnect ? Types.VARCHAR : Types.NULL
 
 
 

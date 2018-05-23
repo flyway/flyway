@@ -27,11 +27,12 @@ import java.sql.Types;
  */
 public class DerbyConnection extends Connection<DerbyDatabase> {
     DerbyConnection(Configuration configuration, DerbyDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 

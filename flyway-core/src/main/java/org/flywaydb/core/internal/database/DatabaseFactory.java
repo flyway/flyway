@@ -68,12 +68,22 @@ public class DatabaseFactory {
         OracleDatabase.enableTnsnamesOraSupport();
 
         Connection connection = JdbcUtils.openConnection(configuration.getDataSource());
+        boolean originalAutoCommit;
+        try {
+            originalAutoCommit = connection.getAutoCommit();
+            if (!originalAutoCommit) {
+                connection.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to turn on auto-commit for the connection", e);
+        }
+
         String databaseProductName = getDatabaseProductName(connection);
         if (printInfo) {
             LOG.info("Database: " + getJdbcUrl(connection) + " (" + databaseProductName + ")");
         }
 
-        Database database = createDatabase(configuration, connection, databaseProductName
+        Database database = createDatabase(configuration, connection, originalAutoCommit, databaseProductName
 
 
 
@@ -88,41 +98,43 @@ public class DatabaseFactory {
         return database;
     }
 
-    private static Database createDatabase(Configuration configuration, Connection connection, String databaseProductName
+    private static Database createDatabase(Configuration configuration, Connection connection,
+                                           boolean originalAutoCommit,
+                                           String databaseProductName
 
 
 
     ) {
         if (databaseProductName.startsWith("Apache Derby")) {
-            return new DerbyDatabase(configuration, connection
+            return new DerbyDatabase(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.startsWith("SQLite")) {
-            return new SQLiteDatabase(configuration, connection
+            return new SQLiteDatabase(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.startsWith("H2")) {
-            return new H2Database(configuration, connection
+            return new H2Database(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.contains("HSQL Database Engine")) {
-            return new HSQLDBDatabase(configuration, connection
+            return new HSQLDBDatabase(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.startsWith("Microsoft SQL Server")) {
-            return new SQLServerDatabase(configuration, connection
+            return new SQLServerDatabase(configuration, connection, originalAutoCommit
 
 
 
@@ -132,14 +144,14 @@ public class DatabaseFactory {
             // For regular MySQL, MariaDB and Google Cloud SQL.
             // Google Cloud SQL returns different names depending on the environment and the SDK version.
             //   ex.: Google SQL Service/MySQL
-            return new MySQLDatabase(configuration, connection
+            return new MySQLDatabase(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.startsWith("Oracle")) {
-            return new OracleDatabase(configuration, connection
+            return new OracleDatabase(configuration, connection, originalAutoCommit
 
 
 
@@ -147,7 +159,7 @@ public class DatabaseFactory {
         }
         if (databaseProductName.startsWith("PostgreSQL 8")) {
             if (RedshiftDatabase.isRedshift(connection)) {
-                return new RedshiftDatabase(configuration, connection
+                return new RedshiftDatabase(configuration, connection, originalAutoCommit
 
 
 
@@ -156,48 +168,48 @@ public class DatabaseFactory {
         }
         if (databaseProductName.startsWith("PostgreSQL")) {
             if (CockroachDBDatabase.isCockroachDB(connection)) {
-                return new CockroachDBDatabase(configuration, connection
+                return new CockroachDBDatabase(configuration, connection, originalAutoCommit
 
 
 
                 );
             }
-            return new PostgreSQLDatabase(configuration, connection
+            return new PostgreSQLDatabase(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.startsWith("DB2")) {
-            return new DB2Database(configuration, connection
+            return new DB2Database(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.startsWith("ASE")) {
-            return new SybaseASEDatabase(configuration, connection, false
+            return new SybaseASEDatabase(configuration, connection, originalAutoCommit, false
 
 
 
             );
         }
         if (databaseProductName.startsWith("Adaptive Server Enterprise")) {
-            return new SybaseASEDatabase(configuration, connection, true
+            return new SybaseASEDatabase(configuration, connection, originalAutoCommit, true
 
 
 
             );
         }
         if (databaseProductName.startsWith("HDB")) {
-            return new SAPHANADatabase(configuration, connection
+            return new SAPHANADatabase(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.startsWith("Informix")) {
-            return new InformixDatabase(configuration, connection
+            return new InformixDatabase(configuration, connection, originalAutoCommit
 
 
 

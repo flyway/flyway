@@ -24,11 +24,12 @@ import java.sql.Types;
 
 public class SAPHANAConnection extends Connection<SAPHANADatabase> {
     SAPHANAConnection(Configuration configuration, SAPHANADatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 

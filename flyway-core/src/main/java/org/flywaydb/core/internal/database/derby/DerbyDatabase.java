@@ -36,12 +36,12 @@ public class DerbyDatabase extends Database<DerbyConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public DerbyDatabase(Configuration configuration, Connection connection
+    public DerbyDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -54,7 +54,7 @@ public class DerbyDatabase extends Database<DerbyConnection> {
 
 
     ) {
-        return new DerbyConnection(configuration, this, connection
+        return new DerbyConnection(configuration, this, connection, originalAutoCommit
 
 
 

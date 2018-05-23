@@ -27,11 +27,12 @@ import java.sql.Types;
  */
 public class DB2Connection extends Connection<DB2Database> {
     DB2Connection(Configuration configuration, DB2Database database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 

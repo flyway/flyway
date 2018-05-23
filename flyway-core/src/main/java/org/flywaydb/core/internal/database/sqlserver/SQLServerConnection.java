@@ -33,11 +33,12 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     private final String originalAnsiNulls;
 
     SQLServerConnection(Configuration configuration, SQLServerDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 

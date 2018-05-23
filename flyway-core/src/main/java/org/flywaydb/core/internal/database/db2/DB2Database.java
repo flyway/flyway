@@ -38,12 +38,12 @@ public class DB2Database extends Database<DB2Connection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public DB2Database(Configuration configuration, Connection connection
+    public DB2Database(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -56,7 +56,7 @@ public class DB2Database extends Database<DB2Connection> {
 
 
     ) {
-        return new DB2Connection(configuration, this, connection
+        return new DB2Connection(configuration, this, connection, originalAutoCommit
 
 
 

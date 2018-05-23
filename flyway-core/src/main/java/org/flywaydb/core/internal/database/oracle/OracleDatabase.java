@@ -66,12 +66,12 @@ public class OracleDatabase extends Database<OracleConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public OracleDatabase(Configuration configuration, Connection connection
+    public OracleDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -95,7 +95,7 @@ public class OracleDatabase extends Database<OracleConnection> {
 
 
     ) {
-        return new OracleConnection(configuration, this, connection
+        return new OracleConnection(configuration, this, connection, originalAutoCommit
 
 
 

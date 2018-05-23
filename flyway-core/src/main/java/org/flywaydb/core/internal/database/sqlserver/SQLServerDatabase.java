@@ -41,12 +41,12 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public SQLServerDatabase(Configuration configuration, Connection connection
+    public SQLServerDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -65,7 +65,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
 
     ) {
-        return new SQLServerConnection(configuration, this, connection
+        return new SQLServerConnection(configuration, this, connection, originalAutoCommit
 
 
 

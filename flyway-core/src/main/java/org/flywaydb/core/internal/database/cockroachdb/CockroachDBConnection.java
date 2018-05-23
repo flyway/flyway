@@ -29,12 +29,12 @@ import java.sql.Types;
  */
 public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
     CockroachDBConnection(Configuration configuration, CockroachDBDatabase database,
-                          java.sql.Connection connection
+                          java.sql.Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.NULL
+        super(configuration, database, connection, originalAutoCommit, Types.NULL
 
 
 

@@ -29,11 +29,12 @@ import java.sql.Types;
  */
 public class RedshiftConnection extends Connection<RedshiftDatabase> {
     RedshiftConnection(Configuration configuration, RedshiftDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 

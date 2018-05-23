@@ -32,11 +32,12 @@ import java.util.concurrent.Callable;
 public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
 
     PostgreSQLConnection(Configuration configuration, PostgreSQLDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.NULL
+        super(configuration, database, connection, originalAutoCommit, Types.NULL
 
 
 

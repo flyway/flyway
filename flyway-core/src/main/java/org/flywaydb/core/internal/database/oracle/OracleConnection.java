@@ -27,11 +27,12 @@ import java.sql.Types;
  */
 public class OracleConnection extends Connection<OracleDatabase> {
     OracleConnection(Configuration configuration, OracleDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 

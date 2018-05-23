@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
@@ -131,13 +132,25 @@ public class DbClean {
         LOG.debug("Dropping schema " + schema + " ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-            @Override
-            public Void call() {
-                schema.drop();
-                return null;
-            }
-        });
+        try {
+            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+                @Override
+                public Void call() {
+                    schema.drop();
+                    return null;
+                }
+            });
+        } catch (FlywaySqlException e) {
+            LOG.debug(e.getMessage());
+            LOG.warn("Unable to drop schema " + schema + ". Attempting clean instead...");
+            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+                @Override
+                public Void call() {
+                    schema.clean();
+                    return null;
+                }
+            });
+        }
         stopWatch.stop();
         LOG.info(String.format("Successfully dropped schema %s (execution time %s)",
                 schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));

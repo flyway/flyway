@@ -33,12 +33,12 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
      *
      * @param connection The connection to use.
      */
-    public SAPHANADatabase(Configuration configuration, Connection connection
+    public SAPHANADatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -51,7 +51,7 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
 
 
     ) {
-        return new SAPHANAConnection(configuration, this, connection
+        return new SAPHANAConnection(configuration, this, connection, originalAutoCommit
 
 
 
