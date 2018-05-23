@@ -496,7 +496,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private File[] configFiles;
 
     /**
-     * The working directory to consider when dealing with relative paths for both config files and location.
+     * The working directory to consider when dealing with relative paths for both config files and locations.
      * (default: basedir, the directory where the POM resides)
      * <p/>
      * <p>Also configurable with Maven or System Property: ${flyway.workingDirectory}</p>

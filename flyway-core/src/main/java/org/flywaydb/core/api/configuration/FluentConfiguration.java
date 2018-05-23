@@ -55,50 +55,12 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Creates a new configuration with the same values as this existing one.
+     * Configure with the same values as this existing configuration.
      *
      * @param configuration The configuration to use.
      */
-    public FluentConfiguration config(Configuration configuration) {
-        config.setBaselineDescription(configuration.getBaselineDescription());
-        config.setBaselineOnMigrate(configuration.isBaselineOnMigrate());
-        config.setBaselineVersion(configuration.getBaselineVersion());
-        config.setCallbacks(configuration.getCallbacks());
-        config.setCleanDisabled(configuration.isCleanDisabled());
-        config.setCleanOnValidationError(configuration.isCleanOnValidationError());
-        config.setDataSource(configuration.getDataSource());
-
-
-
-
-
-
-
-
-        config.setEncoding(configuration.getEncoding());
-        config.setGroup(configuration.isGroup());
-        config.setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
-        config.setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
-        config.setIgnoreIgnoredMigrations(configuration.isIgnoreIgnoredMigrations());
-        config.setInstalledBy(configuration.getInstalledBy());
-        config.setLocations(configuration.getLocations());
-        config.setMixed(configuration.isMixed());
-        config.setOutOfOrder(configuration.isOutOfOrder());
-        config.setPlaceholderPrefix(configuration.getPlaceholderPrefix());
-        config.setPlaceholderReplacement(configuration.isPlaceholderReplacement());
-        config.setPlaceholders(configuration.getPlaceholders());
-        config.setPlaceholderSuffix(configuration.getPlaceholderSuffix());
-        config.setRepeatableSqlMigrationPrefix(configuration.getRepeatableSqlMigrationPrefix());
-        config.setResolvers(configuration.getResolvers());
-        config.setSchemas(configuration.getSchemas());
-        config.setSkipDefaultCallbacks(configuration.isSkipDefaultCallbacks());
-        config.setSkipDefaultResolvers(configuration.isSkipDefaultResolvers());
-        config.setSqlMigrationPrefix(configuration.getSqlMigrationPrefix());
-        config.setSqlMigrationSeparator(configuration.getSqlMigrationSeparator());
-        config.setSqlMigrationSuffixes(configuration.getSqlMigrationSuffixes());
-        config.setTable(configuration.getTable());
-        config.setTarget(configuration.getTarget());
-        config.setValidateOnMigrate(configuration.isValidateOnMigrate());
+    public FluentConfiguration configure(Configuration configuration) {
+        config.configure(configuration);
         return this;
     }
 

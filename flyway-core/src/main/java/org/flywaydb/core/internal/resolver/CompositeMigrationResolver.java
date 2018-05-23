@@ -67,7 +67,6 @@ public class CompositeMigrationResolver implements MigrationResolver {
                                       PlaceholderReplacer placeholderReplacer,
                                       MigrationResolver... customMigrationResolvers) {
         if (!configuration.isSkipDefaultResolvers()) {
-
             migrationResolvers.add(new SqlMigrationResolver(database, scanner, locations, placeholderReplacer, configuration));
             migrationResolvers.add(new JdbcMigrationResolver(scanner, locations, configuration));
 

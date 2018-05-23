@@ -114,8 +114,8 @@ public class DbValidate {
      * @param callbackExecutor  The callback executor.
      */
     public DbValidate(Database database, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
-                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean ignored, boolean future,
-                      CallbackExecutor callbackExecutor) {
+                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean ignored,
+                      boolean future, CallbackExecutor callbackExecutor) {
         this.connection = database.getMainConnection();
         this.schemaHistory = schemaHistory;
         this.schema = schema;
@@ -152,7 +152,8 @@ public class DbValidate {
             @Override
             public Pair<Integer, String> call() {
                 MigrationInfoServiceImpl migrationInfoService =
-                        new MigrationInfoServiceImpl(migrationResolver, schemaHistory, target, outOfOrder, pending, missing, ignored, future);
+                        new MigrationInfoServiceImpl(migrationResolver, schemaHistory, target, outOfOrder, pending,
+                                missing, ignored, future);
 
                 migrationInfoService.refresh();
 

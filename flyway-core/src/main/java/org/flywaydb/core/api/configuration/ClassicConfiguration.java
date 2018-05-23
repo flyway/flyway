@@ -1318,6 +1318,53 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Configure with the same values as this existing configuration.
+     *
+     * @param configuration The configuration to use.
+     */
+    public void configure(Configuration configuration) {
+        setBaselineDescription(configuration.getBaselineDescription());
+        setBaselineOnMigrate(configuration.isBaselineOnMigrate());
+        setBaselineVersion(configuration.getBaselineVersion());
+        setCallbacks(configuration.getCallbacks());
+        setCleanDisabled(configuration.isCleanDisabled());
+        setCleanOnValidationError(configuration.isCleanOnValidationError());
+        setDataSource(configuration.getDataSource());
+
+
+
+
+
+
+
+
+        setEncoding(configuration.getEncoding());
+        setGroup(configuration.isGroup());
+        setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
+        setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
+        setIgnoreIgnoredMigrations(configuration.isIgnoreIgnoredMigrations());
+        setInstalledBy(configuration.getInstalledBy());
+        setLocations(configuration.getLocations());
+        setMixed(configuration.isMixed());
+        setOutOfOrder(configuration.isOutOfOrder());
+        setPlaceholderPrefix(configuration.getPlaceholderPrefix());
+        setPlaceholderReplacement(configuration.isPlaceholderReplacement());
+        setPlaceholders(configuration.getPlaceholders());
+        setPlaceholderSuffix(configuration.getPlaceholderSuffix());
+        setRepeatableSqlMigrationPrefix(configuration.getRepeatableSqlMigrationPrefix());
+        setResolvers(configuration.getResolvers());
+        setSchemas(configuration.getSchemas());
+        setSkipDefaultCallbacks(configuration.isSkipDefaultCallbacks());
+        setSkipDefaultResolvers(configuration.isSkipDefaultResolvers());
+        setSqlMigrationPrefix(configuration.getSqlMigrationPrefix());
+        setSqlMigrationSeparator(configuration.getSqlMigrationSeparator());
+        setSqlMigrationSuffixes(configuration.getSqlMigrationSuffixes());
+        setTable(configuration.getTable());
+        setTarget(configuration.getTarget());
+        setValidateOnMigrate(configuration.isValidateOnMigrate());
+    }
+
+    /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
