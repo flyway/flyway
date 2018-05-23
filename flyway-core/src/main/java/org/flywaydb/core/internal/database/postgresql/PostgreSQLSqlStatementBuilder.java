@@ -35,7 +35,7 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     /*private -> for testing*/
     static final Pattern DOLLAR_QUOTE_REGEX = Pattern.compile("(\\$[A-Za-z0-9_]*\\$).*");
 
-    private static final Pattern CREATE_DATABASE_TABLESPACE_REGEX = Pattern.compile("^(CREATE|DROP) (DATABASE|TABLESPACE) .*");
+    private static final Pattern CREATE_DATABASE_TABLESPACE_SUBSCRIPTION_REGEX = Pattern.compile("^(CREATE|DROP) (DATABASE|TABLESPACE|SUBSCRIPTION) .*");
     private static final Pattern ALTER_SYSTEM_REGEX = Pattern.compile("^ALTER SYSTEM .*");
     private static final Pattern CREATE_INDEX_CONCURRENTLY_REGEX = Pattern.compile("^(CREATE|DROP)( UNIQUE)? INDEX CONCURRENTLY .*");
     private static final Pattern REINDEX_REGEX = Pattern.compile("^REINDEX( VERBOSE)? (SCHEMA|DATABASE|SYSTEM) .*");
@@ -100,7 +100,7 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
             statementStart = StringUtils.collapseWhitespace(statementStart);
         }
 
-        if (CREATE_DATABASE_TABLESPACE_REGEX.matcher(statementStart).matches()
+        if (CREATE_DATABASE_TABLESPACE_SUBSCRIPTION_REGEX.matcher(statementStart).matches()
                 || ALTER_SYSTEM_REGEX.matcher(statementStart).matches()
                 || CREATE_INDEX_CONCURRENTLY_REGEX.matcher(statementStart).matches()
                 || REINDEX_REGEX.matcher(statementStart).matches()

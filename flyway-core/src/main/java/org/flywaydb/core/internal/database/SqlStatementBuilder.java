@@ -498,7 +498,7 @@ public abstract class SqlStatementBuilder {
 
     /**
      * Whether the execution should take place inside a transaction. This is useful for databases
-     * like PostgreSQL where certain statement can only execute outside a transaction.
+     * like PostgreSQL or SQL Server where certain statements can only execute outside a transaction.
      *
      * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
      */
