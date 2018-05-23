@@ -130,6 +130,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                     }
                 });
             } catch (FlywayException e) {
+                rollback();
                 if (++retries >= 10) {
                     throw e;
                 }
@@ -140,6 +141,17 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                     // Ignore
                 }
             }
+        }
+    }
+
+    private void rollback() {
+        final java.sql.Connection jdbcConnection = connection.getJdbcConnection();
+        try {
+            if (!jdbcConnection.getAutoCommit()) {
+                jdbcConnection.rollback();
+            }
+        } catch (SQLException e1) {
+            //Ignore
         }
     }
 
