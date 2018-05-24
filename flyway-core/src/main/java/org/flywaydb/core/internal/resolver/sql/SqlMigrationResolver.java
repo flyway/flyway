@@ -20,6 +20,7 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.Database;
@@ -61,6 +62,13 @@ public class SqlMigrationResolver implements MigrationResolver {
      */
     private final PlaceholderReplacer placeholderReplacer;
 
+
+
+
+
+
+
+
     /**
      * The Flyway configuration.
      */
@@ -76,11 +84,18 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param configuration       The Flyway configuration.
      */
     public SqlMigrationResolver(Database database, Scanner scanner, List<Location> locations,
-                                PlaceholderReplacer placeholderReplacer, Configuration configuration) {
+                                PlaceholderReplacer placeholderReplacer
+
+
+
+            , Configuration configuration) {
         this.database = database;
         this.scanner = scanner;
         this.locations = locations;
         this.placeholderReplacer = placeholderReplacer;
+
+
+
         this.configuration = configuration;
     }
 
@@ -137,7 +152,11 @@ public class SqlMigrationResolver implements MigrationResolver {
 
                             MigrationType.SQL);
             migration.setPhysicalLocation(resource.getLocationOnDisk());
-            migration.setExecutor(new SqlMigrationExecutor(database, resource, placeholderReplacer, configuration));
+            migration.setExecutor(new SqlMigrationExecutor(database, resource, placeholderReplacer
+
+
+
+                    , configuration));
             migrations.add(migration);
         }
     }

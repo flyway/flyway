@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.resolver;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.Database;
@@ -55,7 +56,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * Creates a new CompositeMigrationResolver.
      *
-     * @param database                The database-specific support.
+     * @param database                 The database-specific support.
      * @param scanner                  The Scanner for loading migrations on the classpath.
      * @param configuration            The Flyway configuration.
      * @param locations                The locations where migrations are located.
@@ -64,10 +65,18 @@ public class CompositeMigrationResolver implements MigrationResolver {
      */
     public CompositeMigrationResolver(Database database, Scanner scanner, Configuration configuration,
                                       List<Location> locations,
-                                      PlaceholderReplacer placeholderReplacer,
-                                      MigrationResolver... customMigrationResolvers) {
+                                      PlaceholderReplacer placeholderReplacer
+
+
+
+            , MigrationResolver... customMigrationResolvers
+    ) {
         if (!configuration.isSkipDefaultResolvers()) {
-            migrationResolvers.add(new SqlMigrationResolver(database, scanner, locations, placeholderReplacer, configuration));
+            migrationResolvers.add(new SqlMigrationResolver(database, scanner, locations, placeholderReplacer
+
+
+
+                    , configuration));
             migrationResolvers.add(new JdbcMigrationResolver(scanner, locations, configuration));
 
             if (new FeatureDetector(scanner.getClassLoader()).isSpringJdbcAvailable()) {

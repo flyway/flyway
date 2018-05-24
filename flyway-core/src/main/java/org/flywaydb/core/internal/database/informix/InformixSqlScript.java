@@ -24,6 +24,8 @@ import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
+import java.util.List;
+
 /**
  * DB2-specific SQL script.
  */

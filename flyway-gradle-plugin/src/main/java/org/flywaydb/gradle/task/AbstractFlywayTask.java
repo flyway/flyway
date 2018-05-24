@@ -337,10 +337,24 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
      * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
      * (default: none)
-     * <p>Also configurable with Gradle or System Property: ${flyway.errorHandler}</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.errorHandlers}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */
     public String[] errorHandlers;
+
+    /**
+     * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
+     * to warning or from warning to error. (default: none)
+     * <p>Each error override has the following format: {@code STATE:12345:W}.
+     * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
+     * behavior that should override the initial one. The following behaviors are accepted: {@code W} to force a warning
+     * and {@code E} to force an error.</p>
+     * <p>For example, to force Oracle stored procedure compilation issues to produce
+     * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.errorOverrides}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    public String[] errorOverrides;
 
     /**
      * The file where to output the SQL statements of a migration dry run. If the file specified is in a non-existent
@@ -537,6 +551,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.RESOLVERS, StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));
         putIfSet(conf, ConfigUtils.CALLBACKS, StringUtils.arrayToCommaDelimitedString(callbacks), StringUtils.arrayToCommaDelimitedString(extension.callbacks));
         putIfSet(conf, ConfigUtils.ERROR_HANDLERS, StringUtils.arrayToCommaDelimitedString(errorHandlers), StringUtils.arrayToCommaDelimitedString(extension.errorHandlers));
+        putIfSet(conf, ConfigUtils.ERROR_OVERRIDES, StringUtils.arrayToCommaDelimitedString(errorOverrides), StringUtils.arrayToCommaDelimitedString(extension.errorOverrides));
 
         putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput, extension.dryRunOutput);
         putIfSet(conf, ConfigUtils.STREAM, stream, extension.stream);

@@ -70,6 +70,7 @@ public class ConfigUtils {
     public static final String DRYRUN_OUTPUT = "flyway.dryRunOutput";
     public static final String ENCODING = "flyway.encoding";
     public static final String ERROR_HANDLERS = "flyway.errorHandlers";
+    public static final String ERROR_OVERRIDES = "flyway.errorOverrides";
     public static final String GROUP = "flyway.group";
     public static final String IGNORE_FUTURE_MIGRATIONS = "flyway.ignoreFutureMigrations";
     public static final String IGNORE_MISSING_MIGRATIONS = "flyway.ignoreMissingMigrations";
@@ -302,6 +303,11 @@ public class ConfigUtils {
                 }
 
                 @Override
+                public String[] getErrorOverrides() {
+                    return configuration.getErrorOverrides();
+                }
+
+                @Override
                 public OutputStream getDryRunOutput() {
                     return configuration.getDryRunOutput();
                 }
@@ -382,6 +388,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_ERROR_HANDLERS".equals(key)) {
             return ERROR_HANDLERS;
+        }
+        if ("FLYWAY_ERROR_OVERRIDES".equals(key)) {
+            return ERROR_OVERRIDES;
         }
         if ("FLYWAY_GROUP".equals(key)) {
             return GROUP;

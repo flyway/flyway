@@ -356,6 +356,19 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Creates a new default configuration.
      */
@@ -381,49 +394,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public ClassicConfiguration(Configuration configuration) {
         this(configuration.getClassLoader());
-
-        setBaselineDescription(configuration.getBaselineDescription());
-        setBaselineOnMigrate(configuration.isBaselineOnMigrate());
-        setBaselineVersion(configuration.getBaselineVersion());
-        setCallbacks(configuration.getCallbacks());
-        setCleanDisabled(configuration.isCleanDisabled());
-        setCleanOnValidationError(configuration.isCleanOnValidationError());
-        setDataSource(configuration.getDataSource());
-
-
-
-
-
-
-
-        setEncoding(configuration.getEncoding());
-        setGroup(configuration.isGroup());
-        setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
-        setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
-        setIgnoreIgnoredMigrations(configuration.isIgnoreIgnoredMigrations());
-        setInstalledBy(configuration.getInstalledBy());
-        setLocations(configuration.getLocations());
-        setMixed(configuration.isMixed());
-        setOutOfOrder(configuration.isOutOfOrder());
-        setPlaceholderPrefix(configuration.getPlaceholderPrefix());
-        setPlaceholderReplacement(configuration.isPlaceholderReplacement());
-        setPlaceholders(configuration.getPlaceholders());
-        setPlaceholderSuffix(configuration.getPlaceholderSuffix());
-        setRepeatableSqlMigrationPrefix(configuration.getRepeatableSqlMigrationPrefix());
-        setResolvers(configuration.getResolvers());
-        setSchemas(configuration.getSchemas());
-        setSkipDefaultCallbacks(configuration.isSkipDefaultCallbacks());
-        setSkipDefaultResolvers(configuration.isSkipDefaultResolvers());
-        setSqlMigrationPrefix(configuration.getSqlMigrationPrefix());
-        setSqlMigrationSeparator(configuration.getSqlMigrationSeparator());
-        setSqlMigrationSuffixes(configuration.getSqlMigrationSuffixes());
-        setTable(configuration.getTable());
-        setTarget(configuration.getTarget());
-        setValidateOnMigrate(configuration.isValidateOnMigrate());
-
-
-
-
+        configure(configuration);
     }
 
     @Override
@@ -591,6 +562,16 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
+    public String[] getErrorOverrides() {
+
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorOverrides");
+
+
+
+
+    }
+
+    @Override
     public OutputStream getDryRunOutput() {
 
         throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
@@ -729,6 +710,28 @@ public class ClassicConfiguration implements Configuration {
 
         throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
 
+
+
+
+
+    }
+
+    /**
+     * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
+     * to warning or from warning to error.
+     * <p>Each error override has the following format: {@code STATE:12345:W}.
+     * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
+     * behavior that should override the initial one. The following behaviors are accepted: {@code W} to force a warning
+     * and {@code E} to force an error.</p>
+     * <p>For example, to force Oracle stored procedure compilation issues to produce
+     * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param errorOverrides  The ErrorOverrides or an empty array if none are defined. (default: none)
+     */
+    public void setErrorOverrides(String... errorOverrides) {
+
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorOverrides");
 
 
 
@@ -1338,6 +1341,7 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
         setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
@@ -1567,6 +1571,11 @@ public class ClassicConfiguration implements Configuration {
         String errorHandlersProp = props.remove(ConfigUtils.ERROR_HANDLERS);
         if (errorHandlersProp != null) {
             setErrorHandlersAsClassNames(StringUtils.tokenizeToStringArray(errorHandlersProp, ","));
+        }
+
+        String errorOverridesProp = props.remove(ConfigUtils.ERROR_OVERRIDES);
+        if (errorOverridesProp != null) {
+            setErrorOverrides(StringUtils.tokenizeToStringArray(errorOverridesProp, ","));
         }
 
         Boolean streamProp = getBooleanProp(props, ConfigUtils.STREAM);

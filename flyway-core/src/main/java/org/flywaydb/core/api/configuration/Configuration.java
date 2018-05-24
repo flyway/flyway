@@ -346,6 +346,21 @@ public interface Configuration {
     ErrorHandler[] getErrorHandlers();
 
     /**
+     * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
+     * to warning or from warning to error.
+     * <p>Each error override has the following format: {@code STATE:12345:W}.
+     * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
+     * behavior that should override the initial one. The following behaviors are accepted: {@code W} to force a warning
+     * and {@code E} to force an error.</p>
+     * <p>For example, to force Oracle stored procedure compilation issues to produce
+     * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @return The ErrorOverrides or an empty array if none are defined. (default: none)
+     */
+    String[] getErrorOverrides();
+
+    /**
      * The stream where to output the SQL statements of a migration dry run. {@code null} if the SQL statements
      * are executed against the database directly.
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>

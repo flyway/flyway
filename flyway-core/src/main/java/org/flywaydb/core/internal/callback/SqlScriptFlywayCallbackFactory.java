@@ -21,12 +21,13 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.callback.Context;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
-import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
@@ -51,10 +52,17 @@ public class SqlScriptFlywayCallbackFactory {
      * @param scanner             The Scanner for loading migrations on the classpath.
      * @param locations           The locations where migrations are located.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
+
+
+
      * @param configuration       The Flyway configuration.
      */
     public SqlScriptFlywayCallbackFactory(Database database, Scanner scanner, List<Location> locations,
-                                          PlaceholderReplacer placeholderReplacer, Configuration configuration) {
+                                          PlaceholderReplacer placeholderReplacer
+
+
+
+            , Configuration configuration) {
         Map<String, SqlScript> callbacksFound = new HashMap<>();
 
         LOG.debug("Scanning for SQL callbacks ...");

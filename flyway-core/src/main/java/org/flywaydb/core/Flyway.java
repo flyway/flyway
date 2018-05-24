@@ -46,11 +46,11 @@ import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
+import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.VersionPrinter;
 import org.flywaydb.core.internal.util.placeholder.DefaultPlaceholderReplacer;
 import org.flywaydb.core.internal.util.placeholder.NoopPlaceholderReplacer;
 import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.VersionPrinter;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import javax.sql.DataSource;
@@ -291,6 +291,11 @@ public class Flyway implements Configuration {
     }
 
     @Override
+    public String[] getErrorOverrides() {
+        return configuration.getErrorOverrides();
+    }
+
+    @Override
     public OutputStream getDryRunOutput() {
         return configuration.getDryRunOutput();
     }
@@ -371,6 +376,23 @@ public class Flyway implements Configuration {
      */
     public void setErrorHandlersAsClassNames(String... errorHandlerClassNames) {
         configuration.setErrorHandlersAsClassNames(errorHandlerClassNames);
+    }
+
+    /**
+     * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
+     * to warning or from warning to error.
+     * <p>Each error override has the following format: {@code STATE:12345:W}.
+     * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
+     * behavior that should override the initial one. The following behaviors are accepted: {@code W} to force a warning
+     * and {@code E} to force an error.</p>
+     * <p>For example, to force Oracle stored procedure compilation issues to produce
+     * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param errorOverrides The ErrorOverrides or an empty array if none are defined. (default: none)
+     */
+    public void setErrorOverrides(String... errorOverrides) {
+        configuration.setErrorOverrides(errorOverrides);
     }
 
     /**
@@ -1118,14 +1140,22 @@ public class Flyway implements Configuration {
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(Database database, Scanner scanner,
-                                                      PlaceholderReplacer placeholderReplacer) {
+                                                      PlaceholderReplacer placeholderReplacer
+
+
+
+    ) {
         for (MigrationResolver resolver : configuration.getResolvers()) {
             ConfigUtils.injectFlywayConfiguration(resolver, configuration);
         }
 
         return new CompositeMigrationResolver(database, scanner, configuration,
                 Arrays.asList(configuration.getLocations()),
-                placeholderReplacer, configuration.getResolvers());
+                placeholderReplacer
+
+
+
+                , configuration.getResolvers());
     }
 
     /**
@@ -1189,6 +1219,9 @@ public class Flyway implements Configuration {
 
 
 
+
+
+
         Database database = null;
         try {
             database = DatabaseFactory.createDatabase(configuration, !dbConnectionInfoPrinted
@@ -1203,7 +1236,11 @@ public class Flyway implements Configuration {
             Scanner scanner = new Scanner(configuration);
             PlaceholderReplacer placeholderReplacer = createPlaceholderReplacer();
             result = command.execute(
-                    createMigrationResolver(database, scanner, placeholderReplacer),
+                    createMigrationResolver(database, scanner, placeholderReplacer
+
+
+
+                    ),
                     SchemaHistoryFactory.getSchemaHistory(configuration, database, schemas[0]
 
 
@@ -1258,7 +1295,16 @@ public class Flyway implements Configuration {
         return schemas;
     }
 
+
+
+
+
+
+
+
+
     private List<Callback> prepareCallbacks(Database database, Scanner scanner, PlaceholderReplacer placeholderReplacer
+
 
 
 
@@ -1274,7 +1320,11 @@ public class Flyway implements Configuration {
 
         if (!configuration.isSkipDefaultCallbacks()) {
             effectiveCallbacks.addAll(new SqlScriptFlywayCallbackFactory(database, scanner,
-                    Arrays.asList(configuration.getLocations()), placeholderReplacer, configuration).getCallbacks());
+                    Arrays.asList(configuration.getLocations()), placeholderReplacer
+
+
+
+                    , configuration).getCallbacks());
         }
 
         for (Callback callback : effectiveCallbacks) {

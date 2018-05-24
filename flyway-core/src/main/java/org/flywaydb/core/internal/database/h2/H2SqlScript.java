@@ -23,6 +23,8 @@ import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
+import java.util.List;
+
 /**
  * H2-specific SQL script.
  */

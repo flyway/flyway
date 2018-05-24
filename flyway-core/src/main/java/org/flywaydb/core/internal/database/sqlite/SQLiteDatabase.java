@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
+import java.util.List;
 
 /**
  * SQLite database.

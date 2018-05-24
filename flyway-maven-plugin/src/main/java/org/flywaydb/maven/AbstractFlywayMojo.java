@@ -424,6 +424,21 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String[] errorHandlers;
 
     /**
+     * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
+     * to warning or from warning to error. (default: none)
+     * <p>Each error override has the following format: {@code STATE:12345:W}.
+     * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
+     * behavior that should override the initial one. The following behaviors are accepted: {@code W} to force a warning
+     * and {@code E} to force an error.</p>
+     * <p>For example, to force Oracle stored procedure compilation issues to produce
+     * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.errorOverrides}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    @Parameter
+    private String[] errorOverrides;
+
+    /**
      * The file where to output the SQL statements of a migration dry run. If the file specified is in a non-existent
      * directory, Flyway will create all directories and parent directories as needed.
      * <p>{@code null} to execute the SQL statements directly against the database. (default: {@code null})</p>
@@ -649,6 +664,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.DRIVER, driver);
 
             putArrayIfSet(conf, ConfigUtils.ERROR_HANDLERS, errorHandlers);
+            putArrayIfSet(conf, ConfigUtils.ERROR_OVERRIDES, errorOverrides);
             putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput);
             putIfSet(conf, ConfigUtils.STREAM, stream);
             putIfSet(conf, ConfigUtils.BATCH, batch);
