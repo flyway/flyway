@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.util.scanner;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.IOUtils;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.line.Line;
 import org.flywaydb.core.internal.util.line.LineReader;
 
@@ -37,7 +38,7 @@ public abstract class AbstractLoadableResource implements LoadableResource {
                 Line line;
                 while ((line = lineReader.readLine()) != null) {
                     //noinspection Since15
-                    crc32.update(line.getLine().trim().getBytes("UTF-8"));
+                    crc32.update(StringUtils.trimLineBreak(line.getLine()).getBytes("UTF-8"));
                 }
             } catch (IOException e) {
                 throw new FlywayException("Unable to calculate checksum for " + getLocation()
