@@ -46,7 +46,7 @@ public class RedshiftSqlStatementBuilder extends SqlStatementBuilder {
     protected void applyStateChanges(String line) {
         super.applyStateChanges(line);
 
-        if (!executeInTransaction) {
+        if (!executeInTransaction || !hasNonCommentPart()) {
             return;
         }
 

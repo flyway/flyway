@@ -34,7 +34,7 @@ public class SQLiteSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
-        if (StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
+        if (hasNonCommentPart() && StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
             statementStart += line;
             statementStart += " ";
             statementStart = StringUtils.collapseWhitespace(statementStart);

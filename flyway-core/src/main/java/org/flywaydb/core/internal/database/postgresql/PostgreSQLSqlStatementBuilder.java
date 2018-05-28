@@ -90,7 +90,7 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
 
         super.applyStateChanges(line);
 
-        if (!executeInTransaction) {
+        if (!executeInTransaction || !hasNonCommentPart()) {
             return;
         }
 

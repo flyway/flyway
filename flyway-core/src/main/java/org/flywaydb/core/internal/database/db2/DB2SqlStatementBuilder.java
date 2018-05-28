@@ -101,7 +101,7 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
             currentDelimiter = delimiter;
         }
 
-        if (StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
+        if (hasNonCommentPart() && StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
             statementStart += line;
             statementStart += " ";
         }
