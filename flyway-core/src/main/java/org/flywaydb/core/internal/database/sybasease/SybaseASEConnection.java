@@ -15,9 +15,7 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 
@@ -27,19 +25,13 @@ import java.sql.Types;
  * Sybase ASE Connection.
  */
 public class SybaseASEConnection extends Connection<SybaseASEDatabase> {
-    private static final Log LOG = LogFactory.getLog(SybaseASEConnection.class);
-
-    /**
-     * Whether the warning message has already been printed.
-     */
-    private static boolean schemaMessagePrinted;
-
-    SybaseASEConnection(FlywayConfiguration configuration, SybaseASEDatabase database, java.sql.Connection connection, boolean jconnect
+    SybaseASEConnection(Configuration configuration, SybaseASEDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit, boolean jconnect
 
 
 
     ) {
-        super(configuration, database, connection, jconnect ? Types.VARCHAR : Types.NULL
+        super(configuration, database, connection, originalAutoCommit, jconnect ? Types.VARCHAR : Types.NULL
 
 
 
@@ -54,15 +46,7 @@ public class SybaseASEConnection extends Connection<SybaseASEDatabase> {
     }
 
     @Override
-    protected String doGetCurrentSchemaName() {
+    protected String getCurrentSchemaNameOrSearchPath() {
         return "dbo";
-    }
-
-    @Override
-    public void doChangeCurrentSchemaTo(String schema) {
-        if (!schemaMessagePrinted) {
-            LOG.info("Sybase ASE does not support setting the schema for the current session. Default schema NOT changed to " + schema);
-            schemaMessagePrinted = true;
-        }
     }
 }

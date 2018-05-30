@@ -15,8 +15,10 @@
  */
 package org.flywaydb.core.internal.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +26,8 @@ import java.util.regex.Pattern;
  * Various string-related utilities.
  */
 public class StringUtils {
+    private static final char[] WHITESPACE_CHARS = {' ', '\t', '\n', '\f', '\r'};
+
     /**
      * Prevents instantiation.
      */
@@ -51,11 +55,11 @@ public class StringUtils {
      * @return The adjusted string.
      */
     public static String trimOrPad(String str, int length, char padChar) {
-        String result;
+        StringBuilder result;
         if (str == null) {
-            result = "";
+            result = new StringBuilder();
         } else {
-            result = str;
+            result = new StringBuilder(str);
         }
 
         if (result.length() > length) {
@@ -63,9 +67,9 @@ public class StringUtils {
         }
 
         while (result.length() < length) {
-            result += padChar;
+            result.append(padChar);
         }
-        return result;
+        return result.toString();
     }
 
     /**
@@ -97,7 +101,27 @@ public class StringUtils {
      * @return The input string, with all whitespace collapsed.
      */
     public static String collapseWhitespace(String str) {
-        return str.replaceAll("\\s+", " ");
+        StringBuilder result = new StringBuilder();
+        char previous = 0;
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            boolean whitespace = false;
+            for (char w : WHITESPACE_CHARS) {
+                if (c == w) {
+                    if (previous != ' ') {
+                        result.append(' ');
+                    }
+                    previous = ' ';
+                    whitespace = true;
+                    break;
+                }
+            }
+            if (!whitespace) {
+                result.append(c);
+                previous = c;
+            }
+        }
+        return result.toString();
     }
 
     /**
@@ -156,7 +180,7 @@ public class StringUtils {
      * Turns this string array in one delimited string.
      *
      * @param delimiter The delimiter to use.
-     * @param strings The array to process.
+     * @param strings   The array to process.
      * @return The new delimited string. An empty string if {@code strings} is empty. {@code null} if strings is {@code null}.
      */
     public static String arrayToDelimitedString(String delimiter, Object[] strings) {
@@ -195,9 +219,49 @@ public class StringUtils {
         if (str == null) {
             return null;
         }
-        String[] tokens = str.split("[" + delimiters + "]");
-        for (int i = 0; i < tokens.length; i++) {
-            tokens[i] = tokens[i].trim();
+        Collection<String> tokens = tokenizeToStringCollection(str, delimiters);
+        return tokens.toArray(new String[0]);
+    }
+
+    /**
+     * Splits this string into a collection using these delimiters.
+     *
+     * @param str        The string to split.
+     * @param delimiters The delimiters to use.
+     * @return The resulting array.
+     */
+    public static Collection<String> tokenizeToStringCollection(String str, String delimiters) {
+        if (str == null) {
+            return null;
+        }
+        List<String> tokens = new ArrayList<>(str.length() / 5);
+        char[] delimiterChars = delimiters.toCharArray();
+        int start = 0;
+        int end = 0;
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            boolean delimiter = false;
+            for (char d : delimiterChars) {
+                if (c == d) {
+                    tokens.add(str.substring(start, end));
+                    start = i + 1;
+                    end = start;
+                    delimiter = true;
+                    break;
+                }
+            }
+            if (!delimiter) {
+                if (i == start && c == ' ') {
+                    start++;
+                    end++;
+                }
+                if (i >= start && c != ' ') {
+                    end = i + 1;
+                }
+            }
+        }
+        if (start < end) {
+            tokens.add(str.substring(start, end));
         }
         return tokens;
     }
@@ -242,7 +306,7 @@ public class StringUtils {
         // the index of an occurrence we've found, or -1
         int patLen = oldPattern.length();
         while (index >= 0) {
-            sb.append(inString.substring(pos, index));
+            sb.append(inString, pos, index);
             sb.append(newPattern);
             pos = index + patLen;
             index = inString.indexOf(oldPattern, pos);
@@ -250,6 +314,26 @@ public class StringUtils {
         sb.append(inString.substring(pos));
         // remember to append any characters to the right of a match
         return sb.toString();
+    }
+
+    /**
+     * Replaces this group matched from this regex against this source with this replacement.
+     *
+     * @param source         The source string.
+     * @param regex          The regex to use.
+     * @param groupToReplace The number of the matching group to replace.
+     * @param replacement    The replacement.
+     * @return The resulting string with the group replaced.
+     */
+    public static String replaceGroup(String source, String regex, int groupToReplace, String replacement) {
+        return replaceGroup(source, regex, groupToReplace, 1, replacement);
+    }
+
+    private static String replaceGroup(String source, String regex, int groupToReplace, int groupOccurrence, String replacement) {
+        Matcher m = Pattern.compile(regex).matcher(source);
+        for (int i = 0; i < groupOccurrence; i++)
+            if (!m.find()) return source; // pattern not met, may also throw an exception here
+        return new StringBuilder(source).replace(m.start(groupToReplace), m.end(groupToReplace), replacement).toString();
     }
 
     /**
@@ -320,5 +404,50 @@ public class StringUtils {
             buf.deleteCharAt(buf.length() - 1);
         }
         return buf.toString();
+    }
+
+    /**
+     * Checks whether this strings both begins with this prefix and ends withs either of these suffixes.
+     *
+     * @param str      The string to check.
+     * @param prefix   The prefix.
+     * @param suffixes The suffixes.
+     * @return {@code true} if it does, {@code false} if not.
+     */
+    public static boolean startsAndEndsWith(String str, String prefix, String... suffixes) {
+        if (StringUtils.hasLength(prefix) && !str.startsWith(prefix)) {
+            return false;
+        }
+        for (String suffix : suffixes) {
+            if (str.endsWith(suffix) && (str.length() > (prefix + suffix).length())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Trim the trailing linebreak (if any) from this string.
+     * @param str The string.
+     * @return The string without trailing linebreak.
+     */
+    public static String trimLineBreak(String str) {
+        if (!hasLength(str)) {
+            return str;
+        }
+        StringBuilder buf = new StringBuilder(str);
+        while (buf.length() > 0 && isLineBreakCharacter(buf.charAt(buf.length() - 1))) {
+            buf.deleteCharAt(buf.length() - 1);
+        }
+        return buf.toString();
+    }
+
+    /**
+     * Checks whether this character is a linebreak character.
+     * @param ch The character
+     * @return {@code true} if it is, {@code false} if not.
+     */
+    private static boolean isLineBreakCharacter(char ch) {
+        return '\n' == ch || '\r' == ch;
     }
 }

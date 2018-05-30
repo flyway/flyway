@@ -15,21 +15,26 @@
  */
 package org.flywaydb.core.internal.database;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.placeholder.DefaultPlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
 import java.io.Closeable;
+import java.nio.charset.Charset;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,7 +46,7 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * The Flyway configuration.
      */
-    protected final FlywayConfiguration configuration;
+    protected final Configuration configuration;
 
     /**
      * The JDBC metadata to use.
@@ -54,14 +59,24 @@ public abstract class Database<C extends Connection> implements Closeable {
     private final java.sql.Connection mainJdbcConnection;
 
     /**
+     * The original auto-commit state for connections to this database.
+     */
+    protected final boolean originalAutoCommit;
+
+    /**
      * The main connection to use.
      */
-    protected C mainConnection;
+    private C mainConnection;
 
     /**
      * The connection to use for migrations.
      */
     private C migrationConnection;
+
+
+
+
+
 
 
 
@@ -80,21 +95,24 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * Creates a new Database instance with this JdbcTemplate.
      *
-     * @param configuration The Flyway configuration.
-     * @param connection    The main connection to use.
+     * @param configuration      The Flyway configuration.
+     * @param connection         The main connection to use.
+     * @param originalAutoCommit The original auto-commit state for connections to this database.
      */
-    public Database(FlywayConfiguration configuration, java.sql.Connection connection
+    public Database(Configuration configuration, java.sql.Connection connection, boolean originalAutoCommit
 
 
 
     ) {
         this.configuration = configuration;
         this.mainJdbcConnection = connection;
+        this.originalAutoCommit = originalAutoCommit;
         try {
             this.jdbcMetaData = connection.getMetaData();
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to get metadata for connection", e);
         }
+
 
 
 
@@ -129,25 +147,20 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * Creates a new SqlScript for this specific database.
      *
-     * @param resource        The resource containing the SQL script.
-     * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
-     * @param mixed           Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * @param resource      The resource containing the SQL script.
+     * @param mixed         Whether to allow mixing transactional and non-transactional statements within the same migration.
 
 
 
      * @return The new SqlScript.
      */
-    public final SqlScript createSqlScript(Resource resource, String sqlScriptSource, boolean mixed
+    public final SqlScript createSqlScript(LoadableResource resource,
+                                           PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-
-
-
-
-
-        return doCreateSqlScript(resource, sqlScriptSource, mixed
+        return doCreateSqlScript(resource, placeholderReplacer, mixed
 
 
 
@@ -157,15 +170,17 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * Creates a new SqlScript for this specific database.
      *
-     * @param resource        The resource containing the SQL script.
-     * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
-     * @param mixed           Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * @param resource            The resource containing the SQL script.
+     * @param placeholderReplacer The placeholder replacer.
+     * @param mixed               Whether to allow mixing transactional and non-transactional statements within the same migration.
+
 
 
 
      * @return The new SqlScript.
      */
-    protected abstract SqlScript doCreateSqlScript(Resource resource, String sqlScriptSource, boolean mixed
+    protected abstract SqlScript doCreateSqlScript(LoadableResource resource,
+                                                   PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
@@ -204,6 +219,25 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @return {@code true} if DDL transactions are supported, {@code false} if not.
      */
     public abstract boolean supportsDdlTransactions();
+
+    /**
+     * @return {@code true} if this database supports changing a connection's current schema. {@code false if not}.
+     */
+    protected abstract boolean supportsChangingCurrentSchema();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -331,19 +365,23 @@ public abstract class Database<C extends Connection> implements Closeable {
         }
     }
 
-    public final String getCreateScript(Table table) {
-        String source = getRawCreateScript();
-
+    public final SqlScript getCreateScript(Table table) {
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("schema", table.getSchema().getName());
         placeholders.put("table", table.getName());
         placeholders.put("table_quoted", table.toString());
-        return new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
+        PlaceholderReplacer placeholderReplacer = new DefaultPlaceholderReplacer(placeholders, "${", "}");
+
+        return createSqlScript(getRawCreateScript(), placeholderReplacer, false
+
+
+
+        );
     }
 
-    protected String getRawCreateScript() {
+    protected LoadableResource getRawCreateScript() {
         String resourceName = "org/flywaydb/core/internal/database/" + getDbName() + "/createMetaDataTable.sql";
-        return new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
+        return new ClassPathResource(resourceName, getClass().getClassLoader(), Charset.forName("UTF-8"));
     }
 
     public String getInsertStatement(Table table) {
@@ -359,6 +397,22 @@ public abstract class Database<C extends Connection> implements Closeable {
                 + "," + quote("success")
                 + ")"
                 + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    }
+
+    public String getSelectStatement(Table table, int maxCachedInstalledRank) {
+        return "SELECT " + quote("installed_rank")
+                + "," + quote("version")
+                + "," + quote("description")
+                + "," + quote("type")
+                + "," + quote("script")
+                + "," + quote("checksum")
+                + "," + quote("installed_on")
+                + "," + quote("installed_by")
+                + "," + quote("execution_time")
+                + "," + quote("success")
+                + " FROM " + table
+                + " WHERE " + quote("installed_rank") + " > " + maxCachedInstalledRank
+                + " ORDER BY " + quote("installed_rank");
     }
 
     public void close() {

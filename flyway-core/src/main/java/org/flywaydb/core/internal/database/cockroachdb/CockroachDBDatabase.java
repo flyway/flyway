@@ -15,19 +15,21 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.Pair;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * CockroachDB database.
@@ -53,12 +55,12 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public CockroachDBDatabase(FlywayConfiguration configuration, Connection connection
+    public CockroachDBDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -71,7 +73,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
 
 
     ) {
-        return new CockroachDBConnection(configuration, this, connection
+        return new CockroachDBConnection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -84,22 +86,23 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
         if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 1)) {
             throw new FlywayDbUpgradeRequiredException("CockroachDB", version, "1.1");
         }
-        if (majorVersion > 1) {
+        if (majorVersion > 2 || (majorVersion == 2 && minorVersion > 0)) {
             recommendFlywayUpgrade("CockroachDB", version);
         }
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
+    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource,
+                                          PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-        return new CockroachDBSqlScript(sqlScriptResource, sqlScriptSource, mixed
+        return new CockroachDBSqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override
@@ -131,6 +134,11 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
 
     public boolean supportsDdlTransactions() {
         return false;
+    }
+
+    @Override
+    protected boolean supportsChangingCurrentSchema() {
+        return true;
     }
 
 

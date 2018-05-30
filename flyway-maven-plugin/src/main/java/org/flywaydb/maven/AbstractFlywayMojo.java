@@ -424,6 +424,21 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String[] errorHandlers;
 
     /**
+     * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
+     * to warning or from warning to error. (default: none)
+     * <p>Each error override has the following format: {@code STATE:12345:W}.
+     * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
+     * behavior that should override the initial one. The following behaviors are accepted: {@code W} to force a warning
+     * and {@code E} to force an error.</p>
+     * <p>For example, to force Oracle stored procedure compilation issues to produce
+     * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.errorOverrides}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    @Parameter
+    private String[] errorOverrides;
+
+    /**
      * The file where to output the SQL statements of a migration dry run. If the file specified is in a non-existent
      * directory, Flyway will create all directories and parent directories as needed.
      * <p>{@code null} to execute the SQL statements directly against the database. (default: {@code null})</p>
@@ -432,6 +447,39 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     @Parameter(property = ConfigUtils.DRYRUN_OUTPUT)
     private String dryRunOutput;
+
+    /**
+     * Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at
+     * once. Instead each statement is loaded individually. This is particularly useful for very large SQL migrations
+     * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
+     * (default: {@code false}
+     * <p>Also configurable with Maven or System Property: ${flyway.stream}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    @Parameter(property = ConfigUtils.STREAM)
+    private Boolean stream;
+
+    /**
+     * Whether to batch SQL statements when executing them. Batching can save up to 99 percent of network roundtrips by
+     * sending up to 100 statements at once over the network to the database, instead of sending each statement
+     * individually. This is particularly useful for very large SQL migrations composed of multiple MB or even GB of
+     * reference data, as this can dramatically reduce the network overhead. This is supported for INSERT, UPDATE,
+     * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
+     * (default: {@code false})
+     * <p>Also configurable with Maven or System Property: ${flyway.batch}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    @Parameter(property = ConfigUtils.BATCH)
+    private Boolean batch;
+
+    /**
+     * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
+     * (default: {@code false})
+     * <p>Also configurable with Maven or System Property: ${flyway.oracle.sqlplus}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    @Parameter(property = ConfigUtils.ORACLE_SQLPLUS)
+    private Boolean oracleSqlplus;
 
     /**
      * Properties file from which to load the Flyway configuration. The names of the individual properties match the ones you would
@@ -463,7 +511,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private File[] configFiles;
 
     /**
-     * The working directory to consider when dealing with relative paths for both config files and location.
+     * The working directory to consider when dealing with relative paths for both config files and locations.
      * (default: basedir, the directory where the POM resides)
      * <p/>
      * <p>Also configurable with Maven or System Property: ${flyway.workingDirectory}</p>
@@ -616,7 +664,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.DRIVER, driver);
 
             putArrayIfSet(conf, ConfigUtils.ERROR_HANDLERS, errorHandlers);
+            putArrayIfSet(conf, ConfigUtils.ERROR_OVERRIDES, errorOverrides);
             putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput);
+            putIfSet(conf, ConfigUtils.STREAM, stream);
+            putIfSet(conf, ConfigUtils.BATCH, batch);
+
+            putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus);
 
             if (placeholders != null) {
                 for (String placeholder : placeholders.keySet()) {
@@ -631,7 +684,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             conf.putAll(ConfigUtils.propertiesToMap(System.getProperties()));
             removeMavenPluginSpecificPropertiesToAvoidWarnings(conf);
 
-            doExecute(Flyway.config(classLoader).configure(conf).load());
+            Flyway flyway = new Flyway(classLoader);
+            flyway.configure(conf);
+            doExecute(flyway);
         } catch (Exception e) {
             throw new MojoExecutionException(e.toString(), ExceptionUtils.getRootCause(e));
         }

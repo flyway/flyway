@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.database;
 
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
@@ -28,6 +30,8 @@ import java.util.List;
  * Represents a database schema.
  */
 public abstract class Schema<D extends Database> {
+    private static final Log LOG = LogFactory.getLog(Schema.class);
+
     /**
      * The Jdbc Template for communicating with the DB.
      */
@@ -47,7 +51,7 @@ public abstract class Schema<D extends Database> {
      * Creates a new schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param name         The name of the schema.
      */
     public Schema(JdbcTemplate jdbcTemplate, D database, String name) {

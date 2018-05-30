@@ -15,27 +15,32 @@
  */
 package org.flywaydb.core.internal.database.redshift;
 
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.jdbc.ContextImpl;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
+
+import java.util.List;
 
 /**
  * Redshift-specific SQL script.
  */
 class RedshiftSqlScript extends ExecutableSqlScript<ContextImpl> {
-    RedshiftSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
+    RedshiftSqlScript(Configuration configuration, LoadableResource sqlScriptResource, boolean mixed
 
 
 
-    ) {
-        super(sqlScriptResource, sqlScriptSource, mixed
+
+            , PlaceholderReplacer placeholderReplacer) {
+        super(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

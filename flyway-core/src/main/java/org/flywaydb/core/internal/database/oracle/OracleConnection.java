@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 
@@ -26,12 +26,13 @@ import java.sql.Types;
  * Oracle connection.
  */
 public class OracleConnection extends Connection<OracleDatabase> {
-    OracleConnection(FlywayConfiguration configuration, OracleDatabase database, java.sql.Connection connection
+    OracleConnection(Configuration configuration, OracleDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 
@@ -39,12 +40,12 @@ public class OracleConnection extends Connection<OracleDatabase> {
     }
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         return jdbcTemplate.queryForString("SELECT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') FROM DUAL");
     }
 
     @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
         jdbcTemplate.execute("ALTER SESSION SET CURRENT_SCHEMA=" + database.quote(schema));
     }
 

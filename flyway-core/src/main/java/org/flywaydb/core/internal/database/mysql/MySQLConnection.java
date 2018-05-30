@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Connection;
@@ -34,12 +34,13 @@ import java.util.concurrent.Callable;
 public class MySQLConnection extends Connection<MySQLDatabase> {
     private static final Log LOG = LogFactory.getLog(MySQLConnection.class);
 
-    MySQLConnection(FlywayConfiguration configuration, MySQLDatabase database, java.sql.Connection connection
+    MySQLConnection(Configuration configuration, MySQLDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 
@@ -48,12 +49,12 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         return jdbcTemplate.getConnection().getCatalog();
     }
 
     @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
         if (!StringUtils.hasLength(schema)) {
             try {
                 // Weird hack to switch back to no database selected...

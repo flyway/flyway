@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.schemahistory;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
@@ -32,11 +32,11 @@ public class SchemaHistoryFactory {
      * Obtains a reference to the schema history.
      *
      * @param configuration The current Flyway configuration.
-     * @param database     The Database object.
+     * @param database      The Database object.
      * @param schema        The schema whose history to track.
      * @return The schema history.
      */
-    public static SchemaHistory getSchemaHistory(FlywayConfiguration configuration, Database database, Schema schema
+    public static SchemaHistory getSchemaHistory(Configuration configuration, Database database, Schema schema
 
 
 

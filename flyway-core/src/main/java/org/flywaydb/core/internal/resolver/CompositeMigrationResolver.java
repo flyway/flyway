@@ -17,7 +17,8 @@ package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.Database;
@@ -25,8 +26,7 @@ import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.Locations;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import java.util.ArrayList;
@@ -56,20 +56,27 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * Creates a new CompositeMigrationResolver.
      *
-     * @param database                The database-specific support.
+     * @param database                 The database-specific support.
      * @param scanner                  The Scanner for loading migrations on the classpath.
      * @param configuration            The Flyway configuration.
      * @param locations                The locations where migrations are located.
      * @param placeholderReplacer      The placeholder replacer to use.
      * @param customMigrationResolvers Custom Migration Resolvers.
      */
-    public CompositeMigrationResolver(Database database, Scanner scanner, FlywayConfiguration configuration,
+    public CompositeMigrationResolver(Database database, Scanner scanner, Configuration configuration,
                                       List<Location> locations,
-                                      PlaceholderReplacer placeholderReplacer,
-                                      MigrationResolver... customMigrationResolvers) {
-        if (!configuration.isSkipDefaultResolvers()) {
+                                      PlaceholderReplacer placeholderReplacer
 
-            migrationResolvers.add(new SqlMigrationResolver(database, scanner, locations, placeholderReplacer, configuration));
+
+
+            , MigrationResolver... customMigrationResolvers
+    ) {
+        if (!configuration.isSkipDefaultResolvers()) {
+            migrationResolvers.add(new SqlMigrationResolver(database, scanner, locations, placeholderReplacer
+
+
+
+                    , configuration));
             migrationResolvers.add(new JdbcMigrationResolver(scanner, locations, configuration));
 
             if (new FeatureDetector(scanner.getClassLoader()).isSpringJdbcAvailable()) {

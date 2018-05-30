@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.hsqldb;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
@@ -28,12 +28,13 @@ import java.sql.Types;
  * HSQLDB connection.
  */
 public class HSQLDBConnection extends Connection<HSQLDBDatabase> {
-    HSQLDBConnection(FlywayConfiguration configuration, HSQLDBDatabase database, java.sql.Connection connection
+    HSQLDBConnection(Configuration configuration, HSQLDBDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 
@@ -41,7 +42,7 @@ public class HSQLDBConnection extends Connection<HSQLDBDatabase> {
     }
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         ResultSet resultSet = null;
         String schema = null;
 
@@ -61,7 +62,7 @@ public class HSQLDBConnection extends Connection<HSQLDBDatabase> {
     }
 
     @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + database.quote(schema));
     }
 

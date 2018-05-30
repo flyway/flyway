@@ -16,13 +16,12 @@
 package org.flywaydb.core.internal.util.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Savepoint;
 import java.util.concurrent.Callable;
 
 /**
@@ -75,14 +74,10 @@ public class TransactionTemplate {
             T result = transactionCallback.call();
             connection.commit();
             return result;
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to commit transaction", e);
         } catch (Exception e) {
-            Savepoint savepoint = null;
             RuntimeException rethrow;
-            if (e instanceof RollbackWithSavepointException) {
-                savepoint = ((RollbackWithSavepointException) e).getSavepoint();
-                rethrow = (RuntimeException) e.getCause();
+            if (e instanceof SQLException) {
+                rethrow = new FlywaySqlException("Unable to commit transaction", (SQLException) e);
             } else if (e instanceof RuntimeException) {
                 rethrow = (RuntimeException) e;
             } else {
@@ -92,11 +87,7 @@ public class TransactionTemplate {
             if (rollbackOnException) {
                 try {
                     LOG.debug("Rolling back transaction...");
-                    if (savepoint == null) {
-                        connection.rollback();
-                    } else {
-                        connection.rollback(savepoint);
-                    }
+                    connection.rollback();
                     LOG.debug("Transaction rolled back");
                 } catch (SQLException se) {
                     LOG.error("Unable to rollback transaction", se);

@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
@@ -33,14 +33,21 @@ public abstract class Connection<D extends Database> implements Closeable {
     /**
      * The original schema of the connection that should be restored later.
      */
-    protected final String originalSchema;
+    protected final String originalSchemaNameOrSearchPath;
 
-    protected Connection(FlywayConfiguration configuration, D database, java.sql.Connection connection, int nullType
+    /**
+     * The original autocommit state of the connection.
+     */
+    private boolean originalAutoCommit;
+
+    protected Connection(Configuration configuration, D database, java.sql.Connection connection
+            , boolean originalAutoCommit, int nullType
 
 
 
     ) {
         this.database = database;
+        this.originalAutoCommit = originalAutoCommit;
 
 
 
@@ -60,17 +67,8 @@ public abstract class Connection<D extends Database> implements Closeable {
 
 
         jdbcTemplate = new JdbcTemplate(jdbcConnection, nullType);
-        originalSchema = jdbcTemplate.getConnection() == null ? null : getCurrentSchemaName();
-    }
-
-    /**
-     * Retrieves the current schema.
-     *
-     * @return The current schema for this connection.
-     */
-    public String getCurrentSchemaName() {
         try {
-            return doGetCurrentSchemaName();
+            originalSchemaNameOrSearchPath = getCurrentSchemaNameOrSearchPath();
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to retrieve the current schema for the connection", e);
         }
@@ -82,19 +80,21 @@ public abstract class Connection<D extends Database> implements Closeable {
      * @return The current schema for this connection.
      * @throws SQLException when the current schema could not be retrieved.
      */
-    protected abstract String doGetCurrentSchemaName() throws SQLException;
+    protected abstract String getCurrentSchemaNameOrSearchPath() throws SQLException;
 
     /**
-     * Retrieves the original schema of the connection.
-     *
-     * @return The original schema for this connection.
+     * @return The current schema for this connection.
      */
-    public Schema getOriginalSchema() {
-        if (originalSchema == null) {
-            return null;
+    public final Schema getCurrentSchema() {
+        try {
+            return doGetCurrentSchema();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to retrieve the current schema for the connection", e);
         }
+    }
 
-        return getSchema(originalSchema);
+    protected Schema doGetCurrentSchema() throws SQLException {
+        return getSchema(getCurrentSchemaNameOrSearchPath());
     }
 
     /**
@@ -115,30 +115,20 @@ public abstract class Connection<D extends Database> implements Closeable {
             if (!schema.exists()) {
                 return;
             }
-            doChangeCurrentSchemaTo(schema.getName());
+            doChangeCurrentSchemaOrSearchPathTo(schema.getName());
         } catch (SQLException e) {
             throw new FlywaySqlException("Error setting current schema to " + schema, e);
         }
     }
 
     /**
-     * Restores the current schema of the connection to its original setting.
-     */
-    public void restoreCurrentSchema() {
-        try {
-            doChangeCurrentSchemaTo(originalSchema);
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error restoring current schema to its original setting", e);
-        }
-    }
-
-    /**
      * Sets the current schema to this schema.
      *
-     * @param schema The new current schema for this connection.
+     * @param schemaNameOrSearchPath The new current schema for this connection.
      * @throws SQLException when the current schema could not be set.
      */
-    public abstract void doChangeCurrentSchemaTo(String schema) throws SQLException;
+    protected void doChangeCurrentSchemaOrSearchPathTo(String schemaNameOrSearchPath) throws SQLException {
+    }
 
     /**
      * Locks this table and executes this callable.
@@ -157,23 +147,61 @@ public abstract class Connection<D extends Database> implements Closeable {
         });
     }
 
-    public JdbcTemplate getJdbcTemplate() {
+    public final JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
     }
 
     @Override
-    public void close() {
+    public final void close() {
         restoreOriginalState();
+        restoreOriginalSchema();
+        restoreOriginalAutoCommit();
         JdbcUtils.closeConnection(jdbcConnection);
+    }
+
+    private void restoreOriginalSchema() {
+        new TransactionTemplate(jdbcConnection).execute(new Callable<Void>() {
+            @Override
+            public Void call() {
+                try {
+                    doChangeCurrentSchemaOrSearchPathTo(originalSchemaNameOrSearchPath);
+                } catch (SQLException e) {
+                    throw new FlywaySqlException("Unable to restore original schema", e);
+                }
+                return null;
+            }
+        });
     }
 
     /**
      * Restores this connection to its original state.
      */
-    protected void restoreOriginalState() {
+    public final void restoreOriginalState() {
+        try {
+            doRestoreOriginalState();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to restore connection to its original state", e);
+        }
     }
 
-    public java.sql.Connection getJdbcConnection() {
+    /**
+     * Restores this connection to its original auto-commit setting.
+     */
+    private void restoreOriginalAutoCommit() {
+        try {
+            jdbcConnection.setAutoCommit(originalAutoCommit);
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to restore connection to its original auto-commit setting", e);
+        }
+    }
+
+    /**
+     * Restores this connection to its original state.
+     */
+    protected void doRestoreOriginalState() throws SQLException {
+    }
+
+    public final java.sql.Connection getJdbcConnection() {
         return jdbcConnection;
     }
 }

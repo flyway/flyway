@@ -15,39 +15,38 @@
  */
 package org.flywaydb.core.api.configuration;
 
-import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Properties;
 
 /**
- * Fluent configuration for Flyway. This is the preferred means of configuring the Flyway API..
+ * Fluent configuration for Flyway. This is the preferred means of configuring the Flyway API.
  * <p>
- * This configuration can be created using the <code>Flyway.config()</code> factory method. In can then be injected into
- * a new Flyway instance by calling the <code>load()</code> method.
+ * This configuration can be passed to Flyway using the <code>new Flyway(Configuration)</code> constructor.
  * </p>
  */
-public class FluentConfiguration implements FlywayConfiguration {
+public class FluentConfiguration implements Configuration {
     private final ClassicConfiguration config;
 
     /**
-     * Creates a new instance of Flyway. This is your starting point.
+     * Creates a new default configuration.
      */
     public FluentConfiguration() {
         config = new ClassicConfiguration();
     }
 
     /**
-     * Creates a new instance of Flyway. This is your starting point.
+     * Creates a new default configuration with this class loader.
      *
      * @param classLoader The ClassLoader to use for loading migrations, resolvers, etc from the classpath. (default: Thread.currentThread().getContextClassLoader() )
      */
@@ -56,47 +55,12 @@ public class FluentConfiguration implements FlywayConfiguration {
     }
 
     /**
-     * Creates a new instance of Flyway. This is your starting point.
+     * Configure with the same values as this existing configuration.
      *
      * @param configuration The configuration to use.
      */
-    public FluentConfiguration config(FlywayConfiguration configuration) {
-        config.setBaselineDescription(configuration.getBaselineDescription());
-        config.setBaselineOnMigrate(configuration.isBaselineOnMigrate());
-        config.setBaselineVersion(configuration.getBaselineVersion());
-        config.setCallbacks(configuration.getCallbacks());
-        config.setCleanDisabled(configuration.isCleanDisabled());
-        config.setCleanOnValidationError(configuration.isCleanOnValidationError());
-        config.setDataSource(configuration.getDataSource());
-
-
-
-
-
-        config.setEncoding(configuration.getEncoding());
-        config.setGroup(configuration.isGroup());
-        config.setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
-        config.setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
-        config.setIgnoreIgnoredMigrations(configuration.isIgnoreIgnoredMigrations());
-        config.setInstalledBy(configuration.getInstalledBy());
-        config.setLocations(configuration.getLocations());
-        config.setMixed(configuration.isMixed());
-        config.setOutOfOrder(configuration.isOutOfOrder());
-        config.setPlaceholderPrefix(configuration.getPlaceholderPrefix());
-        config.setPlaceholderReplacement(configuration.isPlaceholderReplacement());
-        config.setPlaceholders(configuration.getPlaceholders());
-        config.setPlaceholderSuffix(configuration.getPlaceholderSuffix());
-        config.setRepeatableSqlMigrationPrefix(configuration.getRepeatableSqlMigrationPrefix());
-        config.setResolvers(configuration.getResolvers());
-        config.setSchemas(configuration.getSchemas());
-        config.setSkipDefaultCallbacks(configuration.isSkipDefaultCallbacks());
-        config.setSkipDefaultResolvers(configuration.isSkipDefaultResolvers());
-        config.setSqlMigrationPrefix(configuration.getSqlMigrationPrefix());
-        config.setSqlMigrationSeparator(configuration.getSqlMigrationSeparator());
-        config.setSqlMigrationSuffixes(configuration.getSqlMigrationSuffixes());
-        config.setTable(configuration.getTable());
-        config.setTarget(configuration.getTarget());
-        config.setValidateOnMigrate(configuration.isValidateOnMigrate());
+    public FluentConfiguration configure(Configuration configuration) {
+        config.configure(configuration);
         return this;
     }
 
@@ -106,7 +70,7 @@ public class FluentConfiguration implements FlywayConfiguration {
     }
 
     @Override
-    public String getEncoding() {
+    public Charset getEncoding() {
         return config.getEncoding();
     }
 
@@ -158,11 +122,6 @@ public class FluentConfiguration implements FlywayConfiguration {
     @Override
     public String getSqlMigrationSeparator() {
         return config.getSqlMigrationSeparator();
-    }
-
-    @Override
-    public String getSqlMigrationSuffix() {
-        return config.getSqlMigrationSuffix();
     }
 
     @Override
@@ -261,8 +220,28 @@ public class FluentConfiguration implements FlywayConfiguration {
     }
 
     @Override
+    public String[] getErrorOverrides() {
+        return config.getErrorOverrides();
+    }
+
+    @Override
     public OutputStream getDryRunOutput() {
         return config.getDryRunOutput();
+    }
+
+    @Override
+    public boolean isStream() {
+        return config.isStream();
+    }
+
+    @Override
+    public boolean isBatch() {
+        return config.isBatch();
+    }
+
+    @Override
+    public boolean isOracleSqlplus() {
+        return config.isOracleSqlplus();
     }
 
     /**
@@ -330,6 +309,24 @@ public class FluentConfiguration implements FlywayConfiguration {
      */
     public FluentConfiguration errorHandlers(String... errorHandlerClassNames) {
         config.setErrorHandlersAsClassNames(errorHandlerClassNames);
+        return this;
+    }
+
+    /**
+     * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
+     * to warning or from warning to error.
+     * <p>Each error override has the following format: {@code STATE:12345:W}.
+     * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
+     * behavior that should override the initial one. The following behaviors are accepted: {@code W} to force a warning
+     * and {@code E} to force an error.</p>
+     * <p>For example, to force Oracle stored procedure compilation issues to produce
+     * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param errorOverrides  The ErrorOverrides or an empty array if none are defined. (default: none)
+     */
+    public FluentConfiguration errorOverrides(String... errorOverrides) {
+        config.setErrorOverrides(errorOverrides);
         return this;
     }
 
@@ -487,6 +484,16 @@ public class FluentConfiguration implements FlywayConfiguration {
      * @param encoding The encoding of Sql migrations. (default: UTF-8)
      */
     public FluentConfiguration encoding(String encoding) {
+        config.setEncodingAsString(encoding);
+        return this;
+    }
+
+    /**
+     * Sets the encoding of Sql migrations.
+     *
+     * @param encoding The encoding of Sql migrations. (default: UTF-8)
+     */
+    public FluentConfiguration encoding(Charset encoding) {
         config.setEncoding(encoding);
         return this;
     }
@@ -746,7 +753,7 @@ public class FluentConfiguration implements FlywayConfiguration {
      * @return The callbacks for lifecycle notifications. An empty array if none. (default: none)
      */
     @Override
-    public FlywayCallback[] getCallbacks() {
+    public Callback[] getCallbacks() {
         return config.getCallbacks();
     }
 
@@ -760,7 +767,7 @@ public class FluentConfiguration implements FlywayConfiguration {
      *
      * @param callbacks The callbacks for lifecycle notifications. (default: none)
      */
-    public FluentConfiguration callbacks(FlywayCallback... callbacks) {
+    public FluentConfiguration callbacks(Callback... callbacks) {
         config.setCallbacks(callbacks);
         return this;
     }
@@ -816,6 +823,45 @@ public class FluentConfiguration implements FlywayConfiguration {
     }
 
     /**
+     * Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at
+     * once. Instead each statement is loaded individually. This is particularly useful for very large SQL migrations
+     * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param stream {@code true} to stream SQL migrations. {@code false} to fully loaded them in memory instead. (default: {@code false})
+     */
+    public FluentConfiguration stream(boolean stream) {
+        config.setStream(stream);
+        return this;
+    }
+
+    /**
+     * Whether to batch SQL statements when executing them. Batching can save up to 99 percent of network roundtrips by
+     * sending up to 100 statements at once over the network to the database, instead of sending each statement
+     * individually. This is particularly useful for very large SQL migrations composed of multiple MB or even GB of
+     * reference data, as this can dramatically reduce the network overhead. This is supported for INSERT, UPDATE,
+     * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param batch {@code true} to batch SQL statements. {@code false} to execute them individually instead. (default: {@code false})
+     */
+    public FluentConfiguration batch(boolean batch) {
+        config.setBatch(batch);
+        return this;
+    }
+
+    /**
+     * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param oracleSqlplus {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
+     */
+    public FluentConfiguration oracleSqlplus(boolean oracleSqlplus) {
+        config.setOracleSqlplus(oracleSqlplus);
+        return this;
+    }
+
+    /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
@@ -843,11 +889,12 @@ public class FluentConfiguration implements FlywayConfiguration {
     }
 
     /**
-     * Loads this configuration into a new Flyway instance.
+     * Configures Flyway using FLYWAY_* environment variables.
      *
-     * @return The new fully configured Flyway instance.
+     * @throws FlywayException when the configuration failed.
      */
-    public Flyway load() {
-        return new Flyway(this);
+    public FluentConfiguration envVars() {
+        config.configureUsingEnvVars();
+        return this;
     }
 }

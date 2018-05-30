@@ -17,7 +17,11 @@ package org.flywaydb.core.internal.util;
 
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.line.LineReader;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
+
+import java.nio.charset.Charset;
 
 /**
  * Prints the Flyway version.
@@ -41,7 +45,16 @@ public class VersionPrinter {
             return;
         }
         printed = true;
-        String version = new ClassPathResource("org/flywaydb/core/internal/version.txt", VersionPrinter.class.getClassLoader()).loadAsString("UTF-8");
+        String version;
+        LoadableResource resource = new ClassPathResource("org/flywaydb/core/internal/version.txt",
+                VersionPrinter.class.getClassLoader(), Charset.forName("UTF-8"));
+        LineReader lineReader = null;
+        try {
+            lineReader = resource.loadAsString();
+            version = lineReader.readLine().getLine();
+        } finally {
+            IOUtils.close(lineReader);
+        }
         LOG.info("Flyway"
 
                 + " Community Edition"

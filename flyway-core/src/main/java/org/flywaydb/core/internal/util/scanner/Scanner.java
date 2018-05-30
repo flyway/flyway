@@ -16,11 +16,12 @@
 package org.flywaydb.core.internal.util.scanner;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.util.FeatureDetector;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.util.scanner.classpath.ResourceAndClassScanner;
 import org.flywaydb.core.internal.util.scanner.classpath.android.AndroidScanner;
-import org.flywaydb.core.internal.util.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.util.scanner.filesystem.FileSystemScanner;
 
 /**
@@ -30,15 +31,16 @@ public class Scanner {
     private final ResourceAndClassScanner resourceAndClassScanner;
 
     private final ClassLoader classLoader;
-    private final FileSystemScanner fileSystemScanner = new FileSystemScanner();
+    private final FileSystemScanner fileSystemScanner;
 
-    public Scanner(ClassLoader classLoader) {
-        this.classLoader = classLoader;
+    public Scanner(Configuration configuration) {
+        this.classLoader = configuration.getClassLoader();
         if (new FeatureDetector(classLoader).isAndroidAvailable()) {
-            resourceAndClassScanner = new AndroidScanner(classLoader);
+            resourceAndClassScanner = new AndroidScanner(classLoader, configuration.getEncoding());
         } else {
-            resourceAndClassScanner = new ClassPathScanner(classLoader);
+            resourceAndClassScanner = new ClassPathScanner(classLoader, configuration.getEncoding());
         }
+        fileSystemScanner = new FileSystemScanner(configuration);
     }
 
     /**
@@ -46,7 +48,7 @@ public class Scanner {
      *
      * @param location The location to start searching. Subdirectories are also searched.
      * @param prefix   The prefix of the resource names to match.
-     * @param suffixes   The suffixes of the resource names to match.
+     * @param suffixes The suffixes of the resource names to match.
      * @return The resources that were found.
      */
     public LoadableResource[] scanForResources(Location location, String prefix, String[] suffixes) {

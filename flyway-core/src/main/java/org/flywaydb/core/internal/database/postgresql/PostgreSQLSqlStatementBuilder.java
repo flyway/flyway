@@ -16,10 +16,12 @@
 package org.flywaydb.core.internal.database.postgresql;
 
 import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,15 +30,21 @@ import java.util.regex.Pattern;
  */
 public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     /**
-     * Delimiter of COPY statements.
-     */
-    private static final Delimiter COPY_DELIMITER = new Delimiter("\\.", true);
-
-    /**
      * Matches $$, $BODY$, $xyz123$, ...
      */
     /*private -> for testing*/
-    static final String DOLLAR_QUOTE_REGEX = "(\\$[A-Za-z0-9_]*\\$).*";
+    static final Pattern DOLLAR_QUOTE_REGEX = Pattern.compile("(\\$[A-Za-z0-9_]*\\$).*");
+
+    private static final Pattern CREATE_DATABASE_TABLESPACE_SUBSCRIPTION_REGEX = Pattern.compile("^(CREATE|DROP) (DATABASE|TABLESPACE|SUBSCRIPTION) .*");
+    private static final Pattern ALTER_SYSTEM_REGEX = Pattern.compile("^ALTER SYSTEM .*");
+    private static final Pattern CREATE_INDEX_CONCURRENTLY_REGEX = Pattern.compile("^(CREATE|DROP)( UNIQUE)? INDEX CONCURRENTLY .*");
+    private static final Pattern REINDEX_REGEX = Pattern.compile("^REINDEX( VERBOSE)? (SCHEMA|DATABASE|SYSTEM) .*");
+    private static final Pattern VACUUM_REGEX = Pattern.compile("^VACUUM .*");
+    private static final Pattern DISCARD_ALL_REGEX = Pattern.compile("^DISCARD ALL .*");
+    private static final Pattern ALTER_TYPE_ADD_VALUE_REGEX = Pattern.compile("^ALTER TYPE .* ADD VALUE .*");
+    private static final Pattern COPY_REGEX = Pattern.compile("^COPY|COPY\\s.*");
+    private static final Pattern CREATE_RULE_FULL_REGEX = Pattern.compile("^CREATE( OR REPLACE)? RULE .* DO (ALSO|INSTEAD) \\(.*;(\\s*)\\);\\s?");
+    private static final Pattern CREATE_RULE_PARTIAL_REGEX = Pattern.compile("^CREATE( OR REPLACE)? RULE .* DO (ALSO|INSTEAD) \\(.*");
 
     /**
      * Are we at the beginning of the statement.
@@ -65,48 +73,58 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     /**
      * @return The assembled statement, with the delimiter stripped off.
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public SqlStatement getSqlStatement() {
+    public SqlStatement<ContextImpl> getSqlStatement() {
         if (pgCopy) {
-            return new PostgreSQLCopyStatement(lineNumber, statement.toString());
+            return new PostgreSQLCopyStatement(lines);
         }
         return super.getSqlStatement();
     }
 
     @Override
     protected void applyStateChanges(String line) {
+        if (pgCopy) {
+            return;
+        }
+
         super.applyStateChanges(line);
 
-        if (!executeInTransaction) {
+        if (!executeInTransaction || !hasNonCommentPart()) {
             return;
         }
 
         if (StringUtils.countOccurrencesOf(statementStart, " ") < 100) {
             statementStart += line;
             statementStart += " ";
-            statementStart = statementStart.replaceAll("\\s+", " ");
+            statementStart = StringUtils.collapseWhitespace(statementStart);
         }
 
-        if (statementStart.matches("(CREATE|DROP) (DATABASE|TABLESPACE) .*")
-                || statementStart.matches("ALTER SYSTEM .*")
-                || statementStart.matches("(CREATE|DROP)( UNIQUE)? INDEX CONCURRENTLY .*")
-                || statementStart.matches("REINDEX( VERBOSE)? (SCHEMA|DATABASE|SYSTEM) .*")
-                || statementStart.matches("VACUUM .*")
-                || statementStart.matches("DISCARD ALL .*")
-                || statementStart.matches("ALTER TYPE .* ADD VALUE .*")
+        if (CREATE_DATABASE_TABLESPACE_SUBSCRIPTION_REGEX.matcher(statementStart).matches()
+                || ALTER_SYSTEM_REGEX.matcher(statementStart).matches()
+                || CREATE_INDEX_CONCURRENTLY_REGEX.matcher(statementStart).matches()
+                || REINDEX_REGEX.matcher(statementStart).matches()
+                || VACUUM_REGEX.matcher(statementStart).matches()
+                || DISCARD_ALL_REGEX.matcher(statementStart).matches()
+                || ALTER_TYPE_ADD_VALUE_REGEX.matcher(statementStart).matches()
                 ) {
             executeInTransaction = false;
         }
     }
 
     @Override
-    protected String[] tokenizeLine(String line) {
-        return StringUtils.tokenizeToStringArray(line, " @<>;:=|(),+{}\\[\\]");
+    protected Collection<String> tokenizeLine(String line) {
+        return StringUtils.tokenizeToStringCollection(line, " @<>;:=|(),+{}[]");
+    }
+
+    @Override
+    protected String simplifyLine(String line) {
+        return super.simplifyLine(line.replace("$$", " $$ "));
     }
 
     @Override
     protected String extractAlternateOpenQuote(String token) {
-        Matcher matcher = Pattern.compile(DOLLAR_QUOTE_REGEX).matcher(token);
+        Matcher matcher = DOLLAR_QUOTE_REGEX.matcher(token);
         if (matcher.find()) {
             return matcher.group(1);
         }
@@ -116,12 +134,12 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
         if (pgCopy) {
-            return COPY_DELIMITER;
+            return PostgreSQLCopyStatement.COPY_DELIMITER;
         }
 
         if (firstLine) {
             firstLine = false;
-            if (line.matches("COPY|COPY\\s.*")) {
+            if (COPY_REGEX.matcher(line).matches()) {
                 copyStatement = line;
             }
         } else if (copyStatement != null) {
@@ -130,14 +148,14 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
 
         if (copyStatement != null && copyStatement.contains(" FROM STDIN")) {
             pgCopy = true;
-            return COPY_DELIMITER;
+            return PostgreSQLCopyStatement.COPY_DELIMITER;
         }
 
-        if (statementStart.matches("CREATE( OR REPLACE)? RULE .* DO (ALSO|INSTEAD) \\(.+;\\w?\\)\\w?;")) {
+        if (CREATE_RULE_FULL_REGEX.matcher(statementStart).matches()) {
             return Delimiter.SEMICOLON;
         }
 
-        if (statementStart.matches("CREATE( OR REPLACE)? RULE .* DO (ALSO|INSTEAD) \\(.*")) {
+        if (CREATE_RULE_PARTIAL_REGEX.matcher(statementStart).matches()) {
             return null;
         }
 

@@ -15,16 +15,18 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * MySQL database.
@@ -36,12 +38,12 @@ public class MySQLDatabase extends Database<MySQLConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public MySQLDatabase(FlywayConfiguration configuration, Connection connection
+    public MySQLDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -54,7 +56,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
 
     ) {
-        return new MySQLConnection(configuration, this, connection
+        return new MySQLConnection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -90,23 +92,24 @@ public class MySQLDatabase extends Database<MySQLConnection> {
                 if (majorVersion > 10 || (majorVersion == 10 && minorVersion > 2)) {
                     recommendFlywayUpgrade(productName, version);
                 }
-            } else {
+            } else if (majorVersion > 8 || (majorVersion == 8 && minorVersion > 0)) {
                 recommendFlywayUpgrade(productName, version);
             }
         }
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
+    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource,
+                                          PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-        return new MySQLSqlScript(sqlScriptResource, sqlScriptSource, mixed
+        return new MySQLSqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override
@@ -122,6 +125,11 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     @Override
     public boolean supportsDdlTransactions() {
         return false;
+    }
+
+    @Override
+    protected boolean supportsChangingCurrentSchema() {
+        return true;
     }
 
     @Override

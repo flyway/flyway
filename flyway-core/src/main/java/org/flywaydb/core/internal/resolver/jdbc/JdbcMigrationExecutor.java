@@ -20,6 +20,7 @@ import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Adapter for executing migrations implementing JdbcMigration.
@@ -40,9 +41,11 @@ public class JdbcMigrationExecutor implements MigrationExecutor {
     }
 
     @Override
-    public void execute(Connection connection) {
+    public void execute(Connection connection) throws SQLException {
         try {
             jdbcMigration.migrate(connection);
+        } catch (SQLException e) {
+            throw e;
         } catch (Exception e) {
             throw new FlywayException("Migration failed !", e);
         }

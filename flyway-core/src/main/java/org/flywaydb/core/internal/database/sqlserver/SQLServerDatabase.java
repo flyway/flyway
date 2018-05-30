@@ -15,18 +15,20 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * SQL Server database.
@@ -40,12 +42,12 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public SQLServerDatabase(FlywayConfiguration configuration, Connection connection
+    public SQLServerDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -64,7 +66,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
 
     ) {
-        return new SQLServerConnection(configuration, this, connection
+        return new SQLServerConnection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -120,16 +122,17 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
+    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource,
+                                          PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-        return new SQLServerSqlScript(sqlScriptResource, sqlScriptSource, mixed
+        return new SQLServerSqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override
@@ -150,6 +153,11 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     @Override
     public boolean supportsDdlTransactions() {
         return true;
+    }
+
+    @Override
+    protected boolean supportsChangingCurrentSchema() {
+        return false;
     }
 
     @Override

@@ -29,7 +29,14 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Regex for keywords that can appear before a string literal without being separated by a space.
      */
-    private static final Pattern KEYWORDS_BEFORE_STRING_LITERAL_REGEX = Pattern.compile("^(LIKE)('.*)");
+    private static final Pattern KEYWORDS_BEFORE_STRING_LITERAL_REGEX = Pattern.compile("^(LIKE|AS)('.*)");
+
+    /**
+     * Regex for keywords that can appear after a string literal without being separated by a space.
+     */
+    private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(LIKE|AS)");
+
+    private static final Pattern NON_TRANSACTIONAL_STATEMENT_REGEX = Pattern.compile("^(BACKUP|RESTORE|(CREATE|DROP|ALTER) DATABASE) .*");
 
     /**
      * Holds the beginning of the statement.
@@ -44,17 +51,20 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
     protected void applyStateChanges(String line) {
         super.applyStateChanges(line);
 
-        if (!executeInTransaction) {
+        if (!executeInTransaction || !hasNonCommentPart()) {
             return;
         }
 
         if (StringUtils.countOccurrencesOf(statementStart, " ") < 3) {
             statementStart += line;
             statementStart += " ";
-            statementStart = statementStart.replaceAll("\\s+", " ");
+            statementStart = StringUtils.collapseWhitespace(statementStart);
         }
 
-        if (statementStart.matches("^(BACKUP|RESTORE|ALTER DATABASE) .*")) {
+        if (NON_TRANSACTIONAL_STATEMENT_REGEX.matcher(statementStart).matches() ||
+                // Handle statements inside nested blocks
+                (!insideQuoteStringLiteral && !insideAlternateQuoteStringLiteral && !insideMultiLineComment
+                        && NON_TRANSACTIONAL_STATEMENT_REGEX.matcher(line).matches())) {
             executeInTransaction = false;
         }
     }
@@ -68,6 +78,11 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
         Matcher beforeMatcher = KEYWORDS_BEFORE_STRING_LITERAL_REGEX.matcher(token);
         if (beforeMatcher.find()) {
             token = beforeMatcher.group(2);
+        }
+
+        Matcher afterMatcher = KEYWORDS_AFTER_STRING_LITERAL_REGEX.matcher(token);
+        if (afterMatcher.find()) {
+            token = afterMatcher.group(1);
         }
 
         return token;

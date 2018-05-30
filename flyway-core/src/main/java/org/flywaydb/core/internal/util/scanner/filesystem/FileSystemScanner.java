@@ -15,9 +15,10 @@
  */
 package org.flywaydb.core.internal.util.scanner.filesystem;
 
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
@@ -30,6 +31,16 @@ import java.util.TreeSet;
  */
 public class FileSystemScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
+    private final Configuration configuration;
+
+    /**
+     * Creates a new filesystem scanner.
+     *
+     * @param configuration The Flyway configuration.
+     */
+    public FileSystemScanner(Configuration configuration) {
+        this.configuration = configuration;
+    }
 
     /**
      * Scans the FileSystem for resources under the specified location, starting with the specified prefix and ending with
@@ -46,8 +57,16 @@ public class FileSystemScanner {
                 + StringUtils.arrayToCommaDelimitedString(suffixes) + "')");
 
         File dir = new File(path);
-        if (!dir.isDirectory() || !dir.canRead()) {
-            LOG.warn("Unable to resolve location filesystem:" + path);
+        if (!dir.exists()) {
+            LOG.warn("Skipping filesystem location:" + path + " (not found)");
+            return new LoadableResource[0];
+        }
+        if (!dir.canRead()) {
+            LOG.warn("Skipping filesystem location:" + path + " (not readable)");
+            return new LoadableResource[0];
+        }
+        if (!dir.isDirectory()) {
+            LOG.warn("Skipping filesystem location:" + path + " (not a directory)");
             return new LoadableResource[0];
         }
 
@@ -55,11 +74,15 @@ public class FileSystemScanner {
 
         Set<String> resourceNames = findResourceNames(path, prefix, suffixes);
         for (String resourceName : resourceNames) {
-            resources.add(new FileSystemResource(resourceName));
+            resources.add(new FileSystemResource(resourceName, configuration.getEncoding()
+
+
+
+            ));
             LOG.debug("Found filesystem resource: " + resourceName);
         }
 
-        return resources.toArray(new LoadableResource[resources.size()]);
+        return resources.toArray(new LoadableResource[0]);
     }
 
     /**
@@ -115,22 +138,12 @@ public class FileSystemScanner {
         Set<String> filteredResourceNames = new TreeSet<>();
         for (String resourceName : resourceNames) {
             String fileName = resourceName.substring(resourceName.lastIndexOf(File.separator) + 1);
-            if (fileNameMatches(fileName, prefix, suffixes)) {
+            if (StringUtils.startsAndEndsWith(fileName, prefix, suffixes)) {
                 filteredResourceNames.add(resourceName);
             } else {
                 LOG.debug("Filtering out resource: " + resourceName + " (filename: " + fileName + ")");
             }
         }
         return filteredResourceNames;
-    }
-
-    private boolean fileNameMatches(String fileName, String prefix, String[] suffixes) {
-        for (String suffix : suffixes) {
-            if (fileName.startsWith(prefix) && fileName.endsWith(suffix)
-                    && (fileName.length() > (prefix + suffix).length())) {
-                return true;
-            }
-        }
-        return false;
     }
 }

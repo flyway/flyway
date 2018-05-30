@@ -15,28 +15,26 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.Error;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Oracle-specific SQL script.
@@ -50,24 +48,35 @@ class OracleSqlScript extends ExecutableSqlScript<OracleContextImpl> {
 
 
 
+    OracleSqlScript(Configuration configuration, LoadableResource sqlScriptResource, boolean mixed
 
 
 
-    OracleSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
+
+
+            , PlaceholderReplacer placeholderReplacer) {
+        super(configuration, sqlScriptResource, mixed
 
 
 
-    ) {
-        super(sqlScriptResource, sqlScriptSource, mixed
+                ,
 
 
+
+
+
+                 placeholderReplacer
 
         );
     }
 
     @Override
     protected SqlStatementBuilder createSqlStatementBuilder() {
-        return new OracleSqlStatementBuilder(Delimiter.SEMICOLON);
+        return new OracleSqlStatementBuilder(configuration
+
+
+
+        );
     }
 
     @Override
@@ -88,12 +97,6 @@ class OracleSqlScript extends ExecutableSqlScript<OracleContextImpl> {
     protected OracleContextImpl createContext() {
         return new OracleContextImpl();
     }
-
-
-
-
-
-
 
 
 

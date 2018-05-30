@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
@@ -30,87 +30,47 @@ import java.util.concurrent.Callable;
  * PostgreSQL connection.
  */
 public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
-    private final String originalSearchPath;
 
-    PostgreSQLConnection(FlywayConfiguration configuration, PostgreSQLDatabase database, java.sql.Connection connection
+    PostgreSQLConnection(Configuration configuration, PostgreSQLDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, Types.NULL
+        super(configuration, database, connection, originalAutoCommit, Types.NULL
 
 
 
         );
-
-        this.originalSearchPath = getSearchPath();
-    }
-
-    String getSearchPath() {
-        try {
-            return jdbcTemplate.queryForString("SHOW search_path");
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to read search_path", e);
-        }
-    }
-
-    private void setSearchPath(String searchPath) {
-        try {
-            jdbcTemplate.execute("SELECT set_config('search_path', ?, false)", searchPath);
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to set search_path to " + searchPath, e);
-        }
     }
 
     @Override
-    protected void restoreOriginalState() {
-        setSearchPath(originalSearchPath);
+    protected void doRestoreOriginalState() throws SQLException {
+        // Reset the role in case a migration or callback changed it
+        jdbcTemplate.execute("RESET ROLE");
     }
 
     @Override
-    public Schema getOriginalSchema() {
-        if (originalSchema == null) {
-            return null;
-        }
-
-        return getSchema(getFirstSchemaFromSearchPath(this.originalSchema));
-    }
-
-    static String getFirstSchemaFromSearchPath(String searchPath) {
-        String result = searchPath.replace("\"$user\"", "").trim();
-        if (result.startsWith(",")) {
-            result = result.substring(1);
-        }
-        if (result.contains(",")) {
-            result = result.substring(0, result.indexOf(","));
-        }
-        result = result.trim();
-        // Unquote if necessary
-        if (result.startsWith("\"") && result.endsWith("\"") && !result.endsWith("\\\"") && (result.length() > 1)) {
-            result = result.substring(1, result.length() - 1);
-        }
-        return result;
+    public Schema doGetCurrentSchema() throws SQLException {
+        return getSchema(jdbcTemplate.queryForString("SELECT current_schema"));
     }
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
-        return getSearchPath();
+    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
+        return jdbcTemplate.queryForString("SHOW search_path");
     }
 
     @Override
     public void changeCurrentSchemaTo(Schema schema) {
         try {
-            // First reset the role in case a migration or callback changed it
-            jdbcTemplate.execute("RESET ROLE");
-
-            if (schema.getName().equals(originalSchema) || originalSchema.startsWith(schema.getName() + ",") || !schema.exists()) {
+            if (schema.getName().equals(originalSchemaNameOrSearchPath) || originalSchemaNameOrSearchPath.startsWith(schema.getName() + ",") || !schema.exists()) {
                 return;
             }
 
-            if (StringUtils.hasText(originalSchema)) {
-                doChangeCurrentSchemaTo(schema.toString() + "," + originalSchema);
+            if (StringUtils.hasText(originalSchemaNameOrSearchPath)) {
+                doChangeCurrentSchemaOrSearchPathTo(schema.toString() + "," + originalSchemaNameOrSearchPath);
             } else {
-                doChangeCurrentSchemaTo(schema.toString());
+                doChangeCurrentSchemaOrSearchPathTo(schema.toString());
             }
         } catch (SQLException e) {
             throw new FlywaySqlException("Error setting current schema to " + schema, e);
@@ -118,8 +78,8 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
     }
 
     @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        setSearchPath(schema);
+    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+        jdbcTemplate.execute("SELECT set_config('search_path', ?, false)", schema);
     }
 
     @Override

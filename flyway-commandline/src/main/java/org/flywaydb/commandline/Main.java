@@ -101,7 +101,8 @@ public class Main {
             classLoader = loadJavaMigrationsFromJarDirs(classLoader, properties);
 
             filterProperties(properties);
-            Flyway flyway = Flyway.config(classLoader).configure(properties).load();
+            Flyway flyway = new Flyway(classLoader);
+            flyway.configure(properties);
 
             for (String operation : operations) {
                 executeOperation(flyway, operation);
@@ -265,10 +266,12 @@ public class Main {
         LOG.info("sqlMigrationPrefix           : File name prefix for versioned SQL migrations");
         LOG.info("undoSqlMigrationPrefix       : [" + "pro] File name prefix for undo SQL migrations");
         LOG.info("repeatableSqlMigrationPrefix : File name prefix for repeatable SQL migrations");
-        LOG.info("sqlMigrationSeparator        : File name separator for sql migrations");
-        LOG.info("sqlMigrationSuffixes         : Comma-separated list of file name suffixes for sql migrations");
+        LOG.info("sqlMigrationSeparator        : File name separator for SQL migrations");
+        LOG.info("sqlMigrationSuffixes         : Comma-separated list of file name suffixes for SQL migrations");
+        LOG.info("stream                       : [" + "pro] Stream SQL migrations when executing them");
+        LOG.info("batch                        : [" + "pro] Batch SQL statements when executing them");
         LOG.info("mixed                        : Allow mixing transactional and non-transactional statements");
-        LOG.info("encoding                     : Encoding of sql migrations");
+        LOG.info("encoding                     : Encoding of SQL migrations");
         LOG.info("placeholderReplacement       : Whether placeholders should be replaced");
         LOG.info("placeholders                 : Placeholders to replace in sql migrations");
         LOG.info("placeholderPrefix            : Prefix of every placeholder");
@@ -292,6 +295,7 @@ public class Main {
         LOG.info("jarDirs                      : Comma-separated list of dirs for Jdbc drivers & Java migrations");
         LOG.info("dryRunOutput                 : [" + "pro] File where to output the SQL statements of a migration dry run");
         LOG.info("errorHandlers                : [" + "pro] Comma-separated list of handlers for errors and warnings");
+        LOG.info("oracle.sqlplus               : [" + "pro] Oracle SQL*Plus command support");
         LOG.info("");
         LOG.info("Flags");
         LOG.info("-----");

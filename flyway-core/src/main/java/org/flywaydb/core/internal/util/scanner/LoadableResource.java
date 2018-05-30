@@ -15,18 +15,18 @@
  */
 package org.flywaydb.core.internal.util.scanner;
 
+import org.flywaydb.core.internal.util.line.LineReader;
+
 /**
  * A loadable resource.
  */
 public interface LoadableResource extends Resource {
-
     /**
      * Loads this resource as a string.
      *
-     * @param encoding The encoding to use.
      * @return The string contents of the resource.
      */
-    String loadAsString(String encoding);
+    LineReader loadAsString();
 
     /**
      * Loads this resource as a byte array.
@@ -34,4 +34,11 @@ public interface LoadableResource extends Resource {
      * @return The contents of the resource.
      */
     byte[] loadAsBytes();
+
+    /**
+     * Calculates the checksum of this resource. The checksum is encoding and line-ending independent.
+     *
+     * @return The crc-32 checksum of the bytes.
+     */
+    int checksum();
 }

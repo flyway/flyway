@@ -15,32 +15,47 @@
  */
 package org.flywaydb.core.internal.database.h2;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.util.Pair;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * H2 database.
  */
 public class H2Database extends Database<H2Connection> {
     /**
+     * The H2 build id.
+     */
+    private int buildId;
+
+    /**
+     * Whether this version supports DROP SCHEMA ... CASCADE.
+     */
+    boolean supportsDropSchemaCascade;
+
+    /**
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public H2Database(FlywayConfiguration configuration, Connection connection
+    public H2Database(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -53,33 +68,57 @@ public class H2Database extends Database<H2Connection> {
 
 
     ) {
-        return new H2Connection(configuration, this, connection
+        return new H2Connection(configuration, this, connection, originalAutoCommit
 
 
 
         );
+    }
+
+    @Override
+    protected Pair<Integer, Integer> determineMajorAndMinorVersion() {
+        Pair<Integer, Integer> majorMinor = super.determineMajorAndMinorVersion();
+        try {
+            buildId = getMainConnection().getJdbcTemplate().queryForInt(
+                    "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'info.BUILD_ID'");
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine H2 build ID", e);
+        }
+        return majorMinor;
     }
 
     @Override
     protected final void ensureSupported() {
-        String version = majorVersion + "." + minorVersion;
+        String version = majorVersion + "." + minorVersion + "." + buildId;
 
         if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 2)) {
             throw new FlywayDbUpgradeRequiredException("H2", version, "1.2.137");
         }
+
+        if (majorVersion == 1 && minorVersion < 4) {
+        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("H2", "H2", version);
+        }
+
+        if ((majorVersion == 1 && (minorVersion > 4 || (minorVersion == 4 && buildId > 197))) || majorVersion > 1) {
+            recommendFlywayUpgrade("H2", version);
+        }
+
+        supportsDropSchemaCascade =
+                MigrationVersion.fromVersion(version).compareTo(MigrationVersion.fromVersion("1.4.197")) >= 0;
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
+    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource,
+                                          PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-        return new H2SqlScript(sqlScriptResource, sqlScriptSource, mixed
+        return new H2SqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override
@@ -95,6 +134,11 @@ public class H2Database extends Database<H2Connection> {
     @Override
     public boolean supportsDdlTransactions() {
         return false;
+    }
+
+    @Override
+    protected boolean supportsChangingCurrentSchema() {
+        return true;
     }
 
     @Override

@@ -53,9 +53,8 @@ public class SAPHANASqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
-
         // need only accumulate 16 characters of normalized statement start in order to determine if it is an 'interesting' statement
-        if (statementStartNormalized.length() < 16) {
+        if (hasNonCommentPart() && statementStartNormalized.length() < 16) {
             final String effectiveLine = cutCommentsFromEnd(line);
             statementStartNormalized += effectiveLine + " ";
             statementStartNormalized = StringUtils.trimLeadingWhitespace(StringUtils.collapseWhitespace(statementStartNormalized));

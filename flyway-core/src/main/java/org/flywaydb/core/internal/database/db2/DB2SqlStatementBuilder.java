@@ -19,6 +19,7 @@ import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -100,7 +101,7 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
             currentDelimiter = delimiter;
         }
 
-        if (StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
+        if (hasNonCommentPart() && StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
             statementStart += line;
             statementStart += " ";
         }
@@ -129,7 +130,7 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
-    protected String[] tokenizeLine(String line) {
+    protected Collection<String> tokenizeLine(String line) {
         String processedLine = line;
         if (previousLine.endsWith("END")) {
             if (line.startsWith("IF")) {

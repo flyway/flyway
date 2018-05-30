@@ -15,14 +15,16 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
+import java.util.List;
 
 /**
  * SQLite database.
@@ -34,12 +36,12 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public SQLiteDatabase(FlywayConfiguration configuration, Connection connection
+    public SQLiteDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -52,7 +54,7 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
 
 
     ) {
-        return new SQLiteConnection(configuration, this, connection
+        return new SQLiteConnection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -69,16 +71,17 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
+    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource,
+                                          PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-        return new SQLiteSqlScript(sqlScriptResource, sqlScriptSource, mixed
+        return new SQLiteSqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     public String getDbName() {
@@ -93,6 +96,11 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     @Override
     public boolean supportsDdlTransactions() {
         return true;
+    }
+
+    @Override
+    protected boolean supportsChangingCurrentSchema() {
+        return false;
     }
 
 

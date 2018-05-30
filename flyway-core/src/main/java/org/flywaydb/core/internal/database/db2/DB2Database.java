@@ -15,15 +15,19 @@
  */
 package org.flywaydb.core.internal.database.db2;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.scanner.StringResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * DB2 database.
@@ -35,12 +39,12 @@ public class DB2Database extends Database<DB2Connection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public DB2Database(FlywayConfiguration configuration, Connection connection
+    public DB2Database(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -53,7 +57,7 @@ public class DB2Database extends Database<DB2Connection> {
 
 
     ) {
-        return new DB2Connection(configuration, this, connection
+        return new DB2Connection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -78,21 +82,22 @@ public class DB2Database extends Database<DB2Connection> {
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(Resource resource, String sqlScriptSource, boolean mixed
+    protected SqlScript doCreateSqlScript(LoadableResource resource,
+                                          PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-        return new DB2SqlScript(resource, sqlScriptSource, mixed
+        return new DB2SqlScript(configuration, resource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override
-    public String getRawCreateScript() {
-        return "CREATE TABLE \"${schema}\".\"${table}\" (\n" +
+    public LoadableResource getRawCreateScript() {
+        return new StringResource("CREATE TABLE \"${schema}\".\"${table}\" (\n" +
                 "    \"installed_rank\" INT NOT NULL,\n" +
                 "    \"version\" VARCHAR(50),\n" +
                 "    \"description\" VARCHAR(200) NOT NULL,\n" +
@@ -113,7 +118,14 @@ public class DB2Database extends Database<DB2Connection> {
 
                 + "ALTER TABLE \"${schema}\".\"${table}\" ADD CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\");\n" +
                 "\n" +
-                "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");";
+                "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");");
+    }
+
+    @Override
+    public String getSelectStatement(Table table, int maxCachedInstalledRank) {
+        return super.getSelectStatement(table, maxCachedInstalledRank)
+                // Allow uncommitted reads so info can be invoked while migrate is running
+                + " WITH UR";
     }
 
     @Override
@@ -128,6 +140,11 @@ public class DB2Database extends Database<DB2Connection> {
 
     @Override
     public boolean supportsDdlTransactions() {
+        return true;
+    }
+
+    @Override
+    protected boolean supportsChangingCurrentSchema() {
         return true;
     }
 

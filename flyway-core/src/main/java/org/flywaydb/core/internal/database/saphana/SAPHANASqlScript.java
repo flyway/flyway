@@ -15,26 +15,32 @@
  */
 package org.flywaydb.core.internal.database.saphana;
 
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.jdbc.ContextImpl;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
+
+import java.util.List;
 
 /**
  * SAPHANA-specific SQL script.
  */
-class SAPHANASqlScript extends ExecutableSqlScript {
-    SAPHANASqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
+class SAPHANASqlScript extends ExecutableSqlScript<ContextImpl> {
+    SAPHANASqlScript(Configuration configuration, LoadableResource sqlScriptResource, boolean mixed
 
 
 
-    ) {
-        super(sqlScriptResource, sqlScriptSource, mixed
+
+            , PlaceholderReplacer placeholderReplacer) {
+        super(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override

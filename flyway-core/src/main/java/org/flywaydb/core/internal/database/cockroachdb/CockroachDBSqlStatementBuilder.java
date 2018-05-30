@@ -19,6 +19,7 @@ import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,8 +38,8 @@ public class CockroachDBSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
-    protected String[] tokenizeLine(String line) {
-        return StringUtils.tokenizeToStringArray(line, " @<>;:=|(),+{}\\[\\]");
+    protected Collection<String> tokenizeLine(String line) {
+        return StringUtils.tokenizeToStringCollection(line, " @<>;:=|(),+{}[]");
     }
 
     @Override

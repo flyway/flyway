@@ -15,13 +15,15 @@
  */
 package org.flywaydb.core.internal.database.saphana;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
+import java.util.List;
 
 /**
  * SAP HANA database.
@@ -32,12 +34,12 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
      *
      * @param connection The connection to use.
      */
-    public SAPHANADatabase(FlywayConfiguration configuration, Connection connection
+    public SAPHANADatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -50,7 +52,7 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
 
 
     ) {
-        return new SAPHANAConnection(configuration, this, connection
+        return new SAPHANAConnection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -73,16 +75,17 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
+    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource,
+                                          PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-        return new SAPHANASqlScript(sqlScriptResource, sqlScriptSource, mixed
+        return new SAPHANASqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override
@@ -93,6 +96,11 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     @Override
     public boolean supportsDdlTransactions() {
         return false;
+    }
+
+    @Override
+    protected boolean supportsChangingCurrentSchema() {
+        return true;
     }
 
     @Override

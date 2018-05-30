@@ -15,14 +15,16 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -40,29 +42,51 @@ public class OracleDatabase extends Database<OracleConnection> {
     private static final String ORACLE_NET_TNS_ADMIN = "oracle.net.tns_admin";
 
     /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     * @param connection    The connection to use.
+     * If the TNS_ADMIN environment variable is set, enable tnsnames.ora support for the Oracle JDBC driver.
+     * See http://www.orafaq.com/wiki/TNS_ADMIN
      */
-    public OracleDatabase(FlywayConfiguration configuration, Connection connection
-
-
-
-    ) {
-        super(configuration, connection
-
-
-
-        );
-
-        // If the TNS_ADMIN environment variable is set, enable tnsnames.ora support for the Oracle JDBC driver
-        // See http://www.orafaq.com/wiki/TNS_ADMIN
+    public static void enableTnsnamesOraSupport() {
         String tnsAdminEnvVar = System.getenv("TNS_ADMIN");
         String tnsAdminSysProp = System.getProperty(ORACLE_NET_TNS_ADMIN);
         if (StringUtils.hasLength(tnsAdminEnvVar) && tnsAdminSysProp == null) {
             System.setProperty(ORACLE_NET_TNS_ADMIN, tnsAdminEnvVar);
         }
+    }
+
+
+
+
+
+
+
+
+    /**
+     * Creates a new instance.
+     *
+     * @param configuration The Flyway configuration.
+     * @param connection    The connection to use.
+     */
+    public OracleDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
+
+
+
+    ) {
+        super(configuration, connection, originalAutoCommit
+
+
+
+        );
+
+
+
+
+
+
+
+
+
+
+
     }
 
     @Override
@@ -71,7 +95,7 @@ public class OracleDatabase extends Database<OracleConnection> {
 
 
     ) {
-        return new OracleConnection(configuration, this, connection
+        return new OracleConnection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -94,16 +118,16 @@ public class OracleDatabase extends Database<OracleConnection> {
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
+    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
-        return new OracleSqlScript(sqlScriptResource, sqlScriptSource, mixed
+        return new OracleSqlScript(configuration, sqlScriptResource, mixed
 
 
 
-        );
+                , placeholderReplacer);
     }
 
     @Override
@@ -119,6 +143,11 @@ public class OracleDatabase extends Database<OracleConnection> {
     @Override
     public boolean supportsDdlTransactions() {
         return false;
+    }
+
+    @Override
+    protected boolean supportsChangingCurrentSchema() {
+        return true;
     }
 
     @Override

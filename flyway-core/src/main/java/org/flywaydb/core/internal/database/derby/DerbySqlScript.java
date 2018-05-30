@@ -15,25 +15,31 @@
  */
 package org.flywaydb.core.internal.database.derby;
 
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
+
+import java.util.List;
 
 /**
  * Derby-specific SQL script.
  */
 class DerbySqlScript extends ExecutableSqlScript {
-    DerbySqlScript(Resource sqlScriptResource, String sqlScriptSource, boolean mixed
+    DerbySqlScript(Configuration configuration, LoadableResource sqlScriptResource, boolean mixed
 
 
 
-    ) {
-        super(sqlScriptResource, sqlScriptSource, mixed
+
+            , PlaceholderReplacer placeholderReplacer) {
+        super(configuration, sqlScriptResource, mixed
 
 
 
+                , placeholderReplacer
         );
     }
 
