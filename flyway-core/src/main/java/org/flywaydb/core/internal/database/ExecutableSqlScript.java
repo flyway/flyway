@@ -24,6 +24,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.AsciiTable;
+import org.flywaydb.core.internal.util.IOUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.ContextImpl;
 import org.flywaydb.core.internal.util.jdbc.ErrorImpl;
@@ -126,7 +127,13 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
 
 
         LOG.debug("Parsing " + resource.getFilename() + " ...");
-        this.sqlStatements = extractStatements(resource.loadAsString());
+        LineReader reader = null;
+        try {
+            reader = resource.loadAsString();
+            this.sqlStatements = extractStatements(reader);
+        } finally {
+            IOUtils.close(reader);
+        }
     }
 
     /**
