@@ -40,13 +40,25 @@ import java.util.logging.Logger;
 public class DriverDataSource implements DataSource {
     private static final Log LOG = LogFactory.getLog(DriverDataSource.class);
 
+    private static final String DB2_JDBC_URL_PREFIX = "jdbc:db2:";
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
+    private static final String MARIADB_JDBC_URL_PREFIX = "jdbc:mariadb:";
+    private static final String MYSQL_JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql:";
     private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle:";
+    private static final String POSTGRESQL_JDBC_URL_PREFIX = "jdbc:postgresql:";
     private static final String REDSHIFT_JDBC_URL_PREFIX = "jdbc:redshift:";
-    private static final String MYSQL_JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String REDSHIFT_JDBC41_DRIVER = "com.amazon.redshift.jdbc41.Driver";
+    private static final String SAPHANA_JDBC_URL_PREFIX = "jdbc:sap:";
     private static final String SQLDROID_DRIVER = "org.sqldroid.SQLDroidDriver";
+    private static final String SQLSERVER_JDBC_URL_PREFIX = "jdbc:sqlserver:";
+    private static final String SYBASE_JDBC_URL_PREFIX = "jdbc:sybase:";
+
+    /**
+     * The name of the application that created the connection. This is useful for databases that allow setting this
+     * in order to easily correlate individual application with database connections.
+     */
+    private static final String APPLICATION_NAME = "Flyway by Boxfuse";
 
     /**
      * The JDBC Driver instance to use.
@@ -217,8 +229,20 @@ public class DriverDataSource implements DataSource {
         if (url.startsWith(ORACLE_JDBC_URL_PREFIX)) {
             String osUser = System.getProperty("user.name");
             result.put("v$session.osuser", osUser.substring(0, Math.min(osUser.length(), 30)));
-            result.put("v$session.program", "Flyway by Boxfuse");
+            result.put("v$session.program", APPLICATION_NAME);
             result.put("oracle.net.keepAlive", "true");
+        } else if (url.startsWith(SQLSERVER_JDBC_URL_PREFIX)) {
+            result.put("applicationName", APPLICATION_NAME);
+        } else if (url.startsWith(POSTGRESQL_JDBC_URL_PREFIX)) {
+            result.put("ApplicationName", APPLICATION_NAME);
+        } else if (url.startsWith(MYSQL_JDBC_URL_PREFIX) || url.startsWith(MARIADB_JDBC_URL_PREFIX)) {
+            result.put("connectionAttributes", "program_name:" + APPLICATION_NAME);
+        } else if (url.startsWith(DB2_JDBC_URL_PREFIX)) {
+            result.put("clientProgramName", APPLICATION_NAME);
+        } else if (url.startsWith(SYBASE_JDBC_URL_PREFIX)) {
+            result.put("APPLICATIONNAME", APPLICATION_NAME);
+        } else if (url.startsWith(SAPHANA_JDBC_URL_PREFIX)) {
+            result.put("SESSIONVARIABLE:APPLICATION", APPLICATION_NAME);
         }
 
         return result;
@@ -260,7 +284,7 @@ public class DriverDataSource implements DataSource {
             return "org.testcontainers.jdbc.ContainerDatabaseDriver";
         }
 
-        if (url.startsWith("jdbc:db2:")) {
+        if (url.startsWith(DB2_JDBC_URL_PREFIX)) {
             return "com.ibm.db2.jcc.DB2Driver";
         }
 
@@ -295,7 +319,7 @@ public class DriverDataSource implements DataSource {
             return "com.mysql.cj.jdbc.Driver";
         }
 
-        if (url.startsWith("jdbc:mariadb:")) {
+        if (url.startsWith(MARIADB_JDBC_URL_PREFIX)) {
             return MARIADB_JDBC_DRIVER;
         }
 
@@ -307,7 +331,7 @@ public class DriverDataSource implements DataSource {
             return "oracle.jdbc.OracleDriver";
         }
 
-        if (url.startsWith("jdbc:postgresql:")) {
+        if (url.startsWith(POSTGRESQL_JDBC_URL_PREFIX)) {
             return "org.postgresql.Driver";
         }
 
@@ -319,15 +343,15 @@ public class DriverDataSource implements DataSource {
             return "net.sourceforge.jtds.jdbc.Driver";
         }
 
-        if (url.startsWith("jdbc:sybase:")) {
+        if (url.startsWith(SYBASE_JDBC_URL_PREFIX)) {
             return "com.sybase.jdbc4.jdbc.SybDriver";
         }
 
-        if (url.startsWith("jdbc:sqlserver:")) {
+        if (url.startsWith(SQLSERVER_JDBC_URL_PREFIX)) {
             return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
         }
 
-        if (url.startsWith("jdbc:sap:")) {
+        if (url.startsWith(SAPHANA_JDBC_URL_PREFIX)) {
             return "com.sap.db.jdbc.Driver";
         }
 
