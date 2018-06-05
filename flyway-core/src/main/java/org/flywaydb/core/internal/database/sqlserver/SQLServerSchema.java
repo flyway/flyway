@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
@@ -29,6 +31,8 @@ import java.util.List;
  * SQLServer implementation of Schema.
  */
 public class SQLServerSchema extends Schema<SQLServerDatabase> {
+    private static final Log LOG = LogFactory.getLog(SQLServerSchema.class);
+
     private final String databaseName;
 
     /**
@@ -204,6 +208,33 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
             jdbcTemplate.execute(statement);
         }
 
+        // Use a 2-pass approach for cleaning computed columns and functions with SCHEMABINDING due to dependency errors
+        // Pass 1
+        for (String statement : cleanComputedColumns(tables)) {
+            try {
+                jdbcTemplate.execute(statement);
+            } catch (SQLException e) {
+                LOG.debug("Ignoring dependency-related error: " + e.getMessage());
+            }
+        }
+        for (String statement : cleanObjects("FUNCTION",
+                ObjectType.SCALAR_FUNCTION,
+                ObjectType.CLR_SCALAR_FUNCTION,
+                ObjectType.CLR_TABLE_VALUED_FUNCTION,
+                ObjectType.TABLE_VALUED_FUNCTION,
+                ObjectType.INLINED_TABLE_FUNCTION)) {
+            try {
+                jdbcTemplate.execute(statement);
+            } catch (SQLException e) {
+                LOG.debug("Ignoring dependency-related error: " + e.getMessage());
+            }
+        }
+
+        // Pass 2
+        for (String statement : cleanComputedColumns(tables)) {
+            jdbcTemplate.execute(statement);
+        }
+
         for (String statement : cleanObjects("PROCEDURE",
                 ObjectType.STORED_PROCEDURE,
                 ObjectType.CLR_STORED_PROCEDURE)) {
@@ -214,10 +245,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
             jdbcTemplate.execute(statement);
         }
 
-        for (Table table : allTables()) {
-            table.drop();
-        }
-
         for (String statement : cleanObjects("FUNCTION",
                 ObjectType.SCALAR_FUNCTION,
                 ObjectType.CLR_SCALAR_FUNCTION,
@@ -225,6 +252,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
                 ObjectType.TABLE_VALUED_FUNCTION,
                 ObjectType.INLINED_TABLE_FUNCTION)) {
             jdbcTemplate.execute(statement);
+        }
+
+        for (Table table : allTables()) {
+            table.drop();
         }
 
         for (String statement : cleanObjects("AGGREGATE", ObjectType.AGGREGATE)) {
@@ -342,6 +373,26 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
             for (DBObject fk : fks) {
                 statements.add("ALTER TABLE " + database.quote(name, table.name) + " DROP CONSTRAINT " +
                         database.quote(fk.name));
+            }
+        }
+        return statements;
+    }
+
+    /**
+     * Cleans the computed columns in this schema.
+     *
+     * @param tables the tables to be cleaned
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanComputedColumns(List<DBObject> tables) throws SQLException {
+        List<String> statements = new ArrayList<>();
+        for (DBObject table : tables) {
+            String tableName = database.quote(name, table.name);
+            List<String> columns = jdbcTemplate.queryForStringList(
+                    "SELECT name FROM sys.computed_columns WHERE object_id=OBJECT_ID(N'" + tableName + "')");
+            for (String column : columns) {
+                statements.add("ALTER TABLE " + tableName + " DROP COLUMN " + database.quote(column));
             }
         }
         return statements;
