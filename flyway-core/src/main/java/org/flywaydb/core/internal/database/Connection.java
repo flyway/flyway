@@ -40,6 +40,12 @@ public abstract class Connection<D extends Database> implements Closeable {
      */
     private boolean originalAutoCommit;
 
+    /**
+     * The configuration
+     */
+    private final Configuration configuration;
+
+
     protected Connection(Configuration configuration, D database, java.sql.Connection connection
             , boolean originalAutoCommit, int nullType
 
@@ -48,6 +54,7 @@ public abstract class Connection<D extends Database> implements Closeable {
     ) {
         this.database = database;
         this.originalAutoCommit = originalAutoCommit;
+        this.configuration = configuration;
 
 
 
@@ -177,10 +184,12 @@ public abstract class Connection<D extends Database> implements Closeable {
      * Restores this connection to its original state.
      */
     public final void restoreOriginalState() {
-        try {
-            doRestoreOriginalState();
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to restore connection to its original state", e);
+        if (configuration.isRestoreOriginalState()) {
+            try {
+                doRestoreOriginalState();
+            } catch (SQLException e) {
+                throw new FlywaySqlException("Unable to restore connection to its original state", e);
+            }
         }
     }
 

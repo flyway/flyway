@@ -89,6 +89,13 @@ public interface Configuration {
     boolean isSkipDefaultCallbacks();
 
     /**
+     * Whether Flyway should restore the original state.
+     *
+     * @return Whether to restore the original state. (default: true)
+     */
+    boolean isRestoreOriginalState();
+
+    /**
      * The file name prefix for versioned SQL migrations.
      * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1.1__My_description.sql</p>

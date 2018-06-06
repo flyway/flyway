@@ -762,6 +762,12 @@ public class FluentConfiguration implements Configuration {
         return config.isSkipDefaultCallbacks();
     }
 
+    @Override
+    public boolean isRestoreOriginalState() {
+        return config.isRestoreOriginalState();
+    }
+
+
     /**
      * Set the callbacks for lifecycle notifications.
      *
