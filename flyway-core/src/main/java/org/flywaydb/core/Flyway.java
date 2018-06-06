@@ -792,6 +792,9 @@ public class Flyway implements Configuration {
         return configuration.isSkipDefaultCallbacks();
     }
 
+    @Override
+    public boolean isRestoreOriginalState() { return configuration.isRestoreOriginalState(); }
+
     /**
      * Set the callbacks for lifecycle notifications.
      *
@@ -833,6 +836,15 @@ public class Flyway implements Configuration {
      */
     public void setSkipDefaultCallbacks(boolean skipDefaultCallbacks) {
         configuration.setSkipDefaultCallbacks(skipDefaultCallbacks);
+    }
+
+    /**
+     * Whether Flyway should restore the original state.
+     *
+     * @param restoreOriginalState Whether to restore the original state. <p>(default: true)</p>
+     */
+    public void setRestoreOriginalState(boolean restoreOriginalState) {
+        configuration.setRestoreOriginalState(restoreOriginalState);
     }
 
     /**

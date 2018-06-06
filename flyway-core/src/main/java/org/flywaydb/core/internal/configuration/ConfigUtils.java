@@ -88,6 +88,7 @@ public class ConfigUtils {
     public static final String RESOLVERS = "flyway.resolvers";
     public static final String SCHEMAS = "flyway.schemas";
     public static final String SKIP_DEFAULT_CALLBACKS = "flyway.skipDefaultCallbacks";
+    public static final String RESTORE_ORIGINAL_STATE = "flyway.restoreOriginalState";
     public static final String SKIP_DEFAULT_RESOLVERS = "flyway.skipDefaultResolvers";
     public static final String SQL_MIGRATION_PREFIX = "flyway.sqlMigrationPrefix";
     public static final String SQL_MIGRATION_SEPARATOR = "flyway.sqlMigrationSeparator";
@@ -170,6 +171,11 @@ public class ConfigUtils {
                 @Override
                 public boolean isSkipDefaultCallbacks() {
                     return configuration.isSkipDefaultCallbacks();
+                }
+
+                @Override
+                public boolean isRestoreOriginalState() {
+                    return configuration.isRestoreOriginalState();
                 }
 
                 @Override

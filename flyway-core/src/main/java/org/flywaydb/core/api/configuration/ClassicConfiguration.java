@@ -285,6 +285,11 @@ public class ClassicConfiguration implements Configuration {
     private boolean skipDefaultCallbacks;
 
     /**
+     * Whether Flyway should restore the original state <p>(default:true)</p>
+     */
+    private boolean restoreOriginalState = true;
+
+    /**
      * The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      * <p>(default: none)</p>
      */
@@ -1220,6 +1225,11 @@ public class ClassicConfiguration implements Configuration {
         return skipDefaultCallbacks;
     }
 
+    @Override
+    public boolean isRestoreOriginalState() {
+        return restoreOriginalState;
+    }
+
     /**
      * Set the callbacks for lifecycle notifications.
      *
@@ -1256,6 +1266,15 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setSkipDefaultCallbacks(boolean skipDefaultCallbacks) {
         this.skipDefaultCallbacks = skipDefaultCallbacks;
+    }
+
+    /**
+     * Whether Flyway should skip the call to restore the original state
+     *
+     * @param restoreOriginalState Whether to restore the original state. <p>(default: true)</p>
+     */
+    public void setRestoreOriginalState(boolean restoreOriginalState) {
+        this.restoreOriginalState = restoreOriginalState;
     }
 
     /**
@@ -1359,6 +1378,7 @@ public class ClassicConfiguration implements Configuration {
         setResolvers(configuration.getResolvers());
         setSchemas(configuration.getSchemas());
         setSkipDefaultCallbacks(configuration.isSkipDefaultCallbacks());
+        setRestoreOriginalState(configuration.isRestoreOriginalState());
         setSkipDefaultResolvers(configuration.isSkipDefaultResolvers());
         setSqlMigrationPrefix(configuration.getSqlMigrationPrefix());
         setSqlMigrationSeparator(configuration.getSqlMigrationSeparator());
@@ -1530,6 +1550,10 @@ public class ClassicConfiguration implements Configuration {
         Boolean skipDefaultCallbacksProp = getBooleanProp(props, ConfigUtils.SKIP_DEFAULT_CALLBACKS);
         if (skipDefaultCallbacksProp != null) {
             setSkipDefaultCallbacks(skipDefaultCallbacksProp);
+        }
+        Boolean restoreOriginalStateProp = getBooleanProp(props, ConfigUtils.RESTORE_ORIGINAL_STATE);
+        if (restoreOriginalStateProp != null) {
+            setRestoreOriginalState(restoreOriginalStateProp);
         }
 
         Map<String, String> placeholdersFromProps = new HashMap<>(getPlaceholders());
