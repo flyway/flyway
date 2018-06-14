@@ -396,6 +396,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean oracleSqlplus;
 
     /**
+     * Flyway's license key.
+     * <p>Also configurable with Gradle or System Property: ${flyway.licenseKey}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    public String licenseKey;
+
+    /**
      * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).
      * <p>Also configurable with Gradle or System Property: ${flyway.configFileEncoding}</p>
      */
@@ -558,6 +565,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.BATCH, batch, extension.batch);
 
         putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus, extension.oracleSqlplus);
+
+        putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey, extension.licenseKey);
 
         if (placeholders != null) {
             for (Map.Entry<Object, Object> entry : placeholders.entrySet()) {

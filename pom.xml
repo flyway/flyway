@@ -37,7 +37,7 @@
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
-            <url>https://flywaydb.org/licenses/flyway-community.txt</url>
+            <url>https://flywaydb.org/licenses/flyway-community</url>
             <distribution>repo</distribution>
         </license>
     </licenses>

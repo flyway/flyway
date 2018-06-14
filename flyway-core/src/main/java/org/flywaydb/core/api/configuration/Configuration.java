@@ -399,4 +399,13 @@ public interface Configuration {
      * @return {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
      */
     boolean isOracleSqlplus();
+
+    /**
+     * Flyway's license key.
+     *
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @return The license key.
+     */
+    String getLicenseKey();
 }

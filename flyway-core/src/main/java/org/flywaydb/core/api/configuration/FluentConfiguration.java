@@ -244,6 +244,11 @@ public class FluentConfiguration implements Configuration {
         return config.isOracleSqlplus();
     }
 
+    @Override
+    public String getLicenseKey() {
+        return config.getLicenseKey();
+    }
+
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.
@@ -858,6 +863,18 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration oracleSqlplus(boolean oracleSqlplus) {
         config.setOracleSqlplus(oracleSqlplus);
+        return this;
+    }
+
+    /**
+     * Flyway's license key.
+     *
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param licenseKey The license key.
+     */
+    public FluentConfiguration licenseKey(String licenseKey) {
+        config.setLicenseKey(licenseKey);
         return this;
     }
 

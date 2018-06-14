@@ -76,6 +76,7 @@ public class ConfigUtils {
     public static final String IGNORE_MISSING_MIGRATIONS = "flyway.ignoreMissingMigrations";
     public static final String IGNORE_IGNORED_MIGRATIONS = "flyway.ignoreIgnoredMigrations";
     public static final String INSTALLED_BY = "flyway.installedBy";
+    public static final String LICENSE_KEY = "flyway.licenseKey";
     public static final String LOCATIONS = "flyway.locations";
     public static final String MIXED = "flyway.mixed";
     public static final String OUT_OF_ORDER = "flyway.outOfOrder";
@@ -326,6 +327,11 @@ public class ConfigUtils {
                 public boolean isOracleSqlplus() {
                     return configuration.isOracleSqlplus();
                 }
+
+                @Override
+                public String getLicenseKey() {
+                    return configuration.getLicenseKey();
+                }
             });
         }
     }
@@ -406,6 +412,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_INSTALLED_BY".equals(key)) {
             return INSTALLED_BY;
+        }
+        if ("FLYWAY_LICENSE_KEY".equals(key)) {
+            return LICENSE_KEY;
         }
         if ("FLYWAY_LOCATIONS".equals(key)) {
             return LOCATIONS;

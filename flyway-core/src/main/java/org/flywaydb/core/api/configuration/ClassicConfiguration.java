@@ -369,6 +369,15 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
+
+
+
+
+
+
+
+
     /**
      * Creates a new default configuration.
      */
@@ -575,6 +584,16 @@ public class ClassicConfiguration implements Configuration {
     public OutputStream getDryRunOutput() {
 
         throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
+
+
+
+
+    }
+
+    @Override
+    public String getLicenseKey() {
+
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("licenseKey");
 
 
 
@@ -1321,6 +1340,22 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Flyway's license key.
+     *
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param licenseKey The license key.
+     */
+    public void setLicenseKey(String licenseKey) {
+
+        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("licenseKey");
+
+
+
+
+    }
+
+    /**
      * Configure with the same values as this existing configuration.
      *
      * @param configuration The configuration to use.
@@ -1333,6 +1368,7 @@ public class ClassicConfiguration implements Configuration {
         setCleanDisabled(configuration.isCleanDisabled());
         setCleanOnValidationError(configuration.isCleanOnValidationError());
         setDataSource(configuration.getDataSource());
+
 
 
 
@@ -1591,6 +1627,11 @@ public class ClassicConfiguration implements Configuration {
         Boolean oracleSqlplusProp = getBooleanProp(props, ConfigUtils.ORACLE_SQLPLUS);
         if (oracleSqlplusProp != null) {
             setOracleSqlplus(oracleSqlplusProp);
+        }
+
+        String licenseKeyProp = props.remove(ConfigUtils.LICENSE_KEY);
+        if (licenseKeyProp != null) {
+            setLicenseKey(licenseKeyProp);
         }
 
         for (String key : props.keySet()) {

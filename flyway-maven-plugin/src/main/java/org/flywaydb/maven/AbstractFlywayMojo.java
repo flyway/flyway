@@ -482,6 +482,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean oracleSqlplus;
 
     /**
+     * Flyway's license key.
+     * <p>Also configurable with Maven or System Property: ${flyway.licenseKey}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    @Parameter(property = ConfigUtils.LICENSE_KEY)
+    private String licenseKey;
+
+    /**
      * Properties file from which to load the Flyway configuration. The names of the individual properties match the ones you would
      * use as Maven or System properties. The encoding of the file must be the same as the encoding defined with the
      * {@code flyway.encoding) property, which is UTF-8 by default. Relative paths are relative to the POM. (default: flyway.properties)
@@ -670,6 +678,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.BATCH, batch);
 
             putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus);
+
+            putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey);
 
             if (placeholders != null) {
                 for (String placeholder : placeholders.keySet()) {

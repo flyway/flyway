@@ -26,7 +26,7 @@ import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.VersionPrinter;
+import org.flywaydb.core.internal.util.license.VersionPrinter;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLogCreator;
 
@@ -69,8 +69,8 @@ public class Main {
         initLogging(logLevel);
 
         try {
-            printVersion();
             if (isPrintVersionAndExit(args)) {
+                printVersion();
                 System.exit(0);
             }
 
@@ -223,7 +223,7 @@ public class Main {
      * Prints the version number on the console.
      */
     private static void printVersion() {
-        VersionPrinter.printVersion();
+        VersionPrinter.printVersionOnly();
         LOG.info("");
 
         LOG.debug("Java " + System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")");
@@ -479,7 +479,11 @@ public class Main {
     @SuppressWarnings("ConstantConditions")
     private static String getInstallationDir() {
         String path = ClassUtils.getLocationOnDisk(Main.class);
-        return new File(path).getParentFile().getParentFile().getAbsolutePath();
+        return new File(path) // jar file
+                .getParentFile() // edition dir
+                .getParentFile() // lib dir
+                .getParentFile() // installation dir
+                .getAbsolutePath();
     }
 
     /**

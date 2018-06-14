@@ -47,7 +47,7 @@ import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.VersionPrinter;
+import org.flywaydb.core.internal.util.license.VersionPrinter;
 import org.flywaydb.core.internal.util.placeholder.DefaultPlaceholderReplacer;
 import org.flywaydb.core.internal.util.placeholder.NoopPlaceholderReplacer;
 import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
@@ -313,6 +313,11 @@ public class Flyway implements Configuration {
     @Override
     public boolean isOracleSqlplus() {
         return configuration.isOracleSqlplus();
+    }
+
+    @Override
+    public String getLicenseKey() {
+        return configuration.getLicenseKey();
     }
 
     /**
@@ -899,6 +904,17 @@ public class Flyway implements Configuration {
     }
 
     /**
+     * Flyway's license key.
+     *
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param licenseKey The license key.
+     */
+    public void setLicenseKey(String licenseKey) {
+        configuration.setLicenseKey(licenseKey);
+    }
+
+    /**
      * <p>Starts the database migration. All pending migrations will be applied in order.
      * Calling migrate on an up-to-date database has no effect.</p>
      * <img src="https://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
@@ -1203,7 +1219,11 @@ public class Flyway implements Configuration {
     /*private -> testing*/ <T> T execute(Command<T> command) {
         T result;
 
-        VersionPrinter.printVersion();
+        VersionPrinter.printVersion(
+
+
+
+        );
 
         if (configuration.getDataSource() == null) {
             throw new FlywayException("Unable to connect to the database. Configure the url, user and password!");

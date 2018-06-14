@@ -13,21 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.util;
+package org.flywaydb.core.internal.util.license;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.DateUtils;
+import org.flywaydb.core.internal.util.IOUtils;
 import org.flywaydb.core.internal.util.line.LineReader;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
 import java.nio.charset.Charset;
+import java.util.Date;
 
 /**
  * Prints the Flyway version.
  */
 public class VersionPrinter {
     private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
+    private static final String version = readVersion();
     private static boolean printed;
 
     /**
@@ -40,22 +45,59 @@ public class VersionPrinter {
     /**
      * Prints the Flyway version.
      */
-    public static void printVersion() {
+    public static void printVersion(
+
+
+
+    ) {
         if (printed) {
             return;
         }
         printed = true;
-        String version;
-        LoadableResource resource = new ClassPathResource("org/flywaydb/core/internal/version.txt",
-                VersionPrinter.class.getClassLoader(), Charset.forName("UTF-8"));
-        LineReader lineReader = null;
-        try {
-            lineReader = resource.loadAsString();
-            version = lineReader.readLine().getLine();
-        } finally {
-            IOUtils.close(lineReader);
-        }
-        LOG.info("Flyway"
+
+
+        printVersionOnly();
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public static void printVersionOnly() {
+        String edition = "Flyway"
 
                 + " Community Edition"
 
@@ -68,11 +110,22 @@ public class VersionPrinter {
 
 
 
-                + " " + version + " by Boxfuse"
-        );
+                ;
 
+        LOG.info(edition + " " + version + " by Boxfuse");
+    }
 
-
-
+    private static String readVersion() {
+        String version;
+        LoadableResource resource = new ClassPathResource("org/flywaydb/core/internal/version.txt",
+                VersionPrinter.class.getClassLoader(), Charset.forName("UTF-8"));
+        LineReader lineReader = null;
+        try {
+            lineReader = resource.loadAsString();
+            version = lineReader.readLine().getLine();
+        } finally {
+            IOUtils.close(lineReader);
+        }
+        return version;
     }
 }

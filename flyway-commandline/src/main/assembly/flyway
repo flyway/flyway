@@ -48,8 +48,12 @@ else
  fi
 fi
 
+if [ -z "$FLYWAY_EDITION" ]; then
+  FLYWAY_EDITION=community
+fi
+
 EXTRA_ARGS=
-CP="$INSTALLDIR/lib/*:$INSTALLDIR/drivers/*"
+CP="$INSTALLDIR/lib/$FLYWAY_EDITION/*:$INSTALLDIR/drivers/*"
 
 if $linux; then
   EXTRA_ARGS=-Djava.security.egd=file:/dev/../dev/urandom

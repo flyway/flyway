@@ -71,26 +71,57 @@
         </fileSet>
         <fileSet>
             <directory>src/main/assembly</directory>
-            <outputDirectory></outputDirectory>
+            <outputDirectory>licenses</outputDirectory>
             <includes>
+                <include>flyway-community.txt</include>
                 <include>LICENSES-THIRD-PARTY.txt</include>
+
+                <include>flyway-trial.txt</include>
+                <include>flyway-pro.txt</include>
+                <include>flyway-enterprise.txt</include>
+
             </includes>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </fileSet>
         <fileSet>
-            <directory>..</directory>
+            <directory>src/main/assembly</directory>
             <outputDirectory></outputDirectory>
             <includes>
-                <include>LICENSE.txt</include>
                 <include>README.txt</include>
             </includes>
             <fileMode>644</fileMode>
         </fileSet>
+
+        <fileSet>
+            <directory>target/editions/trial</directory>
+            <outputDirectory>lib/trial</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+            <fileMode>644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>target/editions/pro</directory>
+            <outputDirectory>lib/pro</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+            <fileMode>644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>target/editions/enterprise</directory>
+            <outputDirectory>lib/enterprise</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+            <fileMode>644</fileMode>
+        </fileSet>
+
     </fileSets>
     <dependencySets>
         <dependencySet>
-            <outputDirectory>lib</outputDirectory>
+            <outputDirectory>lib/community</outputDirectory>
             <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
