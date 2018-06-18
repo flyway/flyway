@@ -296,6 +296,7 @@ public class Main {
         LOG.info("dryRunOutput                 : [" + "pro] File where to output the SQL statements of a migration dry run");
         LOG.info("errorHandlers                : [" + "pro] Comma-separated list of handlers for errors and warnings");
         LOG.info("oracle.sqlplus               : [" + "pro] Oracle SQL*Plus command support");
+        LOG.info("licenseKey                   : [" + "pro] Your Flyway license key");
         LOG.info("");
         LOG.info("Flags");
         LOG.info("-----");
@@ -305,6 +306,12 @@ public class Main {
         LOG.info("-v : Print the Flyway version and exit");
         LOG.info("-? : Print this usage info and exit");
         LOG.info("");
+
+        LOG.info("Environment Variables");
+        LOG.info("---------------------");
+        LOG.info("FLYWAY_EDITION : Switch to a different Flyway edition (choices: community, trial, pro, enterprise)");
+        LOG.info("");
+
         LOG.info("Example");
         LOG.info("-------");
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
