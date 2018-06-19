@@ -75,7 +75,10 @@ public class MigrationInfoDumper {
         return new AsciiTable(columns, rows, "", "No migrations found").render();
     }
 
-    private static String getCategory(MigrationInfo migrationInfo) {
+    static String getCategory(MigrationInfo migrationInfo) {
+        if (migrationInfo.getType().isSynthetic()) {
+            return "";
+        }
         if (migrationInfo.getVersion() == null) {
             return "Repeatable";
         }
