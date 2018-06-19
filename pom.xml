@@ -450,11 +450,11 @@
 
                 <plugin>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.0.1</version>
+                    <version>3.1.1</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-plugin-plugin</artifactId>
-                    <version>3.5</version>
+                    <version>3.5.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.plexus</groupId>
