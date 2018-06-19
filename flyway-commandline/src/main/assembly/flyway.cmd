@@ -19,7 +19,8 @@
 setlocal
 
 @REM Set the current directory to the installation directory
-set INSTALLDIR=%~dp0
+call :getCurrentBatch INSTALLDIR
+set INSTALLDIR=%INSTALLDIR:~0,-10%
 
 if exist "%INSTALLDIR%\jre\bin\java.exe" (
  set JAVA_CMD="%INSTALLDIR%\jre\bin\java.exe"
@@ -47,3 +48,7 @@ if "%FLYWAY_EDITION%"=="" (
 
 @REM Exit using the same code returned from Java
 EXIT /B %ERRORLEVEL%
+
+:getCurrentBatch variableName
+    set "%~1=%~f0"
+    goto :eof
