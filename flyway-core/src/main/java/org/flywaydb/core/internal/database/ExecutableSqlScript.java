@@ -240,7 +240,10 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
 
 
 
-            executeStatement(jdbcTemplate, sqlStatement);
+                executeStatement(jdbcTemplate, sqlStatement);
+
+
+
         }
     }
 
