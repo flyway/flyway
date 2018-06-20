@@ -73,6 +73,32 @@ public class StringUtils {
     }
 
     /**
+     * Trims or pads this string, so it has this exact length.
+     *
+     * @param str     The string to adjust. {@code null} is treated as an empty string.
+     * @param length  The exact length to reach.
+     * @param padChar The padding character.
+     * @return The adjusted string.
+     */
+    public static String trimOrLeftPad(String str, int length, char padChar) {
+        if (str == null) {
+            str = "";
+        }
+        if (str.length() > length) {
+            return str.substring(0, length);
+        }
+        return leftPad(str, length, padChar);
+    }
+
+    public static String leftPad(String original, int length, char padChar) {
+        StringBuilder result = new StringBuilder(original);
+        while (result.length() < length) {
+            result.insert(0, padChar);
+        }
+        return result.toString();
+    }
+
+    /**
      * <p>Checks if the String contains only unicode digits. A decimal point is not a unicode digit and returns
      * false.</p> <p/> <p>{@code null} will return {@code false}. An empty String ("") will return {@code true}.</p>
      * <p/>

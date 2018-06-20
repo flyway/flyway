@@ -15,8 +15,6 @@
  */
 package org.flywaydb.core.internal.database;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
@@ -30,8 +28,6 @@ import java.util.List;
  * Represents a database schema.
  */
 public abstract class Schema<D extends Database> {
-    private static final Log LOG = LogFactory.getLog(Schema.class);
-
     /**
      * The Jdbc Template for communicating with the DB.
      */
@@ -199,7 +195,7 @@ public abstract class Schema<D extends Database> {
                 types.add(getType(resultSet.getString("TYPE_NAME")));
             }
 
-            return types.toArray(new Type[types.size()]);
+            return types.toArray(new Type[0]);
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to retrieve all types in schema " + this, e);
         } finally {

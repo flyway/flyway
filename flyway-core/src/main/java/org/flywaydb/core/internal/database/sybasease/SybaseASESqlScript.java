@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.database.sybasease;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
-import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
@@ -45,6 +44,6 @@ class SybaseASESqlScript extends ExecutableSqlScript {
 
     @Override
     protected SqlStatementBuilder createSqlStatementBuilder() {
-        return new SybaseASESqlStatementBuilder(Delimiter.GO);
+        return new SybaseASESqlStatementBuilder();
     }
 }

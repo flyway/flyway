@@ -25,6 +25,7 @@ import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.scanner.StringResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -193,6 +194,26 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     @Override
     public boolean useSingleConnection() {
         return true;
+    }
+
+    @Override
+    protected LoadableResource getRawCreateScript() {
+        return new StringResource("CREATE TABLE ${table_quoted} (\n" +
+                "    [installed_rank] INT NOT NULL,\n" +
+                "    [" + "version] NVARCHAR(50),\n" +
+                "    [description] NVARCHAR(200),\n" +
+                "    [type] NVARCHAR(20) NOT NULL,\n" +
+                "    [script] NVARCHAR(1000) NOT NULL,\n" +
+                "    [checksum] INT,\n" +
+                "    [installed_by] NVARCHAR(100) NOT NULL,\n" +
+                "    [installed_on] DATETIME NOT NULL DEFAULT GETDATE(),\n" +
+                "    [execution_time] INT NOT NULL,\n" +
+                "    [success] BIT NOT NULL\n" +
+                ");\n" +
+                "ALTER TABLE ${table_quoted} ADD CONSTRAINT [${table}_pk] PRIMARY KEY ([installed_rank]);\n" +
+                "\n" +
+                "CREATE INDEX [${table}_s_idx] ON ${table_quoted} ([success]);\n" +
+                "GO\n");
     }
 
     /**
