@@ -1287,8 +1287,20 @@ public class Flyway implements Configuration {
 
 
 
+            showMemoryUsage();
         }
         return result;
+    }
+
+    private void showMemoryUsage() {
+        Runtime runtime = Runtime.getRuntime();
+        long free = runtime.freeMemory();
+        long total = runtime.totalMemory();
+        long used = total - free;
+
+        long totalMB = total / (1024*1024);
+        long usedMB = used / (1024*1024);
+        LOG.debug("Memory usage: " + usedMB + " of " + totalMB + "M");
     }
 
     private Schema[] prepareSchemas(Database database) {
