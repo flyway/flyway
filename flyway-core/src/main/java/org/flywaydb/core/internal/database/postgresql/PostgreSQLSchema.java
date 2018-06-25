@@ -101,10 +101,6 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : generateDropStatementsForAggregates()) {
-            jdbcTemplate.execute(statement);
-        }
-
         for (String statement : generateDropStatementsForRoutines()) {
             jdbcTemplate.execute(statement);
         }
@@ -182,28 +178,6 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
     }
 
     /**
-     * Generates the statements for dropping the aggregates in this schema.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> generateDropStatementsForAggregates() throws SQLException {
-        List<Map<String, String>> rows =
-                jdbcTemplate.queryForList(
-                        "SELECT proname, oidvectortypes(proargtypes) AS args "
-                                + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
-                                + "WHERE pg_proc.proisagg = true AND ns.nspname = ?",
-                        name
-                );
-
-        List<String> statements = new ArrayList<>();
-        for (Map<String, String> row : rows) {
-            statements.add("DROP AGGREGATE IF EXISTS " + database.quote(name, row.get("proname")) + "(" + row.get("args") + ") CASCADE");
-        }
-        return statements;
-    }
-
-    /**
      * Generates the statements for dropping the routines in this schema.
      *
      * @return The drop statements.
@@ -213,17 +187,19 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
                         // Search for all functions
-                        "SELECT proname, oidvectortypes(proargtypes) AS args "
+                        "SELECT proname, oidvectortypes(proargtypes) AS args, pg_proc.proisagg as agg "
                                 + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
                                 // that don't depend on an extension
                                 + "LEFT JOIN pg_depend dep ON dep.objid = pg_proc.oid AND dep.deptype = 'e' "
-                                + "WHERE pg_proc.proisagg = false AND ns.nspname = ? AND dep.objid IS NULL",
+                                + "WHERE ns.nspname = ? AND dep.objid IS NULL",
                         name
                 );
 
         List<String> statements = new ArrayList<>();
         for (Map<String, String> row : rows) {
-            statements.add("DROP FUNCTION IF EXISTS " + database.quote(name, row.get("proname")) + "(" + row.get("args") + ") CASCADE");
+            String type = Boolean.parseBoolean(row.get("agg")) ? "AGGREGATE" : "FUNCTION";
+            statements.add("DROP " + type + " IF EXISTS "
+                    + database.quote(name, row.get("proname")) + "(" + row.get("args") + ") CASCADE");
         }
         return statements;
     }

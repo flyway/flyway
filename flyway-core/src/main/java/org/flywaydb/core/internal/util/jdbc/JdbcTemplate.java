@@ -77,16 +77,13 @@ public class JdbcTemplate {
      * @return The query results.
      * @throws SQLException when the query execution failed.
      */
-    public List<Map<String, String>> queryForList(String query, String... params) throws SQLException {
+    public List<Map<String, String>> queryForList(String query, Object... params) throws SQLException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
 
         List<Map<String, String>> result;
         try {
-            statement = connection.prepareStatement(query);
-            for (int i = 0; i < params.length; i++) {
-                statement.setString(i + 1, params[i]);
-            }
+            statement = prepareStatement(query, params);
             resultSet = statement.executeQuery();
 
             result = new ArrayList<>();
@@ -119,10 +116,7 @@ public class JdbcTemplate {
 
         List<String> result;
         try {
-            statement = connection.prepareStatement(query);
-            for (int i = 0; i < params.length; i++) {
-                statement.setString(i + 1, params[i]);
-            }
+            statement = prepareStatement(query, params);
             resultSet = statement.executeQuery();
 
             result = new ArrayList<>();
@@ -151,10 +145,7 @@ public class JdbcTemplate {
 
         int result;
         try {
-            statement = connection.prepareStatement(query);
-            for (int i = 0; i < params.length; i++) {
-                statement.setString(i + 1, params[i]);
-            }
+            statement = prepareStatement(query, params);
             resultSet = statement.executeQuery();
             resultSet.next();
             result = resultSet.getInt(1);
@@ -180,10 +171,7 @@ public class JdbcTemplate {
 
         boolean result;
         try {
-            statement = connection.prepareStatement(query);
-            for (int i = 0; i < params.length; i++) {
-                statement.setString(i + 1, params[i]);
-            }
+            statement = prepareStatement(query, params);
             resultSet = statement.executeQuery();
             resultSet.next();
             result = resultSet.getBoolean(1);
@@ -209,10 +197,7 @@ public class JdbcTemplate {
 
         String result;
         try {
-            statement = connection.prepareStatement(query);
-            for (int i = 0; i < params.length; i++) {
-                statement.setString(i + 1, params[i]);
-            }
+            statement = prepareStatement(query, params);
             resultSet = statement.executeQuery();
             result = null;
             if (resultSet.next()) {
