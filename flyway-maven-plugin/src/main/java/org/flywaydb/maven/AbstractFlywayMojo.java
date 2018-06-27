@@ -613,13 +613,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
             if (locations != null) {
                 for (int i = 0; i < locations.length; i++) {
-                    if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
+                    String locationPrefix = locations[i].substring(0, Location.FILESYSTEM_PREFIX.length());
+                    if (locationPrefix.equalsIgnoreCase(Location.FILESYSTEM_PREFIX)) {
                         String newLocation = locations[i].substring(Location.FILESYSTEM_PREFIX.length());
                         File file = new File(newLocation);
                         if (!file.isAbsolute()) {
                             file = new File(workDir, newLocation);
                         }
-                        locations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
+                        locations[i] = locationPrefix + file.getAbsolutePath();
                     }
                 }
             } else {
