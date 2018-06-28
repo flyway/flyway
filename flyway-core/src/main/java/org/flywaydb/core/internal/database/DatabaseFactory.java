@@ -78,9 +78,20 @@ public class DatabaseFactory {
             throw new FlywaySqlException("Unable to turn on auto-commit for the connection", e);
         }
 
-        String databaseProductName = getDatabaseProductName(connection);
+        DatabaseMetaData databaseMetaData;
+        try {
+            databaseMetaData = connection.getMetaData();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to read database connection metadata: " + e.getMessage(), e);
+        }
+        if (databaseMetaData == null) {
+            throw new FlywayException("Unable to read database connection metadata while it is null!");
+        }
+
+        String databaseProductName = getDatabaseProductName(databaseMetaData);
         if (printInfo) {
-            LOG.info("Database: " + getJdbcUrl(connection) + " (" + databaseProductName + ")");
+            LOG.info("Database: " + getJdbcUrl(databaseMetaData) + " (" + databaseProductName + ")");
+            LOG.debug("Driver  : " + getDriverInfo(databaseMetaData));
         }
 
         Database database = createDatabase(configuration, connection, originalAutoCommit, databaseProductName
@@ -96,6 +107,14 @@ public class DatabaseFactory {
         }
 
         return database;
+    }
+
+    private static String getDriverInfo(DatabaseMetaData databaseMetaData) {
+        try {
+            return databaseMetaData.getDriverName() + " " + databaseMetaData.getDriverVersion();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to read database driver info: " + e.getMessage(), e);
+        }
     }
 
     private static Database createDatabase(Configuration configuration, Connection connection,
@@ -221,13 +240,13 @@ public class DatabaseFactory {
     /**
      * Retrieves the Jdbc Url for this connection.
      *
-     * @param connection The Jdbc connection.
+     * @param databaseMetaData The Jdbc connection metadata.
      * @return The Jdbc Url.
      */
 
-    private static String getJdbcUrl(Connection connection) {
+    private static String getJdbcUrl(DatabaseMetaData databaseMetaData) {
         try {
-            return filterUrl(connection.getMetaData().getURL());
+            return filterUrl(databaseMetaData.getURL());
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to retrieve the Jdbc connection Url!", e);
         }
@@ -251,16 +270,11 @@ public class DatabaseFactory {
     /**
      * Retrieves the name of the database product.
      *
-     * @param connection The connection to use to query the database.
+     * @param databaseMetaData The connection metadata to use to query the database.
      * @return The name of the database product. Ex.: Oracle, MySQL, ...
      */
-    private static String getDatabaseProductName(Connection connection) {
+    private static String getDatabaseProductName(DatabaseMetaData databaseMetaData) {
         try {
-            DatabaseMetaData databaseMetaData = connection.getMetaData();
-            if (databaseMetaData == null) {
-                throw new FlywayException("Unable to read database metadata while it is null!");
-            }
-
             String databaseProductName = databaseMetaData.getDatabaseProductName();
             if (databaseProductName == null) {
                 throw new FlywayException("Unable to determine database. Product name is null.");

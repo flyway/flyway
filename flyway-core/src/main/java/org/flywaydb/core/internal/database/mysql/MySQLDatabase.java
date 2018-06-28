@@ -15,8 +15,11 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.SqlScript;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
@@ -32,6 +35,8 @@ import java.util.List;
  * MySQL database.
  */
 public class MySQLDatabase extends Database<MySQLConnection> {
+    private static final Log LOG = LogFactory.getLog(MySQLDatabase.class);
+
     /**
      * Creates a new instance.
      *
@@ -65,35 +70,44 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     @Override
     protected final void ensureSupported() {
-        String version = majorVersion + "." + minorVersion;
+        MigrationVersion version = MigrationVersion.fromVersion(majorVersion + "." + minorVersion);
         boolean isMariaDB;
+        boolean isMariaDriver;
         try {
             isMariaDB = jdbcMetaData.getDatabaseProductVersion().contains("MariaDB");
+            isMariaDriver = jdbcMetaData.getDriverName().contains("MariaDB");
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to determine database product version", e);
+            throw new FlywaySqlException("Unable to determine database product version and driver", e);
         }
         String productName = isMariaDB ? "MariaDB" : "MySQL";
 
-        if (majorVersion < 5) {
-            throw new FlywayDbUpgradeRequiredException(productName, version, "5.0");
+        if (version.compareTo(MigrationVersion.fromVersion("5.1")) < 0) {
+            throw new FlywayDbUpgradeRequiredException(productName, version.getVersion(), "5.1");
         }
-        if (majorVersion == 5) {
 
-            if (minorVersion < 5) {
-                throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException(
-                    isMariaDB ? "MariaDB" : "Oracle", productName, version);
-            }
+        if (version.compareTo(MigrationVersion.fromVersion("5.5")) < 0) {
+            throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException(
+                    isMariaDB ? "MariaDB" : "Oracle", productName, version.getVersion());
+        }
 
-            if (minorVersion > 7) {
-                recommendFlywayUpgrade(productName, version);
+        if (isMariaDB) {
+            if (version.compareTo(MigrationVersion.fromVersion("10.2")) > 0) {
+                recommendFlywayUpgrade(productName, version.getVersion());
             }
         } else {
-            if (isMariaDB) {
-                if (majorVersion > 10 || (majorVersion == 10 && minorVersion > 2)) {
-                    recommendFlywayUpgrade(productName, version);
+
+
+
+                if (isMariaDriver) {
+                    LOG.warn("You are connected to a MySQL database using the MariaDB driver." +
+                            " This is known to cause issues." +
+                            " An upgrade to Oracle's MySQL JDBC driver is highly recommended.");
                 }
-            } else if (majorVersion > 8 || (majorVersion == 8 && minorVersion > 0)) {
-                recommendFlywayUpgrade(productName, version);
+
+
+
+            if (version.compareTo(MigrationVersion.fromVersion("8.0")) > 0) {
+                recommendFlywayUpgrade(productName, version.getVersion());
             }
         }
     }
