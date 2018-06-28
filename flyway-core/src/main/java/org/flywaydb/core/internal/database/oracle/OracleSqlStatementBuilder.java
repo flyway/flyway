@@ -129,6 +129,10 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
 
 
+
+
+
+
     private static final Pattern DECLARE_BEGIN_REGEX = toRegex("DECLARE|BEGIN");
     private static final Pattern PLSQL_REGEX = Pattern.compile(
             "^CREATE(\\s+OR\\s+REPLACE)?(\\s+(NON)?EDITIONABLE)?\\s+(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*");

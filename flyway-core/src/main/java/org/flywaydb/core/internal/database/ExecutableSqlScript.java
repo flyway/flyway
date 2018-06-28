@@ -285,7 +285,7 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
 
 
             printWarnings(context);
-            handleResults(results);
+            handleResults(context, results);
         } catch (final SQLException e) {
 
 
@@ -302,7 +302,7 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
         }
     }
 
-    private void handleResults(List<Result> results) {
+    private void handleResults(C context, List<Result> results) {
         for (Result result : results) {
             long updateCount = result.getUpdateCount();
             if (updateCount != -1) {
@@ -313,9 +313,15 @@ public abstract class ExecutableSqlScript<C extends ContextImpl> extends SqlScri
 
 
 
-
         }
     }
+
+
+
+
+
+
+
 
     private void handleUpdateCount(long updateCount) {
         LOG.debug("Update Count: " + updateCount);

@@ -72,7 +72,7 @@ public class MigrationInfoDumper {
             rows.add(row);
         }
 
-        return new AsciiTable(columns, rows, "", "No migrations found").render();
+        return new AsciiTable(columns, rows, true, "", "No migrations found").render();
     }
 
     static String getCategory(MigrationInfo migrationInfo) {
