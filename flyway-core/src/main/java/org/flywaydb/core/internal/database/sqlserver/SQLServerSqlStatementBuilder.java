@@ -34,7 +34,7 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Regex for keywords that can appear after a string literal without being separated by a space.
      */
-    private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(LIKE|AS)");
+    private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(LIKE|AS)$");
 
     private static final Pattern NON_TRANSACTIONAL_STATEMENT_REGEX = Pattern.compile("^(BACKUP|RESTORE|(CREATE|DROP|ALTER) DATABASE) .*");
 
