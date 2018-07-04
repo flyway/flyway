@@ -4,7 +4,6 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Connection;
 import org.flywaydb.core.internal.database.Schema;
 
-import java.sql.SQLException;
 import java.sql.Types;
 
 /**
