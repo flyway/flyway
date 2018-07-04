@@ -392,6 +392,12 @@
                 <classifier>macosx-x64</classifier>
                 <type>tar.gz</type>
             </dependency>
+            <dependency>
+                <groupId>com.intersys</groupId>
+                <artifactId>cachejdbc</artifactId>
+                <version>2015.2</version>
+                <type>jar</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
