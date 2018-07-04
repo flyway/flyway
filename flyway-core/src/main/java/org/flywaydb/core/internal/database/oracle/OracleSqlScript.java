@@ -24,8 +24,10 @@ import org.flywaydb.core.internal.database.ExecutableSqlScript;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
+import org.flywaydb.core.internal.util.AsciiTable;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.util.jdbc.Result;
 import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
@@ -41,6 +43,7 @@ import java.util.List;
  */
 class OracleSqlScript extends ExecutableSqlScript<OracleContextImpl> {
     private static final Log LOG = LogFactory.getLog(OracleSqlScript.class);
+
 
 
 
@@ -97,6 +100,15 @@ class OracleSqlScript extends ExecutableSqlScript<OracleContextImpl> {
     protected OracleContextImpl createContext() {
         return new OracleContextImpl();
     }
+
+
+
+
+
+
+
+
+
 
 
 

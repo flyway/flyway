@@ -24,6 +24,9 @@ import java.io.Reader;
  * Reader that strips the BOM at the beginning of a stream.
  */
 public class BomStrippingReader extends FilterReader {
+    private static final int EMPTY_STREAM = -1;
+    private static final char BOM = '\ufeff';
+
     /**
      * Creates a new BOM-stripping reader.
      *
@@ -34,7 +37,7 @@ public class BomStrippingReader extends FilterReader {
         super(new PushbackReader(in));
         PushbackReader pbr = (PushbackReader) this.in;
         int firstChar = pbr.read();
-        if (firstChar != '\ufeff') {
+        if (firstChar != EMPTY_STREAM && firstChar != BOM) {
             pbr.unread(firstChar);
         }
     }
