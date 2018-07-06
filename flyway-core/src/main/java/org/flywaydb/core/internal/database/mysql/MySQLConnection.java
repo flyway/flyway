@@ -18,9 +18,9 @@ package org.flywaydb.core.internal.database.mysql;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.Table;
+import org.flywaydb.core.internal.database.base.Connection;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;

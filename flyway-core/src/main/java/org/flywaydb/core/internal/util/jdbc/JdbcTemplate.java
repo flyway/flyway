@@ -234,7 +234,7 @@ public class JdbcTemplate {
      * @param sql The statement to execute.
      * @throws SQLException when the execution failed.
      */
-    public List<Result> executeStatement(ContextImpl errorContext, String sql) throws SQLException {
+    public List<Result> executeStatement(StandardContext errorContext, String sql) throws SQLException {
         Statement statement = null;
         try {
             statement = connection.createStatement();

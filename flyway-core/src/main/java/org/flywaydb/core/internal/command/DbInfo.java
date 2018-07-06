@@ -18,19 +18,11 @@ package org.flywaydb.core.internal.command;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.callback.Event;
-import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
-import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
-
-import java.util.List;
-import java.util.concurrent.Callable;
 
 public class DbInfo {
     private final MigrationResolver migrationResolver;

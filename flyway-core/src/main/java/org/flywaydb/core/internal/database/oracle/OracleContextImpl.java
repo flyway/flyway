@@ -15,9 +15,9 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
-import org.flywaydb.core.internal.util.jdbc.ContextImpl;
+import org.flywaydb.core.internal.util.jdbc.StandardContext;
 
-public class OracleContextImpl extends ContextImpl {
+public class OracleContextImpl extends StandardContext {
 
 
 

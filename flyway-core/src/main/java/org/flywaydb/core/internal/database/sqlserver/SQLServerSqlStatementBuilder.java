@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.regex.Matcher;
@@ -43,8 +43,8 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
      */
     private String statementStart = "";
 
-    public SQLServerSqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    public SQLServerSqlStatementBuilder() {
+        super(Delimiter.GO);
     }
 
     @Override

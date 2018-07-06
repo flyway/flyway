@@ -30,6 +30,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.callback.DefaultCallbackExecutor;
 import org.flywaydb.core.internal.callback.LegacyCallback;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallbackFactory;
 import org.flywaydb.core.internal.command.DbBaseline;
@@ -40,9 +41,9 @@ import org.flywaydb.core.internal.command.DbRepair;
 import org.flywaydb.core.internal.command.DbSchemas;
 import org.flywaydb.core.internal.command.DbValidate;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.DatabaseFactory;
-import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
@@ -1255,6 +1256,13 @@ public class Flyway implements Configuration {
             Schema[] schemas = prepareSchemas(database);
             Scanner scanner = new Scanner(configuration);
             PlaceholderReplacer placeholderReplacer = createPlaceholderReplacer();
+            CallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, schemas[0],
+                    prepareCallbacks(database, scanner, placeholderReplacer
+
+
+
+                    ));
+
             result = command.execute(
                     createMigrationResolver(database, scanner, placeholderReplacer
 
@@ -1268,12 +1276,7 @@ public class Flyway implements Configuration {
                     ),
                     database,
                     schemas,
-                    new CallbackExecutor(configuration, database, schemas[0],
-                            prepareCallbacks(database, scanner, placeholderReplacer
-
-
-
-                            ))
+                    callbackExecutor
 
 
 

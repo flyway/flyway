@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.database.db2;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.Collection;
@@ -58,11 +58,9 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
 
     /**
      * Creates a new SqlStatementBuilder.
-     *
-     * @param defaultDelimiter The default delimiter for this database.
      */
-    public DB2SqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    public DB2SqlStatementBuilder() {
+        super(Delimiter.SEMICOLON);
     }
 
     @Override

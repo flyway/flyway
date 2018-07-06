@@ -23,7 +23,8 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
@@ -69,6 +70,11 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
+
+
+
+
+
     /**
      * The Flyway configuration.
      */
@@ -93,6 +99,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         this.scanner = scanner;
         this.locations = locations;
         this.placeholderReplacer = placeholderReplacer;
+
 
 
 

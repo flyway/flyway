@@ -16,16 +16,13 @@
 package org.flywaydb.core.internal.database.derby;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Derby database.
@@ -63,7 +60,7 @@ public class DerbyDatabase extends Database<DerbyConnection> {
     }
 
     @Override
-    protected final void ensureSupported() {
+    public final void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
 
         if (majorVersion < 10 || (majorVersion == 10 && minorVersion < 11)) {
@@ -80,17 +77,8 @@ public class DerbyDatabase extends Database<DerbyConnection> {
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource,
-                                          PlaceholderReplacer placeholderReplacer, boolean mixed
-
-
-
-    ) {
-        return new DerbySqlScript(configuration, sqlScriptResource, mixed
-
-
-
-                , placeholderReplacer);
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return DerbySqlStatementBuilderFactory.INSTANCE;
     }
 
     @Override
@@ -109,7 +97,7 @@ public class DerbyDatabase extends Database<DerbyConnection> {
     }
 
     @Override
-    protected boolean supportsChangingCurrentSchema() {
+    public boolean supportsChangingCurrentSchema() {
         return true;
     }
 
@@ -136,5 +124,14 @@ public class DerbyDatabase extends Database<DerbyConnection> {
     @Override
     public boolean useSingleConnection() {
         return true;
+    }
+
+    private enum DerbySqlStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new DerbySqlStatementBuilder();
+        }
     }
 }

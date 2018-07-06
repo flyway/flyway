@@ -15,9 +15,9 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
-import org.flywaydb.core.internal.database.AbstractSqlStatement;
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.util.jdbc.ContextImpl;
+import org.flywaydb.core.internal.sqlscript.AbstractSqlStatement;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.util.jdbc.StandardContext;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.Result;
 import org.flywaydb.core.internal.util.line.Line;
@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * A PostgreSQL COPY FROM STDIN statement.
  */
-public class PostgreSQLCopyStatement extends AbstractSqlStatement<ContextImpl> {
+public class PostgreSQLCopyStatement extends AbstractSqlStatement<StandardContext> {
     /**
      * Delimiter of COPY statements.
      */
@@ -53,7 +53,7 @@ public class PostgreSQLCopyStatement extends AbstractSqlStatement<ContextImpl> {
     }
 
     @Override
-    public List<Result> execute(ContextImpl context, JdbcTemplate jdbcTemplate) throws SQLException {
+    public List<Result> execute(StandardContext context, JdbcTemplate jdbcTemplate) throws SQLException {
         String sql = getSql();
         int split = sql.indexOf(";");
 

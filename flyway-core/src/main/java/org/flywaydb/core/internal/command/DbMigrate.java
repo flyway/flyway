@@ -27,9 +27,9 @@ import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.database.base.Connection;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
@@ -346,20 +346,20 @@ public class DbMigrate {
             connectionUserObjects.restoreOriginalState();
             connectionUserObjects.changeCurrentSchemaTo(schema);
 
-            callbackExecutor.executeOnMigrationConnection(Event.BEFORE_EACH_MIGRATE, migration);
+            callbackExecutor.executeOnMigrationConnectionWithinExistingTransaction(Event.BEFORE_EACH_MIGRATE, migration);
 
             try {
                 migration.getResolvedMigration().getExecutor().execute(connectionUserObjects.getJdbcConnection());
             } catch (FlywayException e) {
-                callbackExecutor.executeOnMigrationConnection(Event.AFTER_EACH_MIGRATE_ERROR, migration);
+                callbackExecutor.executeOnMigrationConnectionWithinExistingTransaction(Event.AFTER_EACH_MIGRATE_ERROR, migration);
                 throw new FlywayMigrateException(migration, isOutOfOrder, e);
             } catch (SQLException e) {
-                callbackExecutor.executeOnMigrationConnection(Event.AFTER_EACH_MIGRATE_ERROR, migration);
+                callbackExecutor.executeOnMigrationConnectionWithinExistingTransaction(Event.AFTER_EACH_MIGRATE_ERROR, migration);
                 throw new FlywayMigrateException(migration, isOutOfOrder, e);
             }
 
             LOG.debug("Successfully completed migration of " + migrationText);
-            callbackExecutor.executeOnMigrationConnection(Event.AFTER_EACH_MIGRATE, migration);
+            callbackExecutor.executeOnMigrationConnectionWithinExistingTransaction(Event.AFTER_EACH_MIGRATE, migration);
 
             stopWatch.stop();
             int executionTime = (int) stopWatch.getTotalTimeMillis();

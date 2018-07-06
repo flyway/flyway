@@ -260,6 +260,9 @@ public class DriverDataSource implements DataSource {
                 return MYSQL_JDBC_DRIVER;
             }
 
+            LOG.warn("You are attempting to connect to a MySQL database using the MariaDB driver." +
+                    " This is known to cause issues." +
+                    " An upgrade to Oracle's MySQL JDBC driver is highly recommended.");
             return MARIADB_JDBC_DRIVER;
         }
 
