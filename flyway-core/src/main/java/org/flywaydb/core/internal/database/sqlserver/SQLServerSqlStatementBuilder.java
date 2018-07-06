@@ -36,7 +36,7 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
      */
     private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(LIKE|AS)$");
 
-    private static final Pattern NON_TRANSACTIONAL_STATEMENT_REGEX = Pattern.compile("^(BACKUP|RESTORE|(CREATE|DROP|ALTER) DATABASE) .*");
+    private static final Pattern NON_TRANSACTIONAL_STATEMENT_REGEX = Pattern.compile("^(BACKUP|RESTORE|(CREATE|DROP|ALTER) (DATABASE|FULLTEXT INDEX)) .*");
 
     /**
      * Holds the beginning of the statement.
