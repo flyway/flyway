@@ -18,7 +18,9 @@ package org.flywaydb.core.internal.callback;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.callback.Context;
+import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Event;
+import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
@@ -26,6 +28,7 @@ import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -36,6 +39,7 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
     private final Database database;
     private final Schema schema;
     private final Collection<Callback> callbacks;
+    private MigrationInfo migrationInfo;
 
     /**
      * Creates a new callback executor.
@@ -53,17 +57,22 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
     }
 
     @Override
-    public void executeOnMainConnection(final Event event) {
+    public void onEvent(final Event event) {
         execute(event, database.getMainConnection());
     }
 
     @Override
-    public void executeOnMigrationConnection(final Event event) {
+    public void onMigrateOrUndoEvent(final Event event) {
         execute(event, database.getMigrationConnection());
     }
 
     @Override
-    public void executeOnMigrationConnectionWithinExistingTransaction(final Event event, MigrationInfo migrationInfo) {
+    public void setMigrationInfo(MigrationInfo migrationInfo) {
+        this.migrationInfo = migrationInfo;
+    }
+
+    @Override
+    public void onEachMigrateOrUndoEvent(Event event) {
         final Context context = new SimpleContext(configuration, database.getMigrationConnection(), migrationInfo);
         for (Callback callback : callbacks) {
             if (callback.supports(event, context)) {
@@ -72,15 +81,27 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
         }
     }
 
+    @Override
+    public boolean onEachMigrateOrUndoStatementEvent(Event event, String sql, List<Warning> warnings, List<Error> errors) {
+        final Context context = new SimpleContext(configuration, database.getMigrationConnection(), migrationInfo,
+                sql, warnings, errors);
+        for (Callback callback : callbacks) {
+            if (callback.supports(event, context)) {
+                callback.handle(event, context);
+            }
+        }
+        return context.getStatement() != null && context.getStatement().isSuppressErrors();
+    }
+
     private void execute(final Event event, final Connection connection) {
         final Context context = new SimpleContext(configuration, connection, null);
 
         for (final Callback callback : callbacks) {
             if (callback.supports(event, context)) {
                 if (callback.canHandleInTransaction(event, context)) {
-                    new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+                    new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Void>() {
                         @Override
-                        public Object call() {
+                        public Void call() {
                             DefaultCallbackExecutor.this.execute(connection, callback, event, context);
                             return null;
                         }
@@ -96,32 +117,5 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
         connection.restoreOriginalState();
         connection.changeCurrentSchemaTo(schema);
         callback.handle(event, context);
-    }
-
-    private static class SimpleContext implements Context {
-        private final Configuration configuration;
-        private final Connection connection;
-        private final MigrationInfo migrationInfo;
-
-        private SimpleContext(Configuration configuration, Connection connection, MigrationInfo migrationInfo) {
-            this.configuration = configuration;
-            this.connection = connection;
-            this.migrationInfo = migrationInfo;
-        }
-
-        @Override
-        public Configuration getConfiguration() {
-            return configuration;
-        }
-
-        @Override
-        public java.sql.Connection getConnection() {
-            return connection.getJdbcConnection();
-        }
-
-        @Override
-        public MigrationInfo getMigrationInfo() {
-            return migrationInfo;
-        }
     }
 }

@@ -294,8 +294,8 @@ public class Main {
         LOG.info("configFileEncoding           : Encoding to use when loading the config files");
         LOG.info("jarDirs                      : Comma-separated list of dirs for Jdbc drivers & Java migrations");
         LOG.info("dryRunOutput                 : [" + "pro] File where to output the SQL statements of a migration dry run");
-        LOG.info("errorHandlers                : [" + "pro] Comma-separated list of handlers for errors and warnings");
-        LOG.info("oracle.sqlplus               : [" + "pro] Oracle SQL*Plus command support");
+        LOG.info("errorOverrides               : [" + "pro] Rules to override specific SQL states and errors codes");
+        LOG.info("oracle.sqlplus               : [" + "pro] Enable Oracle SQL*Plus command support");
         LOG.info("licenseKey                   : [" + "pro] Your Flyway license key");
         LOG.info("");
         LOG.info("Flags");

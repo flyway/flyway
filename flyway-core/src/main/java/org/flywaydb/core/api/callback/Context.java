@@ -41,4 +41,11 @@ public interface Context {
      * {@code null} in all other cases.
      */
     MigrationInfo getMigrationInfo();
+
+    /**
+     * @return The info about the statement being handled. Only relevant for the statement-level events.
+     * {@code null} in all other cases.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    Statement getStatement();
 }

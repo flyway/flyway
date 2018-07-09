@@ -16,7 +16,11 @@
 package org.flywaydb.core.internal.callback;
 
 import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Event;
+import org.flywaydb.core.api.callback.Warning;
+
+import java.util.List;
 
 /**
  * A callback executor that does nothing.
@@ -25,14 +29,23 @@ public enum NoopCallbackExecutor implements CallbackExecutor {
     INSTANCE;
 
     @Override
-    public void executeOnMainConnection(Event event) {
+    public void onEvent(Event event) {
     }
 
     @Override
-    public void executeOnMigrationConnection(Event event) {
+    public void onMigrateOrUndoEvent(Event event) {
     }
 
     @Override
-    public void executeOnMigrationConnectionWithinExistingTransaction(Event event, MigrationInfo migrationInfo) {
+    public void setMigrationInfo(MigrationInfo migrationInfo) {
+    }
+
+    @Override
+    public void onEachMigrateOrUndoEvent(Event event) {
+    }
+
+    @Override
+    public boolean onEachMigrateOrUndoStatementEvent(Event event, String sql, List<Warning> warnings, List<Error> errors) {
+        return false;
     }
 }

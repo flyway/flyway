@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core;
 
-
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationInfoService;
@@ -41,8 +40,8 @@ import org.flywaydb.core.internal.command.DbRepair;
 import org.flywaydb.core.internal.command.DbSchemas;
 import org.flywaydb.core.internal.command.DbValidate;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.DatabaseFactory;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
@@ -365,7 +364,9 @@ public class Flyway implements Configuration {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @param errorHandlers The ErrorHandlers or an empty array if the default internal handler should be used instead. (default: none)
+     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
      */
+    @Deprecated
     public void setErrorHandlers(ErrorHandler... errorHandlers) {
         configuration.setErrorHandlers(errorHandlers);
     }
@@ -379,7 +380,9 @@ public class Flyway implements Configuration {
      *
      * @param errorHandlerClassNames The fully qualified class names of ErrorHandlers or an empty array if the default
      *                               internal handler should be used instead. (default: none)
+     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
      */
+    @Deprecated
     public void setErrorHandlersAsClassNames(String... errorHandlerClassNames) {
         configuration.setErrorHandlersAsClassNames(errorHandlerClassNames);
     }
@@ -1241,8 +1244,6 @@ public class Flyway implements Configuration {
 
 
 
-
-
         Database database = null;
         try {
             database = DatabaseFactory.createDatabase(configuration, !dbConnectionInfoPrinted
@@ -1301,8 +1302,8 @@ public class Flyway implements Configuration {
         long total = runtime.totalMemory();
         long used = total - free;
 
-        long totalMB = total / (1024*1024);
-        long usedMB = used / (1024*1024);
+        long totalMB = total / (1024 * 1024);
+        long usedMB = used / (1024 * 1024);
         LOG.debug("Memory usage: " + usedMB + " of " + totalMB + "M");
     }
 
@@ -1330,14 +1331,6 @@ public class Flyway implements Configuration {
         return schemas;
     }
 
-
-
-
-
-
-
-
-
     private List<Callback> prepareCallbacks(Database database, Scanner scanner, PlaceholderReplacer placeholderReplacer
 
 
@@ -1354,13 +1347,21 @@ public class Flyway implements Configuration {
         effectiveCallbacks.addAll(Arrays.asList(configuration.getCallbacks()));
 
         if (!configuration.isSkipDefaultCallbacks()) {
-            effectiveCallbacks.addAll(new SqlScriptFlywayCallbackFactory(database, scanner,
-                    Arrays.asList(configuration.getLocations()), placeholderReplacer
-
-
-
-                    , configuration).getCallbacks());
+            effectiveCallbacks.addAll(
+                    new SqlScriptFlywayCallbackFactory(
+                            database,
+                            scanner,
+                            Arrays.asList(configuration.getLocations()),
+                            placeholderReplacer,
+                            configuration).getCallbacks());
         }
+
+
+
+
+
+
+
 
         for (Callback callback : effectiveCallbacks) {
             if (callback instanceof LegacyCallback) {

@@ -16,7 +16,6 @@
 package org.flywaydb.core.internal.database.base;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
@@ -27,8 +26,8 @@ import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.jdbc.StandardContext;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.util.jdbc.StandardContext;
 import org.flywaydb.core.internal.util.placeholder.DefaultPlaceholderReplacer;
 import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
@@ -38,9 +37,7 @@ import java.io.Closeable;
 import java.nio.charset.Charset;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -153,8 +150,8 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * Creates a new SqlScript for this specific database.
      *
-     * @param resource      The resource containing the SQL script.
-     * @param mixed         Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * @param resource         The resource containing the SQL script.
+     * @param mixed            Whether to allow mixing transactional and non-transactional statements within the same migration.
 
 
 

@@ -40,7 +40,7 @@ public class DbInfo {
     }
 
     public MigrationInfoService info() {
-        callbackExecutor.executeOnMainConnection(Event.BEFORE_INFO);
+        callbackExecutor.onEvent(Event.BEFORE_INFO);
 
 
         MigrationInfoServiceImpl migrationInfoService;
@@ -50,11 +50,11 @@ public class DbInfo {
                             configuration.isOutOfOrder(), true, true, true, true);
             migrationInfoService.refresh();
         } catch (FlywayException e) {
-            callbackExecutor.executeOnMainConnection(Event.AFTER_INFO_ERROR);
+            callbackExecutor.onEvent(Event.AFTER_INFO_ERROR);
             throw e;
         }
 
-        callbackExecutor.executeOnMainConnection(Event.AFTER_INFO);
+        callbackExecutor.onEvent(Event.AFTER_INFO);
 
         return migrationInfoService;
     }

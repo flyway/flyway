@@ -16,7 +16,6 @@
 package org.flywaydb.core.internal.resolver.sql;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
@@ -25,7 +24,6 @@ import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
-import java.util.List;
 
 /**
  * Database migration based on a sql file.
@@ -47,11 +45,6 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      * sql migrations files in heap space during db migration, see issue 184.
      */
     private final LoadableResource resource;
-
-
-
-
-
 
 
 
@@ -94,7 +87,6 @@ public class SqlMigrationExecutor implements MigrationExecutor {
         this.database = database;
         this.resource = resource;
         this.placeholderReplacer = placeholderReplacer;
-
 
 
 

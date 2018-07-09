@@ -15,14 +15,13 @@
  */
 package org.flywaydb.core.internal.util.jdbc;
 
-import org.flywaydb.core.api.errorhandler.Error;
-import org.flywaydb.core.api.errorhandler.Context;
-import org.flywaydb.core.api.errorhandler.Warning;
+import org.flywaydb.core.api.callback.Error;
+import org.flywaydb.core.api.callback.Warning;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class StandardContext implements Context {
+public class StandardContext {
     private final List<Warning> warnings = new ArrayList<>();
     private final List<Error> errors = new ArrayList<>();
 
@@ -34,12 +33,10 @@ public class StandardContext implements Context {
         errors.add(error);
     }
 
-    @Override
     public List<Warning> getWarnings() {
         return warnings;
     }
 
-    @Override
     public List<Error> getErrors() {
         return errors;
     }

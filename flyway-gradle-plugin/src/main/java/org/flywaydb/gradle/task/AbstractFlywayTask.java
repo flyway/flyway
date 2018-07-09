@@ -339,7 +339,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * (default: none)
      * <p>Also configurable with Gradle or System Property: ${flyway.errorHandlers}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
      */
+    @Deprecated
     public String[] errorHandlers;
 
     /**

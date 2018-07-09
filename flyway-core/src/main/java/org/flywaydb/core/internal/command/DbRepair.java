@@ -90,7 +90,7 @@ public class DbRepair {
      * Repairs the schema history table.
      */
     public void repair() {
-        callbackExecutor.executeOnMainConnection(Event.BEFORE_REPAIR);
+        callbackExecutor.onEvent(Event.BEFORE_REPAIR);
 
         try {
             StopWatch stopWatch = new StopWatch();
@@ -113,11 +113,11 @@ public class DbRepair {
                 LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
             }
         } catch (FlywayException e) {
-            callbackExecutor.executeOnMainConnection(Event.AFTER_REPAIR_ERROR);
+            callbackExecutor.onEvent(Event.AFTER_REPAIR_ERROR);
             throw e;
         }
 
-        callbackExecutor.executeOnMainConnection(Event.AFTER_REPAIR);
+        callbackExecutor.onEvent(Event.AFTER_REPAIR);
     }
 
     private boolean alignAppliedMigrationsWithResolvedMigrations() {

@@ -116,7 +116,7 @@ public class DbMigrate {
      * @throws FlywayException when migration failed.
      */
     public int migrate() throws FlywayException {
-        callbackExecutor.executeOnMigrationConnection(Event.BEFORE_MIGRATE);
+        callbackExecutor.onMigrateOrUndoEvent(Event.BEFORE_MIGRATE);
 
         int count;
         try {
@@ -141,11 +141,11 @@ public class DbMigrate {
 
             logSummary(count, stopWatch.getTotalTimeMillis());
         } catch (FlywayException e) {
-            callbackExecutor.executeOnMigrationConnection(Event.AFTER_MIGRATE_ERROR);
+            callbackExecutor.onMigrateOrUndoEvent(Event.AFTER_MIGRATE_ERROR);
             throw e;
         }
 
-        callbackExecutor.executeOnMigrationConnection(Event.AFTER_MIGRATE);
+        callbackExecutor.onMigrateOrUndoEvent(Event.AFTER_MIGRATE);
         return count;
     }
 
@@ -346,20 +346,24 @@ public class DbMigrate {
             connectionUserObjects.restoreOriginalState();
             connectionUserObjects.changeCurrentSchemaTo(schema);
 
-            callbackExecutor.executeOnMigrationConnectionWithinExistingTransaction(Event.BEFORE_EACH_MIGRATE, migration);
-
             try {
-                migration.getResolvedMigration().getExecutor().execute(connectionUserObjects.getJdbcConnection());
-            } catch (FlywayException e) {
-                callbackExecutor.executeOnMigrationConnectionWithinExistingTransaction(Event.AFTER_EACH_MIGRATE_ERROR, migration);
-                throw new FlywayMigrateException(migration, isOutOfOrder, e);
-            } catch (SQLException e) {
-                callbackExecutor.executeOnMigrationConnectionWithinExistingTransaction(Event.AFTER_EACH_MIGRATE_ERROR, migration);
-                throw new FlywayMigrateException(migration, isOutOfOrder, e);
-            }
+                callbackExecutor.setMigrationInfo(migration);
+                callbackExecutor.onEachMigrateOrUndoEvent(Event.BEFORE_EACH_MIGRATE);
+                try {
+                    migration.getResolvedMigration().getExecutor().execute(connectionUserObjects.getJdbcConnection());
+                } catch (FlywayException e) {
+                    callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
+                    throw new FlywayMigrateException(migration, isOutOfOrder, e);
+                } catch (SQLException e) {
+                    callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
+                    throw new FlywayMigrateException(migration, isOutOfOrder, e);
+                }
 
-            LOG.debug("Successfully completed migration of " + migrationText);
-            callbackExecutor.executeOnMigrationConnectionWithinExistingTransaction(Event.AFTER_EACH_MIGRATE, migration);
+                LOG.debug("Successfully completed migration of " + migrationText);
+                callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE);
+            } finally {
+                callbackExecutor.setMigrationInfo(null);
+            }
 
             stopWatch.stop();
             int executionTime = (int) stopWatch.getTotalTimeMillis();

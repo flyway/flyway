@@ -90,7 +90,7 @@ public class DbClean {
         if (cleanDisabled) {
             throw new FlywayException("Unable to execute clean as it has been disabled with the \"flyway.cleanDisabled\" property.");
         }
-        callbackExecutor.executeOnMainConnection(Event.BEFORE_CLEAN);
+        callbackExecutor.onEvent(Event.BEFORE_CLEAN);
 
         try {
             connection.changeCurrentSchemaTo(schemas[0]);
@@ -114,11 +114,11 @@ public class DbClean {
                 }
             }
         } catch (FlywayException e) {
-            callbackExecutor.executeOnMainConnection(Event.AFTER_CLEAN_ERROR);
+            callbackExecutor.onEvent(Event.AFTER_CLEAN_ERROR);
             throw e;
         }
 
-        callbackExecutor.executeOnMainConnection(Event.AFTER_CLEAN);
+        callbackExecutor.onEvent(Event.AFTER_CLEAN);
         schemaHistory.clearCache();
     }
 

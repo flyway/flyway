@@ -17,19 +17,18 @@ package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Event;
+import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
-import org.flywaydb.core.api.errorhandler.Warning;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.util.AsciiTable;
 import org.flywaydb.core.internal.util.IOUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.StandardContext;
 import org.flywaydb.core.internal.util.jdbc.ErrorImpl;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.Result;
+import org.flywaydb.core.internal.util.jdbc.StandardContext;
 import org.flywaydb.core.internal.util.line.Line;
 import org.flywaydb.core.internal.util.line.LineReader;
 import org.flywaydb.core.internal.util.line.PlaceholderReplacingLine;
@@ -58,11 +57,6 @@ public class SqlScript<C extends StandardContext> {
      * Factory for creating SQL statement builders.
      */
     private final SqlStatementBuilderFactory sqlStatementBuilderFactory;
-
-
-
-
-
 
 
 
@@ -131,7 +125,6 @@ public class SqlScript<C extends StandardContext> {
 
 
 
-
      * @param placeholderReplacer        The placeholder replacer to use.
      */
     public SqlScript(Configuration configuration, SqlStatementBuilderFactory sqlStatementBuilderFactory,
@@ -147,7 +140,6 @@ public class SqlScript<C extends StandardContext> {
         this.configuration = configuration;
         this.sqlStatementBuilderFactory = sqlStatementBuilderFactory;
         this.mixed = mixed;
-
 
 
 
@@ -223,6 +215,28 @@ public class SqlScript<C extends StandardContext> {
         }
 
         return statements;
+    }
+
+    private void addStatement(List<SqlStatement<C>> statements, SqlStatementBuilder sqlStatementBuilder) {
+        SqlStatement<C> sqlStatement = sqlStatementBuilder.getSqlStatement();
+        statements.add(sqlStatement);
+
+        if (sqlStatementBuilder.executeInTransaction()) {
+            transactionalStatementFound = true;
+        } else {
+            nonTransactionalStatementFound = true;
+        }
+
+        if (!mixed && transactionalStatementFound && nonTransactionalStatementFound) {
+            throw new FlywayException(
+                    "Detected both transactional and non-transactional statements within the same migration"
+                            + " (even though mixed is false). Offending statement found at line "
+                            + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
+                            + (sqlStatementBuilder.executeInTransaction() ? "" : " [non-transactional]"));
+        }
+
+        LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
+                + (sqlStatementBuilder.executeInTransaction() ? "" : " [non-transactional]"));
     }
 
     /**
@@ -332,18 +346,31 @@ public class SqlScript<C extends StandardContext> {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     private void executeStatement(JdbcTemplate jdbcTemplate, SqlStatement<C> sqlStatement) {
         C context = createContext();
 
+        String sql = sqlStatement.getSql() + sqlStatement.getDelimiter();
         try {
 
 
 
 
 
+
             List<Result> results = sqlStatement.execute(context, jdbcTemplate);
-
-
 
 
 
@@ -364,9 +391,12 @@ public class SqlScript<C extends StandardContext> {
 
 
 
-
-
             printWarnings(context);
+
+
+
+
+
             handleException(e, sqlStatement, context);
         }
     }
@@ -410,24 +440,6 @@ public class SqlScript<C extends StandardContext> {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private void printWarnings(C context) {
         for (Warning warning : context.getWarnings()) {
             if ("00000".equals(warning.getState())) {
@@ -437,27 +449,5 @@ public class SqlScript<C extends StandardContext> {
                         + " (SQL State: " + warning.getState() + " - Error Code: " + warning.getCode() + ")");
             }
         }
-    }
-
-    private void addStatement(List<SqlStatement<C>> statements, SqlStatementBuilder sqlStatementBuilder) {
-        SqlStatement<C> sqlStatement = sqlStatementBuilder.getSqlStatement();
-        statements.add(sqlStatement);
-
-        if (sqlStatementBuilder.executeInTransaction()) {
-            transactionalStatementFound = true;
-        } else {
-            nonTransactionalStatementFound = true;
-        }
-
-        if (!mixed && transactionalStatementFound && nonTransactionalStatementFound) {
-            throw new FlywayException(
-                    "Detected both transactional and non-transactional statements within the same migration"
-                            + " (even though mixed is false). Offending statement found at line "
-                            + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
-                            + (sqlStatementBuilder.executeInTransaction() ? "" : " [non-transactional]"));
-        }
-
-        LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
-                + (sqlStatementBuilder.executeInTransaction() ? "" : " [non-transactional]"));
     }
 }

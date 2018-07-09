@@ -13,27 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.errorhandler;
+package org.flywaydb.core.internal.database.oracle;
 
-/**
- * An error that occurred while executing a statement.
- *
- * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
- */
-@Deprecated
-public interface Error {
-    /**
-     * @return The error code.
-     */
-    int getCode();
+import org.flywaydb.core.internal.util.jdbc.StandardContext;
 
-    /**
-     * @return The error state.
-     */
-    String getState();
+public class OracleContext extends StandardContext {
 
-    /**
-     * @return The error message.
-     */
-    String getMessage();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

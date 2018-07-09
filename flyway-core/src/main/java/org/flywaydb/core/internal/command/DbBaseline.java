@@ -90,7 +90,7 @@ public class DbBaseline {
      * Baselines the database.
      */
     public void baseline() {
-        callbackExecutor.executeOnMainConnection(Event.BEFORE_BASELINE);
+        callbackExecutor.onEvent(Event.BEFORE_BASELINE);
 
         try {
             schemaHistory.create();
@@ -124,12 +124,12 @@ public class DbBaseline {
                 }
             });
         } catch (FlywayException e) {
-            callbackExecutor.executeOnMainConnection(Event.AFTER_BASELINE_ERROR);
+            callbackExecutor.onEvent(Event.AFTER_BASELINE_ERROR);
             throw e;
         }
 
         LOG.info("Successfully baselined schema with version: " + baselineVersion);
 
-        callbackExecutor.executeOnMainConnection(Event.AFTER_BASELINE);
+        callbackExecutor.onEvent(Event.AFTER_BASELINE);
     }
 }

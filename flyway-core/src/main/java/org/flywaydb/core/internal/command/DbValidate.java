@@ -142,7 +142,7 @@ public class DbValidate {
             return null;
         }
 
-        callbackExecutor.executeOnMainConnection(Event.BEFORE_VALIDATE);
+        callbackExecutor.onEvent(Event.BEFORE_VALIDATE);
 
         LOG.debug("Validating migrations ...");
         StopWatch stopWatch = new StopWatch();
@@ -175,9 +175,9 @@ public class DbValidate {
                 LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
                         count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
             }
-            callbackExecutor.executeOnMainConnection(Event.AFTER_VALIDATE);
+            callbackExecutor.onEvent(Event.AFTER_VALIDATE);
         } else {
-            callbackExecutor.executeOnMainConnection(Event.AFTER_VALIDATE_ERROR);
+            callbackExecutor.onEvent(Event.AFTER_VALIDATE_ERROR);
         }
 
 

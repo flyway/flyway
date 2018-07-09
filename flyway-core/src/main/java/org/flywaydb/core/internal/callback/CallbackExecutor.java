@@ -17,6 +17,10 @@ package org.flywaydb.core.internal.callback;
 
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Event;
+import org.flywaydb.core.api.callback.Warning;
+import org.flywaydb.core.api.callback.Error;
+
+import java.util.List;
 
 /**
  * Executes the callbacks for a specific event.
@@ -27,20 +31,37 @@ public interface CallbackExecutor {
      *
      * @param event The vent to handle.
      */
-    void executeOnMainConnection(Event event);
+    void onEvent(Event event);
 
     /**
      * Executes the callbacks for this event on the migration connection, within a separate transaction per callback if possible.
      *
      * @param event The vent to handle.
      */
-    void executeOnMigrationConnection(Event event);
+    void onMigrateOrUndoEvent(Event event);
+
+    /**
+     * Sets the current migration info.
+     *
+     * @param migrationInfo The current migration.
+     */
+    void setMigrationInfo(MigrationInfo migrationInfo);
 
     /**
      * Executes the callbacks for an "each" event within the same transaction (if any) as the main operation.
      *
-     * @param event         The event to handle.
-     * @param migrationInfo The current migration.
+     * @param event The event to handle.
      */
-    void executeOnMigrationConnectionWithinExistingTransaction(Event event, MigrationInfo migrationInfo);
+    void onEachMigrateOrUndoEvent(Event event);
+
+    /**
+     * Executes the callbacks for an "each statement" event within the same transaction (if any) as the main operation.
+     *
+     * @param event    The event to handle.
+     * @param sql      The sql from the statement.
+     * @param warnings The warnings from the statement. {@code null} if it hasn't been executed yet.
+     * @param errors   The errors from the statement. {@code null} if it hasn't been executed yet.
+     * @return {@code true} if default error handling should be suppressed, {@code false} if it should be permitted.
+     */
+    boolean onEachMigrateOrUndoStatementEvent(Event event, String sql, List<Warning> warnings, List<Error> errors);
 }

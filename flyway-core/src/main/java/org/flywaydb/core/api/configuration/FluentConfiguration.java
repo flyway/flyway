@@ -296,7 +296,9 @@ public class FluentConfiguration implements Configuration {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @param errorHandlers The ErrorHandlers or an empty array if the default internal handler should be used instead. (default: none)
+     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
      */
+    @Deprecated
     public FluentConfiguration errorHandlers(ErrorHandler... errorHandlers) {
         config.setErrorHandlers(errorHandlers);
         return this;
@@ -311,7 +313,9 @@ public class FluentConfiguration implements Configuration {
      *
      * @param errorHandlerClassNames The fully qualified class names of ErrorHandlers or an empty array if the default
      *                               internal handler should be used instead. (default: none)
+     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
      */
+    @Deprecated
     public FluentConfiguration errorHandlers(String... errorHandlerClassNames) {
         config.setErrorHandlersAsClassNames(errorHandlerClassNames);
         return this;
@@ -328,7 +332,7 @@ public class FluentConfiguration implements Configuration {
      * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
-     * @param errorOverrides  The ErrorOverrides or an empty array if none are defined. (default: none)
+     * @param errorOverrides The ErrorOverrides or an empty array if none are defined. (default: none)
      */
     public FluentConfiguration errorOverrides(String... errorOverrides) {
         config.setErrorOverrides(errorOverrides);

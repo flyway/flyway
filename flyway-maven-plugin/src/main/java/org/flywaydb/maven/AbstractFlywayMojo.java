@@ -29,11 +29,11 @@ import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ExceptionUtils;
-import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.File;
@@ -419,7 +419,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * (default: none)
      * <p>Also configurable with Maven or System Property: ${flyway.errorHandlers}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
      */
+    @Deprecated
     @Parameter
     private String[] errorHandlers;
 

@@ -13,27 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.errorhandler;
+package org.flywaydb.core.api.callback;
 
 /**
- * An error that occurred while executing a statement.
- *
- * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
+ * A warning that occurred while executing a statement.
+ * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
  */
-@Deprecated
-public interface Error {
+public interface Warning {
     /**
-     * @return The error code.
+     * @return The warning code.
      */
     int getCode();
 
     /**
-     * @return The error state.
+     * @return The warning state.
      */
     String getState();
 
     /**
-     * @return The error message.
+     * @return The warning message.
      */
     String getMessage();
 }

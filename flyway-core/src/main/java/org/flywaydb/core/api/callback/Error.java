@@ -13,47 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.oracle;
+package org.flywaydb.core.api.callback;
 
-import org.flywaydb.core.internal.util.jdbc.StandardContext;
+/**
+ * An error that occurred while executing a statement.
+ * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+ */
+public interface Error {
+    /**
+     * @return The error code.
+     */
+    int getCode();
 
-public class OracleContextImpl extends StandardContext {
+    /**
+     * @return The error state.
+     */
+    String getState();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * @return The error message.
+     */
+    String getMessage();
 }
