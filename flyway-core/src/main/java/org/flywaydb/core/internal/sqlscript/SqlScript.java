@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -39,6 +40,7 @@ import java.sql.BatchUpdateException;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -279,7 +281,6 @@ public class SqlScript<C extends StandardContext> {
 
 
 
-
         for (int i = 0; i < getSqlStatements().size(); i++) {
             SqlStatement<C> sqlStatement = getSqlStatements().get(i);
             String sql = sqlStatement.getSql();
@@ -290,6 +291,15 @@ public class SqlScript<C extends StandardContext> {
 
                         + "SQL: " + sql);
             }
+
+
+
+
+
+
+
+
+
 
 
 

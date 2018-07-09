@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.callback;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.callback.Context;
@@ -87,7 +88,7 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
                 sql, warnings, errors);
         for (Callback callback : callbacks) {
             if (callback.supports(event, context)) {
-                callback.handle(event, context);
+                handleEvent(callback, event, context);
             }
         }
         return context.getStatement() != null && context.getStatement().isSuppressErrors();
@@ -116,6 +117,14 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
     private void execute(Connection connection, Callback callback, Event event, Context context) {
         connection.restoreOriginalState();
         connection.changeCurrentSchemaTo(schema);
-        callback.handle(event, context);
+        handleEvent(callback, event, context);
+    }
+
+    private void handleEvent(Callback callback, Event event, Context context) {
+        try {
+            callback.handle(event, context);
+        } catch (RuntimeException e) {
+            throw new FlywayException("Error while executing " + event.getId() + " callback: " + e.getMessage(), e);
+        }
     }
 }
