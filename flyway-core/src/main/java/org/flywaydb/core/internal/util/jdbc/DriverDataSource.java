@@ -41,6 +41,8 @@ public class DriverDataSource implements DataSource {
     private static final Log LOG = LogFactory.getLog(DriverDataSource.class);
 
     private static final String DB2_JDBC_URL_PREFIX = "jdbc:db2:";
+    private static final String DERBY_CLIENT_JDBC_URL_PREFIX = "jdbc:derby://";
+    private static final String DERBY_EMBEDDED_JDBC_URL_PREFIX = "jdbc:derby:";
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
     private static final String MARIADB_JDBC_URL_PREFIX = "jdbc:mariadb:";
     private static final String MYSQL_JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
@@ -287,11 +289,11 @@ public class DriverDataSource implements DataSource {
             return "com.ibm.db2.jcc.DB2Driver";
         }
 
-        if (url.startsWith("jdbc:derby://")) {
+        if (url.startsWith(DERBY_CLIENT_JDBC_URL_PREFIX)) {
             return "org.apache.derby.jdbc.ClientDriver";
         }
 
-        if (url.startsWith("jdbc:derby:")) {
+        if (url.startsWith(DERBY_EMBEDDED_JDBC_URL_PREFIX)) {
             return "org.apache.derby.jdbc.EmbeddedDriver";
         }
 
@@ -515,5 +517,21 @@ public class DriverDataSource implements DataSource {
 
     public Logger getParentLogger() {
         throw new UnsupportedOperationException("getParentLogger");
+    }
+
+    /**
+     * Shutdown the database that was opened (only applicable to embedded databases that require this).
+     */
+    public void shutdownDatabase() {
+        if (url.startsWith(DERBY_EMBEDDED_JDBC_URL_PREFIX) && !url.startsWith(DERBY_CLIENT_JDBC_URL_PREFIX)) {
+            try {
+                int i = url.indexOf(";");
+                String shutdownUrl = (i < 0 ? url : url.substring(0, i)) + ";shutdown=true";
+
+                driver.connect(shutdownUrl, new Properties());
+            } catch (SQLException e) {
+                LOG.debug("Expected error on Derby Embedded Database shutdown: " + e.getMessage());
+            }
+        }
     }
 }
