@@ -103,6 +103,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
          */
         SQL_DML_TRIGGER("TR"),
         /**
+         * Unique Constraint.
+         */
+        UNIQUE_CONSTRAINT("UQ"),
+        /**
          * User table.
          */
         USER_TABLE("U"),
@@ -205,6 +209,14 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
         }
 
         for (String statement : cleanDefaultConstraints(tables)) {
+            jdbcTemplate.execute(statement);
+        }
+
+        for (String statement : cleanUniqueConstraints(tables)) {
+            jdbcTemplate.execute(statement);
+        }
+
+        for (String statement : cleanIndexes(tables)) {
             jdbcTemplate.execute(statement);
         }
 
@@ -399,6 +411,30 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
     }
 
     /**
+     * Cleans the indexes in this schema.
+     *
+     * @param tables the tables to be cleaned
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanIndexes(List<DBObject> tables) throws SQLException {
+        List<String> statements = new ArrayList<>();
+        for (DBObject table : tables) {
+            String tableName = database.quote(name, table.name);
+            List<String> indexes = jdbcTemplate.queryForStringList(
+                    "SELECT name FROM sys.indexes" +
+                            " WHERE object_id=OBJECT_ID(N'" + tableName + "')" +
+                            " AND is_primary_key = 0" +
+                            " AND is_unique_constraint = 0" +
+                            " AND name IS NOT NULL");
+            for (String index : indexes) {
+                statements.add("DROP INDEX " + database.quote(index) + " ON " + tableName);
+            }
+        }
+        return statements;
+    }
+
+    /**
      * Cleans the default constraints in this schema.
      *
      * @param tables the tables to be cleaned
@@ -406,6 +442,30 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanDefaultConstraints(List<DBObject> tables) throws SQLException {
+        List<String> statements = new ArrayList<>();
+        for (DBObject table : tables) {
+            String tableName = database.quote(name, table.name);
+            List<String> indexes = jdbcTemplate.queryForStringList(
+                    "SELECT name FROM sys.indexes" +
+                            " WHERE object_id=OBJECT_ID(N'" + tableName + "')" +
+                            " AND is_primary_key = 0" +
+                            " AND is_unique_constraint = 1" +
+                            " AND name IS NOT NULL");
+            for (String index : indexes) {
+                statements.add("ALTER TABLE " + tableName + " DROP CONSTRAINT " + database.quote(index));
+            }
+        }
+        return statements;
+    }
+
+    /**
+     * Cleans the unique constraints in this schema.
+     *
+     * @param tables the tables to be cleaned
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanUniqueConstraints(List<DBObject> tables) throws SQLException {
         List<String> statements = new ArrayList<>();
         for (DBObject table : tables) {
             List<DBObject> dfs = queryDBObjectsWithParent(table, ObjectType.DEFAULT_CONSTRAINT);
