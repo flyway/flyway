@@ -40,7 +40,7 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
      * Regex for statements that cannot be executed within a transaction.
      */
     private static final Pattern NON_TRANSACTIONAL_STATEMENT_REGEX =
-            Pattern.compile("^(BACKUP|RESTORE|(CREATE|DROP|ALTER) (DATABASE|FULLTEXT INDEX)) .*");
+            Pattern.compile("^(BACKUP|RESTORE|RECONFIGURE|(CREATE|DROP|ALTER) (DATABASE|FULLTEXT INDEX)) .*");
 
     /**
      * Holds the beginning of the statement.

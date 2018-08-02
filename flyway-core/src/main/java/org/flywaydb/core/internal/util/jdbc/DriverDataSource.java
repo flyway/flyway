@@ -43,7 +43,7 @@ public class DriverDataSource implements DataSource {
     private static final String DB2_JDBC_URL_PREFIX = "jdbc:db2:";
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
     private static final String MARIADB_JDBC_URL_PREFIX = "jdbc:mariadb:";
-    private static final String MYSQL_JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    private static final String MYSQL_JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql:";
     private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle:";
     private static final String POSTGRESQL_JDBC_URL_PREFIX = "jdbc:postgresql:";
@@ -249,17 +249,13 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * Retrieves a second choice backup driver for a jdbc url, in case the primary driver is not available.
+     * Retrieves a second choice backup driver for a JDBC URL, in case the primary driver is not available.
      *
-     * @param url The Jdbc url.
-     * @return The Jdbc driver. {@code null} if none.
+     * @param url The JDBC url.
+     * @return The JDBC driver. {@code null} if none.
      */
     private String detectBackupDriverForUrl(String url) {
-        if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
-            if (ClassUtils.isPresent(MYSQL_JDBC_DRIVER, classLoader)) {
-                return MYSQL_JDBC_DRIVER;
-            }
-
+        if (url.startsWith(MYSQL_JDBC_URL_PREFIX) && ClassUtils.isPresent(MARIADB_JDBC_DRIVER, classLoader)) {
             LOG.warn("You are attempting to connect to a MySQL database using the MariaDB driver." +
                     " This is known to cause issues." +
                     " An upgrade to Oracle's MySQL JDBC driver is highly recommended.");
@@ -319,7 +315,7 @@ public class DriverDataSource implements DataSource {
         }
 
         if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
-            return "com.mysql.cj.jdbc.Driver";
+            return MYSQL_JDBC_DRIVER;
         }
 
         if (url.startsWith(MARIADB_JDBC_URL_PREFIX)) {
