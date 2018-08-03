@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2010-2015 Axel Fontaine
+# Copyright 2010-2018 Boxfuse GmbH
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,8 +48,12 @@ else
  fi
 fi
 
+if [ -z "$FLYWAY_EDITION" ]; then
+  FLYWAY_EDITION=community
+fi
+
 EXTRA_ARGS=
-CP="$INSTALLDIR/lib/*:$INSTALLDIR/drivers/*"
+CP="$INSTALLDIR/lib/$FLYWAY_EDITION/*:$INSTALLDIR/drivers/*"
 
 if $linux; then
   EXTRA_ARGS=-Djava.security.egd=file:/dev/../dev/urandom

@@ -15,33 +15,32 @@
  */
 package org.flywaydb.core.internal.database.cloudspanner;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.database.Table;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Types;
 
 /**
  * Google Cloud Spanner database.
  */
-public class CloudSpannerDatabase extends Database {
+public class CloudSpannerDatabase extends Database<CloudSpannerConnection> {
     /**
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
+     * @param originalAutoCommit
      */
-    public CloudSpannerDatabase(FlywayConfiguration configuration, Connection connection
+    public CloudSpannerDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -49,12 +48,12 @@ public class CloudSpannerDatabase extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+    protected CloudSpannerConnection getConnection(Connection connection
 
 
 
     ) {
-        return new CloudSpannerConnection(configuration, this, connection, nullType
+        return new CloudSpannerConnection(configuration, this, connection, originalAutoCommit, Types.NULL
 
 
 
@@ -62,7 +61,7 @@ public class CloudSpannerDatabase extends Database {
     }
 
     @Override
-    protected final void ensureSupported() {
+    public final void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
 
         if (majorVersion < 1) {
@@ -89,10 +88,6 @@ public class CloudSpannerDatabase extends Database {
         return "false";
     }
 
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new CloudSpannerSqlStatementBuilder(getDefaultDelimiter());
-    }
-
     @Override
     public String doQuote(String identifier) {
         return "`" + identifier + "`";
@@ -106,4 +101,23 @@ public class CloudSpannerDatabase extends Database {
     public boolean useSingleConnection() {
         return true;
     }
+
+	@Override
+	public boolean supportsChangingCurrentSchema() {
+		return false;
+	}
+
+    private enum CloudSpannerSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new CloudSpannerSqlStatementBuilder();
+        }
+    }
+
+	@Override
+	protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+		return CloudSpannerSqlStatementBuilderFactory.INSTANCE;
+	}
 }

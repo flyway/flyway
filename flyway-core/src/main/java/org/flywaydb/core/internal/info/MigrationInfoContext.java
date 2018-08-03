@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,11 @@ public class MigrationInfoContext {
      * Whether missing migrations are allowed.
      */
     public boolean missing;
+
+    /**
+     * Whether ignored migrations are allowed.
+     */
+    public boolean ignored;
 
     /**
      * Whether future migrations are allowed.
@@ -81,6 +86,7 @@ public class MigrationInfoContext {
         if (outOfOrder != that.outOfOrder) return false;
         if (pending != that.pending) return false;
         if (missing != that.missing) return false;
+        if (ignored != that.ignored) return false;
         if (future != that.future) return false;
         if (target != null ? !target.equals(that.target) : that.target != null) return false;
         if (schema != null ? !schema.equals(that.schema) : that.schema != null) return false;
@@ -96,6 +102,7 @@ public class MigrationInfoContext {
         int result = (outOfOrder ? 1 : 0);
         result = 31 * result + (pending ? 1 : 0);
         result = 31 * result + (missing ? 1 : 0);
+        result = 31 * result + (ignored ? 1 : 0);
         result = 31 * result + (future ? 1 : 0);
         result = 31 * result + (target != null ? target.hashCode() : 0);
         result = 31 * result + (schema != null ? schema.hashCode() : 0);

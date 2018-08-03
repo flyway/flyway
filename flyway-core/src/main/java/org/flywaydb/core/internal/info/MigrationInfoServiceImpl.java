@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     private final boolean missing;
 
     /**
+     * Whether ignored migrations are allowed.
+     */
+    private final boolean ignored;
+
+    /**
      * Whether future migrations are allowed.
      */
     private final boolean future;
@@ -93,17 +98,19 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @param outOfOrder        Allows migrations to be run "out of order".
      * @param pending           Whether pending migrations are allowed.
      * @param missing           Whether missing migrations are allowed.
+     * @param ignored           Whether ignored migrations are allowed.
      * @param future            Whether future migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver,
                                     SchemaHistory schemaHistory,
-                                    MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean future) {
+                                    MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean ignored, boolean future) {
         this.migrationResolver = migrationResolver;
         this.schemaHistory = schemaHistory;
         this.target = target;
         this.outOfOrder = outOfOrder;
         this.pending = pending;
         this.missing = missing;
+        this.ignored = ignored;
         this.future = future;
     }
 
@@ -118,6 +125,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         context.outOfOrder = outOfOrder;
         context.pending = pending;
         context.missing = missing;
+        context.ignored = ignored;
         context.future = future;
         context.target = target;
 
@@ -185,23 +193,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             context.target = context.lastApplied;
         }
 
-        Set<Pair<MigrationVersion, Boolean>> allVersions = new HashSet<>(resolvedVersioned.keySet());
-        for (Pair<AppliedMigration, AppliedMigrationAttributes> av : appliedVersioned) {
-
-
-
-                //noinspection RedundantConditionalExpression
-                allVersions.add(Pair.of(av.getLeft().getVersion(),
-
-
-
-                                false
-                ));
-
-
-
-        }
-
         List<MigrationInfoImpl> migrationInfos1 = new ArrayList<>();
         Set<ResolvedMigration> pendingResolvedVersioned = new HashSet<>(resolvedVersioned.values());
         for (Pair<AppliedMigration, AppliedMigrationAttributes> av : appliedVersioned) {
@@ -210,7 +201,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
 
 
 
-                    && av.getLeft().isSuccess()) {
+                    ) {
                 pendingResolvedVersioned.remove(resolvedMigration);
             }
             migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, av.getLeft(), context, av.getRight().outOfOrder
@@ -286,7 +277,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
 
 
     public MigrationInfo[] all() {
-        return migrationInfos.toArray(new MigrationInfoImpl[migrationInfos.size()]);
+        return migrationInfos.toArray(new MigrationInfoImpl[0]);
     }
 
     public MigrationInfo current() {
@@ -330,7 +321,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
 
-        return pendingMigrations.toArray(new MigrationInfoImpl[pendingMigrations.size()]);
+        return pendingMigrations.toArray(new MigrationInfoImpl[0]);
     }
 
     public MigrationInfoImpl[] applied() {
@@ -341,7 +332,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
 
-        return appliedMigrations.toArray(new MigrationInfoImpl[appliedMigrations.size()]);
+        return appliedMigrations.toArray(new MigrationInfoImpl[0]);
     }
 
     /**
@@ -357,7 +348,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
 
-        return resolvedMigrations.toArray(new MigrationInfo[resolvedMigrations.size()]);
+        return resolvedMigrations.toArray(new MigrationInfo[0]);
     }
 
     /**
@@ -373,7 +364,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
 
-        return failedMigrations.toArray(new MigrationInfo[failedMigrations.size()]);
+        return failedMigrations.toArray(new MigrationInfo[0]);
     }
 
     /**
@@ -390,7 +381,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
 
-        return futureMigrations.toArray(new MigrationInfo[futureMigrations.size()]);
+        return futureMigrations.toArray(new MigrationInfo[0]);
     }
 
     /**
@@ -406,7 +397,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
 
-        return outOfOrderMigrations.toArray(new MigrationInfo[outOfOrderMigrations.size()]);
+        return outOfOrderMigrations.toArray(new MigrationInfo[0]);
     }
 
 

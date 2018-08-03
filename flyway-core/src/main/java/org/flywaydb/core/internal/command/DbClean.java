@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,19 @@
 package org.flywaydb.core.internal.command;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.api.callback.Event;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.database.base.Connection;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 
-import java.sql.SQLException;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -53,11 +53,9 @@ public class DbClean {
     private final Schema[] schemas;
 
     /**
-     * The list of callbacks that fire before or after the clean task is executed.
-     * You can add as many callbacks as you want.  These should be set on the Flyway class
-     * by the end user as Flyway will set them automatically for you here.
+     * The callback executor.
      */
-    private final List<FlywayCallback> callbacks;
+    private final CallbackExecutor callbackExecutor;
 
     /**
      * Whether to disable clean.
@@ -68,18 +66,18 @@ public class DbClean {
     /**
      * Creates a new database cleaner.
      *
-     * @param database     The DB support for the connection.
-     * @param schemaHistory The schema history table.
-     * @param schemas       The schemas to clean.
-     * @param callbacks     The list of callbacks that fire before or after the clean task is executed.
-     * @param cleanDisabled Whether to disable clean.
+     * @param database         The DB support for the connection.
+     * @param schemaHistory    The schema history table.
+     * @param schemas          The schemas to clean.
+     * @param callbackExecutor The callback executor.
+     * @param cleanDisabled    Whether to disable clean.
      */
     public DbClean(Database database, SchemaHistory schemaHistory, Schema[] schemas,
-                   List<FlywayCallback> callbacks, boolean cleanDisabled) {
+                   CallbackExecutor callbackExecutor, boolean cleanDisabled) {
         this.connection = database.getMainConnection();
         this.schemaHistory = schemaHistory;
         this.schemas = schemas;
-        this.callbacks = callbacks;
+        this.callbackExecutor = callbackExecutor;
         this.cleanDisabled = cleanDisabled;
     }
 
@@ -92,18 +90,9 @@ public class DbClean {
         if (cleanDisabled) {
             throw new FlywayException("Unable to execute clean as it has been disabled with the \"flyway.cleanDisabled\" property.");
         }
-        try {
-            for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() throws SQLException {
-                        connection.changeCurrentSchemaTo(schemas[0]);
-                        callback.beforeClean(connection.getJdbcConnection());
-                        return null;
-                    }
-                });
-            }
+        callbackExecutor.onEvent(Event.BEFORE_CLEAN);
 
+        try {
             connection.changeCurrentSchemaTo(schemas[0]);
             boolean dropSchemas = false;
             try {
@@ -124,21 +113,13 @@ public class DbClean {
                     cleanSchema(schema);
                 }
             }
-
-            for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() throws SQLException {
-                        connection.changeCurrentSchemaTo(schemas[0]);
-                        callback.afterClean(connection.getJdbcConnection());
-                        return null;
-                    }
-                });
-            }
-            schemaHistory.clearCache();
-        } finally {
-            connection.restoreCurrentSchema();
+        } catch (FlywayException e) {
+            callbackExecutor.onEvent(Event.AFTER_CLEAN_ERROR);
+            throw e;
         }
+
+        callbackExecutor.onEvent(Event.AFTER_CLEAN);
+        schemaHistory.clearCache();
     }
 
     /**
@@ -151,13 +132,25 @@ public class DbClean {
         LOG.debug("Dropping schema " + schema + " ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-            @Override
-            public Void call() {
-                schema.drop();
-                return null;
-            }
-        });
+        try {
+            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+                @Override
+                public Void call() {
+                    schema.drop();
+                    return null;
+                }
+            });
+        } catch (FlywaySqlException e) {
+            LOG.debug(e.getMessage());
+            LOG.warn("Unable to drop schema " + schema + ". Attempting clean instead...");
+            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+                @Override
+                public Void call() {
+                    schema.clean();
+                    return null;
+                }
+            });
+        }
         stopWatch.stop();
         LOG.info(String.format("Successfully dropped schema %s (execution time %s)",
                 schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));

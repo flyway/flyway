@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2010-2017 Boxfuse GmbH
+    Copyright 2010-2018 Boxfuse GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@
     <name>${project.artifactId}</name>
     <dependencies>
         <dependency>
-            <!-- Force correct module ordering -->
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-core</artifactId>
             <version>${project.version}</version>
@@ -64,6 +63,13 @@
 
 
 
+
+
+
+
+
+
+
     </dependencies>
     <build>
         <plugins>
@@ -91,6 +97,20 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         </plugins>
     </build>
 </project>

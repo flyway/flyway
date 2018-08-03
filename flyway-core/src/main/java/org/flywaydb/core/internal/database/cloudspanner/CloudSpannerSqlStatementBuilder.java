@@ -15,16 +15,16 @@
  */
 package org.flywaydb.core.internal.database.cloudspanner;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 
 /**
  * SqlStatementBuilder for Google Cloud Spanner
  */
 public class CloudSpannerSqlStatementBuilder extends SqlStatementBuilder {
 
-    CloudSpannerSqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    CloudSpannerSqlStatementBuilder() {
+        super(Delimiter.SEMICOLON);
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,30 @@
  */
 package org.flywaydb.core.internal.database.hsqldb;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
 
 import java.sql.Connection;
-import java.sql.Types;
 
 /**
  * HSQLDB database.
  */
-public class HSQLDBDatabase extends Database {
+public class HSQLDBDatabase extends Database<HSQLDBConnection> {
     /**
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public HSQLDBDatabase(FlywayConfiguration configuration, Connection connection
+    public HSQLDBDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -46,12 +46,12 @@ public class HSQLDBDatabase extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+    protected HSQLDBConnection getConnection(Connection connection
 
 
 
     ) {
-        return new HSQLDBConnection(configuration, this, connection, nullType
+        return new HSQLDBConnection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -59,32 +59,50 @@ public class HSQLDBDatabase extends Database {
     }
 
     @Override
-    protected final void ensureSupported() {
+    public final void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
 
-        if (majorVersion < 1 || (majorVersion == 18 && minorVersion < 8)) {
+        if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 8)) {
             throw new FlywayDbUpgradeRequiredException("HSQLDB", version, "1.8");
+        }
+
+        if (majorVersion == 1 || (majorVersion == 2 && minorVersion < 3)) {
+        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("HSQL Development Group", "HSQLDB", version);
+        }
+
+        if (majorVersion > 2 || (majorVersion == 2 && minorVersion > 4)) {
+            recommendFlywayUpgrade("HSQLDB", version);
         }
     }
 
+    @Override
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return HSQLDBSqlStatementBuilderFactory.INSTANCE;
+    }
+
+    @Override
     public String getDbName() {
         return "hsqldb";
     }
 
+    @Override
     public boolean supportsDdlTransactions() {
         return false;
     }
 
+    @Override
+    public boolean supportsChangingCurrentSchema() {
+        return true;
+    }
+
+    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "0";
-    }
-
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new HSQLDBSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override
@@ -100,5 +118,14 @@ public class HSQLDBDatabase extends Database {
     @Override
     public boolean useSingleConnection() {
         return true;
+    }
+
+    private enum HSQLDBSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new HSQLDBSqlStatementBuilder();
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,12 @@
  */
 package org.flywaydb.core.internal.database.saphana;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 
 import java.sql.Connection;
-import java.sql.Types;
 
 /**
  * SAP HANA database.
@@ -32,12 +31,12 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
      *
      * @param connection The connection to use.
      */
-    public SAPHANADatabase(FlywayConfiguration configuration, Connection connection
+    public SAPHANADatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -45,12 +44,12 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     }
 
     @Override
-    protected SAPHANAConnection getConnection(Connection connection, int nullType
+    protected SAPHANAConnection getConnection(Connection connection
 
 
 
     ) {
-        return new SAPHANAConnection(configuration, this, connection, nullType
+        return new SAPHANAConnection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -58,7 +57,7 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     }
 
     @Override
-    protected void ensureSupported() {
+    public void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
 
 
@@ -72,26 +71,32 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
 
     }
 
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new SAPHANASqlStatementBuilder(Delimiter.SEMICOLON);
+    @Override
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return SAPHANAStatementBuilderFactory.INSTANCE;
     }
 
+    @Override
     public String getDbName() {
         return "saphana";
     }
 
-    public String getCurrentUserFunction() {
-        return "CURRENT_USER";
-    }
-
+    @Override
     public boolean supportsDdlTransactions() {
         return false;
     }
 
+    @Override
+    public boolean supportsChangingCurrentSchema() {
+        return true;
+    }
+
+    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "0";
     }
@@ -104,5 +109,14 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     @Override
     public boolean catalogIsSchema() {
         return false;
+    }
+
+    enum SAPHANAStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new SAPHANASqlStatementBuilder();
+        }
     }
 }

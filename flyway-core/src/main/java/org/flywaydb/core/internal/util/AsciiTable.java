@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,20 +24,23 @@ import java.util.List;
 public class AsciiTable {
     private final List<String> columns;
     private final List<List<String>> rows;
+    private final boolean printHeader;
     private final String nullText;
     private final String emptyText;
 
     /**
      * Creates a new Ascii table.
      *
-     * @param columns   The column titles.
-     * @param rows      The data rows
-     * @param nullText  The text to use for a {@code null} value.
-     * @param emptyText The text to include in the table if it has no rows.
+     * @param columns     The column titles.
+     * @param rows        The data rows
+     * @param printHeader Whether to print the header row or not.
+     * @param nullText    The text to use for a {@code null} value.
+     * @param emptyText   The text to include in the table if it has no rows.
      */
-    public AsciiTable(List<String> columns, List<List<String>> rows, String nullText, String emptyText) {
+    public AsciiTable(List<String> columns, List<List<String>> rows, boolean printHeader, String nullText, String emptyText) {
         this.columns = columns;
         this.rows = rows;
+        this.printHeader = printHeader;
         this.nullText = nullText;
         this.emptyText = emptyText;
     }
@@ -63,19 +66,23 @@ public class AsciiTable {
         }
         ruler.append("\n");
 
-        StringBuilder header = new StringBuilder("|");
-        for (int i = 0; i < widths.size(); i++) {
-            header.append(" ").append(StringUtils.trimOrPad(columns.get(i), widths.get(i), ' ')).append(" |");
-        }
-        header.append("\n");
-
         StringBuilder result = new StringBuilder();
-        result.append(ruler);
-        result.append(header);
+
+        if (printHeader) {
+            StringBuilder header = new StringBuilder("|");
+            for (int i = 0; i < widths.size(); i++) {
+                header.append(" ").append(StringUtils.trimOrPad(columns.get(i), widths.get(i), ' ')).append(" |");
+            }
+            header.append("\n");
+
+            result.append(ruler);
+            result.append(header);
+        }
+
         result.append(ruler);
 
         if (rows.isEmpty()) {
-            result.append("| ").append(StringUtils.trimOrPad(emptyText, header.length() - 5)).append(" |\n");
+            result.append("| ").append(StringUtils.trimOrPad(emptyText, ruler.length() - 5)).append(" |\n");
         } else {
             for (List<String> row : rows) {
                 StringBuilder r = new StringBuilder("|");

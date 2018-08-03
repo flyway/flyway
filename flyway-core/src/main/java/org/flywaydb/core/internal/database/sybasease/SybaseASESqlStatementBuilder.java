@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,23 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * SqlStatementBuilder supporting Sybase ASE-specific delimiter changes.
  */
 public class SybaseASESqlStatementBuilder extends SqlStatementBuilder {
-    SybaseASESqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    /**
+     * Regex for keywords that can appear before a string literal without being separated by a space.
+     */
+    private static final Pattern KEYWORDS_BEFORE_STRING_LITERAL_REGEX = Pattern.compile("^(ELSE)('.*)");
+
+    SybaseASESqlStatementBuilder() {
+        super(Delimiter.GO);
     }
 
 	@Override
@@ -35,5 +43,15 @@ public class SybaseASESqlStatementBuilder extends SqlStatementBuilder {
             default:
                 return specialChar + "'";
         }
+    }
+
+    @Override
+    protected String cleanToken(String token) {
+        Matcher beforeMatcher = KEYWORDS_BEFORE_STRING_LITERAL_REGEX.matcher(token);
+        if (beforeMatcher.find()) {
+            token = beforeMatcher.group(2);
+        }
+
+        return token;
     }
 }

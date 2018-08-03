@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 package org.flywaydb.core.internal.command;
 
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.database.base.Connection;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
@@ -30,7 +31,6 @@ import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -85,16 +85,19 @@ public class DbValidate {
     private final boolean missing;
 
     /**
+     * Whether ignored migrations are allowed.
+     */
+    private final boolean ignored;
+
+    /**
      * Whether future migrations are allowed.
      */
     private final boolean future;
 
     /**
-     * This is a list of callbacks that fire before or after the validate task is executed.
-     * You can add as many callbacks as you want.  These should be set on the Flyway class
-     * by the end user as Flyway will set them automatically for you here.
+     * The callback executor.
      */
-    private final List<FlywayCallback> callbacks;
+    private final CallbackExecutor callbackExecutor;
 
     /**
      * Creates a new database validator.
@@ -108,11 +111,11 @@ public class DbValidate {
      * @param pending           Whether pending migrations are allowed.
      * @param missing           Whether missing migrations are allowed.
      * @param future            Whether future migrations are allowed.
-     * @param callbacks         The lifecycle callbacks.
+     * @param callbackExecutor  The callback executor.
      */
     public DbValidate(Database database, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
-                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean future,
-                      List<FlywayCallback> callbacks) {
+                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean ignored,
+                      boolean future, CallbackExecutor callbackExecutor) {
         this.connection = database.getMainConnection();
         this.schemaHistory = schemaHistory;
         this.schema = schema;
@@ -121,8 +124,9 @@ public class DbValidate {
         this.outOfOrder = outOfOrder;
         this.pending = pending;
         this.missing = missing;
+        this.ignored = ignored;
         this.future = future;
-        this.callbacks = callbacks;
+        this.callbackExecutor = callbackExecutor;
     }
 
     /**
@@ -138,65 +142,45 @@ public class DbValidate {
             return null;
         }
 
-        try {
-            for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() {
-                        connection.changeCurrentSchemaTo(schema);
-                        callback.beforeValidate(connection.getJdbcConnection());
-                        return null;
-                    }
-                });
+        callbackExecutor.onEvent(Event.BEFORE_VALIDATE);
+
+        LOG.debug("Validating migrations ...");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        Pair<Integer, String> result = new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Pair<Integer, String>>() {
+            @Override
+            public Pair<Integer, String> call() {
+                MigrationInfoServiceImpl migrationInfoService =
+                        new MigrationInfoServiceImpl(migrationResolver, schemaHistory, target, outOfOrder, pending,
+                                missing, ignored, future);
+
+                migrationInfoService.refresh();
+
+                int count = migrationInfoService.all().length;
+                String validationError = migrationInfoService.validate();
+                return Pair.of(count, validationError);
             }
+        });
 
-            LOG.debug("Validating migrations ...");
-            StopWatch stopWatch = new StopWatch();
-            stopWatch.start();
+        stopWatch.stop();
 
-            Pair<Integer, String> result = new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Pair<Integer, String>>() {
-                @Override
-                public Pair<Integer, String> call() {
-                    connection.changeCurrentSchemaTo(schema);
-                    MigrationInfoServiceImpl migrationInfoService =
-                            new MigrationInfoServiceImpl(migrationResolver, schemaHistory, target, outOfOrder, pending, missing, future);
-
-                    migrationInfoService.refresh();
-
-                    int count = migrationInfoService.all().length;
-                    String validationError = migrationInfoService.validate();
-                    return Pair.of(count, validationError);
-                }
-            });
-
-            stopWatch.stop();
-
-            String error = result.getRight();
-            if (error == null) {
-                int count = result.getLeft();
-                if (count == 1) {
-                    LOG.info(String.format("Successfully validated 1 migration (execution time %s)",
-                            TimeFormat.format(stopWatch.getTotalTimeMillis())));
-                } else {
-                    LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
-                            count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
-                }
+        String error = result.getRight();
+        if (error == null) {
+            int count = result.getLeft();
+            if (count == 1) {
+                LOG.info(String.format("Successfully validated 1 migration (execution time %s)",
+                        TimeFormat.format(stopWatch.getTotalTimeMillis())));
+            } else {
+                LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
+                        count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
             }
-
-            for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() {
-                        connection.changeCurrentSchemaTo(schema);
-                        callback.afterValidate(connection.getJdbcConnection());
-                        return null;
-                    }
-                });
-            }
-
-            return error;
-        } finally {
-            connection.restoreCurrentSchema();
+            callbackExecutor.onEvent(Event.AFTER_VALIDATE);
+        } else {
+            callbackExecutor.onEvent(Event.AFTER_VALIDATE_ERROR);
         }
+
+
+        return error;
     }
 }

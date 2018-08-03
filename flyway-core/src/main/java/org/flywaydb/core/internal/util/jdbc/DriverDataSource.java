@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,13 +40,27 @@ import java.util.logging.Logger;
 public class DriverDataSource implements DataSource {
     private static final Log LOG = LogFactory.getLog(DriverDataSource.class);
 
+    private static final String DB2_JDBC_URL_PREFIX = "jdbc:db2:";
+    private static final String DERBY_CLIENT_JDBC_URL_PREFIX = "jdbc:derby://";
+    private static final String DERBY_EMBEDDED_JDBC_URL_PREFIX = "jdbc:derby:";
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
+    private static final String MARIADB_JDBC_URL_PREFIX = "jdbc:mariadb:";
+    private static final String MYSQL_JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql:";
     private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle:";
+    private static final String POSTGRESQL_JDBC_URL_PREFIX = "jdbc:postgresql:";
     private static final String REDSHIFT_JDBC_URL_PREFIX = "jdbc:redshift:";
-    private static final String MYSQL_JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String REDSHIFT_JDBC41_DRIVER = "com.amazon.redshift.jdbc41.Driver";
+    private static final String SAPHANA_JDBC_URL_PREFIX = "jdbc:sap:";
     private static final String SQLDROID_DRIVER = "org.sqldroid.SQLDroidDriver";
+    private static final String SQLSERVER_JDBC_URL_PREFIX = "jdbc:sqlserver:";
+    private static final String SYBASE_JDBC_URL_PREFIX = "jdbc:sybase:";
+
+    /**
+     * The name of the application that created the connection. This is useful for databases that allow setting this
+     * in order to easily correlate individual application with database connections.
+     */
+    private static final String APPLICATION_NAME = "Flyway by Boxfuse";
 
     /**
      * The JDBC Driver instance to use.
@@ -217,25 +231,36 @@ public class DriverDataSource implements DataSource {
         if (url.startsWith(ORACLE_JDBC_URL_PREFIX)) {
             String osUser = System.getProperty("user.name");
             result.put("v$session.osuser", osUser.substring(0, Math.min(osUser.length(), 30)));
-            result.put("v$session.program", "Flyway by Boxfuse");
+            result.put("v$session.program", APPLICATION_NAME);
             result.put("oracle.net.keepAlive", "true");
+        } else if (url.startsWith(SQLSERVER_JDBC_URL_PREFIX)) {
+            result.put("applicationName", APPLICATION_NAME);
+        } else if (url.startsWith(POSTGRESQL_JDBC_URL_PREFIX)) {
+            result.put("ApplicationName", APPLICATION_NAME);
+        } else if (url.startsWith(MYSQL_JDBC_URL_PREFIX) || url.startsWith(MARIADB_JDBC_URL_PREFIX)) {
+            result.put("connectionAttributes", "program_name:" + APPLICATION_NAME);
+        } else if (url.startsWith(DB2_JDBC_URL_PREFIX)) {
+            result.put("clientProgramName", APPLICATION_NAME);
+        } else if (url.startsWith(SYBASE_JDBC_URL_PREFIX)) {
+            result.put("APPLICATIONNAME", APPLICATION_NAME);
+        } else if (url.startsWith(SAPHANA_JDBC_URL_PREFIX)) {
+            result.put("SESSIONVARIABLE:APPLICATION", APPLICATION_NAME);
         }
 
         return result;
     }
 
     /**
-     * Retrieves a second choice backup driver for a jdbc url, in case the primary driver is not available.
+     * Retrieves a second choice backup driver for a JDBC URL, in case the primary driver is not available.
      *
-     * @param url The Jdbc url.
-     * @return The Jdbc driver. {@code null} if none.
+     * @param url The JDBC url.
+     * @return The JDBC driver. {@code null} if none.
      */
     private String detectBackupDriverForUrl(String url) {
-        if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
-            if (ClassUtils.isPresent(MYSQL_JDBC_DRIVER, classLoader)) {
-                return MYSQL_JDBC_DRIVER;
-            }
-
+        if (url.startsWith(MYSQL_JDBC_URL_PREFIX) && ClassUtils.isPresent(MARIADB_JDBC_DRIVER, classLoader)) {
+            LOG.warn("You are attempting to connect to a MySQL database using the MariaDB driver." +
+                    " This is known to cause issues." +
+                    " An upgrade to Oracle's MySQL JDBC driver is highly recommended.");
             return MARIADB_JDBC_DRIVER;
         }
 
@@ -260,15 +285,15 @@ public class DriverDataSource implements DataSource {
             return "org.testcontainers.jdbc.ContainerDatabaseDriver";
         }
 
-        if (url.startsWith("jdbc:db2:")) {
+        if (url.startsWith(DB2_JDBC_URL_PREFIX)) {
             return "com.ibm.db2.jcc.DB2Driver";
         }
 
-        if (url.startsWith("jdbc:derby://")) {
+        if (url.startsWith(DERBY_CLIENT_JDBC_URL_PREFIX)) {
             return "org.apache.derby.jdbc.ClientDriver";
         }
 
-        if (url.startsWith("jdbc:derby:")) {
+        if (url.startsWith(DERBY_EMBEDDED_JDBC_URL_PREFIX)) {
             return "org.apache.derby.jdbc.EmbeddedDriver";
         }
 
@@ -292,10 +317,10 @@ public class DriverDataSource implements DataSource {
         }
 
         if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
-            return "com.mysql.cj.jdbc.Driver";
+            return MYSQL_JDBC_DRIVER;
         }
 
-        if (url.startsWith("jdbc:mariadb:")) {
+        if (url.startsWith(MARIADB_JDBC_URL_PREFIX)) {
             return MARIADB_JDBC_DRIVER;
         }
 
@@ -307,7 +332,7 @@ public class DriverDataSource implements DataSource {
             return "oracle.jdbc.OracleDriver";
         }
 
-        if (url.startsWith("jdbc:postgresql:")) {
+        if (url.startsWith(POSTGRESQL_JDBC_URL_PREFIX)) {
             return "org.postgresql.Driver";
         }
 
@@ -319,20 +344,24 @@ public class DriverDataSource implements DataSource {
             return "net.sourceforge.jtds.jdbc.Driver";
         }
 
-        if (url.startsWith("jdbc:sybase:")) {
+        if (url.startsWith(SYBASE_JDBC_URL_PREFIX)) {
             return "com.sybase.jdbc4.jdbc.SybDriver";
         }
 
-        if (url.startsWith("jdbc:sqlserver:")) {
+        if (url.startsWith(SQLSERVER_JDBC_URL_PREFIX)) {
             return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
         }
 
-        if (url.startsWith("jdbc:sap:")) {
+        if (url.startsWith(SAPHANA_JDBC_URL_PREFIX)) {
             return "com.sap.db.jdbc.Driver";
         }
 
         if (url.startsWith("jdbc:cloudspanner:")) {
             return "nl.topicus.jdbc.CloudSpannerDriver";
+        }
+        
+        if (url.startsWith("jdbc:informix-sqli:")) {
+            return "com.informix.jdbc.IfxDriver";
         }
 
         return null;
@@ -466,11 +495,11 @@ public class DriverDataSource implements DataSource {
         this.autoCommit = autoCommit;
     }
 
-    public int getLoginTimeout() throws SQLException {
+    public int getLoginTimeout() {
         return 0;
     }
 
-    public void setLoginTimeout(int timeout) throws SQLException {
+    public void setLoginTimeout(int timeout) {
         throw new UnsupportedOperationException("setLoginTimeout");
     }
 
@@ -478,19 +507,35 @@ public class DriverDataSource implements DataSource {
         throw new UnsupportedOperationException("getLogWriter");
     }
 
-    public void setLogWriter(PrintWriter pw) throws SQLException {
+    public void setLogWriter(PrintWriter pw) {
         throw new UnsupportedOperationException("setLogWriter");
     }
 
-    public <T> T unwrap(Class<T> iface) throws SQLException {
+    public <T> T unwrap(Class<T> iface) {
         throw new UnsupportedOperationException("unwrap");
     }
 
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+    public boolean isWrapperFor(Class<?> iface) {
         return DataSource.class.equals(iface);
     }
 
     public Logger getParentLogger() {
         throw new UnsupportedOperationException("getParentLogger");
+    }
+
+    /**
+     * Shutdown the database that was opened (only applicable to embedded databases that require this).
+     */
+    public void shutdownDatabase() {
+        if (url.startsWith(DERBY_EMBEDDED_JDBC_URL_PREFIX) && !url.startsWith(DERBY_CLIENT_JDBC_URL_PREFIX)) {
+            try {
+                int i = url.indexOf(";");
+                String shutdownUrl = (i < 0 ? url : url.substring(0, i)) + ";shutdown=true";
+
+                driver.connect(shutdownUrl, new Properties());
+            } catch (SQLException e) {
+                LOG.debug("Expected error on Derby Embedded Database shutdown: " + e.getMessage());
+            }
+        }
     }
 }

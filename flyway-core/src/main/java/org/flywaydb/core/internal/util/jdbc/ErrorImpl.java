@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.util.jdbc;
 
-import org.flywaydb.core.api.errorhandler.Error;
+import org.flywaydb.core.api.callback.Error;
 
 public class ErrorImpl implements Error {
     private final int code;

@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2010-2017 Boxfuse GmbH
+    Copyright 2010-2018 Boxfuse GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -69,6 +69,17 @@
 			<version>0.22</version>
 			<optional>true</optional>
 		</dependency>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -248,7 +259,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
+                <version>3.0.1</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <sourceFileIncludes>
@@ -259,6 +270,7 @@
             </plugin>
         </plugins>
     </reporting>
+
 
 
 

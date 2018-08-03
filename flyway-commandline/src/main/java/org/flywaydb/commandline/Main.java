@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,18 @@ package org.flywaydb.commandline;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationInfoService;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.VersionPrinter;
-import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
-import org.flywaydb.core.internal.util.logging.console.ConsoleLogCreator;
+import org.flywaydb.core.internal.util.license.VersionPrinter;
+import org.flywaydb.core.internal.logging.console.ConsoleLog.Level;
+import org.flywaydb.core.internal.logging.console.ConsoleLogCreator;
 
 import java.io.Console;
 import java.io.File;
@@ -66,8 +69,8 @@ public class Main {
         initLogging(logLevel);
 
         try {
-            printVersion();
             if (isPrintVersionAndExit(args)) {
+                printVersion();
                 System.exit(0);
             }
 
@@ -97,8 +100,8 @@ public class Main {
             classLoader = loadJdbcDrivers(classLoader);
             classLoader = loadJavaMigrationsFromJarDirs(classLoader, properties);
 
-            Flyway flyway = new Flyway(classLoader);
             filterProperties(properties);
+            Flyway flyway = new Flyway(classLoader);
             flyway.configure(properties);
 
             for (String operation : operations) {
@@ -161,7 +164,12 @@ public class Main {
         } else if ("validate".equals(operation)) {
             flyway.validate();
         } else if ("info".equals(operation)) {
-            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
+            MigrationInfoService info = flyway.info();
+            MigrationInfo current = info.current();
+            MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
+            LOG.info("Schema version: " + currentSchemaVersion);
+            LOG.info("");
+            LOG.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));
         } else if ("repair".equals(operation)) {
             flyway.repair();
         } else {
@@ -215,7 +223,7 @@ public class Main {
      * Prints the version number on the console.
      */
     private static void printVersion() {
-        VersionPrinter.printVersion();
+        VersionPrinter.printVersionOnly();
         LOG.info("");
 
         LOG.debug("Java " + System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")");
@@ -240,7 +248,7 @@ public class Main {
         LOG.info("clean    : Drops all objects in the configured schemas");
         LOG.info("info     : Prints the information about applied, current and pending migrations");
         LOG.info("validate : Validates the applied migrations against the ones on the classpath");
-        LOG.info("undo     : Undoes the most recently applied versioned migration");
+        LOG.info("undo     : [" + "pro] Undoes the most recently applied versioned migration");
         LOG.info("baseline : Baselines an existing database at the baselineVersion");
         LOG.info("repair   : Repairs the schema history table");
         LOG.info("");
@@ -256,12 +264,14 @@ public class Main {
         LOG.info("resolvers                    : Comma-separated list of custom MigrationResolvers");
         LOG.info("skipDefaultResolvers         : Skips default resolvers (jdbc, sql and Spring-jdbc)");
         LOG.info("sqlMigrationPrefix           : File name prefix for versioned SQL migrations");
-        LOG.info("undoSqlMigrationPrefix       : File name prefix for undo SQL migrations");
+        LOG.info("undoSqlMigrationPrefix       : [" + "pro] File name prefix for undo SQL migrations");
         LOG.info("repeatableSqlMigrationPrefix : File name prefix for repeatable SQL migrations");
-        LOG.info("sqlMigrationSeparator        : File name separator for sql migrations");
-        LOG.info("sqlMigrationSuffixes         : Comma-separated list of file name suffixes for sql migrations");
+        LOG.info("sqlMigrationSeparator        : File name separator for SQL migrations");
+        LOG.info("sqlMigrationSuffixes         : Comma-separated list of file name suffixes for SQL migrations");
+        LOG.info("stream                       : [" + "pro] Stream SQL migrations when executing them");
+        LOG.info("batch                        : [" + "pro] Batch SQL statements when executing them");
         LOG.info("mixed                        : Allow mixing transactional and non-transactional statements");
-        LOG.info("encoding                     : Encoding of sql migrations");
+        LOG.info("encoding                     : Encoding of SQL migrations");
         LOG.info("placeholderReplacement       : Whether placeholders should be replaced");
         LOG.info("placeholders                 : Placeholders to replace in sql migrations");
         LOG.info("placeholderPrefix            : Prefix of every placeholder");
@@ -273,6 +283,7 @@ public class Main {
         LOG.info("skipDefaultCallbacks         : Skips default callbacks (sql)");
         LOG.info("validateOnMigrate            : Validate when running migrate");
         LOG.info("ignoreMissingMigrations      : Allow missing migrations when validating");
+        LOG.info("ignoreIgnoredMigrations      : Allow ignored migrations when validating");
         LOG.info("ignoreFutureMigrations       : Allow future migrations when validating");
         LOG.info("cleanOnValidationError       : Automatically clean on a validation error");
         LOG.info("cleanDisabled                : Whether to disable clean");
@@ -282,8 +293,10 @@ public class Main {
         LOG.info("configFiles                  : Comma-separated list of config files to use");
         LOG.info("configFileEncoding           : Encoding to use when loading the config files");
         LOG.info("jarDirs                      : Comma-separated list of dirs for Jdbc drivers & Java migrations");
-        LOG.info("dryRunOutput                 : File where to output the SQL statements of a migration dry run");
-        LOG.info("errorHandlers                : Comma-separated list of handlers for errors and warnings");
+        LOG.info("dryRunOutput                 : [" + "pro] File where to output the SQL statements of a migration dry run");
+        LOG.info("errorOverrides               : [" + "pro] Rules to override specific SQL states and errors codes");
+        LOG.info("oracle.sqlplus               : [" + "pro] Enable Oracle SQL*Plus command support");
+        LOG.info("licenseKey                   : [" + "pro] Your Flyway license key");
         LOG.info("");
         LOG.info("Flags");
         LOG.info("-----");
@@ -293,6 +306,12 @@ public class Main {
         LOG.info("-v : Print the Flyway version and exit");
         LOG.info("-? : Print this usage info and exit");
         LOG.info("");
+
+        LOG.info("Environment Variables");
+        LOG.info("---------------------");
+        LOG.info("FLYWAY_EDITION : Switch to a different Flyway edition (choices: community, trial, pro, enterprise)");
+        LOG.info("");
+
         LOG.info("Example");
         LOG.info("-------");
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
@@ -317,8 +336,8 @@ public class Main {
 
         // see javadoc of listFiles(): null if given path is not a real directory
         if (files == null) {
-            LOG.error("Directory for Jdbc Drivers not found: " + driversDir.getAbsolutePath());
-            System.exit(1);
+            LOG.debug("Directory for Jdbc Drivers not found: " + driversDir.getAbsolutePath());
+            return classLoader;
         }
 
         for (File file : files) {
@@ -467,7 +486,11 @@ public class Main {
     @SuppressWarnings("ConstantConditions")
     private static String getInstallationDir() {
         String path = ClassUtils.getLocationOnDisk(Main.class);
-        return new File(path).getParentFile().getParentFile().getAbsolutePath();
+        return new File(path) // jar file
+                .getParentFile() // edition dir
+                .getParentFile() // lib dir
+                .getParentFile() // installation dir
+                .getAbsolutePath();
     }
 
     /**

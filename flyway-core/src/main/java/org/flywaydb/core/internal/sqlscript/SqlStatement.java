@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-import org.flywaydb.core.internal.util.jdbc.ContextImpl;
+import org.flywaydb.core.internal.util.jdbc.StandardContext;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.Result;
 
@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * A sql statement from a script that can be executed at once against a database.
  */
-public interface SqlStatement {
+public interface SqlStatement<C extends StandardContext> {
     /**
      * @return The original line number where the statement was located in the script it came from.
      */
@@ -37,11 +37,23 @@ public interface SqlStatement {
     String getSql();
 
     /**
+     * @return The delimiter for the statement.
+     */
+    String getDelimiter();
+
+
+
+
+
+
+
+
+    /**
      * Executes this statement against the database.
      *
-     * @param errorContext The error context.
+     * @param context      The error context.
      * @param jdbcTemplate The jdbcTemplate to use to execute this script.
      * @throws SQLException when the execution fails.
      */
-    List<Result> execute(ContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException;
+    List<Result> execute(C context, JdbcTemplate jdbcTemplate) throws SQLException;
 }

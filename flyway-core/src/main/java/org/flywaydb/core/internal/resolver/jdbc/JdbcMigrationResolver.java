@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,16 @@
  */
 package org.flywaydb.core.internal.resolver.jdbc;
 
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationType;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
 import org.flywaydb.core.internal.resolver.JavaMigrationResolver;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.scanner.Scanner;
+
+import java.util.List;
 
 /**
  * Migration resolver for JDBC migrations. The classes must have a name like R__My_description, V1__Description
@@ -34,7 +38,7 @@ public class JdbcMigrationResolver extends JavaMigrationResolver<JdbcMigration, 
      * @param scanner       The Scanner for loading migrations on the classpath.
      * @param configuration The configuration to inject (if necessary) in the migration classes.
      */
-    public JdbcMigrationResolver(Scanner scanner, Locations locations, FlywayConfiguration configuration) {
+    public JdbcMigrationResolver(Scanner scanner, List<Location> locations, Configuration configuration) {
         super(scanner, locations, configuration);
     }
 

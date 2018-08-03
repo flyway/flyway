@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,31 +15,44 @@
  */
 package org.flywaydb.core.internal.database.h2;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.util.Pair;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * H2 database.
  */
-public class H2Database extends Database {
+public class H2Database extends Database<H2Connection> {
+    /**
+     * The H2 build id.
+     */
+    private int buildId;
+
+    /**
+     * Whether this version supports DROP SCHEMA ... CASCADE.
+     */
+    boolean supportsDropSchemaCascade;
+
     /**
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public H2Database(FlywayConfiguration configuration, Connection connection
+    public H2Database(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -47,12 +60,12 @@ public class H2Database extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+    protected H2Connection getConnection(Connection connection
 
 
 
     ) {
-        return new H2Connection(configuration, this, connection, nullType
+        return new H2Connection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -60,37 +73,70 @@ public class H2Database extends Database {
     }
 
     @Override
-    protected final void ensureSupported() {
-        String version = majorVersion + "." + minorVersion;
+    protected Pair<Integer, Integer> determineMajorAndMinorVersion() {
+        Pair<Integer, Integer> majorMinor = super.determineMajorAndMinorVersion();
+        try {
+            buildId = getMainConnection().getJdbcTemplate().queryForInt(
+                    "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'info.BUILD_ID'");
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine H2 build ID", e);
+        }
+        return majorMinor;
+    }
+
+    @Override
+    public final void ensureSupported() {
+        String version = majorVersion + "." + minorVersion + "." + buildId;
 
         if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 2)) {
             throw new FlywayDbUpgradeRequiredException("H2", version, "1.2.137");
         }
+
+        if (majorVersion == 1 && minorVersion < 4) {
+        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("H2", "H2", version);
+        }
+
+        if ((majorVersion == 1 && (minorVersion > 4 || (minorVersion == 4 && buildId > 197))) || majorVersion > 1) {
+            recommendFlywayUpgrade("H2", version);
+        }
+
+        supportsDropSchemaCascade =
+                MigrationVersion.fromVersion(version).compareTo(MigrationVersion.fromVersion("1.4.197")) >= 0;
     }
 
+    @Override
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return H2SqlStatementBuilderFactory.INSTANCE;
+    }
+
+    @Override
     public String getDbName() {
         return "h2";
     }
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return mainConnection.getJdbcTemplate().queryForString("SELECT USER()");
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT USER()");
     }
 
+    @Override
     public boolean supportsDdlTransactions() {
         return false;
     }
 
+    @Override
+    public boolean supportsChangingCurrentSchema() {
+        return true;
+    }
+
+    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "0";
-    }
-
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new H2SqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override
@@ -101,5 +147,14 @@ public class H2Database extends Database {
     @Override
     public boolean catalogIsSchema() {
         return false;
+    }
+
+    public enum H2SqlStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new H2SqlStatementBuilder();
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,17 @@
 package org.flywaydb.core.internal.database;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.cloudspanner.CloudSpannerDatabase;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabase;
 import org.flywaydb.core.internal.database.db2.DB2Database;
 import org.flywaydb.core.internal.database.derby.DerbyDatabase;
 import org.flywaydb.core.internal.database.h2.H2Database;
 import org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabase;
+import org.flywaydb.core.internal.database.informix.InformixDatabase;
 import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
 import org.flywaydb.core.internal.database.oracle.OracleDatabase;
 import org.flywaydb.core.internal.database.postgresql.PostgreSQLDatabase;
@@ -60,49 +62,100 @@ public class DatabaseFactory {
      * @param printInfo     Where the DB info should be printed in the logs.
      * @return The appropriate Database class.
      */
-    public static Database createDatabase(FlywayConfiguration configuration, boolean printInfo
+    public static Database createDatabase(Configuration configuration, boolean printInfo
 
 
 
     ) {
+        OracleDatabase.enableTnsnamesOraSupport();
+
         Connection connection = JdbcUtils.openConnection(configuration.getDataSource());
-
-        String databaseProductName = getDatabaseProductName(connection);
-
-        if (printInfo) {
-            LOG.info("Database: " + getJdbcUrl(connection) + " (" + databaseProductName + ")");
+        boolean originalAutoCommit;
+        try {
+            originalAutoCommit = connection.getAutoCommit();
+            if (!originalAutoCommit) {
+                connection.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to turn on auto-commit for the connection", e);
         }
 
+        DatabaseMetaData databaseMetaData;
+        try {
+            databaseMetaData = connection.getMetaData();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to read database connection metadata: " + e.getMessage(), e);
+        }
+        if (databaseMetaData == null) {
+            throw new FlywayException("Unable to read database connection metadata while it is null!");
+        }
+
+        String databaseProductName = getDatabaseProductName(databaseMetaData);
+        if (printInfo) {
+            LOG.info("Database: " + getJdbcUrl(databaseMetaData) + " (" + databaseProductName + ")");
+            LOG.debug("Driver  : " + getDriverInfo(databaseMetaData));
+        }
+
+        Database database = createDatabase(configuration, connection, originalAutoCommit, databaseProductName
+
+
+
+        );
+        database.ensureSupported();
+
+        if (!database.supportsChangingCurrentSchema() && configuration.getSchemas().length > 0) {
+            LOG.warn(databaseProductName + " does not support setting the schema for the current session. " +
+                    "Default schema will NOT be changed to " + configuration.getSchemas()[0] + " !");
+        }
+
+        return database;
+    }
+
+    private static String getDriverInfo(DatabaseMetaData databaseMetaData) {
+        try {
+            return databaseMetaData.getDriverName() + " " + databaseMetaData.getDriverVersion();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to read database driver info: " + e.getMessage(), e);
+        }
+    }
+
+    private static Database createDatabase(Configuration configuration, Connection connection,
+                                           boolean originalAutoCommit,
+                                           String databaseProductName
+
+
+
+    ) {
         if (databaseProductName.startsWith("Apache Derby")) {
-            return new DerbyDatabase(configuration, connection
+            return new DerbyDatabase(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.startsWith("SQLite")) {
-            return new SQLiteDatabase(configuration, connection
+            return new SQLiteDatabase(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.startsWith("H2")) {
-            return new H2Database(configuration, connection
+            return new H2Database(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.contains("HSQL Database Engine")) {
-            return new HSQLDBDatabase(configuration, connection
+            return new HSQLDBDatabase(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.startsWith("Microsoft SQL Server")) {
-            return new SQLServerDatabase(configuration, connection
+            return new SQLServerDatabase(configuration, connection, originalAutoCommit
 
 
 
@@ -112,14 +165,14 @@ public class DatabaseFactory {
             // For regular MySQL, MariaDB and Google Cloud SQL.
             // Google Cloud SQL returns different names depending on the environment and the SDK version.
             //   ex.: Google SQL Service/MySQL
-            return new MySQLDatabase(configuration, connection
+            return new MySQLDatabase(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.startsWith("Oracle")) {
-            return new OracleDatabase(configuration, connection
+            return new OracleDatabase(configuration, connection, originalAutoCommit
 
 
 
@@ -127,7 +180,7 @@ public class DatabaseFactory {
         }
         if (databaseProductName.startsWith("PostgreSQL 8")) {
             if (RedshiftDatabase.isRedshift(connection)) {
-                return new RedshiftDatabase(configuration, connection
+                return new RedshiftDatabase(configuration, connection, originalAutoCommit
 
 
 
@@ -136,67 +189,73 @@ public class DatabaseFactory {
         }
         if (databaseProductName.startsWith("PostgreSQL")) {
             if (CockroachDBDatabase.isCockroachDB(connection)) {
-                return new CockroachDBDatabase(configuration, connection
+                return new CockroachDBDatabase(configuration, connection, originalAutoCommit
 
 
 
                 );
             }
-            return new PostgreSQLDatabase(configuration, connection
+            return new PostgreSQLDatabase(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.startsWith("DB2")) {
-            return new DB2Database(configuration, connection
+            return new DB2Database(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.startsWith("ASE")) {
-            return new SybaseASEDatabase(configuration, connection, false
+            return new SybaseASEDatabase(configuration, connection, originalAutoCommit, false
 
 
 
             );
         }
         if (databaseProductName.startsWith("Adaptive Server Enterprise")) {
-            return new SybaseASEDatabase(configuration, connection, true
+            return new SybaseASEDatabase(configuration, connection, originalAutoCommit, true
 
 
 
             );
         }
         if (databaseProductName.startsWith("HDB")) {
-            return new SAPHANADatabase(configuration, connection
+            return new SAPHANADatabase(configuration, connection, originalAutoCommit
 
 
 
             );
         }
         if (databaseProductName.startsWith("Google Cloud Spanner")) {
-            return new CloudSpannerDatabase(configuration, connection
+            return new CloudSpannerDatabase(configuration, connection, originalAutoCommit
 
 
 
             );
         }
+        if (databaseProductName.startsWith("Informix")) {
+            return new InformixDatabase(configuration, connection, originalAutoCommit
 
+
+
+            );
+        }
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
 
     /**
      * Retrieves the Jdbc Url for this connection.
      *
-     * @param connection The Jdbc connection.
+     * @param databaseMetaData The Jdbc connection metadata.
      * @return The Jdbc Url.
      */
 
-    private static String getJdbcUrl(Connection connection) {
+    private static String getJdbcUrl(DatabaseMetaData databaseMetaData) {
         try {
-            return filterUrl(connection.getMetaData().getURL());
+            return filterUrl(databaseMetaData.getURL());
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to retrieve the Jdbc connection Url!", e);
         }
@@ -220,16 +279,11 @@ public class DatabaseFactory {
     /**
      * Retrieves the name of the database product.
      *
-     * @param connection The connection to use to query the database.
+     * @param databaseMetaData The connection metadata to use to query the database.
      * @return The name of the database product. Ex.: Oracle, MySQL, ...
      */
-    private static String getDatabaseProductName(Connection connection) {
+    private static String getDatabaseProductName(DatabaseMetaData databaseMetaData) {
         try {
-            DatabaseMetaData databaseMetaData = connection.getMetaData();
-            if (databaseMetaData == null) {
-                throw new FlywayException("Unable to read database metadata while it is null!");
-            }
-
             String databaseProductName = databaseMetaData.getDatabaseProductName();
             if (databaseProductName == null) {
                 throw new FlywayException("Unable to determine database. Product name is null.");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,24 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.scanner.StringResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * SQL Server database.
  */
-public class SQLServerDatabase extends Database {
+public class SQLServerDatabase extends Database<SQLServerConnection> {
     private final boolean azure;
 
     /**
@@ -39,18 +41,18 @@ public class SQLServerDatabase extends Database {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public SQLServerDatabase(FlywayConfiguration configuration, Connection connection
+    public SQLServerDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection, originalAutoCommit
 
 
 
         );
         try {
-            azure = "SQL Azure".equals(mainConnection.getJdbcTemplate().queryForString(
+            azure = "SQL Azure".equals(getMainConnection().getJdbcTemplate().queryForString(
                     "SELECT CAST(SERVERPROPERTY('edition') AS VARCHAR)"));
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine database edition", e);
@@ -58,12 +60,12 @@ public class SQLServerDatabase extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+    protected SQLServerConnection getConnection(Connection connection
 
 
 
     ) {
-        return new SQLServerConnection(configuration, this, connection, nullType
+        return new SQLServerConnection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -71,7 +73,7 @@ public class SQLServerDatabase extends Database {
     }
 
     @Override
-    protected final void ensureSupported() {
+    public final void ensureSupported() {
         String release = versionToReleaseName(majorVersion, minorVersion);
 
         if (majorVersion < 10) {
@@ -118,6 +120,12 @@ public class SQLServerDatabase extends Database {
         return major + "." + minor;
     }
 
+    @Override
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return SQLServerSqlStatementBuilderFactory.INSTANCE;
+    }
+
+    @Override
     public String getDbName() {
         return "sqlserver";
     }
@@ -129,23 +137,27 @@ public class SQLServerDatabase extends Database {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return mainConnection.getJdbcTemplate().queryForString("SELECT SUSER_SNAME()");
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT SUSER_SNAME()");
     }
 
+    @Override
     public boolean supportsDdlTransactions() {
         return true;
     }
 
+    @Override
+    public boolean supportsChangingCurrentSchema() {
+        return false;
+    }
+
+    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "0";
-    }
-
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new SQLServerSqlStatementBuilder(getDefaultDelimiter());
     }
 
     /**
@@ -173,10 +185,39 @@ public class SQLServerDatabase extends Database {
         return true;
     }
 
+    @Override
+    protected LoadableResource getRawCreateScript() {
+        return new StringResource("CREATE TABLE ${table_quoted} (\n" +
+                "    [installed_rank] INT NOT NULL,\n" +
+                "    [" + "version] NVARCHAR(50),\n" +
+                "    [description] NVARCHAR(200),\n" +
+                "    [type] NVARCHAR(20) NOT NULL,\n" +
+                "    [script] NVARCHAR(1000) NOT NULL,\n" +
+                "    [checksum] INT,\n" +
+                "    [installed_by] NVARCHAR(100) NOT NULL,\n" +
+                "    [installed_on] DATETIME NOT NULL DEFAULT GETDATE(),\n" +
+                "    [execution_time] INT NOT NULL,\n" +
+                "    [success] BIT NOT NULL\n" +
+                ");\n" +
+                "ALTER TABLE ${table_quoted} ADD CONSTRAINT [${table}_pk] PRIMARY KEY ([installed_rank]);\n" +
+                "\n" +
+                "CREATE INDEX [${table}_s_idx] ON ${table_quoted} ([success]);\n" +
+                "GO\n");
+    }
+
     /**
      * @return Whether this is a SQL Azure database.
      */
-    public boolean isAzure() {
+    boolean isAzure() {
         return azure;
+    }
+
+    enum SQLServerSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new SQLServerSqlStatementBuilder();
+        }
     }
 }

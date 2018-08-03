@@ -8,13 +8,13 @@
 Simple, focused and powerful.
 
 #### Works on
-Windows, macOS, Linux, Java and Android
+Windows, macOS, Linux, Docker, Java and Android
 
 #### Supported build tools
 Maven and Gradle
 
 #### Supported databases
-Oracle, SQL Server, DB2, MySQL, MariaDB, PostgreSQL, Redshift, CockroachDB, SAP HANA, Sybase ASE, H2, HSQLDB, Derby, SQLite
+Oracle, SQL Server, DB2, MySQL, MariaDB, PostgreSQL, Redshift, CockroachDB, SAP HANA, Sybase ASE, Informix, H2, HSQLDB, Derby, SQLite
 
 #### Third party plugins
 SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...
@@ -29,7 +29,7 @@ https://flywaydb.org/documentation/contribute/
 Flyway is brought to you by [Axel Fontaine](https://twitter.com/axelfontaine) and [Boxfuse](https://boxfuse.com) with the help of [many contributors](https://flywaydb.org/documentation/contribute/hallOfFame.html).
 
 ## License
-Copyright (C) 2010-2017 [Boxfuse GmbH](https://boxfuse.com)
+Copyright (C) 2010-2018 [Boxfuse GmbH](https://boxfuse.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

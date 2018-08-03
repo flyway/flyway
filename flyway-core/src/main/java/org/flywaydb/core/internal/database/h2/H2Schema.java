@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 package org.flywaydb.core.internal.database.h2;
 
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.Table;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -49,7 +49,7 @@ public class H2Schema extends Schema<H2Database> {
     }
 
     @Override
-    protected boolean doEmpty() throws SQLException {
+    protected boolean doEmpty() {
         return allTables().length == 0;
     }
 
@@ -60,7 +60,8 @@ public class H2Schema extends Schema<H2Database> {
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP SCHEMA " + database.quote(name));
+        jdbcTemplate.execute("DROP SCHEMA " + database.quote(name)
+                + (database.supportsDropSchemaCascade ? " CASCADE" : ""));
     }
 
     @Override
@@ -81,7 +82,7 @@ public class H2Schema extends Schema<H2Database> {
 
         List<String> domainNames = listObjectNames("DOMAIN", "");
         if (!domainNames.isEmpty()) {
-            if (name.equals(database.getMainConnection().getCurrentSchemaName())) {
+            if (name.equals(database.getMainConnection().getCurrentSchema().getName())) {
                 for (String statement : generateDropStatementsForCurrentSchema("DOMAIN", domainNames)) {
                     jdbcTemplate.execute(statement);
                 }

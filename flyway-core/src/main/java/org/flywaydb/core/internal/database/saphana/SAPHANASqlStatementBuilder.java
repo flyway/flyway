@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package org.flywaydb.core.internal.database.saphana;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.util.StringUtils;
 
 /**
  * SqlStatementBuilder supporting SAP HANA-specific delimiter changes.
@@ -35,11 +35,9 @@ public class SAPHANASqlStatementBuilder extends SqlStatementBuilder {
 
     /**
      * Creates a new SqlStatementBuilder.
-     *
-     * @param defaultDelimiter The default delimiter for this database.
      */
-    SAPHANASqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    SAPHANASqlStatementBuilder() {
+        super(Delimiter.SEMICOLON);
     }
 
     @Override
@@ -53,18 +51,17 @@ public class SAPHANASqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
-
         // need only accumulate 16 characters of normalized statement start in order to determine if it is an 'interesting' statement
-        if (statementStartNormalized.length() < 16) {
+        if (hasNonCommentPart() && statementStartNormalized.length() < 16) {
             final String effectiveLine = cutCommentsFromEnd(line);
             statementStartNormalized += effectiveLine + " ";
             statementStartNormalized = StringUtils.trimLeadingWhitespace(StringUtils.collapseWhitespace(statementStartNormalized));
         }
         boolean insideStatementAllowingNestedBeginEndBlocks =
                 statementStartNormalized.startsWith("CREATE PROCEDURE")
-                || statementStartNormalized.startsWith("CREATE FUNCTION")
-                || statementStartNormalized.startsWith("CREATE TRIGGER")
-                || statementStartNormalized.startsWith("DO");
+                        || statementStartNormalized.startsWith("CREATE FUNCTION")
+                        || statementStartNormalized.startsWith("CREATE TRIGGER")
+                        || statementStartNormalized.startsWith("DO");
 
         if (insideStatementAllowingNestedBeginEndBlocks) {
             if (line.startsWith("BEGIN")) {
@@ -89,9 +86,6 @@ public class SAPHANASqlStatementBuilder extends SqlStatementBuilder {
     }
 
     private static String cutCommentsFromEnd(String line) {
-        if (null == line) {
-            return line;
-        }
         final int beginOfLineComment = line.indexOf("--");
         final int beginOfBlockComment = line.indexOf("/*");
         if (-1 != beginOfLineComment) {

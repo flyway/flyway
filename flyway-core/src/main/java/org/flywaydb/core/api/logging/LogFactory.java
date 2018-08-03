@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,12 @@
  */
 package org.flywaydb.core.api.logging;
 
-import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.logging.android.AndroidLogCreator;
-import org.flywaydb.core.internal.util.logging.apachecommons.ApacheCommonsLogCreator;
-import org.flywaydb.core.internal.util.logging.javautil.JavaUtilLogCreator;
-import org.flywaydb.core.internal.util.logging.slf4j.Slf4jLogCreator;
+import org.flywaydb.core.internal.logging.LogCreatorFactory;
 
 /**
- * Factory for loggers.
+ * Factory for loggers. Custom MigrationResolver, MigrationExecutor, FlywayCallback, ErrorHandler and JdbcMigration
+ * implementations should use this to obtain a logger that will work with any logging framework across all environments
+ * (API, Maven, Gradle, CLI, etc).
  */
 public class LogFactory {
     /**
@@ -65,18 +63,8 @@ public class LogFactory {
      */
     public static Log getLog(Class<?> clazz) {
         if (logCreator == null) {
-            FeatureDetector featureDetector = new FeatureDetector(Thread.currentThread().getContextClassLoader());
-            if (featureDetector.isAndroidAvailable()) {
-                logCreator = new AndroidLogCreator();
-            } else if (featureDetector.isSlf4jAvailable()) {
-                logCreator = new Slf4jLogCreator();
-            } else if (featureDetector.isApacheCommonsLoggingAvailable()) {
-                logCreator = new ApacheCommonsLogCreator();
-            } else if (fallbackLogCreator == null) {
-                logCreator = new JavaUtilLogCreator();
-            } else {
-                logCreator = fallbackLogCreator;
-            }
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            logCreator = LogCreatorFactory.getLogCreator(classLoader, fallbackLogCreator);
         }
 
         return logCreator.createLogger(clazz);

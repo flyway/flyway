@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
 /**
@@ -28,16 +28,16 @@ public class SQLiteSqlStatementBuilder extends SqlStatementBuilder {
      */
     private String statementStart = "";
 
-    SQLiteSqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    SQLiteSqlStatementBuilder() {
+        super(Delimiter.SEMICOLON);
     }
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
-        if (StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
+        if (hasNonCommentPart() && StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
             statementStart += line;
             statementStart += " ";
-            statementStart = statementStart.replaceAll("\\s+", " ");
+            statementStart = StringUtils.collapseWhitespace(statementStart);
         }
         boolean createTriggerStatement = statementStart.matches("CREATE( TEMP| TEMPORARY)? TRIGGER.*");
 

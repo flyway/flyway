@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,16 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.database.base.Type;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.Table;
-import org.flywaydb.core.internal.database.Type;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -34,7 +35,7 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
      * Creates a new PostgreSQL schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param name         The name of the schema.
      */
     PostgreSQLSchema(JdbcTemplate jdbcTemplate, PostgreSQLDatabase database, String name) {
@@ -48,11 +49,22 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        return !jdbcTemplate.queryForBoolean("SELECT EXISTS (" +
-                "   SELECT 1\n" +
-                "   FROM   pg_catalog.pg_class c\n" +
-                "   JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
-                "   WHERE  n.nspname = ?)", name);
+        return !jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
+                "    SELECT c.oid FROM pg_catalog.pg_class c\n" +
+                "    JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
+                "    LEFT JOIN pg_catalog.pg_depend d ON d.objid = c.oid AND d.deptype = 'e'\n" +
+                "    WHERE  n.nspname = ? AND d.objid IS NULL AND c.relkind IN ('r', 'v', 'S', 't')\n" +
+                "  UNION ALL\n" +
+                "    SELECT t.oid FROM pg_catalog.pg_type t\n" +
+                "    JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace\n" +
+                "    LEFT JOIN pg_catalog.pg_depend d ON d.objid = t.oid AND d.deptype = 'e'\n" +
+                "    WHERE n.nspname = ? AND d.objid IS NULL AND t.typcategory NOT IN ('A', 'C')\n" +
+                "  UNION ALL\n" +
+                "    SELECT p.oid FROM pg_catalog.pg_proc p\n" +
+                "    JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace\n" +
+                "    LEFT JOIN pg_catalog.pg_depend d ON d.objid = p.oid AND d.deptype = 'e'\n" +
+                "    WHERE n.nspname = ? AND d.objid IS NULL\n" +
+                ")", name, name, name);
     }
 
     @Override
@@ -87,10 +99,6 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
         }
 
         for (String statement : generateDropStatementsForBaseTypes(true)) {
-            jdbcTemplate.execute(statement);
-        }
-
-        for (String statement : generateDropStatementsForAggregates()) {
             jdbcTemplate.execute(statement);
         }
 
@@ -142,13 +150,15 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> generateDropStatementsForBaseTypes(boolean recreate) throws SQLException {
-
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
                         "select typname, typcategory from pg_catalog.pg_type t "
-                                + "where (t.typrelid = 0 OR (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid)) and "
-                                + "NOT EXISTS(SELECT 1 FROM pg_catalog.pg_type el WHERE el.oid = t.typelem AND el.typarray = t.oid) and "
-                                + "t.typnamespace in (select oid from pg_catalog.pg_namespace where nspname = ?)",
+                                + "left join pg_depend dep on dep.objid = t.oid and dep.deptype = 'e' "
+                                + "where (t.typrelid = 0 OR (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid)) "
+                                + "and NOT EXISTS(SELECT 1 FROM pg_catalog.pg_type el WHERE el.oid = t.typelem AND el.typarray = t.oid) "
+                                + "and t.typnamespace in (select oid from pg_catalog.pg_namespace where nspname = ?) "
+                                + "and dep.objid is null "
+                                + "and t.typtype != 'd'",
                         name);
 
         List<String> statements = new ArrayList<>();
@@ -169,28 +179,6 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
     }
 
     /**
-     * Generates the statements for dropping the aggregates in this schema.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> generateDropStatementsForAggregates() throws SQLException {
-        List<Map<String, String>> rows =
-                jdbcTemplate.queryForList(
-                        "SELECT proname, oidvectortypes(proargtypes) AS args "
-                                + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
-                                + "WHERE pg_proc.proisagg = true AND ns.nspname = ?",
-                        name
-                );
-
-        List<String> statements = new ArrayList<>();
-        for (Map<String, String> row : rows) {
-            statements.add("DROP AGGREGATE IF EXISTS " + database.quote(name, row.get("proname")) + "(" + row.get("args") + ") CASCADE");
-        }
-        return statements;
-    }
-
-    /**
      * Generates the statements for dropping the routines in this schema.
      *
      * @return The drop statements.
@@ -200,19 +188,25 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
                         // Search for all functions
-                        "SELECT proname, oidvectortypes(proargtypes) AS args "
+                        "SELECT proname, oidvectortypes(proargtypes) AS args, pg_proc.proisagg as agg "
                                 + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
                                 // that don't depend on an extension
                                 + "LEFT JOIN pg_depend dep ON dep.objid = pg_proc.oid AND dep.deptype = 'e' "
-                                + "WHERE pg_proc.proisagg = false AND ns.nspname = ? AND dep.objid IS NULL",
+                                + "WHERE ns.nspname = ? AND dep.objid IS NULL",
                         name
                 );
 
         List<String> statements = new ArrayList<>();
         for (Map<String, String> row : rows) {
-            statements.add("DROP FUNCTION IF EXISTS " + database.quote(name, row.get("proname")) + "(" + row.get("args") + ") CASCADE");
+            String type = isTrue(row.get("agg")) ? "AGGREGATE" : "FUNCTION";
+            statements.add("DROP " + type + " IF EXISTS "
+                    + database.quote(name, row.get("proname")) + "(" + row.get("args") + ") CASCADE");
         }
         return statements;
+    }
+
+    private boolean isTrue(String agg) {
+        return agg != null && agg.toLowerCase(Locale.ENGLISH).startsWith("t");
     }
 
     /**

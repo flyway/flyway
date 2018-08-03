@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
-import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
@@ -43,12 +44,24 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      * The complete sql script is not held as a member field here because this would use the total size of all
      * sql migrations files in heap space during db migration, see issue 184.
      */
-    private final LoadableResource sqlScriptResource;
+    private final LoadableResource resource;
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * The Flyway configuration.
      */
-    private final FlywayConfiguration configuration;
+    private final Configuration configuration;
 
     /**
      * The SQL script that will be executed.
@@ -59,14 +72,25 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      * Creates a new sql script migration based on this sql script.
      *
      * @param database            The database-specific support.
-     * @param sqlScriptResource   The resource containing the sql script.
+     * @param resource            The resource containing the sql script.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
+
+
+
      * @param configuration       The Flyway configuration.
      */
-    public SqlMigrationExecutor(Database database, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
+    SqlMigrationExecutor(Database database, LoadableResource resource, PlaceholderReplacer placeholderReplacer
+
+
+
+            , Configuration configuration) {
         this.database = database;
-        this.sqlScriptResource = sqlScriptResource;
+        this.resource = resource;
         this.placeholderReplacer = placeholderReplacer;
+
+
+
+
         this.configuration = configuration;
     }
 
@@ -77,7 +101,9 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     private synchronized SqlScript getSqlScript() {
         if (sqlScript == null) {
-            sqlScript = new SqlScript(database, sqlScriptResource, placeholderReplacer, configuration.getEncoding(), configuration.isMixed()
+            sqlScript = database.createSqlScript(resource,
+                    placeholderReplacer,
+                    configuration.isMixed()
 
 
 

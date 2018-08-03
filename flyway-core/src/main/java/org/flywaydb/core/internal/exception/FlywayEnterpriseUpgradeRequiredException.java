@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,13 @@ import org.flywaydb.core.api.FlywayException;
 
 /**
  * Thrown when an attempt was made to migrate an older database version no longer enjoying regular support by its
- * vendor and no longer supported by Flyway Open Source and Flyway Pro.
+ * vendor and no longer supported by Flyway Community Edition and Flyway Pro Edition.
  */
 public class FlywayEnterpriseUpgradeRequiredException extends FlywayException {
     public FlywayEnterpriseUpgradeRequiredException(String vendor, String database, String version) {
         super("Flyway Enterprise or " + database + " upgrade required: " + database + " " + version
                 + " is past regular support by " + vendor
-                + " and no longer supported by Flyway Open Source or Pro, but still supported by Flyway Enterprise.");
+                + " and no longer supported by Flyway Community Edition and Flyway Pro Edition,"
+                + " but still supported by Flyway Enterprise Edition.");
     }
 }

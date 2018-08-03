@@ -1,8 +1,8 @@
 sudo: required
 language: java
 jdk:
-  - oraclejdk8
   - oraclejdk9
+  - oraclejdk10
 install: "sh ./mvnw install -e"
 before_script: echo OK
 script: echo Done.

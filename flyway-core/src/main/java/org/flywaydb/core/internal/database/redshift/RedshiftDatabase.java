@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
  */
 package org.flywaydb.core.internal.database.redshift;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * Redshift database.
@@ -49,12 +49,12 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public RedshiftDatabase(FlywayConfiguration configuration, Connection connection
+    public RedshiftDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -62,12 +62,12 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
     }
 
     @Override
-    protected RedshiftConnection getConnection(Connection connection, int nullType
+    protected RedshiftConnection getConnection(Connection connection
 
 
 
     ) {
-        return new RedshiftConnection(configuration, this, connection, nullType
+        return new RedshiftConnection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -75,10 +75,16 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
     }
 
     @Override
-    protected final void ensureSupported() {
+    public final void ensureSupported() {
         // Always latest Redshift version.
     }
 
+    @Override
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return RedshiftSqlStatementBuilderFactory.INSTANCE;
+    }
+
+    @Override
     public String getDbName() {
         return "redshift";
     }
@@ -88,21 +94,24 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
         return getMainConnection().getJdbcTemplate().queryForString("SELECT current_user");
     }
 
-
+    @Override
     public boolean supportsDdlTransactions() {
         return true;
     }
 
+    @Override
+    public boolean supportsChangingCurrentSchema() {
+        return true;
+    }
+
+    @Override
     public String getBooleanTrue() {
         return "TRUE";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "FALSE";
-    }
-
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new RedshiftSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override
@@ -122,5 +131,14 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
     @Override
     public boolean useSingleConnection() {
         return false;
+    }
+
+    private enum RedshiftSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new RedshiftSqlStatementBuilder();
+        }
     }
 }

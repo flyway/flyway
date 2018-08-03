@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,27 @@
 package org.flywaydb.core.internal.configuration;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.callback.Callback;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.ConfigurationAware;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -53,17 +62,24 @@ public class ConfigUtils {
     public static final String BASELINE_DESCRIPTION = "flyway.baselineDescription";
     public static final String BASELINE_ON_MIGRATE = "flyway.baselineOnMigrate";
     public static final String BASELINE_VERSION = "flyway.baselineVersion";
+    public static final String BATCH = "flyway.batch";
     public static final String CALLBACKS = "flyway.callbacks";
     public static final String CLEAN_DISABLED = "flyway.cleanDisabled";
     public static final String CLEAN_ON_VALIDATION_ERROR = "flyway.cleanOnValidationError";
     public static final String DRIVER = "flyway.driver";
     public static final String DRYRUN_OUTPUT = "flyway.dryRunOutput";
     public static final String ENCODING = "flyway.encoding";
+
+    @Deprecated
     public static final String ERROR_HANDLERS = "flyway.errorHandlers";
+
+    public static final String ERROR_OVERRIDES = "flyway.errorOverrides";
     public static final String GROUP = "flyway.group";
     public static final String IGNORE_FUTURE_MIGRATIONS = "flyway.ignoreFutureMigrations";
     public static final String IGNORE_MISSING_MIGRATIONS = "flyway.ignoreMissingMigrations";
+    public static final String IGNORE_IGNORED_MIGRATIONS = "flyway.ignoreIgnoredMigrations";
     public static final String INSTALLED_BY = "flyway.installedBy";
+    public static final String LICENSE_KEY = "flyway.licenseKey";
     public static final String LOCATIONS = "flyway.locations";
     public static final String MIXED = "flyway.mixed";
     public static final String OUT_OF_ORDER = "flyway.outOfOrder";
@@ -84,6 +100,7 @@ public class ConfigUtils {
     public static final String SQL_MIGRATION_SUFFIX = "flyway.sqlMigrationSuffix";
 
     public static final String SQL_MIGRATION_SUFFIXES = "flyway.sqlMigrationSuffixes";
+    public static final String STREAM = "flyway.stream";
     public static final String TABLE = "flyway.table";
     public static final String TARGET = "flyway.target";
     public static final String UNDO_SQL_MIGRATION_PREFIX = "flyway.undoSqlMigrationPrefix";
@@ -91,8 +108,14 @@ public class ConfigUtils {
     public static final String USER = "flyway.user";
     public static final String VALIDATE_ON_MIGRATE = "flyway.validateOnMigrate";
 
+    // Oracle-specific
+    public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
+
     // Command-line specific
     public static final String JAR_DIRS = "flyway.jarDirs";
+
+    // Gradle specific
+    public static final String CONFIGURATIONS = "flyway.configurations";
 
     private ConfigUtils() {
         // Utility class
@@ -105,9 +128,214 @@ public class ConfigUtils {
      * @param target        The object to inject the configuration into.
      * @param configuration The configuration to inject.
      */
-    public static void injectFlywayConfiguration(Object target, FlywayConfiguration configuration) {
+    public static void injectFlywayConfiguration(Object target, final Configuration configuration) {
         if (target instanceof ConfigurationAware) {
-            ((ConfigurationAware) target).setFlywayConfiguration(configuration);
+            ((ConfigurationAware) target).setFlywayConfiguration(new FlywayConfiguration() {
+                @Override
+                public String getSqlMigrationSuffix() {
+                    return configuration.getSqlMigrationSuffixes()[0];
+                }
+
+                @Override
+                public ClassLoader getClassLoader() {
+                    return configuration.getClassLoader();
+                }
+
+                @Override
+                public DataSource getDataSource() {
+                    return configuration.getDataSource();
+                }
+
+                @Override
+                public MigrationVersion getBaselineVersion() {
+                    return configuration.getBaselineVersion();
+                }
+
+                @Override
+                public String getBaselineDescription() {
+                    return configuration.getBaselineDescription();
+                }
+
+                @Override
+                public MigrationResolver[] getResolvers() {
+                    return configuration.getResolvers();
+                }
+
+                @Override
+                public boolean isSkipDefaultResolvers() {
+                    return configuration.isSkipDefaultResolvers();
+                }
+
+                @Override
+                public Callback[] getCallbacks() {
+                    return configuration.getCallbacks();
+                }
+
+                @Override
+                public boolean isSkipDefaultCallbacks() {
+                    return configuration.isSkipDefaultCallbacks();
+                }
+
+                @Override
+                public String getSqlMigrationPrefix() {
+                    return configuration.getSqlMigrationPrefix();
+                }
+
+                @Override
+                public String getUndoSqlMigrationPrefix() {
+                    return configuration.getUndoSqlMigrationPrefix();
+                }
+
+                @Override
+                public String getRepeatableSqlMigrationPrefix() {
+                    return configuration.getRepeatableSqlMigrationPrefix();
+                }
+
+                @Override
+                public String getSqlMigrationSeparator() {
+                    return configuration.getSqlMigrationSeparator();
+                }
+
+                @Override
+                public String[] getSqlMigrationSuffixes() {
+                    return configuration.getSqlMigrationSuffixes();
+                }
+
+                @Override
+                public boolean isPlaceholderReplacement() {
+                    return configuration.isPlaceholderReplacement();
+                }
+
+                @Override
+                public String getPlaceholderSuffix() {
+                    return configuration.getPlaceholderSuffix();
+                }
+
+                @Override
+                public String getPlaceholderPrefix() {
+                    return configuration.getPlaceholderPrefix();
+                }
+
+                @Override
+                public Map<String, String> getPlaceholders() {
+                    return configuration.getPlaceholders();
+                }
+
+                @Override
+                public MigrationVersion getTarget() {
+                    return configuration.getTarget();
+                }
+
+                @Override
+                public String getTable() {
+                    return configuration.getTable();
+                }
+
+                @Override
+                public String[] getSchemas() {
+                    return configuration.getSchemas();
+                }
+
+                @Override
+                public Charset getEncoding() {
+                    return configuration.getEncoding();
+                }
+
+                @Override
+                public Location[] getLocations() {
+                    return configuration.getLocations();
+                }
+
+                @Override
+                public boolean isBaselineOnMigrate() {
+                    return configuration.isBaselineOnMigrate();
+                }
+
+                @Override
+                public boolean isOutOfOrder() {
+                    return configuration.isOutOfOrder();
+                }
+
+                @Override
+                public boolean isIgnoreMissingMigrations() {
+                    return configuration.isIgnoreMissingMigrations();
+                }
+
+                @Override
+                public boolean isIgnoreIgnoredMigrations() {
+                    return configuration.isIgnoreIgnoredMigrations();
+                }
+
+                @Override
+                public boolean isIgnoreFutureMigrations() {
+                    return configuration.isIgnoreFutureMigrations();
+                }
+
+                @Override
+                public boolean isValidateOnMigrate() {
+                    return configuration.isValidateOnMigrate();
+                }
+
+                @Override
+                public boolean isCleanOnValidationError() {
+                    return configuration.isCleanOnValidationError();
+                }
+
+                @Override
+                public boolean isCleanDisabled() {
+                    return configuration.isCleanDisabled();
+                }
+
+                @Override
+                public boolean isMixed() {
+                    return configuration.isMixed();
+                }
+
+                @Override
+                public boolean isGroup() {
+                    return configuration.isGroup();
+                }
+
+                @Override
+                public String getInstalledBy() {
+                    return configuration.getInstalledBy();
+                }
+
+                @Override
+                public ErrorHandler[] getErrorHandlers() {
+                    return configuration.getErrorHandlers();
+                }
+
+                @Override
+                public String[] getErrorOverrides() {
+                    return configuration.getErrorOverrides();
+                }
+
+                @Override
+                public OutputStream getDryRunOutput() {
+                    return configuration.getDryRunOutput();
+                }
+
+                @Override
+                public boolean isStream() {
+                    return configuration.isStream();
+                }
+
+                @Override
+                public boolean isBatch() {
+                    return configuration.isBatch();
+                }
+
+                @Override
+                public boolean isOracleSqlplus() {
+                    return configuration.isOracleSqlplus();
+                }
+
+                @Override
+                public String getLicenseKey() {
+                    return configuration.getLicenseKey();
+                }
+            });
         }
     }
 
@@ -140,6 +368,9 @@ public class ConfigUtils {
         if ("FLYWAY_BASELINE_VERSION".equals(key)) {
             return BASELINE_VERSION;
         }
+        if ("FLYWAY_BATCH".equals(key)) {
+            return BATCH;
+        }
         if ("FLYWAY_CALLBACKS".equals(key)) {
             return CALLBACKS;
         }
@@ -158,11 +389,17 @@ public class ConfigUtils {
         if ("FLYWAY_DRIVER".equals(key)) {
             return DRIVER;
         }
+        if ("FLYWAY_DRYRUN_OUTPUT".equals(key)) {
+            return DRYRUN_OUTPUT;
+        }
         if ("FLYWAY_ENCODING".equals(key)) {
             return ENCODING;
         }
         if ("FLYWAY_ERROR_HANDLERS".equals(key)) {
             return ERROR_HANDLERS;
+        }
+        if ("FLYWAY_ERROR_OVERRIDES".equals(key)) {
+            return ERROR_OVERRIDES;
         }
         if ("FLYWAY_GROUP".equals(key)) {
             return GROUP;
@@ -173,8 +410,14 @@ public class ConfigUtils {
         if ("FLYWAY_IGNORE_MISSING_MIGRATIONS".equals(key)) {
             return IGNORE_MISSING_MIGRATIONS;
         }
+        if ("FLYWAY_IGNORE_IGNORED_MIGRATIONS".equals(key)) {
+            return IGNORE_IGNORED_MIGRATIONS;
+        }
         if ("FLYWAY_INSTALLED_BY".equals(key)) {
             return INSTALLED_BY;
+        }
+        if ("FLYWAY_LICENSE_KEY".equals(key)) {
+            return LICENSE_KEY;
         }
         if ("FLYWAY_LOCATIONS".equals(key)) {
             return LOCATIONS;
@@ -224,6 +467,9 @@ public class ConfigUtils {
         if ("FLYWAY_SQL_MIGRATION_SUFFIXES".equals(key)) {
             return SQL_MIGRATION_SUFFIXES;
         }
+        if ("FLYWAY_STREAM".equals(key)) {
+            return STREAM;
+        }
         if ("FLYWAY_TABLE".equals(key)) {
             return TABLE;
         }
@@ -243,9 +489,19 @@ public class ConfigUtils {
             return VALIDATE_ON_MIGRATE;
         }
 
+        // Oracle-specific
+        if ("FLYWAY_ORACLE_SQLPLUS".equals(key)) {
+            return ORACLE_SQLPLUS;
+        }
+
         // Command-line specific
         if ("FLYWAY_JAR_DIRS".equals(key)) {
             return JAR_DIRS;
+        }
+
+        // Gradle specific
+        if ("FLYWAY_CONFIGURATIONS".equals(key)) {
+            return CONFIGURATIONS;
         }
 
         return null;

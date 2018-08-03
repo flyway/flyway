@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 package org.flywaydb.core.internal.util.jdbc;
-
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -35,8 +32,6 @@ import java.util.Map;
  * Collection of utility methods for querying the DB. Inspired by Spring's JdbcTemplate.
  */
 public class JdbcTemplate {
-    private static final Log LOG = LogFactory.getLog(JdbcTemplate.class);
-
     /**
      * The DB connection to use.
      */
@@ -51,9 +46,8 @@ public class JdbcTemplate {
      * Creates a new JdbcTemplate.
      *
      * @param connection The DB connection to use.
-     * @throws SQLException when the database metadata could not be retrieved.
      */
-    public JdbcTemplate(Connection connection) throws SQLException {
+    public JdbcTemplate(Connection connection) {
         this(connection, Types.NULL);
     }
 
@@ -83,16 +77,13 @@ public class JdbcTemplate {
      * @return The query results.
      * @throws SQLException when the query execution failed.
      */
-    public List<Map<String, String>> queryForList(String query, String... params) throws SQLException {
+    public List<Map<String, String>> queryForList(String query, Object... params) throws SQLException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
 
         List<Map<String, String>> result;
         try {
-            statement = connection.prepareStatement(query);
-            for (int i = 0; i < params.length; i++) {
-                statement.setString(i + 1, params[i]);
-            }
+            statement = prepareStatement(query, params);
             resultSet = statement.executeQuery();
 
             result = new ArrayList<>();
@@ -125,10 +116,7 @@ public class JdbcTemplate {
 
         List<String> result;
         try {
-            statement = connection.prepareStatement(query);
-            for (int i = 0; i < params.length; i++) {
-                statement.setString(i + 1, params[i]);
-            }
+            statement = prepareStatement(query, params);
             resultSet = statement.executeQuery();
 
             result = new ArrayList<>();
@@ -157,10 +145,7 @@ public class JdbcTemplate {
 
         int result;
         try {
-            statement = connection.prepareStatement(query);
-            for (int i = 0; i < params.length; i++) {
-                statement.setString(i + 1, params[i]);
-            }
+            statement = prepareStatement(query, params);
             resultSet = statement.executeQuery();
             resultSet.next();
             result = resultSet.getInt(1);
@@ -186,10 +171,7 @@ public class JdbcTemplate {
 
         boolean result;
         try {
-            statement = connection.prepareStatement(query);
-            for (int i = 0; i < params.length; i++) {
-                statement.setString(i + 1, params[i]);
-            }
+            statement = prepareStatement(query, params);
             resultSet = statement.executeQuery();
             resultSet.next();
             result = resultSet.getBoolean(1);
@@ -215,10 +197,7 @@ public class JdbcTemplate {
 
         String result;
         try {
-            statement = connection.prepareStatement(query);
-            for (int i = 0; i < params.length; i++) {
-                statement.setString(i + 1, params[i]);
-            }
+            statement = prepareStatement(query, params);
             resultSet = statement.executeQuery();
             result = null;
             if (resultSet.next()) {
@@ -255,7 +234,7 @@ public class JdbcTemplate {
      * @param sql The statement to execute.
      * @throws SQLException when the execution failed.
      */
-    public List<Result> executeStatement(ContextImpl errorContext, String sql) throws SQLException {
+    public List<Result> executeStatement(StandardContext errorContext, String sql) throws SQLException {
         Statement statement = null;
         try {
             statement = connection.createStatement();
@@ -390,4 +369,30 @@ public class JdbcTemplate {
 
         return results;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

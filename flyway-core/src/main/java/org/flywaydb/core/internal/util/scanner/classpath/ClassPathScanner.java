@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.UrlUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
@@ -32,6 +32,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -53,6 +54,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
      * The ClassLoader for loading migrations on the classpath.
      */
     private final ClassLoader classLoader;
+    private final Charset encoding;
 
     /**
      * Cache location lookups.
@@ -74,8 +76,9 @@ public class ClassPathScanner implements ResourceAndClassScanner {
      *
      * @param classLoader The ClassLoader for loading migrations on the classpath.
      */
-    public ClassPathScanner(ClassLoader classLoader) {
+    public ClassPathScanner(ClassLoader classLoader, Charset encoding) {
         this.classLoader = classLoader;
+        this.encoding = encoding;
     }
 
     @Override
@@ -87,11 +90,11 @@ public class ClassPathScanner implements ResourceAndClassScanner {
 
         Set<String> resourceNames = findResourceNames(path, prefix, suffixes);
         for (String resourceName : resourceNames) {
-            resources.add(new ClassPathResource(resourceName, classLoader));
+            resources.add(new ClassPathResource(resourceName, classLoader, encoding));
             LOG.debug("Found resource: " + resourceName);
         }
 
-        return resources.toArray(new LoadableResource[resources.size()]);
+        return resources.toArray(new LoadableResource[0]);
     }
 
     @Override
@@ -133,7 +136,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             LOG.debug("Found class: " + className);
         }
 
-        return classes.toArray(new Class<?>[classes.size()]);
+        return classes.toArray(new Class<?>[0]);
     }
 
     /**
@@ -362,23 +365,12 @@ public class ClassPathScanner implements ResourceAndClassScanner {
         Set<String> filteredResourceNames = new TreeSet<>();
         for (String resourceName : resourceNames) {
             String fileName = resourceName.substring(resourceName.lastIndexOf("/") + 1);
-            if (fileNameMatches(fileName, prefix, suffixes)) {
+            if (StringUtils.startsAndEndsWith(fileName, prefix, suffixes)) {
                 filteredResourceNames.add(resourceName);
             } else {
                 LOG.debug("Filtering out resource: " + resourceName + " (filename: " + fileName + ")");
             }
         }
         return filteredResourceNames;
-    }
-
-    private boolean fileNameMatches(String fileName, String prefix, String[] suffixes) {
-        for (String suffix : suffixes) {
-            if ((!StringUtils.hasLength(prefix) || fileName.startsWith(prefix))
-                    && fileName.endsWith(suffix)
-                    && (fileName.length() > (prefix + suffix).length())) {
-                return true;
-            }
-        }
-        return false;
     }
 }

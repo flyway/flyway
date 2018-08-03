@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -219,6 +219,21 @@ public class FlywayExtension {
     public Boolean ignoreMissingMigrations;
 
     /**
+     * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
+     * already migrated migrations in this version. For example: we have migrations available on the classpath with
+     * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
+     * one was 2.0.0. But with the next release a new migration was added to version 1: 1.0.16. Such scenario is ignored
+     * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
+     * will not be reported by validate command. This is useful for situations where one must be able to deliver
+     * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
+     * development of older versions.
+     * <p>
+     * {@code true} to continue normally, {@code false} to fail fast with an exception.
+     * (default: {@code false})
+     */
+    public Boolean ignoreIgnoredMigrations;
+
+    /**
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
@@ -270,16 +285,40 @@ public class FlywayExtension {
     public String installedBy;
 
     /**
+     * Gradle configurations that will be added to the classpath for running Flyway tasks.
+     * (default: <code>compile</code>, <code>runtime</code>, <code>testCompile</code>, <code>testRuntime</code>)
+     * <p>Also configurable with Gradle or System Property: ${flyway.configurations}</p>
+     */
+    public String[] configurations;
+
+    /**
      * The fully qualified class names of handlers for errors and warnings that occur during a migration. This can be
      * used to customize Flyway's behavior by for example
      * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
      * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
      * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
      * (default: none)
-     * <p>Also configurable with Gradle or System Property: ${flyway.errorHandler}</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.errorHandlers}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
+     */
+    @Deprecated
+    public String[] errorHandlers;
+
+    /**
+     * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
+     * to warning or from warning to error. (default: none)
+     * <p>Each error override has the following format: {@code STATE:12345:W}.
+     * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
+     * behavior that should override the initial one. The following behaviors are accepted: {@code W} to force a warning
+     * and {@code E} to force an error.</p>
+     * <p>For example, to force Oracle stored procedure compilation issues to produce
+     * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.errorOverrides}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */
-    public String[] errorHandlers;
+    public String[] errorOverrides;
 
     /**
      * The file where to output the SQL statements of a migration dry run. If the file specified is in a non-existent
@@ -289,6 +328,43 @@ public class FlywayExtension {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */
     public String dryRunOutput;
+
+    /**
+     * Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at
+     * once. Instead each statement is loaded individually. This is particularly useful for very large SQL migrations
+     * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
+     * (default: {@code false}
+     * <p>Also configurable with Gradle or System Property: ${flyway.stream}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    public Boolean stream;
+
+    /**
+     * Whether to batch SQL statements when executing them. Batching can save up to 99 percent of network roundtrips by
+     * sending up to 100 statements at once over the network to the database, instead of sending each statement
+     * individually. This is particularly useful for very large SQL migrations composed of multiple MB or even GB of
+     * reference data, as this can dramatically reduce the network overhead. This is supported for INSERT, UPDATE,
+     * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
+     * (default: {@code false})
+     * <p>Also configurable with Gradle or System Property: ${flyway.batch}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    public Boolean batch;
+
+    /**
+     * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
+     * (default: {@code false})
+     * <p>Also configurable with Gradle or System Property: ${flyway.oracle.sqlplus}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    public Boolean oracleSqlplus;
+
+    /**
+     * Flyway's license key.
+     * <p>Also configurable with Gradle or System Property: ${flyway.licenseKey}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    public String licenseKey;
 
     /**
      * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).

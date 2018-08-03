@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,31 +15,34 @@
  */
 package org.flywaydb.core.internal.database.db2;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
+import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.scanner.StringResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * DB2 database.
  */
-public class DB2Database extends Database {
+public class DB2Database extends Database<DB2Connection> {
     /**
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public DB2Database(FlywayConfiguration configuration, Connection connection
+    public DB2Database(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection, Types.VARCHAR
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -47,12 +50,12 @@ public class DB2Database extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+    protected DB2Connection getConnection(Connection connection
 
 
 
     ) {
-        return new DB2Connection(configuration, this, connection, nullType
+        return new DB2Connection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -60,7 +63,7 @@ public class DB2Database extends Database {
     }
 
     @Override
-    protected final void ensureSupported() {
+    public final void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
 
         if (majorVersion < 9 || (majorVersion == 9 && minorVersion < 7)) {
@@ -77,8 +80,13 @@ public class DB2Database extends Database {
     }
 
     @Override
-    public String getRawCreateScript() {
-        return "CREATE TABLE \"${schema}\".\"${table}\" (\n" +
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return DB2SqlStatementBuilderFactory.INSTANCE;
+    }
+
+    @Override
+    public LoadableResource getRawCreateScript() {
+        return new StringResource("CREATE TABLE \"${schema}\".\"${table}\" (\n" +
                 "    \"installed_rank\" INT NOT NULL,\n" +
                 "    \"version\" VARCHAR(50),\n" +
                 "    \"description\" VARCHAR(200) NOT NULL,\n" +
@@ -99,30 +107,42 @@ public class DB2Database extends Database {
 
                 + "ALTER TABLE \"${schema}\".\"${table}\" ADD CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\");\n" +
                 "\n" +
-                "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");";
+                "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");");
     }
 
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new DB2SqlStatementBuilder(getDefaultDelimiter());
+    @Override
+    public String getSelectStatement(Table table, int maxCachedInstalledRank) {
+        return super.getSelectStatement(table, maxCachedInstalledRank)
+                // Allow uncommitted reads so info can be invoked while migrate is running
+                + " WITH UR";
     }
 
+    @Override
     public String getDbName() {
         return "db2";
     }
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return mainConnection.getJdbcTemplate().queryForString("select CURRENT_USER from sysibm.sysdummy1");
+        return getMainConnection().getJdbcTemplate().queryForString("select CURRENT_USER from sysibm.sysdummy1");
     }
 
+    @Override
     public boolean supportsDdlTransactions() {
         return true;
     }
 
+    @Override
+    public boolean supportsChangingCurrentSchema() {
+        return true;
+    }
+
+    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "0";
     }
@@ -140,5 +160,14 @@ public class DB2Database extends Database {
     @Override
     public boolean useSingleConnection() {
         return false;
+    }
+
+    enum DB2SqlStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new DB2SqlStatementBuilder();
+        }
     }
 }

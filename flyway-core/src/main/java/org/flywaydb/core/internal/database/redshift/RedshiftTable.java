@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,22 @@
  */
 package org.flywaydb.core.internal.database.redshift;
 
-import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.Table;
 
 import java.sql.SQLException;
 
 /**
- * PostgreSQL-specific table.
+ * Redshift-specific table.
  */
 public class RedshiftTable extends Table {
     /**
-     * Creates a new PostgreSQL table.
+     * Creates a new Redshift table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
@@ -45,7 +45,16 @@ public class RedshiftTable extends Table {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return exists(null, schema, name);
+        return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
+                "  SELECT 1\n" +
+                "  FROM   pg_catalog.pg_class c\n" +
+                "  JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
+                "  WHERE  n.nspname = ?\n" +
+                "  AND    c.relname = ?\n" +
+                "  AND    c.relkind = 'r'\n" + // only tables
+                ")", schema.getName(),
+                name.toLowerCase() // Redshift table names are case-insensitive and always in lowercase in pg_class.
+        );
     }
 
     @Override

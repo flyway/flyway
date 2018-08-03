@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,10 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
-import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.Table;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
@@ -29,6 +31,8 @@ import java.util.List;
  * SQLServer implementation of Schema.
  */
 public class SQLServerSchema extends Schema<SQLServerDatabase> {
+    private static final Log LOG = LogFactory.getLog(SQLServerSchema.class);
+
     private final String databaseName;
 
     /**
@@ -98,6 +102,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
          * SQL DML trigger.
          */
         SQL_DML_TRIGGER("TR"),
+        /**
+         * Unique Constraint.
+         */
+        UNIQUE_CONSTRAINT("UQ"),
         /**
          * User table.
          */
@@ -204,6 +212,41 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
             jdbcTemplate.execute(statement);
         }
 
+        for (String statement : cleanUniqueConstraints(tables)) {
+            jdbcTemplate.execute(statement);
+        }
+
+        for (String statement : cleanIndexes(tables)) {
+            jdbcTemplate.execute(statement);
+        }
+
+        // Use a 2-pass approach for cleaning computed columns and functions with SCHEMABINDING due to dependency errors
+        // Pass 1
+        for (String statement : cleanComputedColumns(tables)) {
+            try {
+                jdbcTemplate.execute(statement);
+            } catch (SQLException e) {
+                LOG.debug("Ignoring dependency-related error: " + e.getMessage());
+            }
+        }
+        for (String statement : cleanObjects("FUNCTION",
+                ObjectType.SCALAR_FUNCTION,
+                ObjectType.CLR_SCALAR_FUNCTION,
+                ObjectType.CLR_TABLE_VALUED_FUNCTION,
+                ObjectType.TABLE_VALUED_FUNCTION,
+                ObjectType.INLINED_TABLE_FUNCTION)) {
+            try {
+                jdbcTemplate.execute(statement);
+            } catch (SQLException e) {
+                LOG.debug("Ignoring dependency-related error: " + e.getMessage());
+            }
+        }
+
+        // Pass 2
+        for (String statement : cleanComputedColumns(tables)) {
+            jdbcTemplate.execute(statement);
+        }
+
         for (String statement : cleanObjects("PROCEDURE",
                 ObjectType.STORED_PROCEDURE,
                 ObjectType.CLR_STORED_PROCEDURE)) {
@@ -214,10 +257,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
             jdbcTemplate.execute(statement);
         }
 
-        for (Table table : allTables()) {
-            table.drop();
-        }
-
         for (String statement : cleanObjects("FUNCTION",
                 ObjectType.SCALAR_FUNCTION,
                 ObjectType.CLR_SCALAR_FUNCTION,
@@ -225,6 +264,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
                 ObjectType.TABLE_VALUED_FUNCTION,
                 ObjectType.INLINED_TABLE_FUNCTION)) {
             jdbcTemplate.execute(statement);
+        }
+
+        for (Table table : allTables()) {
+            table.drop();
         }
 
         for (String statement : cleanObjects("AGGREGATE", ObjectType.AGGREGATE)) {
@@ -348,6 +391,50 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
     }
 
     /**
+     * Cleans the computed columns in this schema.
+     *
+     * @param tables the tables to be cleaned
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanComputedColumns(List<DBObject> tables) throws SQLException {
+        List<String> statements = new ArrayList<>();
+        for (DBObject table : tables) {
+            String tableName = database.quote(name, table.name);
+            List<String> columns = jdbcTemplate.queryForStringList(
+                    "SELECT name FROM sys.computed_columns WHERE object_id=OBJECT_ID(N'" + tableName + "')");
+            for (String column : columns) {
+                statements.add("ALTER TABLE " + tableName + " DROP COLUMN " + database.quote(column));
+            }
+        }
+        return statements;
+    }
+
+    /**
+     * Cleans the indexes in this schema.
+     *
+     * @param tables the tables to be cleaned
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanIndexes(List<DBObject> tables) throws SQLException {
+        List<String> statements = new ArrayList<>();
+        for (DBObject table : tables) {
+            String tableName = database.quote(name, table.name);
+            List<String> indexes = jdbcTemplate.queryForStringList(
+                    "SELECT name FROM sys.indexes" +
+                            " WHERE object_id=OBJECT_ID(N'" + tableName + "')" +
+                            " AND is_primary_key = 0" +
+                            " AND is_unique_constraint = 0" +
+                            " AND name IS NOT NULL");
+            for (String index : indexes) {
+                statements.add("DROP INDEX " + database.quote(index) + " ON " + tableName);
+            }
+        }
+        return statements;
+    }
+
+    /**
      * Cleans the default constraints in this schema.
      *
      * @param tables the tables to be cleaned
@@ -355,6 +442,30 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanDefaultConstraints(List<DBObject> tables) throws SQLException {
+        List<String> statements = new ArrayList<>();
+        for (DBObject table : tables) {
+            String tableName = database.quote(name, table.name);
+            List<String> indexes = jdbcTemplate.queryForStringList(
+                    "SELECT name FROM sys.indexes" +
+                            " WHERE object_id=OBJECT_ID(N'" + tableName + "')" +
+                            " AND is_primary_key = 0" +
+                            " AND is_unique_constraint = 1" +
+                            " AND name IS NOT NULL");
+            for (String index : indexes) {
+                statements.add("ALTER TABLE " + tableName + " DROP CONSTRAINT " + database.quote(index));
+            }
+        }
+        return statements;
+    }
+
+    /**
+     * Cleans the unique constraints in this schema.
+     *
+     * @param tables the tables to be cleaned
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanUniqueConstraints(List<DBObject> tables) throws SQLException {
         List<String> statements = new ArrayList<>();
         for (DBObject table : tables) {
             List<DBObject> dfs = queryDBObjectsWithParent(table, ObjectType.DEFAULT_CONSTRAINT);

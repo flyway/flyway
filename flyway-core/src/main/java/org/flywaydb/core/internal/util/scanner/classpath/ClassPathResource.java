@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,16 @@
 package org.flywaydb.core.internal.util.scanner.classpath;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.BomStrippingReader;
 import org.flywaydb.core.internal.util.FileCopyUtils;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.line.DefaultLineReader;
+import org.flywaydb.core.internal.util.line.LineReader;
+import org.flywaydb.core.internal.util.scanner.AbstractLoadableResource;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -32,16 +34,17 @@ import java.nio.charset.Charset;
 /**
  * A resource on the classpath.
  */
-public class ClassPathResource implements Comparable<ClassPathResource>, LoadableResource {
+public class ClassPathResource extends AbstractLoadableResource implements Comparable<ClassPathResource> {
     /**
      * The location of the resource on the classpath.
      */
-    private String location;
+    private final String location;
 
     /**
      * The ClassLoader to use.
      */
-    private ClassLoader classLoader;
+    private final ClassLoader classLoader;
+    private final Charset encoding;
 
     /**
      * Creates a new ClassPathResource.
@@ -49,15 +52,18 @@ public class ClassPathResource implements Comparable<ClassPathResource>, Loadabl
      * @param location    The location of the resource on the classpath.
      * @param classLoader The ClassLoader to use.
      */
-    public ClassPathResource(String location, ClassLoader classLoader) {
+    public ClassPathResource(String location, ClassLoader classLoader, Charset encoding) {
         this.location = location;
         this.classLoader = classLoader;
+        this.encoding = encoding;
     }
 
+    @Override
     public String getLocation() {
         return location;
     }
 
+    @Override
     public String getLocationOnDisk() {
         URL url = getUrl();
         if (url == null) {
@@ -77,20 +83,20 @@ public class ClassPathResource implements Comparable<ClassPathResource>, Loadabl
         return classLoader.getResource(location);
     }
 
-    public String loadAsString(String encoding) {
+    @Override
+    public LineReader loadAsString() {
         try {
             InputStream inputStream = classLoader.getResourceAsStream(location);
             if (inputStream == null) {
                 throw new FlywayException("Unable to obtain inputstream for resource: " + location);
             }
-            Reader reader = new InputStreamReader(inputStream, Charset.forName(encoding));
-
-            return FileCopyUtils.copyToString(reader);
+            return new DefaultLineReader(new BomStrippingReader(new InputStreamReader(inputStream, encoding)));
         } catch (IOException e) {
             throw new FlywayException("Unable to load resource: " + location + " (encoding: " + encoding + ")", e);
         }
     }
 
+    @Override
     public byte[] loadAsBytes() {
         try {
             InputStream inputStream = classLoader.getResourceAsStream(location);
@@ -103,6 +109,7 @@ public class ClassPathResource implements Comparable<ClassPathResource>, Loadabl
         }
     }
 
+    @Override
     public String getFilename() {
         return location.substring(location.lastIndexOf("/") + 1);
     }
@@ -130,6 +137,7 @@ public class ClassPathResource implements Comparable<ClassPathResource>, Loadabl
     }
 
     @SuppressWarnings("NullableProblems")
+    @Override
     public int compareTo(ClassPathResource o) {
         return location.compareTo(o.location);
     }

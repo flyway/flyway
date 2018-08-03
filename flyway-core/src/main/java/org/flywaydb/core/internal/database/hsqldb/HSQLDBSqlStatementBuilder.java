@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.database.hsqldb;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 
 /**
  * SqlStatementBuilder supporting HSQLDB-specific delimiter changes.
@@ -27,8 +27,8 @@ public class HSQLDBSqlStatementBuilder extends SqlStatementBuilder {
      */
     private boolean insideAtomicBlock;
 
-    HSQLDBSqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    HSQLDBSqlStatementBuilder() {
+        super(Delimiter.SEMICOLON);
     }
 
     @Override

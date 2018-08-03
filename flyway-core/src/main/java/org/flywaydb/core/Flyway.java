@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,23 @@
  */
 package org.flywaydb.core;
 
-
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
+import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.callback.DefaultCallbackExecutor;
+import org.flywaydb.core.internal.callback.LegacyCallback;
+import org.flywaydb.core.internal.callback.SqlScriptFlywayCallbackFactory;
 import org.flywaydb.core.internal.command.DbBaseline;
 import org.flywaydb.core.internal.command.DbClean;
 import org.flywaydb.core.internal.command.DbInfo;
@@ -34,30 +40,25 @@ import org.flywaydb.core.internal.command.DbRepair;
 import org.flywaydb.core.internal.command.DbSchemas;
 import org.flywaydb.core.internal.command.DbValidate;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.DatabaseFactory;
-import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.Locations;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.VersionPrinter;
-import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.license.VersionPrinter;
+import org.flywaydb.core.internal.util.placeholder.DefaultPlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.NoopPlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import javax.sql.DataSource;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -67,229 +68,17 @@ import java.util.Properties;
  * <p>
  * It is THE public API from which all important Flyway functions such as clean, validate and migrate can be called.
  * </p>
+ * <p>To get started all you need to do is</p>
+ * <pre>
+ * Flyway flyway = new Flyway();
+ * flyway.setDataSource(url, user, password);
+ * flyway.migrate();
+ * </pre>
  */
-public class Flyway implements FlywayConfiguration {
+public class Flyway implements Configuration {
     private static final Log LOG = LogFactory.getLog(Flyway.class);
 
-    /**
-     * The locations to scan recursively for migrations.
-     * <p>The location type is determined by its prefix.
-     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
-     * contain both sql and java-based migrations.
-     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
-     * migrations.</p>
-     * <p>
-     * (default: db/migration)
-     */
-    private Locations locations = new Locations("db/migration");
-
-    /**
-     * The encoding of Sql migrations. (default: UTF-8)
-     */
-    private String encoding = "UTF-8";
-
-    /**
-     * The schemas managed by Flyway.  These schema names are case-sensitive. (default: The default schema for the datasource connection)
-     * <p>Consequences:</p>
-     * <ul>
-     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
-     * <li>The first schema in the list will also be the one containing the schema history table.</li>
-     * <li>The schemas will be cleaned in the order of this list.</li>
-     * </ul>
-     */
-    private String[] schemaNames = {};
-
-    /**
-     * <p>The name of the schema schema history table that will be used by Flyway. (default: flyway_schema_history)</p><p> By default
-     * (single-schema mode) the schema history table is placed in the default schema for the connection provided by the
-     * datasource. </p> <p> When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is
-     * placed in the first schema of the list. </p>
-     */
-    private String table = "flyway_schema_history";
-
-    /**
-     * The target version up to which Flyway should consider migrations. Migrations with a higher version number will
-     * be ignored. The special value {@code current} designates the current version of the schema (default: the latest version)
-     */
-    private MigrationVersion target;
-
-    /**
-     * Whether placeholders should be replaced. (default: true)
-     */
-    private boolean placeholderReplacement = true;
-
-    /**
-     * The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
-     */
-    private Map<String, String> placeholders = new HashMap<>();
-
-    /**
-     * The prefix of every placeholder. (default: ${ )
-     */
-    private String placeholderPrefix = "${";
-
-    /**
-     * The suffix of every placeholder. (default: } )
-     */
-    private String placeholderSuffix = "}";
-
-    /**
-     * The file name prefix for versioned SQL migrations. (default: V)
-     * <p>
-     * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
-     */
-    private String sqlMigrationPrefix = "V";
-
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     * The file name prefix for repeatable SQL migrations. (default: R)
-     * <p>
-     * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to R__My_description.sql</p>
-     */
-    private String repeatableSqlMigrationPrefix = "R";
-
-    /**
-     * The file name separator for sql migrations. (default: __)
-     * <p>
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
-     */
-    private String sqlMigrationSeparator = "__";
-
-    /**
-     * The file name suffixes for SQL migrations. (default: .sql)
-     * <p>SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
-     * <p>Multiple suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as
-     * editors with specific file associations.</p>
-     */
-    private String[] sqlMigrationSuffixes = {".sql"};
-
-    /**
-     * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
-     * older deployment of the application that are no longer available in this version. For example: we have migrations
-     * available on the classpath with versions 1.0 and 3.0. The schema history table indicates that a migration with version 2.0
-     * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
-     * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
-     * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
-     * mark it as future instead.
-     * <p>
-     * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
-     * (default: {@code false})
-     */
-    private boolean ignoreMissingMigrations;
-
-    /**
-     * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
-     * newer deployment of the application that are not yet available in this version. For example: we have migrations
-     * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
-     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
-     * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
-     */
-    private boolean ignoreFutureMigrations = true;
-
-    /**
-     * Whether to automatically call validate or not when running migrate. (default: {@code true})
-     */
-    private boolean validateOnMigrate = true;
-
-    /**
-     * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})
-     * <p> This is exclusively intended as a convenience for development. Even tough we
-     * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
-     * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
-     * the next migration will bring you back to the state checked into SCM.</p>
-     * <p><b>Warning ! Do not enable in production !</b></p>
-     */
-    private boolean cleanOnValidationError;
-
-    /**
-     * Whether to disable clean. (default: {@code false})
-     * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
-     */
-    private boolean cleanDisabled;
-
-    /**
-     * The version to tag an existing schema with when executing baseline. (default: 1)
-     */
-    private MigrationVersion baselineVersion = MigrationVersion.fromVersion("1");
-
-    /**
-     * The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
-     */
-    private String baselineDescription = "<< Flyway Baseline >>";
-
-    /**
-     * <p>
-     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
-     * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.
-     * Only migrations above {@code baselineVersion} will then be applied.
-     * </p>
-     * <p>
-     * This is useful for initial Flyway production deployments on projects with an existing DB.
-     * </p>
-     * <p>
-     * Be careful when enabling this as it removes the safety net that ensures
-     * Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})
-     * </p>
-     */
-    private boolean baselineOnMigrate;
-
-    /**
-     * Allows migrations to be run "out of order".
-     * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
-     * it will be applied too instead of being ignored.</p>
-     * <p>(default: {@code false})</p>
-     */
-    private boolean outOfOrder;
-
-    /**
-     * This is a list of custom callbacks that fire before and after tasks are executed.  You can
-     * add as many custom callbacks as you want. (default: none)
-     */
-    private final List<FlywayCallback> callbacks = new ArrayList<>();
-
-    /**
-     * Whether Flyway should skip the default callbacks. If true, only custom callbacks are used.
-     * <p>(default: false)</p>
-     */
-    private boolean skipDefaultCallbacks;
-
-    /**
-     * The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
-     * <p>(default: none)</p>
-     */
-    private MigrationResolver[] resolvers = new MigrationResolver[0];
-
-    /**
-     * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
-     * <p>(default: false)</p>
-     */
-    private boolean skipDefaultResolvers;
-
-    /**
-     * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
-     */
-    private DataSource dataSource;
-
-    /**
-     * The ClassLoader to use for resolving migrations on the classpath. (default: Thread.currentThread().getContextClassLoader() )
-     */
-    private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    private final ClassicConfiguration configuration;
 
     /**
      * Whether the database connection info has already been printed in the logs.
@@ -297,49 +86,10 @@ public class Flyway implements FlywayConfiguration {
     private boolean dbConnectionInfoPrinted;
 
     /**
-     * Whether to allow mixing transactional and non-transactional statements within the same migration.
-     * <p>
-     * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
-     */
-    private boolean mixed;
-
-    /**
-     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
-     * <p>
-     * {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
-     */
-    private boolean group;
-
-    /**
-     * The username that will be recorded in the schema history table as having applied the migration.
-     * <p>
-     * {@code null} for the current database user of the connection. (default: {@code null}).
-     */
-    private String installedBy;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /**
      * Creates a new instance of Flyway. This is your starting point.
      */
     public Flyway() {
-        // Nothing to do.
+        configuration = new ClassicConfiguration();
     }
 
     /**
@@ -348,229 +98,226 @@ public class Flyway implements FlywayConfiguration {
      * @param classLoader The ClassLoader to use for loading migrations, resolvers, etc from the classpath. (default: Thread.currentThread().getContextClassLoader() )
      */
     public Flyway(ClassLoader classLoader) {
-        if (classLoader != null) {
-            this.classLoader = classLoader;
-        }
+        configuration = new ClassicConfiguration(classLoader);
     }
 
     /**
-     * Creates a new instance of Flyway. This is your starting point.
+     * Creates a new instance of Flyway with this configuration.
+     *
+     * @param configuration The configuration to use.
+     * @deprecated Use {@link #Flyway(Configuration)} instead. Will be removed in Flyway 6.0.
+     */
+    @Deprecated
+    public Flyway(FlywayConfiguration configuration) {
+        LOG.warn("The Flyway(FlywayConfiguration) constructor has been deprecated and will be removed in Flyway 6.0. Use Flyway(Configuration) instead.");
+        this.configuration = new ClassicConfiguration(configuration);
+    }
+
+    /**
+     * Creates a new instance of Flyway with this configuration.
      *
      * @param configuration The configuration to use.
      */
-    public Flyway(FlywayConfiguration configuration) {
-        this(configuration.getClassLoader());
+    public Flyway(Configuration configuration) {
+        this.configuration = new ClassicConfiguration(configuration);
+    }
 
-        setBaselineDescription(configuration.getBaselineDescription());
-        setBaselineOnMigrate(configuration.isBaselineOnMigrate());
-        setBaselineVersion(configuration.getBaselineVersion());
-        setCallbacks(configuration.getCallbacks());
-        setCleanDisabled(configuration.isCleanDisabled());
-        setCleanOnValidationError(configuration.isCleanOnValidationError());
-        setDataSource(configuration.getDataSource());
-
-
-
-
-
-        setEncoding(configuration.getEncoding());
-        setGroup(configuration.isGroup());
-        setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
-        setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
-        setInstalledBy(configuration.getInstalledBy());
-        setLocations(configuration.getLocations());
-        setMixed(configuration.isMixed());
-        setOutOfOrder(configuration.isOutOfOrder());
-        setPlaceholderPrefix(configuration.getPlaceholderPrefix());
-        setPlaceholderReplacement(configuration.isPlaceholderReplacement());
-        setPlaceholders(configuration.getPlaceholders());
-        setPlaceholderSuffix(configuration.getPlaceholderSuffix());
-        setRepeatableSqlMigrationPrefix(configuration.getRepeatableSqlMigrationPrefix());
-        setResolvers(configuration.getResolvers());
-        setSchemas(configuration.getSchemas());
-        setSkipDefaultCallbacks(configuration.isSkipDefaultCallbacks());
-        setSkipDefaultResolvers(configuration.isSkipDefaultResolvers());
-        setSqlMigrationPrefix(configuration.getSqlMigrationPrefix());
-        setSqlMigrationSeparator(configuration.getSqlMigrationSeparator());
-        setSqlMigrationSuffixes(configuration.getSqlMigrationSuffixes());
-        setTable(configuration.getTable());
-        setTarget(configuration.getTarget());
-        setValidateOnMigrate(configuration.isValidateOnMigrate());
+    /**
+     * @return The configuration that Flyway is using.
+     */
+    public Configuration getConfiguration() {
+        return new ClassicConfiguration(configuration);
     }
 
     @Override
-    public String[] getLocations() {
-        String[] result = new String[locations.getLocations().size()];
-        for (int i = 0; i < locations.getLocations().size(); i++) {
-            result[i] = locations.getLocations().get(i).toString();
-        }
-        return result;
+    public Location[] getLocations() {
+        return configuration.getLocations();
     }
 
     @Override
-    public String getEncoding() {
-        return encoding;
+    public Charset getEncoding() {
+        return configuration.getEncoding();
     }
 
     @Override
     public String[] getSchemas() {
-        return schemaNames;
+        return configuration.getSchemas();
     }
 
     @Override
     public String getTable() {
-        return table;
+        return configuration.getTable();
     }
 
     @Override
     public MigrationVersion getTarget() {
-        return target;
+        return configuration.getTarget();
     }
 
     @Override
     public boolean isPlaceholderReplacement() {
-        return placeholderReplacement;
+        return configuration.isPlaceholderReplacement();
     }
 
     @Override
     public Map<String, String> getPlaceholders() {
-        return placeholders;
+        return configuration.getPlaceholders();
     }
 
     @Override
     public String getPlaceholderPrefix() {
-        return placeholderPrefix;
+        return configuration.getPlaceholderPrefix();
     }
 
     @Override
     public String getPlaceholderSuffix() {
-        return placeholderSuffix;
+        return configuration.getPlaceholderSuffix();
     }
 
     @Override
     public String getSqlMigrationPrefix() {
-        return sqlMigrationPrefix;
+        return configuration.getSqlMigrationPrefix();
     }
 
     @Override
     public String getRepeatableSqlMigrationPrefix() {
-        return repeatableSqlMigrationPrefix;
+        return configuration.getRepeatableSqlMigrationPrefix();
     }
 
     @Override
     public String getSqlMigrationSeparator() {
-        return sqlMigrationSeparator;
+        return configuration.getSqlMigrationSeparator();
     }
 
-    @Override
+    @Deprecated
     public String getSqlMigrationSuffix() {
         LOG.warn("sqlMigrationSuffix has been deprecated and will be removed in Flyway 6.0.0. Use sqlMigrationSuffixes instead.");
-        return sqlMigrationSuffixes[0];
+        return configuration.getSqlMigrationSuffixes()[0];
     }
 
     @Override
     public String[] getSqlMigrationSuffixes() {
-        return sqlMigrationSuffixes;
+        return configuration.getSqlMigrationSuffixes();
     }
 
     @Override
     public boolean isIgnoreMissingMigrations() {
-        return ignoreMissingMigrations;
+        return configuration.isIgnoreMissingMigrations();
+    }
+
+    @Override
+    public boolean isIgnoreIgnoredMigrations() {
+        return configuration.isIgnoreIgnoredMigrations();
     }
 
     @Override
     public boolean isIgnoreFutureMigrations() {
-        return ignoreFutureMigrations;
+        return configuration.isIgnoreFutureMigrations();
     }
 
     @Override
     public boolean isValidateOnMigrate() {
-        return validateOnMigrate;
+        return configuration.isValidateOnMigrate();
     }
 
     @Override
     public boolean isCleanOnValidationError() {
-        return cleanOnValidationError;
+        return configuration.isCleanOnValidationError();
     }
 
     @Override
     public boolean isCleanDisabled() {
-        return cleanDisabled;
+        return configuration.isCleanDisabled();
     }
 
     @Override
     public MigrationVersion getBaselineVersion() {
-        return baselineVersion;
+        return configuration.getBaselineVersion();
     }
 
     @Override
     public String getBaselineDescription() {
-        return baselineDescription;
+        return configuration.getBaselineDescription();
     }
 
     @Override
     public boolean isBaselineOnMigrate() {
-        return baselineOnMigrate;
+        return configuration.isBaselineOnMigrate();
     }
 
     @Override
     public boolean isOutOfOrder() {
-        return outOfOrder;
+        return configuration.isOutOfOrder();
     }
 
     @Override
     public MigrationResolver[] getResolvers() {
-        return resolvers;
+        return configuration.getResolvers();
     }
 
     @Override
     public boolean isSkipDefaultResolvers() {
-        return skipDefaultResolvers;
+        return configuration.isSkipDefaultResolvers();
     }
 
     @Override
     public DataSource getDataSource() {
-        return dataSource;
+        return configuration.getDataSource();
     }
 
     @Override
     public ClassLoader getClassLoader() {
-        return classLoader;
+        return configuration.getClassLoader();
     }
 
     @Override
     public boolean isMixed() {
-        return mixed;
+        return configuration.isMixed();
     }
 
     @Override
     public String getInstalledBy() {
-        return installedBy;
+        return configuration.getInstalledBy();
     }
 
     @Override
     public boolean isGroup() {
-        return group;
+        return configuration.isGroup();
     }
 
     @Override
     public ErrorHandler[] getErrorHandlers() {
+        return configuration.getErrorHandlers();
+    }
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
-
-
-
-
+    @Override
+    public String[] getErrorOverrides() {
+        return configuration.getErrorOverrides();
     }
 
     @Override
     public OutputStream getDryRunOutput() {
+        return configuration.getDryRunOutput();
+    }
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
+    @Override
+    public boolean isStream() {
+        return configuration.isStream();
+    }
 
+    @Override
+    public boolean isBatch() {
+        return configuration.isBatch();
+    }
 
+    @Override
+    public boolean isOracleSqlplus() {
+        return configuration.isOracleSqlplus();
+    }
 
-
+    @Override
+    public String getLicenseKey() {
+        return configuration.getLicenseKey();
     }
 
     /**
@@ -581,12 +328,7 @@ public class Flyway implements FlywayConfiguration {
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
      */
     public void setDryRunOutput(OutputStream dryRunOutput) {
-
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
-
-
-
-
+        configuration.setDryRunOutput(dryRunOutput);
     }
 
     /**
@@ -598,41 +340,7 @@ public class Flyway implements FlywayConfiguration {
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
      */
     public void setDryRunOutputAsFile(File dryRunOutput) {
-
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        configuration.setDryRunOutputAsFile(dryRunOutput);
     }
 
     /**
@@ -645,12 +353,7 @@ public class Flyway implements FlywayConfiguration {
      *                             against the database.
      */
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
-
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
-
-
-
-
+        configuration.setDryRunOutputAsFileName(dryRunOutputFileName);
     }
 
     /**
@@ -661,14 +364,11 @@ public class Flyway implements FlywayConfiguration {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @param errorHandlers The ErrorHandlers or an empty array if the default internal handler should be used instead. (default: none)
+     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
      */
+    @Deprecated
     public void setErrorHandlers(ErrorHandler... errorHandlers) {
-
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
-
-
-
-
+        configuration.setErrorHandlers(errorHandlers);
     }
 
     /**
@@ -680,15 +380,28 @@ public class Flyway implements FlywayConfiguration {
      *
      * @param errorHandlerClassNames The fully qualified class names of ErrorHandlers or an empty array if the default
      *                               internal handler should be used instead. (default: none)
+     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
      */
+    @Deprecated
     public void setErrorHandlersAsClassNames(String... errorHandlerClassNames) {
+        configuration.setErrorHandlersAsClassNames(errorHandlerClassNames);
+    }
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
-
-
-
-
-
+    /**
+     * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
+     * to warning or from warning to error.
+     * <p>Each error override has the following format: {@code STATE:12345:W}.
+     * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
+     * behavior that should override the initial one. The following behaviors are accepted: {@code W} to force a warning
+     * and {@code E} to force an error.</p>
+     * <p>For example, to force Oracle stored procedure compilation issues to produce
+     * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param errorOverrides The ErrorOverrides or an empty array if none are defined. (default: none)
+     */
+    public void setErrorOverrides(String... errorOverrides) {
+        configuration.setErrorOverrides(errorOverrides);
     }
 
     /**
@@ -697,7 +410,7 @@ public class Flyway implements FlywayConfiguration {
      * @param group {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
      */
     public void setGroup(boolean group) {
-        this.group = group;
+        configuration.setGroup(group);
     }
 
     /**
@@ -706,10 +419,7 @@ public class Flyway implements FlywayConfiguration {
      * @param installedBy The username or {@code null} for the current database user of the connection. (default: {@code null}).
      */
     public void setInstalledBy(String installedBy) {
-        if ("".equals(installedBy)) {
-            installedBy = null;
-        }
-        this.installedBy = installedBy;
+        configuration.setInstalledBy(installedBy);
     }
 
     /**
@@ -718,7 +428,7 @@ public class Flyway implements FlywayConfiguration {
      * @param mixed {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      */
     public void setMixed(boolean mixed) {
-        this.mixed = mixed;
+        configuration.setMixed(mixed);
     }
 
     /**
@@ -735,7 +445,24 @@ public class Flyway implements FlywayConfiguration {
      *                                (default: {@code false})
      */
     public void setIgnoreMissingMigrations(boolean ignoreMissingMigrations) {
-        this.ignoreMissingMigrations = ignoreMissingMigrations;
+        configuration.setIgnoreMissingMigrations(ignoreMissingMigrations);
+    }
+
+    /**
+     * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
+     * already migrated migrations in this version. For example: we have migrations available on the classpath with
+     * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
+     * one was 2.0.0. But with the next release a new migration was added to version 1: 1.0.16. Such scenario is ignored
+     * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
+     * will not be reported by validate command. This is useful for situations where one must be able to deliver
+     * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
+     * development of older versions.
+     *
+     * @param ignoreIgnoredMigrations {@code true} to continue normally, {@code false} to fail fast with an exception.
+     *                                (default: {@code false})
+     */
+    public void setIgnoreIgnoredMigrations(boolean ignoreIgnoredMigrations) {
+        configuration.setIgnoreIgnoredMigrations(ignoreIgnoredMigrations);
     }
 
     /**
@@ -750,7 +477,7 @@ public class Flyway implements FlywayConfiguration {
      *                               fast with an exception. (default: {@code true})
      */
     public void setIgnoreFutureMigrations(boolean ignoreFutureMigrations) {
-        this.ignoreFutureMigrations = ignoreFutureMigrations;
+        configuration.setIgnoreFutureMigrations(ignoreFutureMigrations);
     }
 
     /**
@@ -759,7 +486,7 @@ public class Flyway implements FlywayConfiguration {
      * @param validateOnMigrate {@code true} if validate should be called. {@code false} if not. (default: {@code true})
      */
     public void setValidateOnMigrate(boolean validateOnMigrate) {
-        this.validateOnMigrate = validateOnMigrate;
+        configuration.setValidateOnMigrate(validateOnMigrate);
     }
 
     /**
@@ -773,7 +500,7 @@ public class Flyway implements FlywayConfiguration {
      * @param cleanOnValidationError {@code true} if clean should be called. {@code false} if not. (default: {@code false})
      */
     public void setCleanOnValidationError(boolean cleanOnValidationError) {
-        this.cleanOnValidationError = cleanOnValidationError;
+        configuration.setCleanOnValidationError(cleanOnValidationError);
     }
 
     /**
@@ -783,7 +510,7 @@ public class Flyway implements FlywayConfiguration {
      * @param cleanDisabled {@code true} to disabled clean. {@code false} to leave it enabled.  (default: {@code false})
      */
     public void setCleanDisabled(boolean cleanDisabled) {
-        this.cleanDisabled = cleanDisabled;
+        configuration.setCleanDisabled(cleanDisabled);
     }
 
     /**
@@ -797,7 +524,7 @@ public class Flyway implements FlywayConfiguration {
      * @param locations Locations to scan recursively for migrations. (default: db/migration)
      */
     public void setLocations(String... locations) {
-        this.locations = new Locations(locations);
+        configuration.setLocationsAsStrings(locations);
     }
 
     /**
@@ -806,7 +533,7 @@ public class Flyway implements FlywayConfiguration {
      * @param encoding The encoding of Sql migrations. (default: UTF-8)
      */
     public void setEncoding(String encoding) {
-        this.encoding = encoding;
+        configuration.setEncodingAsString(encoding);
     }
 
     /**
@@ -821,7 +548,7 @@ public class Flyway implements FlywayConfiguration {
      * @param schemas The schemas managed by Flyway. May not be {@code null}. Must contain at least one element.
      */
     public void setSchemas(String... schemas) {
-        this.schemaNames = schemas;
+        configuration.setSchemas(schemas);
     }
 
     /**
@@ -833,7 +560,7 @@ public class Flyway implements FlywayConfiguration {
      * @param table The name of the schema schema history table that will be used by flyway. (default: flyway_schema_history)
      */
     public void setTable(String table) {
-        this.table = table;
+        configuration.setTable(table);
     }
 
     /**
@@ -843,7 +570,7 @@ public class Flyway implements FlywayConfiguration {
      * @param target The target version up to which Flyway should consider migrations. (default: the latest version)
      */
     public void setTarget(MigrationVersion target) {
-        this.target = target;
+        configuration.setTarget(target);
     }
 
     /**
@@ -855,7 +582,7 @@ public class Flyway implements FlywayConfiguration {
      *               version)
      */
     public void setTargetAsString(String target) {
-        this.target = MigrationVersion.fromVersion(target);
+        configuration.setTargetAsString(target);
     }
 
     /**
@@ -864,7 +591,7 @@ public class Flyway implements FlywayConfiguration {
      * @param placeholderReplacement Whether placeholders should be replaced. (default: true)
      */
     public void setPlaceholderReplacement(boolean placeholderReplacement) {
-        this.placeholderReplacement = placeholderReplacement;
+        configuration.setPlaceholderReplacement(placeholderReplacement);
     }
 
     /**
@@ -873,7 +600,7 @@ public class Flyway implements FlywayConfiguration {
      * @param placeholders The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      */
     public void setPlaceholders(Map<String, String> placeholders) {
-        this.placeholders = placeholders;
+        configuration.setPlaceholders(placeholders);
     }
 
     /**
@@ -882,10 +609,7 @@ public class Flyway implements FlywayConfiguration {
      * @param placeholderPrefix The prefix of every placeholder. (default: ${ )
      */
     public void setPlaceholderPrefix(String placeholderPrefix) {
-        if (!StringUtils.hasLength(placeholderPrefix)) {
-            throw new FlywayException("placeholderPrefix cannot be empty!");
-        }
-        this.placeholderPrefix = placeholderPrefix;
+        configuration.setPlaceholderPrefix(placeholderPrefix);
     }
 
     /**
@@ -894,10 +618,7 @@ public class Flyway implements FlywayConfiguration {
      * @param placeholderSuffix The suffix of every placeholder. (default: } )
      */
     public void setPlaceholderSuffix(String placeholderSuffix) {
-        if (!StringUtils.hasLength(placeholderSuffix)) {
-            throw new FlywayException("placeholderSuffix cannot be empty!");
-        }
-        this.placeholderSuffix = placeholderSuffix;
+        configuration.setPlaceholderSuffix(placeholderSuffix);
     }
 
     /**
@@ -908,17 +629,12 @@ public class Flyway implements FlywayConfiguration {
      * @param sqlMigrationPrefix The file name prefix for sql migrations (default: V)
      */
     public void setSqlMigrationPrefix(String sqlMigrationPrefix) {
-        this.sqlMigrationPrefix = sqlMigrationPrefix;
+        configuration.setSqlMigrationPrefix(sqlMigrationPrefix);
     }
 
     @Override
     public String getUndoSqlMigrationPrefix() {
-
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
-
-
-
-
+        return configuration.getUndoSqlMigrationPrefix();
     }
 
     /**
@@ -931,12 +647,7 @@ public class Flyway implements FlywayConfiguration {
      * @param undoSqlMigrationPrefix The file name prefix for undo SQL migrations. (default: U)
      */
     public void setUndoSqlMigrationPrefix(String undoSqlMigrationPrefix) {
-
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
-
-
-
-
+        configuration.setUndoSqlMigrationPrefix(undoSqlMigrationPrefix);
     }
 
     /**
@@ -947,7 +658,7 @@ public class Flyway implements FlywayConfiguration {
      * @param repeatableSqlMigrationPrefix The file name prefix for repeatable sql migrations (default: R)
      */
     public void setRepeatableSqlMigrationPrefix(String repeatableSqlMigrationPrefix) {
-        this.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix;
+        configuration.setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefix);
     }
 
     /**
@@ -958,11 +669,7 @@ public class Flyway implements FlywayConfiguration {
      * @param sqlMigrationSeparator The file name separator for sql migrations (default: __)
      */
     public void setSqlMigrationSeparator(String sqlMigrationSeparator) {
-        if (!StringUtils.hasLength(sqlMigrationSeparator)) {
-            throw new FlywayException("sqlMigrationSeparator cannot be empty!");
-        }
-
-        this.sqlMigrationSeparator = sqlMigrationSeparator;
+        configuration.setSqlMigrationSeparator(sqlMigrationSeparator);
     }
 
     /**
@@ -971,12 +678,12 @@ public class Flyway implements FlywayConfiguration {
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
      * @param sqlMigrationSuffix The file name suffix for sql migrations (default: .sql)
-     * @deprecated Use {@link Flyway#setSqlMigrationSuffixes(String...)} instead. Will be removed in Flyway 6.0.0.
+     * @deprecated sqlMigrationSuffix has been deprecated and will be removed in Flyway 6.0.0. Use sqlMigrationSuffixes instead.
      */
     @Deprecated
     public void setSqlMigrationSuffix(String sqlMigrationSuffix) {
         LOG.warn("sqlMigrationSuffix has been deprecated and will be removed in Flyway 6.0.0. Use sqlMigrationSuffixes instead.");
-        this.sqlMigrationSuffixes = new String[]{sqlMigrationSuffix};
+        configuration.setSqlMigrationSuffixes(sqlMigrationSuffix);
     }
 
     /**
@@ -989,7 +696,7 @@ public class Flyway implements FlywayConfiguration {
      * @param sqlMigrationSuffixes The file name suffixes for SQL migrations.
      */
     public void setSqlMigrationSuffixes(String... sqlMigrationSuffixes) {
-        this.sqlMigrationSuffixes = sqlMigrationSuffixes;
+        configuration.setSqlMigrationSuffixes(sqlMigrationSuffixes);
     }
 
     /**
@@ -998,7 +705,7 @@ public class Flyway implements FlywayConfiguration {
      * @param dataSource The datasource to use. Must have the necessary privileges to execute ddl.
      */
     public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
+        configuration.setDataSource(dataSource);
     }
 
     /**
@@ -1011,19 +718,19 @@ public class Flyway implements FlywayConfiguration {
      * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      */
     public void setDataSource(String url, String user, String password, String... initSqls) {
-        this.dataSource = new DriverDataSource(classLoader, null, url, user, password, null, initSqls);
+        configuration.setDataSource(url, user, password, initSqls);
     }
 
     /**
      * Sets the ClassLoader to use for resolving migrations on the classpath.
      *
      * @param classLoader The ClassLoader to use for loading migrations, resolvers, etc from the classpath. (default: Thread.currentThread().getContextClassLoader() )
-     * @deprecated Will be removed in Flyway 6.0. Use {@link #Flyway(ClassLoader)} instead.
+     * @deprecated Will be removed in Flyway 6.0. Use {@link Flyway(ClassLoader)} instead.
      */
     @Deprecated
     public void setClassLoader(ClassLoader classLoader) {
-        LOG.warn("Flyway.setClassLoader() is deprecated and will be removed in Flyway 6.0. Use new Flyway(ClassLoader) instead.");
-        this.classLoader = classLoader;
+        LOG.warn("Flyway.setClassLoader() has been deprecated and will be removed in Flyway 6.0. Use {@link Flyway(ClassLoader)} instead.");
+        configuration.setClassLoader(classLoader);
     }
 
     /**
@@ -1032,7 +739,7 @@ public class Flyway implements FlywayConfiguration {
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
      */
     public void setBaselineVersion(MigrationVersion baselineVersion) {
-        this.baselineVersion = baselineVersion;
+        configuration.setBaselineVersion(baselineVersion);
     }
 
     /**
@@ -1041,7 +748,7 @@ public class Flyway implements FlywayConfiguration {
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
      */
     public void setBaselineVersionAsString(String baselineVersion) {
-        this.baselineVersion = MigrationVersion.fromVersion(baselineVersion);
+        configuration.setBaselineVersionAsString(baselineVersion);
     }
 
     /**
@@ -1050,7 +757,7 @@ public class Flyway implements FlywayConfiguration {
      * @param baselineDescription The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
      */
     public void setBaselineDescription(String baselineDescription) {
-        this.baselineDescription = baselineDescription;
+        configuration.setBaselineDescription(baselineDescription);
     }
 
     /**
@@ -1070,7 +777,7 @@ public class Flyway implements FlywayConfiguration {
      * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
      */
     public void setBaselineOnMigrate(boolean baselineOnMigrate) {
-        this.baselineOnMigrate = baselineOnMigrate;
+        configuration.setBaselineOnMigrate(baselineOnMigrate);
     }
 
     /**
@@ -1081,22 +788,17 @@ public class Flyway implements FlywayConfiguration {
      * @param outOfOrder {@code true} if outOfOrder migrations should be applied, {@code false} if not. (default: {@code false})
      */
     public void setOutOfOrder(boolean outOfOrder) {
-        this.outOfOrder = outOfOrder;
+        configuration.setOutOfOrder(outOfOrder);
     }
 
-    /**
-     * Gets the callbacks for lifecycle notifications.
-     *
-     * @return The callbacks for lifecycle notifications. An empty array if none. (default: none)
-     */
     @Override
-    public FlywayCallback[] getCallbacks() {
-        return callbacks.toArray(new FlywayCallback[callbacks.size()]);
+    public Callback[] getCallbacks() {
+        return configuration.getCallbacks();
     }
 
     @Override
     public boolean isSkipDefaultCallbacks() {
-        return skipDefaultCallbacks;
+        return configuration.isSkipDefaultCallbacks();
     }
 
     /**
@@ -1104,9 +806,24 @@ public class Flyway implements FlywayConfiguration {
      *
      * @param callbacks The callbacks for lifecycle notifications. (default: none)
      */
+    public void setCallbacks(Callback... callbacks) {
+        configuration.setCallbacks(callbacks);
+    }
+
+    /**
+     * Set the callbacks for lifecycle notifications.
+     *
+     * @param callbacks The callbacks for lifecycle notifications. (default: none)
+     * @deprecated Flyway.setCallbacks(FlywayCallback) has been deprecated and will be removed in Flyway 6.0. Use Flyway.setCallbacks(Callback) instead.
+     */
+    @Deprecated
     public void setCallbacks(FlywayCallback... callbacks) {
-        this.callbacks.clear();
-        this.callbacks.addAll(Arrays.asList(callbacks));
+        LOG.warn("Flyway.setCallbacks(FlywayCallback) has been deprecated and will be removed in Flyway 6.0. Use Flyway.setCallbacks(Callback) instead.");
+        List<Callback> l = new ArrayList<>();
+        for (FlywayCallback callback : callbacks) {
+            l.add(new LegacyCallback(callback));
+        }
+        configuration.setCallbacks(l.toArray(new Callback[0]));
     }
 
     /**
@@ -1115,8 +832,7 @@ public class Flyway implements FlywayConfiguration {
      * @param callbacks The fully qualified class names of the callbacks for lifecycle notifications. (default: none)
      */
     public void setCallbacksAsClassNames(String... callbacks) {
-        this.callbacks.clear();
-        this.callbacks.addAll(ClassUtils.<FlywayCallback>instantiateAll(callbacks, classLoader));
+        configuration.setCallbacksAsClassNames(callbacks);
     }
 
     /**
@@ -1125,7 +841,7 @@ public class Flyway implements FlywayConfiguration {
      * @param skipDefaultCallbacks Whether default built-in callbacks should be skipped. <p>(default: false)</p>
      */
     public void setSkipDefaultCallbacks(boolean skipDefaultCallbacks) {
-        this.skipDefaultCallbacks = skipDefaultCallbacks;
+        configuration.setSkipDefaultCallbacks(skipDefaultCallbacks);
     }
 
     /**
@@ -1134,7 +850,7 @@ public class Flyway implements FlywayConfiguration {
      * @param resolvers The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
      */
     public void setResolvers(MigrationResolver... resolvers) {
-        this.resolvers = resolvers;
+        configuration.setResolvers(resolvers);
     }
 
     /**
@@ -1143,8 +859,7 @@ public class Flyway implements FlywayConfiguration {
      * @param resolvers The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
      */
     public void setResolversAsClassNames(String... resolvers) {
-        List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolvers, classLoader);
-        setResolvers(resolverList.toArray(new MigrationResolver[resolvers.length]));
+        configuration.setResolversAsClassNames(resolvers);
     }
 
     /**
@@ -1153,7 +868,54 @@ public class Flyway implements FlywayConfiguration {
      * @param skipDefaultResolvers Whether default built-in resolvers should be skipped. <p>(default: false)</p>
      */
     public void setSkipDefaultResolvers(boolean skipDefaultResolvers) {
-        this.skipDefaultResolvers = skipDefaultResolvers;
+        configuration.setSkipDefaultResolvers(skipDefaultResolvers);
+    }
+
+    /**
+     * Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at
+     * once. Instead each statement is loaded individually. This is particularly useful for very large SQL migrations
+     * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param stream {@code true} to stream SQL migrations. {@code false} to fully loaded them in memory instead. (default: {@code false})
+     */
+    public void setStream(boolean stream) {
+        configuration.setStream(stream);
+    }
+
+    /**
+     * Whether to batch SQL statements when executing them. Batching can save up to 99 percent of network roundtrips by
+     * sending up to 100 statements at once over the network to the database, instead of sending each statement
+     * individually. This is particularly useful for very large SQL migrations composed of multiple MB or even GB of
+     * reference data, as this can dramatically reduce the network overhead. This is supported for INSERT, UPDATE,
+     * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param batch {@code true} to batch SQL statements. {@code false} to execute them individually instead. (default: {@code false})
+     */
+    public void setBatch(boolean batch) {
+        configuration.setBatch(batch);
+    }
+
+    /**
+     * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param oracleSqlplus {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
+     */
+    public void setOracleSqlplus(boolean oracleSqlplus) {
+        configuration.setOracleSqlplus(oracleSqlplus);
+    }
+
+    /**
+     * Flyway's license key.
+     *
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param licenseKey The license key.
+     */
+    public void setLicenseKey(String licenseKey) {
+        configuration.setLicenseKey(licenseKey);
     }
 
     /**
@@ -1167,13 +929,13 @@ public class Flyway implements FlywayConfiguration {
     public int migrate() throws FlywayException {
         return execute(new Command<Integer>() {
             public Integer execute(MigrationResolver migrationResolver,
-                                   SchemaHistory schemaHistory, Database database, Schema[] schemas, List<FlywayCallback> effectiveCallbacks
+                                   SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor
 
 
 
             ) {
-                if (validateOnMigrate) {
-                    doValidate(database, migrationResolver, schemaHistory, schemas, effectiveCallbacks, true);
+                if (configuration.isValidateOnMigrate()) {
+                    doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor, true);
                 }
 
                 new DbSchemas(database, schemas, schemaHistory).create();
@@ -1187,9 +949,8 @@ public class Flyway implements FlywayConfiguration {
                     }
 
                     if (!nonEmptySchemas.isEmpty()) {
-                        if (baselineOnMigrate) {
-                            new DbBaseline(database, schemaHistory, schemas[0], baselineVersion, baselineDescription,
-                                    effectiveCallbacks).baseline();
+                        if (configuration.isBaselineOnMigrate()) {
+                            doBaseline(schemaHistory, database, schemas, callbackExecutor);
                         } else {
                             // Second check for MySQL which is sometimes flaky otherwise
                             if (!schemaHistory.exists()) {
@@ -1202,10 +963,16 @@ public class Flyway implements FlywayConfiguration {
                     }
                 }
 
-                return new DbMigrate(database, schemaHistory, schemas[0], migrationResolver, Flyway.this,
-                        effectiveCallbacks).migrate();
+                return new DbMigrate(database, schemaHistory, schemas[0], migrationResolver, configuration,
+                        callbackExecutor).migrate();
             }
         });
+    }
+
+    private void doBaseline(SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor) {
+        new DbBaseline(database, schemaHistory, schemas[0],
+                configuration.getBaselineVersion(), configuration.getBaselineDescription(),
+                callbackExecutor).baseline();
     }
 
     /**
@@ -1244,7 +1011,7 @@ public class Flyway implements FlywayConfiguration {
      * <li>versions have been applied that aren't resolved locally anymore</li>
      * <li>versions have been resolved that haven't been applied yet</li>
      * </ul>
-     * <p>
+     *
      * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
      *
      * @throws FlywayException when the validation failed.
@@ -1252,12 +1019,12 @@ public class Flyway implements FlywayConfiguration {
     public void validate() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
-                                Schema[] schemas, List<FlywayCallback> effectiveCallbacks
+                                Schema[] schemas, CallbackExecutor callbackExecutor
 
 
 
             ) {
-                doValidate(database, migrationResolver, schemaHistory, schemas, effectiveCallbacks, false);
+                doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor, false);
                 return null;
             }
         });
@@ -1266,26 +1033,34 @@ public class Flyway implements FlywayConfiguration {
     /**
      * Performs the actual validation. All set up must have taken place beforehand.
      *
-     * @param database           The database-specific support.
-     * @param migrationResolver  The migration resolver;
-     * @param schemaHistory      The schema history table.
-     * @param schemas            The schemas managed by Flyway.
-     * @param effectiveCallbacks The actual callbacks to use.
-     * @param pending            Whether pending migrations are ok.
+     * @param database          The database-specific support.
+     * @param migrationResolver The migration resolver;
+     * @param schemaHistory     The schema history table.
+     * @param schemas           The schemas managed by Flyway.
+     * @param callbackExecutor  The callback executor.
+     * @param pending           Whether pending migrations are ok.
      */
     private void doValidate(Database database, MigrationResolver migrationResolver,
-                            SchemaHistory schemaHistory, Schema[] schemas, List<FlywayCallback> effectiveCallbacks, boolean pending) {
+                            SchemaHistory schemaHistory, Schema[] schemas, CallbackExecutor callbackExecutor, boolean pending) {
         String validationError =
                 new DbValidate(database, schemaHistory, schemas[0], migrationResolver,
-                        target, outOfOrder, pending, ignoreMissingMigrations, ignoreFutureMigrations, effectiveCallbacks).validate();
+                        configuration.getTarget(), configuration.isOutOfOrder(), pending,
+                        configuration.isIgnoreMissingMigrations(),
+                        configuration.isIgnoreIgnoredMigrations(),
+                        configuration.isIgnoreFutureMigrations(),
+                        callbackExecutor).validate();
 
         if (validationError != null) {
-            if (cleanOnValidationError) {
-                new DbClean(database, schemaHistory, schemas, effectiveCallbacks, cleanDisabled).clean();
+            if (configuration.isCleanOnValidationError()) {
+                doClean(database, schemaHistory, schemas, callbackExecutor);
             } else {
                 throw new FlywayException("Validate failed: " + validationError);
             }
         }
+    }
+
+    private void doClean(Database database, SchemaHistory schemaHistory, Schema[] schemas, CallbackExecutor callbackExecutor) {
+        new DbClean(database, schemaHistory, schemas, callbackExecutor, configuration.isCleanDisabled()).clean();
     }
 
     /**
@@ -1298,12 +1073,12 @@ public class Flyway implements FlywayConfiguration {
     public void clean() {
         execute(new Command<Void>() {
             public Void execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
-                                Schema[] schemas, List<FlywayCallback> effectiveCallbacks
+                                Schema[] schemas, CallbackExecutor callbackExecutor
 
 
 
             ) {
-                new DbClean(database, schemaHistory, schemas, effectiveCallbacks, cleanDisabled).clean();
+                doClean(database, schemaHistory, schemas, callbackExecutor);
                 return null;
             }
         });
@@ -1320,19 +1095,19 @@ public class Flyway implements FlywayConfiguration {
     public MigrationInfoService info() {
         return execute(new Command<MigrationInfoService>() {
             public MigrationInfoService execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                                                final Database database, final Schema[] schemas, List<FlywayCallback> effectiveCallbacks
+                                                final Database database, final Schema[] schemas, CallbackExecutor callbackExecutor
 
 
 
             ) {
-                return new DbInfo(migrationResolver, schemaHistory, database, Flyway.this, schemas, effectiveCallbacks).info();
+                return new DbInfo(migrationResolver, schemaHistory, configuration, callbackExecutor).info();
             }
         });
     }
 
     /**
      * <p>Baselines an existing database, excluding all migrations up to and including baselineVersion.</p>
-     * <p>
+     *
      * <img src="https://flywaydb.org/assets/balsamiq/command-baseline.png" alt="baseline">
      *
      * @throws FlywayException when the schema baselining failed.
@@ -1340,13 +1115,13 @@ public class Flyway implements FlywayConfiguration {
     public void baseline() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(MigrationResolver migrationResolver,
-                                SchemaHistory schemaHistory, Database database, Schema[] schemas, List<FlywayCallback> effectiveCallbacks
+                                SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor
 
 
 
             ) {
                 new DbSchemas(database, schemas, schemaHistory).create();
-                new DbBaseline(database, schemaHistory, schemas[0], baselineVersion, baselineDescription, effectiveCallbacks).baseline();
+                doBaseline(schemaHistory, database, schemas, callbackExecutor);
                 return null;
             }
         });
@@ -1365,12 +1140,12 @@ public class Flyway implements FlywayConfiguration {
     public void repair() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(MigrationResolver migrationResolver,
-                                SchemaHistory schemaHistory, Database database, Schema[] schemas, List<FlywayCallback> effectiveCallbacks
+                                SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor
 
 
 
             ) {
-                new DbRepair(database, schemas[0], migrationResolver, schemaHistory, effectiveCallbacks).repair();
+                new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor).repair();
                 return null;
             }
         });
@@ -1379,37 +1154,49 @@ public class Flyway implements FlywayConfiguration {
     /**
      * Creates the MigrationResolver.
      *
-     * @param database The database-specific support.
-     * @param scanner  The Scanner for resolving migrations.
+     * @param database            The database-specific support.
+     * @param scanner             The Scanner for resolving migrations.
+     * @param placeholderReplacer The placeholder replacer.
      * @return A new, fully configured, MigrationResolver instance.
      */
-    private MigrationResolver createMigrationResolver(Database database, Scanner scanner) {
-        for (MigrationResolver resolver : resolvers) {
-            ConfigUtils.injectFlywayConfiguration(resolver, this);
+    private MigrationResolver createMigrationResolver(Database database, Scanner scanner,
+                                                      PlaceholderReplacer placeholderReplacer
+
+
+
+    ) {
+        for (MigrationResolver resolver : configuration.getResolvers()) {
+            ConfigUtils.injectFlywayConfiguration(resolver, configuration);
         }
 
-        return new CompositeMigrationResolver(database, scanner, this, locations, createPlaceholderReplacer(), resolvers);
+        return new CompositeMigrationResolver(database, scanner, configuration,
+                Arrays.asList(configuration.getLocations()),
+                placeholderReplacer
+
+
+
+                , configuration.getResolvers());
     }
 
     /**
      * @return A new, fully configured, PlaceholderReplacer.
      */
     private PlaceholderReplacer createPlaceholderReplacer() {
-        if (placeholderReplacement) {
-            return new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
+        if (configuration.isPlaceholderReplacement()) {
+            return new DefaultPlaceholderReplacer(configuration.getPlaceholders(), configuration.getPlaceholderPrefix(),
+                    configuration.getPlaceholderSuffix());
         }
-        return PlaceholderReplacer.NO_PLACEHOLDERS;
+        return NoopPlaceholderReplacer.INSTANCE;
     }
 
     /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
-     * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
+     * <p>To use a custom ClassLoader, the Flyway(ClassLoader) constructor must be called prior to calling this method.</p>
      *
      * @param properties Properties used for configuration.
      * @throws FlywayException when the configuration failed.
      */
-    @SuppressWarnings("ConstantConditions")
     public void configure(Properties properties) {
         configure(ConfigUtils.propertiesToMap(properties));
     }
@@ -1423,184 +1210,7 @@ public class Flyway implements FlywayConfiguration {
      * @throws FlywayException when the configuration failed.
      */
     public void configure(Map<String, String> props) {
-        // Make copy to prevent removing elements from the original.
-        props = new HashMap<>(props);
-
-        String driverProp = props.remove(ConfigUtils.DRIVER);
-        String urlProp = props.remove(ConfigUtils.URL);
-        String userProp = props.remove(ConfigUtils.USER);
-        String passwordProp = props.remove(ConfigUtils.PASSWORD);
-
-        if (StringUtils.hasText(urlProp)) {
-            setDataSource(new DriverDataSource(classLoader, driverProp, urlProp, userProp, passwordProp, null));
-        } else if (!StringUtils.hasText(urlProp) &&
-                (StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
-            LOG.warn("Discarding INCOMPLETE dataSource configuration! " + ConfigUtils.URL + " must be set.");
-        }
-
-        String locationsProp = props.remove(ConfigUtils.LOCATIONS);
-        if (locationsProp != null) {
-            setLocations(StringUtils.tokenizeToStringArray(locationsProp, ","));
-        }
-        Boolean placeholderReplacementProp = getBooleanProp(props, ConfigUtils.PLACEHOLDER_REPLACEMENT);
-        if (placeholderReplacementProp != null) {
-            setPlaceholderReplacement(placeholderReplacementProp);
-        }
-        String placeholderPrefixProp = props.remove(ConfigUtils.PLACEHOLDER_PREFIX);
-        if (placeholderPrefixProp != null) {
-            setPlaceholderPrefix(placeholderPrefixProp);
-        }
-        String placeholderSuffixProp = props.remove(ConfigUtils.PLACEHOLDER_SUFFIX);
-        if (placeholderSuffixProp != null) {
-            setPlaceholderSuffix(placeholderSuffixProp);
-        }
-        String sqlMigrationPrefixProp = props.remove(ConfigUtils.SQL_MIGRATION_PREFIX);
-        if (sqlMigrationPrefixProp != null) {
-            setSqlMigrationPrefix(sqlMigrationPrefixProp);
-        }
-        String undoSqlMigrationPrefixProp = props.remove(ConfigUtils.UNDO_SQL_MIGRATION_PREFIX);
-        if (undoSqlMigrationPrefixProp != null) {
-            setUndoSqlMigrationPrefix(undoSqlMigrationPrefixProp);
-        }
-        String repeatableSqlMigrationPrefixProp = props.remove(ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX);
-        if (repeatableSqlMigrationPrefixProp != null) {
-            setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefixProp);
-        }
-        String sqlMigrationSeparatorProp = props.remove(ConfigUtils.SQL_MIGRATION_SEPARATOR);
-        if (sqlMigrationSeparatorProp != null) {
-            setSqlMigrationSeparator(sqlMigrationSeparatorProp);
-        }
-        String sqlMigrationSuffixProp = props.remove(ConfigUtils.SQL_MIGRATION_SUFFIX);
-        if (sqlMigrationSuffixProp != null) {
-            setSqlMigrationSuffix(sqlMigrationSuffixProp);
-        }
-        String sqlMigrationSuffixesProp = props.remove(ConfigUtils.SQL_MIGRATION_SUFFIXES);
-        if (sqlMigrationSuffixesProp != null) {
-            setSqlMigrationSuffixes(StringUtils.tokenizeToStringArray(sqlMigrationSuffixesProp, ","));
-        }
-        String encodingProp = props.remove(ConfigUtils.ENCODING);
-        if (encodingProp != null) {
-            setEncoding(encodingProp);
-        }
-        String schemasProp = props.remove(ConfigUtils.SCHEMAS);
-        if (schemasProp != null) {
-            setSchemas(StringUtils.tokenizeToStringArray(schemasProp, ","));
-        }
-        String tableProp = props.remove(ConfigUtils.TABLE);
-        if (tableProp != null) {
-            setTable(tableProp);
-        }
-        Boolean cleanOnValidationErrorProp = getBooleanProp(props, ConfigUtils.CLEAN_ON_VALIDATION_ERROR);
-        if (cleanOnValidationErrorProp != null) {
-            setCleanOnValidationError(cleanOnValidationErrorProp);
-        }
-        Boolean cleanDisabledProp = getBooleanProp(props, ConfigUtils.CLEAN_DISABLED);
-        if (cleanDisabledProp != null) {
-            setCleanDisabled(cleanDisabledProp);
-        }
-        Boolean validateOnMigrateProp = getBooleanProp(props, ConfigUtils.VALIDATE_ON_MIGRATE);
-        if (validateOnMigrateProp != null) {
-            setValidateOnMigrate(validateOnMigrateProp);
-        }
-        String baselineVersionProp = props.remove(ConfigUtils.BASELINE_VERSION);
-        if (baselineVersionProp != null) {
-            setBaselineVersion(MigrationVersion.fromVersion(baselineVersionProp));
-        }
-        String baselineDescriptionProp = props.remove(ConfigUtils.BASELINE_DESCRIPTION);
-        if (baselineDescriptionProp != null) {
-            setBaselineDescription(baselineDescriptionProp);
-        }
-        Boolean baselineOnMigrateProp = getBooleanProp(props, ConfigUtils.BASELINE_ON_MIGRATE);
-        if (baselineOnMigrateProp != null) {
-            setBaselineOnMigrate(baselineOnMigrateProp);
-        }
-        Boolean ignoreMissingMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_MISSING_MIGRATIONS);
-        if (ignoreMissingMigrationsProp != null) {
-            setIgnoreMissingMigrations(ignoreMissingMigrationsProp);
-        }
-        Boolean ignoreFutureMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_FUTURE_MIGRATIONS);
-        if (ignoreFutureMigrationsProp != null) {
-            setIgnoreFutureMigrations(ignoreFutureMigrationsProp);
-        }
-        String targetProp = props.remove(ConfigUtils.TARGET);
-        if (targetProp != null) {
-            setTarget(MigrationVersion.fromVersion(targetProp));
-        }
-        Boolean outOfOrderProp = getBooleanProp(props, ConfigUtils.OUT_OF_ORDER);
-        if (outOfOrderProp != null) {
-            setOutOfOrder(outOfOrderProp);
-        }
-        String resolversProp = props.remove(ConfigUtils.RESOLVERS);
-        if (StringUtils.hasLength(resolversProp)) {
-            setResolversAsClassNames(StringUtils.tokenizeToStringArray(resolversProp, ","));
-        }
-        Boolean skipDefaultResolversProp = getBooleanProp(props, ConfigUtils.SKIP_DEFAULT_RESOLVERS);
-        if (skipDefaultResolversProp != null) {
-            setSkipDefaultResolvers(skipDefaultResolversProp);
-        }
-        String callbacksProp = props.remove(ConfigUtils.CALLBACKS);
-        if (StringUtils.hasLength(callbacksProp)) {
-            setCallbacksAsClassNames(StringUtils.tokenizeToStringArray(callbacksProp, ","));
-        }
-        Boolean skipDefaultCallbacksProp = getBooleanProp(props, ConfigUtils.SKIP_DEFAULT_CALLBACKS);
-        if (skipDefaultCallbacksProp != null) {
-            setSkipDefaultCallbacks(skipDefaultCallbacksProp);
-        }
-
-        Map<String, String> placeholdersFromProps = new HashMap<>(placeholders);
-        Iterator<Map.Entry<String, String>> iterator = props.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, String> entry = iterator.next();
-            String propertyName = entry.getKey();
-
-            if (propertyName.startsWith(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX)
-                    && propertyName.length() > ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX.length()) {
-                String placeholderName = propertyName.substring(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX.length());
-                String placeholderValue = entry.getValue();
-                placeholdersFromProps.put(placeholderName, placeholderValue);
-                iterator.remove();
-            }
-        }
-        setPlaceholders(placeholdersFromProps);
-
-        Boolean mixedProp = getBooleanProp(props, ConfigUtils.MIXED);
-        if (mixedProp != null) {
-            setMixed(mixedProp);
-        }
-
-        Boolean groupProp = getBooleanProp(props, ConfigUtils.GROUP);
-        if (groupProp != null) {
-            setGroup(groupProp);
-        }
-
-        String installedByProp = props.remove(ConfigUtils.INSTALLED_BY);
-        if (installedByProp != null) {
-            setInstalledBy(installedByProp);
-        }
-
-        String dryRunOutputProp = props.remove(ConfigUtils.DRYRUN_OUTPUT);
-        if (dryRunOutputProp != null) {
-            setDryRunOutputAsFileName(dryRunOutputProp);
-        }
-
-        String errorHandlersProp = props.remove(ConfigUtils.ERROR_HANDLERS);
-        if (errorHandlersProp != null) {
-            setErrorHandlersAsClassNames(StringUtils.tokenizeToStringArray(errorHandlersProp, ","));
-        }
-
-        for (String key : props.keySet()) {
-            if (key.startsWith("flyway.")) {
-                throw new FlywayException("Unknown configuration property: " + key);
-            }
-        }
-    }
-
-    private Boolean getBooleanProp(Map<String, String> props, String key) {
-        String value = props.remove(key);
-        if (value != null && !"true".equals(value) && !"false".equals(value)) {
-            throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value);
-        }
-        return value == null ? null : Boolean.valueOf(value);
+        configuration.configure(props);
     }
 
     /**
@@ -1613,9 +1223,13 @@ public class Flyway implements FlywayConfiguration {
     /*private -> testing*/ <T> T execute(Command<T> command) {
         T result;
 
-        VersionPrinter.printVersion();
+        VersionPrinter.printVersion(
 
-        if (dataSource == null) {
+
+
+        );
+
+        if (configuration.getDataSource() == null) {
             throw new FlywayException("Unable to connect to the database. Configure the url, user and password!");
         }
 
@@ -1624,9 +1238,15 @@ public class Flyway implements FlywayConfiguration {
 
 
 
+
+
+
+
+
+
         Database database = null;
         try {
-            database = DatabaseFactory.createDatabase(this, !dbConnectionInfoPrinted
+            database = DatabaseFactory.createDatabase(configuration, !dbConnectionInfoPrinted
 
 
 
@@ -1635,19 +1255,29 @@ public class Flyway implements FlywayConfiguration {
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
 
             Schema[] schemas = prepareSchemas(database);
-            Scanner scanner = new Scanner(classLoader);
-            MigrationResolver migrationResolver = createMigrationResolver(database, scanner);
-            List<FlywayCallback> effectiveCallbacks = prepareCallbacks(scanner, database
+            Scanner scanner = new Scanner(configuration);
+            PlaceholderReplacer placeholderReplacer = createPlaceholderReplacer();
+            CallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, schemas[0],
+                    prepareCallbacks(database, scanner, placeholderReplacer
 
 
 
-            );
-            SchemaHistory schemaHistory = SchemaHistoryFactory.getSchemaHistory(this, database, schemas[0]
+                    ));
+
+            result = command.execute(
+                    createMigrationResolver(database, scanner, placeholderReplacer
 
 
 
-            );
-            result = command.execute(migrationResolver, schemaHistory, database, schemas, effectiveCallbacks
+                    ),
+                    SchemaHistoryFactory.getSchemaHistory(configuration, database, schemas[0]
+
+
+
+                    ),
+                    database,
+                    schemas,
+                    callbackExecutor
 
 
 
@@ -1661,18 +1291,31 @@ public class Flyway implements FlywayConfiguration {
 
 
 
+            showMemoryUsage();
         }
         return result;
     }
 
+    private void showMemoryUsage() {
+        Runtime runtime = Runtime.getRuntime();
+        long free = runtime.freeMemory();
+        long total = runtime.totalMemory();
+        long used = total - free;
+
+        long totalMB = total / (1024 * 1024);
+        long usedMB = used / (1024 * 1024);
+        LOG.debug("Memory usage: " + usedMB + " of " + totalMB + "M");
+    }
+
     private Schema[] prepareSchemas(Database database) {
+        String[] schemaNames = configuration.getSchemas();
         if (schemaNames.length == 0) {
-            Schema currentSchema = database.getMainConnection().getOriginalSchema();
+            Schema currentSchema = database.getMainConnection().getCurrentSchema();
             if (currentSchema == null) {
                 throw new FlywayException("Unable to determine schema for the schema history table." +
                         " Set a default schema for the connection or specify one using the schemas property!");
             }
-            setSchemas(currentSchema.getName());
+            schemaNames = new String[]{currentSchema.getName()};
         }
 
         if (schemaNames.length == 1) {
@@ -1688,27 +1331,42 @@ public class Flyway implements FlywayConfiguration {
         return schemas;
     }
 
-    private List<FlywayCallback> prepareCallbacks(Scanner scanner, Database database
+    private List<Callback> prepareCallbacks(Database database, Scanner scanner, PlaceholderReplacer placeholderReplacer
+
 
 
 
     ) {
-        List<FlywayCallback> effectiveCallbacks = new ArrayList<>();
+        List<Callback> effectiveCallbacks = new ArrayList<>();
 
 
 
 
 
 
-        effectiveCallbacks.addAll(callbacks);
+        effectiveCallbacks.addAll(Arrays.asList(configuration.getCallbacks()));
 
-        if (!skipDefaultCallbacks) {
-            effectiveCallbacks.add(new SqlScriptFlywayCallback(database, scanner, locations, createPlaceholderReplacer(),
-                    this));
+        if (!configuration.isSkipDefaultCallbacks()) {
+            effectiveCallbacks.addAll(
+                    new SqlScriptFlywayCallbackFactory(
+                            database,
+                            scanner,
+                            Arrays.asList(configuration.getLocations()),
+                            placeholderReplacer,
+                            configuration).getCallbacks());
         }
 
-        for (FlywayCallback callback : effectiveCallbacks) {
-            ConfigUtils.injectFlywayConfiguration(callback, this);
+
+
+
+
+
+
+
+        for (Callback callback : effectiveCallbacks) {
+            if (callback instanceof LegacyCallback) {
+                ConfigUtils.injectFlywayConfiguration(callback, configuration);
+            }
         }
         return effectiveCallbacks;
     }
@@ -1722,14 +1380,15 @@ public class Flyway implements FlywayConfiguration {
         /**
          * Execute the operation.
          *
-         * @param migrationResolver  The migration resolver to use.
-         * @param schemaHistory      The schema history table.
-         * @param database           The database-specific support for these connections.
-         * @param schemas            The schemas managed by Flyway.   @return The result of the operation.
-         * @param effectiveCallbacks The callbacks to use.
+         * @param migrationResolver The migration resolver to use.
+         * @param schemaHistory     The schema history table.
+         * @param database          The database-specific support for these connections.
+         * @param schemas           The schemas managed by Flyway.
+         * @param callbackExecutor  The callback executor.
+         * @return The result of the operation.
          */
         T execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                  Database database, Schema[] schemas, List<FlywayCallback> effectiveCallbacks
+                  Database database, Schema[] schemas, CallbackExecutor callbackExecutor
 
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,10 @@ import java.util.List;
 /**
  * The context passed to an error handler.
  * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+ *
+ * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
  */
+@Deprecated
 public interface Context {
     /**
      * @return The warnings that were raised during a migration.

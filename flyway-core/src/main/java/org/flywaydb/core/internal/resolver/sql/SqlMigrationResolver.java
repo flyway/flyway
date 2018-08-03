@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,27 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
-import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.callback.Event;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
-import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
-import org.flywaydb.core.internal.util.Location;
-import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.zip.CRC32;
 
 /**
  * Migration resolver for SQL files on the classpath. The SQL files must have names like
@@ -60,17 +55,24 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * The base directories on the classpath where the migrations are located.
      */
-    private final Locations locations;
+    private final List<Location> locations;
 
     /**
      * The placeholder replacer to apply to sql migration scripts.
      */
     private final PlaceholderReplacer placeholderReplacer;
 
+
+
+
+
+
+
+
     /**
      * The Flyway configuration.
      */
-    private final FlywayConfiguration configuration;
+    private final Configuration configuration;
 
     /**
      * Creates a new instance.
@@ -81,12 +83,19 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param configuration       The Flyway configuration.
      */
-    public SqlMigrationResolver(Database database, Scanner scanner, Locations locations,
-                                PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
+    public SqlMigrationResolver(Database database, Scanner scanner, List<Location> locations,
+                                PlaceholderReplacer placeholderReplacer
+
+
+
+            , Configuration configuration) {
         this.database = database;
         this.scanner = scanner;
         this.locations = locations;
         this.placeholderReplacer = placeholderReplacer;
+
+
+
         this.configuration = configuration;
     }
 
@@ -95,7 +104,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
         String separator = configuration.getSqlMigrationSeparator();
         String[] suffixes = configuration.getSqlMigrationSuffixes();
-        for (Location location : locations.getLocations()) {
+        for (Location location : locations) {
             scanForMigrations(location, migrations, configuration.getSqlMigrationPrefix(), separator, suffixes,
                     false
 
@@ -126,7 +135,7 @@ public class SqlMigrationResolver implements MigrationResolver {
     ) {
         for (LoadableResource resource : scanner.scanForResources(location, prefix, suffixes)) {
             String filename = resource.getFilename();
-            if (isSqlCallback(filename, suffixes)) {
+            if (isSqlCallback(filename, separator, suffixes)) {
                 continue;
             }
             Pair<MigrationVersion, String> info =
@@ -136,14 +145,18 @@ public class SqlMigrationResolver implements MigrationResolver {
             migration.setVersion(info.getLeft());
             migration.setDescription(info.getRight());
             migration.setScript(extractScriptName(resource, location));
-            migration.setChecksum(calculateChecksum(resource, resource.loadAsString(configuration.getEncoding())));
+            migration.setChecksum(resource.checksum());
             migration.setType(
 
 
 
                             MigrationType.SQL);
             migration.setPhysicalLocation(resource.getLocationOnDisk());
-            migration.setExecutor(new SqlMigrationExecutor(database, resource, placeholderReplacer, configuration));
+            migration.setExecutor(new SqlMigrationExecutor(database, resource, placeholderReplacer
+
+
+
+                    , configuration));
             migrations.add(migration);
         }
     }
@@ -151,18 +164,22 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Checks whether this filename is actually a sql-based callback instead of a regular migration.
      *
-     * @param filename The filename to check.
-     * @param suffixes The sql migration suffixes.
+     * @param filename  The filename to check.
+     * @param separator The separator to use.
+     * @param suffixes  The sql migration suffixes.
      * @return {@code true} if it is, {@code false} if it isn't.
      */
     /* private -> testing */
-    static boolean isSqlCallback(String filename, String... suffixes) {
+    static boolean isSqlCallback(String filename, String separator, String... suffixes) {
         for (String suffix : suffixes) {
             String baseName = filename.substring(0, filename.length() - suffix.length());
-            if (SqlScriptFlywayCallback.ALL_CALLBACKS.contains(baseName)) {
+            int index = baseName.indexOf(separator);
+            if (index >= 0) {
+                baseName = baseName.substring(0, index);
+            }
+            if (Event.fromId(baseName) != null) {
                 return true;
             }
-
         }
         return false;
     }
@@ -179,32 +196,5 @@ public class SqlMigrationResolver implements MigrationResolver {
         }
 
         return resource.getLocation().substring(location.getPath().length() + 1);
-    }
-
-    /**
-     * Calculates the checksum of this string.
-     *
-     * @param str The string to calculate the checksum for.
-     * @return The crc-32 checksum of the bytes.
-     */
-    /* private -> for testing */
-    static int calculateChecksum(Resource resource, String str) {
-        final CRC32 crc32 = new CRC32();
-
-        BufferedReader bufferedReader = new BufferedReader(new StringReader(str));
-        try {
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                crc32.update(line.getBytes("UTF-8"));
-            }
-        } catch (IOException e) {
-            String message = "Unable to calculate checksum";
-            if (resource != null) {
-                message += " for " + resource.getLocation() + " (" + resource.getLocationOnDisk() + ")";
-            }
-            throw new FlywayException(message, e);
-        }
-
-        return (int) crc32.getValue();
     }
 }

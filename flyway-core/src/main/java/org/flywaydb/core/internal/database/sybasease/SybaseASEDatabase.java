@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,22 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.Delimiter;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * Sybase ASE database.
  */
 public class SybaseASEDatabase extends Database<SybaseASEConnection> {
+    private final boolean jconnect;
+
     /**
      * Creates a new Sybase ASE database.
      *
@@ -36,12 +38,26 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
      * @param connection    The initial connection.
      * @param jconnect      Whether we are using the official jConnect driver or not (jTDS).
      */
-    public SybaseASEDatabase(FlywayConfiguration configuration, Connection connection, boolean jconnect
+    public SybaseASEDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit, boolean jconnect
 
 
 
     ) {
-        super(configuration, connection, jconnect ? Types.VARCHAR : Types.NULL
+        super(configuration, connection, originalAutoCommit
+
+
+
+        );
+        this.jconnect = jconnect;
+    }
+
+    @Override
+    protected SybaseASEConnection getConnection(Connection connection
+
+
+
+    ) {
+        return new SybaseASEConnection(configuration, this, connection, originalAutoCommit, jconnect
 
 
 
@@ -49,20 +65,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     }
 
     @Override
-    protected SybaseASEConnection getConnection(Connection connection, int nullType
-
-
-
-    ) {
-        return new SybaseASEConnection(configuration, this, connection, nullType
-
-
-
-        );
-    }
-
-    @Override
-    protected void ensureSupported() {
+    public void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
 
         if (majorVersion < 15 || (majorVersion == 15 && minorVersion < 7)) {
@@ -74,8 +77,8 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     }
 
     @Override
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new SybaseASESqlStatementBuilder(getDefaultDelimiter());
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return SybaseASESqlStatementBuilderFactory.INSTANCE;
     }
 
     @Override
@@ -90,12 +93,17 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return mainConnection.getJdbcTemplate().queryForString("SELECT user_name()");
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT user_name()");
     }
 
     @Override
     public boolean supportsDdlTransactions() {
         return false;
+    }
+
+    @Override
+    public boolean supportsChangingCurrentSchema() {
+        return true;
     }
 
     @Override
@@ -117,5 +125,14 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     @Override
     public boolean catalogIsSchema() {
         return false;
+    }
+
+    enum SybaseASESqlStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new SybaseASESqlStatementBuilder();
+        }
     }
 }

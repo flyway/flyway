@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,31 +15,23 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.base.Connection;
+import org.flywaydb.core.internal.database.base.Schema;
 
-import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * Sybase ASE Connection.
  */
 public class SybaseASEConnection extends Connection<SybaseASEDatabase> {
-    private static final Log LOG = LogFactory.getLog(SybaseASEConnection.class);
-
-    /**
-     * Whether the warning message has already been printed.
-     */
-    private static boolean schemaMessagePrinted;
-
-    SybaseASEConnection(FlywayConfiguration configuration, SybaseASEDatabase database, java.sql.Connection connection, int nullType
+    SybaseASEConnection(Configuration configuration, SybaseASEDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit, boolean jconnect
 
 
 
     ) {
-        super(configuration, database, connection, nullType
+        super(configuration, database, connection, originalAutoCommit, jconnect ? Types.VARCHAR : Types.NULL
 
 
 
@@ -54,15 +46,7 @@ public class SybaseASEConnection extends Connection<SybaseASEDatabase> {
     }
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() {
         return "dbo";
-    }
-
-    @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        if (!schemaMessagePrinted) {
-            LOG.info("Sybase ASE does not support setting the schema for the current session. Default schema NOT changed to " + schema);
-            schemaMessagePrinted = true;
-        }
     }
 }

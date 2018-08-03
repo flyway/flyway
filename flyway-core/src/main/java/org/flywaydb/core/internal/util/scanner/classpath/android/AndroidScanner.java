@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,12 @@ import org.flywaydb.core.api.android.ContextHolder;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.classpath.ResourceAndClassScanner;
 
 import java.lang.reflect.Modifier;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -40,9 +41,11 @@ public class AndroidScanner implements ResourceAndClassScanner {
     private final Context context;
 
     private final ClassLoader classLoader;
+    private final Charset encoding;
 
-    public AndroidScanner(ClassLoader classLoader) {
+    public AndroidScanner(ClassLoader classLoader, Charset encoding) {
         this.classLoader = classLoader;
+        this.encoding = encoding;
         context = ContextHolder.getContext();
         if (context == null) {
             throw new FlywayException("Unable to scan for Migrations! Context not set. " +
@@ -50,13 +53,14 @@ public class AndroidScanner implements ResourceAndClassScanner {
         }
     }
 
+    @Override
     public LoadableResource[] scanForResources(Location location, String prefix, String[] suffixes) throws Exception {
         List<LoadableResource> resources = new ArrayList<>();
 
         String path = location.getPath();
         for (String asset : context.getAssets().list(path)) {
             if (assetMatches(asset, prefix, suffixes)) {
-                resources.add(new AndroidResource(context.getAssets(), path, asset));
+                resources.add(new AndroidResource(context.getAssets(), path, asset, encoding));
             } else {
                 LOG.debug("Filtering out asset: " + asset);
             }
@@ -75,6 +79,7 @@ public class AndroidScanner implements ResourceAndClassScanner {
         return false;
     }
 
+    @Override
     public Class<?>[] scanForClasses(Location location, Class<?> implementedInterface) throws Exception {
         String pkg = location.getPath().replace("/", ".");
 

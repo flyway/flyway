@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,32 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * PostgreSQL database.
  */
-public class PostgreSQLDatabase extends Database {
+public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
     /**
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
      * @param connection    The connection to use.
      */
-    public PostgreSQLDatabase(FlywayConfiguration configuration, Connection connection
+    public PostgreSQLDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, connection, Types.NULL
+        super(configuration, connection, originalAutoCommit
 
 
 
@@ -48,12 +48,12 @@ public class PostgreSQLDatabase extends Database {
     }
 
     @Override
-    protected org.flywaydb.core.internal.database.Connection getConnection(Connection connection, int nullType
+    protected PostgreSQLConnection getConnection(Connection connection
 
 
 
     ) {
-        return new PostgreSQLConnection(configuration, this, connection, nullType
+        return new PostgreSQLConnection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -61,7 +61,7 @@ public class PostgreSQLDatabase extends Database {
     }
 
     @Override
-    protected final void ensureSupported() {
+    public final void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
 
         if (majorVersion < 9) {
@@ -77,29 +77,39 @@ public class PostgreSQLDatabase extends Database {
         }
     }
 
+    @Override
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return PostgreSQLSqlStatementBuilderFactory.INSTANCE;
+    }
+
+    @Override
     public String getDbName() {
         return "postgresql";
     }
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return mainConnection.getJdbcTemplate().queryForString("SELECT current_user");
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT current_user");
     }
 
+    @Override
     public boolean supportsDdlTransactions() {
         return true;
     }
 
+    @Override
+    public boolean supportsChangingCurrentSchema() {
+        return true;
+    }
+
+    @Override
     public String getBooleanTrue() {
         return "TRUE";
     }
 
+    @Override
     public String getBooleanFalse() {
         return "FALSE";
-    }
-
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new PostgreSQLSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override
@@ -119,5 +129,14 @@ public class PostgreSQLDatabase extends Database {
     @Override
     public boolean useSingleConnection() {
         return true;
+    }
+
+    enum PostgreSQLSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new PostgreSQLSqlStatementBuilder();
+        }
     }
 }

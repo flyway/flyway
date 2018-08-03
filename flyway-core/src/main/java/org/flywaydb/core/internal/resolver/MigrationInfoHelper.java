@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public class MigrationInfoHelper {
         }
 
         String version = cleanMigrationName.substring(0, descriptionPos);
-        String description = cleanMigrationName.substring(descriptionPos + separator.length()).replaceAll("_", " ");
+        String description = cleanMigrationName.substring(descriptionPos + separator.length()).replace("_", " ");
         if (StringUtils.hasText(version)) {
             if (repeatable) {
                 throw new FlywayException("Wrong repeatable migration name format: " + migrationName

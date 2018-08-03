@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,54 +15,30 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.base.Connection;
+import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * CockroachDB connection.
  */
 public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
-    CockroachDBConnection(FlywayConfiguration configuration, CockroachDBDatabase database,
-                          java.sql.Connection connection, int nullType
+    CockroachDBConnection(Configuration configuration, CockroachDBDatabase database,
+                          java.sql.Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, nullType
+        super(configuration, database, connection, originalAutoCommit, Types.NULL
 
 
 
         );
-    }
-
-    @Override
-    public Schema getOriginalSchema() {
-        if (originalSchema == null) {
-            return null;
-        }
-
-        return getSchema(getFirstSchemaFromSearchPath(this.originalSchema));
-    }
-
-    private String getFirstSchemaFromSearchPath(String searchPath) {
-        String result = searchPath.replace(database.doQuote("$user"), "").trim();
-        if (result.startsWith(",")) {
-            result = result.substring(1);
-        }
-        if (result.contains(",")) {
-            result = result.substring(0, result.indexOf(","));
-        }
-        result = result.trim();
-        // Unquote if necessary
-        if (result.startsWith("\"") && result.endsWith("\"") && !result.endsWith("\\\"") && (result.length() > 1)) {
-            result = result.substring(1, result.length() - 1);
-        }
-        return result;
     }
 
     @Override
@@ -71,7 +47,7 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
     }
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         return jdbcTemplate.queryForString("SHOW database");
     }
 
@@ -79,17 +55,17 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
     public void changeCurrentSchemaTo(Schema schema) {
         try {
             // Avoid unnecessary schema changes as this trips up CockroachDB
-            if (schema.getName().equals(originalSchema) || !schema.exists()) {
+            if (schema.getName().equals(originalSchemaNameOrSearchPath) || !schema.exists()) {
                 return;
             }
-            doChangeCurrentSchemaTo(schema.getName());
+            doChangeCurrentSchemaOrSearchPathTo(schema.getName());
         } catch (SQLException e) {
-            throw new FlywaySqlException("Error setting current schema to " + schema, e);
+            throw new FlywaySqlException("Error setting current database to " + schema, e);
         }
     }
 
     @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
         if (!StringUtils.hasLength(schema)) {
             schema = "DEFAULT";
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,44 +15,27 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.database.base.Connection;
+import org.flywaydb.core.internal.database.base.Schema;
 
-import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * SQLite connection.
  */
 public class SQLiteConnection extends Connection<SQLiteDatabase> {
-    private static final Log LOG = LogFactory.getLog(SQLiteConnection.class);
-
-    /**
-     * Whether the warning message has already been printed.
-     */
-    private static boolean schemaMessagePrinted;
-
-    SQLiteConnection(FlywayConfiguration configuration, SQLiteDatabase database, java.sql.Connection connection, int nullType
+    SQLiteConnection(Configuration configuration, SQLiteDatabase database, java.sql.Connection connection
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, nullType
+        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
 
 
 
         );
-    }
-
-
-    @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        if (!schemaMessagePrinted) {
-            LOG.info("SQLite does not support setting the schema. Default schema NOT changed to " + schema);
-            schemaMessagePrinted = true;
-        }
     }
 
     @Override
@@ -61,7 +44,7 @@ public class SQLiteConnection extends Connection<SQLiteDatabase> {
     }
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() {
         return "main";
     }
 }

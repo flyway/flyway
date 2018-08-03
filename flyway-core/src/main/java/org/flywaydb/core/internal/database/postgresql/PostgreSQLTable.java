@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
-import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.Table;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
 
 import java.sql.SQLException;
 
@@ -46,13 +46,13 @@ public class PostgreSQLTable extends Table {
     @Override
     protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
-                "   SELECT 1\n" +
-                "   FROM   pg_catalog.pg_class c\n" +
-                "   JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
-                "   WHERE  n.nspname = ?\n" +
-                "   AND    c.relname = ?\n" +
-                "   AND    c.relkind = 'r'    -- only tables\n" +
-                "   );", schema.getName(), name);
+                "  SELECT 1\n" +
+                "  FROM   pg_catalog.pg_class c\n" +
+                "  JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
+                "  WHERE  n.nspname = ?\n" +
+                "  AND    c.relname = ?\n" +
+                "  AND    c.relkind = 'r'\n" + // only tables
+                ")", schema.getName(), name);
     }
 
     @Override

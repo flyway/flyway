@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,10 +72,13 @@ public class MigrationInfoDumper {
             rows.add(row);
         }
 
-        return new AsciiTable(columns, rows, "", "No migrations found").render();
+        return new AsciiTable(columns, rows, true, "", "No migrations found").render();
     }
 
-    private static String getCategory(MigrationInfo migrationInfo) {
+    static String getCategory(MigrationInfo migrationInfo) {
+        if (migrationInfo.getType().isSynthetic()) {
+            return "";
+        }
         if (migrationInfo.getVersion() == null) {
             return "Repeatable";
         }

@@ -15,17 +15,13 @@
  */
 package org.flywaydb.core.internal.database.cloudspanner;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.Table;
-import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.database.base.Connection;
+import org.flywaydb.core.internal.database.base.Schema;
 
 import java.sql.SQLException;
-import java.util.UUID;
-import java.util.concurrent.Callable;
 
 /**
  * Google Cloud Spanner connection.
@@ -38,12 +34,12 @@ public class CloudSpannerConnection extends Connection<CloudSpannerDatabase> {
      */
     private static boolean schemaMessagePrinted;
 
-    CloudSpannerConnection(FlywayConfiguration configuration, CloudSpannerDatabase database, java.sql.Connection connection, int nullType
+    CloudSpannerConnection(Configuration configuration, CloudSpannerDatabase database, java.sql.Connection connection, boolean originalAutoCommit, int nullType
 
 
 
     ) {
-        super(configuration, database, connection, nullType
+        super(configuration, database, connection, originalAutoCommit, nullType
 
 
 
@@ -52,12 +48,12 @@ public class CloudSpannerConnection extends Connection<CloudSpannerDatabase> {
 
 
     @Override
-    protected String doGetCurrentSchemaName() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         return jdbcTemplate.getConnection().getSchema();
     }
 
     @Override
-    public void doChangeCurrentSchemaTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
         if (!schemaMessagePrinted) {
             LOG.info("Google Cloud Spanner does not support setting the schema. Default schema NOT changed to " + schema);
             schemaMessagePrinted = true;
@@ -65,7 +61,7 @@ public class CloudSpannerConnection extends Connection<CloudSpannerDatabase> {
     }
 
     @Override
-    public Schema getSchema(String name) {
+    public Schema<CloudSpannerDatabase> getSchema(String name) {
         return new CloudSpannerSchema(jdbcTemplate, database, name);
     }
 }

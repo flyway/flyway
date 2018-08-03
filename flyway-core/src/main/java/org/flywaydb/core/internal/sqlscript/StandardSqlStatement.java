@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,32 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-import org.flywaydb.core.internal.database.AbstractSqlStatement;
-import org.flywaydb.core.internal.util.jdbc.ContextImpl;
+import org.flywaydb.core.internal.util.jdbc.StandardContext;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.Result;
+import org.flywaydb.core.internal.util.line.Line;
 
 import java.sql.SQLException;
 import java.util.List;
 
 /**
- * A sql statement from a script that can be executed at once against a database.
+ * A SQL statement from a script that can be executed at once against a database.
  */
-public class StandardSqlStatement extends AbstractSqlStatement {
-    /**
-     * Creates a new sql statement.
-     *
-     * @param lineNumber The original line number where the statement was located in the script it came from.
-     * @param sql        The sql to send to the database.
-     */
-    public StandardSqlStatement(int lineNumber, String sql) {
-        super(lineNumber, sql);
+public class StandardSqlStatement extends AbstractSqlStatement<StandardContext> {
+    public StandardSqlStatement(List<Line> lines, Delimiter delimiter
+
+
+
+    ) {
+        super(lines, delimiter
+
+
+
+        );
     }
 
     @Override
-    public List<Result> execute(ContextImpl errorContext, JdbcTemplate jdbcTemplate) throws SQLException {
-        return jdbcTemplate.executeStatement(errorContext, sql);
+    public List<Result> execute(StandardContext context, JdbcTemplate jdbcTemplate) throws SQLException {
+        return jdbcTemplate.executeStatement(context, getSql());
     }
 }

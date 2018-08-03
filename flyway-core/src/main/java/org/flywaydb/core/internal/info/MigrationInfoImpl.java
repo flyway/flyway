@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -154,13 +154,13 @@ public class MigrationInfoImpl implements MigrationInfo {
             return MigrationState.PENDING;
         }
 
+        if (MigrationType.BASELINE == appliedMigration.getType()) {
+            return MigrationState.BASELINE;
+        }
+
         if (resolvedMigration == null) {
             if (MigrationType.SCHEMA == appliedMigration.getType()) {
                 return MigrationState.SUCCESS;
-            }
-
-            if (MigrationType.BASELINE == appliedMigration.getType()) {
-                return MigrationState.BASELINE;
             }
 
             if ((appliedMigration.getVersion() == null) || getVersion().compareTo(context.lastResolved) < 0) {
@@ -259,7 +259,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             return "Detected applied migration not resolved locally: " + getVersion();
         }
 
-        if (!context.pending && MigrationState.PENDING == getState() || MigrationState.IGNORED == getState()) {
+        if (!context.pending && MigrationState.PENDING == getState() || (!context.ignored && MigrationState.IGNORED == getState())) {
             if (getVersion() != null) {
                 return "Detected resolved migration not applied to database: " + getVersion();
             }
@@ -323,13 +323,13 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         MigrationState state = getState();
         MigrationState oState = o.getState();
-        if (state != oState) {
-            if (state == MigrationState.BELOW_BASELINE && oState == MigrationState.BASELINE) {
-                return Integer.MIN_VALUE;
-            }
-            if (state == MigrationState.BASELINE && oState == MigrationState.BELOW_BASELINE) {
-                return Integer.MAX_VALUE;
-            }
+
+        // Below baseline migrations come before applied ones
+        if (state == MigrationState.BELOW_BASELINE && oState.isApplied()) {
+            return Integer.MIN_VALUE;
+        }
+        if (state.isApplied() && oState == MigrationState.BELOW_BASELINE) {
+            return Integer.MAX_VALUE;
         }
 
         if (state == MigrationState.IGNORED && oState.isApplied()) {
@@ -345,15 +345,16 @@ public class MigrationInfoImpl implements MigrationInfo {
             return Integer.MAX_VALUE;
         }
 
-        if (getInstalledRank() != null || o.getInstalledRank() != null) {
-            if (getInstalledRank() != null) {
-                return Integer.MIN_VALUE;
-            }
-            if (o.getInstalledRank() != null) {
-                return Integer.MAX_VALUE;
-            }
+        // Sort installed before pending
+        if (getInstalledRank() != null) {
+            return Integer.MIN_VALUE;
+        }
+        if (o.getInstalledRank() != null) {
+            return Integer.MAX_VALUE;
         }
 
+        // No migration installed, sort according to other criteria
+        // Two versioned migrations: sort by version
         if (getVersion() != null && o.getVersion() != null) {
             int v = getVersion().compareTo(o.getVersion());
             if (v != 0) {
@@ -373,7 +374,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             return 0;
         }
 
-        // Versioned pending migrations go before repeatable ones
+        // One versioned and one repeatable migration: versioned migration goes before repeatable one
         if (getVersion() != null) {
             return Integer.MIN_VALUE;
         }
@@ -381,6 +382,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             return Integer.MAX_VALUE;
         }
 
+        // Two repeatable migrations: sort by description
         return getDescription().compareTo(o.getDescription());
     }
 
