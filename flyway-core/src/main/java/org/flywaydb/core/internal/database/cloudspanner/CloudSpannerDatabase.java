@@ -53,7 +53,7 @@ public class CloudSpannerDatabase extends Database<CloudSpannerConnection> {
 
 
     ) {
-        return new CloudSpannerConnection(configuration, this, connection, originalAutoCommit, Types.NULL
+        return new CloudSpannerConnection(configuration, this, connection, originalAutoCommit, Types.VARCHAR
 
 
 
