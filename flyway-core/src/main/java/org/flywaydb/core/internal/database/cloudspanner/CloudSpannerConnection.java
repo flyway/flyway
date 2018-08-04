@@ -49,7 +49,7 @@ public class CloudSpannerConnection extends Connection<CloudSpannerDatabase> {
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
-        return jdbcTemplate.getConnection().getSchema();
+        return "";
     }
 
     @Override
