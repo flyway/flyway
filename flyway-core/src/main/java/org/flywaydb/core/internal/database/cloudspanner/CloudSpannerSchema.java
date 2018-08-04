@@ -23,6 +23,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +64,7 @@ public class CloudSpannerSchema extends Schema<CloudSpannerDatabase> {
 
     @Override
     protected void doDrop() throws SQLException {
-        LOG.info("Google Cloud Spanner does not support dropping schemas. Schema not dropped: " + name);
+    	throw new SQLFeatureNotSupportedException("Schemas cannot be dropped in Google Cloud Spanner");
     }
 
     @Override
