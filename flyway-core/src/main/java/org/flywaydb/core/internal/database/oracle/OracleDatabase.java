@@ -105,16 +105,17 @@ public class OracleDatabase extends Database<OracleConnection> {
 
     @Override
     public final void ensureSupported() {
+        String version = majorVersion + "." + minorVersion;
         if (majorVersion < 10) {
-            throw new FlywayDbUpgradeRequiredException("Oracle", "" + majorVersion, "10");
+            throw new FlywayDbUpgradeRequiredException("Oracle", version, "10");
         }
 
-        if (majorVersion == 10 || majorVersion == 11) {
-        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("Oracle", "Oracle", "" + majorVersion);
+        if (majorVersion == 10 || majorVersion == 11 || (majorVersion == 12 && minorVersion < 2)) {
+        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("Oracle", "Oracle", version);
         }
 
         if (majorVersion > 12) {
-            recommendFlywayUpgrade("Oracle", "" + majorVersion);
+            recommendFlywayUpgrade("Oracle", version);
         }
     }
 

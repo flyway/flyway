@@ -86,10 +86,8 @@ public abstract class AbstractSqlStatement<C extends StandardContext> implements
      * @param sql       The statement to parse.
      * @param delimiter The delimiter to strip.
      */
-    static void stripDelimiter(StringBuilder sql, Delimiter delimiter) {
-        while (Character.isWhitespace(sql.charAt(sql.length() - 1))) {
-            sql.delete(sql.length() - 1, sql.length());
-        }
+    protected void stripDelimiter(StringBuilder sql, Delimiter delimiter) {
+        stripTrailingWhitespace(sql);
 
         int length = delimiter.getDelimiter().length();
         if (length > sql.length()) {
@@ -100,6 +98,12 @@ public abstract class AbstractSqlStatement<C extends StandardContext> implements
         String actualDelimiter = sql.substring(sql.length() - length, sql.length());
         if (actualDelimiter.toUpperCase(Locale.ENGLISH).equals(delimiter.getDelimiter().toUpperCase(Locale.ENGLISH))) {
             sql.delete(sql.length() - length, sql.length());
+        }
+    }
+
+    protected void stripTrailingWhitespace(StringBuilder sql) {
+        while (Character.isWhitespace(sql.charAt(sql.length() - 1))) {
+            sql.delete(sql.length() - 1, sql.length());
         }
     }
 
