@@ -55,6 +55,6 @@ public class SpringJdbcMigrationExecutor implements MigrationExecutor {
 
     @Override
     public boolean executeInTransaction() {
-        return true;
+        return springJdbcMigration.executeInTransaction();
     }
 }

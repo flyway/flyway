@@ -53,6 +53,6 @@ public class JdbcMigrationExecutor implements MigrationExecutor {
 
     @Override
     public boolean executeInTransaction() {
-        return true;
+        return jdbcMigration.executeInTransaction();
     }
 }
