@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.api.configuration;
 
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
@@ -52,6 +53,15 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration(ClassLoader classLoader) {
         config = new ClassicConfiguration(classLoader);
+    }
+
+    /**
+     * Loads this configuration into a new Flyway instance.
+     *
+     * @return The new fully-configured Flyway instance.
+     */
+    public Flyway load() {
+        return new Flyway(this);
     }
 
     /**

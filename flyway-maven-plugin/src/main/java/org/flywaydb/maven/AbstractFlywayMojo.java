@@ -697,8 +697,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             conf.putAll(ConfigUtils.propertiesToMap(System.getProperties()));
             removeMavenPluginSpecificPropertiesToAvoidWarnings(conf);
 
-            Flyway flyway = new Flyway(classLoader);
-            flyway.configure(conf);
+            Flyway flyway = Flyway.configure(classLoader).configure(conf).load();
             doExecute(flyway);
         } catch (Exception e) {
             throw new MojoExecutionException(e.toString(), ExceptionUtils.getRootCause(e));

@@ -23,6 +23,7 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
@@ -70,10 +71,11 @@ import java.util.Properties;
  * </p>
  * <p>To get started all you need to do is</p>
  * <pre>
- * Flyway flyway = new Flyway();
- * flyway.setDataSource(url, user, password);
+ * Flyway flyway = Flyway.configure().dataSource(url, user, password).load();
  * flyway.migrate();
  * </pre>
+ *
+ * Deprecation warning: starting with Flyway 6.0 this class will no longer implement the Configuration interface.
  */
 public class Flyway implements Configuration {
     private static final Log LOG = LogFactory.getLog(Flyway.class);
@@ -86,8 +88,40 @@ public class Flyway implements Configuration {
     private boolean dbConnectionInfoPrinted;
 
     /**
-     * Creates a new instance of Flyway. This is your starting point.
+     * This is your starting point. This creates a configuration which can be customized to your needs before being
+     * loaded into a new Flyway instance using the load() method.
+     * <p>In its simplest form, this is how you configure Flyway with all defaults to get started:</p>
+     * <pre>Flyway flyway = Flyway.configure().dataSource(url, user, password).load();</pre>
+     * <p>After that you have a fully-configured Flyway instance at your disposal which can be used to invoke Flyway
+     * functionality such as migrate() or clean().</p>
+     *
+     * @return A new configuration from which Flyway can be loaded.
      */
+    public static FluentConfiguration configure() {
+        return new FluentConfiguration();
+    }
+
+    /**
+     * This is your starting point. This creates a configuration which can be customized to your needs before being
+     * loaded into a new Flyway instance using the load() method.
+     * <p>In its simplest form, this is how you configure Flyway with all defaults to get started:</p>
+     * <pre>Flyway flyway = Flyway.configure().dataSource(url, user, password).load();</pre>
+     * <p>After that you have a fully-configured Flyway instance at your disposal which can be used to invoke Flyway
+     * functionality such as migrate() or clean().</p>
+     *
+     * @param classLoader The class loader to use when loading classes and resources.
+     * @return A new configuration from which Flyway can be loaded.
+     */
+    public static FluentConfiguration configure(ClassLoader classLoader) {
+        return new FluentConfiguration(classLoader);
+    }
+
+    /**
+     * Creates a new instance of Flyway. This is your starting point.
+     *
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     public Flyway() {
         configuration = new ClassicConfiguration();
     }
@@ -96,7 +130,9 @@ public class Flyway implements Configuration {
      * Creates a new instance of Flyway. This is your starting point.
      *
      * @param classLoader The ClassLoader to use for loading migrations, resolvers, etc from the classpath. (default: Thread.currentThread().getContextClassLoader() )
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public Flyway(ClassLoader classLoader) {
         configuration = new ClassicConfiguration(classLoader);
     }
@@ -129,192 +165,343 @@ public class Flyway implements Configuration {
         return new ClassicConfiguration(configuration);
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public Location[] getLocations() {
         return configuration.getLocations();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public Charset getEncoding() {
         return configuration.getEncoding();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public String[] getSchemas() {
         return configuration.getSchemas();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public String getTable() {
         return configuration.getTable();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public MigrationVersion getTarget() {
         return configuration.getTarget();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isPlaceholderReplacement() {
         return configuration.isPlaceholderReplacement();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public Map<String, String> getPlaceholders() {
         return configuration.getPlaceholders();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public String getPlaceholderPrefix() {
         return configuration.getPlaceholderPrefix();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public String getPlaceholderSuffix() {
         return configuration.getPlaceholderSuffix();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public String getSqlMigrationPrefix() {
         return configuration.getSqlMigrationPrefix();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public String getRepeatableSqlMigrationPrefix() {
         return configuration.getRepeatableSqlMigrationPrefix();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public String getSqlMigrationSeparator() {
         return configuration.getSqlMigrationSeparator();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
     @Deprecated
     public String getSqlMigrationSuffix() {
         LOG.warn("sqlMigrationSuffix has been deprecated and will be removed in Flyway 6.0.0. Use sqlMigrationSuffixes instead.");
         return configuration.getSqlMigrationSuffixes()[0];
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public String[] getSqlMigrationSuffixes() {
         return configuration.getSqlMigrationSuffixes();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isIgnoreMissingMigrations() {
         return configuration.isIgnoreMissingMigrations();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isIgnoreIgnoredMigrations() {
         return configuration.isIgnoreIgnoredMigrations();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isIgnoreFutureMigrations() {
         return configuration.isIgnoreFutureMigrations();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isValidateOnMigrate() {
         return configuration.isValidateOnMigrate();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isCleanOnValidationError() {
         return configuration.isCleanOnValidationError();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isCleanDisabled() {
         return configuration.isCleanDisabled();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public MigrationVersion getBaselineVersion() {
         return configuration.getBaselineVersion();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public String getBaselineDescription() {
         return configuration.getBaselineDescription();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isBaselineOnMigrate() {
         return configuration.isBaselineOnMigrate();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isOutOfOrder() {
         return configuration.isOutOfOrder();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public MigrationResolver[] getResolvers() {
         return configuration.getResolvers();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isSkipDefaultResolvers() {
         return configuration.isSkipDefaultResolvers();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public DataSource getDataSource() {
         return configuration.getDataSource();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public ClassLoader getClassLoader() {
         return configuration.getClassLoader();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isMixed() {
         return configuration.isMixed();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public String getInstalledBy() {
         return configuration.getInstalledBy();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isGroup() {
         return configuration.isGroup();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public ErrorHandler[] getErrorHandlers() {
         return configuration.getErrorHandlers();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public String[] getErrorOverrides() {
         return configuration.getErrorOverrides();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public OutputStream getDryRunOutput() {
         return configuration.getDryRunOutput();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isStream() {
         return configuration.isStream();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isBatch() {
         return configuration.isBatch();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isOracleSqlplus() {
         return configuration.isOracleSqlplus();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public String getLicenseKey() {
         return configuration.getLicenseKey();
@@ -326,7 +513,9 @@ public class Flyway implements Configuration {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setDryRunOutput(OutputStream dryRunOutput) {
         configuration.setDryRunOutput(dryRunOutput);
     }
@@ -338,7 +527,9 @@ public class Flyway implements Configuration {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setDryRunOutputAsFile(File dryRunOutput) {
         configuration.setDryRunOutputAsFile(dryRunOutput);
     }
@@ -351,7 +542,9 @@ public class Flyway implements Configuration {
      *
      * @param dryRunOutputFileName The name of the output file or {@code null} to execute the SQL statements directly
      *                             against the database.
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
         configuration.setDryRunOutputAsFileName(dryRunOutputFileName);
     }
@@ -399,7 +592,9 @@ public class Flyway implements Configuration {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @param errorOverrides The ErrorOverrides or an empty array if none are defined. (default: none)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setErrorOverrides(String... errorOverrides) {
         configuration.setErrorOverrides(errorOverrides);
     }
@@ -408,7 +603,9 @@ public class Flyway implements Configuration {
      * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
      *
      * @param group {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setGroup(boolean group) {
         configuration.setGroup(group);
     }
@@ -417,7 +614,9 @@ public class Flyway implements Configuration {
      * The username that will be recorded in the schema history table as having applied the migration.
      *
      * @param installedBy The username or {@code null} for the current database user of the connection. (default: {@code null}).
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setInstalledBy(String installedBy) {
         configuration.setInstalledBy(installedBy);
     }
@@ -426,7 +625,9 @@ public class Flyway implements Configuration {
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
      *
      * @param mixed {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setMixed(boolean mixed) {
         configuration.setMixed(mixed);
     }
@@ -443,7 +644,9 @@ public class Flyway implements Configuration {
      *
      * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
      *                                (default: {@code false})
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setIgnoreMissingMigrations(boolean ignoreMissingMigrations) {
         configuration.setIgnoreMissingMigrations(ignoreMissingMigrations);
     }
@@ -460,7 +663,9 @@ public class Flyway implements Configuration {
      *
      * @param ignoreIgnoredMigrations {@code true} to continue normally, {@code false} to fail fast with an exception.
      *                                (default: {@code false})
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setIgnoreIgnoredMigrations(boolean ignoreIgnoredMigrations) {
         configuration.setIgnoreIgnoredMigrations(ignoreIgnoredMigrations);
     }
@@ -475,7 +680,9 @@ public class Flyway implements Configuration {
      *
      * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail
      *                               fast with an exception. (default: {@code true})
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setIgnoreFutureMigrations(boolean ignoreFutureMigrations) {
         configuration.setIgnoreFutureMigrations(ignoreFutureMigrations);
     }
@@ -484,7 +691,9 @@ public class Flyway implements Configuration {
      * Whether to automatically call validate or not when running migrate.
      *
      * @param validateOnMigrate {@code true} if validate should be called. {@code false} if not. (default: {@code true})
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setValidateOnMigrate(boolean validateOnMigrate) {
         configuration.setValidateOnMigrate(validateOnMigrate);
     }
@@ -498,7 +707,9 @@ public class Flyway implements Configuration {
      * <p><b>Warning ! Do not enable in production !</b></p>
      *
      * @param cleanOnValidationError {@code true} if clean should be called. {@code false} if not. (default: {@code false})
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setCleanOnValidationError(boolean cleanOnValidationError) {
         configuration.setCleanOnValidationError(cleanOnValidationError);
     }
@@ -508,7 +719,9 @@ public class Flyway implements Configuration {
      * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
      *
      * @param cleanDisabled {@code true} to disabled clean. {@code false} to leave it enabled.  (default: {@code false})
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setCleanDisabled(boolean cleanDisabled) {
         configuration.setCleanDisabled(cleanDisabled);
     }
@@ -522,7 +735,9 @@ public class Flyway implements Configuration {
      * migrations.</p>
      *
      * @param locations Locations to scan recursively for migrations. (default: db/migration)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setLocations(String... locations) {
         configuration.setLocationsAsStrings(locations);
     }
@@ -531,7 +746,9 @@ public class Flyway implements Configuration {
      * Sets the encoding of Sql migrations.
      *
      * @param encoding The encoding of Sql migrations. (default: UTF-8)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setEncoding(String encoding) {
         configuration.setEncodingAsString(encoding);
     }
@@ -546,7 +763,9 @@ public class Flyway implements Configuration {
      * </ul>
      *
      * @param schemas The schemas managed by Flyway. May not be {@code null}. Must contain at least one element.
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setSchemas(String... schemas) {
         configuration.setSchemas(schemas);
     }
@@ -558,7 +777,9 @@ public class Flyway implements Configuration {
      * of the list. </p>
      *
      * @param table The name of the schema schema history table that will be used by flyway. (default: flyway_schema_history)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setTable(String table) {
         configuration.setTable(table);
     }
@@ -568,7 +789,9 @@ public class Flyway implements Configuration {
      * be ignored.
      *
      * @param target The target version up to which Flyway should consider migrations. (default: the latest version)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setTarget(MigrationVersion target) {
         configuration.setTarget(target);
     }
@@ -580,7 +803,9 @@ public class Flyway implements Configuration {
      * @param target The target version up to which Flyway should consider migrations.
      *               The special value {@code current} designates the current version of the schema. (default: the latest
      *               version)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setTargetAsString(String target) {
         configuration.setTargetAsString(target);
     }
@@ -589,7 +814,9 @@ public class Flyway implements Configuration {
      * Sets whether placeholders should be replaced.
      *
      * @param placeholderReplacement Whether placeholders should be replaced. (default: true)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setPlaceholderReplacement(boolean placeholderReplacement) {
         configuration.setPlaceholderReplacement(placeholderReplacement);
     }
@@ -598,7 +825,9 @@ public class Flyway implements Configuration {
      * Sets the placeholders to replace in sql migration scripts.
      *
      * @param placeholders The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setPlaceholders(Map<String, String> placeholders) {
         configuration.setPlaceholders(placeholders);
     }
@@ -607,7 +836,9 @@ public class Flyway implements Configuration {
      * Sets the prefix of every placeholder.
      *
      * @param placeholderPrefix The prefix of every placeholder. (default: ${ )
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setPlaceholderPrefix(String placeholderPrefix) {
         configuration.setPlaceholderPrefix(placeholderPrefix);
     }
@@ -616,7 +847,9 @@ public class Flyway implements Configuration {
      * Sets the suffix of every placeholder.
      *
      * @param placeholderSuffix The suffix of every placeholder. (default: } )
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setPlaceholderSuffix(String placeholderSuffix) {
         configuration.setPlaceholderSuffix(placeholderSuffix);
     }
@@ -627,11 +860,17 @@ public class Flyway implements Configuration {
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
      * @param sqlMigrationPrefix The file name prefix for sql migrations (default: V)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setSqlMigrationPrefix(String sqlMigrationPrefix) {
         configuration.setSqlMigrationPrefix(sqlMigrationPrefix);
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public String getUndoSqlMigrationPrefix() {
         return configuration.getUndoSqlMigrationPrefix();
@@ -645,7 +884,9 @@ public class Flyway implements Configuration {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @param undoSqlMigrationPrefix The file name prefix for undo SQL migrations. (default: U)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setUndoSqlMigrationPrefix(String undoSqlMigrationPrefix) {
         configuration.setUndoSqlMigrationPrefix(undoSqlMigrationPrefix);
     }
@@ -656,7 +897,9 @@ public class Flyway implements Configuration {
      * which using the defaults translates to R__My_description.sql</p>
      *
      * @param repeatableSqlMigrationPrefix The file name prefix for repeatable sql migrations (default: R)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setRepeatableSqlMigrationPrefix(String repeatableSqlMigrationPrefix) {
         configuration.setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefix);
     }
@@ -667,7 +910,9 @@ public class Flyway implements Configuration {
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
      * @param sqlMigrationSeparator The file name separator for sql migrations (default: __)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setSqlMigrationSeparator(String sqlMigrationSeparator) {
         configuration.setSqlMigrationSeparator(sqlMigrationSeparator);
     }
@@ -694,7 +939,9 @@ public class Flyway implements Configuration {
      * editors with specific file associations.</p>
      *
      * @param sqlMigrationSuffixes The file name suffixes for SQL migrations.
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setSqlMigrationSuffixes(String... sqlMigrationSuffixes) {
         configuration.setSqlMigrationSuffixes(sqlMigrationSuffixes);
     }
@@ -703,7 +950,9 @@ public class Flyway implements Configuration {
      * Sets the datasource to use. Must have the necessary privileges to execute ddl.
      *
      * @param dataSource The datasource to use. Must have the necessary privileges to execute ddl.
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setDataSource(DataSource dataSource) {
         configuration.setDataSource(dataSource);
     }
@@ -716,7 +965,9 @@ public class Flyway implements Configuration {
      * @param user     The user of the database.
      * @param password The password of the database.
      * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setDataSource(String url, String user, String password, String... initSqls) {
         configuration.setDataSource(url, user, password, initSqls);
     }
@@ -725,7 +976,7 @@ public class Flyway implements Configuration {
      * Sets the ClassLoader to use for resolving migrations on the classpath.
      *
      * @param classLoader The ClassLoader to use for loading migrations, resolvers, etc from the classpath. (default: Thread.currentThread().getContextClassLoader() )
-     * @deprecated Will be removed in Flyway 6.0. Use {@link Flyway(ClassLoader)} instead.
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure(ClassLoader) instead.
      */
     @Deprecated
     public void setClassLoader(ClassLoader classLoader) {
@@ -737,7 +988,9 @@ public class Flyway implements Configuration {
      * Sets the version to tag an existing schema with when executing baseline.
      *
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setBaselineVersion(MigrationVersion baselineVersion) {
         configuration.setBaselineVersion(baselineVersion);
     }
@@ -746,7 +999,9 @@ public class Flyway implements Configuration {
      * Sets the version to tag an existing schema with when executing baseline.
      *
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setBaselineVersionAsString(String baselineVersion) {
         configuration.setBaselineVersionAsString(baselineVersion);
     }
@@ -755,7 +1010,9 @@ public class Flyway implements Configuration {
      * Sets the description to tag an existing schema with when executing baseline.
      *
      * @param baselineDescription The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setBaselineDescription(String baselineDescription) {
         configuration.setBaselineDescription(baselineDescription);
     }
@@ -775,7 +1032,9 @@ public class Flyway implements Configuration {
      * </p>
      *
      * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setBaselineOnMigrate(boolean baselineOnMigrate) {
         configuration.setBaselineOnMigrate(baselineOnMigrate);
     }
@@ -786,16 +1045,26 @@ public class Flyway implements Configuration {
      * it will be applied too instead of being ignored.</p>
      *
      * @param outOfOrder {@code true} if outOfOrder migrations should be applied, {@code false} if not. (default: {@code false})
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setOutOfOrder(boolean outOfOrder) {
         configuration.setOutOfOrder(outOfOrder);
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public Callback[] getCallbacks() {
         return configuration.getCallbacks();
     }
 
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
     @Override
     public boolean isSkipDefaultCallbacks() {
         return configuration.isSkipDefaultCallbacks();
@@ -805,7 +1074,9 @@ public class Flyway implements Configuration {
      * Set the callbacks for lifecycle notifications.
      *
      * @param callbacks The callbacks for lifecycle notifications. (default: none)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setCallbacks(Callback... callbacks) {
         configuration.setCallbacks(callbacks);
     }
@@ -830,7 +1101,9 @@ public class Flyway implements Configuration {
      * Set the callbacks for lifecycle notifications.
      *
      * @param callbacks The fully qualified class names of the callbacks for lifecycle notifications. (default: none)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setCallbacksAsClassNames(String... callbacks) {
         configuration.setCallbacksAsClassNames(callbacks);
     }
@@ -839,7 +1112,9 @@ public class Flyway implements Configuration {
      * Whether Flyway should skip the default callbacks. If true, only custom callbacks are used.
      *
      * @param skipDefaultCallbacks Whether default built-in callbacks should be skipped. <p>(default: false)</p>
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setSkipDefaultCallbacks(boolean skipDefaultCallbacks) {
         configuration.setSkipDefaultCallbacks(skipDefaultCallbacks);
     }
@@ -848,7 +1123,9 @@ public class Flyway implements Configuration {
      * Sets custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      *
      * @param resolvers The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setResolvers(MigrationResolver... resolvers) {
         configuration.setResolvers(resolvers);
     }
@@ -857,7 +1134,9 @@ public class Flyway implements Configuration {
      * Sets custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      *
      * @param resolvers The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setResolversAsClassNames(String... resolvers) {
         configuration.setResolversAsClassNames(resolvers);
     }
@@ -866,7 +1145,9 @@ public class Flyway implements Configuration {
      * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
      *
      * @param skipDefaultResolvers Whether default built-in resolvers should be skipped. <p>(default: false)</p>
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setSkipDefaultResolvers(boolean skipDefaultResolvers) {
         configuration.setSkipDefaultResolvers(skipDefaultResolvers);
     }
@@ -878,7 +1159,9 @@ public class Flyway implements Configuration {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @param stream {@code true} to stream SQL migrations. {@code false} to fully loaded them in memory instead. (default: {@code false})
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setStream(boolean stream) {
         configuration.setStream(stream);
     }
@@ -892,7 +1175,9 @@ public class Flyway implements Configuration {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @param batch {@code true} to batch SQL statements. {@code false} to execute them individually instead. (default: {@code false})
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setBatch(boolean batch) {
         configuration.setBatch(batch);
     }
@@ -902,7 +1187,9 @@ public class Flyway implements Configuration {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @param oracleSqlplus {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setOracleSqlplus(boolean oracleSqlplus) {
         configuration.setOracleSqlplus(oracleSqlplus);
     }
@@ -913,7 +1200,9 @@ public class Flyway implements Configuration {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @param licenseKey The license key.
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void setLicenseKey(String licenseKey) {
         configuration.setLicenseKey(licenseKey);
     }
@@ -1196,7 +1485,9 @@ public class Flyway implements Configuration {
      *
      * @param properties Properties used for configuration.
      * @throws FlywayException when the configuration failed.
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void configure(Properties properties) {
         configure(ConfigUtils.propertiesToMap(properties));
     }
@@ -1208,7 +1499,9 @@ public class Flyway implements Configuration {
      *
      * @param props Properties used for configuration.
      * @throws FlywayException when the configuration failed.
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
      */
+    @Deprecated
     public void configure(Map<String, String> props) {
         configuration.configure(props);
     }
