@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
 /**
@@ -28,8 +28,8 @@ public class SQLiteSqlStatementBuilder extends SqlStatementBuilder {
      */
     private String statementStart = "";
 
-    SQLiteSqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    SQLiteSqlStatementBuilder() {
+        super(Delimiter.SEMICOLON);
     }
 
     @Override

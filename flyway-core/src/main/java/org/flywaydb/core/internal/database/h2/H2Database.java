@@ -17,18 +17,15 @@ package org.flywaydb.core.internal.database.h2;
 
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * H2 database.
@@ -88,7 +85,7 @@ public class H2Database extends Database<H2Connection> {
     }
 
     @Override
-    protected final void ensureSupported() {
+    public final void ensureSupported() {
         String version = majorVersion + "." + minorVersion + "." + buildId;
 
         if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 2)) {
@@ -108,17 +105,8 @@ public class H2Database extends Database<H2Connection> {
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource,
-                                          PlaceholderReplacer placeholderReplacer, boolean mixed
-
-
-
-    ) {
-        return new H2SqlScript(configuration, sqlScriptResource, mixed
-
-
-
-                , placeholderReplacer);
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return H2SqlStatementBuilderFactory.INSTANCE;
     }
 
     @Override
@@ -137,7 +125,7 @@ public class H2Database extends Database<H2Connection> {
     }
 
     @Override
-    protected boolean supportsChangingCurrentSchema() {
+    public boolean supportsChangingCurrentSchema() {
         return true;
     }
 
@@ -159,5 +147,14 @@ public class H2Database extends Database<H2Connection> {
     @Override
     public boolean catalogIsSchema() {
         return false;
+    }
+
+    public enum H2SqlStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new H2SqlStatementBuilder();
+        }
     }
 }

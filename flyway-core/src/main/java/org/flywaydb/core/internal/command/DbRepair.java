@@ -24,8 +24,8 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.base.Connection;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
@@ -90,7 +90,7 @@ public class DbRepair {
      * Repairs the schema history table.
      */
     public void repair() {
-        callbackExecutor.executeOnMainConnection(Event.BEFORE_REPAIR);
+        callbackExecutor.onEvent(Event.BEFORE_REPAIR);
 
         try {
             StopWatch stopWatch = new StopWatch();
@@ -113,11 +113,11 @@ public class DbRepair {
                 LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
             }
         } catch (FlywayException e) {
-            callbackExecutor.executeOnMainConnection(Event.AFTER_REPAIR_ERROR);
+            callbackExecutor.onEvent(Event.AFTER_REPAIR_ERROR);
             throw e;
         }
 
-        callbackExecutor.executeOnMainConnection(Event.AFTER_REPAIR);
+        callbackExecutor.onEvent(Event.AFTER_REPAIR);
     }
 
     private boolean alignAppliedMigrationsWithResolvedMigrations() {

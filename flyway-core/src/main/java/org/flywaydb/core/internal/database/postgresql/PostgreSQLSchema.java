@@ -15,15 +15,16 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
-import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.Table;
-import org.flywaydb.core.internal.database.Type;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.database.base.Type;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -197,11 +198,15 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
 
         List<String> statements = new ArrayList<>();
         for (Map<String, String> row : rows) {
-            String type = Boolean.parseBoolean(row.get("agg")) ? "AGGREGATE" : "FUNCTION";
+            String type = isTrue(row.get("agg")) ? "AGGREGATE" : "FUNCTION";
             statements.add("DROP " + type + " IF EXISTS "
                     + database.quote(name, row.get("proname")) + "(" + row.get("args") + ") CASCADE");
         }
         return statements;
+    }
+
+    private boolean isTrue(String agg) {
+        return agg != null && agg.toLowerCase(Locale.ENGLISH).startsWith("t");
     }
 
     /**

@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.database.informix;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 
 /**
  * SqlStatementBuilder supporting Informix-specific delimiter changes.
@@ -29,11 +29,9 @@ public class InformixSqlStatementBuilder extends SqlStatementBuilder {
 
     /**
      * Creates a new SqlStatementBuilder.
-     *
-     * @param defaultDelimiter The default delimiter for this database.
      */
-    public InformixSqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    public InformixSqlStatementBuilder() {
+        super(Delimiter.SEMICOLON);
     }
 
     @Override

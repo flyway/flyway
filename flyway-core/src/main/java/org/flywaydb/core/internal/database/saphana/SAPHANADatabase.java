@@ -16,14 +16,11 @@
 package org.flywaydb.core.internal.database.saphana;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.SqlScript;
-import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 
 import java.sql.Connection;
-import java.util.List;
 
 /**
  * SAP HANA database.
@@ -60,7 +57,7 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     }
 
     @Override
-    protected void ensureSupported() {
+    public void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
 
 
@@ -75,17 +72,8 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource,
-                                          PlaceholderReplacer placeholderReplacer, boolean mixed
-
-
-
-    ) {
-        return new SAPHANASqlScript(configuration, sqlScriptResource, mixed
-
-
-
-                , placeholderReplacer);
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return SAPHANAStatementBuilderFactory.INSTANCE;
     }
 
     @Override
@@ -99,7 +87,7 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     }
 
     @Override
-    protected boolean supportsChangingCurrentSchema() {
+    public boolean supportsChangingCurrentSchema() {
         return true;
     }
 
@@ -121,5 +109,14 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     @Override
     public boolean catalogIsSchema() {
         return false;
+    }
+
+    enum SAPHANAStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new SAPHANASqlStatementBuilder();
+        }
     }
 }

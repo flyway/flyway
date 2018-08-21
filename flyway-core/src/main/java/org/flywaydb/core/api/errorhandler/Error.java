@@ -17,7 +17,10 @@ package org.flywaydb.core.api.errorhandler;
 
 /**
  * An error that occurred while executing a statement.
+ *
+ * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
  */
+@Deprecated
 public interface Error {
     /**
      * @return The error code.

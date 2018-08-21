@@ -16,20 +16,17 @@
 package org.flywaydb.core.internal.database.cockroachdb;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * CockroachDB database.
@@ -81,7 +78,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     }
 
     @Override
-    protected final void ensureSupported() {
+    public final void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
         if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 1)) {
             throw new FlywayDbUpgradeRequiredException("CockroachDB", version, "1.1");
@@ -92,17 +89,8 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource,
-                                          PlaceholderReplacer placeholderReplacer, boolean mixed
-
-
-
-    ) {
-        return new CockroachDBSqlScript(configuration, sqlScriptResource, mixed
-
-
-
-                , placeholderReplacer);
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return CockroachDBSqlStatementBuilderFactory.INSTANCE;
     }
 
     @Override
@@ -137,7 +125,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     }
 
     @Override
-    protected boolean supportsChangingCurrentSchema() {
+    public boolean supportsChangingCurrentSchema() {
         return true;
     }
 
@@ -169,5 +157,14 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     @Override
     public boolean useSingleConnection() {
         return false;
+    }
+
+    private enum CockroachDBSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new CockroachDBSqlStatementBuilder();
+        }
     }
 }

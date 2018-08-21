@@ -378,6 +378,9 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
+
+
     /**
      * Creates a new default configuration.
      */
@@ -705,10 +708,13 @@ public class ClassicConfiguration implements Configuration {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @param errorHandlers The ErrorHandlers or an empty array if the default internal handler should be used instead. (default: none)
+     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
      */
+    @Deprecated
     public void setErrorHandlers(ErrorHandler... errorHandlers) {
 
         throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
+
 
 
 
@@ -724,7 +730,9 @@ public class ClassicConfiguration implements Configuration {
      *
      * @param errorHandlerClassNames The fully qualified class names of ErrorHandlers or an empty array if the default
      *                               internal handler should be used instead. (default: none)
+     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
      */
+    @Deprecated
     public void setErrorHandlersAsClassNames(String... errorHandlerClassNames) {
 
         throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
@@ -746,7 +754,7 @@ public class ClassicConfiguration implements Configuration {
      * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
-     * @param errorOverrides  The ErrorOverrides or an empty array if none are defined. (default: none)
+     * @param errorOverrides The ErrorOverrides or an empty array if none are defined. (default: none)
      */
     public void setErrorOverrides(String... errorOverrides) {
 

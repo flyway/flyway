@@ -15,12 +15,7 @@
  */
 package org.flywaydb.core.api.logging;
 
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.logging.android.AndroidLogCreator;
-import org.flywaydb.core.internal.util.logging.apachecommons.ApacheCommonsLogCreator;
-import org.flywaydb.core.internal.util.logging.javautil.JavaUtilLogCreator;
-import org.flywaydb.core.internal.util.logging.slf4j.Slf4jLogCreator;
+import org.flywaydb.core.internal.logging.LogCreatorFactory;
 
 /**
  * Factory for loggers. Custom MigrationResolver, MigrationExecutor, FlywayCallback, ErrorHandler and JdbcMigration
@@ -69,18 +64,7 @@ public class LogFactory {
     public static Log getLog(Class<?> clazz) {
         if (logCreator == null) {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            FeatureDetector featureDetector = new FeatureDetector(classLoader);
-            if (featureDetector.isAndroidAvailable()) {
-                logCreator = ClassUtils.instantiate(AndroidLogCreator.class.getName(), classLoader);
-            } else if (featureDetector.isSlf4jAvailable()) {
-                logCreator = ClassUtils.instantiate(Slf4jLogCreator.class.getName(), classLoader);
-            } else if (featureDetector.isApacheCommonsLoggingAvailable()) {
-                logCreator = ClassUtils.instantiate(ApacheCommonsLogCreator.class.getName(), classLoader);
-            } else if (fallbackLogCreator == null) {
-                logCreator = ClassUtils.instantiate(JavaUtilLogCreator.class.getName(), classLoader);
-            } else {
-                logCreator = fallbackLogCreator;
-            }
+            logCreator = LogCreatorFactory.getLogCreator(classLoader, fallbackLogCreator);
         }
 
         return logCreator.createLogger(clazz);

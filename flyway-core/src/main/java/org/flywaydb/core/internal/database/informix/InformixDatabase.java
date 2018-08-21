@@ -16,17 +16,15 @@
 package org.flywaydb.core.internal.database.informix;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.StringResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Informix database.
@@ -64,7 +62,7 @@ public class InformixDatabase extends Database<InformixConnection> {
     }
 
     @Override
-    protected final void ensureSupported() {
+    public final void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
 
         if (majorVersion < 12 || (majorVersion == 12 && minorVersion < 10)) {
@@ -76,17 +74,8 @@ public class InformixDatabase extends Database<InformixConnection> {
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(LoadableResource resource,
-                                          PlaceholderReplacer placeholderReplacer, boolean mixed
-
-
-
-    ) {
-        return new InformixSqlScript(configuration, resource, mixed
-
-
-
-                , placeholderReplacer);
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return InformixSqlStatementBuilderFactory.INSTANCE;
     }
 
     @Override
@@ -124,7 +113,7 @@ public class InformixDatabase extends Database<InformixConnection> {
     }
 
     @Override
-    protected boolean supportsChangingCurrentSchema() {
+    public boolean supportsChangingCurrentSchema() {
         return false;
     }
 
@@ -151,5 +140,14 @@ public class InformixDatabase extends Database<InformixConnection> {
     @Override
     public boolean useSingleConnection() {
         return false;
+    }
+
+    private enum InformixSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new InformixSqlStatementBuilder();
+        }
     }
 }

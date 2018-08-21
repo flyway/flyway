@@ -96,6 +96,8 @@ public class VersionPrinter {
 
 
 
+
+
     public static void printVersionOnly() {
         String edition = "Flyway"
 

@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.Collection;
@@ -30,11 +30,10 @@ public class CockroachDBSqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Matches $$, $BODY$, $xyz123$, ...
      */
-    /*private -> for testing*/
-    static final String DOLLAR_QUOTE_REGEX = "(\\$[A-Za-z0-9_]*\\$).*";
+    private static final String DOLLAR_QUOTE_REGEX = "(\\$[A-Za-z0-9_]*\\$).*";
 
-    CockroachDBSqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    CockroachDBSqlStatementBuilder() {
+        super(Delimiter.SEMICOLON);
     }
 
     @Override

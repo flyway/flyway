@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.util.jdbc;
 
-import org.flywaydb.core.api.errorhandler.Warning;
+import org.flywaydb.core.api.callback.Warning;
 
 public class WarningImpl implements Warning {
     private final int code;

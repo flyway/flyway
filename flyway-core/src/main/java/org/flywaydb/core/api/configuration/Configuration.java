@@ -342,7 +342,9 @@ public interface Configuration {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @return The ErrorHandlers or an empty array if the default internal handler should be used instead. (default: none)
+     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
      */
+    @Deprecated
     ErrorHandler[] getErrorHandlers();
 
     /**

@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.regex.Pattern;
@@ -37,8 +37,8 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
 
     /*private -> testing*/ boolean isInMultiLineCommentDirective = false;
 
-    public MySQLSqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    public MySQLSqlStatementBuilder() {
+        super(Delimiter.SEMICOLON);
     }
 
     @Override
