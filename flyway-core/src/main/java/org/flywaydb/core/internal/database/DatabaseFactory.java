@@ -28,6 +28,7 @@ import org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabase;
 import org.flywaydb.core.internal.database.informix.InformixDatabase;
 import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
 import org.flywaydb.core.internal.database.oracle.OracleDatabase;
+import org.flywaydb.core.internal.database.phoenix.PhoenixDatabase;
 import org.flywaydb.core.internal.database.postgresql.PostgreSQLDatabase;
 import org.flywaydb.core.internal.database.redshift.RedshiftDatabase;
 import org.flywaydb.core.internal.database.saphana.SAPHANADatabase;
@@ -230,6 +231,13 @@ public class DatabaseFactory {
         }
         if (databaseProductName.startsWith("Informix")) {
             return new InformixDatabase(configuration, connection, originalAutoCommit
+
+
+
+            );
+        }
+        if (databaseProductName.startsWith("Phoenix")) {
+            return new PhoenixDatabase(configuration, connection, originalAutoCommit
 
 
 

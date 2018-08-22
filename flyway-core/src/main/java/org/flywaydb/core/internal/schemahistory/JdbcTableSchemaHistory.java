@@ -264,12 +264,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                 + " (Description: " + description + ", Type: " + type + ", Checksum: " + checksum + ")  ...");
 
         try {
-            jdbcTemplate.update("UPDATE " + table
-                            + " SET "
-                            + database.quote("description") + "=? , "
-                            + database.quote("type") + "=? , "
-                            + database.quote("checksum") + "=?"
-                            + " WHERE " + database.quote("version") + "=?",
+            jdbcTemplate.update(database.getUpdateStatement(table),
                     description, type, checksum, version);
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to repair Schema History table " + table

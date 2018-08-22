@@ -401,6 +401,15 @@ public abstract class Database<C extends Connection> implements Closeable {
                 + " ORDER BY " + quote("installed_rank");
     }
 
+    public String getUpdateStatement(Table table) {
+        return "UPDATE " + table
+                + " SET "
+                + quote("description") + "=? , "
+                + quote("type") + "=? , "
+                + quote("checksum") + "=?"
+                + " WHERE " + quote("version") + "=?";
+    }
+
     public void close() {
         if (!useSingleConnection() && migrationConnection != null) {
             migrationConnection.close();
