@@ -87,7 +87,14 @@ public class OracleDatabase extends Database<OracleConnection> {
 
 
 
+    }
 
+    private String getConnectIdentifier() throws SQLException {
+        String url = getJdbcMetaData().getURL();
+        if (url == null) {
+            return "";
+        }
+        return url.substring(url.indexOf("//") + 2);
     }
 
     @Override

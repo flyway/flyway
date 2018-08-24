@@ -246,11 +246,16 @@ public class DatabaseFactory {
      */
 
     private static String getJdbcUrl(DatabaseMetaData databaseMetaData) {
+        String url;
         try {
-            return filterUrl(databaseMetaData.getURL());
+            url = databaseMetaData.getURL();
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to retrieve the Jdbc connection Url!", e);
+            throw new FlywaySqlException("Unable to retrieve the JDBC connection URL!", e);
         }
+        if (url == null) {
+            return "";
+        }
+        return filterUrl(url);
     }
 
     /**
