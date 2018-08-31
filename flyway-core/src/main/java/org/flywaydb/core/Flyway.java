@@ -314,6 +314,15 @@ public class Flyway implements Configuration {
      */
     @Deprecated
     @Override
+    public boolean isIgnorePendingMigrations() {
+        return configuration.isIgnorePendingMigrations();
+    }
+
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
+    @Override
     public boolean isIgnoreFutureMigrations() {
         return configuration.isIgnoreFutureMigrations();
     }
@@ -668,6 +677,22 @@ public class Flyway implements Configuration {
     @Deprecated
     public void setIgnoreIgnoredMigrations(boolean ignoreIgnoredMigrations) {
         configuration.setIgnoreIgnoredMigrations(ignoreIgnoredMigrations);
+    }
+
+    /**
+     * Ignore pending migrations when reading the schema history table. These are migrations that are available on the
+     * classpath but have not yet been were performed by an application deployment. This can be useful for verifying
+     * that in-development migration changes don't contain any validation-breaking changes of migrations that have
+     * already been applied to a production environment, e.g. as part of a CI/CD process, without failing because of the
+     * existence of new migration versions.
+     *
+     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception.
+     *                                (default: {@code false})
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
+    public void setIgnorePendingMigrations(boolean ignorePendingMigrations) {
+        configuration.setIgnorePendingMigrations(ignorePendingMigrations);
     }
 
     /**
@@ -1327,13 +1352,15 @@ public class Flyway implements Configuration {
      * @param schemaHistory     The schema history table.
      * @param schemas           The schemas managed by Flyway.
      * @param callbackExecutor  The callback executor.
-     * @param pending           Whether pending migrations are ok.
+     * @param aboutToMigrate    Whether migrations are about to be run (and therefore to ignore pending migrations
+     *                          regardless of the ignorePendingMigrations configuration property)
      */
     private void doValidate(Database database, MigrationResolver migrationResolver,
-                            SchemaHistory schemaHistory, Schema[] schemas, CallbackExecutor callbackExecutor, boolean pending) {
+                            SchemaHistory schemaHistory, Schema[] schemas, CallbackExecutor callbackExecutor, boolean aboutToMigrate) {
         String validationError =
                 new DbValidate(database, schemaHistory, schemas[0], migrationResolver,
-                        configuration.getTarget(), configuration.isOutOfOrder(), pending,
+                        configuration.getTarget(), configuration.isOutOfOrder(),
+                        aboutToMigrate || configuration.isIgnorePendingMigrations(),
                         configuration.isIgnoreMissingMigrations(),
                         configuration.isIgnoreIgnoredMigrations(),
                         configuration.isIgnoreFutureMigrations(),

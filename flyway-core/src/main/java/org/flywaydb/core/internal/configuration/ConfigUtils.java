@@ -78,6 +78,7 @@ public class ConfigUtils {
     public static final String IGNORE_FUTURE_MIGRATIONS = "flyway.ignoreFutureMigrations";
     public static final String IGNORE_MISSING_MIGRATIONS = "flyway.ignoreMissingMigrations";
     public static final String IGNORE_IGNORED_MIGRATIONS = "flyway.ignoreIgnoredMigrations";
+    public static final String IGNORE_PENDING_MIGRATIONS = "flyway.ignorePendingMigrations";
     public static final String INSTALLED_BY = "flyway.installedBy";
     public static final String LICENSE_KEY = "flyway.licenseKey";
     public static final String LOCATIONS = "flyway.locations";
@@ -264,6 +265,11 @@ public class ConfigUtils {
                 @Override
                 public boolean isIgnoreIgnoredMigrations() {
                     return configuration.isIgnoreIgnoredMigrations();
+                }
+
+                @Override
+                public boolean isIgnorePendingMigrations() {
+                    return configuration.isIgnorePendingMigrations();
                 }
 
                 @Override
