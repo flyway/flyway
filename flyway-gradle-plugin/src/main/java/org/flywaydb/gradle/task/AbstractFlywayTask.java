@@ -275,7 +275,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     /**
      * Ignore pending migrations when reading the schema history table. These are migrations that are available on the
-     * classpath but have not yet been were performed by an application deployment. This can be useful for verifying
+     * classpath but have not yet been performed by an application deployment. This can be useful for verifying
      * that in-development migration changes don't contain any validation-breaking changes of migrations that have
      * already been applied to a production environment, e.g. as part of a CI/CD process, without failing because of the
      * existence of new migration versions.
