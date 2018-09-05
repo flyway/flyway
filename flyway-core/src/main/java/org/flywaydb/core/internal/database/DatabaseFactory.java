@@ -35,7 +35,8 @@ import org.flywaydb.core.internal.database.sqlite.SQLiteDatabase;
 import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabase;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEDatabase;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.jdbc.DatabaseType;
+import org.flywaydb.core.internal.jdbc.JdbcUtils;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -79,23 +80,16 @@ public class DatabaseFactory {
             throw new FlywaySqlException("Unable to turn on auto-commit for the connection", e);
         }
 
-        DatabaseMetaData databaseMetaData;
-        try {
-            databaseMetaData = connection.getMetaData();
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to read database connection metadata: " + e.getMessage(), e);
-        }
-        if (databaseMetaData == null) {
-            throw new FlywayException("Unable to read database connection metadata while it is null!");
-        }
-
-        String databaseProductName = getDatabaseProductName(databaseMetaData);
+        DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);
+        String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
         if (printInfo) {
             LOG.info("Database: " + getJdbcUrl(databaseMetaData) + " (" + databaseProductName + ")");
             LOG.debug("Driver  : " + getDriverInfo(databaseMetaData));
         }
 
-        Database database = createDatabase(configuration, connection, originalAutoCommit, databaseProductName
+        DatabaseType databaseType = DatabaseType.fromJdbcConnection(connection);
+
+        Database database = createDatabase(databaseType, configuration, connection, originalAutoCommit
 
 
 
@@ -118,124 +112,101 @@ public class DatabaseFactory {
         }
     }
 
-    private static Database createDatabase(Configuration configuration, Connection connection,
-                                           boolean originalAutoCommit,
-                                           String databaseProductName
+    private static Database createDatabase(DatabaseType databaseType, Configuration configuration,
+                                           Connection connection, boolean originalAutoCommit
 
 
 
     ) {
-        if (databaseProductName.startsWith("Apache Derby")) {
-            return new DerbyDatabase(configuration, connection, originalAutoCommit
-
-
-
-            );
-        }
-        if (databaseProductName.startsWith("SQLite")) {
-            return new SQLiteDatabase(configuration, connection, originalAutoCommit
-
-
-
-            );
-        }
-        if (databaseProductName.startsWith("H2")) {
-            return new H2Database(configuration, connection, originalAutoCommit
-
-
-
-            );
-        }
-        if (databaseProductName.contains("HSQL Database Engine")) {
-            return new HSQLDBDatabase(configuration, connection, originalAutoCommit
-
-
-
-            );
-        }
-        if (databaseProductName.startsWith("Microsoft SQL Server")) {
-            return new SQLServerDatabase(configuration, connection, originalAutoCommit
-
-
-
-            );
-        }
-        if (databaseProductName.contains("MySQL")) {
-            // For regular MySQL, MariaDB and Google Cloud SQL.
-            // Google Cloud SQL returns different names depending on the environment and the SDK version.
-            //   ex.: Google SQL Service/MySQL
-            return new MySQLDatabase(configuration, connection, originalAutoCommit
-
-
-
-            );
-        }
-        if (databaseProductName.startsWith("Oracle")) {
-            return new OracleDatabase(configuration, connection, originalAutoCommit
-
-
-
-            );
-        }
-        if (databaseProductName.startsWith("PostgreSQL 8")) {
-            if (RedshiftDatabase.isRedshift(connection)) {
-                return new RedshiftDatabase(configuration, connection, originalAutoCommit
-
-
-
-                );
-            }
-        }
-        if (databaseProductName.startsWith("PostgreSQL")) {
-            if (CockroachDBDatabase.isCockroachDB(connection)) {
+        switch (databaseType) {
+            case COCKROACHDB:
                 return new CockroachDBDatabase(configuration, connection, originalAutoCommit
 
 
 
                 );
-            }
-            return new PostgreSQLDatabase(configuration, connection, originalAutoCommit
+            case DB2:
+                return new DB2Database(configuration, connection, originalAutoCommit
 
 
 
-            );
+                );
+            case DERBY:
+                return new DerbyDatabase(configuration, connection, originalAutoCommit
+
+
+
+                );
+            case H2:
+                return new H2Database(configuration, connection, originalAutoCommit
+
+
+
+                );
+            case HSQLDB:
+                return new HSQLDBDatabase(configuration, connection, originalAutoCommit
+
+
+
+                );
+            case INFORMIX:
+                return new InformixDatabase(configuration, connection, originalAutoCommit
+
+
+
+                );
+            case MYSQL:
+                return new MySQLDatabase(configuration, connection, originalAutoCommit
+
+
+
+                );
+            case ORACLE:
+                return new OracleDatabase(configuration, connection, originalAutoCommit
+
+
+
+                );
+            case POSTGRESQL:
+                return new PostgreSQLDatabase(configuration, connection, originalAutoCommit
+
+
+
+                );
+            case REDSHIFT:
+                return new RedshiftDatabase(configuration, connection, originalAutoCommit
+
+
+
+                );
+            case SQLITE:
+                return new SQLiteDatabase(configuration, connection, originalAutoCommit
+
+
+
+                );
+            case SAPHANA:
+                return new SAPHANADatabase(configuration, connection, originalAutoCommit
+
+
+
+                );
+            case SQLSERVER:
+                return new SQLServerDatabase(configuration, connection, originalAutoCommit
+
+
+
+                );
+            case SYBASEASE_JCONNECT:
+            case SYBASEASE_JTDS:
+                return new SybaseASEDatabase(configuration, connection, originalAutoCommit
+
+
+
+                );
+            default:
+                throw new FlywayException("Unsupported Database: " + databaseType.name());
         }
-        if (databaseProductName.startsWith("DB2")) {
-            return new DB2Database(configuration, connection, originalAutoCommit
-
-
-
-            );
-        }
-        if (databaseProductName.startsWith("ASE")) {
-            return new SybaseASEDatabase(configuration, connection, originalAutoCommit, false
-
-
-
-            );
-        }
-        if (databaseProductName.startsWith("Adaptive Server Enterprise")) {
-            return new SybaseASEDatabase(configuration, connection, originalAutoCommit, true
-
-
-
-            );
-        }
-        if (databaseProductName.startsWith("HDB")) {
-            return new SAPHANADatabase(configuration, connection, originalAutoCommit
-
-
-
-            );
-        }
-        if (databaseProductName.startsWith("Informix")) {
-            return new InformixDatabase(configuration, connection, originalAutoCommit
-
-
-
-            );
-        }
-        throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
 
     /**
@@ -271,27 +242,5 @@ public class DatabaseFactory {
         }
         url = url.replaceAll("://.*:.*@", "://");
         return url;
-    }
-
-    /**
-     * Retrieves the name of the database product.
-     *
-     * @param databaseMetaData The connection metadata to use to query the database.
-     * @return The name of the database product. Ex.: Oracle, MySQL, ...
-     */
-    private static String getDatabaseProductName(DatabaseMetaData databaseMetaData) {
-        try {
-            String databaseProductName = databaseMetaData.getDatabaseProductName();
-            if (databaseProductName == null) {
-                throw new FlywayException("Unable to determine database. Product name is null.");
-            }
-
-            int databaseMajorVersion = databaseMetaData.getDatabaseMajorVersion();
-            int databaseMinorVersion = databaseMetaData.getDatabaseMinorVersion();
-
-            return databaseProductName + " " + databaseMajorVersion + "." + databaseMinorVersion;
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error while determining database product name", e);
-        }
     }
 }

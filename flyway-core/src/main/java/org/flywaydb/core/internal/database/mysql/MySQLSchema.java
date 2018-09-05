@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 

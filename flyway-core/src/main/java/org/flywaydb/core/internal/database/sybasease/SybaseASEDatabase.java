@@ -17,8 +17,9 @@ package org.flywaydb.core.internal.database.sybasease;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 
@@ -29,16 +30,13 @@ import java.sql.SQLException;
  * Sybase ASE database.
  */
 public class SybaseASEDatabase extends Database<SybaseASEConnection> {
-    private final boolean jconnect;
-
     /**
      * Creates a new Sybase ASE database.
      *
      * @param configuration The Flyway configuration.
      * @param connection    The initial connection.
-     * @param jconnect      Whether we are using the official jConnect driver or not (jTDS).
      */
-    public SybaseASEDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit, boolean jconnect
+    public SybaseASEDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
 
 
 
@@ -48,7 +46,6 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
 
 
         );
-        this.jconnect = jconnect;
     }
 
     @Override
@@ -57,7 +54,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
 
 
     ) {
-        return new SybaseASEConnection(configuration, this, connection, originalAutoCommit, jconnect
+        return new SybaseASEConnection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -77,8 +74,12 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
-        return SybaseASESqlStatementBuilderFactory.INSTANCE;
+    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+
+
+
+    ) {
+        return new SybaseASESqlStatementBuilderFactory(placeholderReplacer);
     }
 
     @Override
@@ -127,12 +128,4 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
         return false;
     }
 
-    enum SybaseASESqlStatementBuilderFactory implements SqlStatementBuilderFactory {
-        INSTANCE;
-
-        @Override
-        public SqlStatementBuilder createSqlStatementBuilder() {
-            return new SybaseASESqlStatementBuilder();
-        }
-    }
 }

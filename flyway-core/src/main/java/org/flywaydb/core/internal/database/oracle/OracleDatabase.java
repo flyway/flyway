@@ -20,12 +20,13 @@ import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.RowMapper;
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
+import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.RowMapper;
-import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -127,28 +129,44 @@ public class OracleDatabase extends Database<OracleConnection> {
     }
 
     @Override
-    public SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, boolean mixed
+    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(
+            PlaceholderReplacer placeholderReplacer
 
 
 
     ) {
+        return new OracleSqlStatementBuilderFactory(placeholderReplacer
 
 
 
 
-
-
-        return new OracleSqlScript(configuration, sqlScriptResource, mixed
-
-
-
-                , placeholderReplacer);
+        );
     }
 
     @Override
-    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
-        // Handled within OracleSqlScript
-        return null;
+    public SqlScriptExecutor createSqlScriptExecutor(JdbcTemplate jdbcTemplate
+
+
+
+    ) {
+        return new OracleSqlScriptExecutor(jdbcTemplate
+
+
+
+        );
+    }
+
+    @Override
+    protected PlaceholderReplacer createPlaceholderReplacer(boolean enabled, Map<String, String> placeholders,
+                                                            String placeholderPrefix, String placeholderSuffix) {
+        PlaceholderReplacer placeholderReplacer =
+                super.createPlaceholderReplacer(enabled, placeholders, placeholderPrefix, placeholderSuffix);
+
+
+
+
+
+        return placeholderReplacer;
     }
 
     @Override

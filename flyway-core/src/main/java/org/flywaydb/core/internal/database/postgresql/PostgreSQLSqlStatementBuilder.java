@@ -16,10 +16,9 @@
 package org.flywaydb.core.internal.database.postgresql;
 
 import org.flywaydb.core.internal.sqlscript.Delimiter;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.StandardContext;
 
 import java.util.Collection;
 import java.util.regex.Matcher;
@@ -75,7 +74,7 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public SqlStatement<StandardContext> getSqlStatement() {
+    public SqlStatement getSqlStatement() {
         if (pgCopy) {
             return new PostgreSQLCopyStatement(lines);
         }
@@ -107,7 +106,7 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
                 || VACUUM_REGEX.matcher(statementStart).matches()
                 || DISCARD_ALL_REGEX.matcher(statementStart).matches()
                 || ALTER_TYPE_ADD_VALUE_REGEX.matcher(statementStart).matches()
-                ) {
+        ) {
             executeInTransaction = false;
         }
     }

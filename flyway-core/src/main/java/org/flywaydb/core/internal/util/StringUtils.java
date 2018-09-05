@@ -256,7 +256,7 @@ public class StringUtils {
      * @param delimiters The delimiters to use.
      * @return The resulting array.
      */
-    public static Collection<String> tokenizeToStringCollection(String str, String delimiters) {
+    public static List<String> tokenizeToStringCollection(String str, String delimiters) {
         if (str == null) {
             return null;
         }

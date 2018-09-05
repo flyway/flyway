@@ -22,7 +22,6 @@ import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * CockroachDB connection.
@@ -34,7 +33,7 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
 
 
     ) {
-        super(configuration, database, connection, originalAutoCommit, Types.NULL
+        super(configuration, database, connection, originalAutoCommit
 
 
 

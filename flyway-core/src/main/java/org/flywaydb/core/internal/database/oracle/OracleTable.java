@@ -16,7 +16,7 @@
 package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 

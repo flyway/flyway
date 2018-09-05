@@ -17,13 +17,16 @@ package org.flywaydb.core.internal.database.cockroachdb;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -89,8 +92,12 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
-        return CockroachDBSqlStatementBuilderFactory.INSTANCE;
+    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+
+
+
+    ) {
+        return new CockroachDBSqlStatementBuilderFactory(placeholderReplacer);
     }
 
     @Override
@@ -159,8 +166,10 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
         return false;
     }
 
-    private enum CockroachDBSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
-        INSTANCE;
+    private static class CockroachDBSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
+        CockroachDBSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+            super(placeholderReplacer);
+        }
 
         @Override
         public SqlStatementBuilder createSqlStatementBuilder() {

@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import org.flywaydb.core.internal.line.Line;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.StandardContext;
-import org.flywaydb.core.internal.util.line.Line;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -147,9 +146,8 @@ public abstract class SqlStatementBuilder {
     /**
      * @return The assembled statement, with the delimiter stripped off.
      */
-    public <C extends StandardContext> SqlStatement<C> getSqlStatement() {
-        //noinspection unchecked
-        return (SqlStatement<C>) new StandardSqlStatement(lines, delimiter
+    public SqlStatement getSqlStatement() {
+        return new StandardSqlStatement(lines, delimiter
 
 
 

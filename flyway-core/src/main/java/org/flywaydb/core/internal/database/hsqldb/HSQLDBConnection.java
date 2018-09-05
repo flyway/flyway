@@ -18,11 +18,10 @@ package org.flywaydb.core.internal.database.hsqldb;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.jdbc.JdbcUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * HSQLDB connection.
@@ -34,7 +33,7 @@ public class HSQLDBConnection extends Connection<HSQLDBDatabase> {
 
 
     ) {
-        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit
 
 
 

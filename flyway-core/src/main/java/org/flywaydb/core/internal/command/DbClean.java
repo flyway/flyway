@@ -27,7 +27,7 @@ import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.jdbc.TransactionTemplate;
 
 import java.util.concurrent.Callable;
 

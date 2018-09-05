@@ -16,7 +16,6 @@
 package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -27,11 +26,11 @@ import org.flywaydb.core.api.migration.MigrationInfoProvider;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.clazz.ClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,14 +44,9 @@ public abstract class JavaMigrationResolver<M, E extends MigrationExecutor> impl
     private static final Log LOG = LogFactory.getLog(JavaMigrationResolver.class);
 
     /**
-     * The base package on the classpath where to migrations are located.
-     */
-    private final List<Location> locations;
-
-    /**
      * The Scanner to use.
      */
-    private Scanner scanner;
+    private ClassProvider classProvider;
 
     /**
      * The configuration to inject (if necessary) in the migration classes.
@@ -62,13 +56,11 @@ public abstract class JavaMigrationResolver<M, E extends MigrationExecutor> impl
     /**
      * Creates a new instance.
      *
-     * @param locations     The base packages on the classpath where to migrations are located.
-     * @param scanner       The Scanner for loading migrations on the classpath.
+     * @param classProvider The Scanner for loading migrations on the classpath.
      * @param configuration The configuration to inject (if necessary) in the migration classes.
      */
-    public JavaMigrationResolver(Scanner scanner, List<Location> locations, Configuration configuration) {
-        this.locations = locations;
-        this.scanner = scanner;
+    public JavaMigrationResolver(ClassProvider classProvider, Configuration configuration) {
+        this.classProvider = classProvider;
         this.configuration = configuration;
     }
 
@@ -76,33 +68,19 @@ public abstract class JavaMigrationResolver<M, E extends MigrationExecutor> impl
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<>();
 
-        for (Location location : locations) {
-            if (!location.isClassPath()) {
-                continue;
-            }
-            resolveMigrationsForSingleLocation(location, migrations);
+        for (Class<?> clazz : classProvider.getClasses(getImplementedInterface())) {
+            M migration = ClassUtils.instantiate(clazz.getName(), configuration.getClassLoader());
+            ConfigUtils.injectFlywayConfiguration(migration, configuration);
+
+            ResolvedMigrationImpl migrationInfo = extractMigrationInfo(migration);
+            migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));
+            migrationInfo.setExecutor(createExecutor(migration));
+
+            migrations.add(migrationInfo);
         }
 
         Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
-    }
-
-    private void resolveMigrationsForSingleLocation(Location location, List<ResolvedMigration> migrations) {
-        try {
-            Class<?>[] classes = scanner.scanForClasses(location, getImplementedInterface());
-            for (Class<?> clazz : classes) {
-                M migration = ClassUtils.instantiate(clazz.getName(), scanner.getClassLoader());
-                ConfigUtils.injectFlywayConfiguration(migration, configuration);
-
-                ResolvedMigrationImpl migrationInfo = extractMigrationInfo(migration);
-                migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));
-                migrationInfo.setExecutor(createExecutor(migration));
-
-                migrations.add(migrationInfo);
-            }
-        } catch (Exception e) {
-            throw new FlywayException("Unable to resolve " + getMigrationTypeStr() + " Java migrations in location " + location + " : " + e.getMessage(), e);
-        }
     }
 
     /**
@@ -170,7 +148,7 @@ public abstract class JavaMigrationResolver<M, E extends MigrationExecutor> impl
 
 
 
-                    ) {
+            ) {
                 prefix = shortName.substring(0, 1);
             } else {
                 throw new FlywayException("Invalid " + getMigrationTypeStr() + " migration class name: " + migration.getClass().getName()

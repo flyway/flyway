@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.StandardSqlStatement;
-import org.flywaydb.core.internal.util.line.Line;
+import org.flywaydb.core.internal.line.Line;
 
 import java.util.List;
 

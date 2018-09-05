@@ -29,7 +29,7 @@ import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.jdbc.DriverDataSource;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -1376,6 +1376,11 @@ public class ClassicConfiguration implements Configuration {
         setCleanDisabled(configuration.isCleanDisabled());
         setCleanOnValidationError(configuration.isCleanOnValidationError());
         setDataSource(configuration.getDataSource());
+
+
+
+
+
 
 
 

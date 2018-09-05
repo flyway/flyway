@@ -26,7 +26,7 @@ import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.license.VersionPrinter;
+import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.internal.logging.console.ConsoleLogCreator;
 

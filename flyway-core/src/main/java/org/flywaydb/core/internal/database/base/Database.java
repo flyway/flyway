@@ -19,19 +19,23 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.placeholder.DefaultPlaceholderReplacer;
+import org.flywaydb.core.internal.placeholder.NoopPlaceholderReplacer;
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.internal.resource.NoopResourceProvider;
+import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
+import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
+import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.util.jdbc.StandardContext;
-import org.flywaydb.core.internal.util.placeholder.DefaultPlaceholderReplacer;
-import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
-import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
 import java.io.Closeable;
 import java.nio.charset.Charset;
@@ -147,30 +151,56 @@ public abstract class Database<C extends Connection> implements Closeable {
                 + " is newer than this version of Flyway and support has not been tested.");
     }
 
+    public final SqlStatementBuilderFactory createSqlStatementBuilderFactory(
+
+
+
+    ) {
+        return createSqlStatementBuilderFactory(
+                createPlaceholderReplacer(
+                        configuration.isPlaceholderReplacement(), configuration.getPlaceholders(),
+                        configuration.getPlaceholderPrefix(), configuration.getPlaceholderSuffix())
+
+
+
+        );
+    }
+
+    protected abstract SqlStatementBuilderFactory createSqlStatementBuilderFactory(
+            PlaceholderReplacer placeholderReplacer
+
+
+
+    );
+
     /**
      * Creates a new SqlScript for this specific database.
-     *
-     * @param resource         The resource containing the SQL script.
-     * @param mixed            Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * <p>
+
 
 
 
      * @return The new SqlScript.
      */
-    public SqlScript createSqlScript(LoadableResource resource,
-                                     PlaceholderReplacer placeholderReplacer, boolean mixed
+    public SqlScriptExecutor createSqlScriptExecutor(JdbcTemplate jdbcTemplate
 
 
 
     ) {
-        return new SqlScript<StandardContext>(configuration, getSqlStatementBuilderFactory(), resource, mixed
+        return new DefaultSqlScriptExecutor(jdbcTemplate
 
 
 
-                , placeholderReplacer);
+        );
     }
 
-    protected abstract SqlStatementBuilderFactory getSqlStatementBuilderFactory();
+    protected PlaceholderReplacer createPlaceholderReplacer(boolean enabled, Map<String, String> placeholders,
+                                                            String placeholderPrefix, String placeholderSuffix) {
+        if (enabled) {
+            return new DefaultPlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
+        }
+        return NoopPlaceholderReplacer.INSTANCE;
+    }
 
     /**
      * @return The default delimiter for this database.
@@ -356,18 +386,22 @@ public abstract class Database<C extends Connection> implements Closeable {
         placeholders.put("schema", table.getSchema().getName());
         placeholders.put("table", table.getName());
         placeholders.put("table_quoted", table.toString());
-        PlaceholderReplacer placeholderReplacer = new DefaultPlaceholderReplacer(placeholders, "${", "}");
 
-        return createSqlScript(getRawCreateScript(), placeholderReplacer, false
+        PlaceholderReplacer placeholderReplacer =
+                createPlaceholderReplacer(true, placeholders, "${", "}");
+
+        SqlStatementBuilderFactory sqlStatementBuilderFactory = createSqlStatementBuilderFactory(placeholderReplacer
 
 
 
         );
+
+        return new SqlScript(sqlStatementBuilderFactory, getRawCreateScript(), false);
     }
 
     protected LoadableResource getRawCreateScript() {
         String resourceName = "org/flywaydb/core/internal/database/" + getDbName() + "/createMetaDataTable.sql";
-        return new ClassPathResource(resourceName, getClass().getClassLoader(), Charset.forName("UTF-8"));
+        return new ClassPathResource(null, resourceName, getClass().getClassLoader(), Charset.forName("UTF-8"));
     }
 
     public String getInsertStatement(Table table) {

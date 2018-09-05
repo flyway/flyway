@@ -17,6 +17,9 @@ package org.flywaydb.core.internal.database.sqlite;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
@@ -68,8 +71,12 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
-        return SQLiteSqlStatementBuilderFactory.INSTANCE;
+    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+
+
+
+    ) {
+        return new SQLiteSqlStatementBuilderFactory(placeholderReplacer);
     }
 
     public String getDbName() {
@@ -123,8 +130,10 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
         return true;
     }
 
-    private enum SQLiteSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
-        INSTANCE;
+    private static class SQLiteSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
+        public SQLiteSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+            super(placeholderReplacer);
+        }
 
         @Override
         public SqlStatementBuilder createSqlStatementBuilder() {

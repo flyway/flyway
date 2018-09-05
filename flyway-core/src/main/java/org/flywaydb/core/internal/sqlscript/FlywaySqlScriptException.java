@@ -16,7 +16,7 @@
 package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.resource.Resource;
 
 import java.sql.SQLException;
 
@@ -78,7 +78,7 @@ public class FlywaySqlScriptException extends FlywaySqlException {
     public String getMessage() {
         String message = super.getMessage();
         if (resource != null) {
-            message += "Location   : " + resource.getLocation() + " (" + resource.getLocationOnDisk() + ")\n";
+            message += "Location   : " + resource.getAbsolutePath() + " (" + resource.getAbsolutePathOnDisk() + ")\n";
         }
         if (statement != null) {
             message += "Line       : " + getLineNumber() + "\n";

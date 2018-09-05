@@ -17,11 +17,14 @@ package org.flywaydb.core.internal.database.informix;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
-import org.flywaydb.core.internal.util.scanner.StringResource;
+import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.internal.resource.StringResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -74,8 +77,12 @@ public class InformixDatabase extends Database<InformixConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
-        return InformixSqlStatementBuilderFactory.INSTANCE;
+    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+
+
+
+    ) {
+        return new InformixSqlStatementBuilderFactory(placeholderReplacer);
     }
 
     @Override
@@ -142,8 +149,10 @@ public class InformixDatabase extends Database<InformixConnection> {
         return false;
     }
 
-    private enum InformixSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
-        INSTANCE;
+    private static class InformixSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
+        public InformixSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+            super(placeholderReplacer);
+        }
 
         @Override
         public SqlStatementBuilder createSqlStatementBuilder() {

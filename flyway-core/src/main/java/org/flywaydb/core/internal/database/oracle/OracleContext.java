@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
-import org.flywaydb.core.internal.util.jdbc.StandardContext;
+import org.flywaydb.core.internal.jdbc.StandardContext;
 
 public class OracleContext extends StandardContext {
 

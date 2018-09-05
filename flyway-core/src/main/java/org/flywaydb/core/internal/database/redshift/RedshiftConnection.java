@@ -22,7 +22,6 @@ import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * Redshift connection.
@@ -34,7 +33,7 @@ public class RedshiftConnection extends Connection<RedshiftDatabase> {
 
 
     ) {
-        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit
 
 
 

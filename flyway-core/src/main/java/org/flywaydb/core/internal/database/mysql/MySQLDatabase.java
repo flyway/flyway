@@ -20,7 +20,8 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -110,8 +111,12 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
-        return MySQLSqlStatementBuilderFactory.INSTANCE;
+    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+
+
+
+    ) {
+        return new MySQLSqlStatementBuilderFactory(placeholderReplacer);
     }
 
     @Override
@@ -159,12 +164,4 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         return true;
     }
 
-    enum MySQLSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
-        INSTANCE;
-
-        @Override
-        public SqlStatementBuilder createSqlStatementBuilder() {
-            return new MySQLSqlStatementBuilder();
-        }
-    }
 }
