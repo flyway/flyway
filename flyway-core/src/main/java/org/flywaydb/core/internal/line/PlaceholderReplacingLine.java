@@ -35,4 +35,9 @@ public class PlaceholderReplacingLine implements Line {
     public String getLine() {
         return placeholderReplacer.replacePlaceholders(line.getLine());
     }
+
+    @Override
+    public String toString() {
+        return getLine();
+    }
 }

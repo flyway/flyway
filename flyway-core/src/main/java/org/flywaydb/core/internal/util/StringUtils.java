@@ -415,6 +415,22 @@ public class StringUtils {
     }
 
     /**
+     * Trim any leading occurrence of this character from the given String.
+     *
+     * @param str the String to check.
+     * @param character The character to trim.
+     * @return the trimmed String
+     * @see java.lang.Character#isWhitespace
+     */
+    public static String trimLeadingCharacter(String str, char character) {
+        StringBuilder buf = new StringBuilder(str);
+        while (buf.length() > 0 && character == buf.charAt(0)) {
+            buf.deleteCharAt(0);
+        }
+        return buf.toString();
+    }
+
+    /**
      * Trim trailing whitespace from the given String.
      *
      * @param str the String to check
