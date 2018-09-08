@@ -21,14 +21,11 @@ import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.jdbc.ErrorImpl;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Result;
-import org.flywaydb.core.internal.jdbc.StandardContext;
+import org.flywaydb.core.internal.jdbc.Results;
 import org.flywaydb.core.internal.util.AsciiTable;
 
-import java.sql.BatchUpdateException;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -180,50 +177,51 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
+
     private void executeStatement(JdbcTemplate jdbcTemplate, SqlScript sqlScript, SqlStatement sqlStatement) {
-        StandardContext context = createContext();
-
         String sql = sqlStatement.getSql() + sqlStatement.getDelimiter();
-        try {
 
 
 
 
 
 
-            List<Result> results = sqlStatement.execute(context, jdbcTemplate, this);
+        Results results = sqlStatement.execute(jdbcTemplate, this);
+        if (results.getException() != null) {
 
 
 
 
 
-
-
-            printWarnings(context);
-            handleResults(context, results);
-        } catch (final SQLException e) {
+            printWarnings(results);
 
 
 
 
 
-
-
-
-
-
-            printWarnings(context);
-
-
-
-
-
-            handleException(e, sqlScript, sqlStatement, context);
+            handleException(results, sqlScript, sqlStatement);
+            return;
         }
+
+
+
+
+
+
+        printWarnings(results);
+        handleResults(results
+
+
+
+        );
     }
 
-    private void handleResults(StandardContext context, List<Result> results) {
-        for (Result result : results) {
+    protected void handleResults(Results results
+
+
+
+    ) {
+        for (Result result : results.getResults()) {
             long updateCount = result.getUpdateCount();
             if (updateCount != -1) {
                 handleUpdateCount(updateCount);
@@ -247,21 +245,12 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
         LOG.debug("Update Count: " + updateCount);
     }
 
-    protected void handleException(SQLException e, SqlScript sqlScript, SqlStatement sqlStatement, StandardContext context) {
-        throw new FlywaySqlScriptException(sqlScript.getResource(), sqlStatement, e);
+    protected void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement) {
+        throw new FlywaySqlScriptException(sqlScript.getResource(), sqlStatement, results.getException());
     }
 
-    protected StandardContext createContext() {
-        return new StandardContext();
-    }
-
-
-
-
-
-
-    private void printWarnings(StandardContext context) {
-        for (Warning warning : context.getWarnings()) {
+    private void printWarnings(Results results) {
+        for (Warning warning : results.getWarnings()) {
             if ("00000".equals(warning.getState())) {
                 LOG.info("DB: " + warning.getMessage());
             } else {

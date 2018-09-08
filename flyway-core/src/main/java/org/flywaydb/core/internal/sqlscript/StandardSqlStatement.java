@@ -15,12 +15,10 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-import org.flywaydb.core.internal.jdbc.StandardContext;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.jdbc.Result;
+import org.flywaydb.core.internal.jdbc.Results;
 import org.flywaydb.core.internal.line.Line;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -40,7 +38,7 @@ public class StandardSqlStatement extends AbstractSqlStatement {
     }
 
     @Override
-    public List<Result> execute(StandardContext context, JdbcTemplate jdbcTemplate, SqlScriptExecutor sqlScriptExecutor) throws SQLException {
-        return jdbcTemplate.executeStatement(context, getSql());
+    public Results execute(JdbcTemplate jdbcTemplate, SqlScriptExecutor sqlScriptExecutor) {
+        return jdbcTemplate.executeStatement(getSql());
     }
 }

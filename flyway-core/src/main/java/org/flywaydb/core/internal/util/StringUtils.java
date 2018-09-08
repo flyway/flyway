@@ -417,7 +417,7 @@ public class StringUtils {
     /**
      * Trim any leading occurrence of this character from the given String.
      *
-     * @param str the String to check.
+     * @param str       the String to check.
      * @param character The character to trim.
      * @return the trimmed String
      * @see java.lang.Character#isWhitespace
@@ -470,6 +470,7 @@ public class StringUtils {
 
     /**
      * Trim the trailing linebreak (if any) from this string.
+     *
      * @param str The string.
      * @return The string without trailing linebreak.
      */
@@ -486,10 +487,68 @@ public class StringUtils {
 
     /**
      * Checks whether this character is a linebreak character.
+     *
      * @param ch The character
      * @return {@code true} if it is, {@code false} if not.
      */
     private static boolean isLineBreakCharacter(char ch) {
         return '\n' == ch || '\r' == ch;
+    }
+
+    /**
+     * Wrap this string every lineSize characters.
+     *
+     * @param str      The string to wrap.
+     * @param lineSize The maximum size of each line.
+     * @return The wrapped string.
+     */
+    public static String wrap(String str, int lineSize) {
+        if (str.length() < lineSize) {
+            return str;
+        }
+
+        StringBuilder result = new StringBuilder();
+        int oldPos = 0;
+        for (int pos = lineSize; pos < str.length(); pos += lineSize) {
+            result.append(str, oldPos, pos).append("\n");
+            oldPos = pos;
+        }
+        result.append(str.substring(oldPos));
+        return result.toString();
+    }
+
+    /**
+     * Wrap this string at the word boundary at or below lineSize characters.
+     *
+     * @param str      The string to wrap.
+     * @param lineSize The maximum size of each line.
+     * @return The word-wrapped string.
+     */
+    public static String wordWrap(String str, int lineSize) {
+        if (str.length() < lineSize) {
+            return str;
+        }
+
+        StringBuilder result = new StringBuilder();
+        int oldPos = 0;
+        int pos = lineSize;
+        while (pos < str.length()) {
+            if (Character.isWhitespace(str.charAt(pos))) {
+                pos++;
+                continue;
+            }
+
+            String part = str.substring(oldPos, pos);
+            int spacePos = part.lastIndexOf(' ');
+            if (spacePos > 0) {
+                pos = spacePos + 1;
+            }
+
+            result.append(str.substring(oldPos, pos).trim()).append("\n");
+            oldPos = pos;
+            pos += lineSize;
+        }
+        result.append(str.substring(oldPos));
+        return result.toString();
     }
 }

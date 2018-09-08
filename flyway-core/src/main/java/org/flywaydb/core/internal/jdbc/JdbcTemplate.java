@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -221,9 +222,10 @@ public class JdbcTemplate {
      * Executes this sql statement using an ordinary Statement.
      *
      * @param sql The statement to execute.
-     * @throws SQLException when the execution failed.
+     * @return the results of the execution.
      */
-    public List<Result> executeStatement(StandardContext errorContext, String sql) throws SQLException {
+    public Results executeStatement(String sql) {
+        Results results = new Results();
         Statement statement = null;
         try {
             statement = connection.createStatement();
@@ -232,21 +234,29 @@ public class JdbcTemplate {
             try {
                 hasResults = statement.execute(sql);
             } finally {
-                @SuppressWarnings("ThrowableResultOfMethodCallIgnored") SQLWarning warning = statement.getWarnings();
+                SQLWarning warning = statement.getWarnings();
                 while (warning != null) {
-                    errorContext.addWarning(new WarningImpl(warning.getErrorCode(), warning.getSQLState(), warning.getMessage()));
+                    results.addWarning(new WarningImpl(warning.getErrorCode(), warning.getSQLState(), warning.getMessage()));
                     warning = warning.getNextWarning();
                 }
             }
-            return extractResults(statement, hasResults);
+            extractResults(results, statement, hasResults);
+        } catch (final SQLException e) {
+
+
+
+
+
+
+
+            results.setException(e);
         } finally {
             JdbcUtils.closeStatement(statement);
         }
+        return results;
     }
 
-    private List<Result> extractResults(Statement statement, boolean hasResults) throws SQLException {
-        List<Result> results = new ArrayList<>();
-
+    private void extractResults(Results results, Statement statement, boolean hasResults) throws SQLException {
         // retrieve all results to ensure all errors are detected
         int updateCount = -1;
         while (hasResults || (updateCount = statement.getUpdateCount()) != -1) {
@@ -277,15 +287,13 @@ public class JdbcTemplate {
 
 
 
-            results.add(new Result(updateCount
+            results.addResult(new Result(updateCount
 
 
 
             ));
             hasResults = statement.getMoreResults();
         }
-
-        return results;
     }
 
     /**
@@ -358,6 +366,20 @@ public class JdbcTemplate {
 
         return results;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

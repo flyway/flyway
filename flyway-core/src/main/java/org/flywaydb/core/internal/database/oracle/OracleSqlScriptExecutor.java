@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -23,11 +24,12 @@ import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.jdbc.Result;
-import org.flywaydb.core.internal.jdbc.StandardContext;
+import org.flywaydb.core.internal.jdbc.Results;
+import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
-import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
 import org.flywaydb.core.internal.util.AsciiTable;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Array;
 import java.sql.CallableStatement;
@@ -38,6 +40,10 @@ import java.util.List;
 
 public class OracleSqlScriptExecutor extends DefaultSqlScriptExecutor {
     private static final Log LOG = LogFactory.getLog(OracleSqlScriptExecutor.class);
+
+
+
+
 
 
 
@@ -60,7 +66,7 @@ public class OracleSqlScriptExecutor extends DefaultSqlScriptExecutor {
     }
 
     @Override
-    protected void handleException(SQLException e, SqlScript sqlScript, SqlStatement sqlStatement, StandardContext context) {
+    protected void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement) {
 
 
 
@@ -70,13 +76,43 @@ public class OracleSqlScriptExecutor extends DefaultSqlScriptExecutor {
 
 
 
-        super.handleException(e, sqlScript, sqlStatement, context);
+        super.handleException(results, sqlScript, sqlStatement);
     }
 
-    @Override
-    protected OracleContext createContext() {
-        return new OracleContext();
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
