@@ -83,6 +83,8 @@ public class ClassicConfiguration implements Configuration {
      */
     private Locations locations = new Locations("db/migration");
 
+    private boolean recurseHiddenDirectories = true;
+
     /**
      * The encoding of Sql migrations. (default: UTF-8)
      */
@@ -412,6 +414,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public Location[] getLocations() {
         return locations.getLocations().toArray(new Location[0]);
+    }
+
+    @Override
+    public boolean isRecurseHiddenDirectories() {
+        return recurseHiddenDirectories;
     }
 
     @Override
@@ -903,6 +910,15 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLocations(Location... locations) {
         this.locations = new Locations(Arrays.asList(locations));
+    }
+
+    /**
+     * Sets the flag determining whether or not to recursively scan hidden directories.
+     *
+     * @param recurseHiddenDirectories flag determining whether or not to recursively scan hidden directories. (default: true)
+     */
+    public void setRecurseHiddenDirectories(boolean recurseHiddenDirectories) {
+        this.recurseHiddenDirectories = recurseHiddenDirectories;
     }
 
     /**

@@ -34,6 +34,7 @@ import java.util.TreeSet;
 public class FileSystemScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
     private final Charset encoding;
+    private final boolean recurseHiddenDirectories;
 
 
 
@@ -47,13 +48,13 @@ public class FileSystemScanner {
 
 
      */
-    public FileSystemScanner(Charset encoding
+    public FileSystemScanner(Charset encoding, boolean recurseHiddenDirectories
 
 
 
     ) {
         this.encoding = encoding;
-
+        this.recurseHiddenDirectories = recurseHiddenDirectories;
 
 
     }
@@ -114,7 +115,9 @@ public class FileSystemScanner {
         for (File file : files) {
             if (file.canRead()) {
                 if (file.isDirectory()) {
-                    resourceNames.addAll(findResourceNamesFromFileSystem(scanRootLocation, file));
+                    if(!file.isHidden() || recurseHiddenDirectories){
+                        resourceNames.addAll(findResourceNamesFromFileSystem(scanRootLocation, file));
+                    }
                 } else {
                     resourceNames.add(file.getPath());
                 }

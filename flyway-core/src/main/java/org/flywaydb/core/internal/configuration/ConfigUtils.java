@@ -247,6 +247,11 @@ public class ConfigUtils {
                 }
 
                 @Override
+                public boolean isRecurseHiddenDirectories() {
+                    return configuration.isRecurseHiddenDirectories();
+                }
+
+                @Override
                 public boolean isBaselineOnMigrate() {
                     return configuration.isBaselineOnMigrate();
                 }
