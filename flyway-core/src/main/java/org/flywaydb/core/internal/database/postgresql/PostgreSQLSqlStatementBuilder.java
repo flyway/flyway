@@ -76,7 +76,7 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     @Override
     public SqlStatement getSqlStatement() {
         if (pgCopy) {
-            return new PostgreSQLCopyStatement(lines);
+            return new PostgreSQLCopyStatement(lines.subList(firstNonCommentLine, lines.size()));
         }
         return super.getSqlStatement();
     }
@@ -138,9 +138,9 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
 
         if (firstLine) {
             firstLine = false;
-            if (COPY_REGEX.matcher(line).matches()) {
-                copyStatement = line;
-            }
+        }
+        if (COPY_REGEX.matcher(line).matches()) {
+            copyStatement = line;
         } else if (copyStatement != null) {
             copyStatement += " " + line;
         }

@@ -72,7 +72,7 @@ public abstract class SqlStatementBuilder {
     /**
      * The first line where a non-comment part of a statement has been seen.
      */
-    private int firstNonCommentLine = -1;
+    protected int firstNonCommentLine = -1;
 
     /**
      * How deeply nested are we within blocks.
@@ -132,7 +132,7 @@ public abstract class SqlStatementBuilder {
     /**
      * @return Whether this statement contains more than just comments.
      */
-    public boolean hasNonCommentPart() {
+    protected boolean hasNonCommentPart() {
         return firstNonCommentLine >= 0;
     }
 
@@ -352,7 +352,9 @@ public abstract class SqlStatementBuilder {
                     (TokenType.OTHER.equals(delimitingToken)
                             || TokenType.BLOCK_BEGIN.equals(delimitingToken)
                             || TokenType.BLOCK_END.equals(delimitingToken))) {
-                firstNonCommentLine = lines.size();
+                if (!hasNonCommentPart()) {
+                    firstNonCommentLine = lines.size();
+                }
                 if (isBlockStatement()) {
                     if (TokenType.BLOCK_BEGIN.equals(delimitingToken)) {
                         nestedBlockDepth++;
