@@ -135,6 +135,7 @@
         <version.derby>10.14.2.0</version.derby>
         <version.h2>1.4.197</version.h2>
         <version.hsqldb>2.4.0</version.hsqldb>
+        <version.jna>4.5.2</version.jna>
         <version.jtds>1.3.1</version.jtds>
         <version.mariadb>2.2.4</version.mariadb>
         <version.mysql>8.0.12</version.mysql>
@@ -249,6 +250,18 @@
                 <groupId>org.mariadb.jdbc</groupId>
                 <artifactId>mariadb-java-client</artifactId>
                 <version>${version.mariadb}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna</artifactId>
+                <version>${version.jna}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna-platform</artifactId>
+                <version>${version.jna}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>

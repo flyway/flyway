@@ -46,11 +46,6 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     private static final Pattern CREATE_RULE_PARTIAL_REGEX = Pattern.compile("^CREATE( OR REPLACE)? RULE .* DO (ALSO|INSTEAD) \\(.*");
 
     /**
-     * Are we at the beginning of the statement.
-     */
-    private boolean firstLine = true;
-
-    /**
      * The copy statement seen so far.
      */
     private String copyStatement;
@@ -136,9 +131,6 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
             return PostgreSQLCopyStatement.COPY_DELIMITER;
         }
 
-        if (firstLine) {
-            firstLine = false;
-        }
         if (COPY_REGEX.matcher(line).matches()) {
             copyStatement = line;
         } else if (copyStatement != null) {
