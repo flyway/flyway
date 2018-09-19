@@ -1,4 +1,4 @@
-package org.flywaydb.core.internal.database.cache;
+package org.flywaydb.core.internal.database.Cache;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.Connection;

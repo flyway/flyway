@@ -53,6 +53,7 @@ public class DriverDataSource implements DataSource {
     private static final String SQLDROID_DRIVER = "org.sqldroid.SQLDroidDriver";
     private static final String SQLSERVER_JDBC_URL_PREFIX = "jdbc:sqlserver:";
     private static final String SYBASE_JDBC_URL_PREFIX = "jdbc:sybase:";
+    private static final String CACHE_JDBC_URL_PREFIX = "jdbc:Cache:";
 
     /**
      * The name of the application that created the connection. This is useful for databases that allow setting this
@@ -357,6 +358,10 @@ public class DriverDataSource implements DataSource {
 
         if (url.startsWith("jdbc:informix-sqli:")) {
             return "com.informix.jdbc.IfxDriver";
+        }
+
+        if (url.startsWith(CACHE_JDBC_URL_PREFIX)) {
+            return "com.intersys.jdbc.CacheDriver";
         }
 
         return null;

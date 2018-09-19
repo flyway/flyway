@@ -1,4 +1,4 @@
-package org.flywaydb.core.internal.database.cache;
+package org.flywaydb.core.internal.database.Cache;
 
 import org.flywaydb.core.internal.database.Delimiter;
 import org.flywaydb.core.internal.database.SqlStatementBuilder;

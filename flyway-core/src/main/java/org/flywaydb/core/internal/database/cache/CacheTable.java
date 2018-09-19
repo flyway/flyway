@@ -1,4 +1,4 @@
-package org.flywaydb.core.internal.database.cache;
+package org.flywaydb.core.internal.database.Cache;
 
 import org.flywaydb.core.internal.database.Database;
 import org.flywaydb.core.internal.database.Schema;
@@ -27,6 +27,7 @@ public class CacheTable extends Table {
 
     @Override
     protected void doDrop() throws SQLException {
+        jdbcTemplate.execute("SET OPTION COMPILEMODE = NOCHECK");
         jdbcTemplate.execute("DROP TABLE " + database.quote(schema.getName(), name) + " CASCADE");
     }
 
