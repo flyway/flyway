@@ -123,7 +123,7 @@ public class OracleDatabase extends Database<OracleConnection> {
         throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("Oracle", "Oracle", version);
         }
 
-        if (majorVersion > 12) {
+        if (majorVersion > 18 || (majorVersion == 18 && minorVersion > 0)) {
             recommendFlywayUpgrade("Oracle", version);
         }
     }

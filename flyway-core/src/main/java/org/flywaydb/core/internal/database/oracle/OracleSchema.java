@@ -197,8 +197,11 @@ public class OracleSchema extends Schema<OracleDatabase> {
             return;
         }
 
-        String queryForFbaTrackedTables = "SELECT TABLE_NAME FROM " + (dbaViewAccessible ? "DBA_" : "USER_") +
-                "FLASHBACK_ARCHIVE_TABLES WHERE OWNER_NAME = ?";
+        boolean oracle18orNewer = database.getMajorVersion() >= 18;
+
+        String queryForFbaTrackedTables = "SELECT TABLE_NAME FROM " + (dbaViewAccessible ? "DBA_" : "USER_")
+                + "FLASHBACK_ARCHIVE_TABLES WHERE OWNER_NAME = ?"
+                + (oracle18orNewer ? " AND STATUS='ENABLED'" : "");
         List<String> tableNames = jdbcTemplate.queryForStringList(queryForFbaTrackedTables, name);
         for (String tableName : tableNames) {
             jdbcTemplate.execute("ALTER TABLE " + database.quote(name, tableName) + " NO FLASHBACK ARCHIVE");
@@ -209,6 +212,18 @@ public class OracleSchema extends Schema<OracleDatabase> {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     throw new FlywayException("Waiting for Flashback cleanup interrupted", e);
+                }
+            }
+        }
+
+        if (oracle18orNewer) {
+            while (database.queryReturnsRows("SELECT TABLE_NAME FROM ALL_TABLES WHERE OWNER = ?\n"
+                    + " AND TABLE_NAME LIKE 'SYS_FBA_DDL_COLMAP_%'", name)) {
+                try {
+                    LOG.debug("Actively waiting for Flashback colmap cleanup");
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new FlywayException("Waiting for Flashback colmap cleanup interrupted", e);
                 }
             }
         }
@@ -366,7 +381,9 @@ public class OracleSchema extends Schema<OracleDatabase> {
             @Override
             public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) throws SQLException {
                 return jdbcTemplate.queryForStringList(
-                        "SELECT INDEX_NAME FROM ALL_INDEXES WHERE OWNER = ? AND INDEX_TYPE NOT LIKE '%DOMAIN%'",
+                        "SELECT INDEX_NAME FROM ALL_INDEXES WHERE OWNER = ?" +
+                                //" AND INDEX_NAME NOT LIKE 'SYS_C%'"+
+                                " AND INDEX_TYPE NOT LIKE '%DOMAIN%'",
                         schema.getName()
                 );
             }
@@ -506,7 +523,7 @@ public class OracleSchema extends Schema<OracleDatabase> {
             }
 
             @Override
-            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema, String objectName) throws SQLException {
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema, String objectName) {
                 return "BEGIN DBMS_DATA_MINING.DROP_MODEL('" +
 
 
@@ -584,7 +601,7 @@ public class OracleSchema extends Schema<OracleDatabase> {
         // Intentionally skip them and let the clean callbacks handle them if needed.
         DATABASE_LINK("DATABASE LINK") {
             @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) throws SQLException {
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) {
                 super.warnUnsupported(database.quote(schema.getName()));
             }
 
@@ -603,7 +620,7 @@ public class OracleSchema extends Schema<OracleDatabase> {
         },
         CREDENTIAL("CREDENTIAL") {
             @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) throws SQLException {
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) {
                 super.warnUnsupported(database.quote(schema.getName()));
             }
 
@@ -616,7 +633,7 @@ public class OracleSchema extends Schema<OracleDatabase> {
         // Some scheduler types, not supported yet.
         DATABASE_DESTINATION("DESTINATION") {
             @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) throws SQLException {
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) {
                 super.warnUnsupported(database.quote(schema.getName()));
             }
 
@@ -627,7 +644,7 @@ public class OracleSchema extends Schema<OracleDatabase> {
         },
         SCHEDULER_GROUP("SCHEDULER GROUP") {
             @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) throws SQLException {
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) {
                 super.warnUnsupported(database.quote(schema.getName()));
             }
 
@@ -640,25 +657,25 @@ public class OracleSchema extends Schema<OracleDatabase> {
         // OLAP objects, not supported yet.
         CUBE("CUBE") {
             @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) throws SQLException {
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) {
                 super.warnUnsupported(database.quote(schema.getName()));
             }
         },
         CUBE_DIMENSION("CUBE DIMENSION") {
             @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) throws SQLException {
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) {
                 super.warnUnsupported(database.quote(schema.getName()));
             }
         },
         CUBE_BUILD_PROCESS("CUBE BUILD PROCESS") {
             @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) throws SQLException {
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) {
                 super.warnUnsupported(database.quote(schema.getName()), "cube build processes");
             }
         },
         MEASURE_FOLDER("MEASURE FOLDER") {
             @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) throws SQLException {
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) {
                 super.warnUnsupported(database.quote(schema.getName()));
             }
         },
@@ -666,13 +683,13 @@ public class OracleSchema extends Schema<OracleDatabase> {
         // Undocumented objects.
         ASSEMBLY("ASSEMBLY") {
             @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) throws SQLException {
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) {
                 super.warnUnsupported(database.quote(schema.getName()), "assemblies");
             }
         },
         JAVA_DATA("JAVA DATA") {
             @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) throws SQLException {
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) {
                 super.warnUnsupported(database.quote(schema.getName()));
             }
         },
@@ -732,9 +749,8 @@ public class OracleSchema extends Schema<OracleDatabase> {
         /**
          * Generates the drop statement for the specified object.
          *
-         * @throws SQLException if generating of the statement failed.
          */
-        public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema, String objectName) throws SQLException {
+        public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema, String objectName) {
             return "DROP " + this.getName() + " " + database.quote(schema.getName(), objectName) +
                     (StringUtils.hasText(dropOptions) ? " " + dropOptions : "");
         }
