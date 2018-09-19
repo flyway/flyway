@@ -419,6 +419,9 @@ public class ConfigUtils {
         if ("FLYWAY_IGNORE_IGNORED_MIGRATIONS".equals(key)) {
             return IGNORE_IGNORED_MIGRATIONS;
         }
+        if ("FLYWAY_IGNORE_PENDING_MIGRATIONS".equals(key)) {
+            return IGNORE_PENDING_MIGRATIONS;
+        }
         if ("FLYWAY_INSTALLED_BY".equals(key)) {
             return INSTALLED_BY;
         }

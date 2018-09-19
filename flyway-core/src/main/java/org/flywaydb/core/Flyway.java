@@ -1251,7 +1251,9 @@ public class Flyway implements Configuration {
 
             ) {
                 if (configuration.isValidateOnMigrate()) {
-                    doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor, true);
+                    doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
+                            true // Always ignore pending migrations when validating before migrating
+                    );
                 }
 
                 new DbSchemas(database, schemas, schemaHistory).create();
@@ -1340,7 +1342,8 @@ public class Flyway implements Configuration {
 
 
             ) {
-                doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor, false);
+                doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
+                        configuration.isIgnorePendingMigrations());
                 return null;
             }
         }, true);
@@ -1354,15 +1357,14 @@ public class Flyway implements Configuration {
      * @param schemaHistory     The schema history table.
      * @param schemas           The schemas managed by Flyway.
      * @param callbackExecutor  The callback executor.
-     * @param aboutToMigrate    Whether migrations are about to be run (and therefore to ignore pending migrations
-     *                          regardless of the ignorePendingMigrations configuration property)
+     * @param ignorePending     Whether to ignore pending migrations.
      */
-    private void doValidate(Database database, MigrationResolver migrationResolver,
-                            SchemaHistory schemaHistory, Schema[] schemas, CallbackExecutor callbackExecutor, boolean aboutToMigrate) {
+    private void doValidate(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
+                            Schema[] schemas, CallbackExecutor callbackExecutor, boolean ignorePending) {
         String validationError =
                 new DbValidate(database, schemaHistory, schemas[0], migrationResolver,
                         configuration.getTarget(), configuration.isOutOfOrder(),
-                        aboutToMigrate || configuration.isIgnorePendingMigrations(),
+                        ignorePending,
                         configuration.isIgnoreMissingMigrations(),
                         configuration.isIgnoreIgnoredMigrations(),
                         configuration.isIgnoreFutureMigrations(),

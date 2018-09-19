@@ -19,8 +19,8 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.ResolvedArtifact;
@@ -252,9 +252,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
      * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
-     * mark it as future instead.
-     * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
-     * (default: {@code false})
+     * mark it as future instead.(default: {@code false})
+     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreMissingMigrations}</p>
      */
     public Boolean ignoreMissingMigrations;
 
@@ -266,25 +265,21 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
      * will not be reported by validate command. This is useful for situations where one must be able to deliver
      * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
-     * development of older versions.
-     * <p>
-     * {@code true} to continue normally, {@code false} to fail fast with an exception.
-     * (default: {@code false})
+     * development of older versions.(default: {@code false})
+     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreIgnoredMigrations}</p>
      */
     public Boolean ignoreIgnoredMigrations;
 
     /**
-     * Ignore pending migrations when reading the schema history table. These are migrations that are available on the
-     * classpath but have not yet been performed by an application deployment. This can be useful for verifying
-     * that in-development migration changes don't contain any validation-breaking changes of migrations that have
-     * already been applied to a production environment, e.g. as part of a CI/CD process, without failing because of the
-     * existence of new migration versions.
-     * <p>
-     * {@code true} to continue normally, {@code false} to fail fast with an exception.
+     * Ignore pending migrations when reading the schema history table. These are migrations that are available
+     * but have not yet been applied. This can be useful for verifying that in-development migration changes
+     * don't contain any validation-breaking changes of migrations that have already been applied to a production
+     * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
      * (default: {@code false})
+     * <p>Also configurable with Gradle or System Property: ${flyway.ignorePendingMigrations}</p>
      */
     public Boolean ignorePendingMigrations;
-    
+
     /**
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
@@ -292,6 +287,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
      * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
+     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreFutureMigrations}</p>
      */
     public Boolean ignoreFutureMigrations;
 
