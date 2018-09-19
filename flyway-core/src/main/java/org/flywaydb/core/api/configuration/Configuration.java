@@ -274,6 +274,18 @@ public interface Configuration {
     boolean isIgnoreIgnoredMigrations();
 
     /**
+     * Ignore pending migrations when reading the schema history table. These are migrations that are available on the
+     * classpath but have not yet been performed by an application deployment. This can be useful for verifying
+     * that in-development migration changes don't contain any validation-breaking changes of migrations that have
+     * already been applied to a production environment, e.g. as part of a CI/CD process, without failing because of the
+     * existence of new migration versions.
+     *
+     * @return {@code true} to continue normally, {@code false} to fail fast with an exception.
+     * (default: {@code false})
+     */
+    boolean isIgnorePendingMigrations();
+
+    /**
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0

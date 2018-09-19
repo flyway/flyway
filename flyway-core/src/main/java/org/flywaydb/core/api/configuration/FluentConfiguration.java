@@ -150,6 +150,11 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public boolean isIgnorePendingMigrations() {
+        return config.isIgnorePendingMigrations();
+    }
+    
+    @Override
     public boolean isIgnoreFutureMigrations() {
         return config.isIgnoreFutureMigrations();
     }
@@ -415,6 +420,21 @@ public class FluentConfiguration implements Configuration {
         return this;
     }
 
+    /**
+     * Ignore pending migrations when reading the schema history table. These are migrations that are available on the
+     * classpath but have not yet been performed by an application deployment. This can be useful for verifying
+     * that in-development migration changes don't contain any validation-breaking changes of migrations that have
+     * already been applied to a production environment, e.g. as part of a CI/CD process, without failing because of the
+     * existence of new migration versions.
+     *
+     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception.
+     *                                (default: {@code false})
+     */
+    public FluentConfiguration ignorePendingMigrations(boolean ignorePendingMigrations) {
+        config.setIgnorePendingMigrations(ignorePendingMigrations);
+        return this;
+    }
+    
     /**
      * Whether to ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations

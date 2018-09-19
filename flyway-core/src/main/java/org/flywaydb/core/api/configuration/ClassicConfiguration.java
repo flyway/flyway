@@ -208,6 +208,18 @@ public class ClassicConfiguration implements Configuration {
     private boolean ignoreIgnoredMigrations;
 
     /**
+     * Ignore pending migrations when reading the schema history table. These are migrations that are available on the
+     * classpath but have not yet been performed by an application deployment.
+     * This can be useful for verifying that in-development migration changes don't contain any validation-breaking changes
+     * of migrations that have already been applied to a production environment, e.g. as part of a CI/CD process, without
+     * failing because of the existence of new migration versions.
+     * <p>
+     * {@code true} to continue normally, {@code false} to fail fast with an exception.
+     * (default: {@code false})
+     */
+    private boolean ignorePendingMigrations;
+
+    /**
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
@@ -482,6 +494,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isIgnoreIgnoredMigrations() {
         return ignoreIgnoredMigrations;
+    }
+
+    @Override
+    public boolean isIgnorePendingMigrations() {
+        return ignorePendingMigrations;
     }
 
     @Override
@@ -827,6 +844,20 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setIgnoreIgnoredMigrations(boolean ignoreIgnoredMigrations) {
         this.ignoreIgnoredMigrations = ignoreIgnoredMigrations;
+    }
+    
+    /**
+     * Ignore pending migrations when reading the schema history table. These are migrations that are available on the
+     * classpath but have not yet been performed by an application deployment. This can be useful for verifying
+     * that in-development migration changes don't contain any validation-breaking changes of migrations that have
+     * already been applied to a production environment, e.g. as part of a CI/CD process, without failing because of the
+     * existence of new migration versions.
+     *
+     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception.
+     *                                (default: {@code false})
+     */
+    public void setIgnorePendingMigrations(boolean ignorePendingMigrations) {
+        this.ignorePendingMigrations = ignorePendingMigrations;
     }
 
     /**
@@ -1396,6 +1427,7 @@ public class ClassicConfiguration implements Configuration {
         setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
         setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
         setIgnoreIgnoredMigrations(configuration.isIgnoreIgnoredMigrations());
+        setIgnorePendingMigrations(configuration.isIgnorePendingMigrations());
         setInstalledBy(configuration.getInstalledBy());
         setLocations(configuration.getLocations());
         setMixed(configuration.isMixed());
@@ -1551,6 +1583,10 @@ public class ClassicConfiguration implements Configuration {
         Boolean ignoreIgnoredMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_IGNORED_MIGRATIONS);
         if (ignoreIgnoredMigrationsProp != null) {
             setIgnoreIgnoredMigrations(ignoreIgnoredMigrationsProp);
+        }
+        Boolean ignorePendingMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_PENDING_MIGRATIONS);
+        if (ignorePendingMigrationsProp != null) {
+            setIgnorePendingMigrations(ignorePendingMigrationsProp);
         }
         Boolean ignoreFutureMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_FUTURE_MIGRATIONS);
         if (ignoreFutureMigrationsProp != null) {
