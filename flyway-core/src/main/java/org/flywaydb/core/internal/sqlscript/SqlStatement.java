@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-import org.flywaydb.core.internal.util.jdbc.ContextImpl;
+import org.flywaydb.core.internal.util.jdbc.StandardContext;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.Result;
 
@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * A sql statement from a script that can be executed at once against a database.
  */
-public interface SqlStatement<C extends ContextImpl> {
+public interface SqlStatement<C extends StandardContext> {
     /**
      * @return The original line number where the statement was located in the script it came from.
      */

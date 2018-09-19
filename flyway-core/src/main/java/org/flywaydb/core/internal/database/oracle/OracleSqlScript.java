@@ -15,15 +15,16 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.errorhandler.Error;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.ExecutableSqlScript;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.AsciiTable;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
@@ -41,7 +42,7 @@ import java.util.List;
 /**
  * Oracle-specific SQL script.
  */
-class OracleSqlScript extends ExecutableSqlScript<OracleContextImpl> {
+class OracleSqlScript extends SqlScript<OracleContext> {
     private static final Log LOG = LogFactory.getLog(OracleSqlScript.class);
 
 
@@ -51,39 +52,32 @@ class OracleSqlScript extends ExecutableSqlScript<OracleContextImpl> {
 
 
 
-    OracleSqlScript(Configuration configuration, LoadableResource sqlScriptResource, boolean mixed
+    OracleSqlScript(final Configuration configuration,
+                    LoadableResource sqlScriptResource, boolean mixed
 
 
 
 
-
-            , PlaceholderReplacer placeholderReplacer) {
-        super(configuration, sqlScriptResource, mixed
-
-
-
-                ,
+            , final PlaceholderReplacer placeholderReplacer) {
+        super(configuration, new SqlStatementBuilderFactory() {
+                    @Override
+                    public SqlStatementBuilder createSqlStatementBuilder() {
+                        return new OracleSqlStatementBuilder(configuration
 
 
 
+                        );
+                    }
+                }, sqlScriptResource, mixed,
 
 
-                 placeholderReplacer
 
+                placeholderReplacer
         );
     }
 
     @Override
-    protected SqlStatementBuilder createSqlStatementBuilder() {
-        return new OracleSqlStatementBuilder(configuration
-
-
-
-        );
-    }
-
-    @Override
-    protected void handleException(SQLException e, SqlStatement sqlStatement, OracleContextImpl context) {
+    protected void handleException(SQLException e, SqlStatement sqlStatement, OracleContext context) {
 
 
 
@@ -97,14 +91,9 @@ class OracleSqlScript extends ExecutableSqlScript<OracleContextImpl> {
     }
 
     @Override
-    protected OracleContextImpl createContext() {
-        return new OracleContextImpl();
+    protected OracleContext createContext() {
+        return new OracleContext();
     }
-
-
-
-
-
 
 
 

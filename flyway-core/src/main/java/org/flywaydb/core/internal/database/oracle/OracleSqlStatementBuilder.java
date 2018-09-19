@@ -18,8 +18,8 @@ package org.flywaydb.core.internal.database.oracle;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -134,6 +134,8 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
 
     private static final Pattern DECLARE_BEGIN_REGEX = toRegex("DECLARE|BEGIN");
+    private static final Pattern PLSQL_VIEW_REGEX = Pattern.compile(
+            "^CREATE(\\s+OR\\s+REPLACE)?(\\s+(NON)?EDITIONABLE)?\\s+(VIEW)\\s+.*\\s+AS\\s+WITH.*");
     private static final Pattern PLSQL_REGEX = Pattern.compile(
             "^CREATE(\\s+OR\\s+REPLACE)?(\\s+(NON)?EDITIONABLE)?\\s+(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*");
     private static final Pattern JAVA_REGEX = Pattern.compile(
@@ -142,7 +144,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Delimiter of PL/SQL blocks and statements.
      */
-    private static final Delimiter PLSQL_DELIMITER = new Delimiter("/", true);
+    static final Delimiter PLSQL_DELIMITER = new Delimiter("/", true);
 
     private final Configuration configuration;
 
@@ -211,6 +213,9 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
 
 
+
+
+
     @Override
     protected void applyStateChanges(String line) {
         super.applyStateChanges(line);
@@ -228,7 +233,9 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
             return PLSQL_DELIMITER;
         }
 
-        if (PLSQL_REGEX.matcher(statementStart).matches() || JAVA_REGEX.matcher(statementStart).matches()) {
+        if (PLSQL_REGEX.matcher(statementStart).matches()
+                || JAVA_REGEX.matcher(statementStart).matches()
+                || PLSQL_VIEW_REGEX.matcher(statementStart).matches()) {
             return PLSQL_DELIMITER;
         }
 

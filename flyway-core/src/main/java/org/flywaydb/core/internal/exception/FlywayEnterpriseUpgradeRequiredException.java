@@ -23,7 +23,7 @@ import org.flywaydb.core.api.FlywayException;
  */
 public class FlywayEnterpriseUpgradeRequiredException extends FlywayException {
     public FlywayEnterpriseUpgradeRequiredException(String vendor, String database, String version) {
-        super("Flyway Enterprise or " + database + " upgrade required: " + database + " " + version
+        super("Flyway Enterprise Edition or " + database + " upgrade required: " + database + " " + version
                 + " is past regular support by " + vendor
                 + " and no longer supported by Flyway Community Edition and Flyway Pro Edition,"
                 + " but still supported by Flyway Enterprise Edition.");

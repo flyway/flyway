@@ -16,11 +16,12 @@
 package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
@@ -103,31 +104,44 @@ public class OracleDatabase extends Database<OracleConnection> {
     }
 
     @Override
-    protected final void ensureSupported() {
+    public final void ensureSupported() {
+        String version = majorVersion + "." + minorVersion;
         if (majorVersion < 10) {
-            throw new FlywayDbUpgradeRequiredException("Oracle", "" + majorVersion, "10");
+            throw new FlywayDbUpgradeRequiredException("Oracle", version, "10");
         }
 
-        if (majorVersion == 10 || majorVersion == 11) {
-        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("Oracle", "Oracle", "" + majorVersion);
+        if (majorVersion == 10 || majorVersion == 11 || (majorVersion == 12 && minorVersion < 2)) {
+        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("Oracle", "Oracle", version);
         }
 
         if (majorVersion > 12) {
-            recommendFlywayUpgrade("Oracle", "" + majorVersion);
+            recommendFlywayUpgrade("Oracle", version);
         }
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, boolean mixed
+    public SqlScript createSqlScript(LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, boolean mixed
 
 
 
     ) {
+
+
+
+
+
+
         return new OracleSqlScript(configuration, sqlScriptResource, mixed
 
 
 
                 , placeholderReplacer);
+    }
+
+    @Override
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        // Handled within OracleSqlScript
+        return null;
     }
 
     @Override
@@ -146,7 +160,7 @@ public class OracleDatabase extends Database<OracleConnection> {
     }
 
     @Override
-    protected boolean supportsChangingCurrentSchema() {
+    public boolean supportsChangingCurrentSchema() {
         return true;
     }
 

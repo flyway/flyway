@@ -21,9 +21,9 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.database.base.Connection;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
@@ -90,7 +90,7 @@ public class DbBaseline {
      * Baselines the database.
      */
     public void baseline() {
-        callbackExecutor.executeOnMainConnection(Event.BEFORE_BASELINE);
+        callbackExecutor.onEvent(Event.BEFORE_BASELINE);
 
         try {
             schemaHistory.create();
@@ -124,12 +124,12 @@ public class DbBaseline {
                 }
             });
         } catch (FlywayException e) {
-            callbackExecutor.executeOnMainConnection(Event.AFTER_BASELINE_ERROR);
+            callbackExecutor.onEvent(Event.AFTER_BASELINE_ERROR);
             throw e;
         }
 
         LOG.info("Successfully baselined schema with version: " + baselineVersion);
 
-        callbackExecutor.executeOnMainConnection(Event.AFTER_BASELINE);
+        callbackExecutor.onEvent(Event.AFTER_BASELINE);
     }
 }

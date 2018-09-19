@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.regex.Matcher;
@@ -36,15 +36,19 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
      */
     private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(LIKE|AS)$");
 
-    private static final Pattern NON_TRANSACTIONAL_STATEMENT_REGEX = Pattern.compile("^(BACKUP|RESTORE|(CREATE|DROP|ALTER) DATABASE) .*");
+    /**
+     * Regex for statements that cannot be executed within a transaction.
+     */
+    private static final Pattern NON_TRANSACTIONAL_STATEMENT_REGEX =
+            Pattern.compile("^(BACKUP|RESTORE|RECONFIGURE|(CREATE|DROP|ALTER) (DATABASE|FULLTEXT INDEX)) .*");
 
     /**
      * Holds the beginning of the statement.
      */
     private String statementStart = "";
 
-    public SQLServerSqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    public SQLServerSqlStatementBuilder() {
+        super(Delimiter.GO);
     }
 
     @Override

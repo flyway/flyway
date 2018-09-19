@@ -27,8 +27,8 @@ import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.license.VersionPrinter;
-import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
-import org.flywaydb.core.internal.util.logging.console.ConsoleLogCreator;
+import org.flywaydb.core.internal.logging.console.ConsoleLog.Level;
+import org.flywaydb.core.internal.logging.console.ConsoleLogCreator;
 
 import java.io.Console;
 import java.io.File;
@@ -101,8 +101,7 @@ public class Main {
             classLoader = loadJavaMigrationsFromJarDirs(classLoader, properties);
 
             filterProperties(properties);
-            Flyway flyway = new Flyway(classLoader);
-            flyway.configure(properties);
+            Flyway flyway = Flyway.configure(classLoader).configure(properties).load();
 
             for (String operation : operations) {
                 executeOperation(flyway, operation);
@@ -294,8 +293,8 @@ public class Main {
         LOG.info("configFileEncoding           : Encoding to use when loading the config files");
         LOG.info("jarDirs                      : Comma-separated list of dirs for Jdbc drivers & Java migrations");
         LOG.info("dryRunOutput                 : [" + "pro] File where to output the SQL statements of a migration dry run");
-        LOG.info("errorHandlers                : [" + "pro] Comma-separated list of handlers for errors and warnings");
-        LOG.info("oracle.sqlplus               : [" + "pro] Oracle SQL*Plus command support");
+        LOG.info("errorOverrides               : [" + "pro] Rules to override specific SQL states and errors codes");
+        LOG.info("oracle.sqlplus               : [" + "pro] Enable Oracle SQL*Plus command support");
         LOG.info("licenseKey                   : [" + "pro] Your Flyway license key");
         LOG.info("");
         LOG.info("Flags");

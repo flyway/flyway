@@ -15,11 +15,11 @@
  */
 package org.flywaydb.core.internal.database.db2;
 
-import org.flywaydb.core.internal.database.Function;
+import org.flywaydb.core.internal.database.base.Function;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.Table;
-import org.flywaydb.core.internal.database.Type;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.database.base.Type;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;

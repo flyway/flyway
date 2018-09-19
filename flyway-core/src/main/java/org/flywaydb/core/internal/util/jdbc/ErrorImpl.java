@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.util.jdbc;
 
-import org.flywaydb.core.api.errorhandler.Error;
+import org.flywaydb.core.api.callback.Error;
 
 public class ErrorImpl implements Error {
     private final int code;

@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

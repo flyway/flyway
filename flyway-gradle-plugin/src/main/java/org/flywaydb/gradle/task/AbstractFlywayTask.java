@@ -20,6 +20,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.ResolvedArtifact;
@@ -339,7 +340,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * (default: none)
      * <p>Also configurable with Gradle or System Property: ${flyway.errorHandlers}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
      */
+    @Deprecated
     public String[] errorHandlers;
 
     /**
@@ -438,12 +442,12 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                     extraURLs.toArray(new URL[0]),
                     getProject().getBuildscript().getClassLoader());
 
-            Flyway flyway = new Flyway(classLoader);
-            flyway.configure(createFlywayConfig(envVars));
-            return run(flyway);
+            Flyway flyway = Flyway.configure(classLoader).configure(createFlywayConfig(envVars)).load();
+            Object result = run(flyway);
+            ((DriverDataSource) flyway.getDataSource()).shutdownDatabase();
+            return result;
         } catch (Exception e) {
-            handleException(e);
-            return null;
+            throw new FlywayException(collectMessages(e, "Error occurred while executing " + getName()), e);
         }
     }
 
@@ -726,14 +730,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                 config.put(prop, properties.get(prop).toString());
             }
         }
-    }
-
-    /**
-     * @param throwable Throwable instance to be handled
-     */
-    private void handleException(Throwable throwable) {
-        String message = "Error occurred while executing " + getName();
-        throw new FlywayException(collectMessages(throwable, message), throwable);
     }
 
     /**

@@ -16,15 +16,12 @@
 package org.flywaydb.core.internal.database.sqlite;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
-import java.util.List;
 
 /**
  * SQLite database.
@@ -62,7 +59,7 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     }
 
     @Override
-    protected final void ensureSupported() {
+    public final void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
 
         if (majorVersion < 3) {
@@ -71,17 +68,8 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource,
-                                          PlaceholderReplacer placeholderReplacer, boolean mixed
-
-
-
-    ) {
-        return new SQLiteSqlScript(configuration, sqlScriptResource, mixed
-
-
-
-                , placeholderReplacer);
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return SQLiteSqlStatementBuilderFactory.INSTANCE;
     }
 
     public String getDbName() {
@@ -99,7 +87,7 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     }
 
     @Override
-    protected boolean supportsChangingCurrentSchema() {
+    public boolean supportsChangingCurrentSchema() {
         return false;
     }
 
@@ -133,5 +121,14 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     @Override
     public boolean useSingleConnection() {
         return true;
+    }
+
+    private enum SQLiteSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new SQLiteSqlStatementBuilder();
+        }
     }
 }

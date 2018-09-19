@@ -17,19 +17,16 @@ package org.flywaydb.core.internal.database.mysql;
 
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * MySQL database.
@@ -69,7 +66,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     @Override
-    protected final void ensureSupported() {
+    public final void ensureSupported() {
         MigrationVersion version = MigrationVersion.fromVersion(majorVersion + "." + minorVersion);
         boolean isMariaDB;
         boolean isMariaDriver;
@@ -91,7 +88,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         }
 
         if (isMariaDB) {
-            if (version.compareTo(MigrationVersion.fromVersion("10.2")) > 0) {
+            if (version.compareTo(MigrationVersion.fromVersion("10.3")) > 0) {
                 recommendFlywayUpgrade(productName, version.getVersion());
             }
         } else {
@@ -113,17 +110,8 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource,
-                                          PlaceholderReplacer placeholderReplacer, boolean mixed
-
-
-
-    ) {
-        return new MySQLSqlScript(configuration, sqlScriptResource, mixed
-
-
-
-                , placeholderReplacer);
+    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
+        return MySQLSqlStatementBuilderFactory.INSTANCE;
     }
 
     @Override
@@ -142,7 +130,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     @Override
-    protected boolean supportsChangingCurrentSchema() {
+    public boolean supportsChangingCurrentSchema() {
         return true;
     }
 
@@ -169,5 +157,14 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     @Override
     public boolean useSingleConnection() {
         return true;
+    }
+
+    enum MySQLSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
+        INSTANCE;
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new MySQLSqlStatementBuilder();
+        }
     }
 }

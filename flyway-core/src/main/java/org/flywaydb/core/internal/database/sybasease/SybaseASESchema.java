@@ -15,9 +15,9 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
+import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.Table;
+import org.flywaydb.core.internal.database.base.Table;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -57,7 +57,7 @@ public class SybaseASESchema extends Schema<SybaseASEDatabase> {
     /**
      * This clean method is equivalent to cleaning the whole database.
      *
-     * @see org.flywaydb.core.internal.database.Schema#doClean()
+     * @see Schema#doClean()
      */
     @Override
     protected void doClean() throws SQLException {

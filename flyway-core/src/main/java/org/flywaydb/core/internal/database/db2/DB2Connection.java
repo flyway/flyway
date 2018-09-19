@@ -16,8 +16,8 @@
 package org.flywaydb.core.internal.database.db2;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.database.Connection;
-import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.database.base.Connection;
+import org.flywaydb.core.internal.database.base.Schema;
 
 import java.sql.SQLException;
 import java.sql.Types;

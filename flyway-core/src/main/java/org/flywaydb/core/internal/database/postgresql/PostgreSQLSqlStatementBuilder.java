@@ -15,11 +15,11 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.ContextImpl;
+import org.flywaydb.core.internal.util.jdbc.StandardContext;
 
 import java.util.Collection;
 import java.util.regex.Matcher;
@@ -66,8 +66,8 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
      */
     private String statementStart = "";
 
-    public PostgreSQLSqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    public PostgreSQLSqlStatementBuilder() {
+        super(Delimiter.SEMICOLON);
     }
 
     /**
@@ -75,7 +75,7 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public SqlStatement<ContextImpl> getSqlStatement() {
+    public SqlStatement<StandardContext> getSqlStatement() {
         if (pgCopy) {
             return new PostgreSQLCopyStatement(lines);
         }

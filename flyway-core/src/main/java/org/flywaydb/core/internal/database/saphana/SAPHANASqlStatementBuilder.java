@@ -15,11 +15,11 @@
  */
 package org.flywaydb.core.internal.database.saphana;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.util.StringUtils;
 
 /**
  * SqlStatementBuilder supporting SAP HANA-specific delimiter changes.
@@ -35,11 +35,9 @@ public class SAPHANASqlStatementBuilder extends SqlStatementBuilder {
 
     /**
      * Creates a new SqlStatementBuilder.
-     *
-     * @param defaultDelimiter The default delimiter for this database.
      */
-    SAPHANASqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+    SAPHANASqlStatementBuilder() {
+        super(Delimiter.SEMICOLON);
     }
 
     @Override
@@ -61,9 +59,9 @@ public class SAPHANASqlStatementBuilder extends SqlStatementBuilder {
         }
         boolean insideStatementAllowingNestedBeginEndBlocks =
                 statementStartNormalized.startsWith("CREATE PROCEDURE")
-                || statementStartNormalized.startsWith("CREATE FUNCTION")
-                || statementStartNormalized.startsWith("CREATE TRIGGER")
-                || statementStartNormalized.startsWith("DO");
+                        || statementStartNormalized.startsWith("CREATE FUNCTION")
+                        || statementStartNormalized.startsWith("CREATE TRIGGER")
+                        || statementStartNormalized.startsWith("DO");
 
         if (insideStatementAllowingNestedBeginEndBlocks) {
             if (line.startsWith("BEGIN")) {
@@ -88,9 +86,6 @@ public class SAPHANASqlStatementBuilder extends SqlStatementBuilder {
     }
 
     private static String cutCommentsFromEnd(String line) {
-        if (null == line) {
-            return line;
-        }
         final int beginOfLineComment = line.indexOf("--");
         final int beginOfBlockComment = line.indexOf("/*");
         if (-1 != beginOfLineComment) {
