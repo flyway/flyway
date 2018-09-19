@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.redshift;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
@@ -72,7 +73,12 @@ public class RedshiftConnection extends Connection<RedshiftDatabase> {
 
     @Override
     public Schema doGetCurrentSchema() throws SQLException {
-        return getSchema(jdbcTemplate.queryForString("SELECT current_schema()"));
+        String currentSchema = jdbcTemplate.queryForString("SELECT current_schema()");
+        if (!StringUtils.hasText(currentSchema)) {
+            throw new FlywayException("Unable to determine current schema as search_path is empty. " +
+                    "Set the current schema in currentSchema parameter of the JDBC URL or in Flyway's schemas property.");
+        }
+        return getSchema(currentSchema);
     }
 
     @Override

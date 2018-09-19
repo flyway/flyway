@@ -147,7 +147,8 @@ public class DriverDataSource implements DataSource {
         } catch (FlywayException e) {
             String backupDriverClass = detectBackupDriverForUrl(url);
             if (backupDriverClass == null) {
-                throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass + " => Check whether the jar file is present", e);
+                throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass
+                        + " => Check whether the jar file is present", e);
             }
             try {
                 this.driver = ClassUtils.instantiate(backupDriverClass, classLoader);
