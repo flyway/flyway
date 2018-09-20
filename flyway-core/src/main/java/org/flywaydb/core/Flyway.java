@@ -424,6 +424,15 @@ public class Flyway implements Configuration {
      */
     @Deprecated
     @Override
+    public int getConnectRetries() {
+        return configuration.getConnectRetries();
+    }
+
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
+    @Override
     public ClassLoader getClassLoader() {
         return configuration.getClassLoader();
     }
@@ -679,22 +688,6 @@ public class Flyway implements Configuration {
     @Deprecated
     public void setIgnoreIgnoredMigrations(boolean ignoreIgnoredMigrations) {
         configuration.setIgnoreIgnoredMigrations(ignoreIgnoredMigrations);
-    }
-
-    /**
-     * Ignore pending migrations when reading the schema history table. These are migrations that are available on the
-     * classpath but have not yet been performed by an application deployment. This can be useful for verifying
-     * that in-development migration changes don't contain any validation-breaking changes of migrations that have
-     * already been applied to a production environment, e.g. as part of a CI/CD process, without failing because of the
-     * existence of new migration versions.
-     *
-     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception.
-     *                                (default: {@code false})
-     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
-     */
-    @Deprecated
-    public void setIgnorePendingMigrations(boolean ignorePendingMigrations) {
-        configuration.setIgnorePendingMigrations(ignorePendingMigrations);
     }
 
     /**

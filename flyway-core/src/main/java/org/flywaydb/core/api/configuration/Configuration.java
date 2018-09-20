@@ -46,6 +46,14 @@ public interface Configuration {
     DataSource getDataSource();
 
     /**
+     * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
+     * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     *
+     * @return The maximum number of retries when attempting to connect to the database. (default: 0)
+     */
+    int getConnectRetries();
+
+    /**
      * Retrieves the version to tag an existing schema with when executing baseline.
      *
      * @return The version to tag an existing schema with when executing baseline. (default: 1)

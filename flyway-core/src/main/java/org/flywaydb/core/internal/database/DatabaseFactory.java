@@ -69,7 +69,7 @@ public class DatabaseFactory {
     ) {
         OracleDatabase.enableTnsnamesOraSupport();
 
-        Connection connection = JdbcUtils.openConnection(configuration.getDataSource());
+        Connection connection = JdbcUtils.openConnection(configuration.getDataSource(), configuration.getConnectRetries());
         boolean originalAutoCommit;
         try {
             originalAutoCommit = connection.getAutoCommit();

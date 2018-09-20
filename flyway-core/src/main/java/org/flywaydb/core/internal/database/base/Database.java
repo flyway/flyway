@@ -343,7 +343,7 @@ public abstract class Database<C extends Connection> implements Closeable {
         if (migrationConnection == null) {
             this.migrationConnection = useSingleConnection()
                     ? mainConnection
-                    : getConnection(JdbcUtils.openConnection(configuration.getDataSource())
+                    : getConnection(JdbcUtils.openConnection(configuration.getDataSource(), configuration.getConnectRetries())
 
 
 

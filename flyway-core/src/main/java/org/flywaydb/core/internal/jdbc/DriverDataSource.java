@@ -18,9 +18,7 @@ package org.flywaydb.core.internal.jdbc;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -29,7 +27,6 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
-import java.sql.SQLRecoverableException;
 import java.sql.Statement;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -128,7 +125,8 @@ public class DriverDataSource implements DataSource {
      * @param initSqls    The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      * @throws FlywayException when the datasource could not be created.
      */
-    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Properties props, String... initSqls) throws FlywayException {
+    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password,
+                            Properties props, String... initSqls) throws FlywayException {
         this.classLoader = classLoader;
         this.url = detectFallbackUrl(url);
 
@@ -440,28 +438,8 @@ public class DriverDataSource implements DataSource {
         if (password != null) {
             props.setProperty("password", password);
         }
-        int retries = 0;
-        Connection connection = null;
-        do {
-            try {
-                connection = driver.connect(url, props);
-            } catch (SQLRecoverableException e) {
-                if (++retries >= 10) {
-                    throw new FlywaySqlException(
-                            "Unable to obtain connection from database (" + url + ") for user '" + user + "': " + e.getMessage(), e);
-                }
-                Throwable rootCause = ExceptionUtils.getRootCause(e);
-                String msg = "Connection error: " + e.getMessage();
-                if (rootCause != null && rootCause != e) {
-                    msg += " (caused by " + rootCause.getMessage() + ")";
-                }
-                LOG.warn(msg + " Retrying in 1 sec...");
-            } catch (SQLException e) {
-                throw new FlywaySqlException(
-                        "Unable to obtain connection from database (" + url + ") for user '" + user + "': " + e.getMessage(), e);
-            }
-        } while (connection == null);
 
+        Connection connection = driver.connect(url, props);
 
         for (String initSql : initSqls) {
             Statement statement = null;

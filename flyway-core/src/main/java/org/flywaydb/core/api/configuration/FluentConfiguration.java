@@ -210,6 +210,11 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public int getConnectRetries() {
+        return config.getConnectRetries();
+    }
+
+    @Override
     public ClassLoader getClassLoader() {
         return config.getClassLoader();
     }
@@ -719,6 +724,17 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration dataSource(String url, String user, String password, String... initSqls) {
         config.setDataSource(url, user, password, initSqls);
+        return this;
+    }
+
+    /**
+     * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
+     * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     *
+     * @param connectRetries The maximum number of retries (default: 0).
+     */
+    public FluentConfiguration connectRetries(int connectRetries) {
+        config.setConnectRetries(connectRetries);
         return this;
     }
 

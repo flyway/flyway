@@ -99,6 +99,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String password;
 
     /**
+     * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
+     * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     * (default: 0)
+     * <p>Also configurable with Maven or System Property: ${flyway.connectRetries}</p>
+     */
+    @Parameter(property = ConfigUtils.CONNECT_RETRIES)
+    private int connectRetries;
+
+    /**
      * List of the schemas managed by Flyway. These schema names are case-sensitive.<br/>
      * (default: The default schema for the datasource connection)
      * <p>Consequences:</p>
@@ -648,6 +657,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.URL, url);
             putIfSet(conf, ConfigUtils.USER, user);
             putIfSet(conf, ConfigUtils.PASSWORD, password);
+            putIfSet(conf, ConfigUtils.CONNECT_RETRIES, connectRetries);
             putArrayIfSet(conf, ConfigUtils.SCHEMAS, schemas);
             putIfSet(conf, ConfigUtils.TABLE, table);
             putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion);

@@ -84,6 +84,14 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String password;
 
     /**
+     * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
+     * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     * (default: 0)
+     * <p>Also configurable with Gradle or System Property: ${flyway.connectRetries}</p>
+     */
+    public int connectRetries;
+
+    /**
      * <p>The name of the schema schema history table that will be used by Flyway. (default: flyway_schema_history)</p><p> By default
      * (single-schema mode) the schema history table is placed in the default schema for the connection provided by the
      * datasource. </p> <p> When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is
@@ -537,6 +545,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.URL, url, extension.url);
         putIfSet(conf, ConfigUtils.USER, user, extension.user);
         putIfSet(conf, ConfigUtils.PASSWORD, password, extension.password);
+        putIfSet(conf, ConfigUtils.CONNECT_RETRIES, connectRetries, extension.connectRetries);
         putIfSet(conf, ConfigUtils.TABLE, table, extension.table);
         putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion, extension.baselineVersion);
         putIfSet(conf, ConfigUtils.BASELINE_DESCRIPTION, baselineDescription, extension.baselineDescription);

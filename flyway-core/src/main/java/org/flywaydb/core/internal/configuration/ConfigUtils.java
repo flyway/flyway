@@ -66,6 +66,7 @@ public class ConfigUtils {
     public static final String CALLBACKS = "flyway.callbacks";
     public static final String CLEAN_DISABLED = "flyway.cleanDisabled";
     public static final String CLEAN_ON_VALIDATION_ERROR = "flyway.cleanOnValidationError";
+    public static final String CONNECT_RETRIES = "flyway.connectRetries";
     public static final String DRIVER = "flyway.driver";
     public static final String DRYRUN_OUTPUT = "flyway.dryRunOutput";
     public static final String ENCODING = "flyway.encoding";
@@ -145,6 +146,11 @@ public class ConfigUtils {
                 @Override
                 public DataSource getDataSource() {
                     return configuration.getDataSource();
+                }
+
+                @Override
+                public int getConnectRetries() {
+                    return 0;
                 }
 
                 @Override
@@ -391,6 +397,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_CONFIG_FILES".equals(key)) {
             return CONFIG_FILES;
+        }
+        if ("FLYWAY_CONNECT_RETRIES".equals(key)) {
+            return CONNECT_RETRIES;
         }
         if ("FLYWAY_DRIVER".equals(key)) {
             return DRIVER;

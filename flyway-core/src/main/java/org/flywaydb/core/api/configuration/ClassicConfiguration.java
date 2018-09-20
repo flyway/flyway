@@ -67,6 +67,13 @@ public class ClassicConfiguration implements Configuration {
     private DataSource dataSource;
 
     /**
+     * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
+     * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     * (default: 0)
+     */
+    private int connectRetries;
+
+    /**
      * The ClassLoader to use for resolving migrations on the classpath. (default: Thread.currentThread().getContextClassLoader() )
      */
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -558,6 +565,11 @@ public class ClassicConfiguration implements Configuration {
             LOG.warn("Discarding INCOMPLETE dataSource configuration! " + ConfigUtils.URL + " must be set.");
         }
         return dataSource;
+    }
+
+    @Override
+    public int getConnectRetries() {
+        return connectRetries;
     }
 
     @Override
@@ -1205,6 +1217,19 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
+     * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     *
+     * @param connectRetries The maximum number of retries (default: 0).
+     */
+    public void setConnectRetries(int connectRetries) {
+        if (connectRetries < 0) {
+            throw new FlywayException("Invalid number of connectRetries (must be 0 or greater): " + connectRetries);
+        }
+        this.connectRetries = connectRetries;
+    }
+
+    /**
      * Sets the version to tag an existing schema with when executing baseline.
      *
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
@@ -1406,6 +1431,7 @@ public class ClassicConfiguration implements Configuration {
         setCleanDisabled(configuration.isCleanDisabled());
         setCleanOnValidationError(configuration.isCleanOnValidationError());
         setDataSource(configuration.getDataSource());
+        setConnectRetries(configuration.getConnectRetries());
 
 
 
@@ -1493,12 +1519,14 @@ public class ClassicConfiguration implements Configuration {
             dataSource = null;
             password = passwordProp;
         }
-
         if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) ||
                 StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
             setDataSource(new DriverDataSource(classLoader, driver, url, user, password));
         }
-
+        Integer connectRetriesProp = getIntegerProp(props, ConfigUtils.CONNECT_RETRIES);
+        if (connectRetriesProp != null) {
+            setConnectRetries(connectRetriesProp);
+        }
         String locationsProp = props.remove(ConfigUtils.LOCATIONS);
         if (locationsProp != null) {
             setLocationsAsStrings(StringUtils.tokenizeToStringArray(locationsProp, ","));
@@ -1695,6 +1723,18 @@ public class ClassicConfiguration implements Configuration {
             throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value);
         }
         return value == null ? null : Boolean.valueOf(value);
+    }
+
+    private Integer getIntegerProp(Map<String, String> props, String key) {
+        String value = props.remove(key);
+        if (value == null) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            throw new FlywayException("Invalid value for " + key + " (should be a positive integer): " + value);
+        }
     }
 
     /**
