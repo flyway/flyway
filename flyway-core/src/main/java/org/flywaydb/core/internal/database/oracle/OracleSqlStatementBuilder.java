@@ -15,12 +15,13 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
-import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.regex.Matcher;
@@ -44,8 +45,30 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(USING|THEN|FROM|AND|OR|AS)(?!.)");
 
     private static Pattern toRegex(String... commands) {
-        return Pattern.compile("^(" + StringUtils.arrayToDelimitedString("|", commands) + ")(\\s.*)?");
+        return Pattern.compile(toRegexPattern(commands));
     }
+
+    private static String toRegexPattern(String... commands) {
+        return "^(" + StringUtils.arrayToDelimitedString("|", commands) + ")(\\s.*)?";
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -146,7 +169,8 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
      */
     static final Delimiter PLSQL_DELIMITER = new Delimiter("/", true);
 
-    private final Configuration configuration;
+
+
 
 
 
@@ -157,17 +181,26 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
      */
     private String statementStart = "";
 
-    public OracleSqlStatementBuilder(Configuration configuration
+    public OracleSqlStatementBuilder(
+
+
+
 
 
 
     ) {
         super(Delimiter.SEMICOLON);
-        this.configuration = configuration;
+
+
+
 
 
 
     }
+
+
+
+
 
 
 
@@ -300,7 +333,6 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
                 || statementStart.equals("/ "); // Lone / that can safely be ignored
     }
-
 
 
 

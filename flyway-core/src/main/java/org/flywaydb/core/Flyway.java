@@ -32,7 +32,9 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.callback.DefaultCallbackExecutor;
 import org.flywaydb.core.internal.callback.LegacyCallback;
-import org.flywaydb.core.internal.callback.SqlScriptFlywayCallbackFactory;
+import org.flywaydb.core.internal.callback.SqlScriptCallbackFactory;
+import org.flywaydb.core.internal.clazz.ClassProvider;
+import org.flywaydb.core.internal.clazz.NoopClassProvider;
 import org.flywaydb.core.internal.command.DbBaseline;
 import org.flywaydb.core.internal.command.DbClean;
 import org.flywaydb.core.internal.command.DbInfo;
@@ -44,15 +46,15 @@ import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
+import org.flywaydb.core.internal.resource.NoopResourceProvider;
+import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.scanner.Scanner;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.license.VersionPrinter;
-import org.flywaydb.core.internal.util.placeholder.DefaultPlaceholderReplacer;
-import org.flywaydb.core.internal.util.placeholder.NoopPlaceholderReplacer;
-import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -74,7 +76,7 @@ import java.util.Properties;
  * Flyway flyway = Flyway.configure().dataSource(url, user, password).load();
  * flyway.migrate();
  * </pre>
- *
+ * <p>
  * Deprecation warning: starting with Flyway 6.0 this class will no longer implement the Configuration interface.
  */
 public class Flyway implements Configuration {
@@ -1255,7 +1257,7 @@ public class Flyway implements Configuration {
                 return new DbMigrate(database, schemaHistory, schemas[0], migrationResolver, configuration,
                         callbackExecutor).migrate();
             }
-        });
+        }, true);
     }
 
     private void doBaseline(SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor) {
@@ -1316,7 +1318,7 @@ public class Flyway implements Configuration {
                 doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor, false);
                 return null;
             }
-        });
+        }, true);
     }
 
     /**
@@ -1370,7 +1372,7 @@ public class Flyway implements Configuration {
                 doClean(database, schemaHistory, schemas, callbackExecutor);
                 return null;
             }
-        });
+        }, false);
     }
 
     /**
@@ -1391,7 +1393,7 @@ public class Flyway implements Configuration {
             ) {
                 return new DbInfo(migrationResolver, schemaHistory, configuration, callbackExecutor).info();
             }
-        });
+        }, true);
     }
 
     /**
@@ -1413,7 +1415,7 @@ public class Flyway implements Configuration {
                 doBaseline(schemaHistory, database, schemas, callbackExecutor);
                 return null;
             }
-        });
+        }, false);
     }
 
     /**
@@ -1437,19 +1439,22 @@ public class Flyway implements Configuration {
                 new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor).repair();
                 return null;
             }
-        });
+        }, true);
     }
 
     /**
      * Creates the MigrationResolver.
      *
-     * @param database            The database-specific support.
-     * @param scanner             The Scanner for resolving migrations.
-     * @param placeholderReplacer The placeholder replacer.
+     * @param database                   The database-specific support.
+     * @param resourceProvider           The resource provider.
+     * @param classProvider              The class provider.
+     * @param sqlStatementBuilderFactory The SQL statement builder factory.
      * @return A new, fully configured, MigrationResolver instance.
      */
-    private MigrationResolver createMigrationResolver(Database database, Scanner scanner,
-                                                      PlaceholderReplacer placeholderReplacer
+    private MigrationResolver createMigrationResolver(Database database,
+                                                      ResourceProvider resourceProvider,
+                                                      ClassProvider classProvider,
+                                                      SqlStatementBuilderFactory sqlStatementBuilderFactory
 
 
 
@@ -1458,24 +1463,13 @@ public class Flyway implements Configuration {
             ConfigUtils.injectFlywayConfiguration(resolver, configuration);
         }
 
-        return new CompositeMigrationResolver(database, scanner, configuration,
-                Arrays.asList(configuration.getLocations()),
-                placeholderReplacer
+        return new CompositeMigrationResolver(database,
+                resourceProvider, classProvider, configuration,
+                sqlStatementBuilderFactory
 
 
 
                 , configuration.getResolvers());
-    }
-
-    /**
-     * @return A new, fully configured, PlaceholderReplacer.
-     */
-    private PlaceholderReplacer createPlaceholderReplacer() {
-        if (configuration.isPlaceholderReplacement()) {
-            return new DefaultPlaceholderReplacer(configuration.getPlaceholders(), configuration.getPlaceholderPrefix(),
-                    configuration.getPlaceholderSuffix());
-        }
-        return NoopPlaceholderReplacer.INSTANCE;
     }
 
     /**
@@ -1513,7 +1507,7 @@ public class Flyway implements Configuration {
      * @param <T>     The type of the result.
      * @return The result of the command.
      */
-    /*private -> testing*/ <T> T execute(Command<T> command) {
+    /*private -> testing*/ <T> T execute(Command<T> command, boolean scannerRequired) {
         T result;
 
         VersionPrinter.printVersion(
@@ -1548,17 +1542,40 @@ public class Flyway implements Configuration {
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
 
             Schema[] schemas = prepareSchemas(database);
-            Scanner scanner = new Scanner(configuration);
-            PlaceholderReplacer placeholderReplacer = createPlaceholderReplacer();
+
+            ResourceProvider resourceProvider;
+            ClassProvider classProvider;
+            if (!scannerRequired && configuration.isSkipDefaultResolvers() && configuration.isSkipDefaultCallbacks()) {
+                resourceProvider = NoopResourceProvider.INSTANCE;
+                classProvider = NoopClassProvider.INSTANCE;
+            } else {
+                Scanner scanner = new Scanner(
+                        Arrays.asList(configuration.getLocations()),
+                        configuration.getClassLoader(),
+                        configuration.getEncoding()
+
+
+
+                );
+                resourceProvider = scanner;
+                classProvider = scanner;
+            }
+
+            SqlStatementBuilderFactory sqlStatementBuilderFactory = database.createSqlStatementBuilderFactory(
+
+
+
+            );
+
             CallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, schemas[0],
-                    prepareCallbacks(database, scanner, placeholderReplacer
+                    prepareCallbacks(database, resourceProvider, sqlStatementBuilderFactory
 
 
 
                     ));
 
             result = command.execute(
-                    createMigrationResolver(database, scanner, placeholderReplacer
+                    createMigrationResolver(database, resourceProvider, classProvider, sqlStatementBuilderFactory
 
 
 
@@ -1624,7 +1641,8 @@ public class Flyway implements Configuration {
         return schemas;
     }
 
-    private List<Callback> prepareCallbacks(Database database, Scanner scanner, PlaceholderReplacer placeholderReplacer
+    private List<Callback> prepareCallbacks(Database database, ResourceProvider resourceProvider,
+                                            SqlStatementBuilderFactory sqlStatementBuilderFactory
 
 
 
@@ -1641,11 +1659,10 @@ public class Flyway implements Configuration {
 
         if (!configuration.isSkipDefaultCallbacks()) {
             effectiveCallbacks.addAll(
-                    new SqlScriptFlywayCallbackFactory(
+                    new SqlScriptCallbackFactory(
                             database,
-                            scanner,
-                            Arrays.asList(configuration.getLocations()),
-                            placeholderReplacer,
+                            resourceProvider,
+                            sqlStatementBuilderFactory,
                             configuration).getCallbacks());
         }
 

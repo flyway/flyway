@@ -17,7 +17,8 @@ package org.flywaydb.core.internal.database.saphana;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 
 import java.sql.Connection;
@@ -72,8 +73,12 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
-        return SAPHANAStatementBuilderFactory.INSTANCE;
+    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+
+
+
+    ) {
+        return new SAPHANAStatementBuilderFactory(placeholderReplacer);
     }
 
     @Override
@@ -111,12 +116,4 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
         return false;
     }
 
-    enum SAPHANAStatementBuilderFactory implements SqlStatementBuilderFactory {
-        INSTANCE;
-
-        @Override
-        public SqlStatementBuilder createSqlStatementBuilder() {
-            return new SAPHANASqlStatementBuilder();
-        }
-    }
 }

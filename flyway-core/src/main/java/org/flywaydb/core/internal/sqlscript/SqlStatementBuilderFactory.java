@@ -15,6 +15,19 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+
+/**
+ * Factory for constructing new instances of SqlStatementBuilder.
+ */
 public interface SqlStatementBuilderFactory {
+    /**
+     * @return The PlaceholderReplacer to use with the SqlStatementBuilders.
+     */
+    PlaceholderReplacer getPlaceholderReplacer();
+
+    /**
+     * @return A new SqlStatementBuilder.
+     */
     SqlStatementBuilder createSqlStatementBuilder();
 }

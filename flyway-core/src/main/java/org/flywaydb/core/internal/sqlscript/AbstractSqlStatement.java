@@ -15,16 +15,16 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-import org.flywaydb.core.internal.util.jdbc.StandardContext;
-import org.flywaydb.core.internal.util.line.Line;
+import org.flywaydb.core.internal.line.Line;
 
+import java.lang.ref.SoftReference;
 import java.util.List;
 import java.util.Locale;
 
 /**
  * A sql statement from a script that can be executed at once against a database.
  */
-public abstract class AbstractSqlStatement<C extends StandardContext> implements SqlStatement<C> {
+public abstract class AbstractSqlStatement implements SqlStatement {
     /**
      * The lines of the statement.
      */
@@ -42,7 +42,7 @@ public abstract class AbstractSqlStatement<C extends StandardContext> implements
 
 
 
-    private String sql;
+    private SoftReference<String> sqlRef;
 
     public AbstractSqlStatement(List<Line> lines, Delimiter delimiter
 
@@ -63,6 +63,7 @@ public abstract class AbstractSqlStatement<C extends StandardContext> implements
 
     @Override
     public final String getSql() {
+        String sql = sqlRef == null ? null : sqlRef.get();
         if (sql == null) {
             StringBuilder sqlBuilder = new StringBuilder();
             for (Line line : lines) {
@@ -71,6 +72,7 @@ public abstract class AbstractSqlStatement<C extends StandardContext> implements
             stripDelimiter(sqlBuilder, delimiter);
 
             sql = sqlBuilder.toString();
+            sqlRef = new SoftReference<String>(sql);
         }
         return sql;
     }
@@ -106,6 +108,11 @@ public abstract class AbstractSqlStatement<C extends StandardContext> implements
             sql.delete(sql.length() - 1, sql.length());
         }
     }
+
+
+
+
+
 
 
 

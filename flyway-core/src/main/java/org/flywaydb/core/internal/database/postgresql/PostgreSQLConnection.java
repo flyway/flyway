@@ -23,7 +23,6 @@ import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.concurrent.Callable;
 
 /**
@@ -37,7 +36,7 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
 
 
     ) {
-        super(configuration, database, connection, originalAutoCommit, Types.NULL
+        super(configuration, database, connection, originalAutoCommit
 
 
 

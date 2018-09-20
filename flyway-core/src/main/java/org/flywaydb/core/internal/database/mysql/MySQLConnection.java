@@ -24,7 +24,6 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -40,7 +39,7 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
 
     ) {
-        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit
 
 
 
