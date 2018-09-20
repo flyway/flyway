@@ -101,7 +101,13 @@ public enum DatabaseType {
     /**
      * SAP HANA.
      */
-    SAPHANA(Types.VARCHAR);
+    SAPHANA(Types.VARCHAR),
+
+    /**
+     * CACHE
+     */
+    CACHE(Types.VARCHAR)
+    ;
 
     private final int nullType;
 
@@ -164,6 +170,9 @@ public enum DatabaseType {
         }
         if (databaseProductName.startsWith("Informix")) {
             return INFORMIX;
+        }
+        if (databaseProductName.startsWith("Cache")) {
+            return CACHE;
         }
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }

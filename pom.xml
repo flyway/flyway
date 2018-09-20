@@ -406,6 +406,12 @@
                 <classifier>macosx-x64</classifier>
                 <type>tar.gz</type>
             </dependency>
+            <dependency>
+                <groupId>com.intersys</groupId>
+                <artifactId>cachejdbc</artifactId>
+                <version>2015.2</version>
+                <type>jar</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -450,7 +456,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>2.3.7</version>
+                    <version>3.5.1</version>
                 </plugin>
 
 
@@ -500,7 +506,7 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <release>8</release>
+                    <!--<release>8</release>-->
                     <source>1.8</source>
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
@@ -714,7 +720,7 @@
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <configuration>
                             <encoding>UTF-8</encoding>
-                            <additionalparam>-Xdoclint:none</additionalparam>
+                            <!--<additionalparam>-Xdoclint:none</additionalparam>-->
                         </configuration>
                         <executions>
                             <execution>
@@ -726,20 +732,20 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.4</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <!--suppress MavenModelInspection -->
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
+                    <!--<plugin>-->
+                        <!--<artifactId>maven-gpg-plugin</artifactId>-->
+                        <!--<version>1.4</version>-->
+                        <!--<executions>-->
+                            <!--<execution>-->
+                                <!--<id>sign-artifacts</id>-->
+                                <!--<phase>verify</phase>-->
+                                <!--<goals>-->
+                                    <!--&lt;!&ndash;suppress MavenModelInspection &ndash;&gt;-->
+                                    <!--<goal>sign</goal>-->
+                                <!--</goals>-->
+                            <!--</execution>-->
+                        <!--</executions>-->
+                    <!--</plugin>-->
                 </plugins>
             </build>
         </profile>
