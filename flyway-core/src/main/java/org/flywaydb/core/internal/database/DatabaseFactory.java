@@ -205,6 +205,8 @@ public class DatabaseFactory {
 
 
                 );
+            case CACHE:
+                return new CacheDatabase(configuration, connection, originalAutoCommit);
             default:
                 throw new FlywayException("Unsupported Database: " + databaseType.name());
         }

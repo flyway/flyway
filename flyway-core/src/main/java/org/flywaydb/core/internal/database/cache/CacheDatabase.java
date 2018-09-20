@@ -18,6 +18,8 @@ package org.flywaydb.core.internal.database.Cache;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 
@@ -53,8 +55,8 @@ public class CacheDatabase extends Database<CacheConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
-        return CacheSqlStatementBuilderFactory.INSTANCE;
+    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+        return new CacheqlStatementBuilderFactory(placeholderReplacer);
     }
 
     @Override
@@ -102,8 +104,10 @@ public class CacheDatabase extends Database<CacheConnection> {
         return "\"" + identifier + "\"";
     }
 
-    enum CacheSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
-        INSTANCE;
+    private static class CacheqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
+        CacheqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+            super(placeholderReplacer);
+        }
 
         @Override
         public SqlStatementBuilder createSqlStatementBuilder() {

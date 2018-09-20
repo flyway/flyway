@@ -19,15 +19,13 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 
-import java.sql.Types;
-
 /**
  * Holds a Cache connection
  */
 public class CacheConnection extends Connection<CacheDatabase> {
 
     CacheConnection(Configuration configuration, CacheDatabase database, java.sql.Connection connection, boolean originalAutoCommit) {
-        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR);
+        super(configuration, database, connection, originalAutoCommit);
     }
 
     @Override
