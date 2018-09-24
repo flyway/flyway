@@ -68,8 +68,20 @@ public class FluentConfiguration implements Configuration {
      * Configure with the same values as this existing configuration.
      *
      * @param configuration The configuration to use.
+     * @deprecated Use configuration() instead. Will be removed in Flyway 6.0.
      */
+    @Deprecated
     public FluentConfiguration configure(Configuration configuration) {
+        config.configure(configuration);
+        return this;
+    }
+
+    /**
+     * Configure with the same values as this existing configuration.
+     *
+     * @param configuration The configuration to use.
+     */
+    public FluentConfiguration configuration(Configuration configuration) {
         config.configure(configuration);
         return this;
     }
@@ -212,6 +224,11 @@ public class FluentConfiguration implements Configuration {
     @Override
     public int getConnectRetries() {
         return config.getConnectRetries();
+    }
+
+    @Override
+    public String getInitSql() {
+        return config.getInitSql();
     }
 
     @Override
@@ -715,12 +732,24 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the datasource to use. Must have the necessary privileges to execute ddl.
-     * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
+     *
+     * @param url      The JDBC URL of the database.
+     * @param user     The user of the database.
+     * @param password The password of the database.
+     */
+    public FluentConfiguration dataSource(String url, String user, String password) {
+        config.setDataSource(url, user, password);
+        return this;
+    }
+
+    /**
+     * Sets the datasource to use. Must have the necessary privileges to execute ddl.
      *
      * @param url      The JDBC URL of the database.
      * @param user     The user of the database.
      * @param password The password of the database.
      * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
+     * @deprecated Use the separate initSql() method in addition to the dataSource() method if you need to set the initSql. This method will be removed in Flyway 6.0.
      */
     public FluentConfiguration dataSource(String url, String user, String password, String... initSqls) {
         config.setDataSource(url, user, password, initSqls);
@@ -735,6 +764,17 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration connectRetries(int connectRetries) {
         config.setConnectRetries(connectRetries);
+        return this;
+    }
+
+
+    /**
+     * The SQL statements to run to initialize a new database connection immediately after opening it.
+     *
+     * @param initSql  The SQL statements. (default: {@code null})
+     */
+    public FluentConfiguration initSql(String initSql) {
+        config.setInitSql(initSql);
         return this;
     }
 
@@ -934,7 +974,9 @@ public class FluentConfiguration implements Configuration {
      *
      * @param properties Properties used for configuration.
      * @throws FlywayException when the configuration failed.
+     * @deprecated Use configuration() instead. Will be removed in Flyway 6.0.
      */
+    @Deprecated
     @SuppressWarnings("ConstantConditions")
     public FluentConfiguration configure(Properties properties) {
         config.configure(properties);
@@ -948,8 +990,37 @@ public class FluentConfiguration implements Configuration {
      *
      * @param props Properties used for configuration.
      * @throws FlywayException when the configuration failed.
+     * @deprecated Use configuration() instead. Will be removed in Flyway 6.0.
      */
+    @Deprecated
     public FluentConfiguration configure(Map<String, String> props) {
+        config.configure(props);
+        return this;
+    }
+
+    /**
+     * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
+     * documented in the flyway maven plugin.
+     * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
+     *
+     * @param properties Properties used for configuration.
+     * @throws FlywayException when the configuration failed.
+     */
+    @SuppressWarnings("ConstantConditions")
+    public FluentConfiguration configuration(Properties properties) {
+        config.configure(properties);
+        return this;
+    }
+
+    /**
+     * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
+     * documented in the flyway maven plugin.
+     * <p>To use a custom ClassLoader, it must be passed to the Flyway constructor prior to calling this method.</p>
+     *
+     * @param props Properties used for configuration.
+     * @throws FlywayException when the configuration failed.
+     */
+    public FluentConfiguration configuration(Map<String, String> props) {
         config.configure(props);
         return this;
     }

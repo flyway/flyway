@@ -15,8 +15,6 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-import org.flywaydb.core.internal.sqlscript.SqlScript;
-
 /**
  * Executor for SQL scripts.
  */

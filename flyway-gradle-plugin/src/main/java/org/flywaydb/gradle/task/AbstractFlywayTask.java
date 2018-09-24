@@ -92,6 +92,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public int connectRetries;
 
     /**
+     * The SQL statements to run to initialize a new database connection immediately after opening it.
+     * (default: {@code null})
+     * <p>Also configurable with Gradle or System Property: ${flyway.initSql}</p>
+     */
+    public String initSql;
+
+    /**
      * <p>The name of the schema schema history table that will be used by Flyway. (default: flyway_schema_history)</p><p> By default
      * (single-schema mode) the schema history table is placed in the default schema for the connection provided by the
      * datasource. </p> <p> When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is
@@ -546,6 +553,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.USER, user, extension.user);
         putIfSet(conf, ConfigUtils.PASSWORD, password, extension.password);
         putIfSet(conf, ConfigUtils.CONNECT_RETRIES, connectRetries, extension.connectRetries);
+        putIfSet(conf, ConfigUtils.INIT_SQL, initSql, extension.initSql);
         putIfSet(conf, ConfigUtils.TABLE, table, extension.table);
         putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion, extension.baselineVersion);
         putIfSet(conf, ConfigUtils.BASELINE_DESCRIPTION, baselineDescription, extension.baselineDescription);

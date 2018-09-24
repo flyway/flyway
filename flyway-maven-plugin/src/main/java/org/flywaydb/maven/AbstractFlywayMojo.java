@@ -108,6 +108,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private int connectRetries;
 
     /**
+     * The SQL statements to run to initialize a new database connection immediately after opening it.
+     * (default: {@code null})
+     * <p>Also configurable with Maven or System Property: ${flyway.initSql}</p>
+     */
+    @Parameter(property = ConfigUtils.INIT_SQL)
+    private String initSql;
+
+    /**
      * List of the schemas managed by Flyway. These schema names are case-sensitive.<br/>
      * (default: The default schema for the datasource connection)
      * <p>Consequences:</p>
@@ -658,6 +666,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.USER, user);
             putIfSet(conf, ConfigUtils.PASSWORD, password);
             putIfSet(conf, ConfigUtils.CONNECT_RETRIES, connectRetries);
+            putIfSet(conf, ConfigUtils.INIT_SQL, initSql);
             putArrayIfSet(conf, ConfigUtils.SCHEMAS, schemas);
             putIfSet(conf, ConfigUtils.TABLE, table);
             putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion);

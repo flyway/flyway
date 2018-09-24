@@ -26,10 +26,10 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.LegacyCallback;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.jdbc.DriverDataSource;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -72,6 +72,12 @@ public class ClassicConfiguration implements Configuration {
      * (default: 0)
      */
     private int connectRetries;
+
+    /**
+     * The SQL statements to run to initialize a new database connection immediately after opening it.
+     * (default: {@code null})
+     */
+    private String initSql;
 
     /**
      * The ClassLoader to use for resolving migrations on the classpath. (default: Thread.currentThread().getContextClassLoader() )
@@ -573,6 +579,11 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
+    public String getInitSql() {
+        return initSql;
+    }
+
+    @Override
     public ClassLoader getClassLoader() {
         return classLoader;
     }
@@ -857,7 +868,7 @@ public class ClassicConfiguration implements Configuration {
     public void setIgnoreIgnoredMigrations(boolean ignoreIgnoredMigrations) {
         this.ignoreIgnoredMigrations = ignoreIgnoredMigrations;
     }
-    
+
     /**
      * Ignore pending migrations when reading the schema history table. These are migrations that are available
      * but have not yet been applied. This can be useful for verifying that in-development migration changes
@@ -1210,10 +1221,25 @@ public class ClassicConfiguration implements Configuration {
      * @param url      The JDBC URL of the database.
      * @param user     The user of the database.
      * @param password The password of the database.
-     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      */
+    public void setDataSource(String url, String user, String password) {
+        this.dataSource = new DriverDataSource(classLoader, null, url, user, password);
+    }
+
+    /**
+     * Sets the datasource to use. Must have the necessary privileges to execute ddl.
+     * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
+     *
+     * @param url      The JDBC URL of the database.
+     * @param user     The user of the database.
+     * @param password The password of the database.
+     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
+     * @deprecated Use the separate setInitSql method in addition to the setDataSource() method if you need to set the initSql. This method will be removed in Flyway 6.0.
+     */
+    @Deprecated
     public void setDataSource(String url, String user, String password, String... initSqls) {
-        this.dataSource = new DriverDataSource(classLoader, null, url, user, password, null, initSqls);
+        this.dataSource = new DriverDataSource(classLoader, null, url, user, password);
+        setInitSql(initSqls == null ? null : StringUtils.collectionToDelimitedString(Arrays.asList(initSqls), "\n"));
     }
 
     /**
@@ -1227,6 +1253,15 @@ public class ClassicConfiguration implements Configuration {
             throw new FlywayException("Invalid number of connectRetries (must be 0 or greater): " + connectRetries);
         }
         this.connectRetries = connectRetries;
+    }
+
+    /**
+     * The SQL statements to run to initialize a new database connection immediately after opening it.
+     *
+     * @param initSql The SQL statements. (default: {@code null})
+     */
+    public void setInitSql(String initSql) {
+        this.initSql = initSql;
     }
 
     /**
@@ -1432,6 +1467,7 @@ public class ClassicConfiguration implements Configuration {
         setCleanOnValidationError(configuration.isCleanOnValidationError());
         setDataSource(configuration.getDataSource());
         setConnectRetries(configuration.getConnectRetries());
+        setInitSql(configuration.getInitSql());
 
 
 
@@ -1526,6 +1562,10 @@ public class ClassicConfiguration implements Configuration {
         Integer connectRetriesProp = getIntegerProp(props, ConfigUtils.CONNECT_RETRIES);
         if (connectRetriesProp != null) {
             setConnectRetries(connectRetriesProp);
+        }
+        String initSqlProp = props.remove(ConfigUtils.INIT_SQL);
+        if (initSqlProp != null) {
+            setInitSql(initSqlProp);
         }
         String locationsProp = props.remove(ConfigUtils.LOCATIONS);
         if (locationsProp != null) {

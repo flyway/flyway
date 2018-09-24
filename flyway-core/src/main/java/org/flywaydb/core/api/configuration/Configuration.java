@@ -54,6 +54,13 @@ public interface Configuration {
     int getConnectRetries();
 
     /**
+     * The SQL statements to run to initialize a new database connection immediately after opening it.
+     *
+     * @return The SQL statements. (default: {@code null})
+     */
+    String getInitSql();
+
+    /**
      * Retrieves the version to tag an existing schema with when executing baseline.
      *
      * @return The version to tag an existing schema with when executing baseline. (default: 1)

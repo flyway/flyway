@@ -19,6 +19,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
@@ -28,6 +29,7 @@ import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.NoopResourceProvider;
 import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
@@ -327,6 +329,7 @@ public abstract class Database<C extends Connection> implements Closeable {
      */
     public final C getMainConnection() {
         if (mainConnection == null) {
+            initConnection(this, mainJdbcConnection, configuration.getInitSql());
             this.mainConnection = getConnection(mainJdbcConnection
 
 
@@ -341,15 +344,42 @@ public abstract class Database<C extends Connection> implements Closeable {
      */
     public final C getMigrationConnection() {
         if (migrationConnection == null) {
-            this.migrationConnection = useSingleConnection()
-                    ? mainConnection
-                    : getConnection(JdbcUtils.openConnection(configuration.getDataSource(), configuration.getConnectRetries())
+            if (useSingleConnection()) {
+                this.migrationConnection = mainConnection;
+            } else {
+                java.sql.Connection migrationJdbcConnection =
+                        JdbcUtils.openConnection(configuration.getDataSource(), configuration.getConnectRetries());
+                initConnection(this, migrationJdbcConnection, configuration.getInitSql());
+                this.migrationConnection = getConnection(migrationJdbcConnection
 
 
 
-            );
+                );
+            }
         }
         return migrationConnection;
+    }
+
+    /**
+     * Initializes this connection with these sql statements.
+     *
+     * @param database   The database for the connection.
+     * @param connection The connection.
+     * @param initSql    The sql statements.
+     */
+    private void initConnection(Database database, java.sql.Connection connection, String initSql) {
+        if (initSql == null) {
+            return;
+        }
+        new DefaultSqlScriptExecutor(new JdbcTemplate(connection)
+
+
+
+        ).execute(new SqlScript(database.createSqlStatementBuilderFactory(
+
+
+
+        ), new StringResource(initSql), true));
     }
 
     /**

@@ -152,7 +152,8 @@ public class Flyway implements Configuration {
     }
 
     /**
-     * Creates a new instance of Flyway with this configuration.
+     * Creates a new instance of Flyway with this configuration. In general the Flyway.configure() factory method should
+     * be preferred over this constructor, unless you need to create or reuse separate Configuration objects.
      *
      * @param configuration The configuration to use.
      */
@@ -426,6 +427,15 @@ public class Flyway implements Configuration {
     @Override
     public int getConnectRetries() {
         return configuration.getConnectRetries();
+    }
+
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
+    @Override
+    public String getInitSql() {
+        return configuration.getInitSql();
     }
 
     /**

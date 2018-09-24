@@ -257,6 +257,8 @@ public class Main {
         LOG.info("url                          : Jdbc url to use to connect to the database");
         LOG.info("user                         : User to use to connect to the database");
         LOG.info("password                     : Password to use to connect to the database");
+        LOG.info("connectRetries               : Maximum number of retries when attempting to connect to the database");
+        LOG.info("initSql                      : SQL statements to run to initialize a new database connection");
         LOG.info("schemas                      : Comma-separated list of the schemas managed by Flyway");
         LOG.info("table                        : Name of Flyway's schema history table");
         LOG.info("locations                    : Classpath locations to scan recursively for migrations");

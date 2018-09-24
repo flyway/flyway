@@ -27,7 +27,6 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -80,11 +79,6 @@ public class DriverDataSource implements DataSource {
     private final String password;
 
     /**
-     * The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
-     */
-    private final String[] initSqls;
-
-    /**
      * The properties to be passed to a new connection.
      */
     private final Properties defaultProps;
@@ -122,11 +116,10 @@ public class DriverDataSource implements DataSource {
      * @param user        The JDBC user to use for connecting through the Driver.
      * @param password    The JDBC password to use for connecting through the Driver.
      * @param props       The properties to pass to the connection.
-     * @param initSqls    The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      * @throws FlywayException when the datasource could not be created.
      */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password,
-                            Properties props, String... initSqls) throws FlywayException {
+                            Properties props) throws FlywayException {
         this.classLoader = classLoader;
         this.url = detectFallbackUrl(url);
 
@@ -158,7 +151,6 @@ public class DriverDataSource implements DataSource {
 
         this.user = detectFallbackUser(user);
         this.password = detectFallbackPassword(password);
-        this.initSqls = initSqls == null ? new String[0] : initSqls;
     }
 
     /**
@@ -391,13 +383,6 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * @return The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
-     */
-    public String[] getInitSqls() {
-        return initSqls;
-    }
-
-    /**
      * This implementation delegates to {@code getConnectionFromDriver},
      * using the default user and password of this DataSource.
      *
@@ -440,19 +425,7 @@ public class DriverDataSource implements DataSource {
         }
 
         Connection connection = driver.connect(url, props);
-
-        for (String initSql : initSqls) {
-            Statement statement = null;
-            try {
-                statement = connection.createStatement();
-                statement.execute(initSql);
-            } finally {
-                JdbcUtils.closeStatement(statement);
-            }
-        }
-
         connection.setAutoCommit(autoCommit);
-
         return connection;
     }
 
