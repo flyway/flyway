@@ -934,9 +934,9 @@ public class ClassicConfiguration implements Configuration {
      * Sets the locations to scan recursively for migrations.
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
-     * contain both sql and java-based migrations.
-     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
-     * migrations.</p>
+     * contain both SQL and Java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
      *
      * @param locations Locations to scan recursively for migrations. (default: db/migration)
      */
@@ -948,9 +948,9 @@ public class ClassicConfiguration implements Configuration {
      * Sets the locations to scan recursively for migrations.
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
-     * contain both sql and java-based migrations.
-     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
-     * migrations.</p>
+     * contain both SQL and Java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
      *
      * @param locations Locations to scan recursively for migrations. (default: db/migration)
      */

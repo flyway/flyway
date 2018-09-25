@@ -155,8 +155,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String baselineDescription;
 
     /**
-     * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     * and java-based migrations. (default: filesystem:src/main/resources/db/migration)
+     * Locations to scan recursively for migrations.
+     * <p>The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both SQL and Java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
+     * (default: filesystem:src/main/resources/db/migration)
      * <p>Also configurable with Maven or System Property: ${flyway.locations} (Comma-separated list)</p>
      */
     @Parameter

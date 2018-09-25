@@ -82,14 +82,13 @@ public class FlywayExtension {
     public String baselineDescription;
 
     /**
-     * Locations to scan recursively for migrations. The location type is determined by its prefix.
+     * Locations to scan recursively for migrations.
+     * <p>The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both SQL and Java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
      * (default: filesystem:src/main/resources/db/migration)
-     * <p>
-     * <tt>Unprefixed locations or locations starting with classpath:</tt>
-     * point to a package on the classpath and may contain both sql and java-based migrations.
-     * <p>
-     * <tt>Locations starting with filesystem:</tt>
-     * point to a directory on the filesystem and may only contain sql migrations.
      */
     public String[] locations;
 
