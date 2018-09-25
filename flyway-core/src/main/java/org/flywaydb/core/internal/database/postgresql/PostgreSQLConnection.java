@@ -30,6 +30,7 @@ import java.util.concurrent.Callable;
  * PostgreSQL connection.
  */
 public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
+    private final String originalRole;
 
     PostgreSQLConnection(Configuration configuration, PostgreSQLDatabase database, java.sql.Connection connection
             , boolean originalAutoCommit
@@ -42,12 +43,18 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
 
 
         );
+
+        try {
+            originalRole = jdbcTemplate.queryForString("SELECT CURRENT_USER");
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine current user", e);
+        }
     }
 
     @Override
     protected void doRestoreOriginalState() throws SQLException {
-        // Reset the role in case a migration or callback changed it
-        jdbcTemplate.execute("RESET ROLE");
+        // Reset the role to its original value in case a migration or callback changed it
+        jdbcTemplate.execute("SET ROLE '" + originalRole + "'");
     }
 
     @Override
