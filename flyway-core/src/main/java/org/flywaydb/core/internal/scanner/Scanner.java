@@ -42,12 +42,12 @@ public class Scanner implements ResourceProvider, ClassProvider {
     private final List<LoadableResource> resources = new ArrayList<>();
     private final List<Class<?>> classes = new ArrayList<Class<?>>();
 
-    public Scanner(Collection<Location> locations, ClassLoader classLoader, Charset encoding
+    public Scanner(Collection<Location> locations, ClassLoader classLoader, Charset encoding, boolean recurseHiddenDirectories
 
 
 
     ) {
-        FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding
+        FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding, recurseHiddenDirectories
 
 
 

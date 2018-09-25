@@ -182,6 +182,15 @@ public class Flyway implements Configuration {
      */
     @Deprecated
     @Override
+    public boolean isRecurseHiddenDirectories() {
+        return configuration.isRecurseHiddenDirectories();
+    }
+
+    /**
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    @Deprecated
+    @Override
     public Charset getEncoding() {
         return configuration.getEncoding();
     }
@@ -770,6 +779,16 @@ public class Flyway implements Configuration {
     @Deprecated
     public void setLocations(String... locations) {
         configuration.setLocationsAsStrings(locations);
+    }
+
+    /**
+     * Sets the flag determining whether or not to recursively scan hidden directories.
+     *
+     * @param recurseHiddenDirectories flag determining whether or not to recursively scan hidden directories. (default: true)
+     * @deprecated Direct configuration of the Flyway object has been deprecated and will be removed in Flyway 6.0. Use Flyway.configure() instead.
+     */
+    public void setRecurseHiddenDirectories(boolean recurseHiddenDirectories) {
+        configuration.setRecurseHiddenDirectories(recurseHiddenDirectories);
     }
 
     /**
@@ -1584,7 +1603,8 @@ public class Flyway implements Configuration {
                 Scanner scanner = new Scanner(
                         Arrays.asList(configuration.getLocations()),
                         configuration.getClassLoader(),
-                        configuration.getEncoding()
+                        configuration.getEncoding(),
+                        configuration.isRecurseHiddenDirectories()
 
 
 

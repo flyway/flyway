@@ -232,6 +232,11 @@ public interface Configuration {
     Location[] getLocations();
 
     /**
+     * @return Flag determining whether or not to recursively scan hidden directories. (default: true)
+     */
+    boolean isRecurseHiddenDirectories();
+
+    /**
      * <p>
      * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
      * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.

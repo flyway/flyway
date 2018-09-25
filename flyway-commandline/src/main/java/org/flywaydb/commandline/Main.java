@@ -262,6 +262,7 @@ public class Main {
         LOG.info("schemas                      : Comma-separated list of the schemas managed by Flyway");
         LOG.info("table                        : Name of Flyway's schema history table");
         LOG.info("locations                    : Classpath locations to scan recursively for migrations");
+        LOG.info("recurseHiddenDirectories     : Flag determining whether or not to recursively scan hidden directories");
         LOG.info("resolvers                    : Comma-separated list of custom MigrationResolvers");
         LOG.info("skipDefaultResolvers         : Skips default resolvers (jdbc, sql and Spring-jdbc)");
         LOG.info("sqlMigrationPrefix           : File name prefix for versioned SQL migrations");

@@ -92,6 +92,11 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public boolean isRecurseHiddenDirectories() {
+        return config.isRecurseHiddenDirectories();
+    }
+
+    @Override
     public Charset getEncoding() {
         return config.getEncoding();
     }
@@ -520,6 +525,14 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration locations(String... locations) {
         config.setLocationsAsStrings(locations);
+        return this;
+    }
+
+    /**
+     * Sets the flag to ignore hidden directories on recursive scanning.
+     */
+    public FluentConfiguration dontRecurseHiddenDirectories() {
+        config.setRecurseHiddenDirectories(false);
         return this;
     }
 
