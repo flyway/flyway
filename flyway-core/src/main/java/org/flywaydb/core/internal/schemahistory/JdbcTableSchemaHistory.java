@@ -88,7 +88,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
      */
     private Table determineTable(Table table) {
         // Ensure we are using the default table name before checking for the fallback table
-        if (table.getName().equals("flyway_schema_history")) {
+        if (table.getName().equals("flyway_schema_history") && !table.exists()) {
             Table fallbackTable = table.getSchema().getTable("schema_version");
             if (fallbackTable.exists()) {
                 LOG.warn("Could not find schema history table " + table + ", but found " + fallbackTable + " instead." +
