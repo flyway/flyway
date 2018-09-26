@@ -95,7 +95,7 @@ public class JdbcUtils {
 
         try {
             connection.close();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             LOG.error("Error while closing database connection: " + e.getMessage(), e);
         }
     }

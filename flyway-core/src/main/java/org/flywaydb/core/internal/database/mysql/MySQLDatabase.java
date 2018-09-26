@@ -20,11 +20,12 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -34,6 +35,11 @@ import java.sql.SQLException;
  */
 public class MySQLDatabase extends Database<MySQLConnection> {
     private static final Log LOG = LogFactory.getLog(MySQLDatabase.class);
+
+    /**
+     * Whether this is a Percona XtraDB Cluster in strict mode.
+     */
+    private final boolean pxcStrict;
 
     /**
      * Creates a new instance.
@@ -51,6 +57,27 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
 
         );
+
+        pxcStrict = isRunningInPerconaXtraDBClusterWithStrictMode(connection);
+    }
+
+    static boolean isRunningInPerconaXtraDBClusterWithStrictMode(Connection connection) {
+        try {
+            if ("ENFORCING".equals(new JdbcTemplate(connection).queryForString(
+                    "select VARIABLE_VALUE from performance_schema.global_variables"
+                            + " where variable_name = 'pxc_strict_mode'"))) {
+                LOG.debug("Detected Percona XtraDB Cluster in strict mode");
+                return true;
+            }
+        } catch (SQLException e) {
+            LOG.debug("Unable to detect whether we are running in a Percona XtraDB Cluster. Assuming not to be.");
+        }
+
+        return false;
+    }
+
+    boolean isPxcStrict() {
+        return pxcStrict;
     }
 
     @Override
@@ -70,10 +97,10 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     public final void ensureSupported() {
         MigrationVersion version = MigrationVersion.fromVersion(majorVersion + "." + minorVersion);
         boolean isMariaDB;
-        boolean isMariaDriver;
+        boolean isMariaDBDriver;
         try {
             isMariaDB = jdbcMetaData.getDatabaseProductVersion().contains("MariaDB");
-            isMariaDriver = jdbcMetaData.getDriverName().contains("MariaDB");
+            isMariaDBDriver = jdbcMetaData.getDriverName().contains("MariaDB");
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine database product version and driver", e);
         }
@@ -96,8 +123,8 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
 
 
-                if (isMariaDriver) {
-                    LOG.warn("You are connected to a MySQL database using the MariaDB driver." +
+                if (isMariaDBDriver) {
+                    LOG.warn("You are connected to a MySQL " + version.getVersion() + " database using the MariaDB driver." +
                             " This is known to cause issues." +
                             " An upgrade to Oracle's MySQL JDBC driver is highly recommended.");
                 }
@@ -161,7 +188,6 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     @Override
     public boolean useSingleConnection() {
-        return true;
+        return !pxcStrict;
     }
-
 }
