@@ -39,4 +39,13 @@ public interface SpringJdbcMigration {
      * @throws Exception when the migration failed.
      */
     void migrate(JdbcTemplate jdbcTemplate) throws Exception;
+
+    /**
+     * Whether the execution should take place inside a transaction. Almost all implementation should return {@code true}.
+     * This however makes it possible to execute certain migrations outside a transaction. This is useful for databases
+     * like PostgreSQL where certain statement can only execute outside a transaction.
+     *
+     * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
+     */
+    boolean executeInTransaction();
 }

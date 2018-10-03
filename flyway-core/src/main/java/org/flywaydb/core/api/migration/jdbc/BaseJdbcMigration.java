@@ -31,4 +31,9 @@ public abstract class BaseJdbcMigration implements JdbcMigration, ConfigurationA
     public void setFlywayConfiguration(FlywayConfiguration flywayConfiguration) {
         this.flywayConfiguration = flywayConfiguration;
     }
+
+    @Override
+    public boolean executeInTransaction() {
+        return true;
+    }
 }

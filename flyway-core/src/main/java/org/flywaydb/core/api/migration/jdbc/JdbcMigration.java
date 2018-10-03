@@ -28,7 +28,7 @@ import java.sql.Connection;
  * the master {@link org.flywaydb.core.api.configuration.FlywayConfiguration} is automatically injected upon creation,
  * which is especially useful for getting placeholder and schema information.</p>
  *
- * It is encouraged not to implement this interface directly and subclass {@link JdbcMigration} instead.
+ * It is encouraged not to implement this interface directly and subclass {@link BaseJdbcMigration} instead.
  */
 public interface JdbcMigration {
     /**
@@ -39,4 +39,13 @@ public interface JdbcMigration {
      * @throws Exception when the migration failed.
      */
     void migrate(Connection connection) throws Exception;
+
+    /**
+     * Whether the execution should take place inside a transaction. Almost all implementation should return {@code true}.
+     * This however makes it possible to execute certain migrations outside a transaction. This is useful for databases
+     * like PostgreSQL where certain statement can only execute outside a transaction.
+     *
+     * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
+     */
+    boolean executeInTransaction();
 }
