@@ -232,6 +232,7 @@ public class DriverDataSource implements DataSource {
             result.put("connectionAttributes", "program_name:" + APPLICATION_NAME);
         } else if (url.startsWith(DB2_JDBC_URL_PREFIX)) {
             result.put("clientProgramName", APPLICATION_NAME);
+            result.put("retrieveMessagesFromServerOnGetMessage", "true");
         } else if (url.startsWith(SYBASE_JDBC_URL_PREFIX)) {
             result.put("APPLICATIONNAME", APPLICATION_NAME);
         } else if (url.startsWith(SAPHANA_JDBC_URL_PREFIX)) {
