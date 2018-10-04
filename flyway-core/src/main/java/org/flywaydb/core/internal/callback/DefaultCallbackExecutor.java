@@ -82,17 +82,19 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
         }
     }
 
-    @Override
-    public boolean onEachMigrateOrUndoStatementEvent(Event event, String sql, List<Warning> warnings, List<Error> errors) {
-        final Context context = new SimpleContext(configuration, database.getMigrationConnection(), migrationInfo,
-                sql, warnings, errors);
-        for (Callback callback : callbacks) {
-            if (callback.supports(event, context)) {
-                handleEvent(callback, event, context);
-            }
-        }
-        return context.getStatement() != null && context.getStatement().isSuppressErrors();
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private void execute(final Event event, final Connection connection) {
         final Context context = new SimpleContext(configuration, connection, null);

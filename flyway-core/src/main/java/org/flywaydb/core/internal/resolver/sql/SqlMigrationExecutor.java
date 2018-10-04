@@ -22,8 +22,6 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 
-import java.sql.Connection;
-
 /**
  * Database migration based on a sql file.
  */
