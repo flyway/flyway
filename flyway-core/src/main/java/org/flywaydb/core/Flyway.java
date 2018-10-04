@@ -1366,12 +1366,7 @@ public class Flyway implements Configuration {
                             Schema[] schemas, CallbackExecutor callbackExecutor, boolean ignorePending) {
         String validationError =
                 new DbValidate(database, schemaHistory, schemas[0], migrationResolver,
-                        configuration.getTarget(), configuration.isOutOfOrder(),
-                        ignorePending,
-                        configuration.isIgnoreMissingMigrations(),
-                        configuration.isIgnoreIgnoredMigrations(),
-                        configuration.isIgnoreFutureMigrations(),
-                        callbackExecutor).validate();
+                        configuration, ignorePending, callbackExecutor).validate();
 
         if (validationError != null) {
             if (configuration.isCleanOnValidationError()) {
@@ -1468,7 +1463,7 @@ public class Flyway implements Configuration {
 
 
             ) {
-                new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor).repair();
+                new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor, configuration).repair();
                 return null;
             }
         }, true);

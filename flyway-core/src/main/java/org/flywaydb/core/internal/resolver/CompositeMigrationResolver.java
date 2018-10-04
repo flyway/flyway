@@ -17,11 +17,13 @@ package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.clazz.ClassProvider;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.resolver.java.JavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
@@ -79,6 +81,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
 
 
                     , configuration));
+            migrationResolvers.add(new JavaMigrationResolver(classProvider, configuration));
             migrationResolvers.add(new JdbcMigrationResolver(classProvider, configuration));
 
             if (new FeatureDetector(configuration.getClassLoader()).isSpringJdbcAvailable()) {
@@ -96,9 +99,9 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * can be found.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
-    public List<ResolvedMigration> resolveMigrations() {
+    public List<ResolvedMigration> resolveMigrations(Context context) {
         if (availableMigrations == null) {
-            availableMigrations = doFindAvailableMigrations();
+            availableMigrations = doFindAvailableMigrations(context);
         }
 
         return availableMigrations;
@@ -111,8 +114,8 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * can be found.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
-    private List<ResolvedMigration> doFindAvailableMigrations() throws FlywayException {
-        List<ResolvedMigration> migrations = new ArrayList<>(collectMigrations(migrationResolvers));
+    private List<ResolvedMigration> doFindAvailableMigrations(Context context) throws FlywayException {
+        List<ResolvedMigration> migrations = new ArrayList<>(collectMigrations(migrationResolvers, context));
         Collections.sort(migrations, new ResolvedMigrationComparator());
 
         checkForIncompatibilities(migrations);
@@ -127,10 +130,10 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @return All migrations.
      */
     /* private -> for testing */
-    static Collection<ResolvedMigration> collectMigrations(Collection<MigrationResolver> migrationResolvers) {
+    static Collection<ResolvedMigration> collectMigrations(Collection<MigrationResolver> migrationResolvers, Context context) {
         Set<ResolvedMigration> migrations = new HashSet<>();
         for (MigrationResolver migrationResolver : migrationResolvers) {
-            migrations.addAll(migrationResolver.resolveMigrations());
+            migrations.addAll(migrationResolver.resolveMigrations(context));
         }
         return migrations;
     }

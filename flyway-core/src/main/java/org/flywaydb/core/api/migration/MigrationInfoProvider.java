@@ -20,7 +20,10 @@ import org.flywaydb.core.api.MigrationVersion;
 /**
  * Migration implementors that also implement this interface will be able to specify their version and description
  * manually, instead of having it automatically computed.
+ *
+ * @deprecated Extend JavaMigration or BaseJavaMigration instead. Will be removed in Flyway 6.0.
  */
+@Deprecated
 public interface MigrationInfoProvider {
     /**
      * Returns the version after the migration is complete.

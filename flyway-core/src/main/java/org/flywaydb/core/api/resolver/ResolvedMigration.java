@@ -17,6 +17,7 @@ package org.flywaydb.core.api.resolver;
 
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.executor.MigrationExecutor;
 
 /**
  * Migration resolved through a MigrationResolver. Can be applied against a database.

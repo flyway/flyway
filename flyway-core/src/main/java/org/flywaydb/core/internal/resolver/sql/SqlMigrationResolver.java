@@ -19,6 +19,7 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
@@ -91,7 +92,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         this.configuration = configuration;
     }
 
-    public List<ResolvedMigration> resolveMigrations() {
+    public List<ResolvedMigration> resolveMigrations(Context context) {
         List<ResolvedMigration> migrations = new ArrayList<>();
 
         String separator = configuration.getSqlMigrationSeparator();

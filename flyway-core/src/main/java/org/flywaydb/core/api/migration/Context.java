@@ -15,18 +15,24 @@
  */
 package org.flywaydb.core.api.migration;
 
+import org.flywaydb.core.api.configuration.Configuration;
+
+import java.sql.Connection;
+
 /**
- * Migration implementors that also implement this interface will be able to specify their checksum (for
- * validation), instead of having it automatically computed or default to {@code null} (for Java Migrations).
- *
- * @deprecated Extend JavaMigration or BaseJavaMigration instead. Will be removed in Flyway 6.0.
+ * The context relevant to a Java-based migration.
  */
-@Deprecated
-public interface MigrationChecksumProvider {
+public interface Context {
     /**
-     * Computes the checksum of the migration.
-     *
-     * @return The checksum of the migration.
+     * @return The configuration currently in use.
      */
-    Integer getChecksum();
+    Configuration getConfiguration();
+
+    /**
+     * @return The JDBC connection being used. Transaction are managed by Flyway.
+     * When the context is passed to the migrate method, a transaction will already have
+     * been started if required and will be automatically committed or rolled back afterwards, unless the
+     * canExecuteInTransaction method has been implemented to return false.
+     */
+    Connection getConnection();
 }

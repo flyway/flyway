@@ -29,7 +29,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * which is especially useful for getting placeholder and schema information.</p>
  *
  * It is encouraged not to implement this interface directly and subclass {@link BaseSpringJdbcMigration} instead.
+ *
+ * @deprecated Extend JavaMigration or BaseJavaMigration instead. Will be removed in Flyway 6.0.
  */
+@Deprecated
 public interface SpringJdbcMigration {
     /**
      * Executes this migration. The execution will automatically take place within a transaction, when the underlying

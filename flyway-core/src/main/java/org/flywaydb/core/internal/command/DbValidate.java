@@ -15,21 +15,22 @@
  */
 package org.flywaydb.core.internal.command;
 
-import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Event;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
+import org.flywaydb.core.internal.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-import org.flywaydb.core.internal.jdbc.TransactionTemplate;
 
 import java.util.concurrent.Callable;
 
@@ -40,11 +41,6 @@ import java.util.concurrent.Callable;
  */
 public class DbValidate {
     private static final Log LOG = LogFactory.getLog(DbValidate.class);
-
-    /**
-     * The target version of the migration.
-     */
-    private final MigrationVersion target;
 
     /**
      * The database schema history table.
@@ -67,32 +63,14 @@ public class DbValidate {
     private final Connection connection;
 
     /**
-     * Allows migrations to be run "out of order".
-     * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
-     * it will be applied too instead of being ignored.</p>
-     * <p>(default: {@code false})</p>
+     * The current configuration.
      */
-    private final boolean outOfOrder;
+    private final Configuration configuration;
 
     /**
      * Whether pending migrations are allowed.
      */
     private final boolean pending;
-
-    /**
-     * Whether missing migrations are allowed.
-     */
-    private final boolean missing;
-
-    /**
-     * Whether ignored migrations are allowed.
-     */
-    private final boolean ignored;
-
-    /**
-     * Whether future migrations are allowed.
-     */
-    private final boolean future;
 
     /**
      * The callback executor.
@@ -106,26 +84,18 @@ public class DbValidate {
      * @param schemaHistory     The database schema history table.
      * @param schema            The database schema to use by default.
      * @param migrationResolver The migration resolver.
-     * @param target            The target version of the migration.
-     * @param outOfOrder        Allows migrations to be run "out of order".
+     * @param configuration     The current configuration.
      * @param pending           Whether pending migrations are allowed.
-     * @param missing           Whether missing migrations are allowed.
-     * @param future            Whether future migrations are allowed.
      * @param callbackExecutor  The callback executor.
      */
     public DbValidate(Database database, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
-                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean ignored,
-                      boolean future, CallbackExecutor callbackExecutor) {
+                      Configuration configuration, boolean pending, CallbackExecutor callbackExecutor) {
         this.connection = database.getMainConnection();
         this.schemaHistory = schemaHistory;
         this.schema = schema;
         this.migrationResolver = migrationResolver;
-        this.target = target;
-        this.outOfOrder = outOfOrder;
+        this.configuration = configuration;
         this.pending = pending;
-        this.missing = missing;
-        this.ignored = ignored;
-        this.future = future;
         this.callbackExecutor = callbackExecutor;
     }
 
@@ -136,7 +106,12 @@ public class DbValidate {
      */
     public String validate() {
         if (!schema.exists()) {
-            if (!migrationResolver.resolveMigrations().isEmpty() && !pending) {
+            if (!migrationResolver.resolveMigrations(new Context() {
+                @Override
+                public Configuration getConfiguration() {
+                    return configuration;
+                }
+            }).isEmpty() && !pending) {
                 return "Schema " + schema + " doesn't exist yet";
             }
             return null;
@@ -152,8 +127,13 @@ public class DbValidate {
             @Override
             public Pair<Integer, String> call() {
                 MigrationInfoServiceImpl migrationInfoService =
-                        new MigrationInfoServiceImpl(migrationResolver, schemaHistory, target, outOfOrder, pending,
-                                missing, ignored, future);
+                        new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration,
+                                configuration.getTarget(),
+                                configuration.isOutOfOrder(),
+                                pending,
+                                configuration.isIgnoreMissingMigrations(),
+                                configuration.isIgnoreIgnoredMigrations(),
+                                configuration.isIgnoreFutureMigrations());
 
                 migrationInfoService.refresh();
 

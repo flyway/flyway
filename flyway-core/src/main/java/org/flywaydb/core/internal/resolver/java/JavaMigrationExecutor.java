@@ -13,39 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.resolver.spring;
+package org.flywaydb.core.internal.resolver.java;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.executor.MigrationExecutor;
-import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.flywaydb.core.api.migration.JavaMigration;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Adapter for executing migrations implementing SpringJdbcMigration.
+ * Adapter for executing migrations implementing JavaMigration.
  */
-public class SpringJdbcMigrationExecutor implements MigrationExecutor {
+public class JavaMigrationExecutor implements MigrationExecutor {
     /**
-     * The SpringJdbcMigration to execute.
+     * The JavaMigration to execute.
      */
-    private final SpringJdbcMigration springJdbcMigration;
+    private final JavaMigration javaMigration;
 
     /**
-     * Creates a new SpringJdbcMigrationExecutor.
+     * Creates a new JavaMigrationExecutor.
      *
-     * @param springJdbcMigration The Spring Jdbc Migration to execute.
+     * @param javaMigration The JavaMigration to execute.
      */
-    SpringJdbcMigrationExecutor(SpringJdbcMigration springJdbcMigration) {
-        this.springJdbcMigration = springJdbcMigration;
+    JavaMigrationExecutor(JavaMigration javaMigration) {
+        this.javaMigration = javaMigration;
     }
 
     @Override
-    public void execute(Context context) throws SQLException {
+    public void execute(final Context context) throws SQLException {
         try {
-            springJdbcMigration.migrate(new org.springframework.jdbc.core.JdbcTemplate(
-                    new SingleConnectionDataSource(context.getConnection(), true)));
+            javaMigration.migrate(new org.flywaydb.core.api.migration.Context() {
+                @Override
+                public Configuration getConfiguration() {
+                    return context.getConfiguration();
+                }
+
+                @Override
+                public Connection getConnection() {
+                    return context.getConnection();
+                }
+            });
         } catch (SQLException e) {
             throw e;
         } catch (Exception e) {

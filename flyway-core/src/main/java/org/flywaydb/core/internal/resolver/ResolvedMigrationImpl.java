@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.resolver.MigrationExecutor;
+import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.util.ObjectUtils;
 

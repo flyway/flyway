@@ -15,7 +15,8 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
-import org.flywaydb.core.api.resolver.MigrationExecutor;
+import org.flywaydb.core.api.executor.Context;
+import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -70,8 +71,8 @@ public class SqlMigrationExecutor implements MigrationExecutor {
     }
 
     @Override
-    public void execute(Connection connection) {
-        database.createSqlScriptExecutor(new JdbcTemplate(connection)
+    public void execute(Context context) {
+        database.createSqlScriptExecutor(new JdbcTemplate(context.getConnection())
 
 
 
@@ -79,7 +80,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
     }
 
     @Override
-    public boolean executeInTransaction() {
+    public boolean canExecuteInTransaction() {
         return sqlScript.executeInTransaction();
     }
 }

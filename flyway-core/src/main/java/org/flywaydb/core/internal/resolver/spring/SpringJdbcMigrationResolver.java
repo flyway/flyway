@@ -19,13 +19,13 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.flywaydb.core.internal.clazz.ClassProvider;
-import org.flywaydb.core.internal.resolver.JavaMigrationResolver;
+import org.flywaydb.core.internal.resolver.AbstractJavaMigrationResolver;
 
 /**
  * Migration resolver for Spring Jdbc migrations. The classes must have a name like V1 or V1_1_3 or V1__Description
  * or V1_1_3__Description.
  */
-public class SpringJdbcMigrationResolver extends JavaMigrationResolver<SpringJdbcMigration, SpringJdbcMigrationExecutor> {
+public class SpringJdbcMigrationResolver extends AbstractJavaMigrationResolver<SpringJdbcMigration, SpringJdbcMigrationExecutor> {
     /**
      * Creates a new instance.
      *

@@ -176,13 +176,13 @@ public abstract class Database<C extends Connection> implements Closeable {
     );
 
     /**
-     * Creates a new SqlScript for this specific database.
+     * Creates a new SqlScriptExecutor for this specific database.
      * <p>
 
 
 
 
-     * @return The new SqlScript.
+     * @return The new SqlScriptExecutor.
      */
     public SqlScriptExecutor createSqlScriptExecutor(JdbcTemplate jdbcTemplate
 

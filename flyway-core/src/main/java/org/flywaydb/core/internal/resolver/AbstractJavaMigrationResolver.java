@@ -23,7 +23,8 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.MigrationChecksumProvider;
 import org.flywaydb.core.api.migration.MigrationInfoProvider;
-import org.flywaydb.core.api.resolver.MigrationExecutor;
+import org.flywaydb.core.api.executor.MigrationExecutor;
+import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.clazz.ClassProvider;
@@ -40,8 +41,8 @@ import java.util.List;
  * Migration resolver for Java migrations. The classes must have a name like R__My_description, V1__Description
  * or V1_1_3__Description.
  */
-public abstract class JavaMigrationResolver<M, E extends MigrationExecutor> implements MigrationResolver {
-    private static final Log LOG = LogFactory.getLog(JavaMigrationResolver.class);
+public abstract class AbstractJavaMigrationResolver<M, E extends MigrationExecutor> implements MigrationResolver {
+    private static final Log LOG = LogFactory.getLog(AbstractJavaMigrationResolver.class);
 
     /**
      * The Scanner to use.
@@ -59,13 +60,13 @@ public abstract class JavaMigrationResolver<M, E extends MigrationExecutor> impl
      * @param classProvider The Scanner for loading migrations on the classpath.
      * @param configuration The configuration to inject (if necessary) in the migration classes.
      */
-    public JavaMigrationResolver(ClassProvider classProvider, Configuration configuration) {
+    public AbstractJavaMigrationResolver(ClassProvider classProvider, Configuration configuration) {
         this.classProvider = classProvider;
         this.configuration = configuration;
     }
 
     @Override
-    public List<ResolvedMigration> resolveMigrations() {
+    public List<ResolvedMigration> resolveMigrations(Context context) {
         List<ResolvedMigration> migrations = new ArrayList<>();
 
         for (Class<?> clazz : classProvider.getClasses(getImplementedInterface())) {

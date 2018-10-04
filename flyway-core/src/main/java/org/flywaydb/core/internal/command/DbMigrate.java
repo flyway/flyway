@@ -21,9 +21,10 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.executor.Context;
+import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
@@ -32,12 +33,12 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
+import org.flywaydb.core.internal.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.TimeFormat;
-import org.flywaydb.core.internal.jdbc.TransactionTemplate;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -180,8 +181,9 @@ public class DbMigrate {
      */
     private Integer migrateGroup(boolean firstRun) {
         MigrationInfoServiceImpl infoService =
-                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration.getTarget(),
-                        configuration.isOutOfOrder(), true, true, true, true);
+                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration,
+                        configuration.getTarget(), configuration.isOutOfOrder(),
+                        true, true, true, true);
         infoService.refresh();
 
         MigrationInfo current = infoService.current();
@@ -309,7 +311,7 @@ public class DbMigrate {
 
         for (Map.Entry<MigrationInfoImpl, Boolean> entry : group.entrySet()) {
             ResolvedMigration resolvedMigration = entry.getKey().getResolvedMigration();
-            boolean inTransaction = resolvedMigration.getExecutor().executeInTransaction();
+            boolean inTransaction = resolvedMigration.getExecutor().canExecuteInTransaction();
 
             if (first) {
                 executeGroupInTransaction = inTransaction;
@@ -333,6 +335,18 @@ public class DbMigrate {
     }
 
     private void doMigrateGroup(LinkedHashMap<MigrationInfoImpl, Boolean> group, StopWatch stopWatch) {
+        Context context = new Context() {
+            @Override
+            public Configuration getConfiguration() {
+                return configuration;
+            }
+
+            @Override
+            public java.sql.Connection getConnection() {
+                return connectionUserObjects.getJdbcConnection();
+            }
+        };
+
         for (Map.Entry<MigrationInfoImpl, Boolean> entry : group.entrySet()) {
             final MigrationInfoImpl migration = entry.getKey();
             boolean isOutOfOrder = entry.getValue();
@@ -350,7 +364,7 @@ public class DbMigrate {
                 callbackExecutor.setMigrationInfo(migration);
                 callbackExecutor.onEachMigrateOrUndoEvent(Event.BEFORE_EACH_MIGRATE);
                 try {
-                    migration.getResolvedMigration().getExecutor().execute(connectionUserObjects.getJdbcConnection());
+                    migration.getResolvedMigration().getExecutor().execute(context);
                 } catch (FlywayException e) {
                     callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
                     throw new FlywayMigrateException(migration, isOutOfOrder, e);
@@ -378,9 +392,10 @@ public class DbMigrate {
         final String migrationText;
         if (migration.getVersion() != null) {
             migrationText = "schema " + schema + " to version " + migration.getVersion() + " - " + migration.getDescription() +
-                    (isOutOfOrder ? " [out of order]" : "") + (migrationExecutor.executeInTransaction() ? "" : " [non-transactional]");
+                    (isOutOfOrder ? " [out of order]" : "") + (migrationExecutor.canExecuteInTransaction() ? "" : " [non-transactional]");
         } else {
-            migrationText = "schema " + schema + " with repeatable migration " + migration.getDescription() + (migrationExecutor.executeInTransaction() ? "" : " [non-transactional]");
+            migrationText = "schema " + schema + " with repeatable migration " + migration.getDescription()
+                    + (migrationExecutor.canExecuteInTransaction() ? "" : " [non-transactional]");
         }
         return migrationText;
     }

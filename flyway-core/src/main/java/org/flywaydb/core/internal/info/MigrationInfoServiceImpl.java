@@ -21,6 +21,8 @@ import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
@@ -45,6 +47,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * The migration resolver for available migrations.
      */
     private final MigrationResolver migrationResolver;
+
+    private final Context context;
 
     /**
      * The schema history table for applied migrations.
@@ -94,6 +98,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      *
      * @param migrationResolver The migration resolver for available migrations.
      * @param schemaHistory     The schema history table for applied migrations.
+     * @param configuration     The current configuration.
      * @param target            The target version up to which to retrieve the info.
      * @param outOfOrder        Allows migrations to be run "out of order".
      * @param pending           Whether pending migrations are allowed.
@@ -102,10 +107,17 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @param future            Whether future migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver,
-                                    SchemaHistory schemaHistory,
-                                    MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean ignored, boolean future) {
+                                    SchemaHistory schemaHistory, final Configuration configuration,
+                                    MigrationVersion target, boolean outOfOrder,
+                                    boolean pending, boolean missing, boolean ignored, boolean future) {
         this.migrationResolver = migrationResolver;
         this.schemaHistory = schemaHistory;
+        this.context = new Context() {
+            @Override
+            public Configuration getConfiguration() {
+                return configuration;
+            }
+        };
         this.target = target;
         this.outOfOrder = outOfOrder;
         this.pending = pending;
@@ -118,7 +130,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * Refreshes the info about all known migrations from both the classpath and the DB.
      */
     public void refresh() {
-        Collection<ResolvedMigration> resolvedMigrations = migrationResolver.resolveMigrations();
+        Collection<ResolvedMigration> resolvedMigrations = migrationResolver.resolveMigrations(context);
         List<AppliedMigration> appliedMigrations = schemaHistory.allAppliedMigrations();
 
         MigrationInfoContext context = new MigrationInfoContext();
@@ -201,7 +213,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
 
 
 
-                    ) {
+            ) {
                 pendingResolvedVersioned.remove(resolvedMigration);
             }
             migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, av.getLeft(), context, av.getRight().outOfOrder
@@ -305,7 +317,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
 
 
 
-                    ) {
+            ) {
                 return migrationInfo;
             }
         }
