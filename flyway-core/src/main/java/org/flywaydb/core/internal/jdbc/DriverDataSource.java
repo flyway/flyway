@@ -45,6 +45,7 @@ public class DriverDataSource implements DataSource {
     private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql:";
     private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle:";
     private static final String POSTGRESQL_JDBC_URL_PREFIX = "jdbc:postgresql:";
+    private static final String CLICKHOUSE_JDBC_URL_PREFIX = "jdbc:clickhouse:";
     private static final String REDSHIFT_JDBC_URL_PREFIX = "jdbc:redshift:";
     private static final String REDSHIFT_JDBC41_DRIVER = "com.amazon.redshift.jdbc41.Driver";
     private static final String SAPHANA_JDBC_URL_PREFIX = "jdbc:sap:";
@@ -326,6 +327,10 @@ public class DriverDataSource implements DataSource {
 
         if (url.startsWith(POSTGRESQL_JDBC_URL_PREFIX)) {
             return "org.postgresql.Driver";
+        }
+
+        if (url.startsWith(CLICKHOUSE_JDBC_URL_PREFIX)) {
+            return "ru.yandex.clickhouse.ClickHouseDriver";
         }
 
         if (url.startsWith(REDSHIFT_JDBC_URL_PREFIX)) {

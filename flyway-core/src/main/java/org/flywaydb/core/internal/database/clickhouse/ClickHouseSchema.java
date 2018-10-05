@@ -13,30 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.clickhouse;
+package org.flywaydb.core.internal.database.clickhouse;
 
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.List;
 
 /**
  * ClickHouse implementation of Schema.
  */
-public class ClickHouseSchema extends Schema<ClickHouseDbSupport> {
+public class ClickHouseSchema extends Schema<ClickhouseDatabase> {
 
     /**
      * Creates a new schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param dbSupport    The database-specific support.
+     * @param database    The database-specific support.
      * @param name         The name of the schema.
      */
-    public ClickHouseSchema(JdbcTemplate jdbcTemplate, ClickHouseDbSupport dbSupport, String name) {
-        super(jdbcTemplate, dbSupport, name);
+    public ClickHouseSchema(JdbcTemplate jdbcTemplate, ClickhouseDatabase database, String name) {
+        super(jdbcTemplate, database, name);
     }
 
     @Override
@@ -51,14 +50,14 @@ public class ClickHouseSchema extends Schema<ClickHouseDbSupport> {
 
     @Override
     protected void doCreate() throws SQLException {
-        jdbcTemplate.executeStatement("CREATE DATABASE " + dbSupport.quote(name));
+        jdbcTemplate.executeStatement("CREATE DATABASE " + database.quote(name));
     }
 
     @Override
     protected void doDrop() throws SQLException {
         if (jdbcTemplate.getConnection().getCatalog().equals(name))
             jdbcTemplate.getConnection().setCatalog("default");
-        jdbcTemplate.executeStatement("DROP DATABASE " + dbSupport.quote(name));
+        jdbcTemplate.executeStatement("DROP DATABASE " + database.quote(name));
     }
 
     @Override
@@ -73,12 +72,12 @@ public class ClickHouseSchema extends Schema<ClickHouseDbSupport> {
         List<String> tableNames = jdbcTemplate.queryForStringList("SELECT name FROM system.tables WHERE database = ?", name);
         Table[] result = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++)
-            result[i] = new ClickHouseTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
+            result[i] = new ClickHouseTable(jdbcTemplate, database, this, tableNames.get(i));
         return result;
     }
 
     @Override
     public Table getTable(String tableName) {
-        return new ClickHouseTable(jdbcTemplate, dbSupport, this, tableName);
+        return new ClickHouseTable(jdbcTemplate, database, this, tableName);
     }
 }

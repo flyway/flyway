@@ -101,7 +101,13 @@ public enum DatabaseType {
     /**
      * SAP HANA.
      */
-    SAPHANA(Types.VARCHAR);
+    SAPHANA(Types.VARCHAR),
+
+    /**
+     * Clickhouse
+     */
+    CLICKHOUSE(Types.NULL);
+
 
     private final int nullType;
 
@@ -164,6 +170,9 @@ public enum DatabaseType {
         }
         if (databaseProductName.startsWith("Informix")) {
             return INFORMIX;
+        }
+        if (databaseProductName.startsWith("ClickHouse")) {
+            return CLICKHOUSE;
         }
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }

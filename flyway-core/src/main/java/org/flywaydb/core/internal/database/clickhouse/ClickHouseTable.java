@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.clickhouse;
+package org.flywaydb.core.internal.database.clickhouse;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 
@@ -31,13 +31,12 @@ public class ClickHouseTable extends Table {
      * Creates a new table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param dbSupport    The database-specific support.
+     * @param database    The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public ClickHouseTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport,
-                           Schema schema, String name) {
-        super(jdbcTemplate, dbSupport, schema, name);
+    public ClickHouseTable(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
+        super(jdbcTemplate, database, schema, name);
     }
 
     @Override
@@ -52,6 +51,6 @@ public class ClickHouseTable extends Table {
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.executeStatement("DROP TABLE " + dbSupport.quote(schema.getName(), name));
+        jdbcTemplate.executeStatement("DROP TABLE " + database.quote(schema.getName(), name));
     }
 }
