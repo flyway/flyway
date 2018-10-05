@@ -137,10 +137,8 @@ public class JdbcTemplate {
         try {
             statement = prepareStatement(query, params);
             resultSet = statement.executeQuery();
-            result = 0;
-            if (resultSet.next()) {
-                result = resultSet.getInt(1);
-            }
+            resultSet.next();
+            result = resultSet.getInt(1);
         } finally {
             JdbcUtils.closeResultSet(resultSet);
             JdbcUtils.closeStatement(statement);
