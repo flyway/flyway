@@ -464,9 +464,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                     extraURLs.toArray(new URL[0]),
                     getProject().getBuildscript().getClassLoader());
 
-            Flyway flyway = Flyway.configure(classLoader).configure(createFlywayConfig(envVars)).load();
+            Flyway flyway = Flyway.configure(classLoader).configuration(createFlywayConfig(envVars)).load();
             Object result = run(flyway);
-            ((DriverDataSource) flyway.getDataSource()).shutdownDatabase();
+            ((DriverDataSource) flyway.getConfiguration().getDataSource()).shutdownDatabase();
             return result;
         } catch (Exception e) {
             throw new FlywayException(collectMessages(e, "Error occurred while executing " + getName()), e);
