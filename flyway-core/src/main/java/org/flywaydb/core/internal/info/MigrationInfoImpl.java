@@ -391,6 +391,18 @@ public class MigrationInfoImpl implements MigrationInfo {
             return Integer.MAX_VALUE;
         }
 
+        if(getDescription() == null && o.getDescription() == null) {
+        	return 0;
+        }
+        
+        if(getDescription() == null) {
+        	return -1;
+        }
+        
+        if(o.getDescription() == null) {
+        	return 1;
+        }
+        
         // Two repeatable migrations: sort by description
         return getDescription().compareTo(o.getDescription());
     }
