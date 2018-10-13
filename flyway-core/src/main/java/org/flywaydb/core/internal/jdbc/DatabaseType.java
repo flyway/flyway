@@ -134,6 +134,9 @@ public enum DatabaseType {
         if (databaseProductName.startsWith("Informix")) {
             return INFORMIX;
         }
+        if (databaseProductName.startsWith("Google Cloud Spanner")) {
+            return CLOUDSPANNER;
+        }
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
 
