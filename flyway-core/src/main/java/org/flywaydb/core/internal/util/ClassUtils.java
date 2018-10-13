@@ -22,6 +22,8 @@ import org.flywaydb.core.api.logging.LogFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
@@ -63,6 +65,24 @@ public class ClassUtils {
     }
 
     /**
+     * Creates a new instance of this class.
+     *
+     * @param clazz The class to instantiate.
+     * @param <T>   The type of the new instance.
+     * @return The new instance.
+     * @throws FlywayException Thrown when the instantiation failed.
+     */
+    @SuppressWarnings({"unchecked"})
+    // Must be synchronized for the Maven Parallel Junit runner to work
+    public static synchronized <T> T instantiate(Class<T> clazz) {
+        try {
+            return clazz.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new FlywayException("Unable to instantiate class " + clazz.getName() + " : " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * Instantiate all these classes.
      *
      * @param classes     A fully qualified class names to instantiate.
@@ -85,7 +105,7 @@ public class ClassUtils {
      * and can be loaded. Will return {@code false} if either the class or
      * one of its dependencies is not present or cannot be loaded.
      *
-     * @param className   the name of the class to check
+     * @param className   The name of the class to check.
      * @param classLoader The ClassLoader to use.
      * @return whether the specified class is present
      */
@@ -96,6 +116,51 @@ public class ClassUtils {
         } catch (Throwable ex) {
             // Class or one of its dependencies is not present...
             return false;
+        }
+    }
+
+    /**
+     * Loads the class with this name using the class loader.
+     *
+     * @param className   The name of the class to load.
+     * @param classLoader The ClassLoader to use.
+     * @return the newly loaded class or {@code null} if it could not be loaded.
+     */
+    public static Class<?> loadClass(String className, ClassLoader classLoader) {
+        try {
+            Class<?> clazz = classLoader.loadClass(className);
+            if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isEnum() || clazz.isAnonymousClass()) {
+                LOG.debug("Skipping non-instantiable class: " + className);
+                return null;
+            }
+
+            clazz.getDeclaredConstructor().newInstance();
+            LOG.debug("Found class: " + className);
+            return clazz;
+        } catch (InternalError e) {
+            LOG.debug("Skipping invalid class: " + className);
+            return null;
+        } catch (IncompatibleClassChangeError e) {
+            LOG.warn("Skipping incompatibly changed class: " + className);
+            return null;
+        } catch (NoClassDefFoundError e) {
+            LOG.debug("Skipping non-loadable class definition: " + className);
+            return null;
+        } catch (ClassNotFoundException e) {
+            LOG.debug("Skipping non-loadable class: " + className);
+            return null;
+        } catch (IllegalAccessException e) {
+            LOG.debug("Skipping non-instantiable class (illegal access): " + className);
+            return null;
+        } catch (InstantiationException e) {
+            LOG.debug("Skipping non-instantiable class (instantiation error): " + className);
+            return null;
+        } catch (NoSuchMethodException e) {
+            LOG.debug("Skipping non-instantiable class (no default constructor): " + className);
+            return null;
+        } catch (InvocationTargetException e) {
+            LOG.debug("Skipping non-instantiable class (invocation error): " + className);
+            return null;
         }
     }
 

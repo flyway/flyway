@@ -26,10 +26,10 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.LegacyCallback;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -65,6 +65,19 @@ public class ClassicConfiguration implements Configuration {
      * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
      */
     private DataSource dataSource;
+
+    /**
+     * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
+     * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     * (default: 0)
+     */
+    private int connectRetries;
+
+    /**
+     * The SQL statements to run to initialize a new database connection immediately after opening it.
+     * (default: {@code null})
+     */
+    private String initSql;
 
     /**
      * The ClassLoader to use for resolving migrations on the classpath. (default: Thread.currentThread().getContextClassLoader() )
@@ -206,6 +219,18 @@ public class ClassicConfiguration implements Configuration {
      * (default: {@code false})
      */
     private boolean ignoreIgnoredMigrations;
+
+    /**
+     * Ignore pending migrations when reading the schema history table. These are migrations that are available on the
+     * classpath but have not yet been performed by an application deployment.
+     * This can be useful for verifying that in-development migration changes don't contain any validation-breaking changes
+     * of migrations that have already been applied to a production environment, e.g. as part of a CI/CD process, without
+     * failing because of the existence of new migration versions.
+     * <p>
+     * {@code true} to continue normally, {@code false} to fail fast with an exception.
+     * (default: {@code false})
+     */
+    private boolean ignorePendingMigrations;
 
     /**
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
@@ -485,6 +510,11 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
+    public boolean isIgnorePendingMigrations() {
+        return ignorePendingMigrations;
+    }
+
+    @Override
     public boolean isIgnoreFutureMigrations() {
         return ignoreFutureMigrations;
     }
@@ -541,6 +571,16 @@ public class ClassicConfiguration implements Configuration {
             LOG.warn("Discarding INCOMPLETE dataSource configuration! " + ConfigUtils.URL + " must be set.");
         }
         return dataSource;
+    }
+
+    @Override
+    public int getConnectRetries() {
+        return connectRetries;
+    }
+
+    @Override
+    public String getInitSql() {
+        return initSql;
     }
 
     @Override
@@ -830,6 +870,19 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Ignore pending migrations when reading the schema history table. These are migrations that are available
+     * but have not yet been applied. This can be useful for verifying that in-development migration changes
+     * don't contain any validation-breaking changes of migrations that have already been applied to a production
+     * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
+     *
+     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception.
+     *                                (default: {@code false})
+     */
+    public void setIgnorePendingMigrations(boolean ignorePendingMigrations) {
+        this.ignorePendingMigrations = ignorePendingMigrations;
+    }
+
+    /**
      * Whether to ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
@@ -881,9 +934,9 @@ public class ClassicConfiguration implements Configuration {
      * Sets the locations to scan recursively for migrations.
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
-     * contain both sql and java-based migrations.
-     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
-     * migrations.</p>
+     * contain both SQL and Java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
      *
      * @param locations Locations to scan recursively for migrations. (default: db/migration)
      */
@@ -895,9 +948,9 @@ public class ClassicConfiguration implements Configuration {
      * Sets the locations to scan recursively for migrations.
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
-     * contain both sql and java-based migrations.
-     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
-     * migrations.</p>
+     * contain both SQL and Java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
      *
      * @param locations Locations to scan recursively for migrations. (default: db/migration)
      */
@@ -1168,10 +1221,47 @@ public class ClassicConfiguration implements Configuration {
      * @param url      The JDBC URL of the database.
      * @param user     The user of the database.
      * @param password The password of the database.
-     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      */
+    public void setDataSource(String url, String user, String password) {
+        this.dataSource = new DriverDataSource(classLoader, null, url, user, password);
+    }
+
+    /**
+     * Sets the datasource to use. Must have the necessary privileges to execute ddl.
+     * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
+     *
+     * @param url      The JDBC URL of the database.
+     * @param user     The user of the database.
+     * @param password The password of the database.
+     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
+     * @deprecated Use the separate setInitSql method in addition to the setDataSource() method if you need to set the initSql. This method will be removed in Flyway 6.0.
+     */
+    @Deprecated
     public void setDataSource(String url, String user, String password, String... initSqls) {
-        this.dataSource = new DriverDataSource(classLoader, null, url, user, password, null, initSqls);
+        this.dataSource = new DriverDataSource(classLoader, null, url, user, password);
+        setInitSql(initSqls == null ? null : StringUtils.collectionToDelimitedString(Arrays.asList(initSqls), "\n"));
+    }
+
+    /**
+     * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
+     * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     *
+     * @param connectRetries The maximum number of retries (default: 0).
+     */
+    public void setConnectRetries(int connectRetries) {
+        if (connectRetries < 0) {
+            throw new FlywayException("Invalid number of connectRetries (must be 0 or greater): " + connectRetries);
+        }
+        this.connectRetries = connectRetries;
+    }
+
+    /**
+     * The SQL statements to run to initialize a new database connection immediately after opening it.
+     *
+     * @param initSql The SQL statements. (default: {@code null})
+     */
+    public void setInitSql(String initSql) {
+        this.initSql = initSql;
     }
 
     /**
@@ -1376,6 +1466,13 @@ public class ClassicConfiguration implements Configuration {
         setCleanDisabled(configuration.isCleanDisabled());
         setCleanOnValidationError(configuration.isCleanOnValidationError());
         setDataSource(configuration.getDataSource());
+        setConnectRetries(configuration.getConnectRetries());
+        setInitSql(configuration.getInitSql());
+
+
+
+
+
 
 
 
@@ -1391,6 +1488,7 @@ public class ClassicConfiguration implements Configuration {
         setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
         setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
         setIgnoreIgnoredMigrations(configuration.isIgnoreIgnoredMigrations());
+        setIgnorePendingMigrations(configuration.isIgnorePendingMigrations());
         setInstalledBy(configuration.getInstalledBy());
         setLocations(configuration.getLocations());
         setMixed(configuration.isMixed());
@@ -1457,12 +1555,18 @@ public class ClassicConfiguration implements Configuration {
             dataSource = null;
             password = passwordProp;
         }
-
         if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) ||
                 StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
             setDataSource(new DriverDataSource(classLoader, driver, url, user, password));
         }
-
+        Integer connectRetriesProp = getIntegerProp(props, ConfigUtils.CONNECT_RETRIES);
+        if (connectRetriesProp != null) {
+            setConnectRetries(connectRetriesProp);
+        }
+        String initSqlProp = props.remove(ConfigUtils.INIT_SQL);
+        if (initSqlProp != null) {
+            setInitSql(initSqlProp);
+        }
         String locationsProp = props.remove(ConfigUtils.LOCATIONS);
         if (locationsProp != null) {
             setLocationsAsStrings(StringUtils.tokenizeToStringArray(locationsProp, ","));
@@ -1546,6 +1650,10 @@ public class ClassicConfiguration implements Configuration {
         Boolean ignoreIgnoredMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_IGNORED_MIGRATIONS);
         if (ignoreIgnoredMigrationsProp != null) {
             setIgnoreIgnoredMigrations(ignoreIgnoredMigrationsProp);
+        }
+        Boolean ignorePendingMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_PENDING_MIGRATIONS);
+        if (ignorePendingMigrationsProp != null) {
+            setIgnorePendingMigrations(ignorePendingMigrationsProp);
         }
         Boolean ignoreFutureMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_FUTURE_MIGRATIONS);
         if (ignoreFutureMigrationsProp != null) {
@@ -1655,6 +1763,18 @@ public class ClassicConfiguration implements Configuration {
             throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value);
         }
         return value == null ? null : Boolean.valueOf(value);
+    }
+
+    private Integer getIntegerProp(Map<String, String> props, String key) {
+        String value = props.remove(key);
+        if (value == null) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            throw new FlywayException("Invalid value for " + key + " (should be a positive integer): " + value);
+        }
     }
 
     /**

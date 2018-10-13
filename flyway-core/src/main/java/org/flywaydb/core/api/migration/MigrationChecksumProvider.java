@@ -18,7 +18,10 @@ package org.flywaydb.core.api.migration;
 /**
  * Migration implementors that also implement this interface will be able to specify their checksum (for
  * validation), instead of having it automatically computed or default to {@code null} (for Java Migrations).
+ *
+ * @deprecated Extend JavaMigration or BaseJavaMigration instead. Will be removed in Flyway 6.0.
  */
+@Deprecated
 public interface MigrationChecksumProvider {
     /**
      * Computes the checksum of the migration.

@@ -21,13 +21,14 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.util.jdbc.RowMapper;
-import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.RowMapper;
+import org.flywaydb.core.internal.jdbc.TransactionTemplate;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -87,7 +88,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
      */
     private Table determineTable(Table table) {
         // Ensure we are using the default table name before checking for the fallback table
-        if (table.getName().equals("flyway_schema_history")) {
+        if (table.getName().equals("flyway_schema_history") && !table.exists()) {
             Table fallbackTable = table.getSchema().getTable("schema_version");
             if (fallbackTable.exists()) {
                 LOG.warn("Could not find schema history table " + table + ", but found " + fallbackTable + " instead." +
@@ -124,7 +125,11 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                 new TransactionTemplate(connection.getJdbcConnection(), true).execute(new Callable<Object>() {
                     @Override
                     public Object call() {
-                        database.getCreateScript(table).execute(jdbcTemplate);
+                        database.createSqlScriptExecutor(jdbcTemplate
+
+
+
+                        ).execute(database.getCreateScript(table));
                         LOG.debug("Created Schema History table: " + table);
                         return null;
                     }

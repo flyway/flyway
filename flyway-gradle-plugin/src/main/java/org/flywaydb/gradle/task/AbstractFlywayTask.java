@@ -19,8 +19,8 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.ResolvedArtifact;
@@ -84,6 +84,21 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String password;
 
     /**
+     * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
+     * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     * (default: 0)
+     * <p>Also configurable with Gradle or System Property: ${flyway.connectRetries}</p>
+     */
+    public int connectRetries;
+
+    /**
+     * The SQL statements to run to initialize a new database connection immediately after opening it.
+     * (default: {@code null})
+     * <p>Also configurable with Gradle or System Property: ${flyway.initSql}</p>
+     */
+    public String initSql;
+
+    /**
      * <p>The name of the schema schema history table that will be used by Flyway. (default: flyway_schema_history)</p><p> By default
      * (single-schema mode) the schema history table is placed in the default schema for the connection provided by the
      * datasource. </p> <p> When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is
@@ -108,14 +123,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String baselineDescription;
 
     /**
-     * Locations to scan recursively for migrations. The location type is determined by its prefix.
+     * Locations to scan recursively for migrations.
+     * <p>The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both SQL and Java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
      * (default: filesystem:src/main/resources/db/migration)
-     * <p>
-     * <tt>Unprefixed locations or locations starting with classpath:</tt>
-     * point to a package on the classpath and may contain both sql and java-based migrations.
-     * <p>
-     * <tt>Locations starting with filesystem:</tt>
-     * point to a directory on the filesystem and may only contain sql migrations.
      */
     public String[] locations;
 
@@ -252,9 +266,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
      * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
-     * mark it as future instead.
-     * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
-     * (default: {@code false})
+     * mark it as future instead.(default: {@code false})
+     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreMissingMigrations}</p>
      */
     public Boolean ignoreMissingMigrations;
 
@@ -266,12 +279,20 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
      * will not be reported by validate command. This is useful for situations where one must be able to deliver
      * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
-     * development of older versions.
-     * <p>
-     * {@code true} to continue normally, {@code false} to fail fast with an exception.
-     * (default: {@code false})
+     * development of older versions.(default: {@code false})
+     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreIgnoredMigrations}</p>
      */
     public Boolean ignoreIgnoredMigrations;
+
+    /**
+     * Ignore pending migrations when reading the schema history table. These are migrations that are available
+     * but have not yet been applied. This can be useful for verifying that in-development migration changes
+     * don't contain any validation-breaking changes of migrations that have already been applied to a production
+     * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
+     * (default: {@code false})
+     * <p>Also configurable with Gradle or System Property: ${flyway.ignorePendingMigrations}</p>
+     */
+    public Boolean ignorePendingMigrations;
 
     /**
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
@@ -280,6 +301,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
      * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
+     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreFutureMigrations}</p>
      */
     public Boolean ignoreFutureMigrations;
 
@@ -442,10 +464,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                     extraURLs.toArray(new URL[0]),
                     getProject().getBuildscript().getClassLoader());
 
-            Flyway flyway = new Flyway(classLoader);
-            flyway.configure(createFlywayConfig(envVars));
+            Flyway flyway = Flyway.configure(classLoader).configuration(createFlywayConfig(envVars)).load();
             Object result = run(flyway);
-            ((DriverDataSource) flyway.getDataSource()).shutdownDatabase();
+            ((DriverDataSource) flyway.getConfiguration().getDataSource()).shutdownDatabase();
             return result;
         } catch (Exception e) {
             throw new FlywayException(collectMessages(e, "Error occurred while executing " + getName()), e);
@@ -530,6 +551,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.URL, url, extension.url);
         putIfSet(conf, ConfigUtils.USER, user, extension.user);
         putIfSet(conf, ConfigUtils.PASSWORD, password, extension.password);
+        putIfSet(conf, ConfigUtils.CONNECT_RETRIES, connectRetries, extension.connectRetries);
+        putIfSet(conf, ConfigUtils.INIT_SQL, initSql, extension.initSql);
         putIfSet(conf, ConfigUtils.TABLE, table, extension.table);
         putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion, extension.baselineVersion);
         putIfSet(conf, ConfigUtils.BASELINE_DESCRIPTION, baselineDescription, extension.baselineDescription);
@@ -552,6 +575,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError, extension.cleanOnValidationError);
         putIfSet(conf, ConfigUtils.IGNORE_MISSING_MIGRATIONS, ignoreMissingMigrations, extension.ignoreMissingMigrations);
         putIfSet(conf, ConfigUtils.IGNORE_IGNORED_MIGRATIONS, ignoreIgnoredMigrations, extension.ignoreIgnoredMigrations);
+        putIfSet(conf, ConfigUtils.IGNORE_PENDING_MIGRATIONS, ignorePendingMigrations, extension.ignorePendingMigrations);
         putIfSet(conf, ConfigUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations, extension.ignoreFutureMigrations);
         putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled, extension.cleanDisabled);
         putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate, extension.baselineOnMigrate);

@@ -18,11 +18,10 @@ package org.flywaydb.core.internal.database.cloudspanner;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 
 import java.sql.Connection;
-import java.sql.Types;
 
 /**
  * Google Cloud Spanner database.
@@ -53,7 +52,7 @@ public class CloudSpannerDatabase extends Database<CloudSpannerConnection> {
 
 
     ) {
-        return new CloudSpannerConnection(configuration, this, connection, originalAutoCommit, Types.VARCHAR
+        return new CloudSpannerConnection(configuration, this, connection, originalAutoCommit
 
 
 
@@ -107,17 +106,12 @@ public class CloudSpannerDatabase extends Database<CloudSpannerConnection> {
 		return false;
 	}
 
-    private enum CloudSpannerSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
-        INSTANCE;
+    @Override
+    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
 
-        @Override
-        public SqlStatementBuilder createSqlStatementBuilder() {
-            return new CloudSpannerSqlStatementBuilder();
-        }
+
+
+    ) {
+        return new CloudSpannerSqlStatementBuilderFactory(placeholderReplacer);
     }
-
-	@Override
-	protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
-		return CloudSpannerSqlStatementBuilderFactory.INSTANCE;
-	}
 }

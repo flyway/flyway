@@ -99,6 +99,23 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String password;
 
     /**
+     * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
+     * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     * (default: 0)
+     * <p>Also configurable with Maven or System Property: ${flyway.connectRetries}</p>
+     */
+    @Parameter(property = ConfigUtils.CONNECT_RETRIES)
+    private int connectRetries;
+
+    /**
+     * The SQL statements to run to initialize a new database connection immediately after opening it.
+     * (default: {@code null})
+     * <p>Also configurable with Maven or System Property: ${flyway.initSql}</p>
+     */
+    @Parameter(property = ConfigUtils.INIT_SQL)
+    private String initSql;
+
+    /**
      * List of the schemas managed by Flyway. These schema names are case-sensitive.<br/>
      * (default: The default schema for the datasource connection)
      * <p>Consequences:</p>
@@ -138,8 +155,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String baselineDescription;
 
     /**
-     * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     * and java-based migrations. (default: filesystem:src/main/resources/db/migration)
+     * Locations to scan recursively for migrations.
+     * <p>The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both SQL and Java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
+     * (default: filesystem:src/main/resources/db/migration)
      * <p>Also configurable with Maven or System Property: ${flyway.locations} (Comma-separated list)</p>
      */
     @Parameter
@@ -280,10 +302,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
      * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
-     * mark it as future instead.
-     * <p>
-     * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
-     * (default: {@code false})
+     * mark it as future instead. (default: {@code false})
+     * <p>Also configurable with Maven or System Property: ${flyway.ignoreMissingMigrations}</p>
      */
     @Parameter(property = ConfigUtils.IGNORE_MISSING_MIGRATIONS)
     private Boolean ignoreMissingMigrations;
@@ -296,13 +316,22 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
      * will not be reported by validate command. This is useful for situations where one must be able to deliver
      * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
-     * development of older versions.
-     * <p>
-     * {@code true} to continue normally, {@code false} to fail fast with an exception.
-     * (default: {@code false})
+     * development of older versions. (default: {@code false})
+     * <p>Also configurable with Maven or System Property: ${flyway.ignoreIgnoredMigrations}</p>
      */
     @Parameter(property = ConfigUtils.IGNORE_IGNORED_MIGRATIONS)
     private Boolean ignoreIgnoredMigrations;
+
+    /**
+     * Ignore pending migrations when reading the schema history table. These are migrations that are available
+     * but have not yet been applied. This can be useful for verifying that in-development migration changes
+     * don't contain any validation-breaking changes of migrations that have already been applied to a production
+     * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
+     * (default: {@code false})
+     * <p>Also configurable with Maven or System Property: ${flyway.ignorePendingMigrations}</p>
+     */
+    @Parameter(property = ConfigUtils.IGNORE_PENDING_MIGRATIONS)
+    private Boolean ignorePendingMigrations;
 
     /**
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
@@ -641,6 +670,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.URL, url);
             putIfSet(conf, ConfigUtils.USER, user);
             putIfSet(conf, ConfigUtils.PASSWORD, password);
+            putIfSet(conf, ConfigUtils.CONNECT_RETRIES, connectRetries);
+            putIfSet(conf, ConfigUtils.INIT_SQL, initSql);
             putArrayIfSet(conf, ConfigUtils.SCHEMAS, schemas);
             putIfSet(conf, ConfigUtils.TABLE, table);
             putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion);
@@ -666,6 +697,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.TARGET, target);
             putIfSet(conf, ConfigUtils.IGNORE_MISSING_MIGRATIONS, ignoreMissingMigrations);
             putIfSet(conf, ConfigUtils.IGNORE_IGNORED_MIGRATIONS, ignoreIgnoredMigrations);
+            putIfSet(conf, ConfigUtils.IGNORE_PENDING_MIGRATIONS, ignorePendingMigrations);
             putIfSet(conf, ConfigUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix);
@@ -697,8 +729,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             conf.putAll(ConfigUtils.propertiesToMap(System.getProperties()));
             removeMavenPluginSpecificPropertiesToAvoidWarnings(conf);
 
-            Flyway flyway = new Flyway(classLoader);
-            flyway.configure(conf);
+            Flyway flyway = Flyway.configure(classLoader).configure(conf).load();
             doExecute(flyway);
         } catch (Exception e) {
             throw new MojoExecutionException(e.toString(), ExceptionUtils.getRootCause(e));

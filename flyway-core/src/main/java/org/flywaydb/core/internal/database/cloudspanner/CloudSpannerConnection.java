@@ -20,7 +20,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
-
+import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabase;
 import java.sql.SQLException;
 
 /**
@@ -34,18 +34,18 @@ public class CloudSpannerConnection extends Connection<CloudSpannerDatabase> {
      */
     private static boolean schemaMessagePrinted;
 
-    CloudSpannerConnection(Configuration configuration, CloudSpannerDatabase database, java.sql.Connection connection, boolean originalAutoCommit, int nullType
+    CloudSpannerConnection(Configuration configuration, CloudSpannerDatabase database, java.sql.Connection connection
+        , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, originalAutoCommit, nullType
+        super(configuration, database, connection, originalAutoCommit
 
 
 
         );
     }
-
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {

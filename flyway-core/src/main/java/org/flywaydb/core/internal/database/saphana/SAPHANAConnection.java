@@ -20,7 +20,6 @@ import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 
 import java.sql.SQLException;
-import java.sql.Types;
 
 public class SAPHANAConnection extends Connection<SAPHANADatabase> {
     SAPHANAConnection(Configuration configuration, SAPHANADatabase database, java.sql.Connection connection
@@ -29,7 +28,7 @@ public class SAPHANAConnection extends Connection<SAPHANADatabase> {
 
 
     ) {
-        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit
 
 
 

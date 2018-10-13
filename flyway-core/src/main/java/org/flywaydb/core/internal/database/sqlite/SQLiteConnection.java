@@ -19,8 +19,6 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 
-import java.sql.Types;
-
 /**
  * SQLite connection.
  */
@@ -31,7 +29,7 @@ public class SQLiteConnection extends Connection<SQLiteDatabase> {
 
 
     ) {
-        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit
 
 
 

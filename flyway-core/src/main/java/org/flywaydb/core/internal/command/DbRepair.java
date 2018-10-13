@@ -19,6 +19,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Event;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
@@ -33,7 +34,7 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.ObjectUtils;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.jdbc.TransactionTemplate;
 
 import java.util.concurrent.Callable;
 
@@ -77,10 +78,10 @@ public class DbRepair {
      * @param callbackExecutor  The callback executor.
      */
     public DbRepair(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                    CallbackExecutor callbackExecutor) {
+                    CallbackExecutor callbackExecutor, Configuration configuration) {
         this.database = database;
         this.connection = database.getMainConnection();
-        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory,
+        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration,
                 MigrationVersion.LATEST, true, true, true, true, true);
         this.schemaHistory = schemaHistory;
         this.callbackExecutor = callbackExecutor;

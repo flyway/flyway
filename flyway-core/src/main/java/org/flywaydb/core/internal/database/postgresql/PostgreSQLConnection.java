@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
@@ -23,13 +24,13 @@ import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.concurrent.Callable;
 
 /**
  * PostgreSQL connection.
  */
 public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
+    private final String originalRole;
 
     PostgreSQLConnection(Configuration configuration, PostgreSQLDatabase database, java.sql.Connection connection
             , boolean originalAutoCommit
@@ -37,22 +38,33 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
 
 
     ) {
-        super(configuration, database, connection, originalAutoCommit, Types.NULL
+        super(configuration, database, connection, originalAutoCommit
 
 
 
         );
+
+        try {
+            originalRole = jdbcTemplate.queryForString("SELECT CURRENT_USER");
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine current user", e);
+        }
     }
 
     @Override
     protected void doRestoreOriginalState() throws SQLException {
-        // Reset the role in case a migration or callback changed it
-        jdbcTemplate.execute("RESET ROLE");
+        // Reset the role to its original value in case a migration or callback changed it
+        jdbcTemplate.execute("SET ROLE '" + originalRole + "'");
     }
 
     @Override
     public Schema doGetCurrentSchema() throws SQLException {
-        return getSchema(jdbcTemplate.queryForString("SELECT current_schema"));
+        String currentSchema = jdbcTemplate.queryForString("SELECT current_schema");
+        if (!StringUtils.hasText(currentSchema)) {
+            throw new FlywayException("Unable to determine current schema as search_path is empty. " +
+                    "Set the current schema in currentSchema parameter of the JDBC URL or in Flyway's schemas property.");
+        }
+        return getSchema(currentSchema);
     }
 
     @Override

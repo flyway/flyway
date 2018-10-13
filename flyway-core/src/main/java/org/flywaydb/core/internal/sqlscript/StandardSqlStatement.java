@@ -15,18 +15,16 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-import org.flywaydb.core.internal.util.jdbc.StandardContext;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.util.jdbc.Result;
-import org.flywaydb.core.internal.util.line.Line;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.Results;
+import org.flywaydb.core.internal.line.Line;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**
  * A SQL statement from a script that can be executed at once against a database.
  */
-public class StandardSqlStatement extends AbstractSqlStatement<StandardContext> {
+public class StandardSqlStatement extends AbstractSqlStatement {
     public StandardSqlStatement(List<Line> lines, Delimiter delimiter
 
 
@@ -40,7 +38,7 @@ public class StandardSqlStatement extends AbstractSqlStatement<StandardContext> 
     }
 
     @Override
-    public List<Result> execute(StandardContext context, JdbcTemplate jdbcTemplate) throws SQLException {
-        return jdbcTemplate.executeStatement(context, getSql());
+    public Results execute(JdbcTemplate jdbcTemplate, SqlScriptExecutor sqlScriptExecutor) {
+        return jdbcTemplate.executeStatement(getSql());
     }
 }

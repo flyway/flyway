@@ -16,18 +16,20 @@
 package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.clazz.ClassProvider;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.resolver.java.JavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
+import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,31 +58,34 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * Creates a new CompositeMigrationResolver.
      *
-     * @param database                 The database-specific support.
-     * @param scanner                  The Scanner for loading migrations on the classpath.
-     * @param configuration            The Flyway configuration.
-     * @param locations                The locations where migrations are located.
-     * @param placeholderReplacer      The placeholder replacer to use.
-     * @param customMigrationResolvers Custom Migration Resolvers.
+     * @param database                   The database-specific support.
+     * @param resourceProvider           The resource provider.
+     * @param classProvider              The class provider.
+     * @param configuration              The Flyway configuration.
+     * @param sqlStatementBuilderFactory The SQL statement builder factory.
+     * @param customMigrationResolvers   Custom Migration Resolvers.
      */
-    public CompositeMigrationResolver(Database database, Scanner scanner, Configuration configuration,
-                                      List<Location> locations,
-                                      PlaceholderReplacer placeholderReplacer
+    public CompositeMigrationResolver(Database database,
+                                      ResourceProvider resourceProvider,
+                                      ClassProvider classProvider,
+                                      Configuration configuration,
+                                      SqlStatementBuilderFactory sqlStatementBuilderFactory
 
 
 
             , MigrationResolver... customMigrationResolvers
     ) {
         if (!configuration.isSkipDefaultResolvers()) {
-            migrationResolvers.add(new SqlMigrationResolver(database, scanner, locations, placeholderReplacer
+            migrationResolvers.add(new SqlMigrationResolver(database, resourceProvider, sqlStatementBuilderFactory
 
 
 
                     , configuration));
-            migrationResolvers.add(new JdbcMigrationResolver(scanner, locations, configuration));
+            migrationResolvers.add(new JavaMigrationResolver(classProvider, configuration));
+            migrationResolvers.add(new JdbcMigrationResolver(classProvider, configuration));
 
-            if (new FeatureDetector(scanner.getClassLoader()).isSpringJdbcAvailable()) {
-                migrationResolvers.add(new SpringJdbcMigrationResolver(scanner, locations, configuration));
+            if (new FeatureDetector(configuration.getClassLoader()).isSpringJdbcAvailable()) {
+                migrationResolvers.add(new SpringJdbcMigrationResolver(classProvider, configuration));
             }
         }
 
@@ -94,9 +99,9 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * can be found.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
-    public List<ResolvedMigration> resolveMigrations() {
+    public List<ResolvedMigration> resolveMigrations(Context context) {
         if (availableMigrations == null) {
-            availableMigrations = doFindAvailableMigrations();
+            availableMigrations = doFindAvailableMigrations(context);
         }
 
         return availableMigrations;
@@ -109,8 +114,8 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * can be found.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
-    private List<ResolvedMigration> doFindAvailableMigrations() throws FlywayException {
-        List<ResolvedMigration> migrations = new ArrayList<>(collectMigrations(migrationResolvers));
+    private List<ResolvedMigration> doFindAvailableMigrations(Context context) throws FlywayException {
+        List<ResolvedMigration> migrations = new ArrayList<>(collectMigrations(migrationResolvers, context));
         Collections.sort(migrations, new ResolvedMigrationComparator());
 
         checkForIncompatibilities(migrations);
@@ -125,10 +130,10 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @return All migrations.
      */
     /* private -> for testing */
-    static Collection<ResolvedMigration> collectMigrations(Collection<MigrationResolver> migrationResolvers) {
+    static Collection<ResolvedMigration> collectMigrations(Collection<MigrationResolver> migrationResolvers, Context context) {
         Set<ResolvedMigration> migrations = new HashSet<>();
         for (MigrationResolver migrationResolver : migrationResolvers) {
-            migrations.addAll(migrationResolver.resolveMigrations());
+            migrations.addAll(migrationResolver.resolveMigrations(context));
         }
         return migrations;
     }

@@ -17,9 +17,9 @@ package org.flywaydb.core.internal.database.base;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.jdbc.TransactionTemplate;
 
 import java.io.Closeable;
 import java.sql.SQLException;
@@ -41,7 +41,7 @@ public abstract class Connection<D extends Database> implements Closeable {
     private boolean originalAutoCommit;
 
     protected Connection(Configuration configuration, D database, java.sql.Connection connection
-            , boolean originalAutoCommit, int nullType
+            , boolean originalAutoCommit
 
 
 
@@ -62,11 +62,13 @@ public abstract class Connection<D extends Database> implements Closeable {
 
 
 
+
+
             this.jdbcConnection = connection;
 
 
 
-        jdbcTemplate = new JdbcTemplate(jdbcConnection, nullType);
+        jdbcTemplate = new JdbcTemplate(jdbcConnection);
         try {
             originalSchemaNameOrSearchPath = getCurrentSchemaNameOrSearchPath();
         } catch (SQLException e) {

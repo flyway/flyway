@@ -98,6 +98,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         return appliedMigration;
     }
 
+    @Override
     public MigrationType getType() {
         if (appliedMigration != null) {
             return appliedMigration.getType();
@@ -105,6 +106,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         return resolvedMigration.getType();
     }
 
+    @Override
     public Integer getChecksum() {
         if (appliedMigration != null) {
             return appliedMigration.getChecksum();
@@ -112,6 +114,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         return resolvedMigration.getChecksum();
     }
 
+    @Override
     public MigrationVersion getVersion() {
         if (appliedMigration != null) {
             return appliedMigration.getVersion();
@@ -119,6 +122,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         return resolvedMigration.getVersion();
     }
 
+    @Override
     public String getDescription() {
         if (appliedMigration != null) {
             return appliedMigration.getDescription();
@@ -126,6 +130,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         return resolvedMigration.getDescription();
     }
 
+    @Override
     public String getScript() {
         if (appliedMigration != null) {
             return appliedMigration.getScript();
@@ -133,6 +138,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         return resolvedMigration.getScript();
     }
 
+    @Override
     public MigrationState getState() {
         if (appliedMigration == null) {
             if (resolvedMigration.getVersion() != null) {
@@ -201,6 +207,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         return MigrationState.SUCCESS;
     }
 
+    @Override
     public Date getInstalledOn() {
         if (appliedMigration != null) {
             return appliedMigration.getInstalledOn();
@@ -224,6 +231,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         return null;
     }
 
+    @Override
     public Integer getExecutionTime() {
         if (appliedMigration != null) {
             return appliedMigration.getExecutionTime();
@@ -315,6 +323,7 @@ public class MigrationInfoImpl implements MigrationInfo {
                 migrationIdentifier, applied, resolved);
     }
 
+    @Override
     @SuppressWarnings("NullableProblems")
     public int compareTo(MigrationInfo o) {
         if ((getInstalledRank() != null) && (o.getInstalledRank() != null)) {

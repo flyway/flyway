@@ -19,19 +19,17 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 
-import java.sql.Types;
-
 /**
  * Sybase ASE Connection.
  */
 public class SybaseASEConnection extends Connection<SybaseASEDatabase> {
     SybaseASEConnection(Configuration configuration, SybaseASEDatabase database, java.sql.Connection connection
-            , boolean originalAutoCommit, boolean jconnect
+            , boolean originalAutoCommit
 
 
 
     ) {
-        super(configuration, database, connection, originalAutoCommit, jconnect ? Types.VARCHAR : Types.NULL
+        super(configuration, database, connection, originalAutoCommit
 
 
 

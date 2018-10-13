@@ -46,6 +46,21 @@ public interface Configuration {
     DataSource getDataSource();
 
     /**
+     * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
+     * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     *
+     * @return The maximum number of retries when attempting to connect to the database. (default: 0)
+     */
+    int getConnectRetries();
+
+    /**
+     * The SQL statements to run to initialize a new database connection immediately after opening it.
+     *
+     * @return The SQL statements. (default: {@code null})
+     */
+    String getInitSql();
+
+    /**
      * Retrieves the version to tag an existing schema with when executing baseline.
      *
      * @return The version to tag an existing schema with when executing baseline. (default: 1)
@@ -208,9 +223,9 @@ public interface Configuration {
      * Retrieves the locations to scan recursively for migrations.
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
-     * contain both sql and java-based migrations.
-     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
-     * migrations.</p>
+     * contain both SQL and Java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
      *
      * @return Locations to scan recursively for migrations. (default: classpath:db/migration)
      */
@@ -272,6 +287,17 @@ public interface Configuration {
      * (default: {@code false})
      */
     boolean isIgnoreIgnoredMigrations();
+
+    /**
+     * Ignore pending migrations when reading the schema history table. These are migrations that are available
+     * but have not yet been applied. This can be useful for verifying that in-development migration changes
+     * don't contain any validation-breaking changes of migrations that have already been applied to a production
+     * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
+     *
+     * @return {@code true} to continue normally, {@code false} to fail fast with an exception.
+     * (default: {@code false})
+     */
+    boolean isIgnorePendingMigrations();
 
     /**
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a

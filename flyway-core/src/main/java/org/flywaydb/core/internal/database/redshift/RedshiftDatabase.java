@@ -17,10 +17,13 @@ package org.flywaydb.core.internal.database.redshift;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -80,8 +83,12 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
-        return RedshiftSqlStatementBuilderFactory.INSTANCE;
+    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+
+
+
+    ) {
+        return new RedshiftSqlStatementBuilderFactory(placeholderReplacer);
     }
 
     @Override
@@ -133,8 +140,10 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
         return false;
     }
 
-    private enum RedshiftSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
-        INSTANCE;
+    private static class RedshiftSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
+        public RedshiftSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+            super(placeholderReplacer);
+        }
 
         @Override
         public SqlStatementBuilder createSqlStatementBuilder() {

@@ -17,14 +17,15 @@ package org.flywaydb.core.internal.database.sqlserver;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
-import org.flywaydb.core.internal.util.scanner.StringResource;
+import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.internal.resource.StringResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -121,8 +122,12 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory getSqlStatementBuilderFactory() {
-        return SQLServerSqlStatementBuilderFactory.INSTANCE;
+    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+
+
+
+    ) {
+        return new SQLServerSqlStatementBuilderFactory(placeholderReplacer);
     }
 
     @Override
@@ -212,12 +217,4 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         return azure;
     }
 
-    enum SQLServerSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
-        INSTANCE;
-
-        @Override
-        public SqlStatementBuilder createSqlStatementBuilder() {
-            return new SQLServerSqlStatementBuilder();
-        }
-    }
 }

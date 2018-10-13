@@ -20,7 +20,6 @@ import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * Oracle connection.
@@ -32,7 +31,7 @@ public class OracleConnection extends Connection<OracleDatabase> {
 
 
     ) {
-        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit
 
 
 

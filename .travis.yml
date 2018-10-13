@@ -3,6 +3,7 @@ language: java
 jdk:
   - oraclejdk9
   - oraclejdk10
+  - openjdk11
 install: "sh ./mvnw install -e"
 before_script: echo OK
 script: echo Done.

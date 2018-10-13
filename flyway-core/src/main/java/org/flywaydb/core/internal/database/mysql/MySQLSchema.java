@@ -15,9 +15,9 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class MySQLSchema extends Schema<MySQLDatabase> {
      * Creates a new MySQL schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param name         The name of the schema.
      */
     MySQLSchema(JdbcTemplate jdbcTemplate, MySQLDatabase database, String name) {
@@ -41,21 +41,21 @@ public class MySQLSchema extends Schema<MySQLDatabase> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name=?", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT (SELECT 1 FROM information_schema.schemata WHERE schema_name=? LIMIT 1)", name) > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt("Select "
-                        + "(Select count(*) from information_schema.TABLES Where TABLE_SCHEMA=?) + "
-                        + "(Select count(*) from information_schema.VIEWS Where TABLE_SCHEMA=?) + "
-                        + "(Select count(*) from information_schema.TABLE_CONSTRAINTS Where TABLE_SCHEMA=?) + "
-                        + "(Select count(*) from information_schema.EVENTS Where EVENT_SCHEMA=?) + "
-                        + "(Select count(*) from information_schema.TRIGGERS Where TRIGGER_SCHEMA=?) + "
-                        + "(Select count(*) from information_schema.ROUTINES Where ROUTINE_SCHEMA=?)",
+        return jdbcTemplate.queryForInt("SELECT SUM(found) FROM ("
+                        + "(SELECT 1 as found FROM information_schema.tables WHERE table_schema=?) UNION ALL "
+                        + "(SELECT 1 as found FROM information_schema.views WHERE table_schema=? LIMIT 1) UNION ALL "
+                        + "(SELECT 1 as found FROM information_schema.table_constraints WHERE table_schema=? LIMIT 1) UNION ALL "
+                        + "(SELECT 1 as found FROM information_schema.events WHERE event_schema=? LIMIT 1) UNION ALL "
+                        + "(SELECT 1 as found FROM information_schema.triggers WHERE trigger_schema=? LIMIT 1) UNION ALL "
+                        + "(SELECT 1 as found FROM information_schema.routines WHERE routine_schema=? LIMIT 1)"
+                        + ") as all_found",
                 name, name, name, name, name, name
-        );
-        return objectCount == 0;
+        ) == 0;
     }
 
     @Override

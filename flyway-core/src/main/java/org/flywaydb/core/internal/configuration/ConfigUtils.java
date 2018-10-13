@@ -66,6 +66,7 @@ public class ConfigUtils {
     public static final String CALLBACKS = "flyway.callbacks";
     public static final String CLEAN_DISABLED = "flyway.cleanDisabled";
     public static final String CLEAN_ON_VALIDATION_ERROR = "flyway.cleanOnValidationError";
+    public static final String CONNECT_RETRIES = "flyway.connectRetries";
     public static final String DRIVER = "flyway.driver";
     public static final String DRYRUN_OUTPUT = "flyway.dryRunOutput";
     public static final String ENCODING = "flyway.encoding";
@@ -78,6 +79,8 @@ public class ConfigUtils {
     public static final String IGNORE_FUTURE_MIGRATIONS = "flyway.ignoreFutureMigrations";
     public static final String IGNORE_MISSING_MIGRATIONS = "flyway.ignoreMissingMigrations";
     public static final String IGNORE_IGNORED_MIGRATIONS = "flyway.ignoreIgnoredMigrations";
+    public static final String IGNORE_PENDING_MIGRATIONS = "flyway.ignorePendingMigrations";
+    public static final String INIT_SQL = "flyway.initSql";
     public static final String INSTALLED_BY = "flyway.installedBy";
     public static final String LICENSE_KEY = "flyway.licenseKey";
     public static final String LOCATIONS = "flyway.locations";
@@ -144,6 +147,16 @@ public class ConfigUtils {
                 @Override
                 public DataSource getDataSource() {
                     return configuration.getDataSource();
+                }
+
+                @Override
+                public int getConnectRetries() {
+                    return 0;
+                }
+
+                @Override
+                public String getInitSql() {
+                    return configuration.getInitSql();
                 }
 
                 @Override
@@ -267,6 +280,11 @@ public class ConfigUtils {
                 }
 
                 @Override
+                public boolean isIgnorePendingMigrations() {
+                    return configuration.isIgnorePendingMigrations();
+                }
+
+                @Override
                 public boolean isIgnoreFutureMigrations() {
                     return configuration.isIgnoreFutureMigrations();
                 }
@@ -386,6 +404,9 @@ public class ConfigUtils {
         if ("FLYWAY_CONFIG_FILES".equals(key)) {
             return CONFIG_FILES;
         }
+        if ("FLYWAY_CONNECT_RETRIES".equals(key)) {
+            return CONNECT_RETRIES;
+        }
         if ("FLYWAY_DRIVER".equals(key)) {
             return DRIVER;
         }
@@ -412,6 +433,12 @@ public class ConfigUtils {
         }
         if ("FLYWAY_IGNORE_IGNORED_MIGRATIONS".equals(key)) {
             return IGNORE_IGNORED_MIGRATIONS;
+        }
+        if ("FLYWAY_IGNORE_PENDING_MIGRATIONS".equals(key)) {
+            return IGNORE_PENDING_MIGRATIONS;
+        }
+        if ("FLYWAY_INIT_SQL".equals(key)) {
+            return INIT_SQL;
         }
         if ("FLYWAY_INSTALLED_BY".equals(key)) {
             return INSTALLED_BY;

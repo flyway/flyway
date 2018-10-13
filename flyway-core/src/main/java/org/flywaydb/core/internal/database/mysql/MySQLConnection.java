@@ -24,7 +24,6 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -40,13 +39,12 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
 
     ) {
-        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit
 
 
 
         );
     }
-
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
@@ -55,7 +53,9 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
     @Override
     public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
-        if (!StringUtils.hasLength(schema)) {
+        if (StringUtils.hasLength(schema)) {
+            jdbcTemplate.getConnection().setCatalog(schema);
+        } else {
             try {
                 // Weird hack to switch back to no database selected...
                 String newDb = database.quote(UUID.randomUUID().toString());
@@ -65,8 +65,6 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
             } catch (Exception e) {
                 LOG.warn("Unable to restore connection to having no default schema: " + e.getMessage());
             }
-        } else {
-            jdbcTemplate.getConnection().setCatalog(schema);
         }
     }
 
@@ -77,6 +75,9 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
     @Override
     public <T> T lock(Table table, Callable<T> callable) {
+        if (database.isPxcStrict()) {
+            return super.lock(table, callable);
+        }
         return new MySQLNamedLockTemplate(jdbcTemplate, table.toString().hashCode()).execute(callable);
     }
 }

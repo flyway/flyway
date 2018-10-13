@@ -26,7 +26,7 @@ import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.license.VersionPrinter;
+import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.internal.logging.console.ConsoleLogCreator;
 
@@ -101,8 +101,7 @@ public class Main {
             classLoader = loadJavaMigrationsFromJarDirs(classLoader, properties);
 
             filterProperties(properties);
-            Flyway flyway = new Flyway(classLoader);
-            flyway.configure(properties);
+            Flyway flyway = Flyway.configure(classLoader).configure(properties).load();
 
             for (String operation : operations) {
                 executeOperation(flyway, operation);
@@ -258,6 +257,8 @@ public class Main {
         LOG.info("url                          : Jdbc url to use to connect to the database");
         LOG.info("user                         : User to use to connect to the database");
         LOG.info("password                     : Password to use to connect to the database");
+        LOG.info("connectRetries               : Maximum number of retries when attempting to connect to the database");
+        LOG.info("initSql                      : SQL statements to run to initialize a new database connection");
         LOG.info("schemas                      : Comma-separated list of the schemas managed by Flyway");
         LOG.info("table                        : Name of Flyway's schema history table");
         LOG.info("locations                    : Classpath locations to scan recursively for migrations");
@@ -284,6 +285,7 @@ public class Main {
         LOG.info("validateOnMigrate            : Validate when running migrate");
         LOG.info("ignoreMissingMigrations      : Allow missing migrations when validating");
         LOG.info("ignoreIgnoredMigrations      : Allow ignored migrations when validating");
+        LOG.info("ignorePendingMigrations      : Allow pending migrations when validating");
         LOG.info("ignoreFutureMigrations       : Allow future migrations when validating");
         LOG.info("cleanOnValidationError       : Automatically clean on a validation error");
         LOG.info("cleanDisabled                : Whether to disable clean");

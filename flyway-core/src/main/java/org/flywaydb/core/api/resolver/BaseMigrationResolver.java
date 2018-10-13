@@ -21,7 +21,10 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
 /**
  * Base implementation of {@link MigrationResolver} that handles configuration injections by storing the
  * configuration object in a field.
+ *
+ * @deprecated Will be removed in Flyway 6.0.
  */
+@Deprecated
 public abstract class BaseMigrationResolver implements MigrationResolver, ConfigurationAware {
 
     protected FlywayConfiguration flywayConfiguration;

@@ -16,10 +16,9 @@
 package org.flywaydb.core.internal.database.postgresql;
 
 import org.flywaydb.core.internal.sqlscript.Delimiter;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.StandardContext;
 
 import java.util.Collection;
 import java.util.regex.Matcher;
@@ -47,11 +46,6 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     private static final Pattern CREATE_RULE_PARTIAL_REGEX = Pattern.compile("^CREATE( OR REPLACE)? RULE .* DO (ALSO|INSTEAD) \\(.*");
 
     /**
-     * Are we at the beginning of the statement.
-     */
-    private boolean firstLine = true;
-
-    /**
      * The copy statement seen so far.
      */
     private String copyStatement;
@@ -75,9 +69,9 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public SqlStatement<StandardContext> getSqlStatement() {
+    public SqlStatement getSqlStatement() {
         if (pgCopy) {
-            return new PostgreSQLCopyStatement(lines);
+            return new PostgreSQLCopyStatement(lines.subList(firstNonCommentLine, lines.size()));
         }
         return super.getSqlStatement();
     }
@@ -107,7 +101,7 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
                 || VACUUM_REGEX.matcher(statementStart).matches()
                 || DISCARD_ALL_REGEX.matcher(statementStart).matches()
                 || ALTER_TYPE_ADD_VALUE_REGEX.matcher(statementStart).matches()
-                ) {
+        ) {
             executeInTransaction = false;
         }
     }
@@ -137,11 +131,8 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
             return PostgreSQLCopyStatement.COPY_DELIMITER;
         }
 
-        if (firstLine) {
-            firstLine = false;
-            if (COPY_REGEX.matcher(line).matches()) {
-                copyStatement = line;
-            }
+        if (COPY_REGEX.matcher(line).matches()) {
+            copyStatement = line;
         } else if (copyStatement != null) {
             copyStatement += " " + line;
         }

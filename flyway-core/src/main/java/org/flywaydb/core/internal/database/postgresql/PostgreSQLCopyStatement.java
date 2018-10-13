@@ -15,25 +15,25 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.Result;
+import org.flywaydb.core.internal.jdbc.Results;
+import org.flywaydb.core.internal.line.Line;
 import org.flywaydb.core.internal.sqlscript.AbstractSqlStatement;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
-import org.flywaydb.core.internal.util.jdbc.StandardContext;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.util.jdbc.Result;
-import org.flywaydb.core.internal.util.line.Line;
+import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A PostgreSQL COPY FROM STDIN statement.
  */
-public class PostgreSQLCopyStatement extends AbstractSqlStatement<StandardContext> {
+public class PostgreSQLCopyStatement extends AbstractSqlStatement {
     /**
      * Delimiter of COPY statements.
      */
@@ -53,7 +53,7 @@ public class PostgreSQLCopyStatement extends AbstractSqlStatement<StandardContex
     }
 
     @Override
-    public List<Result> execute(StandardContext context, JdbcTemplate jdbcTemplate) throws SQLException {
+    public Results execute(JdbcTemplate jdbcTemplate, SqlScriptExecutor sqlScriptExecutor) {
         String sql = getSql();
         int split = sql.indexOf(";");
 
@@ -67,17 +67,21 @@ public class PostgreSQLCopyStatement extends AbstractSqlStatement<StandardContex
         }
         data = buf.toString();
 
-        List<Result> results = new ArrayList<>();
-        CopyManager copyManager = new CopyManager(jdbcTemplate.getConnection().unwrap(BaseConnection.class));
+        Results results = new Results();
         try {
-            long updateCount = copyManager.copyIn(statement, new StringReader(data));
-            results.add(new Result(updateCount
+            CopyManager copyManager = new CopyManager(jdbcTemplate.getConnection().unwrap(BaseConnection.class));
+            try {
+                long updateCount = copyManager.copyIn(statement, new StringReader(data));
+                results.addResult(new Result(updateCount
 
 
 
-            ));
-        } catch (IOException e) {
-            throw new SQLException("Unable to execute COPY operation", e);
+                ));
+            } catch (IOException e) {
+                throw new SQLException("Unable to execute COPY operation", e);
+            }
+        } catch (SQLException e) {
+            results.setException(e);
         }
         return results;
     }

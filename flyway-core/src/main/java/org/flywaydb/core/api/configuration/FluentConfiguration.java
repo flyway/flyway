@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.api.configuration;
 
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
@@ -55,11 +56,32 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * Loads this configuration into a new Flyway instance.
+     *
+     * @return The new fully-configured Flyway instance.
+     */
+    public Flyway load() {
+        return new Flyway(this);
+    }
+
+    /**
+     * Configure with the same values as this existing configuration.
+     *
+     * @param configuration The configuration to use.
+     * @deprecated Use configuration() instead. Will be removed in Flyway 6.0.
+     */
+    @Deprecated
+    public FluentConfiguration configure(Configuration configuration) {
+        config.configure(configuration);
+        return this;
+    }
+
+    /**
      * Configure with the same values as this existing configuration.
      *
      * @param configuration The configuration to use.
      */
-    public FluentConfiguration configure(Configuration configuration) {
+    public FluentConfiguration configuration(Configuration configuration) {
         config.configure(configuration);
         return this;
     }
@@ -140,6 +162,11 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public boolean isIgnorePendingMigrations() {
+        return config.isIgnorePendingMigrations();
+    }
+    
+    @Override
     public boolean isIgnoreFutureMigrations() {
         return config.isIgnoreFutureMigrations();
     }
@@ -192,6 +219,16 @@ public class FluentConfiguration implements Configuration {
     @Override
     public DataSource getDataSource() {
         return config.getDataSource();
+    }
+
+    @Override
+    public int getConnectRetries() {
+        return config.getConnectRetries();
+    }
+
+    @Override
+    public String getInitSql() {
+        return config.getInitSql();
     }
 
     @Override
@@ -406,6 +443,20 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * Ignore pending migrations when reading the schema history table. These are migrations that are available
+     * but have not yet been applied. This can be useful for verifying that in-development migration changes
+     * don't contain any validation-breaking changes of migrations that have already been applied to a production
+     * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
+     *
+     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception.
+     *                                (default: {@code false})
+     */
+    public FluentConfiguration ignorePendingMigrations(boolean ignorePendingMigrations) {
+        config.setIgnorePendingMigrations(ignorePendingMigrations);
+        return this;
+    }
+    
+    /**
      * Whether to ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
@@ -461,9 +512,9 @@ public class FluentConfiguration implements Configuration {
      * Sets the locations to scan recursively for migrations.
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
-     * contain both sql and java-based migrations.
-     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
-     * migrations.</p>
+     * contain both SQL and Java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
      *
      * @param locations Locations to scan recursively for migrations. (default: db/migration)
      */
@@ -476,9 +527,9 @@ public class FluentConfiguration implements Configuration {
      * Sets the locations to scan recursively for migrations.
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
-     * contain both sql and java-based migrations.
-     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
-     * migrations.</p>
+     * contain both SQL and Java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
      *
      * @param locations Locations to scan recursively for migrations. (default: db/migration)
      */
@@ -681,15 +732,49 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the datasource to use. Must have the necessary privileges to execute ddl.
-     * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
+     *
+     * @param url      The JDBC URL of the database.
+     * @param user     The user of the database.
+     * @param password The password of the database.
+     */
+    public FluentConfiguration dataSource(String url, String user, String password) {
+        config.setDataSource(url, user, password);
+        return this;
+    }
+
+    /**
+     * Sets the datasource to use. Must have the necessary privileges to execute ddl.
      *
      * @param url      The JDBC URL of the database.
      * @param user     The user of the database.
      * @param password The password of the database.
      * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
+     * @deprecated Use the separate initSql() method in addition to the dataSource() method if you need to set the initSql. This method will be removed in Flyway 6.0.
      */
     public FluentConfiguration dataSource(String url, String user, String password, String... initSqls) {
         config.setDataSource(url, user, password, initSqls);
+        return this;
+    }
+
+    /**
+     * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
+     * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     *
+     * @param connectRetries The maximum number of retries (default: 0).
+     */
+    public FluentConfiguration connectRetries(int connectRetries) {
+        config.setConnectRetries(connectRetries);
+        return this;
+    }
+
+
+    /**
+     * The SQL statements to run to initialize a new database connection immediately after opening it.
+     *
+     * @param initSql  The SQL statements. (default: {@code null})
+     */
+    public FluentConfiguration initSql(String initSql) {
+        config.setInitSql(initSql);
         return this;
     }
 
@@ -889,7 +974,9 @@ public class FluentConfiguration implements Configuration {
      *
      * @param properties Properties used for configuration.
      * @throws FlywayException when the configuration failed.
+     * @deprecated Use configuration() instead. Will be removed in Flyway 6.0.
      */
+    @Deprecated
     @SuppressWarnings("ConstantConditions")
     public FluentConfiguration configure(Properties properties) {
         config.configure(properties);
@@ -903,8 +990,37 @@ public class FluentConfiguration implements Configuration {
      *
      * @param props Properties used for configuration.
      * @throws FlywayException when the configuration failed.
+     * @deprecated Use configuration() instead. Will be removed in Flyway 6.0.
      */
+    @Deprecated
     public FluentConfiguration configure(Map<String, String> props) {
+        config.configure(props);
+        return this;
+    }
+
+    /**
+     * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
+     * documented in the flyway maven plugin.
+     * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
+     *
+     * @param properties Properties used for configuration.
+     * @throws FlywayException when the configuration failed.
+     */
+    @SuppressWarnings("ConstantConditions")
+    public FluentConfiguration configuration(Properties properties) {
+        config.configure(properties);
+        return this;
+    }
+
+    /**
+     * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
+     * documented in the flyway maven plugin.
+     * <p>To use a custom ClassLoader, it must be passed to the Flyway constructor prior to calling this method.</p>
+     *
+     * @param props Properties used for configuration.
+     * @throws FlywayException when the configuration failed.
+     */
+    public FluentConfiguration configuration(Map<String, String> props) {
         config.configure(props);
         return this;
     }

@@ -44,8 +44,10 @@ public enum NoopCallbackExecutor implements CallbackExecutor {
     public void onEachMigrateOrUndoEvent(Event event) {
     }
 
-    @Override
-    public boolean onEachMigrateOrUndoStatementEvent(Event event, String sql, List<Warning> warnings, List<Error> errors) {
-        return false;
-    }
+
+
+
+
+
+
 }

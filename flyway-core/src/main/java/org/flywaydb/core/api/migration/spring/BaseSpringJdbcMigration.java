@@ -22,7 +22,10 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
  * Convenience implementation if {@link SpringJdbcMigration}. {@link ConfigurationAware#setFlywayConfiguration(FlywayConfiguration)}
  * is implemented by storing the configuration in a field. It is encouraged to subclass this class instead of implementing
  * SpringJdbcMigration directly, to guard against possible API additions in future major releases of Flyway.
+ *
+ * @deprecated Extend JavaMigration or BaseJavaMigration instead. Will be removed in Flyway 6.0.
  */
+@Deprecated
 public abstract class BaseSpringJdbcMigration implements SpringJdbcMigration, ConfigurationAware {
 
     protected FlywayConfiguration flywayConfiguration;

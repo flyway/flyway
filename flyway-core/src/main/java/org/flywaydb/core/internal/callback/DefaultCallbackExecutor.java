@@ -26,7 +26,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.jdbc.TransactionTemplate;
 
 import java.util.Collection;
 import java.util.List;
@@ -82,17 +82,19 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
         }
     }
 
-    @Override
-    public boolean onEachMigrateOrUndoStatementEvent(Event event, String sql, List<Warning> warnings, List<Error> errors) {
-        final Context context = new SimpleContext(configuration, database.getMigrationConnection(), migrationInfo,
-                sql, warnings, errors);
-        for (Callback callback : callbacks) {
-            if (callback.supports(event, context)) {
-                handleEvent(callback, event, context);
-            }
-        }
-        return context.getStatement() != null && context.getStatement().isSuppressErrors();
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private void execute(final Event event, final Connection connection) {
         final Context context = new SimpleContext(configuration, connection, null);

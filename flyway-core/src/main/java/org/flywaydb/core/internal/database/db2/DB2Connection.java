@@ -20,7 +20,6 @@ import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
  * DB2 connection.
@@ -32,7 +31,7 @@ public class DB2Connection extends Connection<DB2Database> {
 
 
     ) {
-        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit
 
 
 

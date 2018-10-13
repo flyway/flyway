@@ -22,7 +22,6 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.concurrent.Callable;
 
 /**
@@ -38,7 +37,7 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
 
 
     ) {
-        super(configuration, database, connection, originalAutoCommit, Types.VARCHAR
+        super(configuration, database, connection, originalAutoCommit
 
 
 
