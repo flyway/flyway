@@ -121,7 +121,7 @@ public class DatabaseFactory {
     ) {
         switch (databaseType) {
             case CLOUDSPANNER:
-                return new CockroachDBDatabase(configuration, connection, originalAutoCommit
+                return new CloudSpannerDatabase(configuration, connection, originalAutoCommit
 
 
 
