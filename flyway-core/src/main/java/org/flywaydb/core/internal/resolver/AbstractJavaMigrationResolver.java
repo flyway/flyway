@@ -124,8 +124,8 @@ public abstract class AbstractJavaMigrationResolver<M, E extends MigrationExecut
             MigrationInfoProvider infoProvider = (MigrationInfoProvider) migration;
             version = infoProvider.getVersion();
             description = infoProvider.getDescription();
-            if (!StringUtils.hasText(description)) {
-                throw new FlywayException("Missing description for migration " + version);
+            if (version == null && !StringUtils.hasText(description)) {
+                throw new FlywayException("Missing description for repeatable migration " + version);
             }
 
 

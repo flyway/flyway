@@ -16,6 +16,8 @@
 package org.flywaydb.core.internal.info;
 
 
+import java.util.Date;
+
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
@@ -24,8 +26,6 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
 import org.flywaydb.core.internal.util.ObjectUtils;
-
-import java.util.Date;
 
 /**
  * Default implementation of MigrationInfo.
@@ -297,8 +297,8 @@ public class MigrationInfoImpl implements MigrationInfo {
                                 appliedMigration.getChecksum(), resolvedMigration.getChecksum());
                     }
                 }
-                if (!AbbreviationUtils.abbreviateDescription(resolvedMigration.getDescription())
-                        .equals(appliedMigration.getDescription())) {
+                if (!ObjectUtils.nullSafeEquals(AbbreviationUtils.abbreviateDescription(resolvedMigration.getDescription())
+                        , appliedMigration.getDescription())) {
                     return createMismatchMessage("description", migrationIdentifier,
                             appliedMigration.getDescription(), resolvedMigration.getDescription());
                 }

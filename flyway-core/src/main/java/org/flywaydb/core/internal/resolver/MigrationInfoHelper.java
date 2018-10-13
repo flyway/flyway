@@ -33,7 +33,8 @@ public class MigrationInfoHelper {
     }
 
     /**
-     * Extracts the schema version and the description from a migration name formatted as 1_2__Description.
+     * Extracts the schema version and the description from a migration name formatted as 1_2__Description. 
+     * Description is optional, though, for versioned migrations 
      *
      * @param migrationName The migration name to parse. Should not contain any folders or packages.
      * @param prefix        The migration prefix.
@@ -50,14 +51,15 @@ public class MigrationInfoHelper {
 
         // Handle the description
         int descriptionPos = cleanMigrationName.indexOf(separator);
-        if (descriptionPos < 0) {
-            throw new FlywayException("Wrong migration name format: " + migrationName
+        // Versioned migrations without descriptions are allowed
+        if (descriptionPos < 0 && repeatable) {
+            throw new FlywayException("Wrong repeatable migration name format: " + migrationName
                     + "(It should look like this: "
-                    + prefix + (repeatable ? "" : "1.2") + separator + "Description" + suffixes[0] + ")");
+                    + prefix + separator + "Description" + suffixes[0] + ")");
         }
 
-        String version = cleanMigrationName.substring(0, descriptionPos);
-        String description = cleanMigrationName.substring(descriptionPos + separator.length()).replace("_", " ");
+        String version = descriptionPos < 0 && !repeatable ? cleanMigrationName : cleanMigrationName.substring(0, descriptionPos);
+        String description = descriptionPos > -1 ? cleanMigrationName.substring(descriptionPos + separator.length()).replace("_", " ") : "";
         if (StringUtils.hasText(version)) {
             if (repeatable) {
                 throw new FlywayException("Wrong repeatable migration name format: " + migrationName
@@ -69,7 +71,7 @@ public class MigrationInfoHelper {
         if (!repeatable) {
             throw new FlywayException("Wrong versioned migration name format: " + migrationName
                     + "(It must contain a version and should look like this: "
-                    + prefix + "1.2" + separator + description + suffixes[0] + ")");
+                    + prefix + "1.2" + separator + description + suffixes[0] + " OR " + prefix + "1.2" + separator + suffixes[0] + ")");
         }
         return Pair.of(null, description);
     }

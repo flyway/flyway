@@ -15,9 +15,9 @@
  */
 package org.flywaydb.core.internal.resolver;
 
-import org.flywaydb.core.api.resolver.ResolvedMigration;
-
 import java.util.Comparator;
+
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 
 /**
 * Comparator for ResolvedMigration.
@@ -48,6 +48,19 @@ public class ResolvedMigrationComparator implements Comparator<ResolvedMigration
         if (o2.getVersion() != null) {
             return Integer.MAX_VALUE;
         }
+
+        if(o1.getDescription() == null && o2.getDescription() == null) {
+        	return 0;
+        }
+        
+        if(o1.getDescription() == null) {
+        	return -1;
+        }
+        
+        if(o2.getDescription() == null) {
+        	return 1;
+        }
+        
         return o1.getDescription().compareTo(o2.getDescription());
     }
 }
