@@ -42,6 +42,7 @@ public class DriverDataSource implements DataSource {
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
     private static final String MARIADB_JDBC_URL_PREFIX = "jdbc:mariadb:";
     private static final String MYSQL_JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+    private static final String MYSQL_LEGACY_JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql:";
     private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle:";
     private static final String POSTGRESQL_JDBC_URL_PREFIX = "jdbc:postgresql:";
@@ -249,6 +250,10 @@ public class DriverDataSource implements DataSource {
      * @return The JDBC driver. {@code null} if none.
      */
     private String detectBackupDriverForUrl(String url) {
+        if (url.startsWith(MYSQL_JDBC_URL_PREFIX) && ClassUtils.isPresent(MYSQL_LEGACY_JDBC_DRIVER, classLoader)) {
+            return MYSQL_LEGACY_JDBC_DRIVER;
+        }
+
         if (url.startsWith(MYSQL_JDBC_URL_PREFIX) && ClassUtils.isPresent(MARIADB_JDBC_DRIVER, classLoader)) {
             LOG.warn("You are attempting to connect to a MySQL database using the MariaDB driver." +
                     " This is known to cause issues." +
