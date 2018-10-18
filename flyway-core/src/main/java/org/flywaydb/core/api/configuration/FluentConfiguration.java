@@ -559,12 +559,14 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Sets the schemas managed by Flyway. These schema names are case-sensitive. (default: The default schema for the datasource connection)
+     * Sets the schemas managed by Flyway. These schema names are case-sensitive. (default: The default schema for the database connection)
      * <p>Consequences:</p>
      * <ul>
+     * <li>Flyway will automatically attempt to create all these schemas, unless the first one already exists.</li>
      * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
      * <li>The first schema in the list will also be the one containing the schema history table.</li>
      * <li>The schemas will be cleaned in the order of this list.</li>
+     * <li>If Flyway created them, the schemas themselves will as be dropped when cleaning.</li>
      * </ul>
      *
      * @param schemas The schemas managed by Flyway. May not be {@code null}. Must contain at least one element.
