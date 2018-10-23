@@ -40,6 +40,29 @@ if "%JAVA_ARGS%"=="" (
   set JAVA_ARGS=
 )
 
+@REM Determine Flyway edition to use
+:loop
+IF NOT "%1"=="" (
+    IF "%1"=="-community" (
+        SET FLYWAY_EDITION=community
+        GOTO :loop-end
+    )
+    IF "%1"=="-trial" (
+        SET FLYWAY_EDITION=trial
+        GOTO :loop-end
+    )
+    IF "%1"=="-pro" (
+        SET FLYWAY_EDITION=pro
+        GOTO :loop-end
+    )
+    IF "%1"=="-enterprise" (
+        SET FLYWAY_EDITION=enterprise
+        GOTO :loop-end
+    )
+    SHIFT /1
+    GOTO :loop
+)
+:loop-end
 if "%FLYWAY_EDITION%"=="" (
   set FLYWAY_EDITION=community
 )

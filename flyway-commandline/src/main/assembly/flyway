@@ -48,6 +48,28 @@ else
  fi
 fi
 
+# Determine Flyway edition to use
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+  POSITIONAL+=("$1")
+  flag="$1"
+  case $flag in
+    -community)
+    FLYWAY_EDITION=community
+    ;;
+    -trial)
+    FLYWAY_EDITION=trial
+    ;;
+    -pro)
+    FLYWAY_EDITION=pro
+    ;;
+    -enterprise)
+    FLYWAY_EDITION=enterprise
+    ;;
+  esac
+  shift
+done
+set -- "${POSITIONAL[@]}"
 if [ -z "$FLYWAY_EDITION" ]; then
   FLYWAY_EDITION=community
 fi

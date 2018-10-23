@@ -23,12 +23,6 @@
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway.cmd</include>
-
-                <include>flyway-community.cmd</include>
-                <include>flyway-trial.cmd</include>
-                <include>flyway-pro.cmd</include>
-                <include>flyway-enterprise.cmd</include>
-
             </includes>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
@@ -38,12 +32,6 @@
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway</include>
-
-                <include>flyway-community</include>
-                <include>flyway-trial</include>
-                <include>flyway-pro</include>
-                <include>flyway-enterprise</include>
-
             </includes>
             <fileMode>744</fileMode>
             <lineEnding>unix</lineEnding>
