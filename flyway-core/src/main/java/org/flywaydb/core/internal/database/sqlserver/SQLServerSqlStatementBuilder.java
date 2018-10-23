@@ -40,7 +40,11 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
      * Regex for statements that cannot be executed within a transaction.
      */
     private static final Pattern NON_TRANSACTIONAL_STATEMENT_REGEX =
-            Pattern.compile("^(BACKUP|RESTORE|RECONFIGURE|(CREATE|DROP|ALTER) (DATABASE|FULLTEXT INDEX)) .*");
+            Pattern.compile("^((BACKUP|RESTORE|RECONFIGURE|(CREATE|DROP|ALTER) (DATABASE|FULLTEXT INDEX))|" +
+                    // #2175: The procedure 'sp_addsubscription' cannot be executed within a transaction.
+                    // This procedure is only present in SQL Server. Not on Azure nor in PDW.
+                    "(EXEC SP_ADDSUBSCRIPTION)" +
+                    ")( .*)?");
 
     /**
      * Holds the beginning of the statement.
