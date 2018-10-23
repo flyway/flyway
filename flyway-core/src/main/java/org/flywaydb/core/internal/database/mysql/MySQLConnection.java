@@ -48,7 +48,7 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
-        return jdbcTemplate.getConnection().getCatalog();
+        return jdbcTemplate.queryForString("SELECT DATABASE()");
     }
 
     @Override
