@@ -44,7 +44,7 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
                     // #2175: The procedure 'sp_addsubscription' cannot be executed within a transaction.
                     // This procedure is only present in SQL Server. Not on Azure nor in PDW.
                     "(EXEC SP_ADDSUBSCRIPTION)" +
-                    ")( .*)?");
+                    ");?( .*)?");
 
     /**
      * Holds the beginning of the statement.
