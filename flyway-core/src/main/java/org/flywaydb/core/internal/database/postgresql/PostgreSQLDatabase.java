@@ -73,7 +73,7 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
             throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("PostgreSQL", "PostgreSQL", version);
         }
 
-        if (majorVersion > 10) {
+        if (majorVersion > 11) {
             recommendFlywayUpgrade("PostgreSQL", version);
         }
     }

@@ -185,10 +185,13 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> generateDropStatementsForRoutines() throws SQLException {
+        // #2193: PostgreSQL 11 removed the 'proisagg' column and replaced it with 'prokind'.
+        String isAggregate = (database.getMajorVersion() >= 11) ? "pg_proc.prokind = 'a'" : "pg_proc.proisagg";
+
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
                         // Search for all functions
-                        "SELECT proname, oidvectortypes(proargtypes) AS args, pg_proc.proisagg as agg "
+                        "SELECT proname, oidvectortypes(proargtypes) AS args, " + isAggregate + " as agg "
                                 + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
                                 // that don't depend on an extension
                                 + "LEFT JOIN pg_depend dep ON dep.objid = pg_proc.oid AND dep.deptype = 'e' "
