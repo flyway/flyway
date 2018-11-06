@@ -19,11 +19,13 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
 import java.net.URL;
+import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * OSGi specific scanner that performs the migration search in
@@ -35,10 +37,6 @@ import java.util.regex.Pattern;
  * </p>
  */
 public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
-    //Felix and Equinox "host" resource url pattern starts with bundleId, which is
-    // long according osgi core specification
-    private static final Pattern bundleIdPattern = Pattern.compile("^\\d+");
-
     public Set<String> findResourceNames(String location, URL locationUrl) {
         Set<String> resourceNames = new TreeSet<>();
 
@@ -58,21 +56,17 @@ public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
         return resourceNames;
     }
 
+    // Search through all bundles until we find one with the right host
     private Bundle getTargetBundleOrCurrent(Bundle currentBundle, URL locationUrl) {
-        try {
-            Bundle targetBundle = currentBundle.getBundleContext().getBundle(getBundleId(locationUrl.getHost()));
-            return targetBundle != null ? targetBundle : currentBundle;
-        } catch (Exception e) {
-            return currentBundle;
-        }
-    }
-
-    private long getBundleId(String host) {
-        final Matcher matcher = bundleIdPattern.matcher(host);
-        if (matcher.find()) {
-            return Double.valueOf(matcher.group()).longValue();
-        }
-        throw new IllegalArgumentException("There's no bundleId in passed URL");
+        final String path = locationUrl.getPath();
+        final String host = locationUrl.getHost();
+        return Arrays.stream(currentBundle.getBundleContext().getBundles())
+                .map(b -> new AbstractMap.SimpleEntry<>(b, b.getEntry(path)))
+                .filter(pair -> Objects.nonNull(pair.getValue()))
+                .filter(pair -> pair.getValue().getHost().equals(host))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(currentBundle);
     }
 
     private String getPathWithoutLeadingSlash(URL entry) {
