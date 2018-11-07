@@ -15,17 +15,17 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.StringResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -75,50 +75,42 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
     @Override
     public final void ensureSupported() {
-        String release = versionToReleaseName(majorVersion, minorVersion);
+        ensureDatabaseIsRecentEnough("SQL Server", "10.0");
 
-        if (majorVersion < 10) {
-            throw new FlywayDbUpgradeRequiredException("SQL Server", release, "2008");
-        }
+        ensureDatabaseIsCompatibleWithFlywayEdition("Microsoft", "SQL Server", "12");
 
-        if (majorVersion < 12) {
-        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("Microsoft", "SQL Server", release);
-        }
-
-        if (majorVersion > 14 || (majorVersion == 14 && minorVersion > 0)) {
-            recommendFlywayUpgrade("SQL Server", release);
-        }
+        recommendFlywayUpgradeIfNecessary("SQL Server", "14.0");
     }
 
-    private String versionToReleaseName(int major, int minor) {
-        if (major < 8) {
-            return major + "." + minor;
-        }
-        if (major == 8) {
-            return "2000";
-        }
-        if (major == 9) {
-            return "2005";
-        }
-        if (major == 10) {
-            if (minor == 0) {
-                return "2008";
+    @Override
+    protected String computeVersionDisplayName(MigrationVersion version) {
+        if (getVersion().isAtLeast("8")) {
+            if ("8".equals(getVersion().getMajorAsString())) {
+                return "2000";
             }
-            return "2008 R2";
+            if ("9".equals(getVersion().getMajorAsString())) {
+                return "2005";
+            }
+            if ("10".equals(getVersion().getMajorAsString())) {
+                if ("0".equals(getVersion().getMinorAsString())) {
+                    return "2008";
+                }
+                return "2008 R2";
+            }
+            if ("11".equals(getVersion().getMajorAsString())) {
+                return "2012";
+            }
+            if ("12".equals(getVersion().getMajorAsString())) {
+                return "2014";
+            }
+            if ("13".equals(getVersion().getMajorAsString())) {
+                return "2016";
+            }
+            if ("14".equals(getVersion().getMajorAsString())) {
+                return "2017";
+            }
         }
-        if (major == 11) {
-            return "2012";
-        }
-        if (major == 12) {
-            return "2014";
-        }
-        if (major == 13) {
-            return "2016";
-        }
-        if (major == 14) {
-            return "2017";
-        }
-        return major + "." + minor;
+        return super.computeVersionDisplayName(version);
     }
 
     @Override

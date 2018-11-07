@@ -18,7 +18,6 @@ package org.flywaydb.core.internal.database.oracle;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.RowMapper;
@@ -114,18 +113,11 @@ public class OracleDatabase extends Database<OracleConnection> {
 
     @Override
     public final void ensureSupported() {
-        String version = majorVersion + "." + minorVersion;
-        if (majorVersion < 10) {
-            throw new FlywayDbUpgradeRequiredException("Oracle", version, "10");
-        }
+        ensureDatabaseIsRecentEnough("Oracle", "10");
 
-        if (majorVersion == 10 || majorVersion == 11 || (majorVersion == 12 && minorVersion < 2)) {
-        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("Oracle", "Oracle", version);
-        }
+        ensureDatabaseIsCompatibleWithFlywayEdition("Oracle", "Oracle", "12.2");
 
-        if (majorVersion > 18 || (majorVersion == 18 && minorVersion > 0)) {
-            recommendFlywayUpgrade("Oracle", version);
-        }
+        recommendFlywayUpgradeIfNecessary("Oracle", "18.0");
     }
 
     @Override

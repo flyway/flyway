@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.database.hsqldb;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
@@ -63,19 +62,11 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
 
     @Override
     public final void ensureSupported() {
-        String version = majorVersion + "." + minorVersion;
+        ensureDatabaseIsRecentEnough("HSQLDB", "1.8");
 
-        if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 8)) {
-            throw new FlywayDbUpgradeRequiredException("HSQLDB", version, "1.8");
-        }
+        ensureDatabaseIsCompatibleWithFlywayEdition("HSQL Development Group", "HSQLDB", "2.3");
 
-        if (majorVersion == 1 || (majorVersion == 2 && minorVersion < 3)) {
-        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("HSQL Development Group", "HSQLDB", version);
-        }
-
-        if (majorVersion > 2 || (majorVersion == 2 && minorVersion > 4)) {
-            recommendFlywayUpgrade("HSQLDB", version);
-        }
+        recommendFlywayUpgradeIfNecessary("HSQLDB", "2.4");
     }
 
     @Override

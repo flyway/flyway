@@ -20,7 +20,6 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -63,19 +62,11 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
     @Override
     public final void ensureSupported() {
-        String version = majorVersion + "." + minorVersion;
+        ensureDatabaseIsRecentEnough("PostgreSQL", "9.0");
 
-        if (majorVersion < 9) {
-            throw new FlywayDbUpgradeRequiredException("PostgreSQL", version, "9.0");
-        }
+        ensureDatabaseIsCompatibleWithFlywayEdition("PostgreSQL", "PostgreSQL", "9.3");
 
-        if (majorVersion == 9 && minorVersion < 3) {
-            throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("PostgreSQL", "PostgreSQL", version);
-        }
-
-        if (majorVersion > 10) {
-            recommendFlywayUpgrade("PostgreSQL", version);
-        }
+        recommendFlywayUpgradeIfNecessary("PostgreSQL", "10");
     }
 
     @Override

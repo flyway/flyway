@@ -197,7 +197,7 @@ public class OracleSchema extends Schema<OracleDatabase> {
             return;
         }
 
-        boolean oracle18orNewer = database.getMajorVersion() >= 18;
+        boolean oracle18orNewer = database.getVersion().isAtLeast("18");
 
         String queryForFbaTrackedTables = "SELECT TABLE_NAME FROM " + (dbaViewAccessible ? "DBA_" : "USER_")
                 + "FLASHBACK_ARCHIVE_TABLES WHERE OWNER_NAME = ?"
