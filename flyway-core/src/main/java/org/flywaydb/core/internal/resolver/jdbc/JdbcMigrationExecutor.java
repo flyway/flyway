@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@
 package org.flywaydb.core.internal.resolver.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.executor.Context;
+import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
-import org.flywaydb.core.api.resolver.MigrationExecutor;
 
-import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Adapter for executing migrations implementing JdbcMigration.
@@ -35,21 +36,23 @@ public class JdbcMigrationExecutor implements MigrationExecutor {
      *
      * @param jdbcMigration The JdbcMigration to execute.
      */
-    public JdbcMigrationExecutor(JdbcMigration jdbcMigration) {
+    JdbcMigrationExecutor(JdbcMigration jdbcMigration) {
         this.jdbcMigration = jdbcMigration;
     }
 
     @Override
-    public void execute(Connection connection) {
+    public void execute(Context context) throws SQLException {
         try {
-            jdbcMigration.migrate(connection);
+            jdbcMigration.migrate(context.getConnection());
+        } catch (SQLException e) {
+            throw e;
         } catch (Exception e) {
             throw new FlywayException("Migration failed !", e);
         }
     }
 
     @Override
-    public boolean executeInTransaction() {
+    public boolean canExecuteInTransaction() {
         return true;
     }
 }

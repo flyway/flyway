@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 package org.flywaydb.gradle.task;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationInfoService;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 
 public class FlywayInfoTask extends AbstractFlywayTask {
@@ -26,7 +29,11 @@ public class FlywayInfoTask extends AbstractFlywayTask {
 
     @Override
     protected Object run(Flyway flyway) {
-        System.out.println(MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
+        MigrationInfoService info = flyway.info();
+        MigrationInfo current = info.current();
+        MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
+        System.out.println("Schema version: " + currentSchemaVersion);
+        System.out.println(MigrationInfoDumper.dumpToAsciiTable(info.all()));
         return null;
     }
 }

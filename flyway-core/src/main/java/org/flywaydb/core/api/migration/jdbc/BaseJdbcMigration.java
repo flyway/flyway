@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,10 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
  * Convenience implementation if {@link JdbcMigration}. {@link ConfigurationAware#setFlywayConfiguration(FlywayConfiguration)}
  * is implemented by storing the configuration in a field. It is encouraged to subclass this class instead of implementing
  * JdbcMigration directly, to guard against possible API additions in future major releases of Flyway.
+ *
+ * @deprecated Extend JavaMigration or BaseJavaMigration instead. Will be removed in Flyway 6.0.
  */
+@Deprecated
 public abstract class BaseJdbcMigration implements JdbcMigration, ConfigurationAware {
 
     protected FlywayConfiguration flywayConfiguration;

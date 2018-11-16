@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,7 @@ import java.util.Collection;
 /**
  * Resolves available migrations. This interface can be implemented to create custom resolvers. A custom resolver
  * can be used to create additional types of migrations not covered by the standard resolvers (jdbc, sql, spring-jdbc).
- * Using the {@link org.flywaydb.core.Flyway#setSkipDefaultResolvers(boolean)}, the built-in resolvers can also be
- * completely replaced.
- *
- * <p>If a resolver also implements the {@link org.flywaydb.core.api.configuration.ConfigurationAware} interface,
- * a {@link org.flywaydb.core.api.configuration.FlywayConfiguration} object will automatically be injected before
- * calling {@link #resolveMigrations()}, giving the resolver access to the core flyway configuration, which provides
- * useful data like resolve locations or placeholder configuration.</p>
- *
- * An abstract implementation is provided in {@link BaseMigrationResolver} which handles the storing of the
- * configuration. It is encouraged to subclass that class instead of implementing this interface directly.
+ * Using the skipDefaultResolvers configuration property, the built-in resolvers can also be completely replaced.
  */
 public interface MigrationResolver {
     /**
@@ -37,5 +28,5 @@ public interface MigrationResolver {
      *
      * @return The available migrations.
      */
-    Collection<ResolvedMigration> resolveMigrations();
+    Collection<ResolvedMigration> resolveMigrations(Context context);
 }

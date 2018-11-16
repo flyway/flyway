@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,10 @@ package org.flywaydb.core.api.migration;
 /**
  * Migration implementors that also implement this interface will be able to specify their checksum (for
  * validation), instead of having it automatically computed or default to {@code null} (for Java Migrations).
+ *
+ * @deprecated Extend JavaMigration or BaseJavaMigration instead. Will be removed in Flyway 6.0.
  */
+@Deprecated
 public interface MigrationChecksumProvider {
     /**
      * Computes the checksum of the migration.

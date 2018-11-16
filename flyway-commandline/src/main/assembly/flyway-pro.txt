@@ -1,0 +1,68 @@
+Flyway Pro License and Support Agreement
+========================================
+
+1. Subject
+----------
+Subject of this agreement are the conditions under which and the extent to which the end user (referred to as “Licensee” below) is granted the right to use the “Flyway Pro Edition” software (referred to as “software” below) provided by Boxfuse GmbH, Baubergerstr. 59, Munich (referred to as “Licensor” below).
+
+2. Grant of rights
+------------------
+The Licensee is granted the following rights to the software, but not to the source code of the software:
+a)	the right to temporarily reproduce, in whole or in parts, the software, by any means and in any form, to the extent that uploading, displaying, running or other contractual use of the software requires reproduction.
+b)	the right to permanently reproduce, in whole or in parts, the software, to the extent that the creation of backups as are customary in the business requires reproduction.
+These rights are granted without any territorial limitation. The license is valid for the duration of one year as of the initial acquisition by the Licensee. The rights are granted as non-exclusive rights, which may be exercised in any hardware and software environment of Licensee, for all currently known types of use; they are limited to 10 production database schemas.
+The rights are non-transferable. Sub-licensing is not allowed.
+
+3. Remuneration
+---------------
+The license fee to be paid for the software is specified in the Licensor’s price list which is applicable at the time of the granting of rights. The current price list is available on the Web site of the Licensor at the URL: https://flywaydb.org. The license fee is due no later than 14 days after the date of purchase or renewal of the license.
+
+4. Updates and upgrades
+------------------------
+This license includes all updates and upgrades of the software released during the license period without any further fees, unless otherwise agreed on in a separate agreement.
+
+5. Rights to the source code
+-----------------------------
+The Licensee is granted the following rights to the source code of the software:
+a)	the right to edit the source code solely for the purpose of correcting defects, and under the condition that the Licensee shall transmit to the Licensor all modifications made and grant the Licensor all rights required for the commercial exploitation of these changes in new versions or follow-on products of the software, in accordance with the Contributor License Agreement (CLA) of the Licensor, that is applicable at the time of submitting the modifications to the Licensor.
+b)	If, while a valid license for the software is in effect, insolvency proceedings have been opened on the assets of the Licensor or the opening of such proceedings has been rejected due to lack of assets, the Licensee shall be entitled to edit the software more extensively for the purpose of adapting the software to changing software environments, thus ensuring its continued operability.
+c)	The Licensee is not permitted to disclose the source code.
+These rights are granted without any territorial limitation. The license is valid for the duration of one year as of the initial acquisition by the Licensee, except for the rights following Section 5. b) above, which are perpetual. The rights are granted as non-exclusive rights, which may be exercised in any hardware and software environment of Licensee, for all currently known types of use.
+The rights are non-transferable. Sub-licensing is not allowed.
+
+6. Support
+-----------
+This license does not entitle the Licensee to technical support.
+
+7. Audit right
+---------------
+The Licensor has the right to verify the compliance of the Licensee with the license conditions. For this purpose, either the Licensor or a third party appointed by the Licensor shall be entitled, upon prior notice and with an appropriate lead time, to verify the compliant use of the software at the premises of the Licensee during normal business hours of the Licensee. The Licensee is obligated to assist the Licensor with the audit free of charge, and provide Licensor with adequate support, especially but not limited to granting  access to information and to the systems on which the software is being used.
+
+8. Mention right
+-----------------
+The Licensee grants the Licensor the right to mention the Licensee as a customer and user of the software, including the right to list the Licensee as a customer on Licensor’s Web site using both the Licensee’s company name and logo.
+
+9. Liability
+-------------
+Given willful intent or gross negligence, the Licensor is liable for injury to life, body or health in accordance with the provisions of the Product Liability Act as well as within the scope of a guarantee assumed by the Licensor.
+Given a slightly negligent breach of an obligation whose fulfillment makes the proper execution of the agreement possible in the first place and whose compliance the contractual partner regularly relies upon and is allowed to rely upon, i.e. an obligation that is essential to achieve the purpose of the agreement (“Kardinalpflicht”), the liability of the Licensor for damage to property or financial loss is limited in terms of amounts to damage that is foreseeable and typical of the business transaction in question. The amount insured by the Licensor with a pecuniary damage liability policy shall be considered as foreseeable and typical if it is at least one million euros.
+The Licensor is not liable for the loss or recovery of data, unless the Licensor has caused the loss or destruction through willful intent or gross negligence and the Licensee has ensured that this data can be reconstructed from data material available in machine-readable form (backup) with reasonable and customary effort. The Licensee acknowledges its obligation to make data backups at regular intervals as part of its obligation to minimize damage. In the event of a suspected software defect, the Licensee must also take all reasonable additional safety measures.
+Any further liability of the Licensor does not exist. The above limitation of liability also applies to the personal liability of employees, representatives and bodies of the Licensor. Within the scope of application of the Telecommunications Act (TKG), the liability provisions of Section 44a TKG remain unaffected.
+
+10. Limited Warranty
+--------------------
+In accordance with the statutory provisions, the Licensor warrants that the granted rights of use exist and that the Licensor is entitled to grant them. The period of limitation for warranty claims is twelve months. In the event of defects, Licensor is entitled to rectify at its discretion the defect by reworking or redelivery. The rectification may also happen by procuring or granting missing rights.
+
+11. Agreement Term
+------------------
+The license is valid for the duration of one year as of the initial acquisition by the Licensee. The agreement is automatically prolonged by the period of the original duration unless it is terminated with a notice period of three months before the end of the agreement term. When the agreement term is prolonged, the license to use the software is prolonged accordingly.
+
+12. Applicable law, jurisdiction
+--------------------------------
+This Agreement is governed by the laws of the Federal Republic of Germany. The UN convention on Contracts for the International Sale of Goods from 11 April 1980 (CISG) shall not apply. If the Licensee is a consumer, the inalienable consumer-protection provisions of the country of the Licensee’s permanent place of residence shall also apply
+Place of fulfillment and exclusive jurisdiction shall be in Munich, Germany, provided that the parties are merchants or legal entities under public law or that one party has no general place of jurisdiction in Germany.
+
+13. Other
+---------
+Changes and amendments to this agreement are only valid when made in writing. Electronic documents in text form do not meet the written-form requirement.
+Should one of the clauses of this agreement be, or in the future become, invalid or should the agreement contain a loophole that must be closed, the validity of the remaining provisions shall remain unaffected. The parties agree to replace the invalid clause or loophole with a valid clause that matches the economic purpose of the invalid clause as closely as possible.

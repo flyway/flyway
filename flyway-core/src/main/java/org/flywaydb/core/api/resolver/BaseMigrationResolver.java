@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,10 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
 /**
  * Base implementation of {@link MigrationResolver} that handles configuration injections by storing the
  * configuration object in a field.
+ *
+ * @deprecated Will be removed in Flyway 6.0.
  */
+@Deprecated
 public abstract class BaseMigrationResolver implements MigrationResolver, ConfigurationAware {
 
     protected FlywayConfiguration flywayConfiguration;

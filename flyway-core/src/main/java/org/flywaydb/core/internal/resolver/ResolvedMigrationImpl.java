@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.resolver.MigrationExecutor;
+import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.util.ObjectUtils;
 
@@ -173,5 +173,18 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         result = 31 * result + (checksum != null ? checksum.hashCode() : 0);
         result = 31 * result + type.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "ResolvedMigrationImpl{" +
+                "version=" + version +
+                ", description='" + description + '\'' +
+                ", script='" + script + '\'' +
+                ", checksum=" + checksum +
+                ", type=" + type +
+                ", physicalLocation='" + physicalLocation + '\'' +
+                ", executor=" + executor +
+                '}';
     }
 }

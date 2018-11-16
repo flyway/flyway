@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @param displayText The alternative text to display instead of the version number.
      */
     private MigrationVersion(BigInteger version, String displayText) {
-        this.versionParts = new ArrayList<BigInteger>();
+        this.versionParts = new ArrayList<>();
         this.versionParts.add(version);
         this.displayText = displayText;
     }
@@ -180,7 +180,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @return The resulting array.
      */
     private List<BigInteger> tokenize(String str) {
-        List<BigInteger> parts = new ArrayList<BigInteger>();
+        List<BigInteger> parts = new ArrayList<>();
         try {
             for (String part : splitPattern.split(str)) {
                 parts.add(new BigInteger(part));

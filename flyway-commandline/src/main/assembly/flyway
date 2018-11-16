@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2010-2015 Axel Fontaine
+# Copyright 2010-2018 Boxfuse GmbH
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,11 +15,9 @@
 # limitations under the License.
 #
 
-# Detect cygwin
-cygwin=false
+# Detect OS
 linux=false
 case "`uname`" in
-  CYGWIN*|MINGW*) cygwin=true;;
   Linux*) linux=true;;
 esac
 
@@ -50,18 +48,44 @@ else
  fi
 fi
 
-JAVA_ARGS=
-CP="$INSTALLDIR/lib/*:$INSTALLDIR/drivers/*"
+# Determine Flyway edition to use
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+  POSITIONAL+=("$1")
+  flag="$1"
+  case $flag in
+    -community)
+    FLYWAY_EDITION=community
+    ;;
+    -trial)
+    FLYWAY_EDITION=trial
+    ;;
+    -pro)
+    FLYWAY_EDITION=pro
+    ;;
+    -enterprise)
+    FLYWAY_EDITION=enterprise
+    ;;
+  esac
+  shift
+done
+set -- "${POSITIONAL[@]}"
+if [ -z "$FLYWAY_EDITION" ]; then
+  FLYWAY_EDITION=community
+fi
+
+EXTRA_ARGS=
+CP="$INSTALLDIR/lib/$FLYWAY_EDITION/*:$INSTALLDIR/drivers/*"
 
 if $linux; then
-  JAVA_ARGS=-Djava.security.egd=file:/dev/../dev/urandom
+  EXTRA_ARGS=-Djava.security.egd=file:/dev/../dev/urandom
 fi
 
-if $cygwin; then
-  CP=$(cygpath -pw "$CP")
+if `command -v cygpath > /dev/null`; then
+  CP=`cygpath -pw "$CP"`
 fi
 
-"$JAVA_CMD" $JAVA_ARGS -cp "$CP" org.flywaydb.commandline.Main "$@"
+"$JAVA_CMD" $JAVA_ARGS $EXTRA_ARGS -cp "$CP" org.flywaydb.commandline.Main "$@"
 
 # Exit using the same code returned from Java
 exit $?

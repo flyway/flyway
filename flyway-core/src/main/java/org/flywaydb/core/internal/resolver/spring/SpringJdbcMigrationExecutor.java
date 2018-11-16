@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 package org.flywaydb.core.internal.resolver.spring;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.executor.Context;
+import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
-import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
-import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Adapter for executing migrations implementing SpringJdbcMigration.
@@ -36,22 +37,24 @@ public class SpringJdbcMigrationExecutor implements MigrationExecutor {
      *
      * @param springJdbcMigration The Spring Jdbc Migration to execute.
      */
-    public SpringJdbcMigrationExecutor(SpringJdbcMigration springJdbcMigration) {
+    SpringJdbcMigrationExecutor(SpringJdbcMigration springJdbcMigration) {
         this.springJdbcMigration = springJdbcMigration;
     }
 
     @Override
-    public void execute(Connection connection) {
+    public void execute(Context context) throws SQLException {
         try {
             springJdbcMigration.migrate(new org.springframework.jdbc.core.JdbcTemplate(
-                    new SingleConnectionDataSource(connection, true)));
+                    new SingleConnectionDataSource(context.getConnection(), true)));
+        } catch (SQLException e) {
+            throw e;
         } catch (Exception e) {
             throw new FlywayException("Migration failed !", e);
         }
     }
 
     @Override
-    public boolean executeInTransaction() {
+    public boolean canExecuteInTransaction() {
         return true;
     }
 }

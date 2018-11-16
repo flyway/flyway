@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2010-2017 Boxfuse GmbH
+    Copyright 2010-2018 Boxfuse GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -17,15 +17,6 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <!--
-    Detailed information how to contribute: https://flywaydb.org/documentation/contribute/code/
-
-    The OS-specific JREs are unfortunately not available from Maven Central due to licensing issues.
-    Instructions for installing them: https://flywaydb.org/documentation/contribute/devEnvironmentSetup.html
-
-    To avoid building the OS-specific flyway-commandline assemblies you can run the build with:
-    mvn -P-CommandlinePlatformAssemblies
-    -->
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.flywaydb</groupId>
@@ -35,15 +26,8 @@
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://github.com/flyway/flyway/blob/master/LICENSE.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
     <properties>
-        <jreversion>1.8.0_74</jreversion>
+        <jreversion>1.8.0_172</jreversion>
     </properties>
     <dependencies>
         <dependency>
@@ -68,12 +52,25 @@
             <artifactId>hsqldb</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.sourceforge.jtds</groupId>
             <artifactId>jtds</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.pivotal.jdbc</groupId>
-            <artifactId>greenplumdriver</artifactId>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <!-- #2136: JNA is required for MariaDB with unix sockets -->
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -87,19 +84,15 @@
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
+
+
+
+
+
+
+
     </dependencies>
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -125,38 +118,36 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>src/main/assembly/no-jre.xml</descriptor>
-                            </descriptors>
-                            <encoding>UTF-8</encoding>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
+
+
+
+
+
+
+
+
         </plugins>
     </build>
     <profiles>
+        <!-- Not needed until the default for Command-line becomes Java 9 or until Microsoft fixes their JDBC driver -->
+        <!--
         <profile>
-            <id>CommandlinePlatformAssemblies</id>
+            <id>jdk9</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <jdk>9</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        -->
+        <profile>
+            <id>build-assemblies</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <dependencies>
                 <dependency>
@@ -199,39 +190,109 @@
                                     <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
                                 </configuration>
                             </execution>
+
+                            <execution>
+                                <id>copy-editions</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.trial</groupId>
+                                            <artifactId>flyway-commandline</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/trial</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.trial</groupId>
+                                            <artifactId>flyway-core</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/trial</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.pro</groupId>
+                                            <artifactId>flyway-commandline</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/pro</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.pro</groupId>
+                                            <artifactId>flyway-core</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/pro</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.enterprise</groupId>
+                                            <artifactId>flyway-commandline</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.enterprise</groupId>
+                                            <artifactId>flyway-core</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+
                         </executions>
                     </plugin>
                     <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>make-assembly-windows</id>
+                                <id>nojre-assembly</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>single</goal>
                                 </goals>
                                 <configuration>
-                                    <!-- attach must be false until https://issues.sonatype.org/browse/MVNCENTRAL-631 is fixed -->
-                                    <!--attach>false</attach-->
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/no-jre.xml</descriptor>
+                                    </descriptors>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>jre-assemblies</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
                                     <descriptors>
                                         <descriptor>src/main/assembly/windows.xml</descriptor>
                                         <descriptor>src/main/assembly/linux.xml</descriptor>
                                         <descriptor>src/main/assembly/macosx.xml</descriptor>
                                     </descriptors>
-                                    <encoding>UTF-8</encoding>
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <skip>false</skip>
-                            <systemProperties>
-                                <target.dir>${project.build.directory}</target.dir>
-                            </systemProperties>
+                            <encoding>UTF-8</encoding>
                         </configuration>
                     </plugin>
+
+
+
+
+
+
+
+
+
+
+
                 </plugins>
             </build>
         </profile>

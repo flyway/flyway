@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2018 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.flywaydb.core.Flyway;
 
 /**
- * Repairs the Flyway metadata table. This will perform the following actions:
+ * Repairs the Flyway schema history table. This will perform the following actions:
  * <ul>
- *     <li>Remove any failed migrations on databases without DDL transactions (User objects left behind must still be cleaned up manually)</li>
- *     <li>Correct wrong checksums</li>
+ * <li>Remove any failed migrations on databases without DDL transactions (User objects left behind must still be cleaned up manually)</li>
+ * <li>Realign the checksums, descriptions and types of the applied migrations with the ones of the available migrations</li>
  * </ul>
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
