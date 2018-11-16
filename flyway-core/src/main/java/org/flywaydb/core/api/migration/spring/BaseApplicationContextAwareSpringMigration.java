@@ -15,19 +15,27 @@
  */
 package org.flywaydb.core.api.migration.spring;
 
-import org.flywaydb.core.api.configuration.ConfigurationAware;
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.migration.BaseJavaMigration;
 
 /**
- * Convenience implementation if {@link ApplicationContextAwareSpringMigration}. {@link ConfigurationAware#setFlywayConfiguration(FlywayConfiguration)}
- * is implemented by storing the configuration in a field. It is encouraged to subclass this class instead of implementing
- * ApplicationContextAwareSpringMigration directly, to guard against possible API additions in future major releases of Flyway.
+ * <p>This is the recommended class to extend for implementing Spring Bean-based Migrations.</p>
+ * <p>Subclasses should follow the default Flyway naming convention of having a class name with the following structure:</p>
+ * <ul>
+ * <li><strong>Versioned Migrations:</strong> V2__Add_new_table</li>
+ * <li><strong>Undo Migrations:</strong> U2__Add_new_table</li>
+ * <li><strong>Repeatable Migrations:</strong> R__Add_new_table</li>
+ * </ul>
+ *
+ * <p>The file name consists of the following parts:</p>
+ * <ul>
+ * <li><strong>Prefix:</strong> V for versioned migrations, U for undo migrations, R for repeatable migrations</li>
+ * <li><strong>Version:</strong> Underscores (automatically replaced by dots at runtime) separate as many parts as you like (Not for repeatable migrations)</li>
+ * <li><strong>Separator:</strong> __ (two underscores)</li>
+ * <li><strong>Description:</strong> Underscores (automatically replaced by spaces at runtime) separate the words</li>
+ * </ul>
+ * <p>If you need more control over the class name, you can override the default convention by implementing the
+ * SJavaMigration interface directly. This will allow you to name your class as you wish. Version, description and
+ * migration category are provided by implementing the respective methods.</p>
  */
-public abstract class BaseApplicationContextAwareSpringMigration implements ApplicationContextAwareSpringMigration, ConfigurationAware {
-    protected FlywayConfiguration flywayConfiguration;
-
-    @Override
-    public void setFlywayConfiguration(FlywayConfiguration flywayConfiguration) {
-        this.flywayConfiguration = flywayConfiguration;
-    }
+public abstract class BaseApplicationContextAwareSpringMigration extends BaseJavaMigration {
 }

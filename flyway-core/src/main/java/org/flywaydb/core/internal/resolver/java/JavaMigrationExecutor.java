@@ -38,7 +38,7 @@ public class JavaMigrationExecutor implements MigrationExecutor {
      *
      * @param javaMigration The JavaMigration to execute.
      */
-    JavaMigrationExecutor(JavaMigration javaMigration) {
+    public JavaMigrationExecutor(JavaMigration javaMigration) {
         this.javaMigration = javaMigration;
     }
 
