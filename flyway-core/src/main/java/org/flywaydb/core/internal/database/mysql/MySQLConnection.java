@@ -96,6 +96,14 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
     }
 
     @Override
+    protected Schema doGetCurrentSchema() throws SQLException {
+        String schemaName = getCurrentSchemaNameOrSearchPath();
+
+        // #2206: MySQL and MariaDB can have URLs where no current schema is set, so we must handle this case explicitly.
+        return schemaName == null ? null : getSchema(schemaName);
+    }
+
+    @Override
     public Schema getSchema(String name) {
         return new MySQLSchema(jdbcTemplate, database, name);
     }
