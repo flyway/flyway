@@ -25,8 +25,7 @@ import java.util.regex.Pattern;
  * SqlStatementBuilder supporting SQLite-specific delimiter changes.
  */
 public class SQLiteSqlStatementBuilder extends SqlStatementBuilder {
-    // Currently not supported. See #2190
-    // private static final Pattern BEGIN_TRANSACTION_REGEX = Pattern.compile("^BEGIN( (DEFERRED|IMMEDIATE|EXCLUSIVE))? TRANSACTION.*");
+    private static final Pattern PRAGMA_FOREIGNKEYS_REGEX = Pattern.compile("^PRAGMA FOREIGN_KEYS=.*");
     private static final Pattern CREATE_TRIGGER_REGEX = Pattern.compile("^CREATE( (TEMP|TEMPORARY))? TRIGGER.*");
 
     /**
@@ -60,6 +59,10 @@ public class SQLiteSqlStatementBuilder extends SqlStatementBuilder {
             statementStart += line;
             statementStart += " ";
             statementStart = StringUtils.collapseWhitespace(statementStart);
+        }
+
+        if (PRAGMA_FOREIGNKEYS_REGEX.matcher(statementStart).matches()) {
+            executeInTransaction = false;
         }
     }
 
