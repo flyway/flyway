@@ -35,6 +35,21 @@ public class VersionPrinter {
     private static final String version = readVersion();
     private static boolean printed;
 
+    public static final Edition EDITION =
+
+            Edition.COMMUNITY
+
+
+
+
+
+
+
+
+
+
+            ;
+
     /**
      * Prevents instantiation.
      */
@@ -69,51 +84,42 @@ public class VersionPrinter {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
     public static void printVersionOnly() {
-        String edition = "Flyway"
-
-                + " Community Edition"
-
-
-
-
-
-
-
-
-
-
-                ;
-
-        LOG.info(edition + " " + version + " by Boxfuse");
+        LOG.info(EDITION + " " + version + " by Boxfuse");
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private static String readVersion() {
         String version;

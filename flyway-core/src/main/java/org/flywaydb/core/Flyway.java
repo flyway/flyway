@@ -1400,7 +1400,7 @@ public class Flyway implements Configuration {
      */
     public int undo() throws FlywayException {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undo");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("undo");
 
 
 

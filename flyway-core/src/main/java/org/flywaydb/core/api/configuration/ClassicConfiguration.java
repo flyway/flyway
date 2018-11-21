@@ -608,7 +608,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public ErrorHandler[] getErrorHandlers() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("errorHandlers");
 
 
 
@@ -618,7 +618,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String[] getErrorOverrides() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorOverrides");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("errorOverrides");
 
 
 
@@ -628,7 +628,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public OutputStream getDryRunOutput() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -638,7 +638,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getLicenseKey() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("licenseKey");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("licenseKey");
 
 
 
@@ -666,7 +666,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setDryRunOutput(OutputStream dryRunOutput) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -683,7 +683,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setDryRunOutputAsFile(File dryRunOutput) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -735,7 +735,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -755,7 +755,7 @@ public class ClassicConfiguration implements Configuration {
     @Deprecated
     public void setErrorHandlers(ErrorHandler... errorHandlers) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("errorHandlers");
 
 
 
@@ -777,7 +777,7 @@ public class ClassicConfiguration implements Configuration {
     @Deprecated
     public void setErrorHandlersAsClassNames(String... errorHandlerClassNames) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("errorHandlers");
 
 
 
@@ -800,7 +800,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setErrorOverrides(String... errorOverrides) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorOverrides");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("errorOverrides");
 
 
 
@@ -1085,7 +1085,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getUndoSqlMigrationPrefix() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
 
 
 
@@ -1103,7 +1103,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setUndoSqlMigrationPrefix(String undoSqlMigrationPrefix) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
 
 
 
@@ -1113,7 +1113,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isStream() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("stream");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("stream");
 
 
 
@@ -1130,7 +1130,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setStream(boolean stream) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("stream");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("stream");
 
 
 
@@ -1140,7 +1140,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isBatch() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("batch");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("batch");
 
 
 
@@ -1159,7 +1159,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setBatch(boolean batch) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("batch");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("batch");
 
 
 
@@ -1419,7 +1419,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isOracleSqlplus() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("oracle.sqlplus");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("oracle.sqlplus");
 
 
 
@@ -1434,7 +1434,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setOracleSqlplus(boolean oracleSqlplus) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("oracle.sqlplus");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("oracle.sqlplus");
 
 
 
@@ -1450,7 +1450,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLicenseKey(String licenseKey) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("licenseKey");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("licenseKey");
 
 
 
