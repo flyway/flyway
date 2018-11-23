@@ -52,6 +52,7 @@ public class OracleSqlScriptExecutor extends DefaultSqlScriptExecutor {
 
 
 
+
     public OracleSqlScriptExecutor(JdbcTemplate jdbcTemplate
 
 
@@ -78,6 +79,29 @@ public class OracleSqlScriptExecutor extends DefaultSqlScriptExecutor {
 
         super.handleException(results, sqlScript, sqlStatement);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

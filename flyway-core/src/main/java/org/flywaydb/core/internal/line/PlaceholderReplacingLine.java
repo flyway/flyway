@@ -18,22 +18,22 @@ package org.flywaydb.core.internal.line;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 
 public class PlaceholderReplacingLine implements Line {
-    private final Line line;
-    private final PlaceholderReplacer placeholderReplacer;
+    private final String line;
+    private final int lineNumber;
 
     public PlaceholderReplacingLine(Line line, PlaceholderReplacer placeholderReplacer) {
-        this.line = line;
-        this.placeholderReplacer = placeholderReplacer;
+        this.line = placeholderReplacer.replacePlaceholders(line.getLine());
+        this.lineNumber = line.getLineNumber();
     }
 
     @Override
     public int getLineNumber() {
-        return line.getLineNumber();
+        return lineNumber;
     }
 
     @Override
     public String getLine() {
-        return placeholderReplacer.replacePlaceholders(line.getLine());
+        return line;
     }
 
     @Override
