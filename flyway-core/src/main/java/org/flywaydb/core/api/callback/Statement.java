@@ -44,7 +44,9 @@ public interface Statement {
      *
      * @return {@code true} if errors should be suppressed or {@code false} if they should result in an exception being
      * thrown.
+     * @deprecated Will be removed in Flyway 6.0. Use Error.isHandled() and Warning.isHandled() instead.
      */
+    @Deprecated
     boolean isSuppressErrors();
 
     /**
@@ -52,6 +54,8 @@ public interface Statement {
      *
      * @param suppressErrors {@code true} if errors should be suppressed or {@code false} if they should result in an
      *                       exception being thrown.
+     * @deprecated Will be removed in Flyway 6.0. Use Error.setHandled() and Warning.setHandled() instead.
      */
+    @Deprecated
     void setSuppressErrors(boolean suppressErrors);
 }

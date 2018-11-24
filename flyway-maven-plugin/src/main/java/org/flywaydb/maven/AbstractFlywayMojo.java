@@ -458,13 +458,25 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
-     * to warning or from warning to error. (default: none)
+     * to warning or from warning to error.
      * <p>Each error override has the following format: {@code STATE:12345:W}.
      * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
-     * behavior that should override the initial one. The following behaviors are accepted: {@code W} to force a warning
-     * and {@code E} to force an error.</p>
-     * <p>For example, to force Oracle stored procedure compilation issues to produce
+     * behavior that should override the initial one.</p>
+     * <p>The following behaviors are accepted:</p>
+     * <ul>
+     * <li>{@code D} to force a debug message</li>
+     * <li>{@code D-} to force a debug message, but do not show the original sql state and error code</li>
+     * <li>{@code I} to force an info message</li>
+     * <li>{@code I-} to force an info message, but do not show the original sql state and error code</li>
+     * <li>{@code W} to force a warning</li>
+     * <li>{@code W-} to force a warning, but do not show the original sql state and error code</li>
+     * <li>{@code E} to force an error</li>
+     * <li>{@code E-} to force an error, but do not show the original sql state and error code</li>
+     * </ul>
+     * <p>Example 1: to force Oracle stored procedure compilation issues to produce
      * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p>Example 2: to force SQL Server PRINT messages to be displayed as info messages (without SQL state and error
+     * code details) instead of warnings, the following errorOverride can be used: {@code S0001:0:I-}</p>
      * <p>Also configurable with Maven or System Property: ${flyway.errorOverrides}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */
