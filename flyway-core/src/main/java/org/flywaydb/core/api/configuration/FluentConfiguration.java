@@ -359,8 +359,8 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
-     * to warning or from warning to error.
+     * Rules for the built-in error handler that let you override specific SQL states and errors codes in order to force
+     * specific errors or warnings to be treated as debug messages, info messages, warnings or errors.
      * <p>Each error override has the following format: {@code STATE:12345:W}.
      * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
      * behavior that should override the initial one.</p>
