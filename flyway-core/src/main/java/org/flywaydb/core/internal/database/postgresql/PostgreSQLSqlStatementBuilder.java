@@ -42,7 +42,8 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     private static final Pattern DISCARD_ALL_REGEX = Pattern.compile("^DISCARD ALL .*");
     private static final Pattern ALTER_TYPE_ADD_VALUE_REGEX = Pattern.compile("^ALTER TYPE .* ADD VALUE .*");
     private static final Pattern COPY_REGEX = Pattern.compile("^COPY|COPY\\s.*");
-    private static final Pattern CREATE_RULE_FULL_REGEX = Pattern.compile("^CREATE( OR REPLACE)? RULE .* DO (ALSO|INSTEAD) \\(.*;(\\s*)\\);\\s?");
+    private static final Pattern CREATE_RULE_FULL_REGEX = Pattern.compile("^CREATE( OR REPLACE)? RULE .* DO (ALSO|INSTEAD) \\(.*;\\s?\\)\\s?;\\s?");
+    private static final Pattern CREATE_RULE_FULL_SINGLE_REGEX = Pattern.compile("^CREATE( OR REPLACE)? RULE .* DO (ALSO|INSTEAD) \\([^;]+\\)\\s?;\\s?");
     private static final Pattern CREATE_RULE_PARTIAL_REGEX = Pattern.compile("^CREATE( OR REPLACE)? RULE .* DO (ALSO|INSTEAD) \\(.*");
 
     /**
@@ -88,7 +89,7 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
             return;
         }
 
-        if (StringUtils.countOccurrencesOf(statementStart, " ") < 100) {
+        if (StringUtils.countOccurrencesOf(statementStart, " ") < 256) {
             statementStart += line;
             statementStart += " ";
             statementStart = StringUtils.collapseWhitespace(statementStart);
@@ -140,6 +141,10 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
         if (copyStatement != null && copyStatement.contains(" FROM STDIN")) {
             pgCopy = true;
             return PostgreSQLCopyStatement.COPY_DELIMITER;
+        }
+
+        if (CREATE_RULE_FULL_SINGLE_REGEX.matcher(statementStart).matches()) {
+            return Delimiter.SEMICOLON;
         }
 
         if (CREATE_RULE_FULL_REGEX.matcher(statementStart).matches()) {

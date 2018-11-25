@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -47,6 +48,32 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
     }
 
     @Override
+    protected void doRestoreOriginalState() throws SQLException {
+        if ((database.isMariaDB() && database.getVersion().isAtLeast("10.2"))
+            || (!database.isMariaDB() && database.getVersion().isAtLeast("5.7"))) {
+
+            // #2197: prevent user-defined variables from leaking beyond the scope of a migration
+            String variablesQuery = database.isMariaDB()
+                    ? "SELECT variable_name FROM information_schema.user_variables WHERE variable_value IS NOT NULL"
+                    : "SELECT variable_name FROM performance_schema.user_variables_by_thread WHERE variable_value IS NOT NULL";
+            List<String> userVariables = jdbcTemplate.queryForStringList(variablesQuery);
+            if (!userVariables.isEmpty()) {
+                boolean first = true;
+                StringBuilder setStatement = new StringBuilder("SET ");
+                for (String userVariable : userVariables) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        setStatement.append(",");
+                    }
+                    setStatement.append("@").append(userVariable).append("=NULL");
+                }
+                jdbcTemplate.executeStatement(setStatement.toString());
+            }
+        }
+    }
+
+    @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         return jdbcTemplate.queryForString("SELECT DATABASE()");
     }
@@ -66,6 +93,14 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
                 LOG.warn("Unable to restore connection to having no default schema: " + e.getMessage());
             }
         }
+    }
+
+    @Override
+    protected Schema doGetCurrentSchema() throws SQLException {
+        String schemaName = getCurrentSchemaNameOrSearchPath();
+
+        // #2206: MySQL and MariaDB can have URLs where no current schema is set, so we must handle this case explicitly.
+        return schemaName == null ? null : getSchema(schemaName);
     }
 
     @Override

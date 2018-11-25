@@ -81,7 +81,7 @@ public class PostgreSQLCopyStatement extends AbstractSqlStatement {
                 throw new SQLException("Unable to execute COPY operation", e);
             }
         } catch (SQLException e) {
-            results.setException(e);
+            jdbcTemplate.extractErrors(results, e);
         }
         return results;
     }

@@ -18,12 +18,10 @@ package org.flywaydb.core.internal.database.h2;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.util.Pair;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -32,11 +30,6 @@ import java.sql.SQLException;
  * H2 database.
  */
 public class H2Database extends Database<H2Connection> {
-    /**
-     * The H2 build id.
-     */
-    private int buildId;
-
     /**
      * Whether this version supports DROP SCHEMA ... CASCADE.
      */
@@ -74,35 +67,24 @@ public class H2Database extends Database<H2Connection> {
     }
 
     @Override
-    protected Pair<Integer, Integer> determineMajorAndMinorVersion() {
-        Pair<Integer, Integer> majorMinor = super.determineMajorAndMinorVersion();
+    protected MigrationVersion determineVersion() {
         try {
-            buildId = getMainConnection().getJdbcTemplate().queryForInt(
+            int buildId = getMainConnection().getJdbcTemplate().queryForInt(
                     "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'info.BUILD_ID'");
+            return MigrationVersion.fromVersion(super.determineVersion().getVersion() + "." + buildId);
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine H2 build ID", e);
         }
-        return majorMinor;
     }
 
     @Override
     public final void ensureSupported() {
-        String version = majorVersion + "." + minorVersion + "." + buildId;
+        ensureDatabaseIsRecentEnough("H2", "1.2.137");
 
-        if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 2)) {
-            throw new FlywayDbUpgradeRequiredException("H2", version, "1.2.137");
-        }
+        ensureDatabaseIsCompatibleWithFlywayEdition("H2", "H2", "1.4");
 
-        if (majorVersion == 1 && minorVersion < 4) {
-        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("H2", "H2", version);
-        }
-
-        if ((majorVersion == 1 && (minorVersion > 4 || (minorVersion == 4 && buildId > 197))) || majorVersion > 1) {
-            recommendFlywayUpgrade("H2", version);
-        }
-
-        supportsDropSchemaCascade =
-                MigrationVersion.fromVersion(version).compareTo(MigrationVersion.fromVersion("1.4.197")) >= 0;
+        recommendFlywayUpgradeIfNecessary("H2", "1.4.197");
+        supportsDropSchemaCascade = getVersion().isAtLeast("1.4.197");
     }
 
     @Override

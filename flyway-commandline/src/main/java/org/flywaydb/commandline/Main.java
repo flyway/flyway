@@ -47,7 +47,7 @@ public class Main {
     private static Log LOG;
 
     private static List<String> VALID_OPERATIONS_AND_FLAGS = Arrays.asList("-X", "-q", "-n", "-v", "-?",
-            "-community", "-trial", "-pro", "-enterprise",
+            "-community", "-pro", "-enterprise",
             "help", "migrate", "clean", "info", "validate", "undo", "baseline", "repair");
 
     /**
@@ -309,7 +309,6 @@ public class Main {
         LOG.info("-v          : Print the Flyway version and exit");
         LOG.info("-?          : Print this usage info and exit");
         LOG.info("-community  : Run the Flyway Community Edition (default)");
-        LOG.info("-trial      : Run the Flyway Trial Edition");
         LOG.info("-pro        : Run the Flyway Pro Edition");
         LOG.info("-enterprise : Run the Flyway Enterprise Edition");
         LOG.info("");

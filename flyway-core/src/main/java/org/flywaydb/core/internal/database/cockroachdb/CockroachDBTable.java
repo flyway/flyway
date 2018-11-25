@@ -17,28 +17,26 @@ package org.flywaydb.core.internal.database.cockroachdb;
 
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 
 /**
  * CockroachDB-specific table.
  */
-public class CockroachDBTable extends Table {
+public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSchema> {
     private static final Log LOG = LogFactory.getLog(CockroachDBTable.class);
 
     /**
      * Creates a new CockroachDB table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    CockroachDBTable(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
+    CockroachDBTable(JdbcTemplate jdbcTemplate, CockroachDBDatabase database, CockroachDBSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
     }
 
@@ -49,7 +47,7 @@ public class CockroachDBTable extends Table {
 
     @Override
     protected boolean doExists() throws SQLException {
-        if (database.getMajorVersion() == 1) {
+        if (schema.cockroachDB1) {
             return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
                     "   SELECT 1\n" +
                     "   FROM   information_schema.tables \n" +

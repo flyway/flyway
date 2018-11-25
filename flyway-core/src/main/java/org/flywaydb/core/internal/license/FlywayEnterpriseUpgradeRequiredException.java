@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.exception;
+package org.flywaydb.core.internal.license;
 
 import org.flywaydb.core.api.FlywayException;
 
@@ -23,9 +23,9 @@ import org.flywaydb.core.api.FlywayException;
  */
 public class FlywayEnterpriseUpgradeRequiredException extends FlywayException {
     public FlywayEnterpriseUpgradeRequiredException(String vendor, String database, String version) {
-        super("Flyway Enterprise Edition or " + database + " upgrade required: " + database + " " + version
+        super(Edition.ENTERPRISE + " or " + database + " upgrade required: " + database + " " + version
                 + " is past regular support by " + vendor
-                + " and no longer supported by Flyway Community Edition and Flyway Pro Edition,"
+                + " and no longer supported by " + VersionPrinter.EDITION + ","
                 + " but still supported by Flyway Enterprise Edition.");
     }
 }

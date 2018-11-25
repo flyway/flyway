@@ -75,7 +75,9 @@ public class DB2Schema extends Schema<DB2Database> {
         // MQTs are dropped when the backing views or tables are dropped
         // Indexes in DB2 are dropped when the corresponding table is dropped
 
-        if (database.getMajorVersion() >= 10) {
+
+
+
             // drop versioned table link -> not supported for DB2 9.x
             List<String> dropVersioningStatements = generateDropVersioningStatement();
             if (!dropVersioningStatements.isEmpty()) {
@@ -88,7 +90,9 @@ public class DB2Schema extends Schema<DB2Database> {
             for (String dropVersioningStatement : dropVersioningStatements) {
                 jdbcTemplate.execute(dropVersioningStatement);
             }
-        }
+
+
+
 
         // views
         for (String dropStatement : generateDropStatementsForViews()) {
@@ -256,7 +260,7 @@ public class DB2Schema extends Schema<DB2Database> {
                     StringUtils.tokenizeToStringArray(row.get("PARAMS"), ",")));
         }
 
-        return functions.toArray(new Function[functions.size()]);
+        return functions.toArray(new Function[0]);
     }
 
     @Override

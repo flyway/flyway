@@ -35,9 +35,11 @@ import java.util.regex.Pattern;
  * </p>
  */
 public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
-    //Felix and Equinox "host" resource url pattern starts with bundleId, which is
-    // long according osgi core specification
-    private static final Pattern bundleIdPattern = Pattern.compile("^\\d+");
+    // Equinox "host" resource url pattern starts with bundleId, which is long according osgi core specification
+    private static final Pattern EQUINOX_BUNDLE_ID_PATTERN = Pattern.compile("^\\d+");
+
+    // #2198: Felix 6.0+ uses a "host" like e3a74e5a-af1f-46f0-bb53-bc5fee1b4a57_145.0 instead, where 145 is the bundle id.
+    private static final Pattern FELIX_BUNDLE_ID_PATTERN = Pattern.compile(".*_(\\d+)\\..*");
 
     public Set<String> findResourceNames(String location, URL locationUrl) {
         Set<String> resourceNames = new TreeSet<>();
@@ -67,10 +69,15 @@ public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
         }
     }
 
-    private long getBundleId(String host) {
-        final Matcher matcher = bundleIdPattern.matcher(host);
+    static long getBundleId(String host) {
+        Matcher matcher = EQUINOX_BUNDLE_ID_PATTERN.matcher(host);
         if (matcher.find()) {
             return Double.valueOf(matcher.group()).longValue();
+        } else {
+            matcher = FELIX_BUNDLE_ID_PATTERN.matcher(host);
+            if (matcher.find()) {
+                return Double.valueOf(matcher.group(1)).longValue();
+            }
         }
         throw new IllegalArgumentException("There's no bundleId in passed URL");
     }

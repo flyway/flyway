@@ -13,105 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.oracle;
+package org.flywaydb.core.internal.license;
 
-import org.flywaydb.core.api.callback.Error;
-import org.flywaydb.core.api.callback.Warning;
-import org.flywaydb.core.internal.jdbc.Result;
-import org.flywaydb.core.internal.jdbc.Results;
+import org.flywaydb.core.api.FlywayException;
 
 /**
- * Oracle-specific results and side-effects.
+ * Thrown when an attempt was made to use a Flyway Pro or Flyway Enterprise Edition feature not supported by
+ * Flyway Community Edition.
  */
-public class OracleResults extends Results {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+public class FlywayProUpgradeRequiredException extends FlywayException {
+    public FlywayProUpgradeRequiredException(String feature) {
+        super(Edition.PRO + " or " + Edition.ENTERPRISE + " upgrade required: " + feature
+                + " is not supported by " + Edition.COMMUNITY + ".");
+    }
 }

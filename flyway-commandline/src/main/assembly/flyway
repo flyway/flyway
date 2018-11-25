@@ -57,9 +57,6 @@ while [[ $# -gt 0 ]]; do
     -community)
     FLYWAY_EDITION=community
     ;;
-    -trial)
-    FLYWAY_EDITION=trial
-    ;;
     -pro)
     FLYWAY_EDITION=pro
     ;;

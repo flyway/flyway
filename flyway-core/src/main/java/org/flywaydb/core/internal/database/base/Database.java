@@ -15,14 +15,17 @@
  */
 package org.flywaydb.core.internal.database.base;
 
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
+import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException;
 import org.flywaydb.core.internal.placeholder.DefaultPlaceholderReplacer;
 import org.flywaydb.core.internal.placeholder.NoopPlaceholderReplacer;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
@@ -31,13 +34,12 @@ import org.flywaydb.core.internal.resource.NoopResourceProvider;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
+import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
-import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.ExceptionUtils;
-import org.flywaydb.core.internal.util.Pair;
 
 import java.io.Closeable;
 import java.nio.charset.Charset;
@@ -92,14 +94,9 @@ public abstract class Database<C extends Connection> implements Closeable {
 
 
     /**
-     * The major version of the database.
+     * The major.minor version of the database.
      */
-    protected final int majorVersion;
-
-    /**
-     * The minor version of the database.
-     */
-    protected final int minorVersion;
+    private final MigrationVersion version;
 
     /**
      * Creates a new Database instance with this JdbcTemplate.
@@ -126,9 +123,7 @@ public abstract class Database<C extends Connection> implements Closeable {
 
 
 
-        Pair<Integer, Integer> majorMinor = determineMajorAndMinorVersion();
-        majorVersion = majorMinor.getLeft();
-        minorVersion = majorMinor.getRight();
+        version = determineVersion();
     }
 
     /**
@@ -148,9 +143,40 @@ public abstract class Database<C extends Connection> implements Closeable {
      */
     public abstract void ensureSupported();
 
-    protected final void recommendFlywayUpgrade(String database, String version) {
-        LOG.warn("Flyway upgrade recommended: " + database + " " + version
-                + " is newer than this version of Flyway and support has not been tested.");
+    /**
+     * @return The major.minor version of the database.
+     */
+    public final MigrationVersion getVersion() {
+        return version;
+    }
+
+    protected final void ensureDatabaseIsRecentEnough(String database, String oldestSupportedVersion) {
+        if (!version.isAtLeast(oldestSupportedVersion)) {
+            throw new FlywayDbUpgradeRequiredException(database, computeVersionDisplayName(version),
+                    computeVersionDisplayName(MigrationVersion.fromVersion(oldestSupportedVersion)));
+        }
+    }
+
+    protected final void ensureDatabaseIsCompatibleWithFlywayEdition(String vendor, String database, String oldestSupportedVersion) {
+        if (!version.isAtLeast(oldestSupportedVersion)) {
+            throw new FlywayEnterpriseUpgradeRequiredException(vendor, database, computeVersionDisplayName(version));
+        }
+    }
+
+    protected final void recommendFlywayUpgradeIfNecessary(String database, String newestSupportedVersion) {
+        if (version.isNewerThan(newestSupportedVersion)) {
+            LOG.warn("Flyway upgrade recommended: " + database + " " + computeVersionDisplayName(version)
+                    + " is newer than this version of Flyway and support has not been tested.");
+        }
+    }
+
+    /**
+     * Compute the user-friendly display name for this database version.
+     *
+     * @return The user-friendly display name.
+     */
+    protected String computeVersionDisplayName(MigrationVersion version) {
+        return version.getVersion();
     }
 
     public final SqlStatementBuilderFactory createSqlStatementBuilderFactory(
@@ -383,29 +409,11 @@ public abstract class Database<C extends Connection> implements Closeable {
     }
 
     /**
-     * Returns the major version number of the database.
-     *
-     * @return the major version number as int.
-     */
-    public int getMajorVersion() {
-        return majorVersion;
-    }
-
-    /**
-     * Returns the minor version number of the database.
-     *
-     * @return the minor version number as int.
-     */
-    public int getMinorVersion() {
-        return minorVersion;
-    }
-
-    /**
      * @return The major and minor version of the database.
      */
-    protected Pair<Integer, Integer> determineMajorAndMinorVersion() {
+    protected MigrationVersion determineVersion() {
         try {
-            return Pair.of(jdbcMetaData.getDatabaseMajorVersion(), jdbcMetaData.getDatabaseMinorVersion());
+            return MigrationVersion.fromVersion(jdbcMetaData.getDatabaseMajorVersion() + "." + jdbcMetaData.getDatabaseMinorVersion());
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine the major version of the database", e);
         }

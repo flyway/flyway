@@ -27,7 +27,7 @@ import java.sql.SQLException;
 /**
  * Represents a database table within a schema.
  */
-public abstract class Table extends SchemaObject {
+public abstract class Table<D extends Database, S extends Schema> extends SchemaObject<D, S> {
     private static final Log LOG = LogFactory.getLog(Table.class);
 
     /**
@@ -38,7 +38,7 @@ public abstract class Table extends SchemaObject {
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public Table(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
+    public Table(JdbcTemplate jdbcTemplate, D database, S schema, String name) {
         super(jdbcTemplate, database, schema, name);
     }
 

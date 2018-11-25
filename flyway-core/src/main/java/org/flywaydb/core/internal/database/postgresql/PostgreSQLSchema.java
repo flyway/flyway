@@ -82,7 +82,6 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
 
 
 
-
             for (String statement : generateDropStatementsForMaterializedViews()) {
                 jdbcTemplate.execute(statement);
             }
