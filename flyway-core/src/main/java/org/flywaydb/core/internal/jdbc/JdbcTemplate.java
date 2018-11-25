@@ -234,26 +234,34 @@ public class JdbcTemplate {
             try {
                 hasResults = statement.execute(sql);
             } finally {
-                SQLWarning warning = statement.getWarnings();
-                while (warning != null) {
-                    results.addWarning(new WarningImpl(warning.getErrorCode(), warning.getSQLState(), warning.getMessage()));
-                    warning = warning.getNextWarning();
-                }
+                extractWarnings(results, statement);
             }
             extractResults(results, statement, hasResults);
         } catch (final SQLException e) {
-
-
-
-
-
-
-
-            results.setException(e);
+            extractErrors(results, e);
         } finally {
             JdbcUtils.closeStatement(statement);
         }
         return results;
+    }
+
+    private void extractWarnings(Results results, Statement statement) throws SQLException {
+        SQLWarning warning = statement.getWarnings();
+        while (warning != null) {
+            results.addWarning(new WarningImpl(warning.getErrorCode(), warning.getSQLState(), warning.getMessage()));
+            warning = warning.getNextWarning();
+        }
+    }
+
+    public void extractErrors(Results results, SQLException e) {
+
+
+
+
+
+
+
+        results.setException(e);
     }
 
     private void extractResults(Results results, Statement statement, boolean hasResults) throws SQLException {
@@ -366,10 +374,6 @@ public class JdbcTemplate {
 
         return results;
     }
-
-
-
-
 
 
 

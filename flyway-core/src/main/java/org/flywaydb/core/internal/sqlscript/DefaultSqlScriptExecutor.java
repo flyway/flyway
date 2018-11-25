@@ -246,7 +246,15 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     }
 
     protected void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement) {
-        throw new FlywaySqlScriptException(sqlScript.getResource(), sqlStatement, results.getException());
+
+
+
+
+                throw new FlywaySqlScriptException(sqlScript.getResource(), sqlStatement, results.getException());
+
+
+
+
     }
 
     private void printWarnings(Results results) {
