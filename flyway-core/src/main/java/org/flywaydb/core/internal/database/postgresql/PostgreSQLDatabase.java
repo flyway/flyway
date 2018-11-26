@@ -66,7 +66,7 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
         ensureDatabaseIsCompatibleWithFlywayEdition("PostgreSQL", "PostgreSQL", "9.3");
 
-        recommendFlywayUpgradeIfNecessary("PostgreSQL", "10");
+        recommendFlywayUpgradeIfNecessaryForMajorVersion("PostgreSQL", "10");
     }
 
     @Override

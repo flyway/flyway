@@ -170,6 +170,13 @@ public abstract class Database<C extends Connection> implements Closeable {
         }
     }
 
+    protected final void recommendFlywayUpgradeIfNecessaryForMajorVersion(String database, String newestSupportedVersion) {
+        if (version.isMajorNewerThan(newestSupportedVersion)) {
+            LOG.warn("Flyway upgrade recommended: " + database + " " + computeVersionDisplayName(version)
+                    + " is newer than this version of Flyway and support has not been tested.");
+        }
+    }
+
     /**
      * Compute the user-friendly display name for this database version.
      *
