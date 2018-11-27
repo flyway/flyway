@@ -176,8 +176,6 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-
-
     private void executeStatement(JdbcTemplate jdbcTemplate, SqlScript sqlScript, SqlStatement sqlStatement) {
         String sql = sqlStatement.getSql() + sqlStatement.getDelimiter();
 
@@ -194,11 +192,6 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
             printWarnings(results);
-
-
-
-
-
             handleException(results, sqlScript, sqlStatement);
             return;
         }

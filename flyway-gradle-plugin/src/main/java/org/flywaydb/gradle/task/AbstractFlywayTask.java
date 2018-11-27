@@ -190,16 +190,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String sqlMigrationSeparator;
 
     /**
-     * The file name suffix for Sql migrations
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
-     *
-     * @deprecated Use {@link AbstractFlywayTask#sqlMigrationSuffixes} instead. Will be removed in Flyway 6.0.0.
-     */
-    @Deprecated
-    public String sqlMigrationSuffix;
-
-    /**
      * The file name suffixes for SQL migrations. (default: .sql)
      * <p>SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
@@ -361,21 +351,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * <p>Also configurable with Gradle or System Property: ${flyway.configurations}</p>
      */
     public String[] configurations;
-
-    /**
-     * The fully qualified class names of handlers for errors and warnings that occur during a migration. This can be
-     * used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
-     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
-     * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
-     * (default: none)
-     * <p>Also configurable with Gradle or System Property: ${flyway.errorHandlers}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
-     *
-     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
-     */
-    @Deprecated
-    public String[] errorHandlers;
 
     /**
      * Rules for the built-in error handler that let you override specific SQL states and errors codes in order to force
@@ -581,7 +556,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix, extension.undoSqlMigrationPrefix);
         putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix, extension.repeatableSqlMigrationPrefix);
         putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator, extension.sqlMigrationSeparator);
-        putIfSet(conf, ConfigUtils.SQL_MIGRATION_SUFFIX, sqlMigrationSuffix, extension.sqlMigrationSuffix);
         putIfSet(conf, ConfigUtils.SQL_MIGRATION_SUFFIXES, StringUtils.arrayToCommaDelimitedString(sqlMigrationSuffixes), StringUtils.arrayToCommaDelimitedString(extension.sqlMigrationSuffixes));
         putIfSet(conf, ConfigUtils.MIXED, mixed, extension.mixed);
         putIfSet(conf, ConfigUtils.GROUP, group, extension.group);
@@ -607,7 +581,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locations), StringUtils.arrayToCommaDelimitedString(extension.locations));
         putIfSet(conf, ConfigUtils.RESOLVERS, StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));
         putIfSet(conf, ConfigUtils.CALLBACKS, StringUtils.arrayToCommaDelimitedString(callbacks), StringUtils.arrayToCommaDelimitedString(extension.callbacks));
-        putIfSet(conf, ConfigUtils.ERROR_HANDLERS, StringUtils.arrayToCommaDelimitedString(errorHandlers), StringUtils.arrayToCommaDelimitedString(extension.errorHandlers));
         putIfSet(conf, ConfigUtils.ERROR_OVERRIDES, StringUtils.arrayToCommaDelimitedString(errorOverrides), StringUtils.arrayToCommaDelimitedString(extension.errorOverrides));
 
         putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput, extension.dryRunOutput);

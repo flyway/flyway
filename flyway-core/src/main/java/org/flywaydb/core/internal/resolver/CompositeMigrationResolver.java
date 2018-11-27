@@ -24,12 +24,9 @@ import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.clazz.ClassProvider;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.resolver.java.JavaMigrationResolver;
-import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
-import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
-import org.flywaydb.core.internal.util.FeatureDetector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,11 +79,6 @@ public class CompositeMigrationResolver implements MigrationResolver {
 
                     , configuration));
             migrationResolvers.add(new JavaMigrationResolver(classProvider, configuration));
-            migrationResolvers.add(new JdbcMigrationResolver(classProvider, configuration));
-
-            if (new FeatureDetector(configuration.getClassLoader()).isSpringJdbcAvailable()) {
-                migrationResolvers.add(new SpringJdbcMigrationResolver(classProvider, configuration));
-            }
         }
 
         migrationResolvers.addAll(Arrays.asList(customMigrationResolvers));
