@@ -34,6 +34,12 @@ import java.util.concurrent.Callable;
 public class MySQLConnection extends Connection<MySQLDatabase> {
     private static final Log LOG = LogFactory.getLog(MySQLConnection.class);
 
+    private static final String USER_VARIABLES_TABLE_MARIADB = "information_schema.user_variables";
+    private static final String USER_VARIABLES_TABLE_MYSQL = "performance_schema.user_variables_by_thread";
+
+    private final String userVariablesQuery;
+    private final boolean canResetUserVariables;
+
     MySQLConnection(Configuration configuration, MySQLDatabase database, java.sql.Connection connection
             , boolean originalAutoCommit
 
@@ -45,18 +51,43 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
 
         );
+
+        userVariablesQuery = "SELECT variable_name FROM "
+                + (database.isMariaDB() ? USER_VARIABLES_TABLE_MARIADB : USER_VARIABLES_TABLE_MYSQL)
+                + " WHERE variable_value IS NOT NULL";
+        canResetUserVariables = hasUserVariableResetCapability();
+    }
+
+    private boolean hasUserVariableResetCapability() {
+        if (database.isMariaDB() && !database.getVersion().isAtLeast("10.2")) {
+            LOG.debug("Disabled user variable reset as it is only available from MariaDB 10.2 onwards");
+            return false;
+        }
+        if (!database.isMariaDB() && !database.getVersion().isAtLeast("5.7")) {
+            LOG.debug("Disabled user variable reset as it is only available from MySQL 5.7 onwards");
+            return false;
+        }
+
+        try {
+            jdbcTemplate.queryForStringList(userVariablesQuery);
+            return true;
+        } catch (SQLException e) {
+            LOG.debug("Disabled user variable reset as "
+                    + (database.isMariaDB() ? USER_VARIABLES_TABLE_MARIADB : USER_VARIABLES_TABLE_MYSQL)
+                    + "cannot be queried (SQL State: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
+            return false;
+        }
     }
 
     @Override
     protected void doRestoreOriginalState() throws SQLException {
-        if ((database.isMariaDB() && database.getVersion().isAtLeast("10.2"))
-            || (!database.isMariaDB() && database.getVersion().isAtLeast("5.7"))) {
+        resetUserVariables();
+    }
 
-            // #2197: prevent user-defined variables from leaking beyond the scope of a migration
-            String variablesQuery = database.isMariaDB()
-                    ? "SELECT variable_name FROM information_schema.user_variables WHERE variable_value IS NOT NULL"
-                    : "SELECT variable_name FROM performance_schema.user_variables_by_thread WHERE variable_value IS NOT NULL";
-            List<String> userVariables = jdbcTemplate.queryForStringList(variablesQuery);
+    // #2197: prevent user-defined variables from leaking beyond the scope of a migration
+    private void resetUserVariables() throws SQLException {
+        if (canResetUserVariables) {
+            List<String> userVariables = jdbcTemplate.queryForStringList(userVariablesQuery);
             if (!userVariables.isEmpty()) {
                 boolean first = true;
                 StringBuilder setStatement = new StringBuilder("SET ");
