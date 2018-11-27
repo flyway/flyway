@@ -17,13 +17,12 @@ package org.flywaydb.core.internal.database.db2;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
-import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -65,19 +64,11 @@ public class DB2Database extends Database<DB2Connection> {
 
     @Override
     public final void ensureSupported() {
-        String version = majorVersion + "." + minorVersion;
+        ensureDatabaseIsRecentEnough("DB2", "9.7");
 
-        if (majorVersion < 9 || (majorVersion == 9 && minorVersion < 7)) {
-            throw new FlywayDbUpgradeRequiredException("DB2", version, "9.7");
-        }
+        ensureDatabaseIsCompatibleWithFlywayEdition("IBM", "DB2", "10.5");
 
-        if (majorVersion == 9 || (majorVersion == 10 && minorVersion < 5)) {
-        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("IBM", "DB2", version);
-        }
-
-        if (majorVersion > 11 || (majorVersion == 11 && minorVersion > 1)) {
-            recommendFlywayUpgrade("DB2", version);
-        }
+        recommendFlywayUpgradeIfNecessary("DB2", "11.1");
     }
 
     @Override

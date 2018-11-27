@@ -59,17 +59,10 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
 
     @Override
     public void ensureSupported() {
-        String version = majorVersion + "." + minorVersion;
 
+        ensureDatabaseIsCompatibleWithFlywayEdition("SAP", "HANA", "2");
 
-        if (majorVersion == 1) {
-            throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("SAP", "HANA", version);
-        }
-
-        if (majorVersion > 2) {
-            recommendFlywayUpgrade("SAP HANA", version);
-        }
-
+        recommendFlywayUpgradeIfNecessaryForMajorVersion("SAP HANA", "2");
     }
 
     @Override

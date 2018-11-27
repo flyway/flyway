@@ -18,7 +18,6 @@ package org.flywaydb.core.api.configuration;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import javax.sql.DataSource;
@@ -363,27 +362,26 @@ public interface Configuration {
     String getInstalledBy();
 
     /**
-     * Handlers for errors and warnings that occur during a migration. This can be used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
-     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
-     * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
-     *
-     * @return The ErrorHandlers or an empty array if the default internal handler should be used instead. (default: none)
-     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
-     */
-    @Deprecated
-    ErrorHandler[] getErrorHandlers();
-
-    /**
-     * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
-     * to warning or from warning to error.
+     * Rules for the built-in error handler that let you override specific SQL states and errors codes in order to force
+     * specific errors or warnings to be treated as debug messages, info messages, warnings or errors.
      * <p>Each error override has the following format: {@code STATE:12345:W}.
      * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
-     * behavior that should override the initial one. The following behaviors are accepted: {@code W} to force a warning
-     * and {@code E} to force an error.</p>
-     * <p>For example, to force Oracle stored procedure compilation issues to produce
+     * behavior that should override the initial one.</p>
+     * <p>The following behaviors are accepted:</p>
+     * <ul>
+     * <li>{@code D} to force a debug message</li>
+     * <li>{@code D-} to force a debug message, but do not show the original sql state and error code</li>
+     * <li>{@code I} to force an info message</li>
+     * <li>{@code I-} to force an info message, but do not show the original sql state and error code</li>
+     * <li>{@code W} to force a warning</li>
+     * <li>{@code W-} to force a warning, but do not show the original sql state and error code</li>
+     * <li>{@code E} to force an error</li>
+     * <li>{@code E-} to force an error, but do not show the original sql state and error code</li>
+     * </ul>
+     * <p>Example 1: to force Oracle stored procedure compilation issues to produce
      * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p>Example 2: to force SQL Server PRINT messages to be displayed as info messages (without SQL state and error
+     * code details) instead of warnings, the following errorOverride can be used: {@code S0001:0:I-}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @return The ErrorOverrides or an empty array if none are defined. (default: none)

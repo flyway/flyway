@@ -234,19 +234,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String sqlMigrationSeparator;
 
     /**
-     * The file name suffix for Sql migrations (default: .sql) <p>Also configurable with Maven or System Property:
-     * ${flyway.sqlMigrationSuffix}</p>
-     * <p>
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
-     *
-     * @deprecated Use {@link AbstractFlywayMojo#sqlMigrationSuffixes} instead. Will be removed in Flyway 6.0.0.
-     */
-    @Parameter(property = ConfigUtils.SQL_MIGRATION_SUFFIX)
-    @Deprecated
-    private String sqlMigrationSuffix;
-
-    /**
      * The file name suffixes for SQL migrations. (default: .sql)
      * <p>SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
@@ -358,6 +345,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p/>
      * <p>Also configurable with Maven or System Properties like ${flyway.placeholders.myplaceholder} or ${flyway.placeholders.otherone}</p>
      */
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     @Parameter
     private Map<String, String> placeholders;
 
@@ -441,30 +429,26 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String installedBy;
 
     /**
-     * The fully qualified class names of handlers for errors and warnings that occur during a migration. This can be
-     * used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
-     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
-     * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
-     * (default: none)
-     * <p>Also configurable with Maven or System Property: ${flyway.errorHandlers}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
-     *
-     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
-     */
-    @Deprecated
-    @Parameter
-    private String[] errorHandlers;
-
-    /**
-     * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
-     * to warning or from warning to error. (default: none)
+     * Rules for the built-in error handler that let you override specific SQL states and errors codes in order to force
+     * specific errors or warnings to be treated as debug messages, info messages, warnings or errors.
      * <p>Each error override has the following format: {@code STATE:12345:W}.
      * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
-     * behavior that should override the initial one. The following behaviors are accepted: {@code W} to force a warning
-     * and {@code E} to force an error.</p>
-     * <p>For example, to force Oracle stored procedure compilation issues to produce
+     * behavior that should override the initial one.</p>
+     * <p>The following behaviors are accepted:</p>
+     * <ul>
+     * <li>{@code D} to force a debug message</li>
+     * <li>{@code D-} to force a debug message, but do not show the original sql state and error code</li>
+     * <li>{@code I} to force an info message</li>
+     * <li>{@code I-} to force an info message, but do not show the original sql state and error code</li>
+     * <li>{@code W} to force a warning</li>
+     * <li>{@code W-} to force a warning, but do not show the original sql state and error code</li>
+     * <li>{@code E} to force an error</li>
+     * <li>{@code E-} to force an error, but do not show the original sql state and error code</li>
+     * </ul>
+     * <p>Example 1: to force Oracle stored procedure compilation issues to produce
      * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p>Example 2: to force SQL Server PRINT messages to be displayed as info messages (without SQL state and error
+     * code details) instead of warnings, the following errorOverride can be used: {@code S0001:0:I-}</p>
      * <p>Also configurable with Maven or System Property: ${flyway.errorOverrides}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */
@@ -521,17 +505,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     @Parameter(property = ConfigUtils.LICENSE_KEY)
     private String licenseKey;
-
-    /**
-     * Properties file from which to load the Flyway configuration. The names of the individual properties match the ones you would
-     * use as Maven or System properties. The encoding of the file must be the same as the encoding defined with the
-     * {@code flyway.encoding) property, which is UTF-8 by default. Relative paths are relative to the POM. (default: flyway.properties)
-     * <p/>
-     * <p>Also configurable with Maven or System Property: ${flyway.configFile}</p>
-     */
-    @Deprecated
-    @Parameter(property = ConfigUtils.CONFIG_FILE)
-    private File configFile;
 
     /**
      * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).
@@ -687,7 +660,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator);
-            putIfSet(conf, ConfigUtils.SQL_MIGRATION_SUFFIX, sqlMigrationSuffix);
             putArrayIfSet(conf, ConfigUtils.SQL_MIGRATION_SUFFIXES, sqlMigrationSuffixes);
             putIfSet(conf, ConfigUtils.MIXED, mixed);
             putIfSet(conf, ConfigUtils.GROUP, group);
@@ -707,7 +679,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate);
             putIfSet(conf, ConfigUtils.DRIVER, driver);
 
-            putArrayIfSet(conf, ConfigUtils.ERROR_HANDLERS, errorHandlers);
             putArrayIfSet(conf, ConfigUtils.ERROR_OVERRIDES, errorOverrides);
             putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput);
             putIfSet(conf, ConfigUtils.STREAM, stream);
@@ -730,7 +701,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             conf.putAll(ConfigUtils.propertiesToMap(System.getProperties()));
             removeMavenPluginSpecificPropertiesToAvoidWarnings(conf);
 
-            Flyway flyway = Flyway.configure(classLoader).configure(conf).load();
+            Flyway flyway = Flyway.configure(classLoader).configuration(conf).load();
             doExecute(flyway);
         } catch (Exception e) {
             throw new MojoExecutionException(e.toString(), ExceptionUtils.getRootCause(e));
@@ -754,11 +725,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             return configFiles;
         }
 
-        if (System.getProperties().containsKey(ConfigUtils.CONFIG_FILE)) {
-            log.warn(ConfigUtils.CONFIG_FILE + " is deprecated and will be removed in Flyway 6.0. Use " + ConfigUtils.CONFIG_FILES + " instead.");
-            configFiles.add(toFile(workDir, System.getProperties().getProperty(ConfigUtils.CONFIG_FILE)));
-            return configFiles;
-        }
         if (System.getProperties().containsKey(ConfigUtils.CONFIG_FILES)) {
             for (String file : StringUtils.tokenizeToStringArray(System.getProperties().getProperty(ConfigUtils.CONFIG_FILES), ",")) {
                 configFiles.add(toFile(workDir, file));
@@ -766,12 +732,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             return configFiles;
         }
 
-        if (mavenProject.getProperties().containsKey(ConfigUtils.CONFIG_FILE)) {
-            log.warn(ConfigUtils.CONFIG_FILE + " is deprecated and will be removed in Flyway 6.0. Use " + ConfigUtils.CONFIG_FILES + " instead.");
-            configFiles.add(toFile(workDir, mavenProject.getProperties().getProperty(ConfigUtils.CONFIG_FILE)));
-        } else if (configFile != null) {
-            configFiles.add(configFile);
-        }
         if (mavenProject.getProperties().containsKey(ConfigUtils.CONFIG_FILES)) {
             for (String file : StringUtils.tokenizeToStringArray(mavenProject.getProperties().getProperty(ConfigUtils.CONFIG_FILES), ",")) {
                 configFiles.add(toFile(workDir, file));
@@ -822,7 +782,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @param conf The properties to filter.
      */
     private static void removeMavenPluginSpecificPropertiesToAvoidWarnings(Map<String, String> conf) {
-        conf.remove(ConfigUtils.CONFIG_FILE);
         conf.remove(ConfigUtils.CONFIG_FILES);
         conf.remove(ConfigUtils.CONFIG_FILE_ENCODING);
         conf.remove(CONFIG_CURRENT);

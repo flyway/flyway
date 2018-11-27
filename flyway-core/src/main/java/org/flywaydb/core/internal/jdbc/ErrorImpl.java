@@ -21,11 +21,13 @@ public class ErrorImpl implements Error {
     private final int code;
     private final String state;
     private final String message;
+    private boolean handled;
 
     /**
      * An error that occurred while executing a statement.
-     * @param code The error code.
-     * @param state The error state.
+     *
+     * @param code    The error code.
+     * @param state   The error state.
      * @param message The error message.
      */
     public ErrorImpl(int code, String state, String message) {
@@ -34,24 +36,28 @@ public class ErrorImpl implements Error {
         this.message = message;
     }
 
-    /**
-     * @return The error code.
-     */
+    @Override
     public int getCode() {
         return code;
     }
 
-    /**
-     * @return The error state.
-     */
+    @Override
     public String getState() {
         return state;
     }
 
-    /**
-     * @return The error message.
-     */
+    @Override
     public String getMessage() {
         return message;
+    }
+
+    @Override
+    public boolean isHandled() {
+        return handled;
+    }
+
+    @Override
+    public void setHandled(boolean handled) {
+        this.handled = handled;
     }
 }

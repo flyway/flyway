@@ -94,14 +94,6 @@
         </fileSet>
 
         <fileSet>
-            <directory>target/editions/trial</directory>
-            <outputDirectory>lib/trial</outputDirectory>
-            <includes>
-                <include>*</include>
-            </includes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
             <directory>target/editions/pro</directory>
             <outputDirectory>lib/pro</outputDirectory>
             <includes>

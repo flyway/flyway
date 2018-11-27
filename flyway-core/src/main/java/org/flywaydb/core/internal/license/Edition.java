@@ -13,27 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.errorhandler;
+package org.flywaydb.core.internal.license;
 
 /**
- * An error that occurred while executing a statement.
- *
- * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
+ * The various editions of Flyway.
  */
-@Deprecated
-public interface Error {
-    /**
-     * @return The error code.
-     */
-    int getCode();
+public enum Edition {
+    COMMUNITY("Community"),
+    PRO("Pro"),
+    ENTERPRISE("Enterprise")
 
-    /**
-     * @return The error state.
-     */
-    String getState();
 
-    /**
-     * @return The error message.
-     */
-    String getMessage();
+
+    ;
+
+    private final String description;
+
+    Edition(String name) {
+        this.description = "Flyway " + name + " Edition";
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public String toString() {
+        return description;
+    }
 }

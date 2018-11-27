@@ -19,10 +19,15 @@ import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.util.regex.Pattern;
+
 /**
- * SqlStatementBuilder supporting H2-specific delimiter changes.
+ * SqlStatementBuilder supporting SQLite-specific delimiter changes.
  */
 public class SQLiteSqlStatementBuilder extends SqlStatementBuilder {
+    private static final Pattern PRAGMA_FOREIGNKEYS_REGEX = Pattern.compile("^PRAGMA FOREIGN_KEYS=.*");
+    private static final Pattern CREATE_TRIGGER_REGEX = Pattern.compile("^CREATE( (TEMP|TEMPORARY))? TRIGGER.*");
+
     /**
      * Holds the beginning of the statement.
      */
@@ -34,17 +39,31 @@ public class SQLiteSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
-        if (hasNonCommentPart() && StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
-            statementStart += line;
-            statementStart += " ";
-            statementStart = StringUtils.collapseWhitespace(statementStart);
-        }
-        boolean createTriggerStatement = statementStart.matches("CREATE( TEMP| TEMPORARY)? TRIGGER.*");
+        boolean createTriggerStatement = CREATE_TRIGGER_REGEX.matcher(statementStart).matches();
 
         if (createTriggerStatement && !line.endsWith("END;")) {
             return null;
         }
         return defaultDelimiter;
+    }
+
+    @Override
+    protected void applyStateChanges(String line) {
+        super.applyStateChanges(line);
+
+        if (!executeInTransaction || !hasNonCommentPart()) {
+            return;
+        }
+
+        if (StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
+            statementStart += line;
+            statementStart += " ";
+            statementStart = StringUtils.collapseWhitespace(statementStart);
+        }
+
+        if (PRAGMA_FOREIGNKEYS_REGEX.matcher(statementStart).matches()) {
+            executeInTransaction = false;
+        }
     }
 
     @Override

@@ -15,18 +15,17 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -82,13 +81,8 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
 
     @Override
     public final void ensureSupported() {
-        String version = majorVersion + "." + minorVersion;
-        if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 1)) {
-            throw new FlywayDbUpgradeRequiredException("CockroachDB", version, "1.1");
-        }
-        if (majorVersion > 2 || (majorVersion == 2 && minorVersion > 0)) {
-            recommendFlywayUpgrade("CockroachDB", version);
-        }
+        ensureDatabaseIsRecentEnough("CockroachDB", "1.1");
+        recommendFlywayUpgradeIfNecessary("CockroachDB", "2.0");
     }
 
     @Override
@@ -101,7 +95,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     }
 
     @Override
-    protected Pair<Integer, Integer> determineMajorAndMinorVersion() {
+    protected MigrationVersion determineVersion() {
         String version;
         try {
             version = getMainConnection().getJdbcTemplate().queryForString("SELECT value FROM crdb_internal.node_build_info where field='Version'");
@@ -115,7 +109,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
         int majorVersion = Integer.parseInt(version.substring(1, firstDot));
         String minorPatch = version.substring(firstDot + 1);
         int minorVersion = Integer.parseInt(minorPatch.substring(0, minorPatch.indexOf(".")));
-        return Pair.of(majorVersion, minorVersion);
+        return MigrationVersion.fromVersion(majorVersion + "." + minorVersion);
     }
 
     public String getDbName() {

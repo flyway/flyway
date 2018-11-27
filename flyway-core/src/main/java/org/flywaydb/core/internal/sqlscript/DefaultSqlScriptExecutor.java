@@ -176,8 +176,6 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-
-
     private void executeStatement(JdbcTemplate jdbcTemplate, SqlScript sqlScript, SqlStatement sqlStatement) {
         String sql = sqlStatement.getSql() + sqlStatement.getDelimiter();
 
@@ -194,11 +192,6 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
             printWarnings(results);
-
-
-
-
-
             handleException(results, sqlScript, sqlStatement);
             return;
         }
@@ -246,17 +239,31 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     }
 
     protected void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement) {
-        throw new FlywaySqlScriptException(sqlScript.getResource(), sqlStatement, results.getException());
+
+
+
+
+                throw new FlywaySqlScriptException(sqlScript.getResource(), sqlStatement, results.getException());
+
+
+
+
     }
 
     private void printWarnings(Results results) {
         for (Warning warning : results.getWarnings()) {
-            if ("00000".equals(warning.getState())) {
-                LOG.info("DB: " + warning.getMessage());
-            } else {
-                LOG.warn("DB: " + warning.getMessage()
-                        + " (SQL State: " + warning.getState() + " - Error Code: " + warning.getCode() + ")");
-            }
+
+
+
+                if ("00000".equals(warning.getState())) {
+                    LOG.info("DB: " + warning.getMessage());
+                } else {
+                    LOG.warn("DB: " + warning.getMessage()
+                            + " (SQL State: " + warning.getState() + " - Error Code: " + warning.getCode() + ")");
+                }
+
+
+
         }
     }
 }

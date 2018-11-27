@@ -38,11 +38,6 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>org.jboss</groupId>
             <artifactId>jboss-vfs</artifactId>
             <optional>true</optional>
@@ -63,6 +58,11 @@
             <artifactId>postgresql</artifactId>
             <optional>true</optional>
         </dependency>
+
+
+
+
+
 
 
 

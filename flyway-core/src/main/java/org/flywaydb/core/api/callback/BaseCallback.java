@@ -13,25 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.errorhandler;
-
-import java.util.List;
+package org.flywaydb.core.api.callback;
 
 /**
- * The context passed to an error handler.
- * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
- *
- * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
+ * Base implementation of Callback from which one can inherit. This is a convenience class that assumes by default that
+ * all events are handled and all handlers can run within a transaction.
  */
-@Deprecated
-public interface Context {
-    /**
-     * @return The warnings that were raised during a migration.
-     */
-    List<Warning> getWarnings();
+public abstract class BaseCallback implements Callback {
+    @Override
+    public boolean supports(Event event, Context context) {
+        return true;
+    }
 
-    /**
-     * @return The errors that were thrown during a migration.
-     */
-    List<Error> getErrors();
+    @Override
+    public boolean canHandleInTransaction(Event event, Context context) {
+        return true;
+    }
 }

@@ -18,13 +18,12 @@ package org.flywaydb.core.internal.database.informix;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.StringResource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -66,14 +65,8 @@ public class InformixDatabase extends Database<InformixConnection> {
 
     @Override
     public final void ensureSupported() {
-        String version = majorVersion + "." + minorVersion;
-
-        if (majorVersion < 12 || (majorVersion == 12 && minorVersion < 10)) {
-            throw new FlywayDbUpgradeRequiredException("Informix", version, "12.10");
-        }
-        if ((majorVersion == 12 && minorVersion > 10) || majorVersion > 12) {
-            recommendFlywayUpgrade("Informix", version);
-        }
+        ensureDatabaseIsRecentEnough("Informix", "12.10");
+        recommendFlywayUpgradeIfNecessary("Informix", "12.10");
     }
 
     @Override

@@ -28,6 +28,11 @@ import java.util.List;
  */
 public class CockroachDBSchema extends Schema<CockroachDBDatabase> {
     /**
+     * Is this CockroachDB 1.x.
+     */
+    final boolean cockroachDB1;
+
+    /**
      * Creates a new CockroachDB schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
@@ -36,6 +41,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase> {
      */
     CockroachDBSchema(JdbcTemplate jdbcTemplate, CockroachDBDatabase database, String name) {
         super(jdbcTemplate, database, name);
+        cockroachDB1 = !database.getVersion().isAtLeast("2");
     }
 
     @Override
@@ -45,7 +51,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase> {
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        if (database.getMajorVersion() == 1) {
+        if (cockroachDB1) {
             return !jdbcTemplate.queryForBoolean("SELECT EXISTS (" +
                     "  SELECT 1" +
                     "  FROM information_schema.tables" +
@@ -133,7 +139,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase> {
     @Override
     protected Table[] doAllTables() throws SQLException {
         String query;
-        if (database.getMajorVersion() == 1) {
+        if (cockroachDB1) {
             query =
                     //Search for all the table names
                     "SELECT table_name FROM information_schema.tables" +

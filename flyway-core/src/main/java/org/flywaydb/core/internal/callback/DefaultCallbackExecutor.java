@@ -95,7 +95,6 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
 
 
 
-
     private void execute(final Event event, final Connection connection) {
         final Context context = new SimpleContext(configuration, connection, null);
 

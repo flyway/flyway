@@ -19,12 +19,9 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
-import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.internal.callback.LegacyCallback;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -405,9 +402,6 @@ public class ClassicConfiguration implements Configuration {
 
 
 
-
-
-
     /**
      * Creates a new default configuration.
      */
@@ -606,19 +600,9 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public ErrorHandler[] getErrorHandlers() {
-
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
-
-
-
-
-    }
-
-    @Override
     public String[] getErrorOverrides() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorOverrides");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("errorOverrides");
 
 
 
@@ -628,7 +612,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public OutputStream getDryRunOutput() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -638,23 +622,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getLicenseKey() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("licenseKey");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("licenseKey");
 
 
 
 
-    }
-
-    /**
-     * Sets the ClassLoader to use for resolving migrations on the classpath.
-     *
-     * @param classLoader The ClassLoader to use for loading migrations, resolvers, etc from the classpath. (default: Thread.currentThread().getContextClassLoader() )
-     * @deprecated Will be removed in Flyway 6.0. Use {@link #ClassicConfiguration(ClassLoader)} instead.
-     */
-    @Deprecated
-    public void setClassLoader(ClassLoader classLoader) {
-        LOG.warn("setClassLoader() is deprecated and will be removed in Flyway 6.0. Use new ClassicConfiguration(ClassLoader) instead.");
-        this.classLoader = classLoader;
     }
 
     /**
@@ -666,7 +638,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setDryRunOutput(OutputStream dryRunOutput) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -683,7 +655,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setDryRunOutputAsFile(File dryRunOutput) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -735,7 +707,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -743,64 +715,33 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Handlers for errors and warnings that occur during a migration. This can be used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
-     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
-     * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
-     *
-     * @param errorHandlers The ErrorHandlers or an empty array if the default internal handler should be used instead. (default: none)
-     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
-     */
-    @Deprecated
-    public void setErrorHandlers(ErrorHandler... errorHandlers) {
-
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
-
-
-
-
-
-    }
-
-    /**
-     * Handlers for errors and warnings that occur during a migration. This can be used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
-     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
-     * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
-     *
-     * @param errorHandlerClassNames The fully qualified class names of ErrorHandlers or an empty array if the default
-     *                               internal handler should be used instead. (default: none)
-     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
-     */
-    @Deprecated
-    public void setErrorHandlersAsClassNames(String... errorHandlerClassNames) {
-
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorHandlers");
-
-
-
-
-
-    }
-
-    /**
-     * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
-     * to warning or from warning to error.
+     * Rules for the built-in error handler that let you override specific SQL states and errors codes in order to force
+     * specific errors or warnings to be treated as debug messages, info messages, warnings or errors.
      * <p>Each error override has the following format: {@code STATE:12345:W}.
      * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
-     * behavior that should override the initial one. The following behaviors are accepted: {@code W} to force a warning
-     * and {@code E} to force an error.</p>
-     * <p>For example, to force Oracle stored procedure compilation issues to produce
+     * behavior that should override the initial one.</p>
+     * <p>The following behaviors are accepted:</p>
+     * <ul>
+     * <li>{@code D} to force a debug message</li>
+     * <li>{@code D-} to force a debug message, but do not show the original sql state and error code</li>
+     * <li>{@code I} to force an info message</li>
+     * <li>{@code I-} to force an info message, but do not show the original sql state and error code</li>
+     * <li>{@code W} to force a warning</li>
+     * <li>{@code W-} to force a warning, but do not show the original sql state and error code</li>
+     * <li>{@code E} to force an error</li>
+     * <li>{@code E-} to force an error, but do not show the original sql state and error code</li>
+     * </ul>
+     * <p>Example 1: to force Oracle stored procedure compilation issues to produce
      * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p>Example 2: to force SQL Server PRINT messages to be displayed as info messages (without SQL state and error
+     * code details) instead of warnings, the following errorOverride can be used: {@code S0001:0:I-}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @param errorOverrides The ErrorOverrides or an empty array if none are defined. (default: none)
      */
     public void setErrorOverrides(String... errorOverrides) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("errorOverrides");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("errorOverrides");
 
 
 
@@ -1085,7 +1026,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getUndoSqlMigrationPrefix() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
 
 
 
@@ -1103,7 +1044,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setUndoSqlMigrationPrefix(String undoSqlMigrationPrefix) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
 
 
 
@@ -1113,7 +1054,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isStream() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("stream");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("stream");
 
 
 
@@ -1130,7 +1071,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setStream(boolean stream) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("stream");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("stream");
 
 
 
@@ -1140,7 +1081,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isBatch() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("batch");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("batch");
 
 
 
@@ -1159,7 +1100,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setBatch(boolean batch) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("batch");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("batch");
 
 
 
@@ -1228,22 +1169,6 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setDataSource(String url, String user, String password) {
         this.dataSource = new DriverDataSource(classLoader, null, url, user, password);
-    }
-
-    /**
-     * Sets the datasource to use. Must have the necessary privileges to execute ddl.
-     * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
-     *
-     * @param url      The JDBC URL of the database.
-     * @param user     The user of the database.
-     * @param password The password of the database.
-     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
-     * @deprecated Use the separate setInitSql method in addition to the setDataSource() method if you need to set the initSql. This method will be removed in Flyway 6.0.
-     */
-    @Deprecated
-    public void setDataSource(String url, String user, String password, String... initSqls) {
-        this.dataSource = new DriverDataSource(classLoader, null, url, user, password);
-        setInitSql(initSqls == null ? null : StringUtils.collectionToDelimitedString(Arrays.asList(initSqls), "\n"));
     }
 
     /**
@@ -1362,10 +1287,8 @@ public class ClassicConfiguration implements Configuration {
             Object o = ClassUtils.instantiate(callback, classLoader);
             if (o instanceof Callback) {
                 this.callbacks.add((Callback) o);
-            } else if (o instanceof FlywayCallback) {
-                this.callbacks.add(new LegacyCallback((FlywayCallback) o));
             } else {
-                throw new FlywayException("Invalid callback: " + callback + " (" + o.getClass().getName() + ")");
+                throw new FlywayException("Invalid callback: " + callback + " (must implement org.flywaydb.core.api.callback.Callback)");
             }
         }
     }
@@ -1419,7 +1342,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isOracleSqlplus() {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("oracle.sqlplus");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("oracle.sqlplus");
 
 
 
@@ -1434,7 +1357,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setOracleSqlplus(boolean oracleSqlplus) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("oracle.sqlplus");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("oracle.sqlplus");
 
 
 
@@ -1450,7 +1373,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLicenseKey(String licenseKey) {
 
-        throw new org.flywaydb.core.internal.exception.FlywayProUpgradeRequiredException("licenseKey");
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("licenseKey");
 
 
 
@@ -1472,12 +1395,6 @@ public class ClassicConfiguration implements Configuration {
         setDataSource(configuration.getDataSource());
         setConnectRetries(configuration.getConnectRetries());
         setInitSql(configuration.getInitSql());
-
-
-
-
-
-
 
 
 
@@ -1603,10 +1520,6 @@ public class ClassicConfiguration implements Configuration {
         if (sqlMigrationSeparatorProp != null) {
             setSqlMigrationSeparator(sqlMigrationSeparatorProp);
         }
-        String sqlMigrationSuffixProp = props.remove(ConfigUtils.SQL_MIGRATION_SUFFIX);
-        if (sqlMigrationSuffixProp != null) {
-            setSqlMigrationSuffixes(sqlMigrationSuffixProp);
-        }
         String sqlMigrationSuffixesProp = props.remove(ConfigUtils.SQL_MIGRATION_SUFFIXES);
         if (sqlMigrationSuffixesProp != null) {
             setSqlMigrationSuffixes(StringUtils.tokenizeToStringArray(sqlMigrationSuffixesProp, ","));
@@ -1722,11 +1635,6 @@ public class ClassicConfiguration implements Configuration {
         String dryRunOutputProp = props.remove(ConfigUtils.DRYRUN_OUTPUT);
         if (dryRunOutputProp != null) {
             setDryRunOutputAsFileName(dryRunOutputProp);
-        }
-
-        String errorHandlersProp = props.remove(ConfigUtils.ERROR_HANDLERS);
-        if (errorHandlersProp != null) {
-            setErrorHandlersAsClassNames(StringUtils.tokenizeToStringArray(errorHandlersProp, ","));
         }
 
         String errorOverridesProp = props.remove(ConfigUtils.ERROR_OVERRIDES);

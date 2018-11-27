@@ -99,28 +99,6 @@ public class StringUtils {
     }
 
     /**
-     * <p>Checks if the String contains only unicode digits. A decimal point is not a unicode digit and returns
-     * false.</p> <p/> <p>{@code null} will return {@code false}. An empty String ("") will return {@code true}.</p>
-     * <p/>
-     * <pre>
-     * StringUtils.isNumeric(null)   = false
-     * StringUtils.isNumeric("")     = true
-     * StringUtils.isNumeric("  ")   = false
-     * StringUtils.isNumeric("123")  = true
-     * StringUtils.isNumeric("12 3") = false
-     * StringUtils.isNumeric("ab2c") = false
-     * StringUtils.isNumeric("12-3") = false
-     * StringUtils.isNumeric("12.3") = false
-     * </pre>
-     *
-     * @param str the String to check, may be null
-     * @return {@code true} if only contains digits, and is non-null
-     */
-    public static boolean isNumeric(String str) {
-        return str != null && str.matches("\\d*");
-    }
-
-    /**
      * Replaces all sequences of whitespace by a single blank. Ex.: "&nbsp;&nbsp;&nbsp;&nbsp;" -> " "
      *
      * @param str The string to analyse.
@@ -219,7 +197,7 @@ public class StringUtils {
             if (i > 0) {
                 builder.append(delimiter);
             }
-            builder.append(String.valueOf(strings[i]));
+            builder.append(strings[i]);
         }
         return builder.toString();
     }
@@ -293,6 +271,50 @@ public class StringUtils {
     }
 
     /**
+     * Splits this string into a collection using this delimiter and this group delimiter.
+     *
+     * @param str                The string to split.
+     * @param delimiterChar      The delimiter to use.
+     * @param groupDelimiterChar The character to use to delimit groups.
+     * @return The resulting array.
+     */
+    public static List<String> tokenizeToStringCollection(String str, char delimiterChar, char groupDelimiterChar) {
+        if (str == null) {
+            return null;
+        }
+        List<String> tokens = new ArrayList<>(str.length() / 5);
+        int start = 0;
+        int end = 0;
+        boolean inGroup = false;
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c == groupDelimiterChar) {
+                inGroup = !inGroup;
+                addToken(tokens, str, start, end);
+                start = i + 1;
+                end = start;
+            } else if (!inGroup && c == delimiterChar) {
+                addToken(tokens, str, start, end);
+                start = i + 1;
+                end = start;
+            } else if (i == start && c == ' ') {
+                start++;
+                end++;
+            } else if (i >= start && c != ' ') {
+                end = i + 1;
+            }
+        }
+        addToken(tokens, str, start, end);
+        return tokens;
+    }
+
+    private static void addToken(List<String> tokens, String str, int start, int end) {
+        if (start < end) {
+            tokens.add(str.substring(start, end));
+        }
+    }
+
+    /**
      * Counts the number of occurrences of this token in this string.
      *
      * @param str   The string to analyse.
@@ -340,26 +362,6 @@ public class StringUtils {
         sb.append(inString.substring(pos));
         // remember to append any characters to the right of a match
         return sb.toString();
-    }
-
-    /**
-     * Replaces this group matched from this regex against this source with this replacement.
-     *
-     * @param source         The source string.
-     * @param regex          The regex to use.
-     * @param groupToReplace The number of the matching group to replace.
-     * @param replacement    The replacement.
-     * @return The resulting string with the group replaced.
-     */
-    public static String replaceGroup(String source, String regex, int groupToReplace, String replacement) {
-        return replaceGroup(source, regex, groupToReplace, 1, replacement);
-    }
-
-    private static String replaceGroup(String source, String regex, int groupToReplace, int groupOccurrence, String replacement) {
-        Matcher m = Pattern.compile(regex).matcher(source);
-        for (int i = 0; i < groupOccurrence; i++)
-            if (!m.find()) return source; // pattern not met, may also throw an exception here
-        return new StringBuilder(source).replace(m.start(groupToReplace), m.end(groupToReplace), replacement).toString();
     }
 
     /**

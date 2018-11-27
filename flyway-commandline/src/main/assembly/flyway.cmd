@@ -19,7 +19,8 @@
 setlocal
 
 @REM Set the current directory to the installation directory
-call :getCurrentBatch INSTALLDIR
+call :getCurrentBatch INSTALLDIR1
+set INSTALLDIR=%INSTALLDIR1%
 set INSTALLDIR=%INSTALLDIR:~0,-10%
 
 if exist "%INSTALLDIR%\jre\bin\java.exe" (
@@ -45,10 +46,6 @@ if "%JAVA_ARGS%"=="" (
 IF NOT "%1"=="" (
     IF "%1"=="-community" (
         SET FLYWAY_EDITION=community
-        GOTO :loop-end
-    )
-    IF "%1"=="-trial" (
-        SET FLYWAY_EDITION=trial
         GOTO :loop-end
     )
     IF "%1"=="-pro" (

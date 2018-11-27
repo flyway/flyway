@@ -22,7 +22,6 @@ import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -64,19 +63,11 @@ public class DerbyDatabase extends Database<DerbyConnection> {
 
     @Override
     public final void ensureSupported() {
-        String version = majorVersion + "." + minorVersion;
+        ensureDatabaseIsRecentEnough("Derby", "10.11.1.1");
 
-        if (majorVersion < 10 || (majorVersion == 10 && minorVersion < 11)) {
-            throw new FlywayDbUpgradeRequiredException("Derby", version, "10.11.1.1");
-        }
+        ensureDatabaseIsCompatibleWithFlywayEdition("Apache", "Derby", "10.14");
 
-        if (majorVersion == 10 && minorVersion < 14) {
-        throw new org.flywaydb.core.internal.exception.FlywayEnterpriseUpgradeRequiredException("Apache", "Derby", version);
-        }
-
-        if ((majorVersion == 10 && minorVersion > 14) || majorVersion > 10) {
-            recommendFlywayUpgrade("Derby", version);
-        }
+        recommendFlywayUpgradeIfNecessary("Derby", "10.14");
     }
 
     @Override

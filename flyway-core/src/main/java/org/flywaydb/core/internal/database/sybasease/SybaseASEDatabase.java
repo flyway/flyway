@@ -21,7 +21,6 @@ import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -63,14 +62,8 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
 
     @Override
     public void ensureSupported() {
-        String version = majorVersion + "." + minorVersion;
-
-        if (majorVersion < 15 || (majorVersion == 15 && minorVersion < 7)) {
-            throw new FlywayDbUpgradeRequiredException("Sybase ASE", version, "15.7");
-        }
-        if (majorVersion > 16 || (majorVersion == 16 && minorVersion > 2)) {
-            recommendFlywayUpgrade("Sybase ASE", version);
-        }
+        ensureDatabaseIsRecentEnough("Sybase ASE", "15.7");
+        recommendFlywayUpgradeIfNecessary("Sybase ASE", "16.2");
     }
 
     @Override

@@ -149,16 +149,6 @@ public class FlywayExtension {
     public String sqlMigrationSeparator;
 
     /**
-     * The file name suffix for Sql migrations
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
-     *
-     * @deprecated Use {@link FlywayExtension#sqlMigrationSuffixes} instead. Will be removed in Flyway 6.0.0.
-     */
-    @Deprecated
-    public String sqlMigrationSuffix;
-
-    /**
      * The file name suffixes for SQL migrations. (default: .sql)
      * <p>SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
@@ -322,29 +312,26 @@ public class FlywayExtension {
     public String[] configurations;
 
     /**
-     * The fully qualified class names of handlers for errors and warnings that occur during a migration. This can be
-     * used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
-     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
-     * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
-     * (default: none)
-     * <p>Also configurable with Gradle or System Property: ${flyway.errorHandlers}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
-     *
-     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
-     */
-    @Deprecated
-    public String[] errorHandlers;
-
-    /**
-     * Rules for the built-in error handler that lets you override specific SQL states and errors codes from error
-     * to warning or from warning to error. (default: none)
+     * Rules for the built-in error handler that let you override specific SQL states and errors codes in order to force
+     * specific errors or warnings to be treated as debug messages, info messages, warnings or errors.
      * <p>Each error override has the following format: {@code STATE:12345:W}.
      * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
-     * behavior that should override the initial one. The following behaviors are accepted: {@code W} to force a warning
-     * and {@code E} to force an error.</p>
-     * <p>For example, to force Oracle stored procedure compilation issues to produce
+     * behavior that should override the initial one.</p>
+     * <p>The following behaviors are accepted:</p>
+     * <ul>
+     * <li>{@code D} to force a debug message</li>
+     * <li>{@code D-} to force a debug message, but do not show the original sql state and error code</li>
+     * <li>{@code I} to force an info message</li>
+     * <li>{@code I-} to force an info message, but do not show the original sql state and error code</li>
+     * <li>{@code W} to force a warning</li>
+     * <li>{@code W-} to force a warning, but do not show the original sql state and error code</li>
+     * <li>{@code E} to force an error</li>
+     * <li>{@code E-} to force an error, but do not show the original sql state and error code</li>
+     * </ul>
+     * <p>Example 1: to force Oracle stored procedure compilation issues to produce
      * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p>Example 2: to force SQL Server PRINT messages to be displayed as info messages (without SQL state and error
+     * code details) instead of warnings, the following errorOverride can be used: {@code S0001:0:I-}</p>
      * <p>Also configurable with Gradle or System Property: ${flyway.errorOverrides}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */

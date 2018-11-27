@@ -22,7 +22,6 @@ import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 
 import java.sql.Connection;
 
@@ -63,11 +62,7 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
 
     @Override
     public final void ensureSupported() {
-        String version = majorVersion + "." + minorVersion;
-
-        if (majorVersion < 3) {
-            throw new FlywayDbUpgradeRequiredException("SQLite", version, "3.7.2");
-        }
+        ensureDatabaseIsRecentEnough("SQLite", "3.7.2");
     }
 
     @Override

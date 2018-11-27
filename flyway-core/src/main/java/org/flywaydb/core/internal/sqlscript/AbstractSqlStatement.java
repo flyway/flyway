@@ -67,7 +67,7 @@ public abstract class AbstractSqlStatement implements SqlStatement {
         if (sql == null) {
             StringBuilder sqlBuilder = new StringBuilder();
             for (Line line : lines) {
-                sqlBuilder.append(line.getLine());
+                sqlBuilder.append(getLine(line));
             }
             stripDelimiter(sqlBuilder, delimiter);
 
@@ -75,6 +75,10 @@ public abstract class AbstractSqlStatement implements SqlStatement {
             sqlRef = new SoftReference<String>(sql);
         }
         return sql;
+    }
+
+    protected String getLine(Line line) {
+        return line.getLine();
     }
 
     @Override
