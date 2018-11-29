@@ -44,7 +44,7 @@ public class SybaseASESchema extends Schema<SybaseASEDatabase> {
     }
 
     @Override
-    protected void doCreate() throws SQLException {
+    protected void doCreate() {
         //There is no schema in SAP ASE. Do nothing for creation.
     }
 

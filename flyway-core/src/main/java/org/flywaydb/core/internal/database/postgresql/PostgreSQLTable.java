@@ -15,26 +15,24 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 
 /**
  * PostgreSQL-specific table.
  */
-public class PostgreSQLTable extends Table {
+public class PostgreSQLTable extends Table<PostgreSQLDatabase, PostgreSQLSchema> {
     /**
      * Creates a new PostgreSQL table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    PostgreSQLTable(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
+    PostgreSQLTable(JdbcTemplate jdbcTemplate, PostgreSQLDatabase database, PostgreSQLSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
     }
 

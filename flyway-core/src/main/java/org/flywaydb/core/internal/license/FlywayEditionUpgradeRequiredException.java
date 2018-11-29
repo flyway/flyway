@@ -16,16 +16,15 @@
 package org.flywaydb.core.internal.license;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.jdbc.DatabaseType;
 
 /**
- * Thrown when an attempt was made to migrate an older database version no longer enjoying regular support by its
- * vendor and no longer supported by Flyway Community Edition and Flyway Pro Edition.
+ * Thrown when an attempt was made to migrate an older database version no longer supported by this Flyway edition.
  */
-public class FlywayEnterpriseUpgradeRequiredException extends FlywayException {
-    public FlywayEnterpriseUpgradeRequiredException(String vendor, String database, String version) {
-        super(Edition.ENTERPRISE + " or " + database + " upgrade required: " + database + " " + version
-                + " is past regular support by " + vendor
-                + " and no longer supported by " + VersionPrinter.EDITION + ","
-                + " but still supported by Flyway Enterprise Edition.");
+public class FlywayEditionUpgradeRequiredException extends FlywayException {
+    public FlywayEditionUpgradeRequiredException(Edition edition, DatabaseType databaseType, String version) {
+        super(edition + " or " + databaseType + " upgrade required: " + databaseType + " " + version
+                + " is no longer supported by " + VersionPrinter.EDITION + ","
+                + " but still supported by " + edition + ".");
     }
 }

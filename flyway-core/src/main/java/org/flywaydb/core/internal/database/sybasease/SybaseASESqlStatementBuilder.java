@@ -37,12 +37,10 @@ public class SybaseASESqlStatementBuilder extends SqlStatementBuilder {
 	@Override
     protected String computeAlternateCloseQuote(String openQuote) {
         char specialChar = openQuote.charAt(2);
-        switch (specialChar) {
-            case '(':
-                return ")'";
-            default:
-                return specialChar + "'";
+        if (specialChar == '(') {
+            return ")'";
         }
+        return specialChar + "'";
     }
 
     @Override

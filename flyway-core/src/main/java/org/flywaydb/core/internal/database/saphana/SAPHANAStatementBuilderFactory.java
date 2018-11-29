@@ -20,7 +20,7 @@ import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 
 class SAPHANAStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
-    public SAPHANAStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+    SAPHANAStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
         super(placeholderReplacer);
     }
 

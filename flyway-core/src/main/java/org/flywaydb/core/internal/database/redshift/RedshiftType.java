@@ -15,26 +15,24 @@
  */
 package org.flywaydb.core.internal.database.redshift;
 
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Type;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 
 /**
  * PostgreSQL-specific type.
  */
-public class RedshiftType extends Type {
+public class RedshiftType extends Type<RedshiftDatabase, RedshiftSchema> {
     /**
      * Creates a new PostgreSQL type.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param schema       The schema this type lives in.
      * @param name         The name of the type.
      */
-    public RedshiftType(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
+    public RedshiftType(JdbcTemplate jdbcTemplate, RedshiftDatabase database, RedshiftSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
     }
 

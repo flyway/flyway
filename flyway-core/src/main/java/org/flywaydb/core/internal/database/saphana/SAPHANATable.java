@@ -15,17 +15,15 @@
  */
 package org.flywaydb.core.internal.database.saphana;
 
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 
 /**
  * SAP HANA-specific table.
  */
-public class SAPHANATable extends Table {
+public class SAPHANATable extends Table<SAPHANADatabase, SAPHANASchema> {
     /**
      * Creates a new SAP HANA table.
      *
@@ -34,7 +32,7 @@ public class SAPHANATable extends Table {
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    SAPHANATable(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
+    SAPHANATable(JdbcTemplate jdbcTemplate, SAPHANADatabase database, SAPHANASchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
     }
 

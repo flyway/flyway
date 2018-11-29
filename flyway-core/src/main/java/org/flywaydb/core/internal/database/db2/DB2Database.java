@@ -64,11 +64,14 @@ public class DB2Database extends Database<DB2Connection> {
 
     @Override
     public final void ensureSupported() {
-        ensureDatabaseIsRecentEnough("DB2", "9.7");
+        ensureDatabaseIsRecentEnough("9.7");
 
-        ensureDatabaseIsCompatibleWithFlywayEdition("IBM", "DB2", "10.5");
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.5", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("DB2", "11.1");
+
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("11.1", org.flywaydb.core.internal.license.Edition.PRO);
+
+        recommendFlywayUpgradeIfNecessary("11.1");
     }
 
     @Override

@@ -185,7 +185,7 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
      */
     private List<String> generateDropStatementsForRoutines() throws SQLException {
         // #2193: PostgreSQL 11 removed the 'proisagg' column and replaced it with 'prokind'.
-        String isAggregate = (database.getMajorVersion() >= 11) ? "pg_proc.prokind = 'a'" : "pg_proc.proisagg";
+        String isAggregate = database.getVersion().isAtLeast("11") ? "pg_proc.prokind = 'a'" : "pg_proc.proisagg";
 
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(

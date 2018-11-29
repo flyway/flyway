@@ -15,8 +15,6 @@
  */
 package org.flywaydb.core.internal.database.informix;
 
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
@@ -25,7 +23,7 @@ import java.sql.SQLException;
 /**
  * Informix-specific table.
  */
-public class InformixTable extends Table {
+public class InformixTable extends Table<InformixDatabase, InformixSchema> {
     /**
      * Creates a new Informix table.
      *
@@ -34,7 +32,7 @@ public class InformixTable extends Table {
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    InformixTable(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
+    InformixTable(JdbcTemplate jdbcTemplate, InformixDatabase database, InformixSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
     }
 

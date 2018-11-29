@@ -62,7 +62,7 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
 
     @Override
     public final void ensureSupported() {
-        ensureDatabaseIsRecentEnough("SQLite", "3.7.2");
+        ensureDatabaseIsRecentEnough("3.7.2");
     }
 
     @Override
@@ -126,7 +126,7 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     }
 
     private static class SQLiteSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
-        public SQLiteSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+        SQLiteSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
             super(placeholderReplacer);
         }
 

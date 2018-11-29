@@ -15,26 +15,24 @@
  */
 package org.flywaydb.core.internal.database.db2;
 
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 
 /**
  * Db2-specific table.
  */
-public class DB2Table extends Table {
+public class DB2Table extends Table<DB2Database, DB2Schema> {
     /**
      * Creates a new Db2 table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    DB2Table(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
+    DB2Table(JdbcTemplate jdbcTemplate, DB2Database database, DB2Schema schema, String name) {
         super(jdbcTemplate, database, schema, name);
     }
 

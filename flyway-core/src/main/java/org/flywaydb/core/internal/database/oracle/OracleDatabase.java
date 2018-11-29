@@ -113,11 +113,11 @@ public class OracleDatabase extends Database<OracleConnection> {
 
     @Override
     public final void ensureSupported() {
-        ensureDatabaseIsRecentEnough("Oracle", "10");
+        ensureDatabaseIsRecentEnough("10");
 
-        ensureDatabaseIsCompatibleWithFlywayEdition("Oracle", "Oracle", "12.2");
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("12.2", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("Oracle", "18.0");
+        recommendFlywayUpgradeIfNecessary("18.0");
     }
 
     @Override

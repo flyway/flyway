@@ -228,7 +228,6 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
 
 
-
     @Override
     protected void applyStateChanges(String line) {
         super.applyStateChanges(line);

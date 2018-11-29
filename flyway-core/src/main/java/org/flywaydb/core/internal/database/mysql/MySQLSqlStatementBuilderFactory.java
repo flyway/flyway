@@ -20,7 +20,7 @@ import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 
 class MySQLSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
-    public MySQLSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+    MySQLSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
         super(placeholderReplacer);
     }
 

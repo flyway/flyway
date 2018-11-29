@@ -325,7 +325,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
      * @throws SQLException when the retrieval failed
      */
     private List<DBObject> queryDBObjectsWithParent(DBObject parent, ObjectType... types) throws SQLException {
-        assert types != null && types.length > 0;
         StringBuilder query = new StringBuilder("SELECT obj.object_id, obj.name FROM sys.objects AS obj " +
                 "LEFT JOIN sys.extended_properties AS eps " +
                 "ON obj.object_id = eps.major_id " +
