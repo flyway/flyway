@@ -28,6 +28,9 @@
     <name>${project.artifactId}</name>
     <properties>
         <jreversion>1.8.0_172</jreversion>
+
+
+
     </properties>
     <dependencies>
         <dependency>
@@ -91,6 +94,12 @@
 
 
 
+
+
+
+
+
+
     </dependencies>
     <build>
         <plugins>
@@ -116,6 +125,23 @@
                             <outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
                         </configuration>
                     </execution>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 </executions>
             </plugin>
 
@@ -231,6 +257,19 @@
                                 </configuration>
                             </execution>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
                         </executions>
                     </plugin>
                     <plugin>
@@ -268,6 +307,31 @@
                             <encoding>UTF-8</encoding>
                         </configuration>
                     </plugin>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
