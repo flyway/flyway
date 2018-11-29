@@ -431,6 +431,9 @@ public class DriverDataSource implements DataSource {
         }
 
         Connection connection = driver.connect(url, props);
+        if (connection == null) {
+            throw new FlywayException("Unable to connect to " + url);
+        }
         connection.setAutoCommit(autoCommit);
         return connection;
     }
