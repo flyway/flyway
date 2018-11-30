@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.command;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -132,6 +133,9 @@ public class DbRepair {
                     && resolved.getVersion() != null
                     && applied != null
                     && !applied.getType().isSynthetic()
+
+
+
                     && updateNeeded(resolved, applied)) {
                 schemaHistory.update(applied, resolved);
                 repaired = true;

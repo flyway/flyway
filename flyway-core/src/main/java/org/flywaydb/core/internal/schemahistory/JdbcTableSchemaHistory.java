@@ -226,7 +226,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     @Override
     public void removeFailedMigrations() {
         if (!exists()) {
-            LOG.info("Repair of failed migration in Schema History table " + table + " not necessary. No failed migration detected.");
+            LOG.info("Repair of failed migration in Schema History table " + table + " not necessary as table doesn't exist.");
             return;
         }
 
