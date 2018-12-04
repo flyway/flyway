@@ -245,13 +245,14 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @return The error message, or {@code null} if everything is fine.
      */
     public String validate() {
+        MigrationState state = getState();
+
         // Ignore any migrations above the current target as they are out of scope.
-        if (MigrationState.ABOVE_TARGET.equals(getState())) {
+        if (MigrationState.ABOVE_TARGET.equals(state)) {
             return null;
         }
 
-        if (getState().isFailed()
-                && (!context.future || MigrationState.FUTURE_FAILED != getState())) {
+        if (state.isFailed() && (!context.future || MigrationState.FUTURE_FAILED != state)) {
             if (getVersion() == null) {
                 return "Detected failed repeatable migration: " + getDescription();
             }
@@ -262,19 +263,19 @@ public class MigrationInfoImpl implements MigrationInfo {
                 && (appliedMigration.getType() != MigrationType.SCHEMA)
                 && (appliedMigration.getType() != MigrationType.BASELINE)
                 && (appliedMigration.getVersion() != null)
-                && (!context.missing || (MigrationState.MISSING_SUCCESS != getState() && MigrationState.MISSING_FAILED != getState()))
-                && (!context.future || (MigrationState.FUTURE_SUCCESS != getState() && MigrationState.FUTURE_FAILED != getState()))) {
+                && (!context.missing || (MigrationState.MISSING_SUCCESS != state && MigrationState.MISSING_FAILED != state))
+                && (!context.future || (MigrationState.FUTURE_SUCCESS != state && MigrationState.FUTURE_FAILED != state))) {
             return "Detected applied migration not resolved locally: " + getVersion();
         }
 
-        if (!context.pending && MigrationState.PENDING == getState() || (!context.ignored && MigrationState.IGNORED == getState())) {
+        if (!context.pending && MigrationState.PENDING == state || (!context.ignored && MigrationState.IGNORED == state)) {
             if (getVersion() != null) {
                 return "Detected resolved migration not applied to database: " + getVersion();
             }
             return "Detected resolved repeatable migration not applied to database: " + getDescription();
         }
 
-        if (!context.pending && MigrationState.OUTDATED == getState()) {
+        if (!context.pending && MigrationState.OUTDATED == state) {
             return "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription();
         }
 
@@ -289,14 +290,19 @@ public class MigrationInfoImpl implements MigrationInfo {
                     return createMismatchMessage("type", migrationIdentifier,
                             appliedMigration.getType(), resolvedMigration.getType());
                 }
-                if (resolvedMigration.getVersion() != null
-                        || (context.pending &&
-                        ((MigrationState.OUTDATED != getState()) && (MigrationState.SUPERSEDED != getState())))) {
-                    if (!ObjectUtils.nullSafeEquals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
-                        return createMismatchMessage("checksum", migrationIdentifier,
-                                appliedMigration.getChecksum(), resolvedMigration.getChecksum());
+
+
+
+                    if (resolvedMigration.getVersion() != null
+                            || (context.pending && MigrationState.OUTDATED != state && MigrationState.SUPERSEDED != state)) {
+                        if (!ObjectUtils.nullSafeEquals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
+                            return createMismatchMessage("checksum", migrationIdentifier,
+                                    appliedMigration.getChecksum(), resolvedMigration.getChecksum());
+                        }
                     }
-                }
+
+
+
                 if (!AbbreviationUtils.abbreviateDescription(resolvedMigration.getDescription())
                         .equals(appliedMigration.getDescription())) {
                     return createMismatchMessage("description", migrationIdentifier,
@@ -324,7 +330,6 @@ public class MigrationInfoImpl implements MigrationInfo {
     }
 
     @Override
-    @SuppressWarnings("NullableProblems")
     public int compareTo(MigrationInfo o) {
         if ((getInstalledRank() != null) && (o.getInstalledRank() != null)) {
             return getInstalledRank() - o.getInstalledRank();

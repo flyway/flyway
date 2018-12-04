@@ -43,16 +43,16 @@ if "%JAVA_ARGS%"=="" (
 
 @REM Determine Flyway edition to use
 :loop
-IF NOT "%1"=="" (
-    IF "%1"=="-community" (
+IF NOT [%1]==[] (
+    IF [%1]==[-community] (
         SET FLYWAY_EDITION=community
         GOTO :loop-end
     )
-    IF "%1"=="-pro" (
+    IF [%1]==[-pro] (
         SET FLYWAY_EDITION=pro
         GOTO :loop-end
     )
-    IF "%1"=="-enterprise" (
+    IF [%1]==[-enterprise] (
         SET FLYWAY_EDITION=enterprise
         GOTO :loop-end
     )

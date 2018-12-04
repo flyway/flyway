@@ -21,11 +21,16 @@ import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.util.regex.Pattern;
+
 /**
  * SqlStatementBuilder supporting SAP HANA-specific delimiter changes.
  */
 public class SAPHANASqlStatementBuilder extends SqlStatementBuilder {
     private static final Log LOG = LogFactory.getLog(SAPHANASqlStatementBuilder.class);
+
+    private static final Pattern BLOCK_STATEMENT_REGEX = Pattern.compile(
+            "^((((CREATE( OR REPLACE)?)|ALTER) (PROCEDURE|FUNCTION))|CREATE TRIGGER|DO).*");
 
     /**
      * Are we currently inside a BEGIN END; block? How deeply are begin/end nested?
@@ -57,11 +62,7 @@ public class SAPHANASqlStatementBuilder extends SqlStatementBuilder {
             statementStartNormalized += effectiveLine + " ";
             statementStartNormalized = StringUtils.trimLeadingWhitespace(StringUtils.collapseWhitespace(statementStartNormalized));
         }
-        boolean insideStatementAllowingNestedBeginEndBlocks =
-                statementStartNormalized.startsWith("CREATE PROCEDURE")
-                        || statementStartNormalized.startsWith("CREATE FUNCTION")
-                        || statementStartNormalized.startsWith("CREATE TRIGGER")
-                        || statementStartNormalized.startsWith("DO");
+        boolean insideStatementAllowingNestedBeginEndBlocks = BLOCK_STATEMENT_REGEX.matcher(statementStartNormalized).matches();
 
         if (insideStatementAllowingNestedBeginEndBlocks) {
             if (line.startsWith("BEGIN")) {

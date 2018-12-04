@@ -26,6 +26,8 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.callback.DefaultCallbackExecutor;
+import org.flywaydb.core.internal.callback.NoopCallback;
+import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
 import org.flywaydb.core.internal.callback.SqlScriptCallbackFactory;
 import org.flywaydb.core.internal.clazz.ClassProvider;
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
@@ -51,6 +53,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -525,8 +528,22 @@ public class Flyway {
 
 
 
+
+
     ) {
         List<Callback> effectiveCallbacks = new ArrayList<>();
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -541,7 +558,11 @@ public class Flyway {
                             database,
                             resourceProvider,
                             sqlStatementBuilderFactory,
-                            configuration).getCallbacks());
+                            configuration
+
+
+
+                    ).getCallbacks());
         }
 
 
