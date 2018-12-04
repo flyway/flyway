@@ -15,26 +15,24 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 
 /**
  * Oracle-specific table.
  */
-public class OracleTable extends Table {
+public class OracleTable extends Table<OracleDatabase, OracleSchema> {
     /**
      * Creates a new Oracle table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public OracleTable(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
+    public OracleTable(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
     }
 

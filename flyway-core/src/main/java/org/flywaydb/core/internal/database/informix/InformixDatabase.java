@@ -65,8 +65,8 @@ public class InformixDatabase extends Database<InformixConnection> {
 
     @Override
     public final void ensureSupported() {
-        ensureDatabaseIsRecentEnough("Informix", "12.10");
-        recommendFlywayUpgradeIfNecessary("Informix", "12.10");
+        ensureDatabaseIsRecentEnough("12.10");
+        recommendFlywayUpgradeIfNecessary("12.10");
     }
 
     @Override
@@ -143,7 +143,7 @@ public class InformixDatabase extends Database<InformixConnection> {
     }
 
     private static class InformixSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
-        public InformixSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+        InformixSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
             super(placeholderReplacer);
         }
 

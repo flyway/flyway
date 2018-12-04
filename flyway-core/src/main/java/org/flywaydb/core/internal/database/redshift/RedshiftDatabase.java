@@ -141,7 +141,7 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
     }
 
     private static class RedshiftSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
-        public RedshiftSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+        RedshiftSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
             super(placeholderReplacer);
         }
 

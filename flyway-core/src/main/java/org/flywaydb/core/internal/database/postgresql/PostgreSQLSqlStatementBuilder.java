@@ -68,7 +68,6 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     /**
      * @return The assembled statement, with the delimiter stripped off.
      */
-    @SuppressWarnings("unchecked")
     @Override
     public SqlStatement getSqlStatement() {
         if (pgCopy) {

@@ -62,11 +62,11 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
 
     @Override
     public final void ensureSupported() {
-        ensureDatabaseIsRecentEnough("HSQLDB", "1.8");
+        ensureDatabaseIsRecentEnough("1.8");
 
-        ensureDatabaseIsCompatibleWithFlywayEdition("HSQL Development Group", "HSQLDB", "2.3");
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("2.3", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("HSQLDB", "2.4");
+        recommendFlywayUpgradeIfNecessary("2.4");
     }
 
     @Override

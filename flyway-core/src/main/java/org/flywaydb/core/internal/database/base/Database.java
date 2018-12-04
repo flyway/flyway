@@ -23,9 +23,11 @@ import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException;
+import org.flywaydb.core.internal.license.Edition;
+import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.placeholder.DefaultPlaceholderReplacer;
 import org.flywaydb.core.internal.placeholder.NoopPlaceholderReplacer;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
@@ -53,6 +55,11 @@ import java.util.Map;
  */
 public abstract class Database<C extends Connection> implements Closeable {
     private static final Log LOG = LogFactory.getLog(Database.class);
+
+    /**
+     * The type of database this is.
+     */
+    protected final DatabaseType databaseType;
 
     /**
      * The Flyway configuration.
@@ -105,11 +112,13 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @param connection         The main connection to use.
      * @param originalAutoCommit The original auto-commit state for connections to this database.
      */
-    public Database(Configuration configuration, java.sql.Connection connection, boolean originalAutoCommit
+    public Database(Configuration configuration, java.sql.Connection connection,
+                    boolean originalAutoCommit
 
 
 
     ) {
+        this.databaseType = DatabaseType.fromJdbcConnection(connection);
         this.configuration = configuration;
         this.mainJdbcConnection = connection;
         this.originalAutoCommit = originalAutoCommit;
@@ -150,29 +159,41 @@ public abstract class Database<C extends Connection> implements Closeable {
         return version;
     }
 
-    protected final void ensureDatabaseIsRecentEnough(String database, String oldestSupportedVersion) {
+    protected final void ensureDatabaseIsRecentEnough(String oldestSupportedVersion) {
         if (!version.isAtLeast(oldestSupportedVersion)) {
-            throw new FlywayDbUpgradeRequiredException(database, computeVersionDisplayName(version),
+            throw new FlywayDbUpgradeRequiredException(databaseType, computeVersionDisplayName(version),
                     computeVersionDisplayName(MigrationVersion.fromVersion(oldestSupportedVersion)));
         }
     }
 
-    protected final void ensureDatabaseIsCompatibleWithFlywayEdition(String vendor, String database, String oldestSupportedVersion) {
-        if (!version.isAtLeast(oldestSupportedVersion)) {
-            throw new FlywayEnterpriseUpgradeRequiredException(vendor, database, computeVersionDisplayName(version));
+    /**
+     * Ensures this database it at least at recent as this version otherwise suggest upgrade to this higher edition of
+     * Flyway.
+     *
+     * @param oldestSupportedVersionInThisEdition The oldest supported version of the database by this edition of Flyway.
+     * @param editionWhereStillSupported          The edition of Flyway that still supports this version of the database,
+     *                                            in case it's too old.
+     */
+    protected final void ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition(String oldestSupportedVersionInThisEdition,
+                                                                                            Edition editionWhereStillSupported) {
+        if (!version.isAtLeast(oldestSupportedVersionInThisEdition)) {
+            throw new FlywayEditionUpgradeRequiredException(
+                    editionWhereStillSupported,
+                    databaseType,
+                    computeVersionDisplayName(version));
         }
     }
 
-    protected final void recommendFlywayUpgradeIfNecessary(String database, String newestSupportedVersion) {
+    protected final void recommendFlywayUpgradeIfNecessary(String newestSupportedVersion) {
         if (version.isNewerThan(newestSupportedVersion)) {
-            LOG.warn("Flyway upgrade recommended: " + database + " " + computeVersionDisplayName(version)
+            LOG.warn("Flyway upgrade recommended: " + databaseType + " " + computeVersionDisplayName(version)
                     + " is newer than this version of Flyway and support has not been tested.");
         }
     }
 
-    protected final void recommendFlywayUpgradeIfNecessaryForMajorVersion(String database, String newestSupportedVersion) {
+    protected final void recommendFlywayUpgradeIfNecessaryForMajorVersion(String newestSupportedVersion) {
         if (version.isMajorNewerThan(newestSupportedVersion)) {
-            LOG.warn("Flyway upgrade recommended: " + database + " " + computeVersionDisplayName(version)
+            LOG.warn("Flyway upgrade recommended: " + databaseType + " " + computeVersionDisplayName(version)
                     + " is newer than this version of Flyway and support has not been tested.");
         }
     }

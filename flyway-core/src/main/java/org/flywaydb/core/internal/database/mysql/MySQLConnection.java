@@ -58,15 +58,20 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
         canResetUserVariables = hasUserVariableResetCapability();
     }
 
+    // #2215: ensure the database is recent enough and the current user has the necessary SELECT grant
     private boolean hasUserVariableResetCapability() {
-        if (database.isMariaDB() && !database.getVersion().isAtLeast("10.2")) {
-            LOG.debug("Disabled user variable reset as it is only available from MariaDB 10.2 onwards");
-            return false;
-        }
-        if (!database.isMariaDB() && !database.getVersion().isAtLeast("5.7")) {
-            LOG.debug("Disabled user variable reset as it is only available from MySQL 5.7 onwards");
-            return false;
-        }
+
+
+
+
+
+
+
+
+
+
+
+
 
         try {
             jdbcTemplate.queryForStringList(userVariablesQuery);

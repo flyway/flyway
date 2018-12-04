@@ -28,96 +28,45 @@ import java.sql.Types;
  * The various types of databases Flyway supports.
  */
 public enum DatabaseType {
-    /**
-     * CockroachDB.
-     */
-    COCKROACHDB(Types.NULL),
+    COCKROACHDB("CockroachDB", Types.NULL),
+    DB2("DB2", Types.VARCHAR),
+    DERBY("Derby", Types.VARCHAR),
+    H2("H2", Types.VARCHAR),
+    HSQLDB("HSQLDB", Types.VARCHAR),
+    INFORMIX("Informix", Types.VARCHAR),
+    MARIADB("MariaDB", Types.VARCHAR),
+    MYSQL("MySQL", Types.VARCHAR),
+    ORACLE("Oracle", Types.VARCHAR),
+    POSTGRESQL("PostgreSQL", Types.NULL),
+    REDSHIFT("Redshift", Types.VARCHAR),
+    SQLITE("SQLite", Types.VARCHAR),
+    SQLSERVER("SQL Server", Types.VARCHAR),
+    SYBASEASE_JTDS("Sybase ASE", Types.NULL),
+    SYBASEASE_JCONNECT("Sybase ASE", Types.VARCHAR),
+    SAPHANA("SAP HANA", Types.VARCHAR);
 
-    /**
-     * DB2.
-     */
-    DB2(Types.VARCHAR),
-
-    /**
-     * Derby.
-     */
-    DERBY(Types.VARCHAR),
-
-    /**
-     * H2.
-     */
-    H2(Types.VARCHAR),
-
-    /**
-     * HSQLDB.
-     */
-    HSQLDB(Types.VARCHAR),
-
-    /**
-     * Informix.
-     */
-    INFORMIX(Types.VARCHAR),
-
-    /**
-     * For regular MySQL, MariaDB and Google Cloud SQL.
-     */
-    MYSQL(Types.VARCHAR),
-
-    /**
-     * Oracle.
-     */
-    ORACLE(Types.VARCHAR),
-
-    /**
-     * PostgreSQL.
-     */
-    POSTGRESQL(Types.NULL),
-
-    /**
-     * Redshift.
-     */
-    REDSHIFT(Types.VARCHAR),
-
-    /**
-     * SQLite.
-     */
-    SQLITE(Types.VARCHAR),
-
-    /**
-     * SQL Server.
-     */
-    SQLSERVER(Types.VARCHAR),
-
-    /**
-     * Sybase ASE, using the legacy jTDS driver.
-     */
-    SYBASEASE_JTDS(Types.NULL),
-
-    /**
-     * Sybase ASE, using the jConnect driver.
-     */
-    SYBASEASE_JCONNECT(Types.VARCHAR),
-
-    /**
-     * SAP HANA.
-     */
-    SAPHANA(Types.VARCHAR);
+    private final String name;
 
     private final int nullType;
 
-    DatabaseType(int nullType) {
+    DatabaseType(String name, int nullType) {
+        this.name = name;
         this.nullType = nullType;
     }
 
     public static DatabaseType fromJdbcConnection(Connection connection) {
         DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);
         String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
+        String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
+
         String postgreSQLVersion = databaseProductName.startsWith("PostgreSQL") ? getPostgreSQLVersion(connection) : "";
 
-        return fromDatabaseProductNameAndPostgreSQLVersion(databaseProductName, postgreSQLVersion);
+        return fromDatabaseProductNameAndPostgreSQLVersion(databaseProductName, databaseProductVersion, postgreSQLVersion);
     }
 
-    private static DatabaseType fromDatabaseProductNameAndPostgreSQLVersion(String databaseProductName, String postgreSQLVersion) {
+    private static DatabaseType fromDatabaseProductNameAndPostgreSQLVersion(String databaseProductName,
+                                                                            String databaseProductVersion,
+                                                                            String postgreSQLVersion) {
         if (databaseProductName.startsWith("Apache Derby")) {
             return DERBY;
         }
@@ -134,6 +83,9 @@ public enum DatabaseType {
             return SQLSERVER;
         }
         if (databaseProductName.contains("MySQL")) {
+            if (databaseProductVersion.contains("MariaDB")) {
+                return MARIADB;
+            }
             // Google Cloud SQL returns different names depending on the environment and the SDK version.
             //   ex.: Google SQL Service/MySQL
             return MYSQL;
@@ -197,9 +149,21 @@ public enum DatabaseType {
     }
 
     /**
+     * @return The human-readable name for this database.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
      * @return The JDBC type used to represent {@code null} in prepared statements.
      */
     public int getNullType() {
         return nullType;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

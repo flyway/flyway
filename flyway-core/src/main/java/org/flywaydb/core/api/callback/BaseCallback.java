@@ -13,27 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.errorhandler;
+package org.flywaydb.core.api.callback;
 
 /**
- * An error that occurred while executing a statement.
- *
- * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
+ * Base implementation of Callback from which one can inherit. This is a convenience class that assumes by default that
+ * all events are handled and all handlers can run within a transaction.
  */
-@Deprecated
-public interface Error {
-    /**
-     * @return The error code.
-     */
-    int getCode();
+public abstract class BaseCallback implements Callback {
+    @Override
+    public boolean supports(Event event, Context context) {
+        return true;
+    }
 
-    /**
-     * @return The error state.
-     */
-    String getState();
-
-    /**
-     * @return The error message.
-     */
-    String getMessage();
+    @Override
+    public boolean canHandleInTransaction(Event event, Context context) {
+        return true;
+    }
 }

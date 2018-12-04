@@ -214,7 +214,6 @@ public class Main {
      */
     private static void filterProperties(Properties properties) {
         properties.remove(ConfigUtils.JAR_DIRS);
-        properties.remove(ConfigUtils.CONFIG_FILE);
         properties.remove(ConfigUtils.CONFIG_FILES);
         properties.remove(ConfigUtils.CONFIG_FILE_ENCODING);
     }
@@ -467,10 +466,6 @@ public class Main {
 
         for (String arg : args) {
             String argValue = getArgumentValue(arg);
-            if (isPropertyArgument(arg) && ConfigUtils.CONFIG_FILE.equals(getArgumentProperty(arg))) {
-                LOG.warn("-configFile is deprecated and will be removed in Flyway 6.0. Use -configFiles instead.");
-                configFiles.add(new File(argValue));
-            }
             if (isPropertyArgument(arg) && ConfigUtils.CONFIG_FILES.equals(getArgumentProperty(arg))) {
                 for (String file : StringUtils.tokenizeToStringArray(argValue, ",")) {
                     configFiles.add(new File(file));

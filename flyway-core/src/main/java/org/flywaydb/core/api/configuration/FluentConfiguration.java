@@ -20,7 +20,6 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
-import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import javax.sql.DataSource;
@@ -62,18 +61,6 @@ public class FluentConfiguration implements Configuration {
      */
     public Flyway load() {
         return new Flyway(this);
-    }
-
-    /**
-     * Configure with the same values as this existing configuration.
-     *
-     * @param configuration The configuration to use.
-     * @deprecated Use configuration() instead. Will be removed in Flyway 6.0.
-     */
-    @Deprecated
-    public FluentConfiguration configure(Configuration configuration) {
-        config.configure(configuration);
-        return this;
     }
 
     /**
@@ -165,7 +152,7 @@ public class FluentConfiguration implements Configuration {
     public boolean isIgnorePendingMigrations() {
         return config.isIgnorePendingMigrations();
     }
-    
+
     @Override
     public boolean isIgnoreFutureMigrations() {
         return config.isIgnoreFutureMigrations();
@@ -252,11 +239,6 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public ErrorHandler[] getErrorHandlers() {
-        return config.getErrorHandlers();
-    }
-
-    @Override
     public String[] getErrorOverrides() {
         return config.getErrorOverrides();
     }
@@ -322,39 +304,6 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration dryRunOutput(String dryRunOutputFileName) {
         config.setDryRunOutputAsFileName(dryRunOutputFileName);
-        return this;
-    }
-
-    /**
-     * Handlers for errors and warnings that occur during a migration. This can be used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
-     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
-     * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
-     *
-     * @param errorHandlers The ErrorHandlers or an empty array if the default internal handler should be used instead. (default: none)
-     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
-     */
-    @Deprecated
-    public FluentConfiguration errorHandlers(ErrorHandler... errorHandlers) {
-        config.setErrorHandlers(errorHandlers);
-        return this;
-    }
-
-    /**
-     * Handlers for errors and warnings that occur during a migration. This can be used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywayException.
-     * ErrorHandlers are invoked in order until one reports to have successfully handled the errors or warnings.
-     * If none do, or if none are present, Flyway falls back to its default handling of errors and warnings.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
-     *
-     * @param errorHandlerClassNames The fully qualified class names of ErrorHandlers or an empty array if the default
-     *                               internal handler should be used instead. (default: none)
-     * @deprecated ErrorHandlers have been deprecated and will be removed in Flyway 6.0 use statement-level callbacks instead.
-     */
-    @Deprecated
-    public FluentConfiguration errorHandlers(String... errorHandlerClassNames) {
-        config.setErrorHandlersAsClassNames(errorHandlerClassNames);
         return this;
     }
 
@@ -467,7 +416,7 @@ public class FluentConfiguration implements Configuration {
         config.setIgnorePendingMigrations(ignorePendingMigrations);
         return this;
     }
-    
+
     /**
      * Whether to ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
@@ -757,20 +706,6 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Sets the datasource to use. Must have the necessary privileges to execute ddl.
-     *
-     * @param url      The JDBC URL of the database.
-     * @param user     The user of the database.
-     * @param password The password of the database.
-     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
-     * @deprecated Use the separate initSql() method in addition to the dataSource() method if you need to set the initSql. This method will be removed in Flyway 6.0.
-     */
-    public FluentConfiguration dataSource(String url, String user, String password, String... initSqls) {
-        config.setDataSource(url, user, password, initSqls);
-        return this;
-    }
-
-    /**
      * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
      * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
      *
@@ -781,11 +716,10 @@ public class FluentConfiguration implements Configuration {
         return this;
     }
 
-
     /**
      * The SQL statements to run to initialize a new database connection immediately after opening it.
      *
-     * @param initSql  The SQL statements. (default: {@code null})
+     * @param initSql The SQL statements. (default: {@code null})
      */
     public FluentConfiguration initSql(String initSql) {
         config.setInitSql(initSql);
@@ -988,39 +922,7 @@ public class FluentConfiguration implements Configuration {
      *
      * @param properties Properties used for configuration.
      * @throws FlywayException when the configuration failed.
-     * @deprecated Use configuration() instead. Will be removed in Flyway 6.0.
      */
-    @Deprecated
-    @SuppressWarnings("ConstantConditions")
-    public FluentConfiguration configure(Properties properties) {
-        config.configure(properties);
-        return this;
-    }
-
-    /**
-     * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
-     * documented in the flyway maven plugin.
-     * <p>To use a custom ClassLoader, it must be passed to the Flyway constructor prior to calling this method.</p>
-     *
-     * @param props Properties used for configuration.
-     * @throws FlywayException when the configuration failed.
-     * @deprecated Use configuration() instead. Will be removed in Flyway 6.0.
-     */
-    @Deprecated
-    public FluentConfiguration configure(Map<String, String> props) {
-        config.configure(props);
-        return this;
-    }
-
-    /**
-     * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
-     * documented in the flyway maven plugin.
-     * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
-     *
-     * @param properties Properties used for configuration.
-     * @throws FlywayException when the configuration failed.
-     */
-    @SuppressWarnings("ConstantConditions")
     public FluentConfiguration configuration(Properties properties) {
         config.configure(properties);
         return this;

@@ -44,7 +44,7 @@ public class HSQLDBSchema extends Schema<HSQLDBDatabase> {
     }
 
     @Override
-    protected boolean doEmpty() throws SQLException {
+    protected boolean doEmpty() {
         return allTables().length == 0;
     }
 

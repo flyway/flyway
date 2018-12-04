@@ -15,22 +15,22 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 
 /**
  * SQLite-specific table.
  */
-public class SQLiteTable extends Table {
+public class SQLiteTable extends Table<SQLiteDatabase, SQLiteSchema> {
     private static final Log LOG = LogFactory.getLog(SQLiteTable.class);
 
-    /** SQLite system tables are undroppable. */
+    /**
+     * SQLite system tables are undroppable.
+     */
     static final String SQLITE_SEQUENCE = "sqlite_sequence";
     private final boolean undroppable;
 
@@ -38,11 +38,11 @@ public class SQLiteTable extends Table {
      * Creates a new SQLite table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public SQLiteTable(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
+    public SQLiteTable(JdbcTemplate jdbcTemplate, SQLiteDatabase database, SQLiteSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
         undroppable = SQLITE_SEQUENCE.equals(name);
     }
@@ -63,7 +63,7 @@ public class SQLiteTable extends Table {
     }
 
     @Override
-    protected void doLock() throws SQLException {
+    protected void doLock() {
         LOG.debug("Unable to lock " + this + " as SQLite does not support locking. No concurrent migration supported.");
     }
 }

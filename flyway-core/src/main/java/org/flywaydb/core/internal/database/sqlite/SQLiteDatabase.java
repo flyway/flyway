@@ -127,7 +127,7 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     }
 
     private static class SQLiteSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
-        public SQLiteSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+        SQLiteSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
             super(placeholderReplacer);
         }
 

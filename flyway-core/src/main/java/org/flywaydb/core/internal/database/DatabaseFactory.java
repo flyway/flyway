@@ -155,6 +155,7 @@ public class DatabaseFactory {
 
 
                 );
+            case MARIADB:
             case MYSQL:
                 return new MySQLDatabase(configuration, connection, originalAutoCommit
 
