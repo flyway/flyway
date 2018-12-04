@@ -529,7 +529,6 @@ public class Flyway {
 
 
 
-
     ) {
         List<Callback> effectiveCallbacks = new ArrayList<>();
 
@@ -564,8 +563,6 @@ public class Flyway {
 
                     ).getCallbacks());
         }
-
-
 
 
 
