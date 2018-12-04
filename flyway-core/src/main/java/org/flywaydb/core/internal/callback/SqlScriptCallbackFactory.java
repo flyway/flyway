@@ -54,7 +54,11 @@ public class SqlScriptCallbackFactory {
      */
     public SqlScriptCallbackFactory(Database database, ResourceProvider resourceProvider,
                                     SqlStatementBuilderFactory sqlStatementBuilderFactory,
-                                    Configuration configuration) {
+                                    Configuration configuration
+
+
+
+    ) {
         Map<String, SqlScript> callbacksFound = new HashMap<>();
 
         LOG.debug("Scanning for SQL callbacks ...");
@@ -114,6 +118,7 @@ public class SqlScriptCallbackFactory {
 
 
 
+
         private SqlScriptCallback(Event event, String description, Database database, SqlScript sqlScript
 
 
@@ -123,6 +128,7 @@ public class SqlScriptCallbackFactory {
             this.description = description;
             this.database = database;
             this.sqlScript = sqlScript;
+
 
 
 
