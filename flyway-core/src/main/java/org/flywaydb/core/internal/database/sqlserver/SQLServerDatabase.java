@@ -75,11 +75,14 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
     @Override
     public final void ensureSupported() {
-        ensureDatabaseIsRecentEnough("SQL Server", "10.0");
+        ensureDatabaseIsRecentEnough("10.0");
 
-        ensureDatabaseIsCompatibleWithFlywayEdition("Microsoft", "SQL Server", "12");
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("12.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("SQL Server", "14.0");
+
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("13.0", org.flywaydb.core.internal.license.Edition.PRO);
+
+        recommendFlywayUpgradeIfNecessary("14.0");
     }
 
     @Override

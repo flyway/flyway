@@ -15,8 +15,6 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
@@ -25,7 +23,7 @@ import java.sql.SQLException;
 /**
  * SQLServer-specific table.
  */
-public class SQLServerTable extends Table {
+public class SQLServerTable extends Table<SQLServerDatabase, SQLServerSchema> {
     private final String databaseName;
 
     /**
@@ -37,7 +35,7 @@ public class SQLServerTable extends Table {
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    SQLServerTable(JdbcTemplate jdbcTemplate, Database database, String databaseName, Schema schema, String name) {
+    SQLServerTable(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, SQLServerSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
         this.databaseName = databaseName;
     }

@@ -15,28 +15,25 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
-import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.SchemaObject;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 
 /**
  * Sybase ASE table.
  */
-public class SybaseASETable extends Table {
+public class SybaseASETable extends Table<SybaseASEDatabase, SybaseASESchema> {
     /**
      * Creates a new SAP ASE table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    SybaseASETable(JdbcTemplate jdbcTemplate, Database database,
-                   Schema schema, String name) {
+    SybaseASETable(JdbcTemplate jdbcTemplate, SybaseASEDatabase database, SybaseASESchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
     }
 
@@ -57,6 +54,7 @@ public class SybaseASETable extends Table {
 
     /**
      * Since Sybase ASE does not support schema, dropping out the schema name for toString method
+     *
      * @see SchemaObject#toString()
      */
     @Override

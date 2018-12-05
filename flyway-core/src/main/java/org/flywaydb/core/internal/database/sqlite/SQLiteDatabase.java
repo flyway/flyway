@@ -63,7 +63,7 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     @Override
     public final void ensureSupported() {
         // #2221: Should be 3.7.2 but older versions of the Xerial JDBC driver misreport 3.x versions as being 3.0.
-        ensureDatabaseIsRecentEnough("SQLite", "3.0");
+        ensureDatabaseIsRecentEnough("3.0");
     }
 
     @Override
@@ -127,7 +127,7 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     }
 
     private static class SQLiteSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
-        public SQLiteSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+        SQLiteSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
             super(placeholderReplacer);
         }
 

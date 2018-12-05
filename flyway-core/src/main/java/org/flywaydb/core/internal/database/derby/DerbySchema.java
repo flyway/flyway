@@ -46,7 +46,7 @@ public class DerbySchema extends Schema<DerbyDatabase> {
     }
 
     @Override
-    protected boolean doEmpty() throws SQLException {
+    protected boolean doEmpty() {
         return allTables().length == 0;
     }
 

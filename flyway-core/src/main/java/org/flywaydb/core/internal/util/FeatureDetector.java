@@ -49,11 +49,6 @@ public final class FeatureDetector {
     private Boolean slf4jAvailable;
 
     /**
-     * Flag indicating availability of Spring JDBC.
-     */
-    private Boolean springJdbcAvailable;
-
-    /**
      * Flag indicating availability of JBoss VFS v2.
      */
     private Boolean jbossVFSv2Available;
@@ -97,20 +92,6 @@ public final class FeatureDetector {
         }
 
         return slf4jAvailable;
-    }
-
-    /**
-     * Checks whether Spring Jdbc is available.
-     *
-     * @return {@code true} if it is, {@code false if it is not}
-     */
-    public boolean isSpringJdbcAvailable() {
-        if (springJdbcAvailable == null) {
-            springJdbcAvailable = ClassUtils.isPresent("org.springframework.jdbc.core.JdbcTemplate", classLoader);
-            LOG.debug("Spring Jdbc available: " + springJdbcAvailable);
-        }
-
-        return springJdbcAvailable;
     }
 
     /**

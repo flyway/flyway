@@ -79,11 +79,11 @@ public class H2Database extends Database<H2Connection> {
 
     @Override
     public final void ensureSupported() {
-        ensureDatabaseIsRecentEnough("H2", "1.2.137");
+        ensureDatabaseIsRecentEnough("1.2.137");
 
-        ensureDatabaseIsCompatibleWithFlywayEdition("H2", "H2", "1.4");
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("1.4", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("H2", "1.4.197");
+        recommendFlywayUpgradeIfNecessary("1.4.197");
         supportsDropSchemaCascade = getVersion().isAtLeast("1.4.197");
     }
 

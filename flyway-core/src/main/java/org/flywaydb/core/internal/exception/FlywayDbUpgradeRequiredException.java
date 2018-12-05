@@ -16,14 +16,15 @@
 package org.flywaydb.core.internal.exception;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.jdbc.DatabaseType;
 
 /**
  * Thrown when an attempt was made to migrate an outdated database version not supported by Flyway.
  */
 public class FlywayDbUpgradeRequiredException extends FlywayException {
-    public FlywayDbUpgradeRequiredException(String database, String version, String minimumVersion) {
-        super(database + " upgrade required: " + database + " " + version
-                + " is outdated and no longer supported by Flyway. Flyway currently supports " + database + " "
+    public FlywayDbUpgradeRequiredException(DatabaseType databaseType, String version, String minimumVersion) {
+        super(databaseType + " upgrade required: " + databaseType + " " + version
+                + " is outdated and no longer supported by Flyway. Flyway currently supports " + databaseType + " "
                 + minimumVersion + " and newer.");
     }
 }

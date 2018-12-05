@@ -57,7 +57,7 @@ public class SQLiteSchema extends Schema<SQLiteDatabase> {
     }
 
     @Override
-    protected boolean doEmpty() throws SQLException {
+    protected boolean doEmpty() {
         Table[] tables = allTables();
         List<String> tableNames = new ArrayList<>();
         for (Table table : tables) {
@@ -70,12 +70,12 @@ public class SQLiteSchema extends Schema<SQLiteDatabase> {
     }
 
     @Override
-    protected void doCreate() throws SQLException {
+    protected void doCreate() {
         LOG.info("SQLite does not support creating schemas. Schema not created: " + name);
     }
 
     @Override
-    protected void doDrop() throws SQLException {
+    protected void doDrop() {
         LOG.info("SQLite does not support dropping schemas. Schema not dropped: " + name);
     }
 

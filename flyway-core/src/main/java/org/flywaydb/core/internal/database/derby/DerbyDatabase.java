@@ -63,11 +63,11 @@ public class DerbyDatabase extends Database<DerbyConnection> {
 
     @Override
     public final void ensureSupported() {
-        ensureDatabaseIsRecentEnough("Derby", "10.11.1.1");
+        ensureDatabaseIsRecentEnough("10.11.1.1");
 
-        ensureDatabaseIsCompatibleWithFlywayEdition("Apache", "Derby", "10.14");
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.13", org.flywaydb.core.internal.license.Edition.PRO);
 
-        recommendFlywayUpgradeIfNecessary("Derby", "10.14");
+        recommendFlywayUpgradeIfNecessary("10.14");
     }
 
     @Override
@@ -125,7 +125,7 @@ public class DerbyDatabase extends Database<DerbyConnection> {
     }
 
     private static class DerbySqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
-        public DerbySqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+        DerbySqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
             super(placeholderReplacer);
         }
 

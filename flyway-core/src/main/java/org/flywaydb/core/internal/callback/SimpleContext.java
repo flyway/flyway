@@ -71,7 +71,6 @@ public class SimpleContext implements Context {
         private final String sql;
         private final List<Warning> warnings;
         private final List<Error> errors;
-        private boolean suppressErrors;
 
         private SimpleStatement(String sql, List<Warning> warnings, List<Error> errors) {
             this.sql = sql;
@@ -92,16 +91,6 @@ public class SimpleContext implements Context {
         @Override
         public List<Error> getErrors() {
             return errors;
-        }
-
-        @Override
-        public boolean isSuppressErrors() {
-            return suppressErrors;
-        }
-
-        @Override
-        public void setSuppressErrors(boolean suppressErrors) {
-            this.suppressErrors = suppressErrors;
         }
     }
 }

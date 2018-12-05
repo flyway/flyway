@@ -20,7 +20,7 @@ import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 
 class SybaseASESqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
-    public SybaseASESqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+    SybaseASESqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
         super(placeholderReplacer);
     }
 
