@@ -1577,7 +1577,7 @@ public class ClassicConfiguration implements Configuration {
             setIgnoreFutureMigrations(ignoreFutureMigrationsProp);
         }
         String targetProp = props.remove(ConfigUtils.TARGET);
-        if (targetProp != null) {
+        if (targetProp != null && !"latest".equalsIgnoreCase(targetProp)) {
             setTarget(MigrationVersion.fromVersion(targetProp));
         }
         Boolean outOfOrderProp = getBooleanProp(props, ConfigUtils.OUT_OF_ORDER);
