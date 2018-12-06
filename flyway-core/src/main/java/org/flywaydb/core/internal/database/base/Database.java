@@ -44,7 +44,7 @@ import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 
 import java.io.Closeable;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -467,7 +467,7 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     protected LoadableResource getRawCreateScript() {
         String resourceName = "org/flywaydb/core/internal/database/" + getDbName() + "/createMetaDataTable.sql";
-        return new ClassPathResource(null, resourceName, getClass().getClassLoader(), Charset.forName("UTF-8"));
+        return new ClassPathResource(null, resourceName, getClass().getClassLoader(), StandardCharsets.UTF_8);
     }
 
     public String getInsertStatement(Table table) {

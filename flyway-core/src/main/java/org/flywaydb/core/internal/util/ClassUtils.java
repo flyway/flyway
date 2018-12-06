@@ -72,7 +72,6 @@ public class ClassUtils {
      * @return The new instance.
      * @throws FlywayException Thrown when the instantiation failed.
      */
-    @SuppressWarnings({"unchecked"})
     // Must be synchronized for the Maven Parallel Junit runner to work
     public static synchronized <T> T instantiate(Class<T> clazz) {
         try {
@@ -162,17 +161,6 @@ public class ClassUtils {
             LOG.debug("Skipping non-instantiable class (invocation error): " + className);
             return null;
         }
-    }
-
-    /**
-     * Computes the short name (name without package) of this class.
-     *
-     * @param aClass The class to analyse.
-     * @return The short name.
-     */
-    public static String getShortName(Class<?> aClass) {
-        String name = aClass.getName();
-        return name.substring(name.lastIndexOf(".") + 1);
     }
 
     /**

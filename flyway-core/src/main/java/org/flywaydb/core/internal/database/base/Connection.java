@@ -72,7 +72,7 @@ public abstract class Connection<D extends Database> implements Closeable {
         try {
             originalSchemaNameOrSearchPath = getCurrentSchemaNameOrSearchPath();
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to retrieve the current schema for the connection", e);
+            throw new FlywaySqlException("Unable to determine the original schema for the connection", e);
         }
     }
 
@@ -91,7 +91,7 @@ public abstract class Connection<D extends Database> implements Closeable {
         try {
             return doGetCurrentSchema();
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to retrieve the current schema for the connection", e);
+            throw new FlywaySqlException("Unable to determine the current schema for the connection", e);
         }
     }
 

@@ -18,13 +18,13 @@ package org.flywaydb.core.internal.license;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.util.DateUtils;
-import org.flywaydb.core.internal.util.IOUtils;
 import org.flywaydb.core.internal.line.LineReader;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
+import org.flywaydb.core.internal.util.DateUtils;
+import org.flywaydb.core.internal.util.IOUtils;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 /**
@@ -125,7 +125,7 @@ public class VersionPrinter {
         String version;
         LoadableResource resource = new ClassPathResource(null,
                 "org/flywaydb/core/internal/version.txt",
-                VersionPrinter.class.getClassLoader(), Charset.forName("UTF-8"));
+                VersionPrinter.class.getClassLoader(), StandardCharsets.UTF_8);
         LineReader lineReader = null;
         try {
             lineReader = resource.loadAsString();

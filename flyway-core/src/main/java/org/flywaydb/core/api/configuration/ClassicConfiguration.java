@@ -35,6 +35,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -96,7 +97,7 @@ public class ClassicConfiguration implements Configuration {
     /**
      * The encoding of Sql migrations. (default: UTF-8)
      */
-    private Charset encoding = Charset.forName("UTF-8");
+    private Charset encoding = StandardCharsets.UTF_8;
 
     /**
      * The schemas managed by Flyway. These schema names are case-sensitive.
@@ -1439,7 +1440,6 @@ public class ClassicConfiguration implements Configuration {
      * @param properties Properties used for configuration.
      * @throws FlywayException when the configuration failed.
      */
-    @SuppressWarnings("ConstantConditions")
     public void configure(Properties properties) {
         configure(ConfigUtils.propertiesToMap(properties));
     }

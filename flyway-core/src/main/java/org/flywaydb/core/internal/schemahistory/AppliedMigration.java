@@ -17,9 +17,9 @@ package org.flywaydb.core.internal.schemahistory;
 
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.util.ObjectUtils;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * A migration applied to the database (maps to a row in the schema history table).
@@ -191,7 +191,7 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
         if (installedOn != null ? !installedOn.equals(that.installedOn) : that.installedOn != null) return false;
         if (!script.equals(that.script)) return false;
         if (type != that.type) return false;
-        return ObjectUtils.nullSafeEquals(version, that.version);
+        return Objects.equals(version, that.version);
     }
 
     @Override

@@ -23,9 +23,9 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
-import org.flywaydb.core.internal.util.ObjectUtils;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Default implementation of MigrationInfo.
@@ -188,7 +188,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         if (appliedMigration.getVersion() == null) {
             if (appliedMigration.getInstalledRank() == context.latestRepeatableRuns.get(appliedMigration.getDescription())) {
-                if (ObjectUtils.nullSafeEquals(appliedMigration.getChecksum(), resolvedMigration.getChecksum())) {
+                if (Objects.equals(appliedMigration.getChecksum(), resolvedMigration.getChecksum())) {
                     return MigrationState.SUCCESS;
                 }
                 return MigrationState.OUTDATED;
@@ -295,7 +295,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
                     if (resolvedMigration.getVersion() != null
                             || (context.pending && MigrationState.OUTDATED != state && MigrationState.SUPERSEDED != state)) {
-                        if (!ObjectUtils.nullSafeEquals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
+                        if (!Objects.equals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
                             return createMismatchMessage("checksum", migrationIdentifier,
                                     appliedMigration.getChecksum(), resolvedMigration.getChecksum());
                         }

@@ -298,11 +298,15 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
                 jdbcTemplate.queryForStringList(
                         //Search for all the table names
                         "SELECT t.table_name FROM information_schema.tables t" +
-                                //in this schema
+                                // that don't depend on an extension
+                                " LEFT JOIN pg_depend dep ON dep.objid = (quote_ident(t.table_schema)||'.'||quote_ident(t.table_name))::regclass::oid AND dep.deptype = 'e'" +
+                                // in this schema
                                 " WHERE table_schema=?" +
                                 //that are real tables (as opposed to views)
                                 " AND table_type='BASE TABLE'" +
-                                //and are not child tables (= do not inherit from another table).
+                                // with no extension depending on them
+                                " AND dep.objid IS NULL" +
+                                // and are not child tables (= do not inherit from another table).
                                 " AND NOT (SELECT EXISTS (SELECT inhrelid FROM pg_catalog.pg_inherits" +
                                 " WHERE inhrelid = (quote_ident(t.table_schema)||'.'||quote_ident(t.table_name))::regclass::oid))",
                         name

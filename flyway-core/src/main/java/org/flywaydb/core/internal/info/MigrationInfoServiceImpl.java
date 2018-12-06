@@ -27,7 +27,6 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
-import org.flywaydb.core.internal.util.ObjectUtils;
 import org.flywaydb.core.internal.util.Pair;
 
 import java.util.ArrayList;
@@ -36,6 +35,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -141,8 +141,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         context.future = future;
         context.target = target;
 
-        Map<Pair<MigrationVersion, Boolean>, ResolvedMigration> resolvedVersioned =
-                new TreeMap<>();
+        Map<Pair<MigrationVersion, Boolean>, ResolvedMigration> resolvedVersioned = new TreeMap<>();
         Map<String, ResolvedMigration> resolvedRepeatable = new TreeMap<>();
 
         for (ResolvedMigration resolvedMigration : resolvedMigrations) {
@@ -243,7 +242,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         for (AppliedMigration appliedRepeatableMigration : appliedRepeatable) {
             ResolvedMigration resolvedMigration = resolvedRepeatable.get(appliedRepeatableMigration.getDescription());
             int latestRank = context.latestRepeatableRuns.get(appliedRepeatableMigration.getDescription());
-            if (resolvedMigration != null && appliedRepeatableMigration.getInstalledRank() == latestRank && ObjectUtils.nullSafeEquals(appliedRepeatableMigration.getChecksum(), resolvedMigration.getChecksum())) {
+            if (resolvedMigration != null && appliedRepeatableMigration.getInstalledRank() == latestRank
+                    && Objects.equals(appliedRepeatableMigration.getChecksum(), resolvedMigration.getChecksum())) {
                 pendingResolvedRepeatable.remove(resolvedMigration);
             }
             migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false

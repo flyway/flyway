@@ -15,13 +15,12 @@
  */
 package org.flywaydb.core.internal.resource;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.util.IOUtils;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.line.Line;
 import org.flywaydb.core.internal.line.LineReader;
+import org.flywaydb.core.internal.util.IOUtils;
+import org.flywaydb.core.internal.util.StringUtils;
 
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
 
 public abstract class AbstractLoadableResource implements LoadableResource {
@@ -38,11 +37,8 @@ public abstract class AbstractLoadableResource implements LoadableResource {
                 Line line;
                 while ((line = lineReader.readLine()) != null) {
                     //noinspection Since15
-                    crc32.update(StringUtils.trimLineBreak(line.getLine()).getBytes("UTF-8"));
+                    crc32.update(StringUtils.trimLineBreak(line.getLine()).getBytes(StandardCharsets.UTF_8));
                 }
-            } catch (IOException e) {
-                throw new FlywayException("Unable to calculate checksum for " + getAbsolutePath()
-                        + " (" + getAbsolutePathOnDisk() + "): " + e.getMessage(), e);
             } finally {
                 IOUtils.close(lineReader);
             }

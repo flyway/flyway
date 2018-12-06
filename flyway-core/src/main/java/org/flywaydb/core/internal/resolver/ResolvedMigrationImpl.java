@@ -19,7 +19,8 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.util.ObjectUtils;
+
+import java.util.Objects;
 
 /**
  * A migration available on the classpath.
@@ -162,7 +163,7 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
             return false;
         if (script != null ? !script.equals(migration.script) : migration.script != null) return false;
         if (type != migration.type) return false;
-        return ObjectUtils.nullSafeEquals(version, migration.version);
+        return Objects.equals(version, migration.version);
     }
 
     @Override
