@@ -48,16 +48,18 @@ public class MigrationInfoHelper {
                                                                               String[] suffixes, boolean repeatable) {
         String cleanMigrationName = cleanMigrationName(migrationName, prefix, suffixes);
 
-        // Handle the description
-        int descriptionPos = cleanMigrationName.indexOf(separator);
-        if (descriptionPos < 0) {
-            throw new FlywayException("Wrong migration name format: " + migrationName
-                    + "(It should look like this: "
-                    + prefix + (repeatable ? "" : "1.2") + separator + "Description" + suffixes[0] + ")");
+        int separatorPos = cleanMigrationName.indexOf(separator);
+
+        String version;
+        String description;
+        if (separatorPos < 0) {
+            version = cleanMigrationName;
+            description = "";
+        } else {
+            version = cleanMigrationName.substring(0, separatorPos);
+            description = cleanMigrationName.substring(separatorPos + separator.length()).replace("_", " ");
         }
 
-        String version = cleanMigrationName.substring(0, descriptionPos);
-        String description = cleanMigrationName.substring(descriptionPos + separator.length()).replace("_", " ");
         if (StringUtils.hasText(version)) {
             if (repeatable) {
                 throw new FlywayException("Wrong repeatable migration name format: " + migrationName

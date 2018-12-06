@@ -15,30 +15,62 @@
  */
 package org.flywaydb.core.internal.resource;
 
+import org.flywaydb.core.internal.line.Line;
 import org.flywaydb.core.internal.line.LineReader;
+import org.flywaydb.core.internal.util.IOUtils;
+import org.flywaydb.core.internal.util.StringUtils;
+
+import java.nio.charset.StandardCharsets;
+import java.util.zip.CRC32;
 
 /**
  * A loadable resource.
  */
-public interface LoadableResource extends Resource {
+public abstract class LoadableResource implements Resource, Comparable<LoadableResource> {
+    private Integer checksum;
+
     /**
      * Loads this resource as a string.
      *
      * @return The string contents of the resource.
      */
-    LineReader loadAsString();
+    public abstract LineReader loadAsString();
 
     /**
      * Loads this resource as a byte array.
      *
      * @return The contents of the resource.
      */
-    byte[] loadAsBytes();
+    public abstract byte[] loadAsBytes();
 
     /**
      * Calculates the checksum of this resource. The checksum is encoding and line-ending independent.
      *
      * @return The crc-32 checksum of the bytes.
      */
-    int checksum();
+    public final int checksum() {
+        if (checksum == null) {
+            final CRC32 crc32 = new CRC32();
+
+            LineReader lineReader = null;
+            try {
+                lineReader = loadAsString();
+                Line line;
+                while ((line = lineReader.readLine()) != null) {
+                    //noinspection Since15
+                    crc32.update(StringUtils.trimLineBreak(line.getLine()).getBytes(StandardCharsets.UTF_8));
+                }
+            } finally {
+                IOUtils.close(lineReader);
+            }
+
+            checksum = (int) crc32.getValue();
+        }
+        return checksum;
+    }
+
+    @Override
+    public int compareTo(LoadableResource o) {
+        return getRelativePath().compareTo(o.getRelativePath());
+    }
 }

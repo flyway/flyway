@@ -17,11 +17,11 @@ package org.flywaydb.core.internal.resource.filesystem;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.util.BomStrippingReader;
-import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.line.DefaultLineReader;
 import org.flywaydb.core.internal.line.LineReader;
-import org.flywaydb.core.internal.resource.AbstractLoadableResource;
+import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.internal.util.BomStrippingReader;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,7 +33,7 @@ import java.nio.charset.Charset;
 /**
  * A resource on the filesystem.
  */
-public class FileSystemResource extends AbstractLoadableResource implements Comparable<FileSystemResource> {
+public class FileSystemResource extends LoadableResource {
 
 
 
@@ -136,11 +136,5 @@ public class FileSystemResource extends AbstractLoadableResource implements Comp
     @Override
     public String getRelativePath() {
         return relativePath;
-    }
-
-    @SuppressWarnings("NullableProblems")
-    @Override
-    public int compareTo(FileSystemResource o) {
-        return file.compareTo(o.file);
     }
 }

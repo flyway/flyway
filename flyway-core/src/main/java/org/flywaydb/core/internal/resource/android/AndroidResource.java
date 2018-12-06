@@ -18,11 +18,11 @@ package org.flywaydb.core.internal.resource.android;
 import android.content.res.AssetManager;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.util.BomStrippingReader;
-import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.line.DefaultLineReader;
 import org.flywaydb.core.internal.line.LineReader;
-import org.flywaydb.core.internal.resource.AbstractLoadableResource;
+import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.internal.util.BomStrippingReader;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,7 +31,7 @@ import java.nio.charset.Charset;
 /**
  * Resource within an Android App.
  */
-public class AndroidResource extends AbstractLoadableResource {
+public class AndroidResource extends LoadableResource {
     private final AssetManager assetManager;
     private final String fileName;
     private final String fileNameWithAbsolutePath;

@@ -19,7 +19,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.line.DefaultLineReader;
 import org.flywaydb.core.internal.line.LineReader;
-import org.flywaydb.core.internal.resource.AbstractLoadableResource;
+import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.util.BomStrippingReader;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
@@ -35,7 +35,7 @@ import java.nio.charset.Charset;
 /**
  * A resource on the classpath.
  */
-public class ClassPathResource extends AbstractLoadableResource implements Comparable<ClassPathResource> {
+public class ClassPathResource extends LoadableResource {
     /**
      * The fileNameWithAbsolutePath of the resource on the classpath.
      */
@@ -52,7 +52,7 @@ public class ClassPathResource extends AbstractLoadableResource implements Compa
      * Creates a new ClassPathResource.
      *
      * @param fileNameWithAbsolutePath The path and filename of the resource on the classpath.
-     * @param classLoader      The ClassLoader to use.
+     * @param classLoader              The ClassLoader to use.
      */
     public ClassPathResource(Location location, String fileNameWithAbsolutePath, ClassLoader classLoader,
                              Charset encoding) {
@@ -81,6 +81,7 @@ public class ClassPathResource extends AbstractLoadableResource implements Compa
             throw new FlywayException("Unable to fileNameWithAbsolutePath resource on disk: " + fileNameWithAbsolutePath);
         }
         try {
+            //noinspection CharsetObjectCanBeUsed
             return new File(URLDecoder.decode(url.getPath(), "UTF-8")).getAbsolutePath();
         } catch (UnsupportedEncodingException e) {
             throw new FlywayException("Unknown encoding: UTF-8", e);
@@ -129,7 +130,6 @@ public class ClassPathResource extends AbstractLoadableResource implements Compa
         return getUrl() != null;
     }
 
-    @SuppressWarnings({"RedundantIfStatement"})
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -137,19 +137,11 @@ public class ClassPathResource extends AbstractLoadableResource implements Compa
 
         ClassPathResource that = (ClassPathResource) o;
 
-        if (!fileNameWithAbsolutePath.equals(that.fileNameWithAbsolutePath)) return false;
-
-        return true;
+        return fileNameWithAbsolutePath.equals(that.fileNameWithAbsolutePath);
     }
 
     @Override
     public int hashCode() {
         return fileNameWithAbsolutePath.hashCode();
-    }
-
-    @SuppressWarnings("NullableProblems")
-    @Override
-    public int compareTo(ClassPathResource o) {
-        return fileNameWithAbsolutePath.compareTo(o.fileNameWithAbsolutePath);
     }
 }

@@ -20,7 +20,7 @@ import org.flywaydb.core.internal.line.LineReader;
 
 import java.io.StringReader;
 
-public class StringResource extends AbstractLoadableResource {
+public class StringResource extends LoadableResource {
     private final String str;
 
     public StringResource(String str) {
