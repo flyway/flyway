@@ -31,6 +31,7 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * Utility methods for dealing with classes.
@@ -127,41 +128,66 @@ public class ClassUtils {
      * @return the newly loaded class or {@code null} if it could not be loaded.
      */
     public static Class<?> loadClass(String className, ClassLoader classLoader) {
+        // helper function that logs the error and it's underlying cause
+        BiConsumer<String, Throwable> logError = (msg, err) -> {
+            StringBuilder errors = new StringBuilder();
+            errors
+                .append(msg)
+                .append(className)
+                .append(System.lineSeparator())
+                .append("\t")
+                .append(err.getMessage());
+
+            Throwable cause = err.getCause();
+            if (cause != null) {
+                errors
+                    .append(System.lineSeparator())
+                    .append("\t")
+                    .append(cause.getMessage());
+            }
+
+            LOG.error(errors.toString());
+        };
+
         try {
             Class<?> clazz = classLoader.loadClass(className);
             if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isEnum() || clazz.isAnonymousClass()) {
-                LOG.debug("Skipping non-instantiable class: " + className);
-                return null;
+                LOG.warn("Skipping non-instantiable class: " + className);
+            } else {
+                clazz.getDeclaredConstructor().newInstance();
+                LOG.debug("Found class: " + className);
+                return clazz;
             }
-
-            clazz.getDeclaredConstructor().newInstance();
-            LOG.debug("Found class: " + className);
-            return clazz;
         } catch (InternalError e) {
-            LOG.debug("Skipping invalid class: " + className);
+            logError.accept("Skipping invalid class: ", e);
             return null;
         } catch (IncompatibleClassChangeError e) {
-            LOG.warn("Skipping incompatibly changed class: " + className);
+            logError.accept("Skipping incompatibly changed class: ", e);
             return null;
         } catch (NoClassDefFoundError e) {
-            LOG.debug("Skipping non-loadable class definition: " + className);
+            logError.accept("Skipping non-loadable class definition: ", e);
             return null;
         } catch (ClassNotFoundException e) {
-            LOG.debug("Skipping non-loadable class: " + className);
+            logError.accept("Skipping non-loadable class: ", e);
             return null;
         } catch (IllegalAccessException e) {
-            LOG.debug("Skipping non-instantiable class (illegal access): " + className);
+            logError.accept("Skipping non-instantiable class (illegal access): ", e);
             return null;
         } catch (InstantiationException e) {
-            LOG.debug("Skipping non-instantiable class (instantiation error): " + className);
+            logError.accept("Skipping non-instantiable class (instantiation error): ", e);
             return null;
         } catch (NoSuchMethodException e) {
-            LOG.debug("Skipping non-instantiable class (no default constructor): " + className);
+            logError.accept("Skipping non-instantiable class (no default constructor): ", e);
             return null;
         } catch (InvocationTargetException e) {
-            LOG.debug("Skipping non-instantiable class (invocation error): " + className);
+            logError.accept("Skipping non-instantiable class (invocation error): ", e);
+            return null;
+        } catch (Throwable e) {
+            logError.accept("Skipping due to an unexpected error", e);
             return null;
         }
+
+        return null;
     }
 
     /**
