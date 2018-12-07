@@ -65,6 +65,6 @@ public class JavaMigrationExecutor implements MigrationExecutor {
 
     @Override
     public boolean canExecuteInTransaction() {
-        return true;
+        return this.javaMigration.canExecuteInTransaction();
     }
 }
