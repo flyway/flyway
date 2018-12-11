@@ -22,14 +22,13 @@ import org.flywaydb.core.internal.line.LineReader;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.util.BomStrippingReader;
 import org.flywaydb.core.internal.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.UrlUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
 
 /**
@@ -80,12 +79,7 @@ public class ClassPathResource extends LoadableResource {
         if (url == null) {
             throw new FlywayException("Unable to fileNameWithAbsolutePath resource on disk: " + fileNameWithAbsolutePath);
         }
-        try {
-            //noinspection CharsetObjectCanBeUsed
-            return new File(URLDecoder.decode(url.getPath(), "UTF-8")).getAbsolutePath();
-        } catch (UnsupportedEncodingException e) {
-            throw new FlywayException("Unknown encoding: UTF-8", e);
-        }
+        return new File(UrlUtils.decodeURL(url.getPath())).getAbsolutePath();
     }
 
     /**

@@ -20,13 +20,10 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLDecoder;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
@@ -136,29 +133,16 @@ public class ClassUtils {
             clazz.getDeclaredConstructor().newInstance();
             LOG.debug("Found class: " + className);
             return clazz;
-        } catch (InternalError e) {
-            LOG.debug("Skipping invalid class: " + className);
+        } catch (InternalError | NoClassDefFoundError | ClassNotFoundException | IllegalAccessException
+                | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            LOG.debug("Skipping " + className + " (" + e.getClass().getSimpleName() + ": " + e.getMessage()
+                    + (rootCause == e ? "" :
+                    " caused by " + rootCause.getClass().getSimpleName() + ": " + rootCause.getMessage()
+                            + " at " + ExceptionUtils.getThrowLocation(rootCause)));
             return null;
         } catch (IncompatibleClassChangeError e) {
             LOG.warn("Skipping incompatibly changed class: " + className);
-            return null;
-        } catch (NoClassDefFoundError e) {
-            LOG.debug("Skipping non-loadable class definition: " + className);
-            return null;
-        } catch (ClassNotFoundException e) {
-            LOG.debug("Skipping non-loadable class: " + className);
-            return null;
-        } catch (IllegalAccessException e) {
-            LOG.debug("Skipping non-instantiable class (illegal access): " + className);
-            return null;
-        } catch (InstantiationException e) {
-            LOG.debug("Skipping non-instantiable class (instantiation error): " + className);
-            return null;
-        } catch (NoSuchMethodException e) {
-            LOG.debug("Skipping non-instantiable class (no default constructor): " + className);
-            return null;
-        } catch (InvocationTargetException e) {
-            LOG.debug("Skipping non-instantiable class (invocation error): " + className);
             return null;
         }
     }
@@ -170,23 +154,17 @@ public class ClassUtils {
      * @return The absolute path of the .class file.
      */
     public static String getLocationOnDisk(Class<?> aClass) {
-        try {
-            ProtectionDomain protectionDomain = aClass.getProtectionDomain();
-            if (protectionDomain == null) {
-                //Android
-                return null;
-            }
-            CodeSource codeSource = protectionDomain.getCodeSource();
-            if (codeSource == null) {
-                //Custom classloader with for example classes defined using URLClassLoader#defineClass(String name, byte[] b, int off, int len)
-                return null;
-            }
-            String url = codeSource.getLocation().getPath();
-            return URLDecoder.decode(url, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            //Can never happen.
+        ProtectionDomain protectionDomain = aClass.getProtectionDomain();
+        if (protectionDomain == null) {
+            //Android
             return null;
         }
+        CodeSource codeSource = protectionDomain.getCodeSource();
+        if (codeSource == null) {
+            //Custom classloader with for example classes defined using URLClassLoader#defineClass(String name, byte[] b, int off, int len)
+            return null;
+        }
+        return UrlUtils.decodeURL(codeSource.getLocation().getPath());
     }
 
     /**
@@ -195,9 +173,8 @@ public class ClassUtils {
      * @param classLoader The current ClassLoader.
      * @param name        The name of the jar or directory to add.
      * @return The new ClassLoader containing the additional jar or directory.
-     * @throws IOException when the jar or directory could not be found.
      */
-    public static ClassLoader addJarOrDirectoryToClasspath(ClassLoader classLoader, String name) throws IOException {
+    public static ClassLoader addJarOrDirectoryToClasspath(ClassLoader classLoader, String name) {
         LOG.debug("Adding location to classpath: " + name);
 
         try {

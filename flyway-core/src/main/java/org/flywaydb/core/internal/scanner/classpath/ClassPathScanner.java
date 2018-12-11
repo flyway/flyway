@@ -30,16 +30,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
@@ -235,7 +227,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
                 }
                 while (urls.hasMoreElements()) {
                     URL url = urls.nextElement();
-                    locationUrls.add(new URL(URLDecoder.decode(url.toExternalForm(), "UTF-8").replace("/flyway.location", "")));
+                    locationUrls.add(new URL(UrlUtils.decodeURL(url.toExternalForm()).replace("/flyway.location", "")));
                 }
             } catch (IOException e) {
                 LOG.warn("Unable to resolve location " + location + " (ClassLoader: " + classLoader + ")"
