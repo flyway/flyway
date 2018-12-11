@@ -20,6 +20,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
+import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import javax.sql.DataSource;
@@ -136,6 +137,11 @@ public class FluentConfiguration implements Configuration {
     @Override
     public String[] getSqlMigrationSuffixes() {
         return config.getSqlMigrationSuffixes();
+    }
+
+    @Override
+    public JavaMigration[] getJavaMigrations() {
+        return config.getJavaMigrations();
     }
 
     @Override
@@ -684,6 +690,19 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * The manually added Java-based migrations. These are not Java-based migrations discovered through classpath
+     * scanning and instantiated by Flyway. Instead these are manually added instances of JavaMigration.
+     * This is particularly useful when working with a dependency injection container, where you may want the DI
+     * container to instantiate the class and wire up its dependencies for you.
+     *
+     * @param javaMigrations The manually added Java-based migrations. An empty array if none. (default: none)
+     */
+    public FluentConfiguration javaMigrations(JavaMigration... javaMigrations) {
+        config.setJavaMigrations(javaMigrations);
+        return this;
+    }
+
+    /**
      * Sets the datasource to use. Must have the necessary privileges to execute ddl.
      *
      * @param dataSource The datasource to use. Must have the necessary privileges to execute ddl.
@@ -904,11 +923,13 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Flyway's license key.
+     * Your Flyway license key (FL01...). Not yet a Flyway Pro or Enterprise Edition customer?
+     * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
+     * to try out Flyway Pro and Enterprise Edition features free for 30 days.
      *
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
-     * @param licenseKey The license key.
+     * @param licenseKey Your Flyway license key.
      */
     public FluentConfiguration licenseKey(String licenseKey) {
         config.setLicenseKey(licenseKey);

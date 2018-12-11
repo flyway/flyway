@@ -38,13 +38,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
@@ -418,7 +412,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean oracleSqlplus;
 
     /**
-     * Flyway's license key.
+     * Your Flyway license key (FL01...). Not yet a Flyway Pro or Enterprise Edition customer?
+     * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
+     * to try out Flyway Pro and Enterprise Edition features free for 30 days.
      * <p>Also configurable with Gradle or System Property: ${flyway.licenseKey}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */

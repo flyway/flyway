@@ -18,6 +18,7 @@ package org.flywaydb.core.api.configuration;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
+import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import javax.sql.DataSource;
@@ -150,6 +151,16 @@ public interface Configuration {
      * @return The file name suffixes for SQL migrations.
      */
     String[] getSqlMigrationSuffixes();
+
+    /**
+     * The manually added Java-based migrations. These are not Java-based migrations discovered through classpath
+     * scanning and instantiated by Flyway. Instead these are manually added instances of JavaMigration.
+     * This is particularly useful when working with a dependency injection container, where you may want the DI
+     * container to instantiate the class and wire up its dependencies for you.
+     *
+     * @return The manually added Java-based migrations. An empty array if none. (default: none)
+     */
+    JavaMigration[] getJavaMigrations();
 
     /**
      * Checks whether placeholders should be replaced.
@@ -429,11 +440,13 @@ public interface Configuration {
     boolean isOracleSqlplus();
 
     /**
-     * Flyway's license key.
+     * Your Flyway license key (FL01...). Not yet a Flyway Pro or Enterprise Edition customer?
+     * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
+     * to try out Flyway Pro and Enterprise Edition features free for 30 days.
      *
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
-     * @return The license key.
+     * @return Your Flyway license key.
      */
     String getLicenseKey();
 }
