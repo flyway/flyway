@@ -92,11 +92,15 @@ public class PhoenixSchema extends Schema<PhoenixDatabase> {
         for (Table table : doAllTables()) {
             table.drop();
         }
+
+        dropObjectsOfType("FUNCTION", false, false);
+        dropObjectsOfType("VIEW", true, true);
+        dropObjectsOfType("SEQUENCE", true, false);
     }
 
     @Override
     protected Table[] doAllTables() throws SQLException {
-        List<String> tableNames = getAllTableNames();
+        List<String> tableNames = getAllObjectNamesOfType("TABLE");
         Table[] result = new Table[tableNames.size()];
 
         for (int i = 0; i < tableNames.size(); i++) {
@@ -105,19 +109,39 @@ public class PhoenixSchema extends Schema<PhoenixDatabase> {
         return result;
     }
 
-    private List<String> getAllTableNames() throws SQLException {
-        List<String> tableNames = new ArrayList<>();
+    private List<String> getAllObjectNamesOfType(String objectType) throws SQLException {
+        List<String> objectNames = new ArrayList<>();
         Connection c = jdbcTemplate.getConnection();
-        try (ResultSet rs = c.getMetaData().getTables(null, name, null, new String[]{"TABLE"})) {
+        try (ResultSet rs = c.getMetaData().getTables(null, name, null, new String[]{objectType})) {
             while (rs.next()) {
-                tableNames.add(rs.getString("TABLE_NAME"));
+                objectNames.add(rs.getString("TABLE_NAME"));
             }
         }
-        return tableNames;
+        return objectNames;
     }
 
     @Override
     public Table getTable(String tableName) {
         return new PhoenixTable(jdbcTemplate, database, this, tableName);
     }
+
+    /**
+     * Generates the statements for dropping objects of the given type
+     *
+     * @throws SQLException when the clean statements could not be executed.
+     */
+    private void dropObjectsOfType(String type, boolean qualifySchema, boolean cascade) throws SQLException {
+        List<String> objectNames = getAllObjectNamesOfType(type);
+
+        for (String domainName : objectNames) {
+            StringBuilder statementBuilder = new StringBuilder();
+            statementBuilder.append("DROP ")
+                .append(type)
+                .append(" IF EXISTS ")
+                .append(qualifySchema ? database.quote(name, domainName) : database.quote(domainName))
+                .append(cascade ? " CASCADE" : "");
+            jdbcTemplate.execute(statementBuilder.toString());
+        }
+    }
+
 }

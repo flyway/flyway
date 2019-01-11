@@ -146,6 +146,7 @@
         <version.android>4.0.1.2</version.android>
         <version.slf4j>1.7.16</version.slf4j>
         <version.jre>8.172</version.jre>
+        <version.phoenix>4.14.0-HBase-1.4</version.phoenix>
     </properties>
 
     <dependencyManagement>
@@ -265,7 +266,7 @@
             <dependency>
                 <groupId>org.apache.phoenix</groupId>
                 <artifactId>phoenix-core</artifactId>
-                <version>4.14.0-HBase-1.4</version>
+                <version>${version.phoenix}</version>
                 <optional>true</optional>
             </dependency>
 

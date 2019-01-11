@@ -33,16 +33,8 @@ public class PhoenixDatabase extends Database<PhoenixConnection> {
      * @param connection         The main connection to use.
      * @param originalAutoCommit The original auto-commit state for connections to this database.
      */
-    public PhoenixDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
-
-
-
-    ) {
-        super(configuration, connection, originalAutoCommit
-
-
-
-        );
+    public PhoenixDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit) {
+        super(configuration, connection, originalAutoCommit);
     }
 
     @Override

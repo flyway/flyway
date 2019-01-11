@@ -49,6 +49,7 @@ public class PhoenixConnection extends Connection<PhoenixDatabase> {
         } else {
             schemaToUse = database.quote(schemaNameOrSearchPath);
         }
+
         jdbcTemplate.execute("USE " + schemaToUse);
     }
 
