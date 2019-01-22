@@ -31,6 +31,7 @@ import org.flywaydb.core.internal.database.oracle.OracleDatabase;
 import org.flywaydb.core.internal.database.postgresql.PostgreSQLDatabase;
 import org.flywaydb.core.internal.database.redshift.RedshiftDatabase;
 import org.flywaydb.core.internal.database.saphana.SAPHANADatabase;
+import org.flywaydb.core.internal.database.snowflake.SnowflakeDatabase;
 import org.flywaydb.core.internal.database.sqlite.SQLiteDatabase;
 import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabase;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEDatabase;
@@ -192,6 +193,9 @@ public class DatabaseFactory {
 
 
                 );
+            case SNOWFLAKE:
+                return new SnowflakeDatabase(configuration, connection, originalAutoCommit);
+
             case SQLSERVER:
                 return new SQLServerDatabase(configuration, connection, originalAutoCommit
 

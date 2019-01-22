@@ -43,7 +43,8 @@ public enum DatabaseType {
     SQLSERVER("SQL Server", Types.VARCHAR),
     SYBASEASE_JTDS("Sybase ASE", Types.NULL),
     SYBASEASE_JCONNECT("Sybase ASE", Types.VARCHAR),
-    SAPHANA("SAP HANA", Types.VARCHAR);
+    SAPHANA("SAP HANA", Types.VARCHAR),
+    SNOWFLAKE("Snowflake", Types.VARCHAR);
 
     private final String name;
 
@@ -116,6 +117,9 @@ public enum DatabaseType {
         }
         if (databaseProductName.startsWith("Informix")) {
             return INFORMIX;
+        }
+        if (databaseProductName.startsWith("Snowflake")) {
+            return SNOWFLAKE;
         }
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
