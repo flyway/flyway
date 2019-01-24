@@ -139,7 +139,7 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase> {
             inClause = " IN SCHEMA " + database.quote(catalogName, name);
         }
 
-        String sql = "SHOW " + type.getSqlName() + " LIKE '" + filter + "'" + inClause;
+        String sql = "SHOW " + type.getShowType() + " LIKE '" + filter + "'" + inClause;
         LOG.debug("Executing [" + sql + "]");
         RowMapper<Map<String, String>> mapper = new RowMapper<Map<String, String>>() {
 
@@ -160,7 +160,7 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase> {
         List<String> result = new ArrayList<String>();
         for (Map<String, String> object : objects) {
             String value = object.get("name");
-            result.add("DROP " + type.getSqlName() + " " + database.quote(name, value));
+            result.add("DROP " + type.getCreateDropType() + " " + database.quote(name, value));
         }
         return result;
     }
@@ -172,7 +172,7 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase> {
             String value = object.get("arguments");
             // remove the RETURN clause from the fuction signature
             value = value.replaceAll("\\sRETURN\\s.*", "");
-            result.add("DROP FUNCTION " + database.quote(name, value));
+            result.add("DROP " + FUNCTIONS.getCreateDropType() + " " + database.quote(name, value));
         }
         return result;
     }

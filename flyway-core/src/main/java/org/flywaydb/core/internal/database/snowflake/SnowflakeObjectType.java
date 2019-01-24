@@ -17,25 +17,30 @@ package org.flywaydb.core.internal.database.snowflake;
 
 public enum SnowflakeObjectType {
 
-    SCHEMAS("SCHEMAS"),
-    OBJECTS("OBJECTS"),
-    TABLES("TABLES"),
-    VIEWS("VIEWS"),
-    COLUMNS("COLUMNS"),
-    FILE_FORMATS("FILE FORMATS"),
-    SEQUENCES("SEQUENCES"),
-    STAGES("STAGES"),
-    PIPES("PIPES"),
-    FUNCTIONS("USER FUNCTIONS");
+    SCHEMAS("SCHEMAS", "SCHEMA"),
+    OBJECTS("OBJECTS", "OBJECT"),
+    TABLES("TABLES", "TABLE"),
+    VIEWS("VIEWS", "VIEW"),
+    FILE_FORMATS("FILE FORMATS", "FILE FORMAT"),
+    SEQUENCES("SEQUENCES", "SEQUENCE"),
+    STAGES("STAGES", "STAGE"),
+    PIPES("PIPES", "PIPE"),
+    FUNCTIONS("USER FUNCTIONS", "FUNCTION");
 
-    private String sqlName;
+    private String showType;
+    private String createDropType;
 
-    SnowflakeObjectType(String sqlName) {
-        this.sqlName = sqlName;
+    SnowflakeObjectType(String showType, String createDropType) {
+        this.showType = showType;
+        this.createDropType = createDropType;
     }
 
-    String getSqlName() {
-        return sqlName;
+    String getShowType() {
+        return showType;
+    }
+
+    String getCreateDropType() {
+        return createDropType;
     }
 
 }
