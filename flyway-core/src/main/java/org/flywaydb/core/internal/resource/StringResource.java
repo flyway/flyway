@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.resource;
 import org.flywaydb.core.internal.line.DefaultLineReader;
 import org.flywaydb.core.internal.line.LineReader;
 
+import java.io.Reader;
 import java.io.StringReader;
 
 public class StringResource extends LoadableResource {
@@ -28,13 +29,13 @@ public class StringResource extends LoadableResource {
     }
 
     @Override
-    public LineReader loadAsString() {
-        return new DefaultLineReader(new StringReader(str));
+    public Reader read() {
+        return new StringReader(str);
     }
 
     @Override
-    public byte[] loadAsBytes() {
-        return new byte[0];
+    public LineReader loadAsString() {
+        return new DefaultLineReader(new StringReader(str));
     }
 
     @Override

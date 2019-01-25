@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.database.informix;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
@@ -80,6 +81,10 @@ public class InformixDatabase extends Database<InformixConnection> {
 
     @Override
     public LoadableResource getRawCreateScript() {
+        String tablespace = configuration.getTablespace() == null
+                ? ""
+                : " IN \"" + configuration.getTablespace() + "\"";
+
         return new StringResource("CREATE TABLE ${table} (\n" +
                 "    installed_rank INT NOT NULL,\n" +
                 "    version VARCHAR(50),\n" +
@@ -91,7 +96,7 @@ public class InformixDatabase extends Database<InformixConnection> {
                 "    installed_on DATETIME YEAR TO FRACTION(3) DEFAULT CURRENT YEAR TO FRACTION(3) NOT NULL,\n" +
                 "    execution_time INT NOT NULL,\n" +
                 "    success SMALLINT NOT NULL\n" +
-                ");\n" +
+                ")" + tablespace + ";\n" +
                 "ALTER TABLE ${table} ADD CONSTRAINT CHECK (success in (0,1)) CONSTRAINT ${table}_s;\n" +
                 "ALTER TABLE ${table} ADD CONSTRAINT PRIMARY KEY (installed_rank) CONSTRAINT ${table}_pk;\n" +
                 "CREATE INDEX ${table}_s_idx ON ${table} (success);");
@@ -150,6 +155,11 @@ public class InformixDatabase extends Database<InformixConnection> {
         @Override
         public SqlStatementBuilder createSqlStatementBuilder() {
             return new InformixSqlStatementBuilder();
+        }
+
+        @Override
+        public Parser createParser() {
+            return null;
         }
     }
 }

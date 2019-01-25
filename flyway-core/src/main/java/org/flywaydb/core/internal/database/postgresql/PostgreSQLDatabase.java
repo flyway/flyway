@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,21 @@
 package org.flywaydb.core.internal.database.postgresql;
 
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.resource.StringResource;
+import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * PostgreSQL database.
@@ -78,7 +85,36 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
 
     ) {
-        return new PostgreSQLSqlStatementBuilderFactory(placeholderReplacer);
+        return new PostgreSQLSqlStatementBuilderFactory(placeholderReplacer, configuration);
+    }
+
+    @Override
+    protected SqlScript getCreateScript(Map<String, String> placeholders) {
+        Parser parser = new PostgreSQLParser(new FluentConfiguration().placeholders(placeholders));
+        return new ParserSqlScript(parser, getRawCreateScript(), false);
+    }
+
+    @Override
+    protected LoadableResource getRawCreateScript() {
+        String tablespace = configuration.getTablespace() == null
+                ? ""
+                : " TABLESPACE \"" + configuration.getTablespace() + "\"";
+
+        return new StringResource("CREATE TABLE \"${schema}\".\"${table}\" (\n" +
+                "    \"installed_rank\" INT NOT NULL,\n" +
+                "    \"version\" VARCHAR(50),\n" +
+                "    \"description\" VARCHAR(200) NOT NULL,\n" +
+                "    \"type\" VARCHAR(20) NOT NULL,\n" +
+                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
+                "    \"checksum\" INTEGER,\n" +
+                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
+                "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT now(),\n" +
+                "    \"execution_time\" INTEGER NOT NULL,\n" +
+                "    \"success\" BOOLEAN NOT NULL\n" +
+                ")" + tablespace + ";\n" +
+                "ALTER TABLE \"${schema}\".\"${table}\" ADD CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\");\n" +
+                "\n" +
+                "CREATE INDEX \"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");");
     }
 
     @Override

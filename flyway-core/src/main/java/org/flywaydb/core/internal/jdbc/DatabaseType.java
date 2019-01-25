@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,9 @@ import java.sql.Types;
 public enum DatabaseType {
     COCKROACHDB("CockroachDB", Types.NULL),
     DB2("DB2", Types.VARCHAR),
+
+
+
     DERBY("Derby", Types.VARCHAR),
     H2("H2", Types.VARCHAR),
     HSQLDB("HSQLDB", Types.VARCHAR),
@@ -103,6 +106,11 @@ public enum DatabaseType {
             return POSTGRESQL;
         }
         if (databaseProductName.startsWith("DB2")) {
+
+
+
+
+
             return DB2;
         }
         if (databaseProductName.startsWith("ASE")) {

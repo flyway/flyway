@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,12 +114,20 @@ public class ClassicConfiguration implements Configuration {
     private String[] schemaNames = {};
 
     /**
-     * <p>The name of the schema schema history table that will be used by Flyway. (default: flyway_schema_history)</p><p> By default
+     * <p>The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)</p><p> By default
      * (single-schema mode) the schema history table is placed in the default schema for the connection provided by the
      * datasource. </p> <p> When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is
      * placed in the first schema of the list. </p>
      */
     private String table = "flyway_schema_history";
+
+    /**
+     * <p>Retrieves the tablespace where to create the schema history table that will be used by Flyway.</p>
+     * <p>This setting is only relevant for databases that do support the notion of tablespaces. It's value is simply
+     * ignored for all others.</p>
+     * (default: The default tablespace for the database connection)
+     */
+    private String tablespace;
 
     /**
      * The target version up to which Flyway should consider migrations. Migrations with a higher version number will
@@ -460,6 +468,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getTable() {
         return table;
+    }
+
+    @Override
+    public String getTablespace() {
+        return tablespace;
     }
 
     @Override
@@ -954,15 +967,26 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * <p>Sets the name of the schema schema history table that will be used by Flyway.</p><p> By default (single-schema mode)
+     * <p>Sets the name of the schema history table that will be used by Flyway.</p><p> By default (single-schema mode)
      * the schema history table is placed in the default schema for the connection provided by the datasource. </p> <p> When
      * the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first schema
      * of the list. </p>
      *
-     * @param table The name of the schema schema history table that will be used by flyway. (default: flyway_schema_history)
+     * @param table The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
      */
     public void setTable(String table) {
         this.table = table;
+    }
+
+    /**
+     * <p>Sets the tablespace where to create the schema history table that will be used by Flyway.</p>
+     * <p>This setting is only relevant for databases that do support the notion of tablespaces. It's value is simply
+     * ignored for all others.</p>
+     *
+     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway. (default: The default tablespace for the database connection)
+     */
+    public void setTablespace(String tablespace) {
+        this.tablespace = tablespace;
     }
 
     /**
@@ -1462,6 +1486,7 @@ public class ClassicConfiguration implements Configuration {
         setSqlMigrationSeparator(configuration.getSqlMigrationSeparator());
         setSqlMigrationSuffixes(configuration.getSqlMigrationSuffixes());
         setTable(configuration.getTable());
+        setTablespace(configuration.getTablespace());
         setTarget(configuration.getTarget());
         setValidateOnMigrate(configuration.isValidateOnMigrate());
     }
@@ -1569,6 +1594,10 @@ public class ClassicConfiguration implements Configuration {
         String tableProp = props.remove(ConfigUtils.TABLE);
         if (tableProp != null) {
             setTable(tableProp);
+        }
+        String tablespaceProp = props.remove(ConfigUtils.TABLESPACE);
+        if (tablespaceProp != null) {
+            setTablespace(tablespaceProp);
         }
         Boolean cleanOnValidationErrorProp = getBooleanProp(props, ConfigUtils.CLEAN_ON_VALIDATION_ERROR);
         if (cleanOnValidationErrorProp != null) {

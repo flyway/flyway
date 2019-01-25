@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -200,14 +200,23 @@ public interface Configuration {
     MigrationVersion getTarget();
 
     /**
-     * <p>Retrieves the name of the schema schema history table that will be used by Flyway.</p><p> By default (single-schema
+     * <p>Retrieves the name of the schema history table that will be used by Flyway.</p><p> By default (single-schema
      * mode) the schema history table is placed in the default schema for the connection provided by the datasource. </p> <p>
      * When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first
      * schema of the list. </p>
      *
-     * @return The name of the schema schema history table that will be used by flyway. (default: flyway_schema_history)
+     * @return The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
      */
     String getTable();
+
+    /**
+     * <p>Retrieves the tablespace where to create the schema history table that will be used by Flyway.</p>
+     * <p>This setting is only relevant for databases that do support the notion of tablespaces. It's value is simply
+     * ignored for all others.</p>
+     *
+     * @return The tablespace where to create the schema history table that will be used by Flyway. (default: The default tablespace for the database connection)
+     */
+    String getTablespace();
 
     /**
      * Retrieves the schemas managed by Flyway. These schema names are case-sensitive.

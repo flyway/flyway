@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,13 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
@@ -93,13 +99,21 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String initSql;
 
     /**
-     * <p>The name of the schema schema history table that will be used by Flyway. (default: flyway_schema_history)</p><p> By default
+     * <p>The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)</p><p> By default
      * (single-schema mode) the schema history table is placed in the default schema for the connection provided by the
      * datasource. </p> <p> When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is
      * placed in the first schema of the list. </p>
      * <p>Also configurable with Gradle or System Property: ${flyway.table}</p>
      */
     public String table;
+
+    /**
+     * <p>The tablespace where to create the schema history table that will be used by Flyway.</p>
+     * <p>This setting is only relevant for databases that do support the notion of tablespaces. It's value is simply
+     * ignored for all others.</p> (default: The default tablespace for the database connection)
+     * <p>Also configurable with Gradle or System Property: ${flyway.tablespace}</p>
+     */
+    public String tablespace;
 
     /**
      * The schemas managed by Flyway. These schema names are case-sensitive. (default: The default schema for the database connection)
@@ -456,7 +470,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                     extraURLs.toArray(new URL[0]),
                     getProject().getBuildscript().getClassLoader());
 
-            Flyway flyway = Flyway.configure(classLoader).configuration(createFlywayConfig(envVars)).load();
+            Map<String, String> config = createFlywayConfig(envVars);
+            ConfigUtils.dumpConfiguration(config);
+
+            Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
             Object result = run(flyway);
             ((DriverDataSource) flyway.getConfiguration().getDataSource()).shutdownDatabase();
             return result;
@@ -546,6 +563,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.CONNECT_RETRIES, connectRetries, extension.connectRetries);
         putIfSet(conf, ConfigUtils.INIT_SQL, initSql, extension.initSql);
         putIfSet(conf, ConfigUtils.TABLE, table, extension.table);
+        putIfSet(conf, ConfigUtils.TABLESPACE, tablespace, extension.tablespace);
         putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion, extension.baselineVersion);
         putIfSet(conf, ConfigUtils.BASELINE_DESCRIPTION, baselineDescription, extension.baselineDescription);
         putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix, extension.sqlMigrationPrefix);

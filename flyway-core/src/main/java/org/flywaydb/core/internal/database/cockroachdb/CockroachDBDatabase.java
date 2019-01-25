@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,37 +17,27 @@ package org.flywaydb.core.internal.database.cockroachdb;
 
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
+import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * CockroachDB database.
  */
 public class CockroachDBDatabase extends Database<CockroachDBConnection> {
-    /**
-     * Checks whether this connection is pointing at a CockroachDB instance.
-     *
-     * @param connection The connection.
-     * @return {@code true} if it is, {@code false} if not.
-     */
-    public static boolean isCockroachDB(Connection connection) {
-        try {
-            return new JdbcTemplate(connection).queryForString("SELECT version()").contains("CockroachDB");
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     /**
      * Creates a new instance.
      *
@@ -86,12 +76,18 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     }
 
     @Override
+    protected SqlScript getCreateScript(Map<String, String> placeholders) {
+        Parser parser = new CockroachDBParser(new FluentConfiguration().placeholders(placeholders));
+        return new ParserSqlScript(parser, getRawCreateScript(), false);
+    }
+
+    @Override
     protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
 
 
 
     ) {
-        return new CockroachDBSqlStatementBuilderFactory(placeholderReplacer);
+        return new CockroachDBSqlStatementBuilderFactory(placeholderReplacer, configuration);
     }
 
     @Override
@@ -161,13 +157,21 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     }
 
     private static class CockroachDBSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
-        CockroachDBSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+        private final Configuration configuration;
+
+        CockroachDBSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer, Configuration configuration) {
             super(placeholderReplacer);
+            this.configuration = configuration;
         }
 
         @Override
         public SqlStatementBuilder createSqlStatementBuilder() {
-            return new CockroachDBSqlStatementBuilder();
+            return null;
+        }
+
+        @Override
+        public Parser createParser() {
+            return new CockroachDBParser(configuration);
         }
     }
 }

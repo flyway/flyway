@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.flywaydb.core.internal.line.LineReader;
 import org.flywaydb.core.internal.util.IOUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
 
@@ -30,18 +31,27 @@ public abstract class LoadableResource implements Resource, Comparable<LoadableR
     private Integer checksum;
 
     /**
+     * Reads the contents of this resource.
+     *
+     * @return The reader with the contents of the resource.
+     */
+    public abstract Reader read();
+
+
+
+
+
+
+
+
+
+
+    /**
      * Loads this resource as a string.
      *
      * @return The string contents of the resource.
      */
     public abstract LineReader loadAsString();
-
-    /**
-     * Loads this resource as a byte array.
-     *
-     * @return The contents of the resource.
-     */
-    public abstract byte[] loadAsBytes();
 
     /**
      * Calculates the checksum of this resource. The checksum is encoding and line-ending independent.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.LoadableResource;
 
 public abstract class AbstractSqlStatementBuilderFactory implements SqlStatementBuilderFactory {
     protected final PlaceholderReplacer placeholderReplacer;
@@ -28,4 +30,15 @@ public abstract class AbstractSqlStatementBuilderFactory implements SqlStatement
     public PlaceholderReplacer getPlaceholderReplacer() {
         return placeholderReplacer;
     }
+
+    @Override
+    public SqlScript createSqlScript(LoadableResource resource, boolean mixed) {
+        Parser parser = createParser();
+        if (parser == null) {
+            return new SqlStatementBuilderSqlScript(this, resource, mixed);
+        }
+        return new ParserSqlScript(parser, resource, mixed);
+    }
+
+    protected abstract Parser createParser();
 }

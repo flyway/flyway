@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,25 @@
 package org.flywaydb.core.internal.database.mysql;
 
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.resource.StringResource;
+import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * MySQL database.
@@ -84,6 +91,40 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     @Override
+    protected SqlScript getCreateScript(Map<String, String> placeholders) {
+        Parser parser = new MySQLParser(new FluentConfiguration().placeholders(placeholders));
+        return new ParserSqlScript(parser, getRawCreateScript(), false);
+    }
+
+    @Override
+    protected LoadableResource getRawCreateScript() {
+        String tablespace =
+
+
+
+                        configuration.getTablespace() == null
+                        ? ""
+                        : " TABLESPACE \"" + configuration.getTablespace() + "\"";
+
+        return new StringResource("CREATE TABLE `${schema}`.`${table}` (\n" +
+                "    `installed_rank` INT NOT NULL,\n" +
+                "    `version` VARCHAR(50),\n" +
+                "    `description` VARCHAR(200) NOT NULL,\n" +
+                "    `type` VARCHAR(20) NOT NULL,\n" +
+                "    `script` VARCHAR(1000) NOT NULL,\n" +
+                "    `checksum` INT,\n" +
+                "    `installed_by` VARCHAR(100) NOT NULL,\n" +
+                "    `installed_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
+                "    `execution_time` INT NOT NULL,\n" +
+                "    `success` BOOL NOT NULL,\n" +
+                "    -- Add the primary key as part of the CREATE TABLE statement in case `innodb_force_primary_key` is enabled\n" +
+                "    CONSTRAINT `${table}_pk`PRIMARY KEY (`installed_rank`)\n" +
+                ")" + tablespace + " ENGINE=InnoDB;\n" +
+                "\n" +
+                "CREATE INDEX `${table}_s_idx` ON `${schema}`.`${table}` (`success`);");
+    }
+
+    @Override
     protected MySQLConnection getConnection(Connection connection
 
 
@@ -132,7 +173,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
 
     ) {
-        return new MySQLSqlStatementBuilderFactory(placeholderReplacer);
+        return new MySQLSqlStatementBuilderFactory(placeholderReplacer, configuration);
     }
 
     @Override

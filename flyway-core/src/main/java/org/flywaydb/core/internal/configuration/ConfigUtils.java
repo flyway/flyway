@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
 /**
  * Configuration-related utilities.
@@ -81,6 +82,7 @@ public class ConfigUtils {
     public static final String SQL_MIGRATION_SUFFIXES = "flyway.sqlMigrationSuffixes";
     public static final String STREAM = "flyway.stream";
     public static final String TABLE = "flyway.table";
+    public static final String TABLESPACE = "flyway.tablespace";
     public static final String TARGET = "flyway.target";
     public static final String UNDO_SQL_MIGRATION_PREFIX = "flyway.undoSqlMigrationPrefix";
     public static final String URL = "flyway.url";
@@ -240,6 +242,9 @@ public class ConfigUtils {
         if ("FLYWAY_TABLE".equals(key)) {
             return TABLE;
         }
+        if ("FLYWAY_TABLESPACE".equals(key)) {
+            return TABLESPACE;
+        }
         if ("FLYWAY_TARGET".equals(key)) {
             return TARGET;
         }
@@ -347,6 +352,22 @@ public class ConfigUtils {
             if (value != null) {
                 config.put(key, StringUtils.arrayToCommaDelimitedString(value));
                 return;
+            }
+        }
+    }
+
+    /**
+     * Dumps the configuration to the console when debug output is activated.
+     *
+     * @param config The configured properties.
+     */
+    public static void dumpConfiguration(Map<String, String> config) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Using configuration:");
+            for (Map.Entry<String, String> entry : new TreeMap<>(config).entrySet()) {
+                String value = entry.getValue();
+                value = ConfigUtils.PASSWORD.equals(entry.getKey()) ? StringUtils.trimOrPad("", value.length(), '*') : value;
+                LOG.debug(entry.getKey() + " -> " + value);
             }
         }
     }

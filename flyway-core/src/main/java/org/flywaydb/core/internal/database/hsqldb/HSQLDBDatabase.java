@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,19 @@
 package org.flywaydb.core.internal.database.hsqldb;
 
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
+import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 
 import java.sql.Connection;
+import java.util.Map;
 
 /**
  * HSQLDB database.
@@ -70,12 +75,18 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
     }
 
     @Override
+    protected SqlScript getCreateScript(Map<String, String> placeholders) {
+        Parser parser = new HSQLDBParser(new FluentConfiguration().placeholders(placeholders));
+        return new ParserSqlScript(parser, getRawCreateScript(), false);
+    }
+
+    @Override
     protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
 
 
 
     ) {
-        return new HSQLDBSqlStatementBuilderFactory(placeholderReplacer);
+        return new HSQLDBSqlStatementBuilderFactory(placeholderReplacer, configuration);
     }
 
     @Override
@@ -119,13 +130,21 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
     }
 
     private static class HSQLDBSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
-        public HSQLDBSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+        private final Configuration configuration;
+
+        HSQLDBSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer, Configuration configuration) {
             super(placeholderReplacer);
+            this.configuration = configuration;
         }
 
         @Override
         public SqlStatementBuilder createSqlStatementBuilder() {
-            return new HSQLDBSqlStatementBuilder();
+            return null;
+        }
+
+        @Override
+        public Parser createParser() {
+            return new HSQLDBParser(configuration);
         }
     }
 }

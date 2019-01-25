@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  * Various string-related utilities.
  */
 public class StringUtils {
-    private static final char[] WHITESPACE_CHARS = {' ', '\t', '\n', '\f', '\r'};
+    private static final String WHITESPACE_CHARS = " \t\n\f\r";
 
     /**
      * Prevents instantiation.
@@ -109,18 +109,12 @@ public class StringUtils {
         char previous = 0;
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
-            boolean whitespace = false;
-            for (char w : WHITESPACE_CHARS) {
-                if (c == w) {
-                    if (previous != ' ') {
-                        result.append(' ');
-                    }
-                    previous = ' ';
-                    whitespace = true;
-                    break;
+            if (isCharAnyOf(c, WHITESPACE_CHARS)) {
+                if (previous != ' ') {
+                    result.append(' ');
                 }
-            }
-            if (!whitespace) {
+                previous = ' ';
+            } else {
                 result.append(c);
                 previous = c;
             }
@@ -552,5 +546,21 @@ public class StringUtils {
         }
         result.append(str.substring(oldPos));
         return result.toString();
+    }
+
+    /**
+     * Checks whether this characters matches any of these characters.
+     *
+     * @param c     The char to check.
+     * @param chars The chars that should match.
+     * @return {@code true} if it does, {@code false if not}.
+     */
+    public static boolean isCharAnyOf(char c, String chars) {
+        for (int i = 0; i < chars.length(); i++) {
+            if (chars.charAt(i) == c) {
+                return true;
+            }
+        }
+        return false;
     }
 }

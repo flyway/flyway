@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -355,13 +355,13 @@ public class JdbcTemplate {
      * @throws SQLException when the query failed to execute.
      */
     public <T> List<T> query(String query, RowMapper<T> rowMapper) throws SQLException {
-        Statement statement = null;
+        PreparedStatement statement = null;
         ResultSet resultSet = null;
 
         List<T> results;
         try {
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(query);
+            statement = connection.prepareStatement(query);
+            resultSet = statement.executeQuery();
 
             results = new ArrayList<>();
             while (resultSet.next()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
      * Creates a new instance of the schema history table support.
      *
      * @param database    The database to use.
-     * @param table       The schema history table used by flyway.
+     * @param table       The schema history table used by Flyway.
      * @param installedBy The user invoking Flyway, for audit purposes.
      */
     JdbcTableSchemaHistory(Database database, Table table, String installedBy) {

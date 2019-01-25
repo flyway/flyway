@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.LoadableResource;
 
 /**
  * Factory for constructing new instances of SqlStatementBuilder.
@@ -30,4 +31,9 @@ public interface SqlStatementBuilderFactory {
      * @return A new SqlStatementBuilder.
      */
     SqlStatementBuilder createSqlStatementBuilder();
+
+    /**
+     * @return A new SQL script.
+     */
+    SqlScript createSqlScript(LoadableResource resource, boolean mixed);
 }

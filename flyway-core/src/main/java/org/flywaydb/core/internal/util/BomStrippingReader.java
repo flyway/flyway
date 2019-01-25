@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.util;
 
 import java.io.FilterReader;
 import java.io.IOException;
-import java.io.PushbackReader;
 import java.io.Reader;
 
 /**
@@ -27,18 +26,28 @@ public class BomStrippingReader extends FilterReader {
     private static final int EMPTY_STREAM = -1;
     private static final char BOM = '\ufeff';
 
+    private boolean firstChar = true;
+
     /**
      * Creates a new BOM-stripping reader.
      *
      * @param in a Reader object providing the underlying stream.
      * @throws NullPointerException if <code>in</code> is <code>null</code>
      */
-    public BomStrippingReader(Reader in) throws IOException {
-        super(new PushbackReader(in));
-        PushbackReader pbr = (PushbackReader) this.in;
-        int firstChar = pbr.read();
-        if (firstChar != EMPTY_STREAM && firstChar != BOM) {
-            pbr.unread(firstChar);
+    public BomStrippingReader(Reader in) {
+        super(in);
+    }
+
+    @Override
+    public int read() throws IOException {
+        int c = super.read();
+        if (firstChar) {
+            firstChar = false;
+            if (c != EMPTY_STREAM && (char) c == BOM) {
+                // Skip BOM
+                return super.read();
+            }
         }
+        return c;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,10 @@ import org.flywaydb.core.internal.line.LineReader;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
 import org.flywaydb.core.internal.util.DateUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.IOUtils;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
@@ -122,17 +124,12 @@ public class VersionPrinter {
 
 
     private static String readVersion() {
-        String version;
-        LoadableResource resource = new ClassPathResource(null,
-                "org/flywaydb/core/internal/version.txt",
-                VersionPrinter.class.getClassLoader(), StandardCharsets.UTF_8);
-        LineReader lineReader = null;
         try {
-            lineReader = resource.loadAsString();
-            version = lineReader.readLine().getLine();
-        } finally {
-            IOUtils.close(lineReader);
+            return FileCopyUtils.copyToString(
+                    VersionPrinter.class.getClassLoader().getResourceAsStream("org/flywaydb/core/internal/version.txt"),
+                    StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new FlywayException("Unable to read Flyway version: " + e.getMessage(), e);
         }
-        return version;
     }
 }

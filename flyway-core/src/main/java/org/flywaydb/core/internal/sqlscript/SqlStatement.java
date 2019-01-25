@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,15 @@ public interface SqlStatement {
      */
     String getDelimiter();
 
+    /**
+     * Whether the execution should take place inside a transaction. Almost all implementation should return {@code true}.
+     * This however makes it possible to execute certain migrations outside a transaction. This is useful for databases
+     * like PostgreSQL and SQL Server where certain statement can only execute outside a transaction.
+     *
+     * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
+     */
+    boolean canExecuteInTransaction();
+
 
 
 
@@ -56,5 +65,9 @@ public interface SqlStatement {
      * @param jdbcTemplate The jdbcTemplate to use to execute this script.
      * @return the result of the execution.
      */
-    Results execute(JdbcTemplate jdbcTemplate, SqlScriptExecutor sqlScriptExecutor);
+    Results execute(JdbcTemplate jdbcTemplate
+
+
+
+    );
 }

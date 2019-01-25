@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderSqlScript;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 
 import java.io.Closeable;
@@ -425,15 +426,19 @@ public abstract class Database<C extends Connection> implements Closeable {
         if (initSql == null) {
             return;
         }
+        SqlStatementBuilderFactory sqlStatementBuilderFactory = database.createSqlStatementBuilderFactory(
+
+
+
+        );
+        StringResource resource = new StringResource(initSql);
+
+        SqlScript sqlScript = sqlStatementBuilderFactory.createSqlScript(resource, true);
         new DefaultSqlScriptExecutor(new JdbcTemplate(connection)
 
 
 
-        ).execute(new SqlScript(database.createSqlStatementBuilderFactory(
-
-
-
-        ), new StringResource(initSql), true));
+        ).execute(sqlScript);
     }
 
     /**
@@ -453,6 +458,10 @@ public abstract class Database<C extends Connection> implements Closeable {
         placeholders.put("table", table.getName());
         placeholders.put("table_quoted", table.toString());
 
+        return getCreateScript(placeholders);
+    }
+
+    protected SqlScript getCreateScript(Map<String, String> placeholders) {
         PlaceholderReplacer placeholderReplacer =
                 createPlaceholderReplacer(true, placeholders, "${", "}");
 
@@ -462,7 +471,7 @@ public abstract class Database<C extends Connection> implements Closeable {
 
         );
 
-        return new SqlScript(sqlStatementBuilderFactory, getRawCreateScript(), false);
+        return new SqlStatementBuilderSqlScript(sqlStatementBuilderFactory, getRawCreateScript(), false);
     }
 
     protected LoadableResource getRawCreateScript() {

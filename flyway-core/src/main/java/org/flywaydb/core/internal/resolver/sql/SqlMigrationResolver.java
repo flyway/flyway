@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,7 +137,7 @@ public class SqlMigrationResolver implements MigrationResolver {
             migration.setDescription(info.getRight());
             migration.setScript(resource.getRelativePath());
 
-            SqlScript sqlScript = new SqlScript(sqlStatementBuilderFactory, resource, configuration.isMixed());
+            SqlScript sqlScript = sqlStatementBuilderFactory.createSqlScript(resource, configuration.isMixed());
 
 
 
@@ -181,6 +181,7 @@ public class SqlMigrationResolver implements MigrationResolver {
             migrations.add(migration);
         }
     }
+
 
 
 

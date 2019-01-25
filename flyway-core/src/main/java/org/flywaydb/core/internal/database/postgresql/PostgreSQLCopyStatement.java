@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class PostgreSQLCopyStatement extends AbstractSqlStatement {
     /**
      * Delimiter of COPY statements.
      */
-    static final Delimiter COPY_DELIMITER = new Delimiter("\\.", true);
+    private static final Delimiter COPY_DELIMITER = new Delimiter("\\.", true);
 
     /**
      * Creates a new sql statement.
@@ -53,7 +53,11 @@ public class PostgreSQLCopyStatement extends AbstractSqlStatement {
     }
 
     @Override
-    public Results execute(JdbcTemplate jdbcTemplate, SqlScriptExecutor sqlScriptExecutor) {
+    public Results execute(JdbcTemplate jdbcTemplate
+
+
+
+    ) {
         String sql = getSql();
         int split = sql.indexOf(";");
 

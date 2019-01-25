@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -187,6 +187,10 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
     @Override
     protected LoadableResource getRawCreateScript() {
+        String filegroup = azure || configuration.getTablespace() == null
+                ? ""
+                : " ON \"" + configuration.getTablespace() + "\"";
+
         return new StringResource("CREATE TABLE ${table_quoted} (\n" +
                 "    [installed_rank] INT NOT NULL,\n" +
                 "    [" + "version] NVARCHAR(50),\n" +
@@ -198,7 +202,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
                 "    [installed_on] DATETIME NOT NULL DEFAULT GETDATE(),\n" +
                 "    [execution_time] INT NOT NULL,\n" +
                 "    [success] BIT NOT NULL\n" +
-                ");\n" +
+                ")" + filegroup + ";\n" +
                 "ALTER TABLE ${table_quoted} ADD CONSTRAINT [${table}_pk] PRIMARY KEY ([installed_rank]);\n" +
                 "\n" +
                 "CREATE INDEX [${table}_s_idx] ON ${table_quoted} ([success]);\n" +

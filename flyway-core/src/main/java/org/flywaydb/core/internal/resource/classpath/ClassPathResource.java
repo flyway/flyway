@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,12 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.line.DefaultLineReader;
 import org.flywaydb.core.internal.line.LineReader;
 import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.util.BomStrippingReader;
-import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.UrlUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
 
@@ -77,7 +75,7 @@ public class ClassPathResource extends LoadableResource {
     public String getAbsolutePathOnDisk() {
         URL url = getUrl();
         if (url == null) {
-            throw new FlywayException("Unable to fileNameWithAbsolutePath resource on disk: " + fileNameWithAbsolutePath);
+            throw new FlywayException("Unable to find resource on disk: " + fileNameWithAbsolutePath);
         }
         return new File(UrlUtils.decodeURL(url.getPath())).getAbsolutePath();
     }
@@ -90,29 +88,17 @@ public class ClassPathResource extends LoadableResource {
     }
 
     @Override
-    public LineReader loadAsString() {
-        try {
-            InputStream inputStream = classLoader.getResourceAsStream(fileNameWithAbsolutePath);
-            if (inputStream == null) {
-                throw new FlywayException("Unable to obtain inputstream for resource: " + fileNameWithAbsolutePath);
-            }
-            return new DefaultLineReader(new BomStrippingReader(new InputStreamReader(inputStream, encoding)));
-        } catch (IOException e) {
-            throw new FlywayException("Unable to load resource: " + fileNameWithAbsolutePath + " (encoding: " + encoding + ")", e);
+    public Reader read() {
+        InputStream inputStream = classLoader.getResourceAsStream(fileNameWithAbsolutePath);
+        if (inputStream == null) {
+            throw new FlywayException("Unable to obtain inputstream for resource: " + fileNameWithAbsolutePath);
         }
+        return new InputStreamReader(inputStream, encoding);
     }
 
     @Override
-    public byte[] loadAsBytes() {
-        try {
-            InputStream inputStream = classLoader.getResourceAsStream(fileNameWithAbsolutePath);
-            if (inputStream == null) {
-                throw new FlywayException("Unable to obtain inputstream for resource: " + fileNameWithAbsolutePath);
-            }
-            return FileCopyUtils.copyToByteArray(inputStream);
-        } catch (IOException e) {
-            throw new FlywayException("Unable to load resource: " + fileNameWithAbsolutePath, e);
-        }
+    public LineReader loadAsString() {
+        return new DefaultLineReader(read());
     }
 
     @Override

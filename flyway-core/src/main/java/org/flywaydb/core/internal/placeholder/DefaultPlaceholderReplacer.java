@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 package org.flywaydb.core.internal.placeholder;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.parser.PositionTrackingReader;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
