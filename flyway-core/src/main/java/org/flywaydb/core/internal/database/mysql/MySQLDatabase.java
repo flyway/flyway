@@ -188,7 +188,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     @Override
     public boolean supportsDdlTransactions() {
-        return false;
+        return getVersion().isAtLeast("8.0") ? true : false;
     }
 
     @Override
