@@ -13,24 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.placeholder;
+package org.flywaydb.core.internal.util;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.Iterator;
 
 /**
- * A placeholder replacer that does nothing.
+ * Iterator that can be used to close underlying resources.
+ *
+ * @param <T> The typo of element to iterate on.
  */
-public enum NoopPlaceholderReplacer implements PlaceholderReplacer {
-    INSTANCE;
-
-    @Override
-    public Map<String, String> getPlaceholderReplacements() {
-        return Collections.emptyMap();
-    }
-
-    @Override
-    public String replacePlaceholders(String input) {
-        return input;
-    }
+public interface CloseableIterator<T> extends Iterator<T>, AutoCloseable {
 }

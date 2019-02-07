@@ -16,18 +16,20 @@
 package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.RowMapper;
-import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.internal.resource.NoopResourceProvider;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
+import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -62,9 +64,6 @@ public class OracleDatabase extends Database<OracleConnection> {
 
 
 
-
-
-
     /**
      * Creates a new instance.
      *
@@ -81,6 +80,11 @@ public class OracleDatabase extends Database<OracleConnection> {
 
 
         );
+
+
+
+
+
 
 
 
@@ -124,18 +128,30 @@ public class OracleDatabase extends Database<OracleConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(
-            PlaceholderReplacer placeholderReplacer
+    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
 
 
 
     ) {
-        return new OracleSqlStatementBuilderFactory(placeholderReplacer
+        return new ParserSqlScript(new OracleParser(configuration
+
+
+
+
+
+        ), resource, mixed);
+    }
+
+    @Override
+    protected SqlScript getCreateScript(Map<String, String> placeholders) {
+        Parser parser = new OracleParser(new FluentConfiguration().placeholders(placeholders)
+
 
 
 
 
         );
+        return new ParserSqlScript(parser, getRawCreateScript(), false);
     }
 
     @Override
@@ -172,24 +188,6 @@ public class OracleDatabase extends Database<OracleConnection> {
 
 
         );
-    }
-
-    @Override
-    protected PlaceholderReplacer createPlaceholderReplacer(boolean enabled, Map<String, String> placeholders,
-                                                            String placeholderPrefix, String placeholderSuffix) {
-        PlaceholderReplacer placeholderReplacer =
-                super.createPlaceholderReplacer(enabled, placeholders, placeholderPrefix, placeholderSuffix);
-
-
-
-
-
-        return placeholderReplacer;
-    }
-
-    @Override
-    public String getDbName() {
-        return "oracle";
     }
 
     @Override

@@ -20,13 +20,11 @@ import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -86,12 +84,12 @@ public class DB2Database extends Database<DB2Connection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
 
 
 
     ) {
-        return new DB2SqlStatementBuilderFactory(placeholderReplacer, configuration);
+        return new ParserSqlScript(new DB2Parser(configuration), resource, mixed);
     }
 
     @Override
@@ -131,11 +129,6 @@ public class DB2Database extends Database<DB2Connection> {
         return super.getSelectStatement(table, maxCachedInstalledRank)
                 // Allow uncommitted reads so info can be invoked while migrate is running
                 + " WITH UR";
-    }
-
-    @Override
-    public String getDbName() {
-        return "db2";
     }
 
     @Override

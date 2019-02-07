@@ -21,7 +21,11 @@ import org.flywaydb.core.internal.sqlscript.Delimiter;
 public class ParserContext {
     private int parensDepth = 0;
     private int blockDepth = 0;
-    private Delimiter delimiter = Delimiter.SEMICOLON;
+    private Delimiter delimiter;
+
+    public ParserContext(Delimiter delimiter) {
+        this.delimiter = delimiter;
+    }
 
     public void increaseParensDepth() {
         parensDepth++;

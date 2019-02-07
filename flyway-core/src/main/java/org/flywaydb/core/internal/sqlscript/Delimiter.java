@@ -19,8 +19,16 @@ package org.flywaydb.core.internal.sqlscript;
  * Represents a sql statement delimiter.
  */
 public class Delimiter {
-    public static final Delimiter SEMICOLON = new Delimiter(";", false);
-    public static final Delimiter GO = new Delimiter("GO", true);
+    public static final Delimiter SEMICOLON = new Delimiter(";", false
+
+
+
+    );
+    public static final Delimiter GO = new Delimiter("GO", true
+
+
+
+    );
 
     /**
      * The actual delimiter string.
@@ -32,15 +40,29 @@ public class Delimiter {
      */
     private final boolean aloneOnLine;
 
+
+
+
+
+
+
+
     /**
      * Creates a new delimiter.
      *
-     * @param delimiter The actual delimiter string.
+     * @param delimiter   The actual delimiter string.
      * @param aloneOnLine Whether the delimiter sits alone on a new line or not.
      */
-    public Delimiter(String delimiter, boolean aloneOnLine) {
+    public Delimiter(String delimiter, boolean aloneOnLine
+
+
+
+    ) {
         this.delimiter = delimiter;
         this.aloneOnLine = aloneOnLine;
+
+
+
     }
 
     /**
@@ -56,6 +78,16 @@ public class Delimiter {
     public boolean isAloneOnLine() {
         return aloneOnLine;
     }
+
+
+
+
+
+
+
+
+
+
 
     @Override
     public String toString() {

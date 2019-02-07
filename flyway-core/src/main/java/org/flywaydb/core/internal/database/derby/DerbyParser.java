@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.cockroachdb;
+package org.flywaydb.core.internal.database.derby;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.Parser;
@@ -24,8 +24,8 @@ import org.flywaydb.core.internal.parser.TokenType;
 
 import java.io.IOException;
 
-public class CockroachDBParser extends Parser {
-    public CockroachDBParser(Configuration configuration) {
+public class DerbyParser extends Parser {
+    public DerbyParser(Configuration configuration) {
         super(configuration, 3);
     }
 
@@ -37,9 +37,9 @@ public class CockroachDBParser extends Parser {
     @SuppressWarnings("Duplicates")
     @Override
     protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
-        String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
-        reader.swallowUntilExcluding(dollarQuote);
-        reader.swallow(dollarQuote.length());
+        reader.swallow(2);
+        reader.swallowUntilExcluding("$$");
+        reader.swallow(2);
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 }

@@ -18,7 +18,6 @@ package org.flywaydb.core.internal.sqlscript;
 import org.flywaydb.core.internal.resource.LoadableResource;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * SQL script containing a series of statements terminated by a delimiter (eg: ;).
@@ -28,12 +27,13 @@ public interface SqlScript extends Comparable<SqlScript> {
     /**
      * @return The sql statements contained in this script.
      */
-    Iterator<SqlStatement> getSqlStatements();
+    SqlStatementIterator getSqlStatements();
 
     /**
      * @return The number of sql statements contained in this script.
      */
     int getSqlStatementCount();
+
 
 
 

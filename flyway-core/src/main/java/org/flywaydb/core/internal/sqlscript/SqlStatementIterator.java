@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Private API. No compatibility guarantees provided.
- */
-package org.flywaydb.core.internal.placeholder;
+package org.flywaydb.core.internal.sqlscript;
+
+import org.flywaydb.core.internal.sqlscript.SqlStatement;
+import org.flywaydb.core.internal.util.CloseableIterator;
+
+public interface SqlStatementIterator extends CloseableIterator<SqlStatement> {
+    @Override
+    void close();
+}

@@ -16,18 +16,18 @@
 package org.flywaydb.core.internal.database.informix;
 
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
-import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
+import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * Informix database.
@@ -71,12 +71,18 @@ public class InformixDatabase extends Database<InformixConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
 
 
 
     ) {
-        return new InformixSqlStatementBuilderFactory(placeholderReplacer);
+        return new ParserSqlScript(new InformixParser(configuration), resource, mixed);
+    }
+
+    @Override
+    protected SqlScript getCreateScript(Map<String, String> placeholders) {
+        Parser parser = new InformixParser(new FluentConfiguration().placeholders(placeholders));
+        return new ParserSqlScript(parser, getRawCreateScript(), false);
     }
 
     @Override
@@ -100,11 +106,6 @@ public class InformixDatabase extends Database<InformixConnection> {
                 "ALTER TABLE ${table} ADD CONSTRAINT CHECK (success in (0,1)) CONSTRAINT ${table}_s;\n" +
                 "ALTER TABLE ${table} ADD CONSTRAINT PRIMARY KEY (installed_rank) CONSTRAINT ${table}_pk;\n" +
                 "CREATE INDEX ${table}_s_idx ON ${table} (success);");
-    }
-
-    @Override
-    public String getDbName() {
-        return "informix";
     }
 
     @Override
@@ -145,21 +146,5 @@ public class InformixDatabase extends Database<InformixConnection> {
     @Override
     public boolean useSingleConnection() {
         return false;
-    }
-
-    private static class InformixSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
-        InformixSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
-            super(placeholderReplacer);
-        }
-
-        @Override
-        public SqlStatementBuilder createSqlStatementBuilder() {
-            return new InformixSqlStatementBuilder();
-        }
-
-        @Override
-        public Parser createParser() {
-            return null;
-        }
     }
 }

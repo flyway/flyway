@@ -60,6 +60,11 @@ public class DB2Parser extends Parser {
     }
 
     @Override
+    protected void resetDelimiter(ParserContext context) {
+        // Do not reset delimiter as delimiter changes survive beyond a single statement
+    }
+
+    @Override
     protected boolean isCommentDirective(String peek) {
         return peek.startsWith(COMMENT_DIRECTIVE);
     }
@@ -69,9 +74,9 @@ public class DB2Parser extends Parser {
         if (SET_TERMINATOR_DIRECTIVE.equals(reader.peek(SET_TERMINATOR_DIRECTIVE.length()))) {
             reader.swallow(SET_TERMINATOR_DIRECTIVE.length());
             String delimiter = reader.readUntilExcluding('\n', '\r');
-            return new Token(TokenType.NEW_DELIMITER, pos, line, col, delimiter.trim(), context.getParensDepth());
+            return new Token(TokenType.NEW_DELIMITER, pos, line, col, delimiter.trim(), delimiter, context.getParensDepth());
         }
         reader.swallowUntilExcluding('\n', '\r');
-        return new Token(TokenType.COMMENT, pos, line, col, null, context.getParensDepth());
+        return new Token(TokenType.COMMENT, pos, line, col, null, null, context.getParensDepth());
     }
 }

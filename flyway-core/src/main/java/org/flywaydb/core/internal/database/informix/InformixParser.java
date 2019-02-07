@@ -13,33 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.h2;
+package org.flywaydb.core.internal.database.informix;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParserContext;
-import org.flywaydb.core.internal.parser.PeekingReader;
 import org.flywaydb.core.internal.parser.Token;
-import org.flywaydb.core.internal.parser.TokenType;
 
-import java.io.IOException;
+import java.util.List;
 
-public class H2Parser extends Parser {
-    public H2Parser(Configuration configuration) {
+public class InformixParser extends Parser {
+    public InformixParser(Configuration configuration) {
         super(configuration, 2);
     }
 
     @Override
-    protected char getAlternativeStringLiteralQuote() {
-        return '$';
-    }
+    protected void adjustBlockDepth(ParserContext context, List<Token> keywords) {
+        if (keywords.size() < 2) {
+            return;
+        }
+        String current = keywords.get(keywords.size() - 1).getText();
+        if ("FUNCTION".equals(current) || "PROCEDURE".equals(current)) {
+            String previous = keywords.get(keywords.size() - 2).getText();
 
-    @SuppressWarnings("Duplicates")
-    @Override
-    protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
-        String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
-        reader.swallowUntilExcluding(dollarQuote);
-        reader.swallow(dollarQuote.length());
-        return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
+            // CREATE( DBA)? (FUNCTION|PROCEDURE)
+            if ("CREATE".equals(previous) || "DBA".equals(previous)) {
+                context.increaseBlockDepth();
+            } else if ("END".equals(previous)) {
+                context.decreaseBlockDepth();
+            }
+        }
     }
 }

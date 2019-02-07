@@ -21,14 +21,16 @@ public class Token {
     private final int line;
     private final int col;
     private final String text;
+    private final String rawText;
     private final int parensDepth;
 
-    public Token(TokenType type, int pos, int line, int col, String text, int parensDepth) {
+    public Token(TokenType type, int pos, int line, int col, String text, String rawText, int parensDepth) {
         this.type = type;
         this.pos = pos;
         this.line = line;
         this.col = col;
         this.text = text;
+        this.rawText = rawText;
         this.parensDepth = parensDepth;
     }
 
@@ -50,6 +52,10 @@ public class Token {
 
     public String getText() {
         return text;
+    }
+
+    public String getRawText() {
+        return rawText;
     }
 
     public int getParensDepth() {

@@ -27,7 +27,7 @@ import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
+import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,11 +49,11 @@ public class SqlScriptCallbackFactory {
      *
      * @param database                   The database-specific support.
      * @param resourceProvider           The resource provider.
-     * @param sqlStatementBuilderFactory The SQL statement factory.
+     * @param sqlScriptFactory The SQL statement factory.
      * @param configuration              The Flyway configuration.
      */
     public SqlScriptCallbackFactory(Database database, ResourceProvider resourceProvider,
-                                    SqlStatementBuilderFactory sqlStatementBuilderFactory,
+                                    SqlScriptFactory sqlScriptFactory,
                                     Configuration configuration
 
 
@@ -84,7 +84,11 @@ public class SqlScriptCallbackFactory {
                             "-> " + existing.getResource().getAbsolutePathOnDisk() + "\n" +
                             "-> " + resource.getAbsolutePathOnDisk());
                 }
-                SqlScript sqlScript = sqlStatementBuilderFactory.createSqlScript(resource, configuration.isMixed());
+                SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed()
+
+
+
+                );
                 callbacksFound.put(name, sqlScript);
                 callbacks.add(new SqlScriptCallback(event, description, database, sqlScript
 

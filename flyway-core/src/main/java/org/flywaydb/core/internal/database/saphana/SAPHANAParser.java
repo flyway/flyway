@@ -13,33 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.h2;
+package org.flywaydb.core.internal.database.saphana;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParserContext;
-import org.flywaydb.core.internal.parser.PeekingReader;
 import org.flywaydb.core.internal.parser.Token;
-import org.flywaydb.core.internal.parser.TokenType;
 
-import java.io.IOException;
+import java.util.List;
 
-public class H2Parser extends Parser {
-    public H2Parser(Configuration configuration) {
+public class SAPHANAParser extends Parser {
+    public SAPHANAParser(Configuration configuration) {
         super(configuration, 2);
     }
 
     @Override
-    protected char getAlternativeStringLiteralQuote() {
-        return '$';
-    }
+    protected void adjustBlockDepth(ParserContext context, List<Token> keywords) {
+        if (keywords.size() < 2) {
+            return;
+        }
+        Token token = keywords.get(keywords.size() - 1);
+        Token previousToken = keywords.get(keywords.size() - 2);
 
-    @SuppressWarnings("Duplicates")
-    @Override
-    protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
-        String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
-        reader.swallowUntilExcluding(dollarQuote);
-        reader.swallow(dollarQuote.length());
-        return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
+        // BEGIN, DO and IF increases block depth
+        if (("BEGIN".equals(token.getText()) || "DO".equals(token.getText()) || "IF".equals(token.getText())
+                // But not END FOR, END IF and END WHILE
+                && !"END".equals(previousToken.getText()))) {
+            context.increaseBlockDepth();
+        } else if ("END".equals(token.getText())) {
+            context.decreaseBlockDepth();
+        }
     }
 }

@@ -89,9 +89,9 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-        Iterator<SqlStatement> sqlStatementIterator = sqlScript.getSqlStatements();
-        while (sqlStatementIterator.hasNext()) {
-            SqlStatement sqlStatement = sqlStatementIterator.next();
+        try (SqlStatementIterator sqlStatementIterator = sqlScript.getSqlStatements()) {
+            while (sqlStatementIterator.hasNext()) {
+                SqlStatement sqlStatement = sqlStatementIterator.next();
 
 
 
@@ -119,10 +119,11 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-                executeStatement(jdbcTemplate, sqlScript, sqlStatement);
+                    executeStatement(jdbcTemplate, sqlScript, sqlStatement);
 
 
 
+            }
         }
 
 

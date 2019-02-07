@@ -30,10 +30,15 @@ public class MySQLParser extends Parser {
     }
 
     @Override
+    protected void resetDelimiter(ParserContext context) {
+        // Do not reset delimiter as delimiter changes survive beyond a single statement
+    }
+
+    @Override
     protected Token handleKeyword(PeekingReader reader, ParserContext context, int pos, int line, int col, String keyword) throws IOException {
         if (keywordIs("DELIMITER", keyword)) {
             String text = reader.readUntilExcluding('\n', '\r').trim();
-            return new Token(TokenType.NEW_DELIMITER, pos, line, col, text, context.getParensDepth());
+            return new Token(TokenType.NEW_DELIMITER, pos, line, col, text, text, context.getParensDepth());
         }
         return super.handleKeyword(reader, context, pos, line, col, keyword);
     }
@@ -57,14 +62,14 @@ public class MySQLParser extends Parser {
     protected Token handleStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
         reader.swallow();
         reader.swallowUntilExcludingWithEscape('\'', true, '\\', true);
-        return new Token(TokenType.STRING, pos, line, col, null, context.getParensDepth());
+        return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 
     @Override
     protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
         reader.swallow();
         reader.swallowUntilExcludingWithEscape('"', true, '\\', true);
-        return new Token(TokenType.STRING, pos, line, col, null, context.getParensDepth());
+        return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 
     @Override
@@ -72,7 +77,7 @@ public class MySQLParser extends Parser {
         reader.swallow(2);
         String text = reader.readUntilExcluding("*/");
         reader.swallow(2);
-        return new Token(TokenType.MULTI_LINE_COMMENT_DIRECTIVE, pos, line, col, text, context.getParensDepth());
+        return new Token(TokenType.MULTI_LINE_COMMENT_DIRECTIVE, pos, line, col, text, text, context.getParensDepth());
     }
 
     @Override

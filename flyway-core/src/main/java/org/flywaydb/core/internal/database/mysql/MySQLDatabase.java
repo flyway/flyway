@@ -24,13 +24,11 @@ import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -168,17 +166,12 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
 
 
 
     ) {
-        return new MySQLSqlStatementBuilderFactory(placeholderReplacer, configuration);
-    }
-
-    @Override
-    public String getDbName() {
-        return "mysql";
+        return new ParserSqlScript(new MySQLParser(configuration), resource, mixed);
     }
 
     @Override

@@ -13,33 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.cockroachdb;
+package org.flywaydb.core.internal.database.sqlite;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParserContext;
-import org.flywaydb.core.internal.parser.PeekingReader;
 import org.flywaydb.core.internal.parser.Token;
-import org.flywaydb.core.internal.parser.TokenType;
 
-import java.io.IOException;
+import java.util.List;
 
-public class CockroachDBParser extends Parser {
-    public CockroachDBParser(Configuration configuration) {
+public class SQLiteParser extends Parser {
+    public SQLiteParser(Configuration configuration) {
         super(configuration, 3);
     }
 
     @Override
-    protected char getAlternativeStringLiteralQuote() {
-        return '$';
+    protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
+        if ("PRAGMA FOREIGN_KEYS".equals(simplifiedStatement)) {
+            return false;
+        }
+
+        return null;
     }
 
-    @SuppressWarnings("Duplicates")
     @Override
-    protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
-        String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
-        reader.swallowUntilExcluding(dollarQuote);
-        reader.swallow(dollarQuote.length());
-        return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
+    protected void adjustBlockDepth(ParserContext context, List<Token> keywords) {
+        String lastKeyword = keywords.get(keywords.size() - 1).getText();
+        if ("BEGIN".equals(lastKeyword)) {
+            context.increaseBlockDepth();
+        } else if ("END".equals(lastKeyword)) {
+            context.decreaseBlockDepth();
+        }
     }
 }

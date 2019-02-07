@@ -20,13 +20,11 @@ import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
+import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -94,17 +92,29 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+    protected LoadableResource getRawCreateScript() {
+        return new StringResource("CREATE TABLE \"${schema}\".\"${table}\" (\n" +
+                "    \"installed_rank\" INT NOT NULL SORTKEY,\n" +
+                "    \"version\" VARCHAR(50),\n" +
+                "    \"description\" VARCHAR(200) NOT NULL,\n" +
+                "    \"type\" VARCHAR(20) NOT NULL,\n" +
+                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
+                "    \"checksum\" INTEGER,\n" +
+                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
+                "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT getdate(),\n" +
+                "    \"execution_time\" INTEGER NOT NULL,\n" +
+                "    \"success\" BOOLEAN NOT NULL\n" +
+                ");\n" +
+                "ALTER TABLE \"${schema}\".\"${table}\" ADD CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\");");
+    }
+
+    @Override
+    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
 
 
 
     ) {
-        return new RedshiftSqlStatementBuilderFactory(placeholderReplacer, configuration);
-    }
-
-    @Override
-    public String getDbName() {
-        return "redshift";
+        return new ParserSqlScript(new RedshiftParser(configuration), resource, mixed);
     }
 
     @Override
@@ -149,24 +159,5 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
     @Override
     public boolean useSingleConnection() {
         return false;
-    }
-
-    private static class RedshiftSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
-        private final Configuration configuration;
-
-        RedshiftSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer, Configuration configuration) {
-            super(placeholderReplacer);
-            this.configuration = configuration;
-        }
-
-        @Override
-        public SqlStatementBuilder createSqlStatementBuilder() {
-            return null;
-        }
-
-        @Override
-        public Parser createParser() {
-            return new RedshiftParser(configuration);
-        }
     }
 }

@@ -17,18 +17,21 @@ package org.flywaydb.core.internal.database.sqlserver;
 
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
+import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * SQL Server database.
@@ -117,22 +120,23 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
 
 
 
     ) {
-        return new SQLServerSqlStatementBuilderFactory(placeholderReplacer);
+        return new ParserSqlScript(new SQLServerParser(configuration), resource, mixed);
     }
 
     @Override
-    public String getDbName() {
-        return "sqlserver";
+    protected SqlScript getCreateScript(Map<String, String> placeholders) {
+        Parser parser = new SQLServerParser(new FluentConfiguration().placeholders(placeholders));
+        return new ParserSqlScript(parser, getRawCreateScript(), false);
     }
 
     @Override
     public Delimiter getDefaultDelimiter() {
-        return new Delimiter("GO", true);
+        return Delimiter.GO;
     }
 
     @Override

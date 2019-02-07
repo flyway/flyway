@@ -27,6 +27,7 @@ import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class PostgreSQLParser extends Parser {
@@ -102,7 +103,7 @@ public class PostgreSQLParser extends Parser {
     }
 
     @Override
-    protected Boolean detectCanExecuteInTransaction(String simplifiedStatement) {
+    protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
         if (CREATE_DATABASE_TABLESPACE_SUBSCRIPTION_REGEX.matcher(simplifiedStatement).matches()
                 || ALTER_SYSTEM_REGEX.matcher(simplifiedStatement).matches()
                 || CREATE_INDEX_CONCURRENTLY_REGEX.matcher(simplifiedStatement).matches()
@@ -122,6 +123,6 @@ public class PostgreSQLParser extends Parser {
         String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
         reader.swallowUntilExcluding(dollarQuote);
         reader.swallow(dollarQuote.length());
-        return new Token(TokenType.STRING, pos, line, col, null, context.getParensDepth());
+        return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 }

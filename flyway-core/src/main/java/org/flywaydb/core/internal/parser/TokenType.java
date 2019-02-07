@@ -57,5 +57,12 @@ public enum TokenType {
      */
     NEW_DELIMITER,
 
-    BLANK_LINES, EOF, COPY_DATA
+    /**
+     * A symbol such as ! or #.
+     */
+    SYMBOL,
+
+    BLANK_LINES,
+    EOF,
+    COPY_DATA
 }

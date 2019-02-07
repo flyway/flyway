@@ -19,13 +19,11 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -80,12 +78,12 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
 
 
 
     ) {
-        return new PostgreSQLSqlStatementBuilderFactory(placeholderReplacer, configuration);
+        return new ParserSqlScript(new PostgreSQLParser(configuration), resource, mixed);
     }
 
     @Override
@@ -115,11 +113,6 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
                 "ALTER TABLE \"${schema}\".\"${table}\" ADD CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\");\n" +
                 "\n" +
                 "CREATE INDEX \"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");");
-    }
-
-    @Override
-    public String getDbName() {
-        return "postgresql";
     }
 
     @Override

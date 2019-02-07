@@ -15,25 +15,16 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.internal.resource.ResourceProvider;
 
-/**
- * Factory for constructing new instances of SqlStatementBuilder.
- */
-public interface SqlStatementBuilderFactory {
-    /**
-     * @return The PlaceholderReplacer to use with the SqlStatementBuilders.
-     */
-    PlaceholderReplacer getPlaceholderReplacer();
-
-    /**
-     * @return A new SqlStatementBuilder.
-     */
-    SqlStatementBuilder createSqlStatementBuilder();
-
+public interface SqlScriptFactory {
     /**
      * @return A new SQL script.
      */
-    SqlScript createSqlScript(LoadableResource resource, boolean mixed);
+    SqlScript createSqlScript(LoadableResource resource, boolean mixed
+
+
+
+    );
 }

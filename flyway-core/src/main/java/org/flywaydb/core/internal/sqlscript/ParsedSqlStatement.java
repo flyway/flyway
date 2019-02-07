@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Results;
-import org.flywaydb.core.internal.line.Line;
 
 /**
  * A sql statement from a script that can be executed at once against a database.
@@ -79,10 +78,6 @@ public class ParsedSqlStatement implements SqlStatement {
     @Override
     public final String getSql() {
         return sql;
-    }
-
-    protected String getLine(Line line) {
-        return line.getLine();
     }
 
     @Override

@@ -21,11 +21,11 @@ import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -99,17 +99,31 @@ public class H2Database extends Database<H2Connection> {
     }
 
     @Override
-    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer
+    protected LoadableResource getRawCreateScript() {
+        return new StringResource("CREATE TABLE \"${schema}\".\"${table}\" (\n" +
+                "    \"installed_rank\" INT NOT NULL,\n" +
+                "    \"version\" VARCHAR(50),\n" +
+                "    \"description\" VARCHAR(200) NOT NULL,\n" +
+                "    \"type\" VARCHAR(20) NOT NULL,\n" +
+                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
+                "    \"checksum\" INT,\n" +
+                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
+                "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
+                "    \"execution_time\" INT NOT NULL,\n" +
+                "    \"success\" BOOLEAN NOT NULL\n" +
+                ");\n" +
+                "ALTER TABLE \"${schema}\".\"${table}\" ADD CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\");\n" +
+                "\n" +
+                "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");");
+    }
+
+    @Override
+    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
 
 
 
     ) {
-        return new H2SqlStatementBuilderFactory(placeholderReplacer, configuration);
-    }
-
-    @Override
-    public String getDbName() {
-        return "h2";
+        return new ParserSqlScript(new H2Parser(configuration), resource, mixed);
     }
 
     @Override

@@ -15,23 +15,24 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
-import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
 
-class SybaseASESqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
-    SybaseASESqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
-        super(placeholderReplacer);
+public class SybaseASEParser extends Parser {
+    public SybaseASEParser(Configuration configuration) {
+        super(configuration, 2);
     }
 
     @Override
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new SybaseASESqlStatementBuilder();
+    protected Delimiter getDefaultDelimiter() {
+        return Delimiter.GO;
     }
 
     @Override
-    public Parser createParser() {
-        return null;
+    protected boolean isDelimiter(String peek, Delimiter delimiter) {
+        return peek.length() == 2
+                && (peek.charAt(0) == 'G' || peek.charAt(0) == 'g')
+                && (peek.charAt(1) == 'O' || peek.charAt(1) == 'o');
     }
 }

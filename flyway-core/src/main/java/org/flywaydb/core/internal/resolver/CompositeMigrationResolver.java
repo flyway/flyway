@@ -27,7 +27,7 @@ import org.flywaydb.core.internal.resolver.java.FixedJavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.java.ScanningJavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
+import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,21 +60,21 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param resourceProvider           The resource provider.
      * @param classProvider              The class provider.
      * @param configuration              The Flyway configuration.
-     * @param sqlStatementBuilderFactory The SQL statement builder factory.
+     * @param sqlScriptFactory The SQL statement builder factory.
      * @param customMigrationResolvers   Custom Migration Resolvers.
      */
     public CompositeMigrationResolver(Database database,
                                       ResourceProvider resourceProvider,
                                       ClassProvider classProvider,
                                       Configuration configuration,
-                                      SqlStatementBuilderFactory sqlStatementBuilderFactory
+                                      SqlScriptFactory sqlScriptFactory
 
 
 
             , MigrationResolver... customMigrationResolvers
     ) {
         if (!configuration.isSkipDefaultResolvers()) {
-            migrationResolvers.add(new SqlMigrationResolver(database, resourceProvider, sqlStatementBuilderFactory
+            migrationResolvers.add(new SqlMigrationResolver(database, resourceProvider, sqlScriptFactory
 
 
 

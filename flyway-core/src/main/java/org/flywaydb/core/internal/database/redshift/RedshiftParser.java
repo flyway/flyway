@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.parser.Token;
 import org.flywaydb.core.internal.parser.TokenType;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class RedshiftParser extends Parser {
@@ -41,7 +42,7 @@ public class RedshiftParser extends Parser {
     }
 
     @Override
-    protected Boolean detectCanExecuteInTransaction(String simplifiedStatement) {
+    protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
         if (CREATE_LIBRARY_REGEX.matcher(simplifiedStatement).matches()
                 || CREATE_EXTERNAL_TABLE_REGEX.matcher(simplifiedStatement).matches()
                 || VACUUM_REGEX.matcher(simplifiedStatement).matches()
@@ -58,6 +59,6 @@ public class RedshiftParser extends Parser {
         String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
         reader.swallowUntilExcluding(dollarQuote);
         reader.swallow(dollarQuote.length());
-        return new Token(TokenType.STRING, pos, line, col, null, context.getParensDepth());
+        return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 }

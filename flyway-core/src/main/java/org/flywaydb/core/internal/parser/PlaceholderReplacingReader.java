@@ -44,7 +44,7 @@ public class PlaceholderReplacingReader extends FilterReader {
     private String markReplacement;
     private int markReplacementPos;
 
-    PlaceholderReplacingReader(String prefix, String suffix, Map<String, String> placeholders, Reader in) {
+    public PlaceholderReplacingReader(String prefix, String suffix, Map<String, String> placeholders, Reader in) {
         super(in);
         this.prefix = prefix;
         this.suffix = suffix;

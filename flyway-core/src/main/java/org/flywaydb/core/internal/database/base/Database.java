@@ -28,24 +28,16 @@ import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
-import org.flywaydb.core.internal.placeholder.DefaultPlaceholderReplacer;
-import org.flywaydb.core.internal.placeholder.NoopPlaceholderReplacer;
-import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
 import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.NoopResourceProvider;
-import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
-import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
 import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderSqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 
 import java.io.Closeable;
-import java.nio.charset.StandardCharsets;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -54,7 +46,7 @@ import java.util.Map;
 /**
  * Abstraction for database-specific functionality.
  */
-public abstract class Database<C extends Connection> implements Closeable {
+public abstract class Database<C extends Connection> implements Closeable, SqlScriptFactory {
     private static final Log LOG = LogFactory.getLog(Database.class);
 
     /**
@@ -208,28 +200,6 @@ public abstract class Database<C extends Connection> implements Closeable {
         return version.getVersion();
     }
 
-    public final SqlStatementBuilderFactory createSqlStatementBuilderFactory(
-
-
-
-    ) {
-        return createSqlStatementBuilderFactory(
-                createPlaceholderReplacer(
-                        configuration.isPlaceholderReplacement(), configuration.getPlaceholders(),
-                        configuration.getPlaceholderPrefix(), configuration.getPlaceholderSuffix())
-
-
-
-        );
-    }
-
-    protected abstract SqlStatementBuilderFactory createSqlStatementBuilderFactory(
-            PlaceholderReplacer placeholderReplacer
-
-
-
-    );
-
     /**
      * Creates a new SqlScriptExecutor for this specific database.
      * <p>
@@ -251,25 +221,12 @@ public abstract class Database<C extends Connection> implements Closeable {
         );
     }
 
-    protected PlaceholderReplacer createPlaceholderReplacer(boolean enabled, Map<String, String> placeholders,
-                                                            String placeholderPrefix, String placeholderSuffix) {
-        if (enabled) {
-            return new DefaultPlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
-        }
-        return NoopPlaceholderReplacer.INSTANCE;
-    }
-
     /**
      * @return The default delimiter for this database.
      */
     public Delimiter getDefaultDelimiter() {
         return Delimiter.SEMICOLON;
     }
-
-    /**
-     * @return The name of the db. Used for loading db-specific scripts such as <code>createMetaDataTable.sql</code>.
-     */
-    public abstract String getDbName();
 
     /**
      * @return The current database user.
@@ -384,7 +341,7 @@ public abstract class Database<C extends Connection> implements Closeable {
      */
     public final C getMainConnection() {
         if (mainConnection == null) {
-            initConnection(this, mainJdbcConnection, configuration.getInitSql());
+            initConnection(mainJdbcConnection, configuration.getInitSql());
             this.mainConnection = getConnection(mainJdbcConnection
 
 
@@ -404,7 +361,7 @@ public abstract class Database<C extends Connection> implements Closeable {
             } else {
                 java.sql.Connection migrationJdbcConnection =
                         JdbcUtils.openConnection(configuration.getDataSource(), configuration.getConnectRetries());
-                initConnection(this, migrationJdbcConnection, configuration.getInitSql());
+                initConnection(migrationJdbcConnection, configuration.getInitSql());
                 this.migrationConnection = getConnection(migrationJdbcConnection
 
 
@@ -418,22 +375,20 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * Initializes this connection with these sql statements.
      *
-     * @param database   The database for the connection.
      * @param connection The connection.
      * @param initSql    The sql statements.
      */
-    private void initConnection(Database database, java.sql.Connection connection, String initSql) {
+    private void initConnection(java.sql.Connection connection, String initSql) {
         if (initSql == null) {
             return;
         }
-        SqlStatementBuilderFactory sqlStatementBuilderFactory = database.createSqlStatementBuilderFactory(
+        StringResource resource = new StringResource(initSql);
+
+        SqlScript sqlScript = createSqlScript(resource, true
 
 
 
         );
-        StringResource resource = new StringResource(initSql);
-
-        SqlScript sqlScript = sqlStatementBuilderFactory.createSqlScript(resource, true);
         new DefaultSqlScriptExecutor(new JdbcTemplate(connection)
 
 
@@ -461,23 +416,9 @@ public abstract class Database<C extends Connection> implements Closeable {
         return getCreateScript(placeholders);
     }
 
-    protected SqlScript getCreateScript(Map<String, String> placeholders) {
-        PlaceholderReplacer placeholderReplacer =
-                createPlaceholderReplacer(true, placeholders, "${", "}");
+    protected abstract SqlScript getCreateScript(Map<String, String> placeholders);
 
-        SqlStatementBuilderFactory sqlStatementBuilderFactory = createSqlStatementBuilderFactory(placeholderReplacer
-
-
-
-        );
-
-        return new SqlStatementBuilderSqlScript(sqlStatementBuilderFactory, getRawCreateScript(), false);
-    }
-
-    protected LoadableResource getRawCreateScript() {
-        String resourceName = "org/flywaydb/core/internal/database/" + getDbName() + "/createMetaDataTable.sql";
-        return new ClassPathResource(null, resourceName, getClass().getClassLoader(), StandardCharsets.UTF_8);
-    }
+    protected abstract LoadableResource getRawCreateScript();
 
     public String getInsertStatement(Table table) {
         return "INSERT INTO " + table

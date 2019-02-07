@@ -48,7 +48,7 @@ import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.scanner.Scanner;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
-import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
+import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.ArrayList;
@@ -362,20 +362,20 @@ public class Flyway {
      * @param database                   The database-specific support.
      * @param resourceProvider           The resource provider.
      * @param classProvider              The class provider.
-     * @param sqlStatementBuilderFactory The SQL statement builder factory.
+     * @param sqlScriptFactory The SQL statement builder factory.
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(Database database,
                                                       ResourceProvider resourceProvider,
                                                       ClassProvider classProvider,
-                                                      SqlStatementBuilderFactory sqlStatementBuilderFactory
+                                                      SqlScriptFactory sqlScriptFactory
 
 
 
     ) {
         return new CompositeMigrationResolver(database,
                 resourceProvider, classProvider, configuration,
-                sqlStatementBuilderFactory
+                sqlScriptFactory
 
 
 
@@ -443,21 +443,15 @@ public class Flyway {
                 classProvider = scanner;
             }
 
-            SqlStatementBuilderFactory sqlStatementBuilderFactory = database.createSqlStatementBuilderFactory(
-
-
-
-            );
-
             CallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, schemas[0],
-                    prepareCallbacks(database, resourceProvider, sqlStatementBuilderFactory
+                    prepareCallbacks(database, resourceProvider, database
 
 
 
                     ));
 
             result = command.execute(
-                    createMigrationResolver(database, resourceProvider, classProvider, sqlStatementBuilderFactory
+                    createMigrationResolver(database, resourceProvider, classProvider, database
 
 
 
@@ -524,7 +518,7 @@ public class Flyway {
     }
 
     private List<Callback> prepareCallbacks(Database database, ResourceProvider resourceProvider,
-                                            SqlStatementBuilderFactory sqlStatementBuilderFactory
+                                            SqlScriptFactory sqlScriptFactory
 
 
 
@@ -556,7 +550,7 @@ public class Flyway {
                     new SqlScriptCallbackFactory(
                             database,
                             resourceProvider,
-                            sqlStatementBuilderFactory,
+                            sqlScriptFactory,
                             configuration
 
 
