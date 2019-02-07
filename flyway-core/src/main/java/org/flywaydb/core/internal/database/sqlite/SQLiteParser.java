@@ -28,6 +28,11 @@ public class SQLiteParser extends Parser {
     }
 
     @Override
+    protected char getAlternativeIdentifierQuote() {
+        return '`';
+    }
+
+    @Override
     protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
         if ("PRAGMA FOREIGN_KEYS".equals(simplifiedStatement)) {
             return false;

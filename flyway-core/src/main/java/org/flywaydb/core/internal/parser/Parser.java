@@ -51,6 +51,7 @@ public abstract class Parser {
     protected final Configuration configuration;
     private final int peekDepth;
     private final char identifierQuote;
+    private final char alternativeIdentifierQuote;
     private final char alternativeStringLiteralQuote;
     private final char alternativeSingleLineComment;
     private final Set<String> validKeywords;
@@ -59,6 +60,7 @@ public abstract class Parser {
         this.configuration = configuration;
         this.peekDepth = peekDepth;
         this.identifierQuote = getIdentifierQuote();
+        this.alternativeIdentifierQuote = getAlternativeIdentifierQuote();
         this.alternativeStringLiteralQuote = getAlternativeStringLiteralQuote();
         this.alternativeSingleLineComment = getAlternativeSingleLineComment();
         this.validKeywords = getValidKeywords();
@@ -70,6 +72,10 @@ public abstract class Parser {
 
     protected char getIdentifierQuote() {
         return '"';
+    }
+
+    protected char getAlternativeIdentifierQuote() {
+        return 0;
     }
 
     protected char getAlternativeStringLiteralQuote() {
@@ -366,11 +372,11 @@ public abstract class Parser {
             reader.swallow();
             return null;
         }
-        if (c == identifierQuote) {
+        if (c == identifierQuote || c == alternativeIdentifierQuote) {
             reader.swallow();
-            String text = reader.readUntilExcludingWithEscape(identifierQuote, true);
+            String text = reader.readUntilExcludingWithEscape(c, true);
             if (reader.peek('.')) {
-                text = readAdditionalIdentifierParts(reader);
+                text = readAdditionalIdentifierParts(reader, c);
             }
             return new Token(TokenType.IDENTIFIER, pos, line, col, text, text, context.getParensDepth());
         }
@@ -407,7 +413,7 @@ public abstract class Parser {
         if (c == '_' || Character.isLetter(c)) {
             String text = "" + (char) reader.read() + reader.readKeywordPart();
             if (reader.peek('.')) {
-                text += readAdditionalIdentifierParts(reader);
+                text += readAdditionalIdentifierParts(reader, identifierQuote);
                 return new Token(TokenType.IDENTIFIER, pos, line, col, text, text, context.getParensDepth());
             }
             if (!isKeyword(text)) {
@@ -462,22 +468,22 @@ public abstract class Parser {
     }
 
     @SuppressWarnings("Duplicates")
-    private String readAdditionalIdentifierParts(PeekingReader reader) throws IOException {
+    private String readAdditionalIdentifierParts(PeekingReader reader, char quote) throws IOException {
         String result = "";
         reader.swallow();
         result += ".";
-        if (reader.peek(identifierQuote)) {
+        if (reader.peek(quote)) {
             reader.swallow();
-            result += reader.readUntilExcludingWithEscape(identifierQuote, true);
+            result += reader.readUntilExcludingWithEscape(quote, true);
         } else {
             result += reader.readKeywordPart();
         }
         if (reader.peek('.')) {
             reader.swallow();
             result += ".";
-            if (reader.peek(identifierQuote)) {
+            if (reader.peek(quote)) {
                 reader.swallow();
-                result += reader.readUntilExcludingWithEscape(identifierQuote, true);
+                result += reader.readUntilExcludingWithEscape(quote, true);
             } else {
                 result += reader.readKeywordPart();
             }
