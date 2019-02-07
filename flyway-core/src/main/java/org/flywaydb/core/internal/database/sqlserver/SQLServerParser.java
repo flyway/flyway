@@ -52,8 +52,12 @@ public class SQLServerParser extends Parser {
 
         String previous = keywords.get(keywords.size() - 2).getText();
         // #2175: The procedure 'sp_addsubscription' cannot be executed within a transaction.
-        // This procedure is only present in SQL Server. Not on Azure nor in PDW.
-        if ("EXEC".equals(previous) && "SP_ADDSUBSCRIPTION".equals(current)) {
+        // #2298: The procedures 'sp_serveroption' and 'sp_droplinkedsrvlogin' cannot be executed within a transaction.
+        // These procedures is only present in SQL Server. Not on Azure nor in PDW.
+        if ("EXEC".equals(previous) && (
+                "SP_ADDSUBSCRIPTION".equals(current) ||
+                        "SP_DROPLINKEDSRVLOGIN".equals(current) ||
+                        "SP_SERVEROPTION".equals(current))) {
             return false;
         }
 
