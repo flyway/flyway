@@ -291,10 +291,6 @@ public class JdbcTemplate {
 
 
 
-
-
-
-
             results.addResult(new Result(updateCount
 
 
