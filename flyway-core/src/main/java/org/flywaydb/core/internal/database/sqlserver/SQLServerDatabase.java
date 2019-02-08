@@ -76,6 +76,17 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         );
     }
 
+
+
+
+
+
+
+
+
+
+
+
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("10.0");
@@ -85,7 +96,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("13.0", org.flywaydb.core.internal.license.Edition.PRO);
 
-        recommendFlywayUpgradeIfNecessary("14.0");
+        recommendFlywayUpgradeIfNecessary("15.0");
     }
 
     @Override
@@ -114,6 +125,9 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
             }
             if ("14".equals(getVersion().getMajorAsString())) {
                 return "2017";
+            }
+            if ("15".equals(getVersion().getMajorAsString())) {
+                return "2019";
             }
         }
         return super.computeVersionDisplayName(version);
