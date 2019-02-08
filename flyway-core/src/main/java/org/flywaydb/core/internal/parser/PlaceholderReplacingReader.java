@@ -33,14 +33,12 @@ public class PlaceholderReplacingReader extends FilterReader {
      */
     private final int readAheadLimitAdjustment;
 
-    private StringBuilder buffer = new StringBuilder();
+    private final StringBuilder buffer = new StringBuilder();
     private String markBuffer;
 
-    private String original;
     private String replacement;
     private int replacementPos;
 
-    private String markOriginal;
     private String markReplacement;
     private int markReplacementPos;
 
@@ -86,24 +84,25 @@ public class PlaceholderReplacingReader extends FilterReader {
                 }
                 return -1;
             }
-            buffer = new StringBuilder();
+            buffer.delete(0, buffer.length());
 
-            StringBuilder result = new StringBuilder();
+            StringBuilder placeholder = new StringBuilder();
             do {
                 int r1 = in.read();
                 if (r1 == -1) {
                     break;
                 } else {
-                    result.append((char) r1);
+                    placeholder.append((char) r1);
                 }
-            } while (!endsWith(result, suffix));
-            String placeholder = result.toString();
+            } while (!endsWith(placeholder, suffix));
+            for (int i = 0; i < suffix.length(); i++) {
+                placeholder.deleteCharAt(placeholder.length() - 1);
+            }
 
-            original = prefix + placeholder;
-            replacement = placeholders.get(placeholder.substring(0, placeholder.length() - suffix.length()));
+            replacement = placeholders.get(placeholder.toString());
             if (replacement == null) {
                 throw new FlywayException("No value provided for placeholder: "
-                        + original
+                        + prefix + placeholder + suffix
                         + ".  Check your configuration!");
             }
         }
@@ -111,7 +110,6 @@ public class PlaceholderReplacingReader extends FilterReader {
         int result = replacement.charAt(replacementPos);
         replacementPos++;
         if (replacementPos >= replacement.length()) {
-            original = null;
             replacement = null;
             replacementPos = 0;
         }
@@ -135,7 +133,6 @@ public class PlaceholderReplacingReader extends FilterReader {
     @Override
     public void mark(int readAheadLimit) throws IOException {
         markBuffer = buffer.toString();
-        markOriginal = original;
         markReplacement = replacement;
         markReplacementPos = replacementPos;
         super.mark(readAheadLimit + readAheadLimitAdjustment);
@@ -144,8 +141,8 @@ public class PlaceholderReplacingReader extends FilterReader {
     @Override
     public void reset() throws IOException {
         super.reset();
-        buffer = new StringBuilder(markBuffer);
-        original = markOriginal;
+        buffer.delete(0, buffer.length());
+        buffer.append(markBuffer);
         replacement = markReplacement;
         replacementPos = markReplacementPos;
     }

@@ -15,11 +15,12 @@
  */
 package org.flywaydb.core.internal.resource;
 
-import org.flywaydb.core.internal.line.Line;
-import org.flywaydb.core.internal.line.LineReader;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.IOUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
@@ -46,12 +47,6 @@ public abstract class LoadableResource implements Resource, Comparable<LoadableR
 
 
 
-    /**
-     * Loads this resource as a string.
-     *
-     * @return The string contents of the resource.
-     */
-    public abstract LineReader loadAsString();
 
     /**
      * Calculates the checksum of this resource. The checksum is encoding and line-ending independent.
@@ -62,16 +57,18 @@ public abstract class LoadableResource implements Resource, Comparable<LoadableR
         if (checksum == null) {
             final CRC32 crc32 = new CRC32();
 
-            LineReader lineReader = null;
+            BufferedReader reader = null;
             try {
-                lineReader = loadAsString();
-                Line line;
-                while ((line = lineReader.readLine()) != null) {
+                reader = new BufferedReader(read(), 4096);
+                String line;
+                while ((line = reader.readLine()) != null) {
                     //noinspection Since15
-                    crc32.update(StringUtils.trimLineBreak(line.getLine()).getBytes(StandardCharsets.UTF_8));
+                    crc32.update(StringUtils.trimLineBreak(line).getBytes(StandardCharsets.UTF_8));
                 }
+            } catch (IOException e) {
+                throw new FlywayException("Unable to calculate checksum for " + getFilename() + ": " + e.getMessage(), e);
             } finally {
-                IOUtils.close(lineReader);
+                IOUtils.close(reader);
             }
 
             checksum = (int) crc32.getValue();

@@ -18,8 +18,6 @@ package org.flywaydb.core.internal.resource.android;
 import android.content.res.AssetManager;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.line.DefaultLineReader;
-import org.flywaydb.core.internal.line.LineReader;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.util.BomStrippingReader;
 
@@ -71,11 +69,6 @@ public class AndroidResource extends LoadableResource {
         } catch (IOException e) {
             throw new FlywayException("Unable to read asset: " + getAbsolutePath(), e);
         }
-    }
-
-    @Override
-    public LineReader loadAsString() {
-        return new DefaultLineReader(read());
     }
 
     @Override

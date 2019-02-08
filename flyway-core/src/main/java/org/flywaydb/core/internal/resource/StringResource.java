@@ -15,9 +15,6 @@
  */
 package org.flywaydb.core.internal.resource;
 
-import org.flywaydb.core.internal.line.DefaultLineReader;
-import org.flywaydb.core.internal.line.LineReader;
-
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -31,11 +28,6 @@ public class StringResource extends LoadableResource {
     @Override
     public Reader read() {
         return new StringReader(str);
-    }
-
-    @Override
-    public LineReader loadAsString() {
-        return new DefaultLineReader(new StringReader(str));
     }
 
     @Override

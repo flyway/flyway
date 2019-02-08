@@ -97,7 +97,8 @@ public abstract class Parser {
 
         LOG.debug("Parsing " + resource.getFilename() + " ...");
         Reader r = new PositionTrackingReader(tracker, new BomStrippingReader(new BufferedReader(resource.read(), 4096)));
-        final PeekingReader peekingReader = new PeekingReader(new RecordingReader(recorder, replacePlaceholders(r)));
+        final PeekingReader peekingReader =
+                new PeekingReader(new RecordingReader(recorder, replacePlaceholders(r)));
 
         return new ParserSqlStatementIterator(peekingReader, resource, recorder, tracker, context);
     }
@@ -309,7 +310,11 @@ public abstract class Parser {
     }
 
     static String keywordToUpperCase(String text) {
-        StringBuilder result = new StringBuilder();
+        if (!containsLowerCase(text)) {
+            return text;
+        }
+
+        StringBuilder result = new StringBuilder(text.length());
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             if (c >= 'a' && c <= 'z') {
@@ -319,6 +324,16 @@ public abstract class Parser {
             }
         }
         return result.toString();
+    }
+
+    private static boolean containsLowerCase(String text) {
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c >= 'a' && c <= 'z') {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected ParsedSqlStatement createStatement(PeekingReader reader, Recorder recorder,

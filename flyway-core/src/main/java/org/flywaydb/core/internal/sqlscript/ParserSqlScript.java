@@ -103,8 +103,10 @@ public class ParserSqlScript implements SqlScript {
 
 
 
-                LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
-                        + (sqlStatement.canExecuteInTransaction() ? "" : " [non-transactional]"));
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
+                            + (sqlStatement.canExecuteInTransaction() ? "" : " [non-transactional]"));
+                }
             }
         }
     }

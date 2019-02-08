@@ -17,8 +17,6 @@ package org.flywaydb.core.internal.resource.classpath;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.line.DefaultLineReader;
-import org.flywaydb.core.internal.line.LineReader;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.util.UrlUtils;
 
@@ -94,11 +92,6 @@ public class ClassPathResource extends LoadableResource {
             throw new FlywayException("Unable to obtain inputstream for resource: " + fileNameWithAbsolutePath);
         }
         return new InputStreamReader(inputStream, encoding);
-    }
-
-    @Override
-    public LineReader loadAsString() {
-        return new DefaultLineReader(read());
     }
 
     @Override

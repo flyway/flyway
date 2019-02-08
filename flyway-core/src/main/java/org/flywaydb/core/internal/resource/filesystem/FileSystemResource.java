@@ -17,8 +17,6 @@ package org.flywaydb.core.internal.resource.filesystem;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.line.DefaultLineReader;
-import org.flywaydb.core.internal.line.LineReader;
 import org.flywaydb.core.internal.resource.LoadableResource;
 
 import java.io.File;
@@ -109,25 +107,6 @@ public class FileSystemResource extends LoadableResource {
 
 
 
-
-    /**
-     * Loads this resource as a string.
-     *
-     * @return The string contents of the resource.
-     */
-    @Override
-    public LineReader loadAsString() {
-
-
-
-
-
-
-
-
-
-        return new DefaultLineReader(read());
-    }
 
     /**
      * @return The filename of this resource, without the path.

@@ -255,7 +255,9 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
     private void handleUpdateCount(long updateCount) {
-        LOG.debug("Update Count: " + updateCount);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Update Count: " + updateCount);
+        }
     }
 
     protected void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement) {
