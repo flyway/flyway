@@ -91,6 +91,7 @@ public class ConfigUtils {
 
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
+    public static final String ORACLE_SQLPLUS_WARN = "flyway.oracle.sqlplusWarn";
 
     // Command-line specific
     public static final String JAR_DIRS = "flyway.jarDirs";
@@ -264,6 +265,9 @@ public class ConfigUtils {
         // Oracle-specific
         if ("FLYWAY_ORACLE_SQLPLUS".equals(key)) {
             return ORACLE_SQLPLUS;
+        }
+        if ("FLYWAY_ORACLE_SQLPLUS_WARN".equals(key)) {
+            return ORACLE_SQLPLUS_WARN;
         }
 
         // Command-line specific

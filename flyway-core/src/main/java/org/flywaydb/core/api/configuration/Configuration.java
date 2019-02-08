@@ -449,6 +449,16 @@ public interface Configuration {
     boolean isOracleSqlplus();
 
     /**
+     * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
+     * it doesn't yet support.
+     *
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @return {@code true} to issue a warning. {@code false} to fail fast instead. (default: {@code false})
+     */
+    boolean isOracleSqlplusWarn();
+
+    /**
      * Your Flyway license key (FL01...). Not yet a Flyway Pro or Enterprise Edition customer?
      * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
      * to try out Flyway Pro and Enterprise Edition features free for 30 days.

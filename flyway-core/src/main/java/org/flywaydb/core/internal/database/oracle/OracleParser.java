@@ -170,6 +170,7 @@ public class OracleParser extends Parser {
 
 
 
+
     public OracleParser(Configuration configuration
 
 
@@ -250,6 +251,11 @@ public class OracleParser extends Parser {
 
 
 
+
+
+
+
+
         if (PLSQL_VIEW_STATEMENT == statementType) {
             sql = sql.trim();
 
@@ -279,6 +285,9 @@ public class OracleParser extends Parser {
         if (PLSQL_VIEW_REGEX.matcher(simplifiedStatement).matches()) {
             return PLSQL_VIEW_STATEMENT;
         }
+
+
+
 
 
 

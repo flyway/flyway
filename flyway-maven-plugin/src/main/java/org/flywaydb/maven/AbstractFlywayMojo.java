@@ -508,6 +508,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean oracleSqlplus;
 
     /**
+     * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
+     * it doesn't yet support. (default: {@code false})
+     * <p>Also configurable with Maven or System Property: ${flyway.oracle.sqlplusWarn}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    @Parameter(property = ConfigUtils.ORACLE_SQLPLUS_WARN)
+    private Boolean oracleSqlplusWarn;
+
+    /**
      * Your Flyway license key (FL01...). Not yet a Flyway Pro or Enterprise Edition customer?
      * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
      * to try out Flyway Pro and Enterprise Edition features free for 30 days.
@@ -697,6 +706,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.BATCH, batch);
 
             putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus);
+            putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS_WARN, oracleSqlplusWarn);
 
             putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey);
 
