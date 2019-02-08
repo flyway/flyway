@@ -429,7 +429,6 @@ public abstract class Parser {
             String text = "" + (char) reader.read() + reader.readKeywordPart();
             if (reader.peek('.')) {
                 text += readAdditionalIdentifierParts(reader, identifierQuote);
-                return new Token(TokenType.IDENTIFIER, pos, line, col, text, text, context.getParensDepth());
             }
             if (!isKeyword(text)) {
                 return new Token(TokenType.IDENTIFIER, pos, line, col, text, text, context.getParensDepth());
@@ -469,7 +468,13 @@ public abstract class Parser {
         return peek.startsWith(delimiter.getDelimiter());
     }
 
-    final boolean isKeyword(String text) {
+    /**
+     * Checks whether this is a keyword ({@code true}) or not ({@code false} = identifier, ...).
+     *
+     * @param text The token to check.
+     * @return {@code true} if it is, {@code false} if not.
+     */
+    protected boolean isKeyword(String text) {
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_')) {

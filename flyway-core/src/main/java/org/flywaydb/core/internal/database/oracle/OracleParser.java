@@ -168,9 +168,6 @@ public class OracleParser extends Parser {
 
 
 
-
-
-
     public OracleParser(Configuration configuration
 
 
@@ -342,6 +339,11 @@ public class OracleParser extends Parser {
             context.setDelimiter(Delimiter.SEMICOLON);
         }
     }
+
+
+
+
+
 
 
 
