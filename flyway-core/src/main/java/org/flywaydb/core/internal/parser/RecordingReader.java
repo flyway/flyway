@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.io.Reader;
 
 public class RecordingReader extends FilterReader {
+    private boolean paused;
     private Recorder recorder;
-    private int recorderMark = 0;
 
     RecordingReader(Recorder recorder, Reader in) {
         super(in);
@@ -31,7 +31,7 @@ public class RecordingReader extends FilterReader {
     @Override
     public int read() throws IOException {
         int read = super.read();
-        if (read != -1) {
+        if (read != -1 && !paused) {
             recorder.record((char) read);
         }
         return read;
@@ -39,14 +39,13 @@ public class RecordingReader extends FilterReader {
 
     @Override
     public void mark(int readAheadLimit) throws IOException {
+        paused = true;
         super.mark(readAheadLimit);
-        recorderMark = recorder.length();
     }
 
     @Override
     public void reset() throws IOException {
         super.reset();
-
-        recorder.truncate(recorderMark);
+        paused = false;
     }
 }

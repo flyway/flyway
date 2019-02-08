@@ -135,7 +135,7 @@
         <version.hsqldb>2.4.1</version.hsqldb>
         <version.jna>4.5.2</version.jna>
         <version.jtds>1.3.1</version.jtds>
-        <version.mariadb>2.3.0</version.mariadb>
+        <version.mariadb>2.4.0</version.mariadb>
         <version.mysql>8.0.12</version.mysql>
         <version.mssql-jdbc>7.0.0.jre8</version.mssql-jdbc>
         <version.postgresql>42.2.5.jre6</version.postgresql>
@@ -591,6 +591,8 @@
                     </execution>
                 </executions>
             </plugin>
+
+
 
 
 

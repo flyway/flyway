@@ -85,10 +85,15 @@ public enum DatabaseType {
         if (databaseProductName.startsWith("Microsoft SQL Server")) {
             return SQLSERVER;
         }
+
+        // #2289: MariaDB JDBC driver 2.4.0 and newer report MariaDB as "MariaDB"
+        if (databaseProductName.startsWith("MariaDB")
+                // Older versions of the driver report MariaDB as "MySQL"
+                || databaseProductName.contains("MySQL") && databaseProductVersion.contains("MariaDB")) {
+            return MARIADB;
+        }
+
         if (databaseProductName.contains("MySQL")) {
-            if (databaseProductVersion.contains("MariaDB")) {
-                return MARIADB;
-            }
             // Google Cloud SQL returns different names depending on the environment and the SDK version.
             //   ex.: Google SQL Service/MySQL
             return MYSQL;

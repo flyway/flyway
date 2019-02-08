@@ -21,6 +21,7 @@ import java.io.Reader;
 
 public class PositionTrackingReader extends FilterReader {
     private final PositionTracker tracker;
+    private boolean paused;
 
     PositionTrackingReader(PositionTracker tracker, Reader in) {
         super(in);
@@ -30,7 +31,7 @@ public class PositionTrackingReader extends FilterReader {
     @Override
     public int read() throws IOException {
         int read = super.read();
-        if (read != -1) {
+        if (read != -1 && !paused) {
             tracker.nextPos();
             char c = (char) read;
             if (c == '\n') {
@@ -46,13 +47,13 @@ public class PositionTrackingReader extends FilterReader {
 
     @Override
     public void mark(int readAheadLimit) throws IOException {
-        tracker.mark();
+        paused = true;
         super.mark(readAheadLimit);
     }
 
     @Override
     public void reset() throws IOException {
         super.reset();
-        tracker.reset();
+        paused = false;
     }
 }
