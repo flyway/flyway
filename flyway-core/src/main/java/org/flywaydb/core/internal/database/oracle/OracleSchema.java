@@ -741,7 +741,7 @@ public class OracleSchema extends Schema<OracleDatabase> {
          */
         public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema) throws SQLException {
             return jdbcTemplate.queryForStringList(
-                    "SELECT OBJECT_NAME FROM ALL_OBJECTS WHERE OWNER = ? AND OBJECT_TYPE = ?",
+                    "SELECT DISTINCT OBJECT_NAME FROM ALL_OBJECTS WHERE OWNER = ? AND OBJECT_TYPE = ?",
                     schema.getName(), this.getName()
             );
         }
