@@ -61,7 +61,7 @@ public class SQLServerParser extends Parser {
             return false;
         }
 
-        // (CREATE|DROP|ALTER) (DATABASE|FULLTEXT INDEX)
+        // (CREATE|DROP|ALTER) (DATABASE|FULLTEXT (INDEX|CATALOG))
         if (("CREATE".equals(previous) || "ALTER".equals(previous) || "DROP".equals(previous))
                 && ("DATABASE".equals(current) || "FULLTEXT".equals(current))) {
             return false;
