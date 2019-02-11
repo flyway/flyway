@@ -65,6 +65,15 @@ public class DB2Database extends Database<DB2Connection> {
         );
     }
 
+
+
+
+
+
+
+
+
+
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("9.7");

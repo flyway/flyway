@@ -16,10 +16,10 @@
 package org.flywaydb.core.internal.database.db2;
 
 import org.flywaydb.core.internal.database.base.Function;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.database.base.Type;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
@@ -35,7 +35,7 @@ public class DB2Schema extends Schema<DB2Database> {
      * Creates a new DB2 schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param name         The name of the schema.
      */
     DB2Schema(JdbcTemplate jdbcTemplate, DB2Database database, String name) {
@@ -179,8 +179,19 @@ public class DB2Schema extends Schema<DB2Database> {
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatementsForViews() throws SQLException {
-        String dropSeqGenQuery = "select TABNAME from SYSCAT.TABLES where TABSCHEMA = '" + name
-                + "' and TABNAME NOT LIKE '%_V' and TYPE='V'";
+        String dropSeqGenQuery = "select TABNAME from SYSCAT.TABLES where TYPE='V' AND TABSCHEMA = '" + name + "'" +
+
+
+
+
+                        // Filter out statistical view for an index with an expression-based key
+                        // See https://www.ibm.com/support/knowledgecenter/SSEPGG_10.5.0/com.ibm.db2.luw.sql.ref.doc/doc/r0001063.html
+                        " and substr(property,19,1) <> 'Y'"
+
+
+
+                ;
+
         return buildDropStatements("DROP VIEW", dropSeqGenQuery);
     }
 
