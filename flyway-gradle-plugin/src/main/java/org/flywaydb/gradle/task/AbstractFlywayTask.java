@@ -261,7 +261,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean validateOnMigrate;
 
     /**
-     * Whether to automatically call clean or not when a validation error occurs
+     * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br>
+     * <p> This is exclusively intended as a convenience for development. even though we
+     * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
+     * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
+     * the next migration will bring you back to the state checked into SCM.</p>
+     * <p><b>Warning ! Do not enable in production !</b></p><br>
+     * <p>Also configurable with Gradle or System Property: ${flyway.cleanOnValidationError}</p>
      */
     public Boolean cleanOnValidationError;
 

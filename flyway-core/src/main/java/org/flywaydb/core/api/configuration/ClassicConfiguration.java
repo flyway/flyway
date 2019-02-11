@@ -266,7 +266,7 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})
-     * <p> This is exclusively intended as a convenience for development. Even though we
+     * <p> This is exclusively intended as a convenience for development. even though we
      * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
      * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
      * the next migration will bring you back to the state checked into SCM.</p>
@@ -881,7 +881,7 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Whether to automatically call clean or not when a validation error occurs.
-     * <p> This is exclusively intended as a convenience for development. Even though we
+     * <p> This is exclusively intended as a convenience for development. even though we
      * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
      * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
      * the next migration will bring you back to the state checked into SCM.</p>
