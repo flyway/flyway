@@ -289,7 +289,18 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
 
 
     public MigrationInfo[] all() {
-        return migrationInfos.toArray(new MigrationInfoImpl[0]);
+        List<MigrationInfo> allMigrations = new ArrayList<>();
+        for (MigrationInfo migrationInfo : migrationInfos) {
+
+
+
+                allMigrations.add(migrationInfo);
+
+
+
+        }
+
+        return allMigrations.toArray(new MigrationInfo[0]);
     }
 
     public MigrationInfo current() {
@@ -387,8 +398,13 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     public MigrationInfo[] future() {
         List<MigrationInfo> futureMigrations = new ArrayList<>();
         for (MigrationInfo migrationInfo : migrationInfos) {
-            if ((migrationInfo.getState() == MigrationState.FUTURE_SUCCESS)
-                    || (migrationInfo.getState() == MigrationState.FUTURE_FAILED)) {
+            if (((migrationInfo.getState() == MigrationState.FUTURE_SUCCESS)
+                    || (migrationInfo.getState() == MigrationState.FUTURE_FAILED))
+
+
+
+
+            ) {
                 futureMigrations.add(migrationInfo);
             }
         }

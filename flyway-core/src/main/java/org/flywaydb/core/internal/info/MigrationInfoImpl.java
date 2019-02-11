@@ -140,6 +140,12 @@ public class MigrationInfoImpl implements MigrationInfo {
 
     @Override
     public MigrationState getState() {
+
+
+
+
+
+
         if (appliedMigration == null) {
             if (resolvedMigration.getVersion() != null) {
                 if (resolvedMigration.getVersion().compareTo(context.baseline) < 0) {
@@ -196,11 +202,6 @@ public class MigrationInfoImpl implements MigrationInfo {
             return MigrationState.SUPERSEDED;
         }
 
-
-
-
-
-
         if (outOfOrder) {
             return MigrationState.OUT_OF_ORDER;
         }
@@ -247,6 +248,13 @@ public class MigrationInfoImpl implements MigrationInfo {
     public String validate() {
         MigrationState state = getState();
 
+
+
+
+
+
+
+
         // Ignore any migrations above the current target as they are out of scope.
         if (MigrationState.ABOVE_TARGET.equals(state)) {
             return null;
@@ -260,8 +268,10 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if ((resolvedMigration == null)
-                && (appliedMigration.getType() != MigrationType.SCHEMA)
-                && (appliedMigration.getType() != MigrationType.BASELINE)
+                && !appliedMigration.getType().isSynthetic()
+
+
+
                 && (appliedMigration.getVersion() != null)
                 && (!context.missing || (MigrationState.MISSING_SUCCESS != state && MigrationState.MISSING_FAILED != state))
                 && (!context.future || (MigrationState.FUTURE_SUCCESS != state && MigrationState.FUTURE_FAILED != state))) {
@@ -279,7 +289,11 @@ public class MigrationInfoImpl implements MigrationInfo {
             return "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription();
         }
 
-        if (resolvedMigration != null && appliedMigration != null) {
+        if (resolvedMigration != null && appliedMigration != null
+
+
+
+        ) {
             String migrationIdentifier = appliedMigration.getVersion() == null ?
                     // Repeatable migrations
                     appliedMigration.getScript() :
@@ -290,19 +304,13 @@ public class MigrationInfoImpl implements MigrationInfo {
                     return createMismatchMessage("type", migrationIdentifier,
                             appliedMigration.getType(), resolvedMigration.getType());
                 }
-
-
-
-                    if (resolvedMigration.getVersion() != null
-                            || (context.pending && MigrationState.OUTDATED != state && MigrationState.SUPERSEDED != state)) {
-                        if (!Objects.equals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
-                            return createMismatchMessage("checksum", migrationIdentifier,
-                                    appliedMigration.getChecksum(), resolvedMigration.getChecksum());
-                        }
+                if (resolvedMigration.getVersion() != null
+                        || (context.pending && MigrationState.OUTDATED != state && MigrationState.SUPERSEDED != state)) {
+                    if (!Objects.equals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
+                        return createMismatchMessage("checksum", migrationIdentifier,
+                                appliedMigration.getChecksum(), resolvedMigration.getChecksum());
                     }
-
-
-
+                }
                 if (!AbbreviationUtils.abbreviateDescription(resolvedMigration.getDescription())
                         .equals(appliedMigration.getDescription())) {
                     return createMismatchMessage("description", migrationIdentifier,
