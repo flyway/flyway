@@ -78,10 +78,7 @@ public class DB2Database extends Database<DB2Connection> {
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("9.7");
 
-        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.5", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
-
-
-        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("11.1", org.flywaydb.core.internal.license.Edition.PRO);
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("11.1", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
         recommendFlywayUpgradeIfNecessary("11.1");
     }
