@@ -19,6 +19,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
@@ -100,7 +101,7 @@ public class H2Database extends Database<H2Connection> {
 
     @Override
     protected LoadableResource getRawCreateScript() {
-        return new StringResource("CREATE TABLE \"${schema}\".\"${table}\" (\n" +
+        return new StringResource("CREATE TABLE IF NOT EXISTS \"${schema}\".\"${table}\" (\n" +
                 "    \"installed_rank\" INT NOT NULL,\n" +
                 "    \"version\" VARCHAR(50),\n" +
                 "    \"description\" VARCHAR(200) NOT NULL,\n" +
@@ -110,11 +111,30 @@ public class H2Database extends Database<H2Connection> {
                 "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
                 "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
                 "    \"execution_time\" INT NOT NULL,\n" +
-                "    \"success\" BOOLEAN NOT NULL\n" +
-                ");\n" +
-                "ALTER TABLE \"${schema}\".\"${table}\" ADD CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\");\n" +
-                "\n" +
+                "    \"success\" BOOLEAN NOT NULL,\n" +
+                "    CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\")\n" +
+                ")" +
+                // Add special table created marker to compensate for the inability of H2 to lock empty tables
+                " AS SELECT -1, NULL, '<< Flyway Schema History table created >>', 'TABLE', '', NULL, '', CURRENT_TIMESTAMP, 0, TRUE;\n" +
                 "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");");
+    }
+
+    public String getSelectStatement(Table table, int maxCachedInstalledRank) {
+        return "SELECT " + quote("installed_rank")
+                + "," + quote("version")
+                + "," + quote("description")
+                + "," + quote("type")
+                + "," + quote("script")
+                + "," + quote("checksum")
+                + "," + quote("installed_on")
+                + "," + quote("installed_by")
+                + "," + quote("execution_time")
+                + "," + quote("success")
+                + " FROM " + table
+                // Ignore special table created marker
+                + " WHERE " + quote("type") + " != 'TABLE'"
+                + " AND " + quote("installed_rank") + " > " + maxCachedInstalledRank
+                + " ORDER BY " + quote("installed_rank");
     }
 
     @Override
