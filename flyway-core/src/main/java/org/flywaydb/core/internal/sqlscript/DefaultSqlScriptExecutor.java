@@ -278,7 +278,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
                 if ("00000".equals(warning.getState())) {
-                    LOG.info("DB: " + warning.getMessage());
+                    LOG.debug("DB: " + warning.getMessage());
                 } else {
                     LOG.warn("DB: " + warning.getMessage()
                             + " (SQL State: " + warning.getState() + " - Error Code: " + warning.getCode() + ")");
