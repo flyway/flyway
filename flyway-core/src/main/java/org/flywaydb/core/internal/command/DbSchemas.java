@@ -20,8 +20,8 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 
 import java.util.concurrent.Callable;
 
@@ -60,9 +60,11 @@ public class DbSchemas {
     }
 
     /**
-     * Creates the schemas
+     * Creates the schemas.
+     *
+     * @param baseline Whether to include the creation of a baseline marker.
      */
-    public void create() {
+    public void create(final boolean baseline) {
         int retries = 0;
         while (true) {
             try {
@@ -77,11 +79,10 @@ public class DbSchemas {
                         }
 
                         for (Schema schema : schemas) {
-                            LOG.info("Creating schema " + schema + " ...");
                             schema.create();
                         }
 
-                        schemaHistory.create();
+                        schemaHistory.create(baseline);
                         schemaHistory.addSchemasMarker(schemas);
 
                         return null;

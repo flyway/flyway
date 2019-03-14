@@ -50,8 +50,10 @@ public abstract class SchemaHistory {
 
     /**
      * Creates the schema history. Do nothing if it already exists.
+     *
+     * @param baseline Whether to include the creation of a baseline marker.
      */
-    public abstract void create();
+    public abstract void create(boolean baseline);
 
     /**
      * Checks whether the schema history table contains at least one non-synthetic applied migration.
@@ -64,7 +66,7 @@ public abstract class SchemaHistory {
 
 
 
-                    ) {
+            ) {
                 return true;
             }
         }
@@ -76,17 +78,6 @@ public abstract class SchemaHistory {
      * An empty list if no migration has been applied so far.
      */
     public abstract List<AppliedMigration> allAppliedMigrations();
-
-    /**
-     * Creates and initializes the Flyway schema history table.
-     *
-     * @param baselineVersion     The version to tag an existing schema with when executing baseline.
-     * @param baselineDescription The description to tag an existing schema with when executing baseline.
-     */
-    public final void addBaselineMarker(MigrationVersion baselineVersion, String baselineDescription) {
-        addAppliedMigration(baselineVersion, baselineDescription, MigrationType.BASELINE,
-                baselineDescription, null, 0, true);
-    }
 
     /**
      * Retrieves the baseline marker from the schema history table.

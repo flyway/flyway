@@ -99,6 +99,9 @@ public abstract class Table<D extends Database, S extends Schema> extends Schema
      * Locks this table in this schema using a read/write pessimistic lock until the end of the current transaction.
      */
     public void lock() {
+        if (!exists()) {
+            return;
+        }
         try {
             LOG.debug("Locking table " + this + "...");
             doLock();

@@ -124,8 +124,6 @@ public class DbMigrate {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            schemaHistory.create();
-
             count = configuration.isGroup() ?
                     // When group is active, start the transaction boundary early to
                     // ensure that all changes to the schema history table are either committed or rolled back atomically.

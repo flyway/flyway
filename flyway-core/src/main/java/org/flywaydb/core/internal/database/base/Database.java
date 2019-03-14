@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.base;
 
+import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
@@ -28,20 +29,18 @@ import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
-import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
+import org.flywaydb.core.internal.util.AbbreviationUtils;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 
 import java.io.Closeable;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Abstraction for database-specific functionality.
@@ -99,6 +98,11 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
     private final MigrationVersion version;
 
     /**
+     * The user who applied the migrations.
+     */
+    protected final String installedBy;
+
+    /**
      * Creates a new Database instance with this JdbcTemplate.
      *
      * @param configuration      The Flyway configuration.
@@ -126,6 +130,7 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
 
 
         version = determineVersion();
+        installedBy = configuration.getInstalledBy() == null ? getCurrentUser() : configuration.getInstalledBy();
     }
 
     /**
@@ -249,6 +254,13 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
      * @return {@code true} if DDL transactions are supported, {@code false} if not.
      */
     public abstract boolean supportsDdlTransactions();
+
+    /**
+     * Whether to add the baseline marker directly as part of the create table statement for this database.
+     */
+    public boolean useDirectBaseline() {
+        return false;
+    }
 
     /**
      * @return {@code true} if this database supports changing a connection's current schema. {@code false if not}.
@@ -407,32 +419,50 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
         }
     }
 
-    public final SqlScript getCreateScript(Table table) {
-        Map<String, String> placeholders = new HashMap<>();
-        placeholders.put("schema", table.getSchema().getName());
-        placeholders.put("table", table.getName());
-        placeholders.put("table_quoted", table.toString());
+    /**
+     * Retrieves the script used to create the schema history table.
+     *
+     * @param table    The table to create.
+     * @param baseline Whether to include the creation of a baseline marker.
+     * @return The script.
+     */
+    public final SqlScript getCreateScript(Table table, boolean baseline) {
+        return createSqlScript(new StringResource(getRawCreateScript(table, baseline)), false
 
-        return getCreateScript(placeholders);
+
+
+        );
     }
 
-    protected abstract SqlScript getCreateScript(Map<String, String> placeholders);
+    protected abstract String getRawCreateScript(Table table, boolean baseline);
 
-    protected abstract LoadableResource getRawCreateScript();
-
-    public String getInsertStatement(Table table) {
+    public final String getInsertStatement(Table table) {
         return "INSERT INTO " + table
                 + " (" + quote("installed_rank")
-                + "," + quote("version")
-                + "," + quote("description")
-                + "," + quote("type")
-                + "," + quote("script")
-                + "," + quote("checksum")
-                + "," + quote("installed_by")
-                + "," + quote("execution_time")
-                + "," + quote("success")
+                + ", " + quote("version")
+                + ", " + quote("description")
+                + ", " + quote("type")
+                + ", " + quote("script")
+                + ", " + quote("checksum")
+                + ", " + quote("installed_by")
+                + ", " + quote("execution_time")
+                + ", " + quote("success")
                 + ")"
                 + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    }
+
+    public final String getBaselineStatement(Table table) {
+        return String.format(getInsertStatement(table).replace("?", "%s"),
+                1,
+                "'" + configuration.getBaselineVersion() + "'",
+                "'" + AbbreviationUtils.abbreviateDescription(configuration.getBaselineDescription()) + "'",
+                "'" + MigrationType.BASELINE + "'",
+                "'" + AbbreviationUtils.abbreviateScript(configuration.getBaselineDescription()) + "'",
+                "NULL",
+                "'" + installedBy + "'",
+                0,
+                getBooleanTrue()
+        );
     }
 
     public String getSelectStatement(Table table, int maxCachedInstalledRank) {
@@ -449,6 +479,10 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
                 + " FROM " + table
                 + " WHERE " + quote("installed_rank") + " > " + maxCachedInstalledRank
                 + " ORDER BY " + quote("installed_rank");
+    }
+
+    public final String getInstalledBy() {
+        return installedBy;
     }
 
     public void close() {

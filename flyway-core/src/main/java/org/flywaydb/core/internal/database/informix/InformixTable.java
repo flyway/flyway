@@ -50,4 +50,9 @@ public class InformixTable extends Table<InformixDatabase, InformixSchema> {
     protected void doLock() throws SQLException {
         jdbcTemplate.update("lock table " + this + " in exclusive mode");
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
