@@ -160,7 +160,8 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                                          int executionTime, boolean success) {
         connection.restoreOriginalState();
 
-        // Lock again for databases with no DDL transactions to prevent implicit commits from triggering deadlocks
+        // Lock again for databases with no clean DDL transactions like Oracle
+        // to prevent implicit commits from triggering deadlocks
         // in highly concurrent environments
         if (!database.supportsDdlTransactions()) {
             table.lock();
