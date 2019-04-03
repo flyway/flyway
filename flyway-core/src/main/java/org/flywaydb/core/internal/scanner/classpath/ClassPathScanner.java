@@ -146,6 +146,16 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             }
         }
 
+        boolean locationResolved = isLocationResolved(locationUrls, resourceNames);
+
+        if (!locationResolved) {
+            LOG.warn("Unable to resolve location " + location);
+        }
+
+        return resourceNames;
+    }
+
+    private boolean isLocationResolved(List<URL> locationUrls, Set<String> resourceNames) {
         boolean locationResolved = !locationUrls.isEmpty();
 
         if (!locationResolved) {
@@ -193,12 +203,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
                 }
             }
         }
-
-        if (!locationResolved) {
-            LOG.warn("Unable to resolve location " + location);
-        }
-
-        return resourceNames;
+        return locationResolved;
     }
 
     /**
