@@ -110,6 +110,21 @@ public class OracleSchema extends Schema<OracleDatabase> {
         // Get existing object types in the schema.
         Set<String> objectTypeNames = getObjectTypeNames(jdbcTemplate, database, this);
 
+        List<ObjectType> objectTypesToClean = getObjectTypesToClean();
+
+        for (ObjectType objectType : objectTypesToClean) {
+            if (objectTypeNames.contains(objectType.getName())) {
+                LOG.debug("Cleaning objects of type " + objectType + " ...");
+                objectType.dropObjects(jdbcTemplate, database, this);
+            }
+        }
+
+        if (isDefaultSchemaForUser()) {
+            jdbcTemplate.execute("PURGE RECYCLEBIN");
+        }
+    }
+
+    private List<ObjectType> getObjectTypesToClean() {
         // Define the list of types to process, order is important.
         List<ObjectType> objectTypesToClean = Arrays.asList(
                 // Types to drop.
@@ -166,17 +181,7 @@ public class OracleSchema extends Schema<OracleDatabase> {
                 ASSEMBLY,
                 JAVA_DATA
         );
-
-        for (ObjectType objectType : objectTypesToClean) {
-            if (objectTypeNames.contains(objectType.getName())) {
-                LOG.debug("Cleaning objects of type " + objectType + " ...");
-                objectType.dropObjects(jdbcTemplate, database, this);
-            }
-        }
-
-        if (isDefaultSchemaForUser()) {
-            jdbcTemplate.execute("PURGE RECYCLEBIN");
-        }
+        return objectTypesToClean;
     }
 
     /**
