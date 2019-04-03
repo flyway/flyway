@@ -123,6 +123,12 @@ public class DbValidate {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
+        String error = generateError(stopWatch);
+
+        return error;
+    }
+
+    private String generateError(StopWatch stopWatch) {
         Pair<Integer, String> result = new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Pair<Integer, String>>() {
             @Override
             public Pair<Integer, String> call() {
@@ -159,8 +165,6 @@ public class DbValidate {
         } else {
             callbackExecutor.onEvent(Event.AFTER_VALIDATE_ERROR);
         }
-
-
         return error;
     }
 }
