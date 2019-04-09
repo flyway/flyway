@@ -391,7 +391,7 @@ public abstract class Parser {
             reader.swallow();
             String text = reader.readUntilExcludingWithEscape(c, true);
             if (reader.peek('.')) {
-                text = readAdditionalIdentifierParts(reader, c);
+                text = readAdditionalIdentifierParts(reader, c, context.getDelimiter());
             }
             return new Token(TokenType.IDENTIFIER, pos, line, col, text, text, context.getParensDepth());
         }
@@ -426,9 +426,9 @@ public abstract class Parser {
             return handleDelimiter(reader, context, pos, line, col);
         }
         if (c == '_' || Character.isLetter(c)) {
-            String text = "" + (char) reader.read() + reader.readKeywordPart();
+            String text = "" + (char) reader.read() + reader.readKeywordPart(context.getDelimiter());
             if (reader.peek('.')) {
-                text += readAdditionalIdentifierParts(reader, identifierQuote);
+                text += readAdditionalIdentifierParts(reader, identifierQuote, context.getDelimiter());
             }
             if (!isKeyword(text)) {
                 return new Token(TokenType.IDENTIFIER, pos, line, col, text, text, context.getParensDepth());
@@ -488,7 +488,7 @@ public abstract class Parser {
     }
 
     @SuppressWarnings("Duplicates")
-    private String readAdditionalIdentifierParts(PeekingReader reader, char quote) throws IOException {
+    private String readAdditionalIdentifierParts(PeekingReader reader, char quote, Delimiter delimiter) throws IOException {
         String result = "";
         reader.swallow();
         result += ".";
@@ -496,7 +496,7 @@ public abstract class Parser {
             reader.swallow();
             result += reader.readUntilExcludingWithEscape(quote, true);
         } else {
-            result += reader.readKeywordPart();
+            result += reader.readKeywordPart(delimiter);
         }
         if (reader.peek('.')) {
             reader.swallow();
@@ -505,7 +505,7 @@ public abstract class Parser {
                 reader.swallow();
                 result += reader.readUntilExcludingWithEscape(quote, true);
             } else {
-                result += reader.readKeywordPart();
+                result += reader.readKeywordPart(delimiter);
             }
         }
         return result;
