@@ -441,8 +441,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * Rules for the built-in error handler that let you override specific SQL states and errors codes in order to force
      * specific errors or warnings to be treated as debug messages, info messages, warnings or errors.
      * <p>Each error override has the following format: {@code STATE:12345:W}.
-     * It is a 5 character SQL state, a colon, the SQL error code, a colon and finally the desired
-     * behavior that should override the initial one.</p>
+     * It is a 5 character SQL state (or * to match all SQL states), a colon,
+     * the SQL error code (or * to match all SQL error codes), a colon and finally
+     * the desired behavior that should override the initial one.</p>
      * <p>The following behaviors are accepted:</p>
      * <ul>
      * <li>{@code D} to force a debug message</li>
@@ -458,6 +459,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
      * <p>Example 2: to force SQL Server PRINT messages to be displayed as info messages (without SQL state and error
      * code details) instead of warnings, the following errorOverride can be used: {@code S0001:0:I-}</p>
+     * <p>Example 3: to force all errors with SQL error code 123 to be treated as warnings instead,
+     * the following errorOverride can be used: {@code *:123:W}</p>
      * <p>Also configurable with Maven or System Property: ${flyway.errorOverrides}</p>
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */
