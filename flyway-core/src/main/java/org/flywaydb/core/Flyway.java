@@ -146,19 +146,17 @@ public class Flyway {
                     );
                 }
 
-                new DbSchemas(database, schemas, schemaHistory).create();
-
                 if (!schemaHistory.exists()) {
                     List<Schema> nonEmptySchemas = new ArrayList<>();
                     for (Schema schema : schemas) {
-                        if (!schema.empty()) {
+                        if (schema.exists() && !schema.empty()) {
                             nonEmptySchemas.add(schema);
                         }
                     }
 
                     if (!nonEmptySchemas.isEmpty()) {
                         if (configuration.isBaselineOnMigrate()) {
-                            doBaseline(schemaHistory, database, schemas, callbackExecutor);
+                            doBaseline(schemaHistory, callbackExecutor);
                         } else {
                             // Second check for MySQL which is sometimes flaky otherwise
                             if (!schemaHistory.exists()) {
@@ -168,6 +166,9 @@ public class Flyway {
                                         + " or set baselineOnMigrate to true to initialize the schema history table.");
                             }
                         }
+                    } else {
+                        new DbSchemas(database, schemas, schemaHistory).create(false);
+                        schemaHistory.create(false);
                     }
                 }
 
@@ -177,9 +178,8 @@ public class Flyway {
         }, true);
     }
 
-    private void doBaseline(SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor) {
-        new DbBaseline(database, schemaHistory, schemas[0],
-                configuration.getBaselineVersion(), configuration.getBaselineDescription(),
+    private void doBaseline(SchemaHistory schemaHistory, CallbackExecutor callbackExecutor) {
+        new DbBaseline(schemaHistory, configuration.getBaselineVersion(), configuration.getBaselineDescription(),
                 callbackExecutor).baseline();
     }
 
@@ -325,8 +325,8 @@ public class Flyway {
 
 
             ) {
-                new DbSchemas(database, schemas, schemaHistory).create();
-                doBaseline(schemaHistory, database, schemas, callbackExecutor);
+                new DbSchemas(database, schemas, schemaHistory).create(true);
+                doBaseline(schemaHistory, callbackExecutor);
                 return null;
             }
         }, false);

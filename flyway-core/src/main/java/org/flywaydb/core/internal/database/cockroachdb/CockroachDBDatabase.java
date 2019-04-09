@@ -17,20 +17,17 @@ package org.flywaydb.core.internal.database.cockroachdb;
 
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * CockroachDB database.
@@ -74,16 +71,11 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
 
 
 
+
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("1.1");
         recommendFlywayUpgradeIfNecessary("2.1");
-    }
-
-    @Override
-    protected SqlScript getCreateScript(Map<String, String> placeholders) {
-        Parser parser = new CockroachDBParser(new FluentConfiguration().placeholders(placeholders));
-        return new ParserSqlScript(parser, getRawCreateScript(), false);
     }
 
     @Override
@@ -96,8 +88,8 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     }
 
     @Override
-    protected LoadableResource getRawCreateScript() {
-        return new StringResource("CREATE TABLE \"${schema}\".\"${table}\" (\n" +
+    protected String getRawCreateScript(Table table, boolean baseline) {
+        return "CREATE TABLE " + table + " (\n" +
                 "    \"installed_rank\" INT NOT NULL PRIMARY KEY,\n" +
                 "    \"version\" VARCHAR(50),\n" +
                 "    \"description\" VARCHAR(200) NOT NULL,\n" +
@@ -109,8 +101,8 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
                 "    \"execution_time\" INTEGER NOT NULL,\n" +
                 "    \"success\" BOOLEAN NOT NULL\n" +
                 ");\n" +
-                "\n" +
-                "CREATE INDEX \"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");");
+                (baseline ? getBaselineStatement(table) + ";\n" : "") +
+                "CREATE INDEX \"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
     }
 
     @Override

@@ -16,17 +16,14 @@
 package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.RowMapper;
-import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.NoopResourceProvider;
 import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
@@ -39,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -143,24 +139,12 @@ public class OracleDatabase extends Database<OracleConnection> {
     }
 
     @Override
-    protected SqlScript getCreateScript(Map<String, String> placeholders) {
-        Parser parser = new OracleParser(new FluentConfiguration().placeholders(placeholders)
-
-
-
-
-
-        );
-        return new ParserSqlScript(parser, getRawCreateScript(), false);
-    }
-
-    @Override
-    protected LoadableResource getRawCreateScript() {
+    protected String getRawCreateScript(Table table, boolean baseline) {
         String tablespace = configuration.getTablespace() == null
                 ? ""
                 : " TABLESPACE \"" + configuration.getTablespace() + "\"";
 
-        return new StringResource("CREATE TABLE \"${schema}\".\"${table}\" (\n" +
+        return "CREATE TABLE " + table + " (\n" +
                 "    \"installed_rank\" INT NOT NULL,\n" +
                 "    \"version\" VARCHAR2(50),\n" +
                 "    \"description\" VARCHAR2(200) NOT NULL,\n" +
@@ -170,11 +154,11 @@ public class OracleDatabase extends Database<OracleConnection> {
                 "    \"installed_by\" VARCHAR2(100) NOT NULL,\n" +
                 "    \"installed_on\" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n" +
                 "    \"execution_time\" INT NOT NULL,\n" +
-                "    \"success\" NUMBER(1) NOT NULL\n" +
+                "    \"success\" NUMBER(1) NOT NULL,\n" +
+                "    CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\")\n" +
                 ")" + tablespace + ";\n" +
-                "ALTER TABLE \"${schema}\".\"${table}\" ADD CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\");\n" +
-                "\n" +
-                "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");\n");
+                (baseline ? getBaselineStatement(table) + ";\n" : "") +
+                "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");\n";
     }
 
     @Override

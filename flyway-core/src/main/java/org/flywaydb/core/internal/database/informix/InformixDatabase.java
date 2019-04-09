@@ -16,18 +16,15 @@
 package org.flywaydb.core.internal.database.informix;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.parser.Parser;
+import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * Informix database.
@@ -80,18 +77,12 @@ public class InformixDatabase extends Database<InformixConnection> {
     }
 
     @Override
-    protected SqlScript getCreateScript(Map<String, String> placeholders) {
-        Parser parser = new InformixParser(new FluentConfiguration().placeholders(placeholders));
-        return new ParserSqlScript(parser, getRawCreateScript(), false);
-    }
-
-    @Override
-    public LoadableResource getRawCreateScript() {
+    protected String getRawCreateScript(Table table, boolean baseline) {
         String tablespace = configuration.getTablespace() == null
                 ? ""
                 : " IN \"" + configuration.getTablespace() + "\"";
 
-        return new StringResource("CREATE TABLE ${table} (\n" +
+        return "CREATE TABLE " + table + " (\n" +
                 "    installed_rank INT NOT NULL,\n" +
                 "    version VARCHAR(50),\n" +
                 "    description VARCHAR(200) NOT NULL,\n" +
@@ -103,9 +94,10 @@ public class InformixDatabase extends Database<InformixConnection> {
                 "    execution_time INT NOT NULL,\n" +
                 "    success SMALLINT NOT NULL\n" +
                 ")" + tablespace + ";\n" +
-                "ALTER TABLE ${table} ADD CONSTRAINT CHECK (success in (0,1)) CONSTRAINT ${table}_s;\n" +
-                "ALTER TABLE ${table} ADD CONSTRAINT PRIMARY KEY (installed_rank) CONSTRAINT ${table}_pk;\n" +
-                "CREATE INDEX ${table}_s_idx ON ${table} (success);");
+                (baseline ? getBaselineStatement(table) + ";\n" : "") +
+                "ALTER TABLE " + table + " ADD CONSTRAINT CHECK (success in (0,1)) CONSTRAINT " + table.getName() + "_s;\n" +
+                "ALTER TABLE " + table + " ADD CONSTRAINT PRIMARY KEY (installed_rank) CONSTRAINT " + table.getName() + "_pk;\n" +
+                "CREATE INDEX " + table.getName() + "_s_idx ON " + table + " (success);";
     }
 
     @Override
@@ -125,12 +117,12 @@ public class InformixDatabase extends Database<InformixConnection> {
 
     @Override
     public String getBooleanTrue() {
-        return "t";
+        return "1";
     }
 
     @Override
     public String getBooleanFalse() {
-        return "f";
+        return "0";
     }
 
     @Override

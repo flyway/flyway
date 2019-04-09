@@ -16,20 +16,17 @@
 package org.flywaydb.core.internal.database.redshift;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * Redshift database.
@@ -86,14 +83,8 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
     }
 
     @Override
-    protected SqlScript getCreateScript(Map<String, String> placeholders) {
-        Parser parser = new RedshiftParser(new FluentConfiguration().placeholders(placeholders));
-        return new ParserSqlScript(parser, getRawCreateScript(), false);
-    }
-
-    @Override
-    protected LoadableResource getRawCreateScript() {
-        return new StringResource("CREATE TABLE \"${schema}\".\"${table}\" (\n" +
+    protected String getRawCreateScript(Table table, boolean baseline) {
+        return "CREATE TABLE " + table + " (\n" +
                 "    \"installed_rank\" INT NOT NULL SORTKEY,\n" +
                 "    \"version\" VARCHAR(50),\n" +
                 "    \"description\" VARCHAR(200) NOT NULL,\n" +
@@ -105,7 +96,8 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
                 "    \"execution_time\" INTEGER NOT NULL,\n" +
                 "    \"success\" BOOLEAN NOT NULL\n" +
                 ");\n" +
-                "ALTER TABLE \"${schema}\".\"${table}\" ADD CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\");");
+                (baseline ? getBaselineStatement(table) + ";\n" : "") +
+                "ALTER TABLE " + table + " ADD CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\");";
     }
 
     @Override

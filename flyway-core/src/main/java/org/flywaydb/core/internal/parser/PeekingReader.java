@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.parser;
 
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+
 import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -372,11 +374,12 @@ public class PeekingReader extends FilterReader {
      * Reads all characters in this stream as long as they can be part of a keyword.
      *
      * @return The string read.
+     * @param delimiter
      */
-    public String readKeywordPart() throws IOException {
+    public String readKeywordPart(Delimiter delimiter) throws IOException {
         StringBuilder result = new StringBuilder();
         do {
-            if (peekKeywordPart()) {
+            if (!peek(delimiter.getDelimiter()) && peekKeywordPart()) {
                 result.append((char) read());
             } else {
                 break;

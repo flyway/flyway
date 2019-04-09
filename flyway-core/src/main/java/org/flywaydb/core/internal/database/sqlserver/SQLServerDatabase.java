@@ -17,13 +17,11 @@ package org.flywaydb.core.internal.database.sqlserver;
 
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
@@ -31,7 +29,6 @@ import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * SQL Server database.
@@ -75,6 +72,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
         );
     }
+
 
 
 
@@ -143,12 +141,6 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     @Override
-    protected SqlScript getCreateScript(Map<String, String> placeholders) {
-        Parser parser = new SQLServerParser(new FluentConfiguration().placeholders(placeholders));
-        return new ParserSqlScript(parser, getRawCreateScript(), false);
-    }
-
-    @Override
     public Delimiter getDefaultDelimiter() {
         return Delimiter.GO;
     }
@@ -204,12 +196,12 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     @Override
-    protected LoadableResource getRawCreateScript() {
+    protected String getRawCreateScript(Table table, boolean baseline) {
         String filegroup = azure || configuration.getTablespace() == null
                 ? ""
                 : " ON \"" + configuration.getTablespace() + "\"";
 
-        return new StringResource("CREATE TABLE ${table_quoted} (\n" +
+        return "CREATE TABLE " + table + " (\n" +
                 "    [installed_rank] INT NOT NULL,\n" +
                 "    [" + "version] NVARCHAR(50),\n" +
                 "    [description] NVARCHAR(200),\n" +
@@ -221,10 +213,10 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
                 "    [execution_time] INT NOT NULL,\n" +
                 "    [success] BIT NOT NULL\n" +
                 ")" + filegroup + ";\n" +
-                "ALTER TABLE ${table_quoted} ADD CONSTRAINT [${table}_pk] PRIMARY KEY ([installed_rank]);\n" +
-                "\n" +
-                "CREATE INDEX [${table}_s_idx] ON ${table_quoted} ([success]);\n" +
-                "GO\n");
+                (baseline ? getBaselineStatement(table) + ";\n" : "") +
+                "ALTER TABLE " + table + " ADD CONSTRAINT [" + table.getName() + "_pk] PRIMARY KEY ([installed_rank]);\n" +
+                "CREATE INDEX [" + table.getName() + "_s_idx] ON " + table + " ([success]);\n" +
+                "GO\n";
     }
 
     /**

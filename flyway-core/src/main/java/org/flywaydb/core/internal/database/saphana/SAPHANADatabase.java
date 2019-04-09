@@ -16,17 +16,14 @@
 package org.flywaydb.core.internal.database.saphana;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.parser.Parser;
+import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 
 import java.sql.Connection;
-import java.util.Map;
 
 /**
  * SAP HANA database.
@@ -80,14 +77,8 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     }
 
     @Override
-    protected SqlScript getCreateScript(Map<String, String> placeholders) {
-        Parser parser = new SAPHANAParser(new FluentConfiguration().placeholders(placeholders));
-        return new ParserSqlScript(parser, getRawCreateScript(), false);
-    }
-
-    @Override
-    protected LoadableResource getRawCreateScript() {
-        return new StringResource("CREATE TABLE \"${schema}\".\"${table}\" (\n" +
+    protected String getRawCreateScript(Table table, boolean baseline) {
+        return "CREATE TABLE " + table + " (\n" +
                 "    \"installed_rank\" INT NOT NULL,\n" +
                 "    \"version\" VARCHAR(50),\n" +
                 "    \"description\" VARCHAR(200) NOT NULL,\n" +
@@ -99,9 +90,9 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
                 "    \"execution_time\" INT NOT NULL,\n" +
                 "    \"success\" TINYINT NOT NULL\n" +
                 ");\n" +
-                "ALTER TABLE \"${schema}\".\"${table}\" ADD CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\");\n" +
-                "\n" +
-                "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");");
+                (baseline ? getBaselineStatement(table) + ";\n" : "") +
+                "ALTER TABLE " + table + " ADD CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\");\n" +
+                "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
     }
 
     @Override

@@ -105,6 +105,12 @@ public class PlaceholderReplacingReader extends FilterReader {
                         + prefix + placeholder + suffix
                         + ".  Check your configuration!");
             }
+
+            // Empty placeholder value -> move to the next character
+            if (replacement.length() == 0) {
+                replacement = null;
+                return read();
+            }
         }
 
         int result = replacement.charAt(replacementPos);

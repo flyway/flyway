@@ -17,20 +17,16 @@ package org.flywaydb.core.internal.database.h2;
 
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * H2 database.
@@ -94,14 +90,8 @@ public class H2Database extends Database<H2Connection> {
     }
 
     @Override
-    protected SqlScript getCreateScript(Map<String, String> placeholders) {
-        Parser parser = new H2Parser(new FluentConfiguration().placeholders(placeholders));
-        return new ParserSqlScript(parser, getRawCreateScript(), false);
-    }
-
-    @Override
-    protected LoadableResource getRawCreateScript() {
-        return new StringResource("CREATE TABLE IF NOT EXISTS \"${schema}\".\"${table}\" (\n" +
+    protected String getRawCreateScript(Table table, boolean baseline) {
+        return "CREATE TABLE IF NOT EXISTS " + table + " (\n" +
                 "    \"installed_rank\" INT NOT NULL,\n" +
                 "    \"version\" VARCHAR(50),\n" +
                 "    \"description\" VARCHAR(200) NOT NULL,\n" +
@@ -112,13 +102,15 @@ public class H2Database extends Database<H2Connection> {
                 "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
                 "    \"execution_time\" INT NOT NULL,\n" +
                 "    \"success\" BOOLEAN NOT NULL,\n" +
-                "    CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\")\n" +
+                "    CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\")\n" +
                 ")" +
                 // Add special table created marker to compensate for the inability of H2 to lock empty tables
                 " AS SELECT -1, NULL, '<< Flyway Schema History table created >>', 'TABLE', '', NULL, '', CURRENT_TIMESTAMP, 0, TRUE;\n" +
-                "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");");
+                (baseline ? getBaselineStatement(table) + ";\n" : "") +
+                "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
     }
 
+    @Override
     public String getSelectStatement(Table table, int maxCachedInstalledRank) {
         return "SELECT " + quote("installed_rank")
                 + "," + quote("version")
