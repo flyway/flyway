@@ -15,12 +15,12 @@
  */
 package org.flywaydb.core.internal.database.h2;
 
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class H2Schema extends Schema<H2Database> {
      * Creates a new H2 schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param name         The name of the schema.
      */
     H2Schema(JdbcTemplate jdbcTemplate, H2Database database, String name) {
@@ -80,6 +80,12 @@ public class H2Schema extends Schema<H2Database> {
             jdbcTemplate.execute(statement);
         }
 
+        List<String> aliasNames = jdbcTemplate.queryForStringList(
+                "SELECT ALIAS_NAME FROM INFORMATION_SCHEMA.FUNCTION_ALIASES WHERE ALIAS_SCHEMA = ?", name);
+        for (String statement : generateDropStatements("ALIAS", aliasNames)) {
+            jdbcTemplate.execute(statement);
+        }
+
         List<String> domainNames = listObjectNames("DOMAIN", "");
         if (!domainNames.isEmpty()) {
             if (name.equals(database.getMainConnection().getCurrentSchema().getName())) {
@@ -96,8 +102,8 @@ public class H2Schema extends Schema<H2Database> {
     /**
      * Generate the statements for dropping all the objects of this type in this schema.
      *
-     * @param objectType          The type of object to drop (Sequence, constant, ...)
-     * @param objectNames         The names of the objects to drop.
+     * @param objectType  The type of object to drop (Sequence, constant, ...)
+     * @param objectNames The names of the objects to drop.
      * @return The list of statements.
      */
     private List<String> generateDropStatements(String objectType, List<String> objectNames) {
@@ -114,8 +120,8 @@ public class H2Schema extends Schema<H2Database> {
     /**
      * Generate the statements for dropping all the objects of this type in the current schema.
      *
-     * @param objectType          The type of object to drop (Sequence, constant, ...)
-     * @param objectNames         The names of the objects to drop.
+     * @param objectType  The type of object to drop (Sequence, constant, ...)
+     * @param objectNames The names of the objects to drop.
      * @return The list of statements.
      */
     private List<String> generateDropStatementsForCurrentSchema(String objectType, List<String> objectNames) {
@@ -149,7 +155,8 @@ public class H2Schema extends Schema<H2Database> {
      * @throws java.sql.SQLException when the object names could not be listed.
      */
     private List<String> listObjectNames(String objectType, String querySuffix) throws SQLException {
-        String query = "SELECT " + objectType + "_NAME FROM INFORMATION_SCHEMA." + objectType + "s WHERE " + objectType + "_schema = ?";
+        String query = "SELECT " + objectType + "_NAME FROM INFORMATION_SCHEMA." + objectType
+                + "S WHERE " + objectType + "_schema = ?";
         if (StringUtils.hasLength(querySuffix)) {
             query += " AND " + querySuffix;
         }
