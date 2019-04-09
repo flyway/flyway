@@ -45,7 +45,7 @@ public class H2Schema extends Schema<H2Database> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM INFORMATION_SCHEMA.schemata WHERE schema_name=?", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME=?", name) > 0;
     }
 
     @Override
@@ -156,7 +156,7 @@ public class H2Schema extends Schema<H2Database> {
      */
     private List<String> listObjectNames(String objectType, String querySuffix) throws SQLException {
         String query = "SELECT " + objectType + "_NAME FROM INFORMATION_SCHEMA." + objectType
-                + "S WHERE " + objectType + "_schema = ?";
+                + "S WHERE " + objectType + "_SCHEMA = ?";
         if (StringUtils.hasLength(querySuffix)) {
             query += " AND " + querySuffix;
         }
