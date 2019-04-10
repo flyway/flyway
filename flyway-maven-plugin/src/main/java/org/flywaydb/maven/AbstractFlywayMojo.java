@@ -545,6 +545,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p/>
      * <p>Also configurable with Maven or System Property: ${flyway.configFiles}</p>
      */
+    @Parameter(property = ConfigUtils.CONFIG_FILES)
     private File[] configFiles;
 
     /**
