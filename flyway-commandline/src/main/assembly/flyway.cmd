@@ -34,9 +34,6 @@ if exist "%INSTALLDIR%\jre\bin\java.exe" (
  )
 )
 
-SET CP=
-IF DEFINED CLASSPATH ( SET CP=%CLASSPATH%;)
-
 if "%JAVA_ARGS%"=="" (
   set JAVA_ARGS=
 )
@@ -64,7 +61,7 @@ if "%FLYWAY_EDITION%"=="" (
   set FLYWAY_EDITION=community
 )
 
-%JAVA_CMD% %JAVA_ARGS% -cp "%CP%%INSTALLDIR%\lib\%FLYWAY_EDITION%\*;%INSTALLDIR%\drivers\*" org.flywaydb.commandline.Main %*
+%JAVA_CMD% %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\%FLYWAY_EDITION%\*;%INSTALLDIR%\drivers\*" org.flywaydb.commandline.Main %*
 
 @REM Exit using the same code returned from Java
 EXIT /B %ERRORLEVEL%
