@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,8 +98,12 @@ public class Main {
             ConfigUtils.dumpConfiguration(config);
 
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            classLoader = loadJdbcDrivers(classLoader);
-            classLoader = loadJavaMigrationsFromJarDirs(classLoader, config);
+            List<File> jarFiles = new ArrayList<>();
+            jarFiles.addAll(getJdbcDriverJarFiles());
+            jarFiles.addAll(getJavaMigrationJarFiles(config));
+            if (!jarFiles.isEmpty()) {
+                classLoader = ClassUtils.addJarsOrDirectoriesToClasspath(classLoader, jarFiles);
+            }
 
             filterProperties(config);
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
@@ -318,12 +323,11 @@ public class Main {
     }
 
     /**
-     * Loads all the driver jars contained in the drivers folder. (For Jdbc drivers)
+     * Gets the jar files of all the JDBC drivers contained in the drivers folder.
      *
-     * @param classLoader The current ClassLoader.
-     * @return The new ClassLoader containing the additional driver jars.
+     * @return The jar files.
      */
-    private static ClassLoader loadJdbcDrivers(ClassLoader classLoader) {
+    private static List<File> getJdbcDriverJarFiles() {
         File driversDir = new File(getInstallationDir(), "drivers");
         File[] files = driversDir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -334,32 +338,28 @@ public class Main {
         // see javadoc of listFiles(): null if given path is not a real directory
         if (files == null) {
             LOG.debug("Directory for Jdbc Drivers not found: " + driversDir.getAbsolutePath());
-            return classLoader;
+            return Collections.emptyList();
         }
 
-        for (File file : files) {
-            classLoader = ClassUtils.addJarOrDirectoryToClasspath(classLoader, file.getPath());
-        }
-
-        return classLoader;
+        return Arrays.asList(files);
     }
 
     /**
-     * Loads all the jars contained in the jars folder. (For Java Migrations)
+     * Gets all the jar files contained in the jars folder. (For Java Migrations)
      *
-     * @param classLoader The current ClassLoader.
      * @param config      The configured properties.
-     * @return The new ClassLoader containing the additional jars.
+     * @return The jar files.
      */
-    private static ClassLoader loadJavaMigrationsFromJarDirs(ClassLoader classLoader, Map<String, String> config) {
+    private static List<File> getJavaMigrationJarFiles(Map<String, String> config) {
         String jarDirs = config.get(ConfigUtils.JAR_DIRS);
         if (!StringUtils.hasLength(jarDirs)) {
-            return classLoader;
+            return Collections.emptyList();
         }
 
         jarDirs = jarDirs.replace(File.pathSeparator, ",");
         String[] dirs = StringUtils.tokenizeToStringArray(jarDirs, ",");
 
+        List<File> jarFiles = new ArrayList<>();
         for (String dirName : dirs) {
             File dir = new File(dirName);
             File[] files = dir.listFiles(new FilenameFilter() {
@@ -374,12 +374,10 @@ public class Main {
                 System.exit(1);
             }
 
-            for (File file : files) {
-                classLoader = ClassUtils.addJarOrDirectoryToClasspath(classLoader, file.getPath());
-            }
+            jarFiles.addAll(Arrays.asList(files));
         }
 
-        return classLoader;
+        return jarFiles;
     }
 
     /**
