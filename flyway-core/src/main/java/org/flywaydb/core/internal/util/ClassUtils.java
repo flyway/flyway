@@ -20,7 +20,6 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -133,16 +132,12 @@ public class ClassUtils {
             clazz.getDeclaredConstructor().newInstance();
             LOG.debug("Found class: " + className);
             return clazz;
-        } catch (InternalError | NoClassDefFoundError | ClassNotFoundException | IllegalAccessException
-                | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (Throwable e) {
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             LOG.debug("Skipping " + className + " (" + e.getClass().getSimpleName() + ": " + e.getMessage()
                     + (rootCause == e ? "" :
                     " caused by " + rootCause.getClass().getSimpleName() + ": " + rootCause.getMessage()
                             + " at " + ExceptionUtils.getThrowLocation(rootCause)));
-            return null;
-        } catch (IncompatibleClassChangeError e) {
-            LOG.warn("Skipping incompatibly changed class: " + className);
             return null;
         }
     }

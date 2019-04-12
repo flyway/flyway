@@ -4,6 +4,7 @@ jdk:
   - oraclejdk9
   - openjdk10
   - openjdk11
+  - openjdk12
 install: "sh ./mvnw install -e"
 before_script: echo OK
 script: echo Done.
