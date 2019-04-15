@@ -74,8 +74,7 @@ public class LogFactory {
      */
     public static Log getLog(Class<?> clazz) {
         if (logCreator == null) {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            logCreator = LogCreatorFactory.getLogCreator(classLoader, fallbackLogCreator);
+            logCreator = LogCreatorFactory.getLogCreator(LogFactory.class.getClassLoader(), fallbackLogCreator);
         }
 
         return logCreator.createLogger(clazz);
