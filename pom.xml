@@ -145,7 +145,7 @@
         <version.equinoxcommon>3.9.0</version.equinoxcommon>
         <version.android>4.0.1.2</version.android>
         <version.slf4j>1.7.16</version.slf4j>
-        <version.jre>8.172</version.jre>
+        <version.jre>11.0.2</version.jre>
     </properties>
 
     <dependencyManagement>
@@ -384,24 +384,24 @@
                 <version>1.8.4</version>
             </dependency>
             <dependency>
-                <groupId>com.oracle</groupId>
-                <artifactId>server-jre</artifactId>
+                <groupId>net.adoptopenjdk</groupId>
+                <artifactId>jre</artifactId>
                 <version>${version.jre}</version>
                 <classifier>windows-x64</classifier>
-                <type>tar.gz</type>
+                <type>zip</type>
             </dependency>
             <dependency>
-                <groupId>com.oracle</groupId>
-                <artifactId>server-jre</artifactId>
+                <groupId>net.adoptopenjdk</groupId>
+                <artifactId>jre</artifactId>
                 <version>${version.jre}</version>
                 <classifier>linux-x64</classifier>
                 <type>tar.gz</type>
             </dependency>
             <dependency>
-                <groupId>com.oracle</groupId>
+                <groupId>net.adoptopenjdk</groupId>
                 <artifactId>jre</artifactId>
                 <version>${version.jre}</version>
-                <classifier>macosx-x64</classifier>
+                <classifier>macos-x64</classifier>
                 <type>tar.gz</type>
             </dependency>
         </dependencies>

@@ -90,7 +90,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
     public Collection<Class<?>> scanForClasses() {
         LOG.debug("Scanning for classes at " + location);
 
-        List<Class<?>> classes = new ArrayList<Class<?>>();
+        List<Class<?>> classes = new ArrayList<>();
 
         for (LoadableResource resource : resources) {
             if (resource.getAbsolutePath().endsWith(".class")) {
@@ -146,10 +146,15 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             }
         }
 
+        // Make an additional attempt at finding resources in jar files in case the URL scanning method above didn't
+        // yield any results.
         boolean locationResolved = !locationUrls.isEmpty();
 
-        if (!locationResolved) {
-            // Make an additional attempt at finding resources in jar files
+        // Starting with Java 11, resources at the root of the classpath aren't being found using the URL scanning
+        // method above and we need to revert to Jar file walking.
+        boolean isClassPathRoot = location.isClassPath() && "".equals(location.getPath());
+
+        if (!locationResolved || isClassPathRoot) {
             if (classLoader instanceof URLClassLoader) {
                 URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
                 for (URL url : urlClassLoader.getURLs()) {
@@ -165,10 +170,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
                                 // Fallback for URLs that are not valid URIs (should hardly ever happen).
                                 jarFile = new JarFile(url.getPath().substring("file:".length()));
                             }
-                        } catch (IOException e) {
-                            LOG.warn("Skipping unloadable jar file: " + url + " (" + e.getMessage() + ")");
-                            continue;
-                        } catch (SecurityException e) {
+                        } catch (IOException | SecurityException e) {
                             LOG.warn("Skipping unloadable jar file: " + url + " (" + e.getMessage() + ")");
                             continue;
                         }

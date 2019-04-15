@@ -85,8 +85,8 @@ public class H2Database extends Database<H2Connection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("1.4", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("1.4.197");
-        supportsDropSchemaCascade = getVersion().isAtLeast("1.4.197");
+        recommendFlywayUpgradeIfNecessary("1.4.199");
+        supportsDropSchemaCascade = getVersion().isAtLeast("1.4.199");
     }
 
     @Override

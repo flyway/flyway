@@ -27,7 +27,6 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <properties>
-        <jreversion>1.8.0_172</jreversion>
 
 
 
@@ -177,23 +176,23 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.oracle</groupId>
-                    <artifactId>server-jre</artifactId>
+                    <groupId>net.adoptopenjdk</groupId>
+                    <artifactId>jre</artifactId>
                     <classifier>windows-x64</classifier>
-                    <type>tar.gz</type>
+                    <type>zip</type>
                     <scope>provided</scope>
                 </dependency>
                 <dependency>
-                    <groupId>com.oracle</groupId>
-                    <artifactId>server-jre</artifactId>
+                    <groupId>net.adoptopenjdk</groupId>
+                    <artifactId>jre</artifactId>
                     <classifier>linux-x64</classifier>
                     <type>tar.gz</type>
                     <scope>provided</scope>
                 </dependency>
                 <dependency>
-                    <groupId>com.oracle</groupId>
+                    <groupId>net.adoptopenjdk</groupId>
                     <artifactId>jre</artifactId>
-                    <classifier>macosx-x64</classifier>
+                    <classifier>macos-x64</classifier>
                     <type>tar.gz</type>
                     <scope>provided</scope>
                 </dependency>
@@ -211,7 +210,7 @@
                                 </goals>
                                 <configuration>
                                     <ignorePermissions>true</ignorePermissions>
-                                    <includeTypes>tar.gz</includeTypes>
+                                    <includeArtifactIds>jre</includeArtifactIds>
                                     <stripVersion>true</stripVersion>
                                     <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
                                 </configuration>
@@ -298,7 +297,7 @@
                                     <descriptors>
                                         <descriptor>src/main/assembly/windows.xml</descriptor>
                                         <descriptor>src/main/assembly/linux.xml</descriptor>
-                                        <descriptor>src/main/assembly/macosx.xml</descriptor>
+                                        <descriptor>src/main/assembly/macos.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                             </execution>

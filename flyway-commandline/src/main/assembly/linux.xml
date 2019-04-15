@@ -28,7 +28,7 @@
     </componentDescriptors>
     <fileSets>
         <fileSet>
-            <directory>target/dependency/server-jre-linux-x64-tar.gz/jdk${jreversion}/jre</directory>
+            <directory>target/dependency/jre-linux-x64-tar.gz/jdk-${version.jre}+9-jre</directory>
             <outputDirectory>jre</outputDirectory>
             <fileMode>755</fileMode>
         </fileSet>
