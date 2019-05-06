@@ -133,6 +133,7 @@
         <version.derby>10.14.2.0</version.derby>
         <version.h2>1.4.199</version.h2>
         <version.hsqldb>2.4.1</version.hsqldb>
+        <version.jaybird>3.0.5</version.jaybird>
         <version.jna>4.5.2</version.jna>
         <version.jtds>1.3.1</version.jtds>
         <version.mariadb>2.4.0</version.mariadb>
@@ -236,6 +237,12 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${version.h2}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.firebirdsql.jdbc</groupId>
+                <artifactId>jaybird-jdk18</artifactId>
+                <version>${version.jaybird}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>

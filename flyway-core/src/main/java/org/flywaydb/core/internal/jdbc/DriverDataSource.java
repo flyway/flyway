@@ -39,6 +39,9 @@ public class DriverDataSource implements DataSource {
     private static final String DB2_JDBC_URL_PREFIX = "jdbc:db2:";
     private static final String DERBY_CLIENT_JDBC_URL_PREFIX = "jdbc:derby://";
     private static final String DERBY_EMBEDDED_JDBC_URL_PREFIX = "jdbc:derby:";
+    private static final String FIREBIRD_JDBC_DRIVER = "org.firebirdsql.jdbc.FBDriver";
+    private static final String FIREBIRD_JDBC_URL = "jdbc:firebirdsql:";
+    private static final String FIREBIRD_JDBC_URL_2 = "jdbc:firebird:";
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
     private static final String MARIADB_JDBC_URL_PREFIX = "jdbc:mariadb:";
     private static final String MYSQL_JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
@@ -238,6 +241,8 @@ public class DriverDataSource implements DataSource {
             result.put("APPLICATIONNAME", APPLICATION_NAME);
         } else if (url.startsWith(SAPHANA_JDBC_URL_PREFIX)) {
             result.put("SESSIONVARIABLE:APPLICATION", APPLICATION_NAME);
+        } else if (url.startsWith(FIREBIRD_JDBC_URL) || url.startsWith(FIREBIRD_JDBC_URL_2)) {
+            result.put("processName", APPLICATION_NAME);
         }
 
         return result;
@@ -355,6 +360,10 @@ public class DriverDataSource implements DataSource {
 
         if (url.startsWith("jdbc:informix-sqli:")) {
             return "com.informix.jdbc.IfxDriver";
+        }
+
+        if (url.startsWith(FIREBIRD_JDBC_URL) || url.startsWith(FIREBIRD_JDBC_URL_2)) {
+            return FIREBIRD_JDBC_DRIVER;
         }
 
         return null;

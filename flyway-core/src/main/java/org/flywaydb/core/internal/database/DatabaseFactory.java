@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabase;
 import org.flywaydb.core.internal.database.db2.DB2Database;
 import org.flywaydb.core.internal.database.derby.DerbyDatabase;
+import org.flywaydb.core.internal.database.firebird.FirebirdDatabase;
 import org.flywaydb.core.internal.database.h2.H2Database;
 import org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabase;
 import org.flywaydb.core.internal.database.informix.InformixDatabase;
@@ -142,6 +143,8 @@ public class DatabaseFactory {
 
 
                 );
+            case FIREBIRD:
+                return new FirebirdDatabase(configuration, connection, originalAutoCommit);
             case H2:
                 return new H2Database(configuration, connection, originalAutoCommit
 

@@ -34,6 +34,7 @@ public enum DatabaseType {
 
 
     DERBY("Derby", Types.VARCHAR),
+    FIREBIRD("Firebird", Types.NULL),
     H2("H2", Types.VARCHAR),
     HSQLDB("HSQLDB", Types.VARCHAR),
     INFORMIX("Informix", Types.VARCHAR),
@@ -129,6 +130,9 @@ public enum DatabaseType {
         }
         if (databaseProductName.startsWith("Informix")) {
             return INFORMIX;
+        }
+        if (databaseProductName.startsWith("Firebird")) {
+            return FIREBIRD;
         }
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
