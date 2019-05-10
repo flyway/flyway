@@ -186,7 +186,7 @@ public abstract class Parser {
                 int parensDepth = token.getParensDepth();
                 if (tokenType == TokenType.KEYWORD && parensDepth == 0) {
                     keywords.add(token);
-                    adjustBlockDepth(context, keywords);
+                    adjustBlockDepth(context, tokens, token);
                 }
 
                 int blockDepth = context.getBlockDepth();
@@ -306,7 +306,21 @@ public abstract class Parser {
         return 10;
     }
 
-    protected void adjustBlockDepth(ParserContext context, List<Token> keywords) {
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+    }
+
+    protected static int getLastKeywordIndex(List<Token> tokens) {
+        return getLastKeywordIndex(tokens, tokens.size());
+    }
+
+    protected static int getLastKeywordIndex(List<Token> tokens, int endIndex) {
+        for (int i = endIndex - 1; i >= 0; i--) {
+            Token token = tokens.get(i);
+            if (token.getType() == TokenType.KEYWORD) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     static String keywordToUpperCase(String text) {

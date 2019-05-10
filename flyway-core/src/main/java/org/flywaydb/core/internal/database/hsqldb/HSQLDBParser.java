@@ -60,16 +60,17 @@ public class HSQLDBParser extends Parser {
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> keywords) {
-        Token token = keywords.get(keywords.size() - 1);
-        Token previousToken = keywords.size() > 1 ? keywords.get(keywords.size() - 2) : null;
-        if ("BEGIN".equals(token.getText())
-                || (("IF".equals(token.getText()) || "FOR".equals(token.getText()) || "CASE".equals(token.getText()))
-                && previousToken != null && !"END".equals(previousToken.getText()))) {
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+        int lastKeywordIndex = getLastKeywordIndex(tokens);
+        Token previousKeyword = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex) : null;
+
+        if ("BEGIN".equals(keyword.getText())
+                || (("IF".equals(keyword.getText()) || "FOR".equals(keyword.getText()) || "CASE".equals(keyword.getText()))
+                && previousKeyword != null && !"END".equals(previousKeyword.getText()))) {
             context.increaseBlockDepth();
-        } else if (("EACH".equals(token.getText()) || "SQLEXCEPTION".equals(token.getText())) && previousToken != null && "FOR".equals(previousToken.getText())) {
+        } else if (("EACH".equals(keyword.getText()) || "SQLEXCEPTION".equals(keyword.getText())) && previousKeyword != null && "FOR".equals(previousKeyword.getText())) {
             context.decreaseBlockDepth();
-        } else if ("END".equals(token.getText())) {
+        } else if ("END".equals(keyword.getText())) {
             context.decreaseBlockDepth();
         }
     }
