@@ -15,16 +15,16 @@
  */
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.dbsupport.Table;
-import org.flywaydb.core.internal.dbsupport.Type;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
+import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.dbsupport.Type;
 
 /**
  * PostgreSQL implementation of Schema.
@@ -174,11 +174,12 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> generateDropStatementsForAggregates() throws SQLException {
+        String isAggregateCondition = (jdbcTemplate.getMetaData().getDatabaseMajorVersion() >= 11) ? "pg_proc.prokind = 'a'" : "pg_proc.proisagg";
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
                         "SELECT proname, oidvectortypes(proargtypes) AS args "
                                 + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
-                                + "WHERE pg_proc.proisagg = true AND ns.nspname = ?",
+                                + String.format("WHERE %s AND ns.nspname = ?", isAggregateCondition),
                         name
                 );
 
@@ -196,6 +197,7 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> generateDropStatementsForRoutines() throws SQLException {
+        String isNotAggregateCondition = (jdbcTemplate.getMetaData().getDatabaseMajorVersion() >= 11) ? "pg_proc.prokind != 'a'" : "pg_proc.proisagg = false";
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
                 // Search for all functions
@@ -203,7 +205,7 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
                                 + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
                 // that don't depend on an extension
                         + "LEFT JOIN pg_depend dep ON dep.objid = pg_proc.oid AND dep.deptype = 'e' "
-                        + "WHERE pg_proc.proisagg = false AND ns.nspname = ? AND dep.objid IS NULL",
+                        + String.format("WHERE %s AND ns.nspname = ? AND dep.objid IS NULL", isNotAggregateCondition),
                         name
                 );
 
@@ -213,6 +215,7 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
         }
         return statements;
     }
+
 
     /**
      * Generates the statements for dropping the enums in this schema.
