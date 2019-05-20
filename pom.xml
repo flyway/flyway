@@ -127,7 +127,6 @@
     </repositories>
 
     <properties>
-        <version.spring>2.5.6</version.spring>
         <version.maven>3.0</version.maven>
         <version.gradle>3.0</version.gradle>
         <version.derby>10.14.2.0</version.derby>
@@ -178,12 +177,6 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
                 <version>${version.slf4j}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-jdbc</artifactId>
-                <version>${version.spring}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -280,6 +273,11 @@
                 <version>4.10.10.0</version>
                 <optional>true</optional>
             </dependency>
+
+
+
+
+
 
 
 
