@@ -20,12 +20,10 @@ import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.database.base.Type;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * DB2 implementation of Schema.
@@ -53,8 +51,7 @@ public class DB2Schema extends Schema<DB2Database> {
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.views where viewschema = ?", name);
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.sequences where seqschema = ?", name);
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.indexes where indschema = ?", name);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.procedures where procschema = ?", name);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.functions where funcschema = ?", name);
+        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.routines where ROUTINESCHEMA = ?", name);
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.triggers where trigschema = ?", name);
         return objectCount == 0;
     }
@@ -145,7 +142,8 @@ public class DB2Schema extends Schema<DB2Database> {
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatementsForProcedures() throws SQLException {
-        String dropProcGenQuery = "select SPECIFICNAME from SYSCAT.PROCEDURES where PROCSCHEMA = '" + name + "'";
+        String dropProcGenQuery =
+                "select SPECIFICNAME from SYSCAT.ROUTINES where ROUTINETYPE='P' and ROUTINESCHEMA = '" + name + "'";
         return buildDropStatements("DROP SPECIFIC PROCEDURE", dropProcGenQuery);
     }
 
@@ -255,20 +253,21 @@ public class DB2Schema extends Schema<DB2Database> {
 
     @Override
     protected Function[] doAllFunctions() throws SQLException {
-        List<Map<String, String>> rows = jdbcTemplate.queryForList(
-                "select p.SPECIFICNAME, p.FUNCNAME," +
-                        " substr( xmlserialize( xmlagg( xmltext( concat( ', ', TYPENAME ) ) ) as varchar( 1024 ) ), 3 ) as PARAMS" +
-                        " from SYSCAT.FUNCTIONS f inner join SYSCAT.FUNCPARMS p on f.SPECIFICNAME = p.SPECIFICNAME" +
-                        " where f.ORIGIN = 'Q' and p.FUNCSCHEMA = ? and p.ROWTYPE = 'P'" +
-                        " group by p.SPECIFICNAME, p.FUNCNAME" +
-                        " order by p.SPECIFICNAME", name
-        );
+        List<String> functionNames = jdbcTemplate.queryForStringList(
+                "select SPECIFICNAME from SYSCAT.ROUTINES where"
+                        // Functions only
+                        + " ROUTINETYPE='F'"
+                        // That aren't system-generated or built-in
+                        + " AND ORIGIN IN ("
+                        + "'E', " // User-defined, external
+                        + "'M', " // Template function
+                        + "'Q', " // SQL-bodied
+                        + "'U')"  // User-defined, based on a source
+                        + " and ROUTINESCHEMA = ?", name);
 
         List<Function> functions = new ArrayList<>();
-        for (Map<String, String> row : rows) {
-            functions.add(getFunction(
-                    row.get("FUNCNAME"),
-                    StringUtils.tokenizeToStringArray(row.get("PARAMS"), ",")));
+        for (String functionName : functionNames) {
+            functions.add(getFunction(functionName));
         }
 
         return functions.toArray(new Function[0]);
