@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * Derby implementation of Schema.
  */
-public class DerbySchema extends Schema<DerbyDatabase> {
+public class DerbySchema extends Schema<DerbyDatabase, DerbyTable> {
     /**
      * Creates a new Derby schema.
      *
@@ -129,10 +129,10 @@ public class DerbySchema extends Schema<DerbyDatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected DerbyTable[] doAllTables() throws SQLException {
         List<String> tableNames = listObjectNames("TABLE", "TABLETYPE='T'");
 
-        Table[] tables = new Table[tableNames.size()];
+        DerbyTable[] tables = new DerbyTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new DerbyTable(jdbcTemplate, database, this, tableNames.get(i));
         }

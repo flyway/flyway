@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * SQLServer implementation of Schema.
  */
-public class SQLServerSchema extends Schema<SQLServerDatabase> {
+public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     private static final Log LOG = LogFactory.getLog(SQLServerSchema.class);
 
     private final String databaseName;
@@ -266,7 +266,11 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
             jdbcTemplate.execute(statement);
         }
 
-        for (Table table : allTables()) {
+        SQLServerTable[] allTables = allTables();
+        for (SQLServerTable table : allTables) {
+            table.dropSystemVersioningIfPresent();
+        }
+        for (SQLServerTable table : allTables) {
             table.drop();
         }
 
@@ -549,13 +553,13 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected SQLServerTable[] doAllTables() throws SQLException {
         List<String> tableNames = new ArrayList<>();
         for (DBObject table : queryDBObjects(ObjectType.USER_TABLE)) {
             tableNames.add(table.name);
         }
 
-        Table[] tables = new Table[tableNames.size()];
+        SQLServerTable[] tables = new SQLServerTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new SQLServerTable(jdbcTemplate, database, databaseName, this, tableNames.get(i));
         }

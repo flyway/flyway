@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * PostgreSQL implementation of Schema.
  */
-public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
+public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable> {
     /**
      * Creates a new PostgreSQL schema.
      *
@@ -300,7 +300,7 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected PostgreSQLTable[] doAllTables() throws SQLException {
         List<String> tableNames =
                 jdbcTemplate.queryForStringList(
                         //Search for all the table names
@@ -320,7 +320,7 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase> {
                 );
         //Views and child tables are excluded as they are dropped with the parent table when using cascade.
 
-        Table[] tables = new Table[tableNames.size()];
+        PostgreSQLTable[] tables = new PostgreSQLTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new PostgreSQLTable(jdbcTemplate, database, this, tableNames.get(i));
         }

@@ -63,6 +63,15 @@ public class SQLServerTable extends Table<SQLServerDatabase, SQLServerSchema> {
         jdbcTemplate.execute("select * from " + this + " WITH (TABLOCKX)");
     }
 
+    /**
+     * Drops system versioning for this table if it is active.
+     */
+    void dropSystemVersioningIfPresent() throws SQLException {
+        if (jdbcTemplate.queryForInt("SELECT temporal_type FROM sys.tables WHERE object_id = OBJECT_ID('" + this + "', 'U')") == 2) {
+            jdbcTemplate.execute("ALTER TABLE " + this + " SET (SYSTEM_VERSIONING = OFF)");
+        }
+    }
+
     @Override
     public String toString() {
         return database.quote(databaseName, schema.getName(), name);

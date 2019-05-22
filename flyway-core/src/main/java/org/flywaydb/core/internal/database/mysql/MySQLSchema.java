@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * MySQL implementation of Schema.
  */
-public class MySQLSchema extends Schema<MySQLDatabase> {
+public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
     /**
      * Creates a new MySQL schema.
      *
@@ -172,12 +172,12 @@ public class MySQLSchema extends Schema<MySQLDatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected MySQLTable[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema=?" +
                         " AND table_type='BASE TABLE'", name);
 
-        Table[] tables = new Table[tableNames.size()];
+        MySQLTable[] tables = new MySQLTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new MySQLTable(jdbcTemplate, database, this, tableNames.get(i));
         }

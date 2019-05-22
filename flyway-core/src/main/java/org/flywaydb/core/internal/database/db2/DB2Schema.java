@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * DB2 implementation of Schema.
  */
-public class DB2Schema extends Schema<DB2Database> {
+public class DB2Schema extends Schema<DB2Database, DB2Table> {
     /**
      * Creates a new DB2 schema.
      *
@@ -244,9 +244,9 @@ public class DB2Schema extends Schema<DB2Database> {
         return dropVersioningStatements;
     }
 
-    private Table[] findTables(String sqlQuery, String... params) throws SQLException {
+    private DB2Table[] findTables(String sqlQuery, String... params) throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(sqlQuery, params);
-        Table[] tables = new Table[tableNames.size()];
+        DB2Table[] tables = new DB2Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new DB2Table(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -254,7 +254,7 @@ public class DB2Schema extends Schema<DB2Database> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected DB2Table[] doAllTables() throws SQLException {
         return findTables("select TABNAME from SYSCAT.TABLES where TYPE='T' and TABSCHEMA = ?", name);
     }
 

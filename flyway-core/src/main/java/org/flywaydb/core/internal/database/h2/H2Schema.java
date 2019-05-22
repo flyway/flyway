@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * H2 implementation of Schema.
  */
-public class H2Schema extends Schema<H2Database> {
+public class H2Schema extends Schema<H2Database, H2Table> {
     private static final Log LOG = LogFactory.getLog(H2Schema.class);
 
     /**
@@ -136,10 +136,10 @@ public class H2Schema extends Schema<H2Database> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected H2Table[] doAllTables() throws SQLException {
         List<String> tableNames = listObjectNames("TABLE", "TABLE_TYPE = 'TABLE'");
 
-        Table[] tables = new Table[tableNames.size()];
+        H2Table[] tables = new H2Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new H2Table(jdbcTemplate, database, this, tableNames.get(i));
         }

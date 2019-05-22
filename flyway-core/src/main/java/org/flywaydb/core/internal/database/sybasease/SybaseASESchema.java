@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Sybase ASE schema (database).
  */
-public class SybaseASESchema extends Schema<SybaseASEDatabase> {
+public class SybaseASESchema extends Schema<SybaseASEDatabase, SybaseASETable> {
     SybaseASESchema(JdbcTemplate jdbcTemplate, SybaseASEDatabase database, String name) {
         super(jdbcTemplate, database, name);
     }
@@ -72,11 +72,11 @@ public class SybaseASESchema extends Schema<SybaseASEDatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected SybaseASETable[] doAllTables() throws SQLException {
         //Retrieving all table names
         List<String> tableNames = retrieveAllTableNames();
 
-        Table[] result = new Table[tableNames.size()];
+        SybaseASETable[] result = new SybaseASETable[tableNames.size()];
 
         for (int i = 0; i < tableNames.size(); i++) {
             String tableName = tableNames.get(i);

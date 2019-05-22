@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * SQLite implementation of Schema.
  */
-public class SQLiteSchema extends Schema<SQLiteDatabase> {
+public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
     private static final Log LOG = LogFactory.getLog(SQLiteSchema.class);
 
     private static final List<String> IGNORED_SYSTEM_TABLE_NAMES =
@@ -96,10 +96,10 @@ public class SQLiteSchema extends Schema<SQLiteDatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected SQLiteTable[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList("SELECT tbl_name FROM " + database.quote(name) + ".sqlite_master WHERE type='table'");
 
-        Table[] tables = new Table[tableNames.size()];
+        SQLiteTable[] tables = new SQLiteTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new SQLiteTable(jdbcTemplate, database, this, tableNames.get(i));
         }

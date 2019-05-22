@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Informix implementation of Schema.
  */
-public class InformixSchema extends Schema<InformixDatabase> {
+public class InformixSchema extends Schema<InformixDatabase, InformixTable> {
     /**
      * Creates a new Informix schema.
      *
@@ -81,9 +81,9 @@ public class InformixSchema extends Schema<InformixDatabase> {
         }
     }
 
-    private Table[] findTables(String sqlQuery, String... params) throws SQLException {
+    private InformixTable[] findTables(String sqlQuery, String... params) throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(sqlQuery, params);
-        Table[] tables = new Table[tableNames.size()];
+        InformixTable[] tables = new InformixTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new InformixTable(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -91,7 +91,7 @@ public class InformixSchema extends Schema<InformixDatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected InformixTable[] doAllTables() throws SQLException {
         return findTables("SELECT t.tabname FROM \"informix\".systables AS t" +
                 " WHERE owner=? AND t.tabid > 99 AND t.tabtype='T'" +
                 " AND t.tabname NOT IN (" +
