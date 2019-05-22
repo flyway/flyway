@@ -42,18 +42,26 @@ public class DB2Schema extends Schema<DB2Database> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM syscat.schemata WHERE schemaname=?", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT count(*) from ("
+                + "SELECT 1 FROM syscat.schemata WHERE schemaname=?"
+                + ")", name) > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt("select count(*) from syscat.tables where tabschema = ?", name);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.views where viewschema = ?", name);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.sequences where seqschema = ?", name);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.indexes where indschema = ?", name);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.routines where ROUTINESCHEMA = ?", name);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.triggers where trigschema = ?", name);
-        return objectCount == 0;
+        return jdbcTemplate.queryForInt("select count(*) from ("
+                + "select 1 from syscat.tables where tabschema = ? "
+                + "union "
+                + "select 1 from syscat.views where viewschema = ? "
+                + "union "
+                + "select 1 from syscat.sequences where seqschema = ? "
+                + "union "
+                + "select 1 from syscat.indexes where indschema = ? "
+                + "union "
+                + "select 1 from syscat.routines where ROUTINESCHEMA = ? "
+                + "union "
+                + "select 1 from syscat.triggers where trigschema = ? "
+                + ")", name, name, name, name, name, name) == 0;
     }
 
     @Override
@@ -133,7 +141,6 @@ public class DB2Schema extends Schema<DB2Database> {
             type.drop();
         }
     }
-
 
     /**
      * Generates DROP statements for the procedures in this schema.
