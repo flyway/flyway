@@ -16,7 +16,6 @@
 package org.flywaydb.core.internal.database.redshift;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -28,17 +27,8 @@ import java.sql.SQLException;
  * Redshift connection.
  */
 public class RedshiftConnection extends Connection<RedshiftDatabase> {
-    RedshiftConnection(Configuration configuration, RedshiftDatabase database, java.sql.Connection connection
-            , boolean originalAutoCommit
-
-
-
-    ) {
-        super(configuration, database, connection, originalAutoCommit
-
-
-
-        );
+    RedshiftConnection(RedshiftDatabase database, java.sql.Connection connection) {
+        super(database, connection);
     }
 
     @Override

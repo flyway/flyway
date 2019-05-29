@@ -18,11 +18,7 @@ package org.flywaydb.core.internal.database.redshift;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -33,31 +29,16 @@ import java.sql.SQLException;
  */
 public class RedshiftDatabase extends Database<RedshiftConnection> {
     /**
-     * Checks whether this connection is pointing at a Redshift instance.
-     *
-     * @param connection The connection.
-     * @return {@code true} if it is, {@code false} if not.
-     */
-    public static boolean isRedshift(Connection connection) {
-        try {
-            return new JdbcTemplate(connection).queryForString("SELECT version()").contains("Redshift");
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /**
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
-     * @param connection    The connection to use.
      */
-    public RedshiftDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
+    public RedshiftDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
 
 
 
     ) {
-        super(configuration, connection, originalAutoCommit
+        super(configuration, jdbcConnectionFactory
 
 
 
@@ -65,16 +46,8 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
     }
 
     @Override
-    protected RedshiftConnection getConnection(Connection connection
-
-
-
-    ) {
-        return new RedshiftConnection(configuration, this, connection, originalAutoCommit
-
-
-
-        );
+    protected RedshiftConnection doGetConnection(Connection connection) {
+        return new RedshiftConnection(this, connection);
     }
 
     @Override
@@ -83,7 +56,7 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
     }
 
     @Override
-    protected String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(Table table, boolean baseline) {
         return "CREATE TABLE " + table + " (\n" +
                 "    \"installed_rank\" INT NOT NULL SORTKEY,\n" +
                 "    \"version\" VARCHAR(50),\n" +
@@ -98,15 +71,6 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
                 ");\n" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "") +
                 "ALTER TABLE " + table + " ADD CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\");";
-    }
-
-    @Override
-    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-    ) {
-        return new ParserSqlScript(new RedshiftParser(configuration), resource, mixed);
     }
 
     @Override

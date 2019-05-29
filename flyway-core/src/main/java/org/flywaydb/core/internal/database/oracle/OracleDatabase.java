@@ -16,17 +16,10 @@
 package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.RowMapper;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -56,62 +49,26 @@ public class OracleDatabase extends Database<OracleConnection> {
         }
     }
 
-
-
-
-
     /**
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
-     * @param connection    The connection to use.
      */
-    public OracleDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
+    public OracleDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
 
 
 
     ) {
-        super(configuration, connection, originalAutoCommit
+        super(configuration, jdbcConnectionFactory
 
 
 
         );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    }
-
-    private String getConnectIdentifier() throws SQLException {
-        String url = getJdbcMetaData().getURL();
-        if (url == null) {
-            return "";
-        }
-        return url.substring(url.indexOf("//") + 2);
     }
 
     @Override
-    protected OracleConnection getConnection(Connection connection
-
-
-
-    ) {
-        return new OracleConnection(configuration, this, connection, originalAutoCommit
-
-
-
-        );
+    protected OracleConnection doGetConnection(Connection connection) {
+        return new OracleConnection(this, connection);
     }
 
 
@@ -137,22 +94,7 @@ public class OracleDatabase extends Database<OracleConnection> {
     }
 
     @Override
-    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-    ) {
-        return new ParserSqlScript(new OracleParser(configuration
-
-
-
-
-
-        ), resource, mixed);
-    }
-
-    @Override
-    protected String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(Table table, boolean baseline) {
         String tablespace = configuration.getTablespace() == null
                 ? ""
                 : " TABLESPACE \"" + configuration.getTablespace() + "\"";
@@ -172,19 +114,6 @@ public class OracleDatabase extends Database<OracleConnection> {
                 ")" + tablespace + ";\n" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "") +
                 "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");\n";
-    }
-
-    @Override
-    public SqlScriptExecutor createSqlScriptExecutor(JdbcTemplate jdbcTemplate
-
-
-
-    ) {
-        return new OracleSqlScriptExecutor(jdbcTemplate
-
-
-
-        );
     }
 
     @Override

@@ -17,25 +17,19 @@ package org.flywaydb.core.internal.resolver.sql;
 
 import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.executor.MigrationExecutor;
-import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 
 /**
  * Database migration based on a sql file.
  */
 public class SqlMigrationExecutor implements MigrationExecutor {
-    private final Database database;
+    private final SqlScriptExecutorFactory sqlScriptExecutorFactory;
+
     /**
      * The SQL script that will be executed.
      */
     private final SqlScript sqlScript;
-
-
-
-
-
 
 
 
@@ -54,14 +48,13 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      *
      * @param sqlScript The SQL script that will be executed.
      */
-    SqlMigrationExecutor(Database database, SqlScript sqlScript
+    SqlMigrationExecutor(SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScript sqlScript
 
 
 
     ) {
-        this.database = database;
+        this.sqlScriptExecutorFactory = sqlScriptExecutorFactory;
         this.sqlScript = sqlScript;
-
 
 
 
@@ -70,7 +63,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     @Override
     public void execute(Context context) {
-        database.createSqlScriptExecutor(new JdbcTemplate(context.getConnection())
+        sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection()
 
 
 

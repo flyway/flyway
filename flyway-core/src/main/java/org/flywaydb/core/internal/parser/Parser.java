@@ -38,6 +38,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+/**
+ * The main parser all database-specific parsers derive from.
+ */
 public abstract class Parser {
     private static final Log LOG = LogFactory.getLog(Parser.class);
 
@@ -48,7 +51,7 @@ public abstract class Parser {
 
 
 
-    protected final Configuration configuration;
+    private final Configuration configuration;
     private final int peekDepth;
     private final char identifierQuote;
     private final char alternativeIdentifierQuote;
@@ -90,7 +93,13 @@ public abstract class Parser {
         return null;
     }
 
-    public SqlStatementIterator parse(final LoadableResource resource) {
+    /**
+     * Parses this resource into a stream of statements.
+     *
+     * @param resource The resource to parse.
+     * @return The statements.
+     */
+    public final SqlStatementIterator parse(final LoadableResource resource) {
         final PositionTracker tracker = new PositionTracker();
         final Recorder recorder = new Recorder();
         final ParserContext context = new ParserContext(getDefaultDelimiter());

@@ -22,11 +22,10 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
 import java.util.ArrayList;
@@ -47,18 +46,14 @@ public class SqlScriptCallbackFactory {
     /**
      * Creates a new instance.
      *
-     * @param database                   The database-specific support.
-     * @param resourceProvider           The resource provider.
+     * @param resourceProvider The resource provider.
      * @param sqlScriptFactory The SQL statement factory.
-     * @param configuration              The Flyway configuration.
+     * @param configuration    The Flyway configuration.
      */
-    public SqlScriptCallbackFactory(Database database, ResourceProvider resourceProvider,
+    public SqlScriptCallbackFactory(ResourceProvider resourceProvider,
+                                    SqlScriptExecutorFactory sqlScriptExecutorFactory,
                                     SqlScriptFactory sqlScriptFactory,
-                                    Configuration configuration
-
-
-
-    ) {
+                                    Configuration configuration) {
         Map<String, SqlScript> callbacksFound = new HashMap<>();
 
         LOG.debug("Scanning for SQL callbacks ...");
@@ -90,7 +85,7 @@ public class SqlScriptCallbackFactory {
 
                 );
                 callbacksFound.put(name, sqlScript);
-                callbacks.add(new SqlScriptCallback(event, description, database, sqlScript
+                callbacks.add(new SqlScriptCallback(event, description, sqlScriptExecutorFactory, sqlScript
 
 
 
@@ -116,23 +111,21 @@ public class SqlScriptCallbackFactory {
     private static class SqlScriptCallback implements Callback, Comparable<SqlScriptCallback> {
         private final Event event;
         private final String description;
-        private final Database database;
+        private final SqlScriptExecutorFactory sqlScriptExecutorFactory;
         private final SqlScript sqlScript;
 
 
 
 
-
-        private SqlScriptCallback(Event event, String description, Database database, SqlScript sqlScript
+        private SqlScriptCallback(Event event, String description, SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScript sqlScript
 
 
 
         ) {
             this.event = event;
             this.description = description;
-            this.database = database;
+            this.sqlScriptExecutorFactory = sqlScriptExecutorFactory;
             this.sqlScript = sqlScript;
-
 
 
 
@@ -153,7 +146,7 @@ public class SqlScriptCallbackFactory {
             LOG.info("Executing SQL callback: " + event.getId()
                     + (description == null ? "" : " - " + description)
                     + (sqlScript.executeInTransaction() ? "" : " [non-transactional]"));
-            database.createSqlScriptExecutor(new JdbcTemplate(context.getConnection())
+            sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection()
 
 
 

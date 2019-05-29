@@ -18,10 +18,7 @@ package org.flywaydb.core.internal.database.postgresql;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -35,14 +32,13 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
-     * @param connection    The connection to use.
      */
-    public PostgreSQLDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
+    public PostgreSQLDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
 
 
 
     ) {
-        super(configuration, connection, originalAutoCommit
+        super(configuration, jdbcConnectionFactory
 
 
 
@@ -50,16 +46,8 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
     }
 
     @Override
-    protected PostgreSQLConnection getConnection(Connection connection
-
-
-
-    ) {
-        return new PostgreSQLConnection(configuration, this, connection, originalAutoCommit
-
-
-
-        );
+    protected PostgreSQLConnection doGetConnection(Connection connection) {
+        return new PostgreSQLConnection(this, connection);
     }
 
     @Override
@@ -75,16 +63,7 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
     }
 
     @Override
-    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-    ) {
-        return new ParserSqlScript(new PostgreSQLParser(configuration), resource, mixed);
-    }
-
-    @Override
-    protected String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(Table table, boolean baseline) {
         String tablespace = configuration.getTablespace() == null
                 ? ""
                 : " TABLESPACE \"" + configuration.getTablespace() + "\"";

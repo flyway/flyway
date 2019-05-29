@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
-import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 
@@ -23,17 +22,8 @@ import org.flywaydb.core.internal.database.base.Schema;
  * Sybase ASE Connection.
  */
 public class SybaseASEConnection extends Connection<SybaseASEDatabase> {
-    SybaseASEConnection(Configuration configuration, SybaseASEDatabase database, java.sql.Connection connection
-            , boolean originalAutoCommit
-
-
-
-    ) {
-        super(configuration, database, connection, originalAutoCommit
-
-
-
-        );
+    SybaseASEConnection(SybaseASEDatabase database, java.sql.Connection connection) {
+        super(database, connection);
     }
 
 

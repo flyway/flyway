@@ -168,6 +168,7 @@ public class OracleParser extends Parser {
 
 
 
+
     public OracleParser(Configuration configuration
 
 
@@ -177,6 +178,7 @@ public class OracleParser extends Parser {
 
     ) {
         super(configuration, 3);
+
 
 
 
@@ -207,6 +209,7 @@ public class OracleParser extends Parser {
 
 
     ) throws IOException {
+
 
 
 

@@ -27,7 +27,7 @@ public class TimeFormat {
     }
 
     /**
-     * Formats this execution time.
+     * Formats this execution time as minutes:seconds.millis. Ex.: 02:15.123s
      *
      * @param millis The number of millis.
      * @return The execution in a human-readable format.

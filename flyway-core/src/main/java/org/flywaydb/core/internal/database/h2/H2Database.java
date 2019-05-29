@@ -20,10 +20,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -41,14 +38,13 @@ public class H2Database extends Database<H2Connection> {
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
-     * @param connection    The connection to use.
      */
-    public H2Database(Configuration configuration, Connection connection, boolean originalAutoCommit
+    public H2Database(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
 
 
 
     ) {
-        super(configuration, connection, originalAutoCommit
+        super(configuration, jdbcConnectionFactory
 
 
 
@@ -56,16 +52,8 @@ public class H2Database extends Database<H2Connection> {
     }
 
     @Override
-    protected H2Connection getConnection(Connection connection
-
-
-
-    ) {
-        return new H2Connection(configuration, this, connection, originalAutoCommit
-
-
-
-        );
+    protected H2Connection doGetConnection(Connection connection) {
+        return new H2Connection(this, connection);
     }
 
     @Override
@@ -90,7 +78,7 @@ public class H2Database extends Database<H2Connection> {
     }
 
     @Override
-    protected String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(Table table, boolean baseline) {
         return "CREATE TABLE IF NOT EXISTS " + table + " (\n" +
                 "    \"installed_rank\" INT NOT NULL,\n" +
                 "    \"version\" VARCHAR(50),\n" +
@@ -111,7 +99,7 @@ public class H2Database extends Database<H2Connection> {
     }
 
     @Override
-    public String getSelectStatement(Table table, int maxCachedInstalledRank) {
+    public String getSelectStatement(Table table) {
         return "SELECT " + quote("installed_rank")
                 + "," + quote("version")
                 + "," + quote("description")
@@ -125,17 +113,8 @@ public class H2Database extends Database<H2Connection> {
                 + " FROM " + table
                 // Ignore special table created marker
                 + " WHERE " + quote("type") + " != 'TABLE'"
-                + " AND " + quote("installed_rank") + " > " + maxCachedInstalledRank
+                + " AND " + quote("installed_rank") + " > ?"
                 + " ORDER BY " + quote("installed_rank");
-    }
-
-    @Override
-    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-    ) {
-        return new ParserSqlScript(new H2Parser(configuration), resource, mixed);
     }
 
     @Override

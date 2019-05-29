@@ -20,10 +20,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -37,14 +34,13 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
-     * @param connection    The connection to use.
      */
-    public CockroachDBDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
+    public CockroachDBDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
 
 
 
     ) {
-        super(configuration, connection, originalAutoCommit
+        super(configuration, jdbcConnectionFactory
 
 
 
@@ -52,16 +48,8 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     }
 
     @Override
-    protected CockroachDBConnection getConnection(Connection connection
-
-
-
-    ) {
-        return new CockroachDBConnection(configuration, this, connection, originalAutoCommit
-
-
-
-        );
+    protected CockroachDBConnection doGetConnection(Connection connection) {
+        return new CockroachDBConnection(this, connection);
     }
 
 
@@ -79,16 +67,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     }
 
     @Override
-    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-    ) {
-        return new ParserSqlScript(new CockroachDBParser(configuration), resource, mixed);
-    }
-
-    @Override
-    protected String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(Table table, boolean baseline) {
         return "CREATE TABLE " + table + " (\n" +
                 "    \"installed_rank\" INT NOT NULL PRIMARY KEY,\n" +
                 "    \"version\" VARCHAR(50),\n" +

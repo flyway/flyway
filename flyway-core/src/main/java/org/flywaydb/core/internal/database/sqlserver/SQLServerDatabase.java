@@ -20,11 +20,8 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -40,14 +37,13 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
-     * @param connection    The connection to use.
      */
-    public SQLServerDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
+    public SQLServerDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
 
 
 
     ) {
-        super(configuration, connection, originalAutoCommit
+        super(configuration, jdbcConnectionFactory
 
 
 
@@ -61,16 +57,8 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     @Override
-    protected SQLServerConnection getConnection(Connection connection
-
-
-
-    ) {
-        return new SQLServerConnection(configuration, this, connection, originalAutoCommit
-
-
-
-        );
+    protected SQLServerConnection doGetConnection(Connection connection) {
+        return new SQLServerConnection(this, connection);
     }
 
 
@@ -132,15 +120,6 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     @Override
-    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-    ) {
-        return new ParserSqlScript(new SQLServerParser(configuration), resource, mixed);
-    }
-
-    @Override
     public Delimiter getDefaultDelimiter() {
         return Delimiter.GO;
     }
@@ -196,7 +175,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     @Override
-    protected String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(Table table, boolean baseline) {
         String filegroup = azure || configuration.getTablespace() == null
                 ? ""
                 : " ON \"" + configuration.getTablespace() + "\"";

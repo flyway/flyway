@@ -18,11 +18,8 @@ package org.flywaydb.core.internal.database.sybasease;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -35,14 +32,13 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
      * Creates a new Sybase ASE database.
      *
      * @param configuration The Flyway configuration.
-     * @param connection    The initial connection.
      */
-    public SybaseASEDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
+    public SybaseASEDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
 
 
 
     ) {
-        super(configuration, connection, originalAutoCommit
+        super(configuration, jdbcConnectionFactory
 
 
 
@@ -50,16 +46,8 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     }
 
     @Override
-    protected SybaseASEConnection getConnection(Connection connection
-
-
-
-    ) {
-        return new SybaseASEConnection(configuration, this, connection, originalAutoCommit
-
-
-
-        );
+    protected SybaseASEConnection doGetConnection(Connection connection) {
+        return new SybaseASEConnection(this, connection);
     }
 
     @Override
@@ -72,16 +60,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     }
 
     @Override
-    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-    ) {
-        return new ParserSqlScript(new SybaseASEParser(configuration), resource, mixed);
-    }
-
-    @Override
-    protected String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(Table table, boolean baseline) {
         return "CREATE TABLE " + table.getName() + " (\n" +
                 "    installed_rank INT NOT NULL,\n" +
                 "    version VARCHAR(50) NULL,\n" +
@@ -99,7 +78,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
                 (baseline ? getBaselineStatement(table) + "\n" : "") +
                 "go\n" +
                 "CREATE INDEX " + table.getName() + "_s_idx ON " + table.getName() + " (success)\n" +
-                "go";
+                "go\n";
     }
 
     @Override

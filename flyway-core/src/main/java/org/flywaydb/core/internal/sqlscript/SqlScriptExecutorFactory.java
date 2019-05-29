@@ -15,14 +15,17 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-/**
- * A No-op SQL script executor.
- */
-public enum NoopSqlScriptExecutor implements SqlScriptExecutor {
-    INSTANCE;
+import java.sql.Connection;
 
-    @Override
-    public void execute(SqlScript sqlScript) {
-        // Do nothing.
-    }
+public interface SqlScriptExecutorFactory {
+    /**
+     * Creates a new executor for this SQL script.
+     *
+     * @return A new SQL script executor.
+     */
+    SqlScriptExecutor createSqlScriptExecutor(Connection connection
+
+
+
+    );
 }

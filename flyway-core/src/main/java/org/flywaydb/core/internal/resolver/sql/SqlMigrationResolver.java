@@ -22,14 +22,13 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 import org.flywaydb.core.internal.util.Pair;
 
@@ -46,9 +45,9 @@ import java.util.zip.CRC32;
  */
 public class SqlMigrationResolver implements MigrationResolver {
     /**
-     * Database-specific support.
+     * The SQL script executor factory.
      */
-    private final Database database;
+    private final SqlScriptExecutorFactory sqlScriptExecutorFactory;
 
     /**
      * The resource provider to use.
@@ -56,13 +55,6 @@ public class SqlMigrationResolver implements MigrationResolver {
     private final ResourceProvider resourceProvider;
 
     private final SqlScriptFactory sqlScriptFactory;
-
-
-
-
-
-
-
 
     /**
      * The Flyway configuration.
@@ -72,23 +64,17 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Creates a new instance.
      *
-     * @param database                   The database-specific support.
-     * @param resourceProvider           The Scanner for loading migrations on the classpath.
-     * @param sqlScriptFactory The SQL statement builder factory.
-     * @param configuration              The Flyway configuration.
+     * @param resourceProvider         The Scanner for loading migrations on the classpath.
+     * @param sqlScriptExecutorFactory The SQL script executor factory.
+     * @param sqlScriptFactory         The SQL script factory.
+     * @param configuration            The Flyway configuration.
      */
-    public SqlMigrationResolver(Database database, ResourceProvider resourceProvider,
-                                SqlScriptFactory sqlScriptFactory
-
-
-
-            , Configuration configuration) {
-        this.database = database;
+    public SqlMigrationResolver(ResourceProvider resourceProvider,
+                                SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScriptFactory sqlScriptFactory,
+                                Configuration configuration) {
+        this.sqlScriptExecutorFactory = sqlScriptExecutorFactory;
         this.resourceProvider = resourceProvider;
         this.sqlScriptFactory = sqlScriptFactory;
-
-
-
         this.configuration = configuration;
     }
 
@@ -177,7 +163,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
                             MigrationType.SQL);
             migration.setPhysicalLocation(resource.getAbsolutePathOnDisk());
-            migration.setExecutor(new SqlMigrationExecutor(database, sqlScript
+            migration.setExecutor(new SqlMigrationExecutor(sqlScriptExecutorFactory, sqlScript
 
 
 

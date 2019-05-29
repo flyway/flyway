@@ -29,7 +29,6 @@ import org.flywaydb.core.internal.util.AsciiTable;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
@@ -134,7 +133,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
     }
 
-    private void logStatementExecution(SqlStatement sqlStatement) {
+    protected void logStatementExecution(SqlStatement sqlStatement) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Executing "
 
@@ -191,7 +190,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-    private void executeStatement(JdbcTemplate jdbcTemplate, SqlScript sqlScript, SqlStatement sqlStatement) {
+    protected void executeStatement(JdbcTemplate jdbcTemplate, SqlScript sqlScript, SqlStatement sqlStatement) {
         logStatementExecution(sqlStatement);
         String sql = sqlStatement.getSql() + sqlStatement.getDelimiter();
 

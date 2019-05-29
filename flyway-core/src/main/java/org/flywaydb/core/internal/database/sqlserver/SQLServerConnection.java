@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
-import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
@@ -31,17 +30,8 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     private final String originalDatabaseName;
     private final String originalAnsiNulls;
 
-    SQLServerConnection(Configuration configuration, SQLServerDatabase database, java.sql.Connection connection
-            , boolean originalAutoCommit
-
-
-
-    ) {
-        super(configuration, database, connection, originalAutoCommit
-
-
-
-        );
+    SQLServerConnection(SQLServerDatabase database, java.sql.Connection connection) {
+        super(database, connection);
         try {
             originalDatabaseName = jdbcTemplate.queryForString("SELECT DB_NAME()");
         } catch (SQLException e) {

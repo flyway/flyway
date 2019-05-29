@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.database.base;
 
-import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
@@ -38,37 +37,22 @@ public abstract class Connection<D extends Database> implements Closeable {
     /**
      * The original autocommit state of the connection.
      */
-    private boolean originalAutoCommit;
+    private final boolean originalAutoCommit;
 
-    protected Connection(Configuration configuration, D database, java.sql.Connection connection
-            , boolean originalAutoCommit
-
-
-
-    ) {
+    protected Connection(D database, java.sql.Connection connection) {
         this.database = database;
-        this.originalAutoCommit = originalAutoCommit;
 
+        try {
+            this.originalAutoCommit = connection.getAutoCommit();
+            if (!originalAutoCommit) {
+                connection.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to turn on auto-commit for the connection", e);
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            this.jdbcConnection = connection;
-
-
-
-        jdbcTemplate = new JdbcTemplate(jdbcConnection);
+        this.jdbcConnection = connection;
+        jdbcTemplate = new JdbcTemplate(jdbcConnection, database.getDatabaseType());
         try {
             originalSchemaNameOrSearchPath = getCurrentSchemaNameOrSearchPath();
         } catch (SQLException e) {
