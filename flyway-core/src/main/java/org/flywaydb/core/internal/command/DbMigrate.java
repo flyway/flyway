@@ -353,7 +353,7 @@ public class DbMigrate {
 
             stopWatch.start();
 
-            LOG.info("Migrating " + migrationText);
+            LOG.debug("Starting migration of " + migrationText + " ...");
 
             connectionUserObjects.restoreOriginalState();
             connectionUserObjects.changeCurrentSchemaTo(schema);
@@ -362,6 +362,7 @@ public class DbMigrate {
                 callbackExecutor.setMigrationInfo(migration);
                 callbackExecutor.onEachMigrateOrUndoEvent(Event.BEFORE_EACH_MIGRATE);
                 try {
+                    LOG.info("Migrating " + migrationText);
                     migration.getResolvedMigration().getExecutor().execute(context);
                 } catch (FlywayException e) {
                     callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);

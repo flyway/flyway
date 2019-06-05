@@ -301,7 +301,14 @@ public class FlywayExtension {
     public Boolean baselineOnMigrate;
 
     /**
-     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
+     * automatically causes the entire affected migration to be run without a transaction.
+     *
+     * <p>Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
+     * statements that do not run at all within a transaction.</p>
+     * <p>This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
+     * DDL statement was run within within a transaction, the database will issue an implicit commit before and after
+     * its execution.</p>
      * <p>{@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})</p>
      */
     public Boolean mixed;

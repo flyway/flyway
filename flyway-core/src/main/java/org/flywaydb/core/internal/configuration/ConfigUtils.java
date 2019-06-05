@@ -370,7 +370,12 @@ public class ConfigUtils {
             LOG.debug("Using configuration:");
             for (Map.Entry<String, String> entry : new TreeMap<>(config).entrySet()) {
                 String value = entry.getValue();
-                value = ConfigUtils.PASSWORD.equals(entry.getKey()) ? StringUtils.trimOrPad("", value.length(), '*') : value;
+
+                // Mask the password. Ex.: T0pS3cr3t -> *********
+                value = ConfigUtils.PASSWORD.equals(entry.getKey())
+                        ? StringUtils.trimOrPad("", value.length(), '*')
+                        : value;
+
                 LOG.debug(entry.getKey() + " -> " + value);
             }
         }
