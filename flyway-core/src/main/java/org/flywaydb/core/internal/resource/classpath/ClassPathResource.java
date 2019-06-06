@@ -91,7 +91,7 @@ public class ClassPathResource extends LoadableResource {
         if (inputStream == null) {
             throw new FlywayException("Unable to obtain inputstream for resource: " + fileNameWithAbsolutePath);
         }
-        return new InputStreamReader(inputStream, encoding);
+        return new InputStreamReader(inputStream, encoding.newDecoder());
     }
 
     @Override
