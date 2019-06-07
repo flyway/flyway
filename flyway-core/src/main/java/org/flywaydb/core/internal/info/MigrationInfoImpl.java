@@ -15,12 +15,12 @@
  */
 package org.flywaydb.core.internal.info;
 
-
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
 
@@ -318,6 +318,14 @@ public class MigrationInfoImpl implements MigrationInfo {
                 }
             }
         }
+
+        // Perform additional validation for pending migrations. This is not performed for previously applied migrations
+        // as it is assumed that if the checksum is unchanged, previous positive validation results still hold true.
+        // #2392: Migrations above target are also ignored as the user explicitly asked for them to not be taken into account.
+        if (!context.pending && MigrationState.PENDING == state && resolvedMigration instanceof ResolvedMigrationImpl) {
+            ((ResolvedMigrationImpl) resolvedMigration).validate();
+        }
+
         return null;
     }
 

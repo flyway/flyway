@@ -29,48 +29,62 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     /**
      * The target version of this migration.
      */
-    private MigrationVersion version;
+    private final MigrationVersion version;
 
     /**
      * The description of the migration.
      */
-    private String description;
+    private final String description;
 
     /**
      * The name of the script to execute for this migration, relative to its classpath location.
      */
-    private String script;
+    private final String script;
 
     /**
      * The checksum of the migration.
      */
-    private Integer checksum;
+    private final Integer checksum;
 
     /**
      * The type of migration (INIT, SQL, ...)
      */
-    private MigrationType type;
+    private final MigrationType type;
 
     /**
      * The physical location of the migration on disk.
      */
-    private String physicalLocation;
+    private final String physicalLocation;
 
     /**
      * The executor to run this migration.
      */
-    private MigrationExecutor executor;
+    private final MigrationExecutor executor;
+
+    /**
+     * Creates a new resolved migration.
+     *
+     * @param version          The target version of this migration.
+     * @param description      The description of the migration.
+     * @param script           The name of the script to execute for this migration, relative to its classpath location.
+     * @param checksum         The checksum of the migration.
+     * @param type             The type of migration (SQL, ...)
+     * @param physicalLocation The physical location of the migration on disk.
+     * @param executor         The executor to run this migration.
+     */
+    public ResolvedMigrationImpl(MigrationVersion version, String description, String script, Integer checksum, MigrationType type, String physicalLocation, MigrationExecutor executor) {
+        this.version = version;
+        this.description = description;
+        this.script = script;
+        this.checksum = checksum;
+        this.type = type;
+        this.physicalLocation = physicalLocation;
+        this.executor = executor;
+    }
 
     @Override
     public MigrationVersion getVersion() {
         return version;
-    }
-
-    /**
-     * @param version The target version of this migration.
-     */
-    public void setVersion(MigrationVersion version) {
-        this.version = version;
     }
 
     @Override
@@ -78,23 +92,9 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         return description;
     }
 
-    /**
-     * @param description The description of the migration.
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     @Override
     public String getScript() {
         return script;
-    }
-
-    /**
-     * @param script The name of the script to execute for this migration, relative to its classpath location.
-     */
-    public void setScript(String script) {
-        this.script = script;
     }
 
     @Override
@@ -102,23 +102,9 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         return checksum;
     }
 
-    /**
-     * @param checksum The checksum of the migration.
-     */
-    public void setChecksum(Integer checksum) {
-        this.checksum = checksum;
-    }
-
     @Override
     public MigrationType getType() {
         return type;
-    }
-
-    /**
-     * @param type The type of migration (INIT, SQL, ...)
-     */
-    public void setType(MigrationType type) {
-        this.type = type;
     }
 
     @Override
@@ -126,26 +112,11 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         return physicalLocation;
     }
 
-    /**
-     * @param physicalLocation The physical location of the migration on disk.
-     */
-    public void setPhysicalLocation(String physicalLocation) {
-        this.physicalLocation = physicalLocation;
-    }
-
     @Override
     public MigrationExecutor getExecutor() {
         return executor;
     }
 
-    /**
-     * @param executor The executor to run this migration.
-     */
-    public void setExecutor(MigrationExecutor executor) {
-        this.executor = executor;
-    }
-
-    @SuppressWarnings("NullableProblems")
     public int compareTo(ResolvedMigrationImpl o) {
         return version.compareTo(o.version);
     }
@@ -187,5 +158,12 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
                 ", physicalLocation='" + physicalLocation + '\'' +
                 ", executor=" + executor +
                 '}';
+    }
+
+    /**
+     * Validates this resolved migration.
+     */
+    public void validate() {
+        // Do nothing by default.
     }
 }

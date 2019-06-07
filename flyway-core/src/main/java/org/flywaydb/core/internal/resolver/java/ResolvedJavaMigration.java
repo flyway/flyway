@@ -30,17 +30,16 @@ public class ResolvedJavaMigration extends ResolvedMigrationImpl {
      * @param javaMigration The JavaMigration to use.
      */
     public ResolvedJavaMigration(JavaMigration javaMigration) {
-        setVersion(javaMigration.getVersion());
-        setDescription(javaMigration.getDescription());
-        setScript(javaMigration.getClass().getName());
-        setChecksum(javaMigration.getChecksum());
-        setType(
+        super(javaMigration.getVersion(),
+                javaMigration.getDescription(),
+                javaMigration.getClass().getName(),
+                javaMigration.getChecksum(),
 
 
 
-                        MigrationType.JDBC
+                        MigrationType.JDBC,
+                ClassUtils.getLocationOnDisk(javaMigration.getClass()),
+                new JavaMigrationExecutor(javaMigration)
         );
-        setPhysicalLocation(ClassUtils.getLocationOnDisk(javaMigration.getClass()));
-        setExecutor(new JavaMigrationExecutor(javaMigration));
     }
 }

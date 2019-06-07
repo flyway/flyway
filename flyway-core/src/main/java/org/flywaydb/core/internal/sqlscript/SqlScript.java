@@ -54,4 +54,9 @@ public interface SqlScript extends Comparable<SqlScript> {
      * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
      */
     boolean executeInTransaction();
+
+    /**
+     * Validates this SQL script.
+     */
+    void validate();
 }

@@ -115,13 +115,6 @@ public class SqlMigrationResolver implements MigrationResolver {
             if (isSqlCallback(filename, separator, suffixes)) {
                 continue;
             }
-            Pair<MigrationVersion, String> info =
-                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffixes, repeatable);
-
-            ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
-            migration.setVersion(info.getLeft());
-            migration.setDescription(info.getRight());
-            migration.setScript(resource.getRelativePath());
 
             SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed()
 
@@ -156,19 +149,29 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-            migration.setChecksum(checksum);
-            migration.setType(
+            Pair<MigrationVersion, String> info =
+                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffixes, repeatable);
+
+            migrations.add(new ResolvedMigrationImpl(
+                    info.getLeft(),
+                    info.getRight(),
+                    resource.getRelativePath(),
+                    checksum,
 
 
 
-                            MigrationType.SQL);
-            migration.setPhysicalLocation(resource.getAbsolutePathOnDisk());
-            migration.setExecutor(new SqlMigrationExecutor(sqlScriptExecutorFactory, sqlScript
+                            MigrationType.SQL,
+                    resource.getAbsolutePathOnDisk(),
+                    new SqlMigrationExecutor(sqlScriptExecutorFactory, sqlScript
 
 
 
-            ));
-            migrations.add(migration);
+                    )) {
+                @Override
+                public void validate() {
+                    // Do nothing by default.
+                }
+            });
         }
     }
 

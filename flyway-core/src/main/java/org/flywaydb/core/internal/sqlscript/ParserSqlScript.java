@@ -48,6 +48,9 @@ public class ParserSqlScript implements SqlScript {
      */
     protected final LoadableResource resource;
 
+    private final Parser parser;
+    private final boolean mixed;
+    private boolean parsed;
 
 
 
@@ -62,11 +65,14 @@ public class ParserSqlScript implements SqlScript {
      */
     public ParserSqlScript(Parser parser, LoadableResource resource, boolean mixed) {
         this.resource = resource;
+        this.parser = parser;
 
 
 
+        this.mixed = mixed;
+    }
 
-
+    private void parse() {
         try (SqlStatementIterator sqlStatementIterator = parser.parse(resource)) {
             boolean transactionalStatementFound = false;
             while (sqlStatementIterator.hasNext()) {
@@ -109,10 +115,20 @@ public class ParserSqlScript implements SqlScript {
                 }
             }
         }
+        parsed = true;
+    }
+
+    @Override
+    public void validate() {
+        if (!parsed) {
+            parse();
+        }
     }
 
     @Override
     public SqlStatementIterator getSqlStatements() {
+        validate();
+
 
 
 
@@ -144,8 +160,15 @@ public class ParserSqlScript implements SqlScript {
 
     @Override
     public int getSqlStatementCount() {
+        validate();
+
         return sqlStatementCount;
     }
+
+
+
+
+
 
 
 
@@ -161,6 +184,8 @@ public class ParserSqlScript implements SqlScript {
 
     @Override
     public boolean executeInTransaction() {
+        validate();
+
         return !nonTransactionalStatementFound;
     }
 

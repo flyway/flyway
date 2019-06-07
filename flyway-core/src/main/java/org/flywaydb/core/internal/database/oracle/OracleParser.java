@@ -367,6 +367,11 @@ public class OracleParser extends Parser {
 
 
 
+
+
+
+
+
     @Override
     protected boolean isAlternativeStringLiteral(String peek) {
         if (peek.length() < 3) {
