@@ -41,6 +41,11 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     private final boolean pxcStrict;
 
     /**
+     * Whether the event scheduler is disabled.
+     */
+    final boolean eventSchedulerDisabled;
+
+    /**
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
@@ -56,12 +61,27 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
         );
 
-        pxcStrict = isRunningInPerconaXtraDBClusterWithStrictMode(rawMainJdbcConnection);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(rawMainJdbcConnection, databaseType);
+        pxcStrict = isRunningInPerconaXtraDBClusterWithStrictMode(jdbcTemplate);
+        eventSchedulerDisabled = isEventSchedulerDisabled(jdbcTemplate);
     }
 
-    static boolean isRunningInPerconaXtraDBClusterWithStrictMode(Connection connection) {
+    private static boolean isEventSchedulerDisabled(JdbcTemplate jdbcTemplate) {
         try {
-            if ("ENFORCING".equals(new JdbcTemplate(connection, DatabaseType.MYSQL).queryForString(
+            if ("DISABLED".equals(jdbcTemplate.queryForString("SELECT @@event_scheduler"))) {
+                LOG.debug("Detected disabled MySQL event scheduler");
+                return true;
+            }
+        } catch (SQLException e) {
+            LOG.debug("Unable to detect whether MySQL event scheduler is disabled. Assuming not.");
+        }
+
+        return false;
+    }
+
+    static boolean isRunningInPerconaXtraDBClusterWithStrictMode(JdbcTemplate jdbcTemplate) {
+        try {
+            if ("ENFORCING".equals(jdbcTemplate.queryForString(
                     "select VARIABLE_VALUE from performance_schema.global_variables"
                             + " where variable_name = 'pxc_strict_mode'"))) {
                 LOG.debug("Detected Percona XtraDB Cluster in strict mode");
@@ -136,6 +156,12 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     protected MySQLConnection doGetConnection(Connection connection) {
         return new MySQLConnection(this, connection);
     }
+
+
+
+
+
+
 
 
 
