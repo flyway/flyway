@@ -50,8 +50,10 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
 
     @Override
     public final void ensureSupported() {
-        // #2221: Should be 3.7.2 but older versions of the Xerial JDBC driver misreport 3.x versions as being 3.0.
-        ensureDatabaseIsRecentEnough("3.0");
+        // The minimum should really be 3.7.2. However the SQLite driver quality is really hit and miss, so we can't
+        // reliably detect this.
+        // #2221: Older versions of the Xerial JDBC driver misreport 3.x versions as being 3.0.
+        // #2409: SQLDroid misreports the version as 0.0
     }
 
     @Override
