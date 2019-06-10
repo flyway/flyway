@@ -41,9 +41,9 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     private final boolean pxcStrict;
 
     /**
-     * Whether the event scheduler is disabled.
+     * Whether the event scheduler table is queryable.
      */
-    final boolean eventSchedulerDisabled;
+    final boolean eventSchedulerQueryable;
 
     /**
      * Creates a new instance.
@@ -63,20 +63,18 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(rawMainJdbcConnection, databaseType);
         pxcStrict = isRunningInPerconaXtraDBClusterWithStrictMode(jdbcTemplate);
-        eventSchedulerDisabled = isEventSchedulerDisabled(jdbcTemplate);
+        eventSchedulerQueryable = DatabaseType.MYSQL == databaseType || isEventSchedulerQueryable(jdbcTemplate);
     }
 
-    private static boolean isEventSchedulerDisabled(JdbcTemplate jdbcTemplate) {
+    private static boolean isEventSchedulerQueryable(JdbcTemplate jdbcTemplate) {
         try {
-            if ("DISABLED".equals(jdbcTemplate.queryForString("SELECT @@event_scheduler"))) {
-                LOG.debug("Detected disabled MySQL event scheduler");
-                return true;
-            }
+            // Attempt query
+            jdbcTemplate.queryForString("SELECT event_name FROM information_schema.events LIMIT 1");
+            return true;
         } catch (SQLException e) {
-            LOG.debug("Unable to detect whether MySQL event scheduler is disabled. Assuming not.");
+            LOG.debug("Detected unqueryable MariaDB event scheduler, most likely due to it being OFF or DISABLED.");
+            return false;
         }
-
-        return false;
     }
 
     static boolean isRunningInPerconaXtraDBClusterWithStrictMode(JdbcTemplate jdbcTemplate) {

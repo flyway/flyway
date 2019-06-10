@@ -48,7 +48,7 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
     @Override
     protected boolean doEmpty() throws SQLException {
         List<String> params = new ArrayList<>(Arrays.asList(name, name, name, name, name));
-        if (!database.eventSchedulerDisabled) {
+        if (database.eventSchedulerQueryable) {
             params.add(name);
         }
 
@@ -59,8 +59,8 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
                         + "(SELECT 1 as found FROM information_schema.triggers WHERE trigger_schema=? LIMIT 1) UNION ALL "
                         + "(SELECT 1 as found FROM information_schema.routines WHERE routine_schema=? LIMIT 1)"
                         // #2410 Unlike MySQL, MariaDB 10.0 and newer don't allow the events table to be queried
-                        // when the event scheduled is disabled
-                        + (database.eventSchedulerDisabled ? "" : " UNION ALL (SELECT 1 as found FROM information_schema.events WHERE event_schema=? LIMIT 1)")
+                        // when the event scheduled is DISABLED or in some rare cases OFF
+                        + (database.eventSchedulerQueryable ? " UNION ALL (SELECT 1 as found FROM information_schema.events WHERE event_schema=? LIMIT 1)" : "")
                         + ") as all_found",
                 params.toArray(new String[0])
         ) == 0;
@@ -78,7 +78,7 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
 
     @Override
     protected void doClean() throws SQLException {
-        if (!database.eventSchedulerDisabled) {
+        if (database.eventSchedulerQueryable) {
             for (String statement : cleanEvents()) {
                 jdbcTemplate.execute(statement);
             }
