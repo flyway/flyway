@@ -100,14 +100,18 @@ public abstract class Parser {
      * @return The statements.
      */
     public final SqlStatementIterator parse(final LoadableResource resource) {
-        final PositionTracker tracker = new PositionTracker();
-        final Recorder recorder = new Recorder();
-        final ParserContext context = new ParserContext(getDefaultDelimiter());
+        PositionTracker tracker = new PositionTracker();
+        Recorder recorder = new Recorder();
+        ParserContext context = new ParserContext(getDefaultDelimiter());
 
         LOG.debug("Parsing " + resource.getFilename() + " ...");
-        Reader r = new PositionTrackingReader(tracker, new BomStrippingReader(new BufferedReader(resource.read(), 4096)));
-        final PeekingReader peekingReader =
-                new PeekingReader(new RecordingReader(recorder, replacePlaceholders(r)));
+        PeekingReader peekingReader =
+                new PeekingReader(
+                        new RecordingReader(recorder,
+                                replacePlaceholders(
+                                        new PositionTrackingReader(tracker,
+                                                new BomStrippingReader(
+                                                        new BufferedReader(resource.read(), 4096))))));
 
         return new ParserSqlStatementIterator(peekingReader, resource, recorder, tracker, context);
     }

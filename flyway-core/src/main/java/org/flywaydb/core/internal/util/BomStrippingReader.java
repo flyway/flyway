@@ -26,8 +26,6 @@ public class BomStrippingReader extends FilterReader {
     private static final int EMPTY_STREAM = -1;
     private static final char BOM = '\ufeff';
 
-    private boolean firstChar = true;
-
     /**
      * Creates a new BOM-stripping reader.
      *
@@ -41,12 +39,9 @@ public class BomStrippingReader extends FilterReader {
     @Override
     public int read() throws IOException {
         int c = super.read();
-        if (firstChar) {
-            firstChar = false;
-            if (c != EMPTY_STREAM && (char) c == BOM) {
-                // Skip BOM
-                return super.read();
-            }
+        if (c != EMPTY_STREAM && (char) c == BOM) {
+            // Skip BOM
+            return super.read();
         }
         return c;
     }

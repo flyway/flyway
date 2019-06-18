@@ -48,7 +48,7 @@ public class ParserSqlScript implements SqlScript {
      */
     protected final LoadableResource resource;
 
-    private final Parser parser;
+    protected final Parser parser;
     private final boolean mixed;
     private boolean parsed;
 
@@ -72,7 +72,7 @@ public class ParserSqlScript implements SqlScript {
         this.mixed = mixed;
     }
 
-    private void parse() {
+    protected void parse() {
         try (SqlStatementIterator sqlStatementIterator = parser.parse(resource)) {
             boolean transactionalStatementFound = false;
             while (sqlStatementIterator.hasNext()) {

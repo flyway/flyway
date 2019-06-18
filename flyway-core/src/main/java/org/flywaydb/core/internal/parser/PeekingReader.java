@@ -373,8 +373,8 @@ public class PeekingReader extends FilterReader {
     /**
      * Reads all characters in this stream as long as they can be part of a keyword.
      *
+     * @param delimiter The current delimiter.
      * @return The string read.
-     * @param delimiter
      */
     public String readKeywordPart(Delimiter delimiter) throws IOException {
         StringBuilder result = new StringBuilder();
