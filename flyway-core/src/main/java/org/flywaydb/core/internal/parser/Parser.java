@@ -463,7 +463,7 @@ public abstract class Parser {
             return handleDelimiter(reader, context, pos, line, col);
         }
         if (c == '_' || Character.isLetter(c)) {
-            String text = "" + (char) reader.read() + reader.readKeywordPart(context.getDelimiter());
+            String text = readKeyword(reader, context.getDelimiter());
             if (reader.peek('.')) {
                 text += readAdditionalIdentifierParts(reader, identifierQuote, context.getDelimiter());
             }
@@ -488,6 +488,10 @@ public abstract class Parser {
             return null;
         }
         throw new FlywayException("Unknown char " + (char) reader.read() + " encountered on line " + line + " at column " + col);
+    }
+
+    protected String readKeyword(PeekingReader reader, Delimiter delimiter) throws IOException {
+        return "" + (char) reader.read() + reader.readKeywordPart(delimiter);
     }
 
     protected Token handleDelimiter(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {

@@ -379,7 +379,7 @@ public class PeekingReader extends FilterReader {
     public String readKeywordPart(Delimiter delimiter) throws IOException {
         StringBuilder result = new StringBuilder();
         do {
-            if (!peek(delimiter.getDelimiter()) && peekKeywordPart()) {
+            if ((delimiter == null || !peek(delimiter.getDelimiter())) && peekKeywordPart()) {
                 result.append((char) read());
             } else {
                 break;

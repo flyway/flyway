@@ -17,9 +17,11 @@ package org.flywaydb.core.internal.database.sqlserver;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.Parser;
+import org.flywaydb.core.internal.parser.PeekingReader;
 import org.flywaydb.core.internal.parser.Token;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 
+import java.io.IOException;
 import java.util.List;
 
 public class SQLServerParser extends Parser {
@@ -38,6 +40,12 @@ public class SQLServerParser extends Parser {
                 && (peek.charAt(0) == 'G' || peek.charAt(0) == 'g')
                 && (peek.charAt(1) == 'O' || peek.charAt(1) == 'o')
                 && (peek.length() == 2 || Character.isWhitespace(peek.charAt(2)));
+    }
+
+    @Override
+    protected String readKeyword(PeekingReader reader, Delimiter delimiter) throws IOException {
+        // #2414: Ignore delimiter as GO (unlike ;) can be part of a regular keyword
+        return "" + (char) reader.read() + reader.readKeywordPart(null);
     }
 
     @Override
