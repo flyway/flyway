@@ -25,7 +25,7 @@ public enum MigrationType {
     SCHEMA(true, false),
 
     /**
-     * Bseline migration.
+     * Baseline migration.
      */
     BASELINE(true, false),
 
