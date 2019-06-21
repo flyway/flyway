@@ -56,7 +56,11 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * The default Gradle configurations to use.
      */
-    private static final String[] DEFAULT_CONFIGURATIONS = {"compile", "runtime", "testCompile", "testRuntime"};
+    // #2272: Gradle 4.x introduced additional configuration names and Gradle 5.0 deprecated some old ones.
+    // -> Rely on historic ones for Gradle 3.x
+    private static final String[] DEFAULT_CONFIGURATIONS_GRADLE3 = {"compileClasspath", "runtime", "testCompileClasspath", "testRuntime"};
+    // -> And use new ones with Gradle 4.x and newer
+    private static final String[] DEFAULT_CONFIGURATIONS_GRADLE45 = {"compileClasspath", "runtimeClasspath", "testCompileClasspath", "testRuntimeClasspath"};
 
     /**
      * The flyway {} block in the build script.
@@ -560,7 +564,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         if (extension.configurations != null) {
             return extension.configurations;
         }
-        return DEFAULT_CONFIGURATIONS;
+        if (getProject().getGradle().getGradleVersion().startsWith("3")) {
+            return DEFAULT_CONFIGURATIONS_GRADLE3;
+        }
+        return DEFAULT_CONFIGURATIONS_GRADLE45;
     }
 
     /**
