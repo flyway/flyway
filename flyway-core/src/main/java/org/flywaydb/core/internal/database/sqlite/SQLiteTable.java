@@ -52,7 +52,15 @@ public class SQLiteTable extends Table<SQLiteDatabase, SQLiteSchema> {
         if (undroppable) {
             LOG.debug("SQLite system table " + this + " cannot be dropped. Ignoring.");
         } else {
-            jdbcTemplate.execute("DROP TABLE " + database.quote(schema.getName(), name));
+            final String dropSql = "DROP TABLE " + database.quote(schema.getName(), name);
+            if (jdbcTemplate.queryForBoolean("PRAGMA foreign_keys")) {
+                // If foreign keys are enabled, disable them before dropping the table and re-enable them afterwards
+                // Otherwise the drop will not work if there are records in other tables referencing this table by a foreign key constraint
+                jdbcTemplate.execute("PRAGMA foreign_keys = OFF; DROP TABLE " + dropSql + "; PRAGMA foreign_keys = ON;");
+            }
+            else {
+                jdbcTemplate.execute(dropSql);
+            }
         }
     }
 
