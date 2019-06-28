@@ -15,11 +15,11 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
      * Creates a new SQLite schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param name         The name of the schema.
      */
     SQLiteSchema(JdbcTemplate jdbcTemplate, SQLiteDatabase database, String name) {
@@ -81,6 +81,12 @@ public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
 
     @Override
     protected void doClean() throws SQLException {
+        boolean foreignKeys = jdbcTemplate.queryForBoolean("PRAGMA foreign_keys");
+        if (foreignKeys) {
+            // #2417: Disable foreign keys before dropping tables and views to avoid constraint violation errors
+            jdbcTemplate.execute("PRAGMA foreign_keys = OFF");
+        }
+
         List<String> viewNames = jdbcTemplate.queryForStringList("SELECT tbl_name FROM " + database.quote(name) + ".sqlite_master WHERE type='view'");
         for (String viewName : viewNames) {
             jdbcTemplate.execute("DROP VIEW " + database.quote(name, viewName));
@@ -92,6 +98,10 @@ public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
 
         if (getTable(SQLiteTable.SQLITE_SEQUENCE).exists()) {
             jdbcTemplate.execute("DELETE FROM " + SQLiteTable.SQLITE_SEQUENCE);
+        }
+
+        if (foreignKeys) {
+            jdbcTemplate.execute("PRAGMA foreign_keys = ON");
         }
     }
 
