@@ -42,9 +42,9 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     public static final MigrationVersion CURRENT = new MigrationVersion(BigInteger.valueOf(-2), "<< Current Version >>");
 
     /**
-     * Compiled pattern for matching proper version format
+     * Regex for matching proper version format
      */
-    private static Pattern splitPattern = Pattern.compile("\\.(?=\\d)");
+    private static final Pattern SPLIT_REGEX = Pattern.compile("\\.(?=\\d)");
 
     /**
      * The individual parts this version string is composed of. Ex. 1.2.3.4.0 -> [1, 2, 3, 4, 0]
@@ -57,7 +57,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     private final String displayText;
 
     /**
-     * Factory for creating a MigrationVersion from a version String
+     * Create a MigrationVersion from a version String.
      *
      * @param version The version String. The value {@code current} will be interpreted as MigrationVersion.CURRENT,
      *                a marker for the latest version that has been applied to the database.
@@ -182,14 +182,15 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         return versionParts.get(1).toString();
     }
 
-    @SuppressWarnings("NullableProblems")
+    @Override
     public int compareTo(MigrationVersion o) {
         if (o == null) {
             return 1;
         }
 
         if (this == EMPTY) {
-            return o == EMPTY ? 0 : Integer.MIN_VALUE;
+            if (o == EMPTY) return 0;
+            else return Integer.MIN_VALUE;
         }
 
         if (this == CURRENT) {
@@ -197,7 +198,8 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         }
 
         if (this == LATEST) {
-            return o == LATEST ? 0 : Integer.MAX_VALUE;
+            if (o == LATEST) return 0;
+            else return Integer.MAX_VALUE;
         }
 
         if (o == EMPTY) {
@@ -230,26 +232,30 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     /**
      * Splits this string into list of Long
      *
-     * @param str The string to split.
+     * @param versionStr The string to split.
      * @return The resulting array.
      */
-    private List<BigInteger> tokenize(String str) {
+    private List<BigInteger> tokenize(String versionStr) {
         List<BigInteger> parts = new ArrayList<>();
-        try {
-            for (String part : splitPattern.split(str)) {
-                parts.add(new BigInteger(part));
-            }
-        } catch (NumberFormatException e) {
-            throw new FlywayException(
-                    "Invalid version containing non-numeric characters. Only 0..9 and . are allowed. Invalid version: "
-                            + str);
+        for (String part : SPLIT_REGEX.split(versionStr)) {
+            parts.add(toBigInteger(versionStr, part));
         }
+
         for (int i = parts.size() - 1; i > 0; i--) {
             if (!parts.get(i).equals(BigInteger.ZERO)) {
                 break;
             }
             parts.remove(i);
         }
+
         return parts;
+    }
+
+    private BigInteger toBigInteger(String versionStr, String part) {
+        try {
+            return new BigInteger(part);
+        } catch (NumberFormatException e) {
+            throw new FlywayException("Version may only contain 0..9 and . (dot). Invalid version: " + versionStr);
+        }
     }
 }

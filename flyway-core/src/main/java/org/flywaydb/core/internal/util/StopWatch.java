@@ -35,20 +35,25 @@ public class StopWatch {
      * Starts the stop watch.
      */
     public void start() {
-        start = System.nanoTime();
+        start = nanoTime();
     }
 
     /**
      * Stops the stop watch.
      */
     public void stop() {
-        stop = System.nanoTime();
+        stop = nanoTime();
+    }
+
+    private long nanoTime() {
+        return System.nanoTime();
     }
 
     /**
      * @return The total run time in millis of the stop watch between start and stop calls.
      */
     public long getTotalTimeMillis() {
-        return TimeUnit.NANOSECONDS.toMillis(stop - start);
+        long duration = stop - start;
+        return TimeUnit.NANOSECONDS.toMillis(duration);
     }
 }

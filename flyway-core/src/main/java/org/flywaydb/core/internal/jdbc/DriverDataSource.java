@@ -42,16 +42,20 @@ public class DriverDataSource implements DataSource {
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
     private static final String MARIADB_JDBC_URL_PREFIX = "jdbc:mariadb:";
     private static final String MYSQL_JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+    private static final String MYSQL_GOOGLE_JDBC_DRIVER = "com.mysql.jdbc.GoogleDriver";
     private static final String MYSQL_LEGACY_JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql:";
     private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle:";
     private static final String POSTGRESQL_JDBC_URL_PREFIX = "jdbc:postgresql:";
     private static final String REDSHIFT_JDBC_URL_PREFIX = "jdbc:redshift:";
+    private static final String REDSHIFT_JDBC4_DRIVER = "com.amazon.redshift.jdbc4.Driver";
     private static final String REDSHIFT_JDBC41_DRIVER = "com.amazon.redshift.jdbc41.Driver";
     private static final String SAPHANA_JDBC_URL_PREFIX = "jdbc:sap:";
     private static final String SQLDROID_DRIVER = "org.sqldroid.SQLDroidDriver";
     private static final String SQLSERVER_JDBC_URL_PREFIX = "jdbc:sqlserver:";
     private static final String SYBASE_JDBC_URL_PREFIX = "jdbc:sybase:";
+    private static final String TEST_CONTAINERS_JDBC_DRIVER = "org.testcontainers.jdbc.ContainerDatabaseDriver";
+    private static final String TEST_CONTAINERS_JDBC_URL_PREFIX = "jdbc:tc:";
 
     /**
      * The name of the application that created the connection. This is useful for databases that allow setting this
@@ -265,7 +269,7 @@ public class DriverDataSource implements DataSource {
             if (ClassUtils.isPresent(REDSHIFT_JDBC41_DRIVER, classLoader)) {
                 return REDSHIFT_JDBC41_DRIVER;
             }
-            return "com.amazon.redshift.jdbc4.Driver";
+            return REDSHIFT_JDBC4_DRIVER;
         }
 
         return null;
@@ -278,8 +282,8 @@ public class DriverDataSource implements DataSource {
      * @return The Jdbc driver.
      */
     private String detectDriverForUrl(String url) {
-        if (url.startsWith("jdbc:tc:")) {
-            return "org.testcontainers.jdbc.ContainerDatabaseDriver";
+        if (url.startsWith(TEST_CONTAINERS_JDBC_URL_PREFIX)) {
+            return TEST_CONTAINERS_JDBC_DRIVER;
         }
 
         if (url.startsWith(DB2_JDBC_URL_PREFIX)) {
@@ -322,7 +326,7 @@ public class DriverDataSource implements DataSource {
         }
 
         if (url.startsWith("jdbc:google:")) {
-            return "com.mysql.jdbc.GoogleDriver";
+            return MYSQL_GOOGLE_JDBC_DRIVER;
         }
 
         if (url.startsWith(ORACLE_JDBC_URL_PREFIX)) {
@@ -452,32 +456,46 @@ public class DriverDataSource implements DataSource {
         this.autoCommit = autoCommit;
     }
 
+    @Override
     public int getLoginTimeout() {
         return 0;
     }
 
+    @Override
     public void setLoginTimeout(int timeout) {
-        throw new UnsupportedOperationException("setLoginTimeout");
+        unsupportedMethod("setLoginTimeout");
     }
 
+    @Override
     public PrintWriter getLogWriter() {
-        throw new UnsupportedOperationException("getLogWriter");
+        unsupportedMethod("getLogWriter");
+        return null;
     }
 
+    @Override
     public void setLogWriter(PrintWriter pw) {
-        throw new UnsupportedOperationException("setLogWriter");
+        unsupportedMethod("setLogWriter");
     }
 
+    @Override
     public <T> T unwrap(Class<T> iface) {
-        throw new UnsupportedOperationException("unwrap");
+        unsupportedMethod("unwrap");
+        return null;
     }
 
+    @Override
     public boolean isWrapperFor(Class<?> iface) {
         return DataSource.class.equals(iface);
     }
 
+    @Override
     public Logger getParentLogger() {
-        throw new UnsupportedOperationException("getParentLogger");
+        unsupportedMethod("getParentLogger");
+        return null;
+    }
+
+    private void unsupportedMethod(String methodName) {
+        throw new UnsupportedOperationException(methodName);
     }
 
     /**
