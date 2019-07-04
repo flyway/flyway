@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +23,14 @@ import java.util.List;
 
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.Table;
+import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 /**
  * Google Cloud Spanner-specific table.
  */
-public class CloudSpannerTable extends Table {
+public class CloudSpannerTable extends Table<CloudSpannerDatabase, CloudSpannerSchema> {
     private static final Log LOG = LogFactory.getLog(CloudSpannerTable.class);
 
     /**
@@ -43,7 +41,7 @@ public class CloudSpannerTable extends Table {
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public CloudSpannerTable(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name) {
+    CloudSpannerTable(JdbcTemplate jdbcTemplate, CloudSpannerDatabase database, CloudSpannerSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
     }
 
@@ -57,7 +55,7 @@ public class CloudSpannerTable extends Table {
     	statement.executeBatch();
     }
     
-    protected List<String> getDropStatements() throws SQLException {
+    List<String> getDropStatements() throws SQLException {
     	List<String> res = new ArrayList<>();
     	try(ResultSet rs = jdbcTemplate.getConnection().getMetaData().getIndexInfo("", "", name, false, false)) {
     		while(rs.next()) {
@@ -76,9 +74,9 @@ public class CloudSpannerTable extends Table {
      * Checks whether this table is interleaved in the other table (this is a child of the other table). This check does not do a recursive check, i.e. if this table is a child of a child of the other table, then the method will return false.
      * @param other The table to be checked for being a direct parent of this table
      * @return true if this is a direct child of other
-     * @throws SQLException 
+     * @throws SQLException could be rethrown
      */
-    public boolean isInterleavedIn(CloudSpannerTable other) throws SQLException {
+    boolean isInterleavedIn(CloudSpannerTable other) throws SQLException {
     	try(ResultSet rs = jdbcTemplate.getConnection().getMetaData().getImportedKeys("", "", this.name)) {
     		while(rs.next()) {
     			String parent = rs.getString("PKTABLE_NAME");

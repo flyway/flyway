@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,10 @@
  */
 package org.flywaydb.core.internal.database.cloudspanner;
 
-import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
-
-import java.sql.SQLException;
 
 /**
  * Google Cloud Spanner connection.
@@ -34,26 +31,18 @@ public class CloudSpannerConnection extends Connection<CloudSpannerDatabase> {
      */
     private static boolean schemaMessagePrinted;
 
-    CloudSpannerConnection(Configuration configuration, CloudSpannerDatabase database, java.sql.Connection connection, boolean originalAutoCommit, int nullType
-
-
-
-    ) {
-        super(configuration, database, connection, originalAutoCommit, nullType
-
-
-
-        );
+    CloudSpannerConnection(CloudSpannerDatabase database, java.sql.Connection connection) {
+        super(database, connection);
     }
 
 
     @Override
-    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() {
         return "";
     }
 
     @Override
-    public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
+    public void doChangeCurrentSchemaOrSearchPathTo(String schema) {
         if (!schemaMessagePrinted) {
             LOG.info("Google Cloud Spanner does not support setting the schema. Default schema NOT changed to " + schema);
             schemaMessagePrinted = true;
@@ -61,7 +50,7 @@ public class CloudSpannerConnection extends Connection<CloudSpannerDatabase> {
     }
 
     @Override
-    public Schema<CloudSpannerDatabase> getSchema(String name) {
+    public Schema<CloudSpannerDatabase, CloudSpannerTable> getSchema(String name) {
         return new CloudSpannerSchema(jdbcTemplate, database, name);
     }
 }

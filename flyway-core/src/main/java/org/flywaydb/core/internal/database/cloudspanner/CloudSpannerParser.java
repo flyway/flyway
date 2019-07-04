@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,16 @@
  */
 package org.flywaydb.core.internal.database.cloudspanner;
 
-import org.flywaydb.core.internal.database.Delimiter;
-import org.flywaydb.core.internal.database.SqlStatementBuilder;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.Parser;
 
-/**
- * SqlStatementBuilder for Google Cloud Spanner
- */
-public class CloudSpannerSqlStatementBuilder extends SqlStatementBuilder {
-
-    CloudSpannerSqlStatementBuilder(Delimiter defaultDelimiter) {
-        super(defaultDelimiter);
+public class CloudSpannerParser extends Parser {
+    public CloudSpannerParser(Configuration configuration) {
+        super(configuration, 2);
     }
 
+    @Override
+    protected char getIdentifierQuote() {
+        return '`';
+    }
 }

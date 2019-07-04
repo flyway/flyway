@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2010-2019 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package org.flywaydb.core.internal.database.cloudspanner;
 
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * Google Cloud Spanner implementation of Schema.
  */
-public class CloudSpannerSchema extends Schema<CloudSpannerDatabase> {
+public class CloudSpannerSchema extends Schema<CloudSpannerDatabase, CloudSpannerTable> {
     private static final Log LOG = LogFactory.getLog(CloudSpannerSchema.class);
 
     /**
@@ -48,59 +48,56 @@ public class CloudSpannerSchema extends Schema<CloudSpannerDatabase> {
 
     @Override
     protected boolean doExists() throws SQLException {
-    	return "".equals(name) || "INFORMATION_SCHEMA".equalsIgnoreCase(name);
+        return "".equals(name) || "INFORMATION_SCHEMA".equalsIgnoreCase(name);
     }
 
     @Override
-    protected boolean doEmpty() throws SQLException {
+    protected boolean doEmpty() {
         Table[] tables = allTables();
         return tables.length == 0;
     }
 
     @Override
-    protected void doCreate() throws SQLException {
+    protected void doCreate() {
         LOG.info("Google Cloud Spanner does not support creating schemas. Schema not created: " + name);
     }
 
     @Override
     protected void doDrop() throws SQLException {
-    	throw new SQLFeatureNotSupportedException("Schemas cannot be dropped in Google Cloud Spanner");
+        throw new SQLFeatureNotSupportedException("Schemas cannot be dropped in Google Cloud Spanner");
     }
 
     @Override
     protected void doClean() throws SQLException {
-    	List<CloudSpannerTable> tables = new ArrayList<>();
-        for (CloudSpannerTable table : doAllTables()) {
-        	tables.add(table);
-        }
+        List<CloudSpannerTable> tables = new ArrayList<>(Arrays.asList(doAllTables()));
         // Sort the tables so that tables that are interleaved in others come first
         try {
-        	tables.sort(new InterleavedTableComparator());
+            tables.sort(new InterleavedTableComparator());
+        } catch (RuntimeException e) {
+            // see InterleavedTableComparator#compare
+            if (e.getCause() != null && e.getCause() instanceof SQLException) {
+                throw (SQLException) e.getCause();
+            }
+            throw e;
         }
-        catch(RuntimeException e) {
-        	// see InterleavedTableComparator#compare
-        	if(e.getCause() != null && e.getCause() instanceof SQLException)
-        		throw (SQLException) e.getCause();
-        	throw e;
+        List<String> dropStatements = new ArrayList<>();
+        for (CloudSpannerTable table : tables) {
+            dropStatements.addAll(table.getDropStatements());
         }
-    	List<String> dropStatements = new ArrayList<>();
-    	for(CloudSpannerTable table : tables) {
-    		dropStatements.addAll(table.getDropStatements());
-    	}
-    	Statement statement = jdbcTemplate.getConnection().createStatement();
-    	for(String sql : dropStatements) {
-    		statement.addBatch(sql);
-    	}
+        Statement statement = jdbcTemplate.getConnection().createStatement();
+        for (String sql : dropStatements) {
+            statement.addBatch(sql);
+        }
         statement.executeBatch();
     }
 
     @Override
     protected CloudSpannerTable[] doAllTables() throws SQLException {
-    	List<CloudSpannerTable> tables = new ArrayList<>();
-        try(ResultSet rs = jdbcTemplate.getConnection().getMetaData().getTables("", "", null, null)) {
-	        while(rs.next()) {
-	        	tables.add(new CloudSpannerTable(jdbcTemplate, database, this, rs.getString("TABLE_NAME")));
-	        }
+        List<CloudSpannerTable> tables = new ArrayList<>();
+        try (ResultSet rs = jdbcTemplate.getConnection().getMetaData().getTables("", "", null, null)) {
+            while (rs.next()) {
+                tables.add(new CloudSpannerTable(jdbcTemplate, database, this, rs.getString("TABLE_NAME")));
+            }
         }
         return tables.toArray(new CloudSpannerTable[tables.size()]);
     }
