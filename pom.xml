@@ -89,12 +89,6 @@
             <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
 
-
-
-
-
-
-
     </distributionManagement>
 
     <repositories>
@@ -112,7 +106,7 @@
         </repository>
         <repository>
             <id>flyway-repo</id>
-            <url>s3://flyway-repo/release</url>
+            <url>https://repo.flywaydb.org/repo</url>
         </repository>
 
 
@@ -570,6 +564,7 @@
                         <exclude>.gitattributes</exclude>
                         <exclude>.travis.yml</exclude>
                         <exclude>**/flyway</exclude>
+                        <exclude>**/*_BOM.sql</exclude>
                     </excludes>
                     <strictCheck>true</strictCheck>
                     <mapping>
@@ -677,6 +672,14 @@
                     <deployAtEnd>true</deployAtEnd>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <detectJavaApiLink>false</detectJavaApiLink>
+                    <encoding>UTF-8</encoding>
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -686,6 +689,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.0.1</version>
                 <configuration>
+                    <detectJavaApiLink>false</detectJavaApiLink>
                     <encoding>UTF-8</encoding>
                     <failOnError>false</failOnError>
                 </configuration>
@@ -706,10 +710,6 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <configuration>
-                            <encoding>UTF-8</encoding>
-                            <additionalparam>-Xdoclint:none</additionalparam>
-                        </configuration>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
