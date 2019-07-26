@@ -476,7 +476,7 @@ public abstract class Parser {
             String text = "" + (char) reader.read();
             return new Token(TokenType.SYMBOL, pos, line, col, text, text, context.getParensDepth());
         }
-        if (c == ' ' || c == '\r') {
+        if (c == ' ' || c == '\r' || c == '\u00A0' /* Non-linebreaking space */) {
             reader.swallow();
             return null;
         }
