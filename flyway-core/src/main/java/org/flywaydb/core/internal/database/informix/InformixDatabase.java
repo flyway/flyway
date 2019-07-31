@@ -49,6 +49,11 @@ public class InformixDatabase extends Database<InformixConnection> {
         return new InformixConnection(this, connection);
     }
 
+
+
+
+
+
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("12.10");

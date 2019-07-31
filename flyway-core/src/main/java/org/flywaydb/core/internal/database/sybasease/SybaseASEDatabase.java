@@ -50,6 +50,14 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
         return new SybaseASEConnection(this, connection);
     }
 
+
+
+
+
+
+
+
+
     @Override
     public void ensureSupported() {
         ensureDatabaseIsRecentEnough("15.7");
