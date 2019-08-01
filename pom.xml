@@ -125,7 +125,7 @@
         <version.jna>4.5.2</version.jna>
         <version.jtds>1.3.1</version.jtds>
         <version.mariadb>2.4.0</version.mariadb>
-        <version.mysql>8.0.12</version.mysql>
+        <version.mysql>8.0.17</version.mysql>
         <version.mssql-jdbc>7.2.0.jre8</version.mssql-jdbc>
         <version.postgresql>42.2.5.jre6</version.postgresql>
         <version.sqlite>3.23.1</version.sqlite>
