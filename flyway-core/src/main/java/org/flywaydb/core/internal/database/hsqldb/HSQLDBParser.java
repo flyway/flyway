@@ -26,6 +26,13 @@ import java.util.List;
 import java.util.Set;
 
 public class HSQLDBParser extends Parser {
+    /**
+     * List of objects which can be dropped with IF EXISTS
+     */
+    private static final List<String> CONDITIONALLY_CREATABLE_OBJECTS = Arrays.asList(
+            "CONSTRAINT", "TABLE", "COLUMN", "INDEX", "SEQUENCE", "VIEW", "SCHEMA"
+    );
+
     public HSQLDBParser(Configuration configuration) {
         super(configuration, 2);
     }
@@ -63,14 +70,20 @@ public class HSQLDBParser extends Parser {
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
         int lastKeywordIndex = getLastKeywordIndex(tokens);
         Token previousKeyword = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex) : null;
+        String keywordText = keyword.getText();
+        String previousKeywordText = previousKeyword != null ? previousKeyword.getText() : "";
 
-        if ("BEGIN".equals(keyword.getText())
-                || (("IF".equals(keyword.getText()) || "FOR".equals(keyword.getText()) || "CASE".equals(keyword.getText()))
-                && previousKeyword != null && !"END".equals(previousKeyword.getText()))) {
+        if ("BEGIN".equals(keywordText)
+                || ((("IF".equals(keywordText) && !CONDITIONALLY_CREATABLE_OBJECTS.contains(previousKeywordText))  // excludes the IF in eg. CREATE TABLE IF EXISTS
+                || "FOR".equals(keywordText)
+                || "CASE".equals(keywordText))
+                && previousKeyword != null && !"END".equals(previousKeywordText))) {
             context.increaseBlockDepth();
-        } else if (("EACH".equals(keyword.getText()) || "SQLEXCEPTION".equals(keyword.getText())) && previousKeyword != null && "FOR".equals(previousKeyword.getText())) {
+        } else if (("EACH".equals(keywordText) || "SQLEXCEPTION".equals(keywordText))
+                && previousKeyword != null
+                && "FOR".equals(previousKeywordText)) {
             context.decreaseBlockDepth();
-        } else if ("END".equals(keyword.getText())) {
+        } else if ("END".equals(keywordText)) {
             context.decreaseBlockDepth();
         }
     }
