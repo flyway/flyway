@@ -172,16 +172,22 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     protected final void recommendFlywayUpgradeIfNecessary(String newestSupportedVersion) {
         if (getVersion().isNewerThan(newestSupportedVersion)) {
-            LOG.warn("Flyway upgrade recommended: " + databaseType + " " + computeVersionDisplayName(getVersion())
-                    + " is newer than this version of Flyway and support has not been tested.");
+            recommendFlywayUpgrade(newestSupportedVersion);
         }
     }
 
     protected final void recommendFlywayUpgradeIfNecessaryForMajorVersion(String newestSupportedVersion) {
         if (getVersion().isMajorNewerThan(newestSupportedVersion)) {
-            LOG.warn("Flyway upgrade recommended: " + databaseType + " " + computeVersionDisplayName(getVersion())
-                    + " is newer than this version of Flyway and support has not been tested.");
+            recommendFlywayUpgrade(newestSupportedVersion);
         }
+    }
+
+    private void recommendFlywayUpgrade(String newestSupportedVersion) {
+        String message = "Flyway upgrade recommended: " + databaseType + " " + computeVersionDisplayName(getVersion())
+                + " is newer than this version of Flyway and support has not been tested. "
+                + "The latest supported version of " + databaseType + " is " + newestSupportedVersion + ".";
+
+        LOG.warn(message);
     }
 
     /**
