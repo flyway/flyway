@@ -66,7 +66,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     @SuppressWarnings("ConstantConditions")
     public static MigrationVersion fromVersion(String version) {
         if ("current".equalsIgnoreCase(version)) return CURRENT;
-        if (LATEST.getVersion().equals(version)) return LATEST;
+        if ("latest".equalsIgnoreCase(version) || LATEST.getVersion().equals(version)) return LATEST;
         if (version == null) return EMPTY;
         return new MigrationVersion(version);
     }

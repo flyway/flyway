@@ -130,8 +130,14 @@ public class ClassicConfiguration implements Configuration {
     private String tablespace;
 
     /**
-     * The target version up to which Flyway should consider migrations. Migrations with a higher version number will
-     * be ignored. The special value {@code current} designates the current version of the schema (default: the latest version)
+     * The target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored. 
+     * Special values:
+     * <ul>
+     * <li>{@code current}: designates the current version of the schema</li>
+     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * </ul>
+     * Defaults to {@code latest}.
      */
     private MigrationVersion target;
 
@@ -1003,10 +1009,14 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Sets the target version up to which Flyway should consider migrations. Migrations with a higher version number will
-     * be ignored.
-     *
-     * @param target The target version up to which Flyway should consider migrations. (default: the latest version)
+     * Sets the target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored. 
+     * Special values:
+     * <ul>
+     * <li>{@code current}: designates the current version of the schema</li>
+     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * </ul>
+     * Defaults to {@code latest}.
      */
     public void setTarget(MigrationVersion target) {
         this.target = target;
@@ -1014,11 +1024,13 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored.
-     *
-     * @param target The target version up to which Flyway should consider migrations.
-     *               The special value {@code current} designates the current version of the schema. (default: the latest
-     *               version)
+     * Migrations with a higher version number will be ignored. 
+     * Special values:
+     * <ul>
+     * <li>{@code current}: designates the current version of the schema</li>
+     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * </ul>
+     * Defaults to {@code latest}.
      */
     public void setTargetAsString(String target) {
         this.target = MigrationVersion.fromVersion(target);

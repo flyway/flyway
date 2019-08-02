@@ -193,8 +193,13 @@ public class FlywayExtension {
 
     /**
      * The target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored.
-     * The special value {@code current} designates the current version of the schema.
+     * Migrations with a higher version number will be ignored. 
+     * Special values:
+     * <ul>
+     * <li>{@code current}: designates the current version of the schema</li>
+     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * </ul>
+     * Defaults to {@code latest}.
      */
     public String target;
 
