@@ -13,3 +13,6 @@ target
 .gradle
 *.h2.db
 .DS_Store
+conf/
+sql/
+drivers/

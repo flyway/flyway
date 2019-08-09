@@ -35,6 +35,8 @@ public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
     private static final List<String> IGNORED_SYSTEM_TABLE_NAMES =
             Arrays.asList("android_metadata", SQLiteTable.SQLITE_SEQUENCE);
 
+    private boolean foreignKeysEnabled;
+
     /**
      * Creates a new SQLite schema.
      *
@@ -81,13 +83,10 @@ public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
 
     @Override
     protected void doClean() throws SQLException {
-        boolean foreignKeys = jdbcTemplate.queryForBoolean("PRAGMA foreign_keys");
-        if (foreignKeys) {
-            // #2417: Disable foreign keys before dropping tables and views to avoid constraint violation errors
-            jdbcTemplate.execute("PRAGMA foreign_keys = OFF");
-        }
+        foreignKeysEnabled = jdbcTemplate.queryForBoolean("PRAGMA foreign_keys");
 
         List<String> viewNames = jdbcTemplate.queryForStringList("SELECT tbl_name FROM " + database.quote(name) + ".sqlite_master WHERE type='view'");
+
         for (String viewName : viewNames) {
             jdbcTemplate.execute("DROP VIEW " + database.quote(name, viewName));
         }
@@ -98,10 +97,6 @@ public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
 
         if (getTable(SQLiteTable.SQLITE_SEQUENCE).exists()) {
             jdbcTemplate.execute("DELETE FROM " + SQLiteTable.SQLITE_SEQUENCE);
-        }
-
-        if (foreignKeys) {
-            jdbcTemplate.execute("PRAGMA foreign_keys = ON");
         }
     }
 
@@ -120,4 +115,6 @@ public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
     public Table getTable(String tableName) {
         return new SQLiteTable(jdbcTemplate, database, this, tableName);
     }
+
+    public boolean getForeignKeysEnabled() { return foreignKeysEnabled; }
 }
