@@ -284,6 +284,9 @@ public class FluentConfiguration implements Configuration {
         return config.getLicenseKey();
     }
 
+    @Override
+    public boolean outputQueryResults() { return config.outputQueryResults(); }
+
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.

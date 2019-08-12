@@ -431,6 +431,15 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
+
+
+
+
+
+
+
+
     /**
      * Creates a new default configuration.
      */
@@ -662,6 +671,23 @@ public class ClassicConfiguration implements Configuration {
     public String getLicenseKey() {
 
         throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("licenseKey");
+
+
+
+
+    }
+
+    /**
+     * Whether Flyway should output a table with the results of queries when executing migrations.
+     *
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @return {@code true} to output the results table (default: {@code true})
+     */
+    @Override
+    public boolean outputQueryResults() {
+
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("outputQueryResults");
 
 
 
@@ -1523,6 +1549,7 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
         setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
@@ -1550,6 +1577,22 @@ public class ClassicConfiguration implements Configuration {
         setTablespace(configuration.getTablespace());
         setTarget(configuration.getTarget());
         setValidateOnMigrate(configuration.isValidateOnMigrate());
+    }
+
+    /**
+     * Whether Flyway should output a table with the results of queries when executing migrations.
+     *
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @return {@code true} to output the results table (default: {@code true})
+     */
+    private void setOutputQueryResults(boolean outputQueryResults) {
+
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("outputQueryResults");
+
+
+
+
     }
 
     /**
@@ -1707,6 +1750,10 @@ public class ClassicConfiguration implements Configuration {
         Boolean outOfOrderProp = getBooleanProp(props, ConfigUtils.OUT_OF_ORDER);
         if (outOfOrderProp != null) {
             setOutOfOrder(outOfOrderProp);
+        }
+        Boolean outputQueryResultsProp = getBooleanProp(props, ConfigUtils.OUTPUT_QUERY_RESULTS);
+        if (outputQueryResultsProp != null) {
+            setOutputQueryResults(outputQueryResultsProp);
         }
         String resolversProp = props.remove(ConfigUtils.RESOLVERS);
         if (StringUtils.hasLength(resolversProp)) {

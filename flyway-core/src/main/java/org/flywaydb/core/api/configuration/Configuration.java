@@ -482,4 +482,13 @@ public interface Configuration {
      * @return Your Flyway license key.
      */
     String getLicenseKey();
+
+    /**
+     * Whether Flyway should output a table with the results of queries when executing migrations.
+     *
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @return {@code true} to output the results table (default: {@code true})
+     */
+    boolean outputQueryResults();
 }
