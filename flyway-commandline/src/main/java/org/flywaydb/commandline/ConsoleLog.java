@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.logging.console;
+package org.flywaydb.commandline;
 
 import org.flywaydb.core.api.logging.Log;
 
 /**
  * Wrapper around a simple Console output.
  */
-public class ConsoleLog implements Log {
+class ConsoleLog implements Log {
  	public enum Level {
  		DEBUG, INFO, WARN
  	}

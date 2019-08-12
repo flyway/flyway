@@ -135,6 +135,7 @@
         <version.android>4.0.1.2</version.android>
         <version.slf4j>1.7.16</version.slf4j>
         <version.jre>11.0.2</version.jre>
+        <version.jansi>1.18</version.jansi>
     </properties>
 
     <dependencyManagement>
@@ -370,6 +371,11 @@
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
                 <version>1.8.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.jansi</groupId>
+                <artifactId>jansi</artifactId>
+                <version>${version.jansi}</version>
             </dependency>
             <dependency>
                 <groupId>net.adoptopenjdk</groupId>

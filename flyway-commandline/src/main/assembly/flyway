@@ -61,7 +61,7 @@ if [ -z "$FLYWAY_EDITION" ]; then
   FLYWAY_EDITION=community
 fi
 
-CP="$INSTALLDIR/lib/$FLYWAY_EDITION/*:$INSTALLDIR/drivers/*"
+CP="$INSTALLDIR/lib/*:$INSTALLDIR/lib/$FLYWAY_EDITION/*:$INSTALLDIR/drivers/*"
 
 EXTRA_ARGS=
 if $linux; then

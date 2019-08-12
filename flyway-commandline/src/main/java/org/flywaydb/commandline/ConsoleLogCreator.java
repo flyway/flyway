@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.logging.console;
+package org.flywaydb.commandline;
 
-import org.flywaydb.core.internal.logging.console.ConsoleLog.Level;
+import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 
 /**
  * Log Creator for the Command-Line console.
  */
-public class ConsoleLogCreator implements LogCreator {
+class ConsoleLogCreator implements LogCreator {
     private final Level level;
 
     /**
@@ -35,6 +35,14 @@ public class ConsoleLogCreator implements LogCreator {
     }
 
     public Log createLogger(Class<?> clazz) {
-        return new ConsoleLog(level);
+        ConsoleLog log = new ConsoleLog(level);
+
+        // We don't want colorized output when there's no console (for example, in a redirect)
+        if (System.console() == null) {
+            return log;
+        }
+
+        ColorizedConsoleLog.install();
+        return new ColorizedConsoleLog(log);
     }
 }
