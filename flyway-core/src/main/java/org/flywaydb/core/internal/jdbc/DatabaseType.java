@@ -134,6 +134,9 @@ public enum DatabaseType {
         if (databaseProductName.startsWith("Informix")) {
             return INFORMIX;
         }
+        if (databaseProductName.startsWith("Firebird")) {
+            return FIREBIRD;
+        }
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
 
