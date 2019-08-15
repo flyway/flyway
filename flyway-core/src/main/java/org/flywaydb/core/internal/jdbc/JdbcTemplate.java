@@ -48,8 +48,17 @@ public class JdbcTemplate {
      * @param connection The database connection to use.
      */
     public JdbcTemplate(Connection connection) {
+        this(connection, DatabaseType.fromJdbcConnection(connection));
+    }
+
+    /**
+     * Creates a new JdbcTemplate.
+     *
+     * @param connection The database connection to use.
+     */
+    public JdbcTemplate(Connection connection, DatabaseType databaseType) {
         this.connection = connection;
-        this.nullType = DatabaseType.fromJdbcConnection(connection).getNullType();
+        this.nullType = databaseType.getNullType();
     }
 
     /**
@@ -344,19 +353,19 @@ public class JdbcTemplate {
     /**
      * Executes this query and map the results using this row mapper.
      *
-     * @param query     The query to execute.
+     * @param sql       The query to execute.
      * @param rowMapper The row mapper to use.
      * @param <T>       The type of the result objects.
      * @return The list of results.
      * @throws SQLException when the query failed to execute.
      */
-    public <T> List<T> query(String query, RowMapper<T> rowMapper) throws SQLException {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... params) throws SQLException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
 
         List<T> results;
         try {
-            statement = connection.prepareStatement(query);
+            statement = prepareStatement(sql, params);
             resultSet = statement.executeQuery();
 
             results = new ArrayList<>();

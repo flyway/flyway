@@ -288,21 +288,12 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
 
 
 
+    @Override
     public MigrationInfo[] all() {
-        List<MigrationInfo> allMigrations = new ArrayList<>();
-        for (MigrationInfo migrationInfo : migrationInfos) {
-
-
-
-                allMigrations.add(migrationInfo);
-
-
-
-        }
-
-        return allMigrations.toArray(new MigrationInfo[0]);
+        return migrationInfos.toArray(new MigrationInfo[0]);
     }
 
+    @Override
     public MigrationInfo current() {
         MigrationInfo current = null;
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
@@ -336,6 +327,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         return null;
     }
 
+    @Override
     public MigrationInfoImpl[] pending() {
         List<MigrationInfoImpl> pendingMigrations = new ArrayList<>();
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
@@ -347,6 +339,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         return pendingMigrations.toArray(new MigrationInfoImpl[0]);
     }
 
+    @Override
     public MigrationInfoImpl[] applied() {
         List<MigrationInfoImpl> appliedMigrations = new ArrayList<>();
         for (MigrationInfoImpl migrationInfo : migrationInfos) {

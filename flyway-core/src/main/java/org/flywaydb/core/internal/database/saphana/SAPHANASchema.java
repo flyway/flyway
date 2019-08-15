@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * SAP HANA implementation of Schema.
  */
-public class SAPHANASchema extends Schema<SAPHANADatabase> {
+public class SAPHANASchema extends Schema<SAPHANADatabase, SAPHANATable> {
     /**
      * Creates a new SAP HANA schema.
      *
@@ -104,9 +104,9 @@ public class SAPHANASchema extends Schema<SAPHANADatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected SAPHANATable[] doAllTables() throws SQLException {
         List<String> tableNames = getDbObjects("TABLE");
-        Table[] tables = new Table[tableNames.size()];
+        SAPHANATable[] tables = new SAPHANATable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new SAPHANATable(jdbcTemplate, database, this, tableNames.get(i));
         }

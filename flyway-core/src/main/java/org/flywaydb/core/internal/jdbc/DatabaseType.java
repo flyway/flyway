@@ -27,35 +27,38 @@ import java.sql.Types;
 /**
  * The various types of databases Flyway supports.
  */
+@SuppressWarnings("SqlDialectInspection")
 public enum DatabaseType {
-    COCKROACHDB("CockroachDB", Types.NULL),
-    DB2("DB2", Types.VARCHAR),
+    COCKROACHDB("CockroachDB", Types.NULL, false),
+    DB2("DB2", Types.VARCHAR, true),
 
 
 
-    DERBY("Derby", Types.VARCHAR),
-    FIREBIRD("Firebird", Types.NULL),
-    H2("H2", Types.VARCHAR),
-    HSQLDB("HSQLDB", Types.VARCHAR),
-    INFORMIX("Informix", Types.VARCHAR),
-    MARIADB("MariaDB", Types.VARCHAR),
-    MYSQL("MySQL", Types.VARCHAR),
-    ORACLE("Oracle", Types.VARCHAR),
-    POSTGRESQL("PostgreSQL", Types.NULL),
-    REDSHIFT("Redshift", Types.VARCHAR),
-    SQLITE("SQLite", Types.VARCHAR),
-    SQLSERVER("SQL Server", Types.VARCHAR),
-    SYBASEASE_JTDS("Sybase ASE", Types.NULL),
-    SYBASEASE_JCONNECT("Sybase ASE", Types.VARCHAR),
-    SAPHANA("SAP HANA", Types.VARCHAR);
+    DERBY("Derby", Types.VARCHAR, true),
+    H2("H2", Types.VARCHAR, true),
+    HSQLDB("HSQLDB", Types.VARCHAR, true),
+    INFORMIX("Informix", Types.VARCHAR, true),
+    MARIADB("MariaDB", Types.VARCHAR, true),
+    MYSQL("MySQL", Types.VARCHAR, true),
+    ORACLE("Oracle", Types.VARCHAR, true),
+    POSTGRESQL("PostgreSQL", Types.NULL, true),
+    REDSHIFT("Redshift", Types.VARCHAR, true),
+    SQLITE("SQLite", Types.VARCHAR, false),
+    SQLSERVER("SQL Server", Types.VARCHAR, true),
+    SYBASEASE_JTDS("Sybase ASE", Types.NULL, true),
+    SYBASEASE_JCONNECT("Sybase ASE", Types.VARCHAR, true),
+    SAPHANA("SAP HANA", Types.VARCHAR, true);
 
     private final String name;
 
     private final int nullType;
 
-    DatabaseType(String name, int nullType) {
+    private final boolean supportsReadOnlyTransactions;
+
+    DatabaseType(String name, int nullType, boolean supportsReadOnlyTransactions) {
         this.name = name;
         this.nullType = nullType;
+        this.supportsReadOnlyTransactions = supportsReadOnlyTransactions;
     }
 
     public static DatabaseType fromJdbcConnection(Connection connection) {
@@ -183,4 +186,15 @@ public enum DatabaseType {
     public String toString() {
         return name;
     }
+
+
+
+
+
+
+
+
+
+
+
 }

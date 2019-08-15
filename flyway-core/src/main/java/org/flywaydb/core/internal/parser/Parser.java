@@ -38,6 +38,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+/**
+ * The main parser all database-specific parsers derive from.
+ */
 public abstract class Parser {
     private static final Log LOG = LogFactory.getLog(Parser.class);
 
@@ -48,7 +51,7 @@ public abstract class Parser {
 
 
 
-    protected final Configuration configuration;
+    private final Configuration configuration;
     private final int peekDepth;
     private final char identifierQuote;
     private final char alternativeIdentifierQuote;
@@ -90,15 +93,25 @@ public abstract class Parser {
         return null;
     }
 
-    public SqlStatementIterator parse(final LoadableResource resource) {
-        final PositionTracker tracker = new PositionTracker();
-        final Recorder recorder = new Recorder();
-        final ParserContext context = new ParserContext(getDefaultDelimiter());
+    /**
+     * Parses this resource into a stream of statements.
+     *
+     * @param resource The resource to parse.
+     * @return The statements.
+     */
+    public final SqlStatementIterator parse(final LoadableResource resource) {
+        PositionTracker tracker = new PositionTracker();
+        Recorder recorder = new Recorder();
+        ParserContext context = new ParserContext(getDefaultDelimiter());
 
         LOG.debug("Parsing " + resource.getFilename() + " ...");
-        Reader r = new PositionTrackingReader(tracker, new BomStrippingReader(new BufferedReader(resource.read(), 4096)));
-        final PeekingReader peekingReader =
-                new PeekingReader(new RecordingReader(recorder, replacePlaceholders(r)));
+        PeekingReader peekingReader =
+                new PeekingReader(
+                        new RecordingReader(recorder,
+                                replacePlaceholders(
+                                        new PositionTrackingReader(tracker,
+                                                new BomStrippingReader(
+                                                        new BufferedReader(resource.read(), 4096))))));
 
         return new ParserSqlStatementIterator(peekingReader, resource, recorder, tracker, context);
     }
@@ -186,7 +199,7 @@ public abstract class Parser {
                 int parensDepth = token.getParensDepth();
                 if (tokenType == TokenType.KEYWORD && parensDepth == 0) {
                     keywords.add(token);
-                    adjustBlockDepth(context, keywords);
+                    adjustBlockDepth(context, tokens, token);
                 }
 
                 int blockDepth = context.getBlockDepth();
@@ -306,7 +319,21 @@ public abstract class Parser {
         return 10;
     }
 
-    protected void adjustBlockDepth(ParserContext context, List<Token> keywords) {
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+    }
+
+    protected static int getLastKeywordIndex(List<Token> tokens) {
+        return getLastKeywordIndex(tokens, tokens.size());
+    }
+
+    protected static int getLastKeywordIndex(List<Token> tokens, int endIndex) {
+        for (int i = endIndex - 1; i >= 0; i--) {
+            Token token = tokens.get(i);
+            if (token.getType() == TokenType.KEYWORD) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     static String keywordToUpperCase(String text) {
@@ -360,6 +387,16 @@ public abstract class Parser {
     protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
         return true;
     }
+
+
+
+
+
+
+
+
+
+
 
     private Token readToken(PeekingReader reader, PositionTracker tracker, ParserContext context) throws IOException {
         int pos = tracker.getPos();
@@ -426,7 +463,7 @@ public abstract class Parser {
             return handleDelimiter(reader, context, pos, line, col);
         }
         if (c == '_' || Character.isLetter(c)) {
-            String text = "" + (char) reader.read() + reader.readKeywordPart(context.getDelimiter());
+            String text = readKeyword(reader, context.getDelimiter());
             if (reader.peek('.')) {
                 text += readAdditionalIdentifierParts(reader, identifierQuote, context.getDelimiter());
             }
@@ -439,7 +476,7 @@ public abstract class Parser {
             String text = "" + (char) reader.read();
             return new Token(TokenType.SYMBOL, pos, line, col, text, text, context.getParensDepth());
         }
-        if (c == ' ') {
+        if (c == ' ' || c == '\r' || c == '\u00A0' /* Non-linebreaking space */) {
             reader.swallow();
             return null;
         }
@@ -451,6 +488,10 @@ public abstract class Parser {
             return null;
         }
         throw new FlywayException("Unknown char " + (char) reader.read() + " encountered on line " + line + " at column " + col);
+    }
+
+    protected String readKeyword(PeekingReader reader, Delimiter delimiter) throws IOException {
+        return "" + (char) reader.read() + reader.readKeywordPart(delimiter);
     }
 
     protected Token handleDelimiter(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {

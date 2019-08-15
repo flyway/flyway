@@ -130,8 +130,14 @@ public class ClassicConfiguration implements Configuration {
     private String tablespace;
 
     /**
-     * The target version up to which Flyway should consider migrations. Migrations with a higher version number will
-     * be ignored. The special value {@code current} designates the current version of the schema (default: the latest version)
+     * The target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored. 
+     * Special values:
+     * <ul>
+     * <li>{@code current}: designates the current version of the schema</li>
+     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * </ul>
+     * Defaults to {@code latest}.
      */
     private MigrationVersion target;
 
@@ -358,6 +364,15 @@ public class ClassicConfiguration implements Configuration {
      * {@code null} for the current database user of the connection. (default: {@code null}).
      */
     private String installedBy;
+
+
+
+
+
+
+
+
+
 
 
 
@@ -663,6 +678,23 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Whether Flyway should output a table with the results of queries when executing migrations.
+     *
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @return {@code true} to output the results table (default: {@code true})
+     */
+    @Override
+    public boolean outputQueryResults() {
+
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("outputQueryResults");
+
+
+
+
+    }
+
+    /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
@@ -806,7 +838,14 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
+     * automatically causes the entire affected migration to be run without a transaction.
+     *
+     * <p>Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
+     * statements that do not run at all within a transaction.</p>
+     * <p>This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
+     * DDL statement was run within within a transaction, the database will issue an implicit commit before and after
+     * its execution.</p>
      *
      * @param mixed {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      */
@@ -996,10 +1035,14 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Sets the target version up to which Flyway should consider migrations. Migrations with a higher version number will
-     * be ignored.
-     *
-     * @param target The target version up to which Flyway should consider migrations. (default: the latest version)
+     * Sets the target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored. 
+     * Special values:
+     * <ul>
+     * <li>{@code current}: designates the current version of the schema</li>
+     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * </ul>
+     * Defaults to {@code latest}.
      */
     public void setTarget(MigrationVersion target) {
         this.target = target;
@@ -1007,11 +1050,13 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored.
-     *
-     * @param target The target version up to which Flyway should consider migrations.
-     *               The special value {@code current} designates the current version of the schema. (default: the latest
-     *               version)
+     * Migrations with a higher version number will be ignored. 
+     * Special values:
+     * <ul>
+     * <li>{@code current}: designates the current version of the schema</li>
+     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * </ul>
+     * Defaults to {@code latest}.
      */
     public void setTargetAsString(String target) {
         this.target = MigrationVersion.fromVersion(target);
@@ -1504,6 +1549,7 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
         setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
@@ -1531,6 +1577,22 @@ public class ClassicConfiguration implements Configuration {
         setTablespace(configuration.getTablespace());
         setTarget(configuration.getTarget());
         setValidateOnMigrate(configuration.isValidateOnMigrate());
+    }
+
+    /**
+     * Whether Flyway should output a table with the results of queries when executing migrations.
+     *
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @return {@code true} to output the results table (default: {@code true})
+     */
+    private void setOutputQueryResults(boolean outputQueryResults) {
+
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("outputQueryResults");
+
+
+
+
     }
 
     /**
@@ -1688,6 +1750,10 @@ public class ClassicConfiguration implements Configuration {
         Boolean outOfOrderProp = getBooleanProp(props, ConfigUtils.OUT_OF_ORDER);
         if (outOfOrderProp != null) {
             setOutOfOrder(outOfOrderProp);
+        }
+        Boolean outputQueryResultsProp = getBooleanProp(props, ConfigUtils.OUTPUT_QUERY_RESULTS);
+        if (outputQueryResultsProp != null) {
+            setOutputQueryResults(outputQueryResultsProp);
         }
         String resolversProp = props.remove(ConfigUtils.RESOLVERS);
         if (StringUtils.hasLength(resolversProp)) {

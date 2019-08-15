@@ -1,7 +1,6 @@
 sudo: required
 language: java
 jdk:
-  - oraclejdk9
   - openjdk10
   - openjdk11
   - openjdk12

@@ -41,16 +41,22 @@ import org.flywaydb.core.internal.command.DbValidate;
 import org.flywaydb.core.internal.database.DatabaseFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.resource.NoopResourceProvider;
 import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.scanner.Scanner;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
+import org.flywaydb.core.internal.util.IOUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -359,27 +365,17 @@ public class Flyway {
     /**
      * Creates the MigrationResolver.
      *
-     * @param database                   The database-specific support.
-     * @param resourceProvider           The resource provider.
-     * @param classProvider              The class provider.
+     * @param resourceProvider The resource provider.
+     * @param classProvider    The class provider.
      * @param sqlScriptFactory The SQL statement builder factory.
      * @return A new, fully configured, MigrationResolver instance.
      */
-    private MigrationResolver createMigrationResolver(Database database,
-                                                      ResourceProvider resourceProvider,
+    private MigrationResolver createMigrationResolver(ResourceProvider resourceProvider,
                                                       ClassProvider classProvider,
-                                                      SqlScriptFactory sqlScriptFactory
-
-
-
-    ) {
-        return new CompositeMigrationResolver(database,
-                resourceProvider, classProvider, configuration,
-                sqlScriptFactory
-
-
-
-                , configuration.getResolvers());
+                                                      SqlScriptExecutorFactory sqlScriptExecutorFactory,
+                                                      SqlScriptFactory sqlScriptFactory) {
+        return new CompositeMigrationResolver(resourceProvider, classProvider, configuration,
+                sqlScriptExecutorFactory, sqlScriptFactory, configuration.getResolvers());
     }
 
     /**
@@ -413,9 +409,67 @@ public class Flyway {
 
 
 
+        final ResourceProvider resourceProvider;
+        ClassProvider classProvider;
+        if (!scannerRequired && configuration.isSkipDefaultResolvers() && configuration.isSkipDefaultCallbacks()) {
+            resourceProvider = NoopResourceProvider.INSTANCE;
+            classProvider = NoopClassProvider.INSTANCE;
+        } else {
+            Scanner scanner = new Scanner(
+                    Arrays.asList(configuration.getLocations()),
+                    configuration.getClassLoader(),
+                    configuration.getEncoding()
+
+
+
+            );
+            resourceProvider = scanner;
+            classProvider = scanner;
+        }
+
+        JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(),
+                configuration.getConnectRetries()
+
+
+
+
+        );
+
+        final SqlScriptFactory sqlScriptFactory =
+                DatabaseFactory.createSqlScriptFactory(jdbcConnectionFactory, configuration);
+
+        final SqlScriptExecutorFactory noCallbackSqlScriptExecutorFactory = DatabaseFactory.createSqlScriptExecutorFactory(
+                jdbcConnectionFactory
+
+
+
+
+        );
+
+        jdbcConnectionFactory.setConnectionInitializer(new JdbcConnectionFactory.ConnectionInitializer() {
+            @Override
+            public void initialize(JdbcConnectionFactory jdbcConnectionFactory, Connection connection) {
+                if (configuration.getInitSql() == null) {
+                    return;
+                }
+                StringResource resource = new StringResource(configuration.getInitSql());
+
+                SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, true
+
+
+
+                );
+                noCallbackSqlScriptExecutorFactory.createSqlScriptExecutor(connection
+
+
+
+                ).execute(sqlScript);
+            }
+        });
+
         Database database = null;
         try {
-            database = DatabaseFactory.createDatabase(configuration, !dbConnectionInfoPrinted
+            database = DatabaseFactory.createDatabase(configuration, !dbConnectionInfoPrinted, jdbcConnectionFactory
 
 
 
@@ -425,38 +479,32 @@ public class Flyway {
 
             Schema[] schemas = prepareSchemas(database);
 
-            ResourceProvider resourceProvider;
-            ClassProvider classProvider;
-            if (!scannerRequired && configuration.isSkipDefaultResolvers() && configuration.isSkipDefaultCallbacks()) {
-                resourceProvider = NoopResourceProvider.INSTANCE;
-                classProvider = NoopClassProvider.INSTANCE;
-            } else {
-                Scanner scanner = new Scanner(
-                        Arrays.asList(configuration.getLocations()),
-                        configuration.getClassLoader(),
-                        configuration.getEncoding()
 
 
 
-                );
-                resourceProvider = scanner;
-                classProvider = scanner;
-            }
 
-            CallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, schemas[0],
-                    prepareCallbacks(database, resourceProvider, database
+
+
+            database.ensureSupported();
+
+            DefaultCallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, schemas[0],
+                    prepareCallbacks(database, resourceProvider, jdbcConnectionFactory, sqlScriptFactory
 
 
 
                     ));
 
+            SqlScriptExecutorFactory sqlScriptExecutorFactory = DatabaseFactory.createSqlScriptExecutorFactory(jdbcConnectionFactory
+
+
+
+
+            );
+
             result = command.execute(
-                    createMigrationResolver(database, resourceProvider, classProvider, database
-
-
-
-                    ),
-                    SchemaHistoryFactory.getSchemaHistory(configuration, database, schemas[0]
+                    createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory),
+                    SchemaHistoryFactory.getSchemaHistory(configuration, noCallbackSqlScriptExecutorFactory, sqlScriptFactory,
+                            database, schemas[0]
 
 
 
@@ -469,11 +517,7 @@ public class Flyway {
 
             );
         } finally {
-            if (database != null) {
-                database.close();
-            }
-
-
+            IOUtils.close(database);
 
 
 
@@ -518,6 +562,7 @@ public class Flyway {
     }
 
     private List<Callback> prepareCallbacks(Database database, ResourceProvider resourceProvider,
+                                            JdbcConnectionFactory jdbcConnectionFactory,
                                             SqlScriptFactory sqlScriptFactory
 
 
@@ -546,15 +591,20 @@ public class Flyway {
         effectiveCallbacks.addAll(Arrays.asList(configuration.getCallbacks()));
 
         if (!configuration.isSkipDefaultCallbacks()) {
+            SqlScriptExecutorFactory sqlScriptExecutorFactory =
+                    DatabaseFactory.createSqlScriptExecutorFactory(jdbcConnectionFactory
+
+
+
+
+                    );
+
             effectiveCallbacks.addAll(
                     new SqlScriptCallbackFactory(
-                            database,
                             resourceProvider,
+                            sqlScriptExecutorFactory,
                             sqlScriptFactory,
                             configuration
-
-
-
                     ).getCallbacks());
         }
 

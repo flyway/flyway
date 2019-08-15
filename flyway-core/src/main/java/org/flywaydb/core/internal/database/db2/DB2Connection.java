@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.database.db2;
 
-import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 
@@ -25,17 +24,8 @@ import java.sql.SQLException;
  * DB2 connection.
  */
 public class DB2Connection extends Connection<DB2Database> {
-    DB2Connection(Configuration configuration, DB2Database database, java.sql.Connection connection
-            , boolean originalAutoCommit
-
-
-
-    ) {
-        super(configuration, database, connection, originalAutoCommit
-
-
-
-        );
+    DB2Connection(DB2Database database, java.sql.Connection connection) {
+        super(database, connection);
     }
 
     @Override

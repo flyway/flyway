@@ -21,7 +21,6 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
@@ -29,6 +28,8 @@ import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.RowMapper;
 import org.flywaydb.core.internal.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
+import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -42,6 +43,9 @@ import java.util.concurrent.Callable;
  */
 class JdbcTableSchemaHistory extends SchemaHistory {
     private static final Log LOG = LogFactory.getLog(JdbcTableSchemaHistory.class);
+
+    private final SqlScriptExecutorFactory sqlScriptExecutorFactory;
+    private final SqlScriptFactory sqlScriptFactory;
 
     /**
      * The database to use.
@@ -66,33 +70,14 @@ class JdbcTableSchemaHistory extends SchemaHistory {
      * @param database The database to use.
      * @param table    The schema history table used by Flyway.
      */
-    JdbcTableSchemaHistory(Database database, Table table) {
-        this.table = determineTable(table);
+    JdbcTableSchemaHistory(SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScriptFactory sqlScriptFactory,
+                           Database database, Table table) {
+        this.sqlScriptExecutorFactory = sqlScriptExecutorFactory;
+        this.sqlScriptFactory = sqlScriptFactory;
+        this.table = table;
         this.database = database;
         this.connection = database.getMainConnection();
         this.jdbcTemplate = connection.getJdbcTemplate();
-    }
-
-    /**
-     * Checks whether Flyway has to fallback to the old default table.
-     *
-     * @param table The currently configured table.
-     * @return The table to use.
-     */
-    private Table determineTable(Table table) {
-        // Ensure we are using the default table name before checking for the fallback table
-        if (table.getName().equals("flyway_schema_history") && !table.exists()) {
-            Table fallbackTable = table.getSchema().getTable("schema_version");
-            if (fallbackTable.exists()) {
-                LOG.warn("Could not find schema history table " + table + ", but found " + fallbackTable + " instead." +
-                        " You are seeing this message because Flyway changed its default for flyway.table in" +
-                        " version 5.0.0 to flyway_schema_history and you are still relying on the old default (schema_version)." +
-                        " Set flyway.table=schema_version in your configuration to fix this." +
-                        " This fallback mechanism will be removed in Flyway 6.0.0.");
-                table = fallbackTable;
-            }
-        }
-        return table;
     }
 
     @Override
@@ -121,11 +106,11 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                         new TransactionTemplate(connection.getJdbcConnection(), true).execute(new Callable<Object>() {
                             @Override
                             public Object call() {
-                                database.createSqlScriptExecutor(jdbcTemplate
+                                sqlScriptExecutorFactory.createSqlScriptExecutor(connection.getJdbcConnection()
 
 
 
-                                ).execute(database.getCreateScript(table, baseline));
+                                ).execute(database.getCreateScript(sqlScriptFactory, table, baseline));
                                 LOG.debug("Created Schema History table " + table + (baseline ? " with baseline" : ""));
                                 return null;
                             }
@@ -193,7 +178,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     private void refreshCache() {
         int maxCachedInstalledRank = cache.isEmpty() ? -1 : cache.getLast().getInstalledRank();
 
-        String query = database.getSelectStatement(table, maxCachedInstalledRank);
+        String query = database.getSelectStatement(table);
 
         try {
             cache.addAll(jdbcTemplate.query(query, new RowMapper<AppliedMigration>() {
@@ -203,11 +188,20 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                         checksum = null;
                     }
 
+                    // Convert legacy types to their modern equivalent to avoid validation errors
+                    String type = rs.getString("type");
+                    if ("SPRING_JDBC".equals(type)) {
+                        type = "JDBC";
+                    }
+                    if ("UNDO_SPRING_JDBC".equals(type)) {
+                        type = "UNDO_JDBC";
+                    }
+
                     return new AppliedMigration(
                             rs.getInt("installed_rank"),
                             rs.getString("version") != null ? MigrationVersion.fromVersion(rs.getString("version")) : null,
                             rs.getString("description"),
-                            MigrationType.valueOf(rs.getString("type")),
+                            MigrationType.valueOf(type),
                             rs.getString("script"),
                             checksum,
                             rs.getTimestamp("installed_on"),
@@ -216,7 +210,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                             rs.getBoolean("success")
                     );
                 }
-            }));
+            }, maxCachedInstalledRank));
         } catch (SQLException e) {
             throw new FlywaySqlException("Error while retrieving the list of applied migrations from Schema History table "
                     + table, e);

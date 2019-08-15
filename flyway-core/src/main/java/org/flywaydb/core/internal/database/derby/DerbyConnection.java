@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.database.derby;
 
-import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 
@@ -25,17 +24,8 @@ import java.sql.SQLException;
  * Derby connection.
  */
 public class DerbyConnection extends Connection<DerbyDatabase> {
-    DerbyConnection(Configuration configuration, DerbyDatabase database, java.sql.Connection connection
-            , boolean originalAutoCommit
-
-
-
-    ) {
-        super(configuration, database, connection, originalAutoCommit
-
-
-
-        );
+    DerbyConnection(DerbyDatabase database, java.sql.Connection connection) {
+        super(database, connection);
     }
 
     @Override

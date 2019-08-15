@@ -28,13 +28,15 @@ public class InformixParser extends Parser {
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> keywords) {
-        if (keywords.size() < 2) {
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+        int lastKeywordIndex = getLastKeywordIndex(tokens);
+        if (lastKeywordIndex < 0) {
             return;
         }
-        String current = keywords.get(keywords.size() - 1).getText();
+
+        String current = keyword.getText();
         if ("FUNCTION".equals(current) || "PROCEDURE".equals(current)) {
-            String previous = keywords.get(keywords.size() - 2).getText();
+            String previous = tokens.get(lastKeywordIndex).getText();
 
             // CREATE( DBA)? (FUNCTION|PROCEDURE)
             if ("CREATE".equals(previous) || "DBA".equals(previous)) {

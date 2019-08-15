@@ -284,6 +284,9 @@ public class FluentConfiguration implements Configuration {
         return config.getLicenseKey();
     }
 
+    @Override
+    public boolean outputQueryResults() { return config.outputQueryResults(); }
+
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.
@@ -377,7 +380,14 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
+     * automatically causes the entire affected migration to be run without a transaction.
+     *
+     * <p>Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
+     * statements that do not run at all within a transaction.</p>
+     * <p>This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
+     * DDL statement was run within within a transaction, the database will issue an implicit commit before and after
+     * its execution.</p>
      *
      * @param mixed {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      */
@@ -582,10 +592,14 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Sets the target version up to which Flyway should consider migrations. Migrations with a higher version number will
-     * be ignored.
-     *
-     * @param target The target version up to which Flyway should consider migrations. (default: the latest version)
+     * Sets the target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored. 
+     * Special values:
+     * <ul>
+     * <li>{@code current}: designates the current version of the schema</li>
+     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * </ul>
+     * Defaults to {@code latest}.
      */
     public FluentConfiguration target(MigrationVersion target) {
         config.setTarget(target);
@@ -594,11 +608,13 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored.
-     *
-     * @param target The target version up to which Flyway should consider migrations.
-     *               The special value {@code current} designates the current version of the schema. (default: the latest
-     *               version)
+     * Migrations with a higher version number will be ignored. 
+     * Special values:
+     * <ul>
+     * <li>{@code current}: designates the current version of the schema</li>
+     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * </ul>
+     * Defaults to {@code latest}.
      */
     public FluentConfiguration target(String target) {
         config.setTargetAsString(target);

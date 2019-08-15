@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
-import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 
@@ -23,17 +22,8 @@ import org.flywaydb.core.internal.database.base.Schema;
  * SQLite connection.
  */
 public class SQLiteConnection extends Connection<SQLiteDatabase> {
-    SQLiteConnection(Configuration configuration, SQLiteDatabase database, java.sql.Connection connection
-            , boolean originalAutoCommit
-
-
-
-    ) {
-        super(configuration, database, connection, originalAutoCommit
-
-
-
-        );
+    SQLiteConnection(SQLiteDatabase database, java.sql.Connection connection) {
+        super(database, connection);
     }
 
     @Override

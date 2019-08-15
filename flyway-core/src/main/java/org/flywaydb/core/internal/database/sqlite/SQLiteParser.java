@@ -42,8 +42,8 @@ public class SQLiteParser extends Parser {
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> keywords) {
-        String lastKeyword = keywords.get(keywords.size() - 1).getText();
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+        String lastKeyword = keyword.getText();
         if ("BEGIN".equals(lastKeyword)) {
             context.increaseBlockDepth();
         } else if ("END".equals(lastKeyword)) {

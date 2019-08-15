@@ -113,6 +113,14 @@
     </fileSets>
     <dependencySets>
         <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.fusesource.jansi:jansi</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
             <outputDirectory>lib/community</outputDirectory>
             <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
             <useTransitiveDependencies>false</useTransitiveDependencies>
@@ -130,6 +138,7 @@
             </includes>
             <excludes>
                 <exclude>org.flywaydb:flyway-*</exclude>
+                <exclude>org.fusesource.jansi:jansi</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

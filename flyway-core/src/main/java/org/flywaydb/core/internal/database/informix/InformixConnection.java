@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.database.informix;
 
-import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 
@@ -25,17 +24,8 @@ import java.sql.SQLException;
  * Informix connection.
  */
 public class InformixConnection extends Connection<InformixDatabase> {
-    InformixConnection(Configuration configuration, InformixDatabase database, java.sql.Connection connection
-            , boolean originalAutoCommit
-
-
-
-    ) {
-        super(configuration, database, connection, originalAutoCommit
-
-
-
-        );
+    InformixConnection(InformixDatabase database, java.sql.Connection connection) {
+        super(database, connection);
     }
 
     @Override

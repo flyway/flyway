@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
-import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Connection;
@@ -46,17 +45,8 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
     private final int originalForeignKeyChecks;
     private final int originalSqlSafeUpdates;
 
-    MySQLConnection(Configuration configuration, MySQLDatabase database, java.sql.Connection connection
-            , boolean originalAutoCommit
-
-
-
-    ) {
-        super(configuration, database, connection, originalAutoCommit
-
-
-
-        );
+    MySQLConnection(MySQLDatabase database, java.sql.Connection connection) {
+        super(database, connection);
 
         userVariablesQuery = "SELECT variable_name FROM "
                 + (database.isMariaDB() ? USER_VARIABLES_TABLE_MARIADB : USER_VARIABLES_TABLE_MYSQL)
@@ -71,7 +61,7 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
         try {
             return jdbcTemplate.queryForInt("SELECT @@" + varName);
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to determine value for '"+ varName + "' variable", e);
+            throw new FlywaySqlException("Unable to determine value for '" + varName + "' variable", e);
         }
     }
 

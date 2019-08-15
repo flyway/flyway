@@ -34,27 +34,31 @@ public class DB2Parser extends Parser {
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> keywords) {
-        if (keywords.size() < 2) {
-            return;
-        }
-        Token token = keywords.get(keywords.size() - 1);
-        Token previousToken = keywords.get(keywords.size() - 2);
-        Token previousPreviousToken = keywords.size() > 2 ? keywords.get(keywords.size() - 3) : null;
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+        boolean previousTokenIsKeyword = !tokens.isEmpty() && tokens.get(tokens.size() - 1).getType() == TokenType.KEYWORD;
+
+        int lastKeywordIndex = getLastKeywordIndex(tokens);
+        Token previousKeyword = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex) : null;
+
+        lastKeywordIndex = getLastKeywordIndex(tokens, lastKeywordIndex);
+        Token previousPreviousToken = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex) : null;
+
         if (
             // BEGIN increases block depth, exception when used with ROW BEGIN
-                ("BEGIN".equals(token.getText())
-                        && (!"ROW".equals(previousToken.getText())
+                ("BEGIN".equals(keyword.getText())
+                        && (!"ROW".equals(previousKeyword.getText())
                         || previousPreviousToken == null || "EACH".equals(previousPreviousToken.getText())))
                         // CASE, DO, IF and REPEAT increase block depth
-                        || (("CASE".equals(token.getText()) || "DO".equals(token.getText())
-                        || "IF".equals(token.getText()) || "REPEAT".equals(token.getText()))
-                        // But not END IF and END WHILE
-                        && !"END".equals(previousToken.getText()))) {
-            context.increaseBlockDepth();
+                        || (("CASE".equals(keyword.getText()) || "DO".equals(keyword.getText())
+                        || "IF".equals(keyword.getText()) || "REPEAT".equals(keyword.getText())))) {
+            // But not END IF and END WHILE
+            if (!previousTokenIsKeyword || !"END".equals(previousKeyword.getText())) {
+                context.increaseBlockDepth();
+
+            }
         } else if (
             // END decreases block depth, exception when used with ROW END
-                "END".equals(token.getText()) && !"ROW".equals(previousToken.getText())) {
+                "END".equals(keyword.getText()) && !"ROW".equals(previousKeyword.getText())) {
             context.decreaseBlockDepth();
         }
     }

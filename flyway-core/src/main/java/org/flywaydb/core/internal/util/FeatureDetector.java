@@ -129,7 +129,9 @@ public final class FeatureDetector {
      */
     public boolean isOsgiFrameworkAvailable() {
         if (osgiFrameworkAvailable == null) {
-            osgiFrameworkAvailable = ClassUtils.isPresent("org.osgi.framework.Bundle", FeatureDetector.class.getClassLoader());
+            // Use this class' classloader to detect the OSGi framework
+            ClassLoader classLoader = FeatureDetector.class.getClassLoader();
+            osgiFrameworkAvailable = ClassUtils.isPresent("org.osgi.framework.Bundle", classLoader);
             LOG.debug("OSGi framework available: " + osgiFrameworkAvailable);
         }
 

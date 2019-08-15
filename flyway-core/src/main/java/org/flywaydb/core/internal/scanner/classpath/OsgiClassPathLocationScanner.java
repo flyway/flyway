@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.scanner.classpath;
 
+import org.flywaydb.core.api.FlywayException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
@@ -44,8 +45,7 @@ public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
     public Set<String> findResourceNames(String location, URL locationUrl) {
         Set<String> resourceNames = new TreeSet<>();
 
-        Bundle bundle = getTargetBundleOrCurrent(FrameworkUtil.getBundle(getClass()), locationUrl);
-        @SuppressWarnings({"unchecked"})
+        Bundle bundle = getTargetBundleFromContextOrCurrent(FrameworkUtil.getBundle(getClass()), locationUrl);
         Enumeration<URL> entries = bundle.findEntries(locationUrl.getPath(), "*", true);
 
         if (entries != null) {
@@ -60,26 +60,27 @@ public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
         return resourceNames;
     }
 
-    private Bundle getTargetBundleOrCurrent(Bundle currentBundle, URL locationUrl) {
+    private Bundle getTargetBundleFromContextOrCurrent(Bundle current, URL locationUrl) {
+        Bundle target;
         try {
-            Bundle targetBundle = currentBundle.getBundleContext().getBundle(getBundleId(locationUrl.getHost()));
-            return targetBundle != null ? targetBundle : currentBundle;
-        } catch (Exception e) {
-            return currentBundle;
+            target = current.getBundleContext().getBundle(hostToBundleId(locationUrl.getHost()));
+        } catch (RuntimeException e) {
+            return current;
         }
+        return target != null ? target : current;
     }
 
-    static long getBundleId(String host) {
-        Matcher matcher = FELIX_BUNDLE_ID_PATTERN.matcher(host);
-        if (matcher.find()) {
-            return Double.valueOf(matcher.group(1)).longValue();
+    static long hostToBundleId(String host) {
+        Matcher m = FELIX_BUNDLE_ID_PATTERN.matcher(host);
+        if (m.find()) {
+            return Double.valueOf(m.group(1)).longValue();
         } else {
-            matcher = EQUINOX_BUNDLE_ID_PATTERN.matcher(host);
-            if (matcher.find()) {
-                return Double.valueOf(matcher.group()).longValue();
+            m = EQUINOX_BUNDLE_ID_PATTERN.matcher(host);
+            if (m.find()) {
+                return Double.valueOf(m.group()).longValue();
             }
         }
-        throw new IllegalArgumentException("There's no bundleId in passed URL");
+        throw new FlywayException("There's no bundleId in passed URL");
     }
 
     private String getPathWithoutLeadingSlash(URL entry) {

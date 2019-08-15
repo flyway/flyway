@@ -18,10 +18,7 @@ package org.flywaydb.core.internal.database.informix;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -34,14 +31,13 @@ public class InformixDatabase extends Database<InformixConnection> {
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
-     * @param connection    The connection to use.
      */
-    public InformixDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
+    public InformixDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
 
 
 
     ) {
-        super(configuration, connection, originalAutoCommit
+        super(configuration, jdbcConnectionFactory
 
 
 
@@ -49,17 +45,14 @@ public class InformixDatabase extends Database<InformixConnection> {
     }
 
     @Override
-    protected InformixConnection getConnection(Connection connection
-
-
-
-    ) {
-        return new InformixConnection(configuration, this, connection, originalAutoCommit
-
-
-
-        );
+    protected InformixConnection doGetConnection(Connection connection) {
+        return new InformixConnection(this, connection);
     }
+
+
+
+
+
 
     @Override
     public final void ensureSupported() {
@@ -68,16 +61,7 @@ public class InformixDatabase extends Database<InformixConnection> {
     }
 
     @Override
-    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-    ) {
-        return new ParserSqlScript(new InformixParser(configuration), resource, mixed);
-    }
-
-    @Override
-    protected String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(Table table, boolean baseline) {
         String tablespace = configuration.getTablespace() == null
                 ? ""
                 : " IN \"" + configuration.getTablespace() + "\"";

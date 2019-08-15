@@ -43,7 +43,7 @@ public class LogCreatorFactory {
             return ClassUtils.instantiate(ApacheCommonsLogCreator.class.getName(), classLoader);
         }
         if (fallbackLogCreator == null) {
-            return ClassUtils.instantiate(JavaUtilLogCreator.class.getName(), classLoader);
+            return new JavaUtilLogCreator();
         }
         return fallbackLogCreator;
     }

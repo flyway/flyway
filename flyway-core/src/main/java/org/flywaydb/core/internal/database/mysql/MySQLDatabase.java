@@ -22,12 +22,9 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.DatabaseType;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -44,28 +41,45 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     private final boolean pxcStrict;
 
     /**
+     * Whether the event scheduler table is queryable.
+     */
+    final boolean eventSchedulerQueryable;
+
+    /**
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
-     * @param connection    The connection to use.
      */
-    public MySQLDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
+    public MySQLDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
 
 
 
     ) {
-        super(configuration, connection, originalAutoCommit
+        super(configuration, jdbcConnectionFactory
 
 
 
         );
 
-        pxcStrict = isRunningInPerconaXtraDBClusterWithStrictMode(connection);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(rawMainJdbcConnection, databaseType);
+        pxcStrict = isRunningInPerconaXtraDBClusterWithStrictMode(jdbcTemplate);
+        eventSchedulerQueryable = DatabaseType.MYSQL == databaseType || isEventSchedulerQueryable(jdbcTemplate);
     }
 
-    static boolean isRunningInPerconaXtraDBClusterWithStrictMode(Connection connection) {
+    private static boolean isEventSchedulerQueryable(JdbcTemplate jdbcTemplate) {
         try {
-            if ("ENFORCING".equals(new JdbcTemplate(connection).queryForString(
+            // Attempt query
+            jdbcTemplate.queryForString("SELECT event_name FROM information_schema.events LIMIT 1");
+            return true;
+        } catch (SQLException e) {
+            LOG.debug("Detected unqueryable MariaDB event scheduler, most likely due to it being OFF or DISABLED.");
+            return false;
+        }
+    }
+
+    static boolean isRunningInPerconaXtraDBClusterWithStrictMode(JdbcTemplate jdbcTemplate) {
+        try {
+            if ("ENFORCING".equals(jdbcTemplate.queryForString(
                     "select VARIABLE_VALUE from performance_schema.global_variables"
                             + " where variable_name = 'pxc_strict_mode'"))) {
                 LOG.debug("Detected Percona XtraDB Cluster in strict mode");
@@ -87,7 +101,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     @Override
-    protected String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(Table table, boolean baseline) {
         String tablespace =
 
 
@@ -106,7 +120,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
                         "     '" + MigrationType.BASELINE + "' as \"type\"," +
                         "     '" + configuration.getBaselineDescription() + "' as \"script\"," +
                         "     NULL as \"checksum\"," +
-                        "     '" + installedBy + "' as \"installed_by\"," +
+                        "     '" + getInstalledBy() + "' as \"installed_by\"," +
                         "     CURRENT_TIMESTAMP as \"installed_on\"," +
                         "     0 as \"execution_time\"," +
                         "     TRUE as \"success\"\n";
@@ -137,17 +151,15 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     @Override
-    protected MySQLConnection getConnection(Connection connection
-
-
-
-    ) {
-        return new MySQLConnection(configuration, this, connection, originalAutoCommit
-
-
-
-        );
+    protected MySQLConnection doGetConnection(Connection connection) {
+        return new MySQLConnection(this, connection);
     }
+
+
+
+
+
+
 
 
 
@@ -191,15 +203,6 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
             recommendFlywayUpgradeIfNecessary("8.0");
         }
-    }
-
-    @Override
-    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-    ) {
-        return new ParserSqlScript(new MySQLParser(configuration), resource, mixed);
     }
 
     @Override

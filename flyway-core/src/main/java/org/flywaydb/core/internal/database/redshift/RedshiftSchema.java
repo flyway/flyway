@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * PostgreSQL implementation of Schema.
  */
-public class RedshiftSchema extends Schema<RedshiftDatabase> {
+public class RedshiftSchema extends Schema<RedshiftDatabase, RedshiftTable> {
     /**
      * Creates a new PostgreSQL schema.
      *
@@ -127,7 +127,7 @@ public class RedshiftSchema extends Schema<RedshiftDatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected RedshiftTable[] doAllTables() throws SQLException {
         List<String> tableNames =
                 jdbcTemplate.queryForStringList(
                         //Search for all the table names
@@ -140,7 +140,7 @@ public class RedshiftSchema extends Schema<RedshiftDatabase> {
                 );
         //Views and child tables are excluded as they are dropped with the parent table when using cascade.
 
-        Table[] tables = new Table[tableNames.size()];
+        RedshiftTable[] tables = new RedshiftTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new RedshiftTable(jdbcTemplate, database, this, tableNames.get(i));
         }

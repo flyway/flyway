@@ -21,13 +21,14 @@ import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 /**
  * MySQL implementation of Schema.
  */
-public class MySQLSchema extends Schema<MySQLDatabase> {
+public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
     /**
      * Creates a new MySQL schema.
      *
@@ -46,15 +47,22 @@ public class MySQLSchema extends Schema<MySQLDatabase> {
 
     @Override
     protected boolean doEmpty() throws SQLException {
+        List<String> params = new ArrayList<>(Arrays.asList(name, name, name, name, name));
+        if (database.eventSchedulerQueryable) {
+            params.add(name);
+        }
+
         return jdbcTemplate.queryForInt("SELECT SUM(found) FROM ("
                         + "(SELECT 1 as found FROM information_schema.tables WHERE table_schema=?) UNION ALL "
                         + "(SELECT 1 as found FROM information_schema.views WHERE table_schema=? LIMIT 1) UNION ALL "
                         + "(SELECT 1 as found FROM information_schema.table_constraints WHERE table_schema=? LIMIT 1) UNION ALL "
-                        + "(SELECT 1 as found FROM information_schema.events WHERE event_schema=? LIMIT 1) UNION ALL "
                         + "(SELECT 1 as found FROM information_schema.triggers WHERE trigger_schema=? LIMIT 1) UNION ALL "
                         + "(SELECT 1 as found FROM information_schema.routines WHERE routine_schema=? LIMIT 1)"
+                        // #2410 Unlike MySQL, MariaDB 10.0 and newer don't allow the events table to be queried
+                        // when the event scheduled is DISABLED or in some rare cases OFF
+                        + (database.eventSchedulerQueryable ? " UNION ALL (SELECT 1 as found FROM information_schema.events WHERE event_schema=? LIMIT 1)" : "")
                         + ") as all_found",
-                name, name, name, name, name, name
+                params.toArray(new String[0])
         ) == 0;
     }
 
@@ -70,8 +78,10 @@ public class MySQLSchema extends Schema<MySQLDatabase> {
 
     @Override
     protected void doClean() throws SQLException {
-        for (String statement : cleanEvents()) {
-            jdbcTemplate.execute(statement);
+        if (database.eventSchedulerQueryable) {
+            for (String statement : cleanEvents()) {
+                jdbcTemplate.execute(statement);
+            }
         }
 
         for (String statement : cleanRoutines()) {
@@ -172,12 +182,12 @@ public class MySQLSchema extends Schema<MySQLDatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected MySQLTable[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema=?" +
                         " AND table_type='BASE TABLE'", name);
 
-        Table[] tables = new Table[tableNames.size()];
+        MySQLTable[] tables = new MySQLTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new MySQLTable(jdbcTemplate, database, this, tableNames.get(i));
         }

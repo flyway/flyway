@@ -19,9 +19,7 @@ import android.content.res.AssetManager;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.util.BomStrippingReader;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -65,7 +63,7 @@ public class AndroidResource extends LoadableResource {
     @Override
     public Reader read() {
         try {
-            return new BufferedReader(new BomStrippingReader(new InputStreamReader(assetManager.open(fileNameWithAbsolutePath), encoding)));
+            return new InputStreamReader(assetManager.open(fileNameWithAbsolutePath), encoding.newDecoder());
         } catch (IOException e) {
             throw new FlywayException("Unable to read asset: " + getAbsolutePath(), e);
         }

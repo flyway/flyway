@@ -28,19 +28,19 @@ public class SAPHANAParser extends Parser {
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> keywords) {
-        if (keywords.size() < 2) {
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+        int lastKeywordIndex = getLastKeywordIndex(tokens);
+        if (lastKeywordIndex < 0) {
             return;
         }
-        Token token = keywords.get(keywords.size() - 1);
-        Token previousToken = keywords.get(keywords.size() - 2);
+        Token previousKeyword = tokens.get(lastKeywordIndex);
 
         // BEGIN, DO and IF increases block depth
-        if (("BEGIN".equals(token.getText()) || "DO".equals(token.getText()) || "IF".equals(token.getText())
+        if (("BEGIN".equals(keyword.getText()) || "DO".equals(keyword.getText()) || "IF".equals(keyword.getText())
                 // But not END FOR, END IF and END WHILE
-                && !"END".equals(previousToken.getText()))) {
+                && !"END".equals(previousKeyword.getText()))) {
             context.increaseBlockDepth();
-        } else if ("END".equals(token.getText())) {
+        } else if ("END".equals(keyword.getText())) {
             context.decreaseBlockDepth();
         }
     }

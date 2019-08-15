@@ -18,10 +18,7 @@ package org.flywaydb.core.internal.database.sqlite;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 
 import java.sql.Connection;
 
@@ -33,14 +30,13 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
-     * @param connection    The connection to use.
      */
-    public SQLiteDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
+    public SQLiteDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
 
 
 
     ) {
-        super(configuration, connection, originalAutoCommit
+        super(configuration, jdbcConnectionFactory
 
 
 
@@ -48,26 +44,20 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     }
 
     @Override
-    protected SQLiteConnection getConnection(Connection connection
-
-
-
-    ) {
-        return new SQLiteConnection(configuration, this, connection, originalAutoCommit
-
-
-
-        );
+    protected SQLiteConnection doGetConnection(Connection connection) {
+        return new SQLiteConnection(this, connection);
     }
 
     @Override
     public final void ensureSupported() {
-        // #2221: Should be 3.7.2 but older versions of the Xerial JDBC driver misreport 3.x versions as being 3.0.
-        ensureDatabaseIsRecentEnough("3.0");
+        // The minimum should really be 3.7.2. However the SQLite driver quality is really hit and miss, so we can't
+        // reliably detect this.
+        // #2221: Older versions of the Xerial JDBC driver misreport 3.x versions as being 3.0.
+        // #2409: SQLDroid misreports the version as 0.0
     }
 
     @Override
-    protected String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(Table table, boolean baseline) {
         return "CREATE TABLE " + table + " (\n" +
                 "    \"installed_rank\" INT NOT NULL PRIMARY KEY,\n" +
                 "    \"version\" VARCHAR(50),\n" +
@@ -82,15 +72,6 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
                 ");\n" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "") +
                 "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON \"" + table.getName() + "\" (\"success\");";
-    }
-
-    @Override
-    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-    ) {
-        return new ParserSqlScript(new SQLiteParser(configuration), resource, mixed);
     }
 
     public String getDbName() {

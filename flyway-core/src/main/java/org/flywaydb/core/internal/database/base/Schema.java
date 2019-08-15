@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Represents a database schema.
  */
-public abstract class Schema<D extends Database> {
+public abstract class Schema<D extends Database, T extends Table> {
     private static final Log LOG = LogFactory.getLog(Schema.class);
 
     /**
@@ -169,7 +169,7 @@ public abstract class Schema<D extends Database> {
      *
      * @return All tables in the schema.
      */
-    public Table[] allTables() {
+    public T[] allTables() {
         try {
             return doAllTables();
         } catch (SQLException e) {
@@ -183,7 +183,7 @@ public abstract class Schema<D extends Database> {
      * @return All tables in the schema.
      * @throws SQLException when the retrieval failed.
      */
-    protected abstract Table[] doAllTables() throws SQLException;
+    protected abstract T[] doAllTables() throws SQLException;
 
     /**
      * Retrieves all the types in this schema.

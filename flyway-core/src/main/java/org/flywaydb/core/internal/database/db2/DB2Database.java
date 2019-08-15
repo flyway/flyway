@@ -18,10 +18,7 @@ package org.flywaydb.core.internal.database.db2;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -34,14 +31,13 @@ public class DB2Database extends Database<DB2Connection> {
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
-     * @param connection    The connection to use.
      */
-    public DB2Database(Configuration configuration, Connection connection, boolean originalAutoCommit
+    public DB2Database(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
 
 
 
     ) {
-        super(configuration, connection, originalAutoCommit
+        super(configuration, jdbcConnectionFactory
 
 
 
@@ -49,17 +45,10 @@ public class DB2Database extends Database<DB2Connection> {
     }
 
     @Override
-    protected DB2Connection getConnection(Connection connection
-
-
-
-    ) {
-        return new DB2Connection(configuration, this, connection, originalAutoCommit
-
-
-
-        );
+    protected DB2Connection doGetConnection(Connection connection) {
+        return new DB2Connection(this, connection);
     }
+
 
 
 
@@ -76,20 +65,11 @@ public class DB2Database extends Database<DB2Connection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("11.1", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("11.1");
+        recommendFlywayUpgradeIfNecessary("11.5");
     }
 
     @Override
-    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-    ) {
-        return new ParserSqlScript(new DB2Parser(configuration), resource, mixed);
-    }
-
-    @Override
-    protected String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(Table table, boolean baseline) {
         String tablespace = configuration.getTablespace() == null
                 ? ""
                 : " IN \"" + configuration.getTablespace() + "\"";
@@ -115,14 +95,14 @@ public class DB2Database extends Database<DB2Connection> {
 
 
                 + tablespace + ";\n" +
-                (baseline ? getBaselineStatement(table) + ";\n" : "") +
                 "ALTER TABLE " + table + " ADD CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\");\n" +
-                "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
+                "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");" +
+                (baseline ? getBaselineStatement(table) + ";\n" : "");
     }
 
     @Override
-    public String getSelectStatement(Table table, int maxCachedInstalledRank) {
-        return super.getSelectStatement(table, maxCachedInstalledRank)
+    public String getSelectStatement(Table table) {
+        return super.getSelectStatement(table)
                 // Allow uncommitted reads so info can be invoked while migrate is running
                 + " WITH UR";
     }

@@ -20,23 +20,17 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.DatabaseType;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.resource.StringResource;
-import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
-import org.flywaydb.core.internal.util.ExceptionUtils;
 
 import java.io.Closeable;
 import java.sql.DatabaseMetaData;
@@ -45,7 +39,7 @@ import java.sql.SQLException;
 /**
  * Abstraction for database-specific functionality.
  */
-public abstract class Database<C extends Connection> implements Closeable, SqlScriptFactory {
+public abstract class Database<C extends Connection> implements Closeable {
     private static final Log LOG = LogFactory.getLog(Database.class);
 
     /**
@@ -64,14 +58,9 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
     protected final DatabaseMetaData jdbcMetaData;
 
     /**
-     * The main JDBC connection to use.
+     * The main JDBC connection, without any wrapping.
      */
-    private final java.sql.Connection mainJdbcConnection;
-
-    /**
-     * The original auto-commit state for connections to this database.
-     */
-    protected final boolean originalAutoCommit;
+    protected final java.sql.Connection rawMainJdbcConnection;
 
     /**
      * The main connection to use.
@@ -83,10 +72,7 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
      */
     private C migrationConnection;
 
-
-
-
-
+    protected final JdbcConnectionFactory jdbcConnectionFactory;
 
 
 
@@ -95,42 +81,35 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
     /**
      * The major.minor version of the database.
      */
-    private final MigrationVersion version;
+    private MigrationVersion version;
 
     /**
      * The user who applied the migrations.
      */
-    protected final String installedBy;
+    private String installedBy;
 
     /**
      * Creates a new Database instance with this JdbcTemplate.
      *
-     * @param configuration      The Flyway configuration.
-     * @param connection         The main connection to use.
-     * @param originalAutoCommit The original auto-commit state for connections to this database.
+     * @param configuration The Flyway configuration.
      */
-    public Database(Configuration configuration, java.sql.Connection connection,
-                    boolean originalAutoCommit
+    public Database(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
 
 
 
     ) {
-        this.databaseType = DatabaseType.fromJdbcConnection(connection);
+        this.databaseType = jdbcConnectionFactory.getDatabaseType();
         this.configuration = configuration;
-        this.mainJdbcConnection = connection;
-        this.originalAutoCommit = originalAutoCommit;
+        this.rawMainJdbcConnection = jdbcConnectionFactory.openConnection();
         try {
-            this.jdbcMetaData = connection.getMetaData();
+            this.jdbcMetaData = rawMainJdbcConnection.getMetaData();
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to get metadata for connection", e);
         }
+        this.jdbcConnectionFactory = jdbcConnectionFactory;
 
 
 
-
-
-        version = determineVersion();
-        installedBy = configuration.getInstalledBy() == null ? getCurrentUser() : configuration.getInstalledBy();
     }
 
     /**
@@ -139,11 +118,17 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
      * @param connection The JDBC connection to wrap.
      * @return The Flyway Connection.
      */
-    protected abstract C getConnection(java.sql.Connection connection
+    private C getConnection(java.sql.Connection connection) {
+        return doGetConnection(connection);
+    }
 
-
-
-    );
+    /**
+     * Retrieves a Flyway Connection for this JDBC connection.
+     *
+     * @param connection The JDBC connection to wrap.
+     * @return The Flyway Connection.
+     */
+    protected abstract C doGetConnection(java.sql.Connection connection);
 
     /**
      * Ensures Flyway supports this version of this database.
@@ -154,12 +139,15 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
      * @return The major.minor version of the database.
      */
     public final MigrationVersion getVersion() {
+        if (version == null) {
+            version = determineVersion();
+        }
         return version;
     }
 
     protected final void ensureDatabaseIsRecentEnough(String oldestSupportedVersion) {
-        if (!version.isAtLeast(oldestSupportedVersion)) {
-            throw new FlywayDbUpgradeRequiredException(databaseType, computeVersionDisplayName(version),
+        if (!getVersion().isAtLeast(oldestSupportedVersion)) {
+            throw new FlywayDbUpgradeRequiredException(databaseType, computeVersionDisplayName(getVersion()),
                     computeVersionDisplayName(MigrationVersion.fromVersion(oldestSupportedVersion)));
         }
     }
@@ -174,26 +162,32 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
      */
     protected final void ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition(String oldestSupportedVersionInThisEdition,
                                                                                             Edition editionWhereStillSupported) {
-        if (!version.isAtLeast(oldestSupportedVersionInThisEdition)) {
+        if (!getVersion().isAtLeast(oldestSupportedVersionInThisEdition)) {
             throw new FlywayEditionUpgradeRequiredException(
                     editionWhereStillSupported,
                     databaseType,
-                    computeVersionDisplayName(version));
+                    computeVersionDisplayName(getVersion()));
         }
     }
 
     protected final void recommendFlywayUpgradeIfNecessary(String newestSupportedVersion) {
-        if (version.isNewerThan(newestSupportedVersion)) {
-            LOG.warn("Flyway upgrade recommended: " + databaseType + " " + computeVersionDisplayName(version)
-                    + " is newer than this version of Flyway and support has not been tested.");
+        if (getVersion().isNewerThan(newestSupportedVersion)) {
+            recommendFlywayUpgrade(newestSupportedVersion);
         }
     }
 
     protected final void recommendFlywayUpgradeIfNecessaryForMajorVersion(String newestSupportedVersion) {
-        if (version.isMajorNewerThan(newestSupportedVersion)) {
-            LOG.warn("Flyway upgrade recommended: " + databaseType + " " + computeVersionDisplayName(version)
-                    + " is newer than this version of Flyway and support has not been tested.");
+        if (getVersion().isMajorNewerThan(newestSupportedVersion)) {
+            recommendFlywayUpgrade(newestSupportedVersion);
         }
+    }
+
+    private void recommendFlywayUpgrade(String newestSupportedVersion) {
+        String message = "Flyway upgrade recommended: " + databaseType + " " + computeVersionDisplayName(getVersion())
+                + " is newer than this version of Flyway and support has not been tested. "
+                + "The latest supported version of " + databaseType + " is " + newestSupportedVersion + ".";
+
+        LOG.warn(message);
     }
 
     /**
@@ -203,27 +197,6 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
      */
     protected String computeVersionDisplayName(MigrationVersion version) {
         return version.getVersion();
-    }
-
-    /**
-     * Creates a new SqlScriptExecutor for this specific database.
-     * <p>
-
-
-
-
-     * @return The new SqlScriptExecutor.
-     */
-    public SqlScriptExecutor createSqlScriptExecutor(JdbcTemplate jdbcTemplate
-
-
-
-    ) {
-        return new DefaultSqlScriptExecutor(jdbcTemplate
-
-
-
-        );
     }
 
     /**
@@ -266,20 +239,6 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
      * @return {@code true} if this database supports changing a connection's current schema. {@code false if not}.
      */
     public abstract boolean supportsChangingCurrentSchema();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -353,12 +312,7 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
      */
     public final C getMainConnection() {
         if (mainConnection == null) {
-            initConnection(mainJdbcConnection, configuration.getInitSql());
-            this.mainConnection = getConnection(mainJdbcConnection
-
-
-
-            );
+            this.mainConnection = getConnection(rawMainJdbcConnection);
         }
         return mainConnection;
     }
@@ -369,43 +323,12 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
     public final C getMigrationConnection() {
         if (migrationConnection == null) {
             if (useSingleConnection()) {
-                this.migrationConnection = mainConnection;
+                this.migrationConnection = getMainConnection();
             } else {
-                java.sql.Connection migrationJdbcConnection =
-                        JdbcUtils.openConnection(configuration.getDataSource(), configuration.getConnectRetries());
-                initConnection(migrationJdbcConnection, configuration.getInitSql());
-                this.migrationConnection = getConnection(migrationJdbcConnection
-
-
-
-                );
+                this.migrationConnection = getConnection(jdbcConnectionFactory.openConnection());
             }
         }
         return migrationConnection;
-    }
-
-    /**
-     * Initializes this connection with these sql statements.
-     *
-     * @param connection The connection.
-     * @param initSql    The sql statements.
-     */
-    private void initConnection(java.sql.Connection connection, String initSql) {
-        if (initSql == null) {
-            return;
-        }
-        StringResource resource = new StringResource(initSql);
-
-        SqlScript sqlScript = createSqlScript(resource, true
-
-
-
-        );
-        new DefaultSqlScriptExecutor(new JdbcTemplate(connection)
-
-
-
-        ).execute(sqlScript);
     }
 
     /**
@@ -426,15 +349,15 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
      * @param baseline Whether to include the creation of a baseline marker.
      * @return The script.
      */
-    public final SqlScript getCreateScript(Table table, boolean baseline) {
-        return createSqlScript(new StringResource(getRawCreateScript(table, baseline)), false
+    public final SqlScript getCreateScript(SqlScriptFactory sqlScriptFactory, Table table, boolean baseline) {
+        return sqlScriptFactory.createSqlScript(new StringResource(getRawCreateScript(table, baseline)), false
 
 
 
         );
     }
 
-    protected abstract String getRawCreateScript(Table table, boolean baseline);
+    public abstract String getRawCreateScript(Table table, boolean baseline);
 
     public final String getInsertStatement(Table table) {
         return "INSERT INTO " + table
@@ -465,7 +388,7 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
         );
     }
 
-    public String getSelectStatement(Table table, int maxCachedInstalledRank) {
+    public String getSelectStatement(Table table) {
         return "SELECT " + quote("installed_rank")
                 + "," + quote("version")
                 + "," + quote("description")
@@ -477,11 +400,14 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
                 + "," + quote("execution_time")
                 + "," + quote("success")
                 + " FROM " + table
-                + " WHERE " + quote("installed_rank") + " > " + maxCachedInstalledRank
+                + " WHERE " + quote("installed_rank") + " > ?"
                 + " ORDER BY " + quote("installed_rank");
     }
 
     public final String getInstalledBy() {
+        if (installedBy == null) {
+            installedBy = configuration.getInstalledBy() == null ? getCurrentUser() : configuration.getInstalledBy();
+        }
         return installedBy;
     }
 
@@ -492,5 +418,9 @@ public abstract class Database<C extends Connection> implements Closeable, SqlSc
         if (mainConnection != null) {
             mainConnection.close();
         }
+    }
+
+    public DatabaseType getDatabaseType() {
+        return databaseType;
     }
 }

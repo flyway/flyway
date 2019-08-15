@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * SQLServer implementation of Schema.
  */
-public class SQLServerSchema extends Schema<SQLServerDatabase> {
+public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     private static final Log LOG = LogFactory.getLog(SQLServerSchema.class);
 
     private final String databaseName;
@@ -266,7 +266,11 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
             jdbcTemplate.execute(statement);
         }
 
-        for (Table table : allTables()) {
+        SQLServerTable[] allTables = allTables();
+        for (SQLServerTable table : allTables) {
+            table.dropSystemVersioningIfPresent();
+        }
+        for (SQLServerTable table : allTables) {
             table.drop();
         }
 
@@ -293,6 +297,20 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
         for (String statement : cleanObjects("DEFAULT", ObjectType.DEFAULT_CONSTRAINT)) {
             jdbcTemplate.execute(statement);
         }
+
+
+
+
+            for (String statement : cleanPartitionSchemes()) {
+                jdbcTemplate.execute(statement);
+            }
+
+            for (String statement : cleanPartitionFunctions()) {
+                jdbcTemplate.execute(statement);
+            }
+
+
+
 
 
 
@@ -514,6 +532,38 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
     }
 
     /**
+     * Cleans the Partition Schemes in this database.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanPartitionSchemes() throws SQLException {
+        List<String> partitionSchemeNames =
+                jdbcTemplate.queryForStringList("SELECT name FROM sys.partition_schemes");
+        List<String> statements = new ArrayList<>();
+        for (String partitionSchemeName : partitionSchemeNames) {
+            statements.add("DROP PARTITION SCHEME " + database.quote(partitionSchemeName));
+        }
+        return statements;
+    }
+
+    /**
+     * Cleans the Partition Functions in this database.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanPartitionFunctions() throws SQLException {
+        List<String> partitionFunctionNames =
+                jdbcTemplate.queryForStringList("SELECT name FROM sys.partition_functions");
+        List<String> statements = new ArrayList<>();
+        for (String partitionFunctionName : partitionFunctionNames) {
+            statements.add("DROP PARTITION FUNCTION " + database.quote(partitionFunctionName));
+        }
+        return statements;
+    }
+
+    /**
      * Cleans the triggers in this schema.
      *
      * @return The drop statements.
@@ -549,13 +599,13 @@ public class SQLServerSchema extends Schema<SQLServerDatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected SQLServerTable[] doAllTables() throws SQLException {
         List<String> tableNames = new ArrayList<>();
         for (DBObject table : queryDBObjects(ObjectType.USER_TABLE)) {
             tableNames.add(table.name);
         }
 
-        Table[] tables = new Table[tableNames.size()];
+        SQLServerTable[] tables = new SQLServerTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new SQLServerTable(jdbcTemplate, database, databaseName, this, tableNames.get(i));
         }

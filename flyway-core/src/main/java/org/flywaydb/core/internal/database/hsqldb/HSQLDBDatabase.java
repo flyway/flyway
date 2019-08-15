@@ -18,10 +18,7 @@ package org.flywaydb.core.internal.database.hsqldb;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 
 import java.sql.Connection;
 
@@ -33,14 +30,13 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
      * Creates a new instance.
      *
      * @param configuration The Flyway configuration.
-     * @param connection    The connection to use.
      */
-    public HSQLDBDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit
+    public HSQLDBDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
 
 
 
     ) {
-        super(configuration, connection, originalAutoCommit
+        super(configuration, jdbcConnectionFactory
 
 
 
@@ -48,17 +44,20 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
     }
 
     @Override
-    protected HSQLDBConnection getConnection(Connection connection
-
-
-
-    ) {
-        return new HSQLDBConnection(configuration, this, connection, originalAutoCommit
-
-
-
-        );
+    protected HSQLDBConnection doGetConnection(Connection connection) {
+        return new HSQLDBConnection(this, connection);
     }
+
+
+
+
+
+
+
+
+
+
+
 
     @Override
     public final void ensureSupported() {
@@ -66,11 +65,11 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("2.3", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("2.4");
+        recommendFlywayUpgradeIfNecessary("2.5");
     }
 
     @Override
-    protected String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(Table table, boolean baseline) {
         return "CREATE TABLE " + table + " (\n" +
                 "    \"installed_rank\" INT NOT NULL,\n" +
                 "    \"version\" VARCHAR(50),\n" +
@@ -86,15 +85,6 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
                 (baseline ? getBaselineStatement(table) + ";\n" : "") +
                 "ALTER TABLE " + table + " ADD CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\");\n" +
                 "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
-    }
-
-    @Override
-    public SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-    ) {
-        return new ParserSqlScript(new HSQLDBParser(configuration), resource, mixed);
     }
 
     @Override

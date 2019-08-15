@@ -15,24 +15,14 @@
  */
 package org.flywaydb.core.internal.database.saphana;
 
-import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 
 import java.sql.SQLException;
 
 public class SAPHANAConnection extends Connection<SAPHANADatabase> {
-    SAPHANAConnection(Configuration configuration, SAPHANADatabase database, java.sql.Connection connection
-            , boolean originalAutoCommit
-
-
-
-    ) {
-        super(configuration, database, connection, originalAutoCommit
-
-
-
-        );
+    SAPHANAConnection(SAPHANADatabase database, java.sql.Connection connection) {
+        super(database, connection);
     }
 
     @Override

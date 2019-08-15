@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * HSQLDB implementation of Schema.
  */
-public class HSQLDBSchema extends Schema<HSQLDBDatabase> {
+public class HSQLDBSchema extends Schema<HSQLDBDatabase, HSQLDBTable> {
     /**
      * Creates a new Hsql schema.
      *
@@ -89,11 +89,11 @@ public class HSQLDBSchema extends Schema<HSQLDBDatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected HSQLDBTable[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
                 "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.SYSTEM_TABLES where TABLE_SCHEM = ? AND TABLE_TYPE = 'TABLE'", name);
 
-        Table[] tables = new Table[tableNames.size()];
+        HSQLDBTable[] tables = new HSQLDBTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new HSQLDBTable(jdbcTemplate, database, this, tableNames.get(i));
         }

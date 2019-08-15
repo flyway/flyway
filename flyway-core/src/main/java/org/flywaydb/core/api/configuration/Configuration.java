@@ -191,11 +191,15 @@ public interface Configuration {
     Map<String, String> getPlaceholders();
 
     /**
-     * Retrieves the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored.
-     * The special value {@code current} designates the current version of the schema.
-     *
-     * @return The target version up to which Flyway should consider migrations. (default: the latest version)
+     * Gets the target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored. 
+     * Special values:
+     * <ul>
+     * <li>{@code current}: designates the current version of the schema</li>
+     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * </ul>
+     * Defaults to {@code latest}.
+     * @return The target version up to which Flyway should consider migrations. Defaults to {@code latest}
      */
     MigrationVersion getTarget();
 
@@ -361,7 +365,14 @@ public interface Configuration {
     boolean isCleanDisabled();
 
     /**
-     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
+     * automatically causes the entire affected migration to be run without a transaction.
+     *
+     * <p>Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
+     * statements that do not run at all within a transaction.</p>
+     * <p>This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
+     * DDL statement was run within within a transaction, the database will issue an implicit commit before and after
+     * its execution.</p>
      *
      * @return {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      */
@@ -471,4 +482,13 @@ public interface Configuration {
      * @return Your Flyway license key.
      */
     String getLicenseKey();
+
+    /**
+     * Whether Flyway should output a table with the results of queries when executing migrations.
+     *
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @return {@code true} to output the results table (default: {@code true})
+     */
+    boolean outputQueryResults();
 }

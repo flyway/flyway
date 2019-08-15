@@ -40,7 +40,7 @@ public class Scanner implements ResourceProvider, ClassProvider {
     private static final Log LOG = LogFactory.getLog(Scanner.class);
 
     private final List<LoadableResource> resources = new ArrayList<>();
-    private final List<Class<?>> classes = new ArrayList<Class<?>>();
+    private final List<Class<?>> classes = new ArrayList<>();
 
     public Scanner(Collection<Location> locations, ClassLoader classLoader, Charset encoding
 
@@ -71,7 +71,7 @@ public class Scanner implements ResourceProvider, ClassProvider {
     @Override
     public LoadableResource getResource(String name) {
         for (LoadableResource resource : resources) {
-            String fileName = resource.getFilename();
+            String fileName = resource.getRelativePath();
             if (fileName.equals(name)) {
                 return resource;
             }
@@ -107,7 +107,7 @@ public class Scanner implements ResourceProvider, ClassProvider {
      * @return The non-abstract classes that were found.
      */
     public <I> Collection<Class<? extends I>> getClasses(Class<I> implementedInterface) {
-        List<Class<? extends I>> result = new ArrayList<Class<? extends I>>();
+        List<Class<? extends I>> result = new ArrayList<>();
         for (Class<?> clazz : classes) {
             if (!implementedInterface.isAssignableFrom(clazz)) {
                 continue;

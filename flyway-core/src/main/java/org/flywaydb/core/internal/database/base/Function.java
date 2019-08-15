@@ -21,7 +21,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 /**
  * A user defined type within a schema.
  */
-public abstract class Function extends SchemaObject {
+public abstract class Function<D extends Database, S extends Schema> extends SchemaObject<D, S> {
     /**
      * The arguments of the function.
      */
@@ -36,7 +36,7 @@ public abstract class Function extends SchemaObject {
      * @param name         The name of the function.
      * @param args         The arguments of the function.
      */
-    public Function(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name, String... args) {
+    public Function(JdbcTemplate jdbcTemplate, D database, S schema, String name, String... args) {
         super(jdbcTemplate, database, schema, name);
         this.args = args == null ? new String[0] : args;
     }

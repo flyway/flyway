@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.api.configuration.Configuration;
+
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParserContext;
 import org.flywaydb.core.internal.parser.PeekingReader;
@@ -168,6 +169,7 @@ public class OracleParser extends Parser {
 
 
 
+
     public OracleParser(Configuration configuration
 
 
@@ -182,11 +184,9 @@ public class OracleParser extends Parser {
 
 
 
+
     }
 
-    @Override
-    protected Reader replacePlaceholders(Reader r) {
-        r = super.replacePlaceholders(r);
 
 
 
@@ -194,8 +194,15 @@ public class OracleParser extends Parser {
 
 
 
-        return r;
-    }
+
+
+
+
+
+
+
+
+
 
     @Override
     protected ParsedSqlStatement createStatement(PeekingReader reader, Recorder recorder,
@@ -207,6 +214,7 @@ public class OracleParser extends Parser {
 
 
     ) throws IOException {
+
 
 
 
@@ -339,6 +347,11 @@ public class OracleParser extends Parser {
             context.setDelimiter(Delimiter.SEMICOLON);
         }
     }
+
+
+
+
+
 
 
 

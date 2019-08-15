@@ -15,11 +15,11 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,17 +29,19 @@ import java.util.List;
 /**
  * SQLite implementation of Schema.
  */
-public class SQLiteSchema extends Schema<SQLiteDatabase> {
+public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
     private static final Log LOG = LogFactory.getLog(SQLiteSchema.class);
 
     private static final List<String> IGNORED_SYSTEM_TABLE_NAMES =
             Arrays.asList("android_metadata", SQLiteTable.SQLITE_SEQUENCE);
 
+    private boolean foreignKeysEnabled;
+
     /**
      * Creates a new SQLite schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
+     * @param database     The database-specific support.
      * @param name         The name of the schema.
      */
     SQLiteSchema(JdbcTemplate jdbcTemplate, SQLiteDatabase database, String name) {
@@ -81,7 +83,10 @@ public class SQLiteSchema extends Schema<SQLiteDatabase> {
 
     @Override
     protected void doClean() throws SQLException {
+        foreignKeysEnabled = jdbcTemplate.queryForBoolean("PRAGMA foreign_keys");
+
         List<String> viewNames = jdbcTemplate.queryForStringList("SELECT tbl_name FROM " + database.quote(name) + ".sqlite_master WHERE type='view'");
+
         for (String viewName : viewNames) {
             jdbcTemplate.execute("DROP VIEW " + database.quote(name, viewName));
         }
@@ -96,10 +101,10 @@ public class SQLiteSchema extends Schema<SQLiteDatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected SQLiteTable[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList("SELECT tbl_name FROM " + database.quote(name) + ".sqlite_master WHERE type='table'");
 
-        Table[] tables = new Table[tableNames.size()];
+        SQLiteTable[] tables = new SQLiteTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new SQLiteTable(jdbcTemplate, database, this, tableNames.get(i));
         }
@@ -110,4 +115,6 @@ public class SQLiteSchema extends Schema<SQLiteDatabase> {
     public Table getTable(String tableName) {
         return new SQLiteTable(jdbcTemplate, database, this, tableName);
     }
+
+    public boolean getForeignKeysEnabled() { return foreignKeysEnabled; }
 }

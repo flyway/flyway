@@ -42,12 +42,12 @@ public class AndroidScanner implements ResourceAndClassScanner {
 
     private final Context context;
 
-    private final ClassLoader classLoader;
+    private final ClassLoader clazzLoader;
     private final Charset encoding;
     private final Location location;
 
-    public AndroidScanner(ClassLoader classLoader, Charset encoding, Location location) {
-        this.classLoader = classLoader;
+    public AndroidScanner(ClassLoader clazzLoader, Charset encoding, Location location) {
+        this.clazzLoader = clazzLoader;
         this.encoding = encoding;
         this.location = location;
         context = ContextHolder.getContext();
@@ -77,7 +77,7 @@ public class AndroidScanner implements ResourceAndClassScanner {
     public Collection<Class<?>> scanForClasses() {
         String pkg = location.getPath().replace("/", ".");
 
-        List<Class<?>> classes = new ArrayList<Class<?>>();
+        List<Class<?>> classes = new ArrayList<>();
         String sourceDir = context.getApplicationInfo().sourceDir;
         DexFile dex = null;
         try {
@@ -86,7 +86,7 @@ public class AndroidScanner implements ResourceAndClassScanner {
             while (entries.hasMoreElements()) {
                 String className = entries.nextElement();
                 if (className.startsWith(pkg)) {
-                    Class<?> clazz = ClassUtils.loadClass(className, classLoader);
+                    Class<?> clazz = ClassUtils.loadClass(className, clazzLoader);
                     if (clazz != null) {
                         classes.add(clazz);
                     }

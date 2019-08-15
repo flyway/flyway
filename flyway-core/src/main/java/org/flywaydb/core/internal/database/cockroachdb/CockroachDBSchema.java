@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * CockroachDB implementation of Schema.
  */
-public class CockroachDBSchema extends Schema<CockroachDBDatabase> {
+public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTable> {
     /**
      * Is this CockroachDB 1.x.
      */
@@ -137,7 +137,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected CockroachDBTable[] doAllTables() throws SQLException {
         String query;
         if (cockroachDB1) {
             query =
@@ -161,7 +161,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase> {
         List<String> tableNames = jdbcTemplate.queryForStringList(query, name);
         //Views and child tables are excluded as they are dropped with the parent table when using cascade.
 
-        Table[] tables = new Table[tableNames.size()];
+        CockroachDBTable[] tables = new CockroachDBTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new CockroachDBTable(jdbcTemplate, database, this, tableNames.get(i));
         }
