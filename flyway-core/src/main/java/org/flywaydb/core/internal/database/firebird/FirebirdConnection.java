@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.database.firebird;
 
-import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 
@@ -25,8 +24,8 @@ public class FirebirdConnection extends Connection<FirebirdDatabase> {
 
     private static final String DUMMY_SCHEMA_NAME = "default";
 
-    FirebirdConnection(Configuration configuration, FirebirdDatabase database, java.sql.Connection connection, boolean originalAutoCommit) {
-        super(configuration, database, connection, originalAutoCommit);
+    FirebirdConnection(FirebirdDatabase database, java.sql.Connection connection) {
+        super(database, connection);
     }
 
     @Override

@@ -35,6 +35,7 @@ public enum DatabaseType {
 
 
     DERBY("Derby", Types.VARCHAR, true),
+    FIREBIRD("Firebird", Types.NULL, true), // TODO does it suppor tread only transactions
     H2("H2", Types.VARCHAR, true),
     HSQLDB("HSQLDB", Types.VARCHAR, true),
     INFORMIX("Informix", Types.VARCHAR, true),

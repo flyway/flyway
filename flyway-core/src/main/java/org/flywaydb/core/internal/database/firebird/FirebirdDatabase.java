@@ -18,50 +18,47 @@ package org.flywaydb.core.internal.database.firebird;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class FirebirdDatabase extends Database<FirebirdConnection> {
-
     /**
      * Creates a new FirebirdDatabase instance with this JdbcTemplate.
      *
      * @param configuration      The Flyway configuration.
-     * @param connection         The main connection to use.
-     * @param originalAutoCommit The original auto-commit state for connections to this database.
      */
-    public FirebirdDatabase(Configuration configuration, Connection connection, boolean originalAutoCommit) {
-        super(configuration, connection, originalAutoCommit);
+    public FirebirdDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
+
+
+
+    ) {
+        super(configuration, jdbcConnectionFactory
+
+
+
+        );
     }
 
     @Override
-    protected FirebirdConnection getConnection(Connection connection) {
-        return new FirebirdConnection(configuration, this, connection, originalAutoCommit);
+    protected FirebirdConnection doGetConnection(Connection connection) {
+        return new FirebirdConnection( this, connection);
     }
+
+
+
+
+
+
+
+
+
+
 
     @Override
     public void ensureSupported() {
-        // limit support to Firebird 2.1 or higher
-        ensureDatabaseIsRecentEnough("2.1");
-        // need dialect 3, in dialect 1 quoted identifiers cannot be used, and strings are quoted with double quotes.
-        ensureDialect3();
-        recommendFlywayUpgradeIfNecessaryForMajorVersion("3");
-    }
-
-    private void ensureDialect3() {
-        try {
-            int dialect = getMainConnection().getJdbcTemplate().queryForInt("select MON$SQL_DIALECT from MON$DATABASE");
-            if (dialect != 3) {
-                throw new FirebirdUnsupportedDialectException();
-            }
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to determine Firebird database dialect", e);
-        }
+        ensureDatabaseIsRecentEnough("3.0");
     }
 
     @Override
@@ -72,36 +69,31 @@ public class FirebirdDatabase extends Database<FirebirdConnection> {
 
     @Override
     public boolean supportsChangingCurrentSchema() {
-        // One schema, can't be changed
         return false;
     }
 
     @Override
     public String getBooleanTrue() {
-        // Boolean datatype introduced in Firebird 3, but this allows broader support
         return "1";
     }
 
     @Override
     public String getBooleanFalse() {
-        // Boolean datatype introduced in Firebird 3, but this allows broader support
         return "0";
     }
 
     @Override
     protected String doQuote(String identifier) {
-        // escape double quote in identifier name
         return '"' + identifier.replace("\"", "\"\"") + "\"";
     }
 
     @Override
     public boolean catalogIsSchema() {
-        // database == schema
         return true;
     }
 
     @Override
-    protected String getRawCreateScript(Table table, boolean baseline) {
+    public String getRawCreateScript(Table table, boolean baseline) {
         String createScript = "CREATE TABLE " + table + " (\n" +
                 "    \"installed_rank\" INTEGER CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY,\n" +
                 "    \"version\" VARCHAR(50),\n" +
@@ -135,13 +127,7 @@ public class FirebirdDatabase extends Database<FirebirdConnection> {
     }
 
     @Override
-    public SqlScript createSqlScript(LoadableResource resource, boolean mixed) {
-        return new ParserSqlScript(new FirebirdParser(configuration), resource, mixed);
-    }
-
-    @Override
     public boolean useSingleConnection() {
         return true;
     }
-
 }

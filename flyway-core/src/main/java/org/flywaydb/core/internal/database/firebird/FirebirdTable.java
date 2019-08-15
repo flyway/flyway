@@ -35,6 +35,11 @@ public class FirebirdTable extends Table<FirebirdDatabase, FirebirdSchema> {
     }
 
     @Override
+    protected void doDrop() throws SQLException {
+        jdbcTemplate.execute("DROP TABLE " + this);
+    }
+
+    @Override
     protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("select count(*) from RDB$RELATIONS\n" +
                 "where RDB$RELATION_NAME = ?\n" +
@@ -57,12 +62,6 @@ public class FirebirdTable extends Table<FirebirdDatabase, FirebirdSchema> {
                 + "  begin\n"
                 + "  end\n"
                 + "end");
-
-    }
-
-    @Override
-    protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP TABLE " + this);
     }
 
     @Override
@@ -70,5 +69,4 @@ public class FirebirdTable extends Table<FirebirdDatabase, FirebirdSchema> {
         // No schema, only plain table name
         return database.doQuote(name);
     }
-    
 }

@@ -62,7 +62,7 @@ public abstract class SchemaObject<D extends Database, S extends Schema> {
     /**
      * @return The schema this object lives in.
      */
-    public final Schema getSchema() {
+    public final S getSchema() {
         return schema;
     }
 

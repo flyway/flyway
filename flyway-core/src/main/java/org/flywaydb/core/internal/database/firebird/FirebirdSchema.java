@@ -18,13 +18,14 @@ package org.flywaydb.core.internal.database.firebird;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.RowMapper;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class FirebirdSchema extends Schema<FirebirdDatabase> {
+public class FirebirdSchema extends Schema<FirebirdDatabase, FirebirdTable> {
     /**
      * Creates a new Firebird schema.
      *
@@ -34,11 +35,11 @@ public class FirebirdSchema extends Schema<FirebirdDatabase> {
      */
     public FirebirdSchema(JdbcTemplate jdbcTemplate, FirebirdDatabase database, String name) {
         super(jdbcTemplate, database, name);
+
     }
 
     @Override
     protected boolean doExists() throws SQLException {
-        // database == schema, always return true
         return true;
     }
 
@@ -83,14 +84,11 @@ public class FirebirdSchema extends Schema<FirebirdDatabase> {
                 "  from RDB$FIELDS\n" +
                 "  where RDB$FIELD_NAME not starting with 'RDB$'\n" +
                 "  and (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
-                (supportsPackages()
-                        ? "union all\n" +
-                        "-- packages\n" +
-                        "select RDB$PACKAGE_NAME\n" +
-                        "from RDB$PACKAGES\n" +
-                        "where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n"
-                        : "") +
-                ") a");
+                "union all\n" +
+                "-- packages\n" +
+                "select RDB$PACKAGE_NAME\n" +
+                "from RDB$PACKAGES\n" +
+                "where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)) a");
     }
 
     @Override
@@ -116,6 +114,11 @@ public class FirebirdSchema extends Schema<FirebirdDatabase> {
         for (String dropViewStmt : generateDropViewStatements()) {
             jdbcTemplate.execute(dropViewStmt);
         }
+
+        for (String dropConstraintStmt: generateDropConstraintStatements()) {
+            jdbcTemplate.execute(dropConstraintStmt);
+        }
+
         for (Table table : allTables()) {
             table.drop();
         }
@@ -136,10 +139,23 @@ public class FirebirdSchema extends Schema<FirebirdDatabase> {
         }
     }
 
+    private List<String> generateDropConstraintStatements() throws SQLException {
+        return jdbcTemplate.query(
+                    "select RDB$RELATION_NAME, RDB$CONSTRAINT_NAME\n" +
+                            "from RDB$RELATION_CONSTRAINTS\n" +
+                            "where RDB$RELATION_NAME NOT LIKE 'RDB$%'\n" +
+                            "and RDB$CONSTRAINT_TYPE='FOREIGN KEY'",
+                    new RowMapper<String>() {
+                        @Override
+                        public String mapRow(ResultSet rs) throws SQLException {
+                            String tableName = rs.getString(1);
+                            String constraintName = rs.getString(2);
+                            return "ALTER TABLE " + tableName + " DROP CONSTRAINT " + constraintName;
+                        }
+                    });
+    }
+
     private List<String> generateDropPackageStatements() throws SQLException {
-        if (!supportsPackages()) {
-            return Collections.emptyList();
-        }
         List<String> packageNames = jdbcTemplate.queryForStringList(
                 "select RDB$PACKAGE_NAME as packageName\n" +
                         "from RDB$PACKAGES\n" +
@@ -153,7 +169,7 @@ public class FirebirdSchema extends Schema<FirebirdDatabase> {
                 "select RDB$PROCEDURE_NAME as procedureName\n" +
                         "from RDB$PROCEDURES\n" +
                         "where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)" +
-                        (supportsPackages() ? "\nand RDB$PACKAGE_NAME is null" : ""));
+                        "\nand RDB$PACKAGE_NAME is null");
 
         return generateDropStatements("procedure", procedureNames);
     }
@@ -226,26 +242,23 @@ public class FirebirdSchema extends Schema<FirebirdDatabase> {
     }
 
     @Override
-    protected Table[] doAllTables() throws SQLException {
+    protected FirebirdTable[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
                 "select RDB$RELATION_NAME as tableName\n" +
                         "from RDB$RELATIONS\n" +
                         "where RDB$VIEW_BLR is null\n" +
                         "and (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)");
 
-        Table[] tables = new Table[tableNames.size()];
+        FirebirdTable[] tables = new FirebirdTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = getTable(tableNames.get(i));
         }
+
         return tables;
     }
 
     @Override
-    public Table getTable(String tableName) {
+    public FirebirdTable getTable(String tableName) {
         return new FirebirdTable(jdbcTemplate, database, this, tableName);
-    }
-
-    boolean supportsPackages() {
-        return database.getVersion().isAtLeast("3.0");
     }
 }

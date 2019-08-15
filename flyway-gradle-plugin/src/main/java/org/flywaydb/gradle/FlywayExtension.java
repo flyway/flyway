@@ -220,6 +220,13 @@ public class FlywayExtension {
     public Boolean outOfOrder;
 
     /**
+     * Whether Flyway should output a table with the results of queries when executing migrations (default: true).
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.outputQueryResults}</p>
+     */
+    public Boolean outputQueryResults;
+
+    /**
      * Whether to automatically call validate or not when running migrate. (default: true)
      */
     public Boolean validateOnMigrate;

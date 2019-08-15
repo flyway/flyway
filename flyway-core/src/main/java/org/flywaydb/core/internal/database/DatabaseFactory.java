@@ -26,8 +26,10 @@ import org.flywaydb.core.internal.database.cockroachdb.CockroachDBParser;
 import org.flywaydb.core.internal.database.db2.DB2Database;
 import org.flywaydb.core.internal.database.db2.DB2Parser;
 import org.flywaydb.core.internal.database.derby.DerbyDatabase;
-import org.flywaydb.core.internal.database.firebird.FirebirdDatabase;
 import org.flywaydb.core.internal.database.derby.DerbyParser;
+
+import org.flywaydb.core.internal.database.firebird.FirebirdDatabase;
+import org.flywaydb.core.internal.database.firebird.FirebirdParser;
 import org.flywaydb.core.internal.database.h2.H2Database;
 import org.flywaydb.core.internal.database.h2.H2Parser;
 import org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabase;
@@ -147,9 +149,13 @@ public class DatabaseFactory {
 
                 );
             case FIREBIRD:
-                return new FirebirdDatabase(configuration, connection, originalAutoCommit);
-            case H2:
-                return new H2Database(configuration, jdbcConnectionFactory
+                return new FirebirdDatabase(configuration, jdbcConnectionFactory
+
+
+
+
+
+
 
 
 
@@ -278,6 +284,8 @@ public class DatabaseFactory {
 
             case DERBY:
                 return new DerbyParser(configuration);
+            case FIREBIRD:
+                return new FirebirdParser(configuration);
             case H2:
                 return new H2Parser(configuration);
             case HSQLDB:
