@@ -153,9 +153,9 @@ public class DatabaseFactory {
 
 
 
-
-
-
+                );
+            case H2:	
+                return new H2Database(configuration, jdbcConnectionFactory
 
 
 
