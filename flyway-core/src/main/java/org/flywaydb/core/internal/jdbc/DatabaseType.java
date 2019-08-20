@@ -35,6 +35,7 @@ public enum DatabaseType {
 
 
     DERBY("Derby", Types.VARCHAR, true),
+    ESGYNDB("EsgynDB", Types.VARCHAR, true),
     FIREBIRD("Firebird", Types.NULL, true), // TODO does it suppor tread only transactions
     H2("H2", Types.VARCHAR, true),
     HSQLDB("HSQLDB", Types.VARCHAR, true),
@@ -77,6 +78,12 @@ public enum DatabaseType {
                                                                             String postgreSQLVersion) {
         if (databaseProductName.startsWith("Apache Derby")) {
             return DERBY;
+        }
+        if (databaseProductName.contains("EsgynDB")) {
+            return ESGYNDB;
+        }
+        if (databaseProductName.contains("Trafodion")) {
+            return ESGYNDB;
         }
         if (databaseProductName.startsWith("SQLite")) {
             return SQLITE;

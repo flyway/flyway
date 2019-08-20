@@ -27,6 +27,9 @@ import org.flywaydb.core.internal.database.db2.DB2Database;
 import org.flywaydb.core.internal.database.db2.DB2Parser;
 import org.flywaydb.core.internal.database.derby.DerbyDatabase;
 import org.flywaydb.core.internal.database.derby.DerbyParser;
+import org.flywaydb.core.internal.database.esgyndb.EsgynDBDatabase;
+import org.flywaydb.core.internal.database.esgyndb.EsgynDBParser;
+
 
 import org.flywaydb.core.internal.database.firebird.FirebirdDatabase;
 import org.flywaydb.core.internal.database.firebird.FirebirdParser;
@@ -144,6 +147,12 @@ public class DatabaseFactory {
 
             case DERBY:
                 return new DerbyDatabase(configuration, jdbcConnectionFactory
+
+
+
+                );
+            case ESGYNDB:
+                return new EsgynDBDatabase(configuration, jdbcConnectionFactory
 
 
 
@@ -284,6 +293,8 @@ public class DatabaseFactory {
 
             case DERBY:
                 return new DerbyParser(configuration);
+            case ESGYNDB:
+                return new EsgynDBParser(configuration);
             case FIREBIRD:
                 return new FirebirdParser(configuration);
             case H2:
