@@ -170,7 +170,9 @@ public class Main {
             MigrationInfoService info = flyway.info();
             MigrationInfo current = info.current();
             MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
-            LOG.info("Schema version: " + currentSchemaVersion);
+            MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
+
+            LOG.info("Schema version: " + schemaVersionToOutput);
             LOG.info("");
             LOG.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));
         } else if ("repair".equals(operation)) {
