@@ -40,6 +40,7 @@ public class FirebirdSchema extends Schema<FirebirdDatabase, FirebirdTable> {
 
     @Override
     protected boolean doExists() throws SQLException {
+        // database == schema, always return true
         return true;
     }
 

@@ -69,26 +69,31 @@ public class FirebirdDatabase extends Database<FirebirdConnection> {
 
     @Override
     public boolean supportsChangingCurrentSchema() {
+        // one schema, can't be changed
         return false;
     }
 
     @Override
     public String getBooleanTrue() {
+        // boolean datatype introduced in Firebird 3, but this allows broader support
         return "1";
     }
 
     @Override
     public String getBooleanFalse() {
+        // boolean datatype introduced in Firebird 3, but this allows broader support
         return "0";
     }
 
     @Override
     protected String doQuote(String identifier) {
+        // escape double quote in identifier name
         return '"' + identifier.replace("\"", "\"\"") + "\"";
     }
 
     @Override
     public boolean catalogIsSchema() {
+        // database == schema
         return true;
     }
 
