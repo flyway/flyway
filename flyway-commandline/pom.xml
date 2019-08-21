@@ -46,6 +46,10 @@
             <artifactId>derbyclient</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.trafodion.jdbc.t4</groupId>
+            <artifactId>jdbcT4</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>

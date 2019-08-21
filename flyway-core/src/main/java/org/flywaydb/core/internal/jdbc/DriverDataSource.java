@@ -39,6 +39,8 @@ public class DriverDataSource implements DataSource {
     private static final String DB2_JDBC_URL_PREFIX = "jdbc:db2:";
     private static final String DERBY_CLIENT_JDBC_URL_PREFIX = "jdbc:derby://";
     private static final String DERBY_EMBEDDED_JDBC_URL_PREFIX = "jdbc:derby:";
+    private static final String ESGYNDB_JDBC_DRIVER = "org.trafodion.jdbc.t4.T4Driver";
+    private static final String ESGYNDB_JDBC_URL_PREFIX = "jdbc:t4jdbc:";
     private static final String FIREBIRD_JDBC_DRIVER = "org.firebirdsql.jdbc.FBDriver";
     private static final String FIREBIRD_JDBC_URL = "jdbc:firebird:";
     private static final String FIREBIRDSQL_JDBC_URL = "jdbc:firebirdsql:";
@@ -247,6 +249,8 @@ public class DriverDataSource implements DataSource {
             result.put("SESSIONVARIABLE:APPLICATION", APPLICATION_NAME);
         } else if (url.startsWith(FIREBIRDSQL_JDBC_URL) || url.startsWith(FIREBIRD_JDBC_URL)) {
             result.put("processName", APPLICATION_NAME);
+        } else if (url.startsWith(ESGYNDB_JDBC_URL_PREFIX)) {
+            result.put("applicationName", APPLICATION_NAME);
         }
 
 
@@ -302,6 +306,10 @@ public class DriverDataSource implements DataSource {
 
         if (url.startsWith(DERBY_EMBEDDED_JDBC_URL_PREFIX)) {
             return "org.apache.derby.jdbc.EmbeddedDriver";
+        }
+
+        if (url.startsWith(ESGYNDB_JDBC_URL_PREFIX)) {
+            return ESGYNDB_JDBC_DRIVER;
         }
 
         if (url.startsWith("jdbc:h2:")) {

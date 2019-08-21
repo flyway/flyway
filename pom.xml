@@ -126,6 +126,7 @@
         <version.maven>3.0</version.maven>
         <version.gradle>3.0</version.gradle>
         <version.derby>10.14.2.0</version.derby>
+        <version.trafodion>2.2.0</version.trafodion>
         <version.h2>1.4.199</version.h2>
         <version.hsqldb>2.5.0</version.hsqldb>
         <version.jaybird>3.0.5</version.jaybird>
@@ -216,6 +217,11 @@
                 <artifactId>derbyclient</artifactId>
                 <version>${version.derby}</version>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.trafodion.jdbc.t4</groupId>
+                <artifactId>jdbcT4</artifactId>
+                <version>${version.trafodion}</version>
             </dependency>
             <dependency>
                 <groupId>org.hsqldb</groupId>
