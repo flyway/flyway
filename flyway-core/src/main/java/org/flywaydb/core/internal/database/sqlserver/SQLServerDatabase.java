@@ -73,17 +73,35 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
 
 
+
+
+
+
+
+
     @Override
     public final void ensureSupported() {
-        ensureDatabaseIsRecentEnough("10.0");
+        if (isAzure()) {
+            ensureDatabaseIsRecentEnough("11.0");
 
-        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("13.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("12.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("15.0");
+            recommendFlywayUpgradeIfNecessary("12.0");
+        } else {
+            ensureDatabaseIsRecentEnough("10.0");
+
+            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("13.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+
+            recommendFlywayUpgradeIfNecessary("15.0");
+        }
     }
 
     @Override
     protected String computeVersionDisplayName(MigrationVersion version) {
+        if (isAzure()) {
+            return "Azure v" + getVersion().getMajorAsString();
+        }
+
         if (getVersion().isAtLeast("8")) {
             if ("8".equals(getVersion().getMajorAsString())) {
                 return "2000";

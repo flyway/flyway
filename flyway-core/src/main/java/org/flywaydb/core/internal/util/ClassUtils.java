@@ -134,7 +134,7 @@ public class ClassUtils {
             return clazz;
         } catch (Throwable e) {
             Throwable rootCause = ExceptionUtils.getRootCause(e);
-            LOG.debug("Skipping " + className + " (" + e.getClass().getSimpleName() + ": " + e.getMessage()
+            LOG.debug("Skipping " + className + " (" + e.getClass().getSimpleName() + "): " + e.getMessage()
                     + (rootCause == e ? "" :
                     " caused by " + rootCause.getClass().getSimpleName() + ": " + rootCause.getMessage()
                             + " at " + ExceptionUtils.getThrowLocation(rootCause)));
