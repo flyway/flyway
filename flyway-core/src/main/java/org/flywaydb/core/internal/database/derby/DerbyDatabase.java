@@ -62,9 +62,9 @@ public class DerbyDatabase extends Database<DerbyConnection> {
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("10.11.1.1");
 
-        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.13", org.flywaydb.core.internal.license.Edition.PRO);
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.13", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("10.14");
+        recommendFlywayUpgradeIfNecessary("10.15");
     }
 
     @Override

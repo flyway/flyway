@@ -404,6 +404,8 @@ and/or involve the use of third party software.
 
 Derby ${version.derby} (drivers/derby-${version.derby}.jar)
 Derby Client ${version.derby} (drivers/derbyclient-${version.derby}.jar)
+Derby Tools ${version.derby} (drivers/derbytools-${version.derby}.jar)
+Derby Shared ${version.derby} (drivers/derbyshared-${version.derby}.jar)
 ----------------------------------------------------------
 Source: http://db.apache.org/derby/
 
