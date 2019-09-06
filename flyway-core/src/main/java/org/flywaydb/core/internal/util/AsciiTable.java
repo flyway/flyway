@@ -22,6 +22,8 @@ import java.util.List;
  * An Ascii table.
  */
 public class AsciiTable {
+    private static final String DEFAULT_COLUMN_NAME = "(No column name)";
+
     private final List<String> columns;
     private final List<List<String>> rows;
     private final boolean printHeader;
@@ -38,11 +40,19 @@ public class AsciiTable {
      * @param emptyText   The text to include in the table if it has no rows.
      */
     public AsciiTable(List<String> columns, List<List<String>> rows, boolean printHeader, String nullText, String emptyText) {
-        this.columns = columns;
+        this.columns = ensureValidColumns(columns);
         this.rows = rows;
         this.printHeader = printHeader;
         this.nullText = nullText;
         this.emptyText = emptyText;
+    }
+
+    private static List<String> ensureValidColumns(List<String> columns) {
+        List<String> validColumns = new ArrayList<>();
+        for (String column : columns) {
+            validColumns.add(column != null ? column : DEFAULT_COLUMN_NAME);
+        }
+        return validColumns;
     }
 
     /**
