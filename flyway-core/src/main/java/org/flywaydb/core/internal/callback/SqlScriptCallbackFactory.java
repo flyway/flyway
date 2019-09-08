@@ -158,10 +158,10 @@ public class SqlScriptCallbackFactory {
             int result = event.compareTo(o.event);
             if (result == 0) {
                 if (description == null) {
-                    return Integer.MIN_VALUE;
+                    return -1;
                 }
                 if (o.description == null) {
-                    return Integer.MAX_VALUE;
+                    return 1;
                 }
                 result = description.compareTo(o.description);
             }
