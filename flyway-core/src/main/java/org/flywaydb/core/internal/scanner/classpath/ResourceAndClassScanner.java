@@ -22,7 +22,7 @@ import java.util.Collection;
 /**
  * Scanner for both resources and classes.
  */
-public interface ResourceAndClassScanner {
+public interface ResourceAndClassScanner<I> {
     /**
      * Scans the classpath for resources under the configured location.
      *
@@ -31,10 +31,10 @@ public interface ResourceAndClassScanner {
     Collection<LoadableResource> scanForResources();
 
     /**
-     * Scans the classpath for concrete classes under the specified package implementing this interface.
+     * Scans the classpath for concrete classes under the specified package implementing the specified interface.
      * Non-instantiable abstract classes are filtered out.
      *
      * @return The non-abstract classes that were found.
      */
-    Collection<Class<?>> scanForClasses();
+    Collection<Class<? extends I>> scanForClasses();
 }

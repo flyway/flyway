@@ -23,6 +23,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.callback.DefaultCallbackExecutor;
@@ -371,7 +372,7 @@ public class Flyway {
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(ResourceProvider resourceProvider,
-                                                      ClassProvider classProvider,
+                                                      ClassProvider<JavaMigration> classProvider,
                                                       SqlScriptExecutorFactory sqlScriptExecutorFactory,
                                                       SqlScriptFactory sqlScriptFactory) {
         return new CompositeMigrationResolver(resourceProvider, classProvider, configuration,
@@ -410,12 +411,14 @@ public class Flyway {
 
 
         final ResourceProvider resourceProvider;
-        ClassProvider classProvider;
+        ClassProvider<JavaMigration> classProvider;
         if (!scannerRequired && configuration.isSkipDefaultResolvers() && configuration.isSkipDefaultCallbacks()) {
             resourceProvider = NoopResourceProvider.INSTANCE;
+            //noinspection unchecked
             classProvider = NoopClassProvider.INSTANCE;
         } else {
-            Scanner scanner = new Scanner(
+            Scanner<JavaMigration> scanner = new Scanner<>(
+                    JavaMigration.class,
                     Arrays.asList(configuration.getLocations()),
                     configuration.getClassLoader(),
                     configuration.getEncoding()

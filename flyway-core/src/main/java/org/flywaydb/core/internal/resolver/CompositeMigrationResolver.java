@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
@@ -62,7 +63,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param customMigrationResolvers Custom Migration Resolvers.
      */
     public CompositeMigrationResolver(ResourceProvider resourceProvider,
-                                      ClassProvider classProvider,
+                                      ClassProvider<JavaMigration> classProvider,
                                       Configuration configuration,
                                       SqlScriptExecutorFactory sqlScriptExecutorFactory,
                                       SqlScriptFactory sqlScriptFactory,

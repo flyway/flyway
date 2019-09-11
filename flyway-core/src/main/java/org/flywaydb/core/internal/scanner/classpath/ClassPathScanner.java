@@ -39,9 +39,10 @@ import java.util.regex.Pattern;
 /**
  * ClassPath scanner.
  */
-public class ClassPathScanner implements ResourceAndClassScanner {
+public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
     private static final Log LOG = LogFactory.getLog(ClassPathScanner.class);
 
+    private final Class<I> implementedInterface;
     /**
      * The ClassLoader for loading migrations on the classpath.
      */
@@ -70,7 +71,8 @@ public class ClassPathScanner implements ResourceAndClassScanner {
      *
      * @param classLoader The ClassLoader for loading migrations on the classpath.
      */
-    public ClassPathScanner(ClassLoader classLoader, Charset encoding, Location location) {
+    public ClassPathScanner(Class<I> implementedInterface, ClassLoader classLoader, Charset encoding, Location location) {
+        this.implementedInterface = implementedInterface;
         this.classLoader = classLoader;
         this.location = location;
 
@@ -87,14 +89,17 @@ public class ClassPathScanner implements ResourceAndClassScanner {
     }
 
     @Override
-    public Collection<Class<?>> scanForClasses() {
+    public Collection<Class<? extends I>> scanForClasses() {
         LOG.debug("Scanning for classes at " + location);
 
-        List<Class<?>> classes = new ArrayList<>();
+        List<Class<? extends I>> classes = new ArrayList<>();
 
         for (LoadableResource resource : resources) {
             if (resource.getAbsolutePath().endsWith(".class")) {
-                Class<?> clazz = ClassUtils.loadClass(toClassName(resource.getAbsolutePath()), classLoader);
+                Class<? extends I> clazz = ClassUtils.loadClass(
+                        implementedInterface,
+                        toClassName(resource.getAbsolutePath()),
+                        classLoader);
                 if (clazz != null) {
                     classes.add(clazz);
                 }

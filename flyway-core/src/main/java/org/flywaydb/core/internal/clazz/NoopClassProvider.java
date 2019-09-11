@@ -25,7 +25,7 @@ public enum NoopClassProvider implements ClassProvider {
     INSTANCE;
 
     @Override
-    public <I> Collection<Class<? extends I>> getClasses(Class<I> implementedInterface) {
+    public Collection<Class<?>> getClasses() {
         return Collections.emptyList();
     }
 }

@@ -117,13 +117,19 @@ public class ClassUtils {
     /**
      * Loads the class with this name using the class loader.
      *
-     * @param className   The name of the class to load.
-     * @param classLoader The ClassLoader to use.
+     * @param implementedInterface The interface the class is expected to implement.
+     * @param className            The name of the class to load.
+     * @param classLoader          The ClassLoader to use.
      * @return the newly loaded class or {@code null} if it could not be loaded.
      */
-    public static Class<?> loadClass(String className, ClassLoader classLoader) {
+    public static <I> Class<? extends I> loadClass(Class<I> implementedInterface, String className, ClassLoader classLoader) {
         try {
             Class<?> clazz = classLoader.loadClass(className);
+
+            if (!implementedInterface.isAssignableFrom(clazz)) {
+                return null;
+            }
+
             if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isEnum() || clazz.isAnonymousClass()) {
                 LOG.debug("Skipping non-instantiable class: " + className);
                 return null;
@@ -131,15 +137,22 @@ public class ClassUtils {
 
             clazz.getDeclaredConstructor().newInstance();
             LOG.debug("Found class: " + className);
-            return clazz;
+            //noinspection unchecked
+            return (Class<? extends I>) clazz;
         } catch (Throwable e) {
             Throwable rootCause = ExceptionUtils.getRootCause(e);
-            LOG.debug("Skipping " + className + " (" + e.getClass().getSimpleName() + "): " + e.getMessage()
-                    + (rootCause == e ? "" :
-                    " caused by " + rootCause.getClass().getSimpleName() + ": " + rootCause.getMessage()
-                            + " at " + ExceptionUtils.getThrowLocation(rootCause)));
+            LOG.warn("Skipping " + className + ": " + formatThrowable(e) + (
+                    rootCause == e
+                            ? ""
+                            : " caused by " + formatThrowable(rootCause)
+                            + " at " + ExceptionUtils.getThrowLocation(rootCause)
+            ));
             return null;
         }
+    }
+
+    private static String formatThrowable(Throwable e) {
+        return "(" + e.getClass().getSimpleName() + ": " + e.getMessage() + ")";
     }
 
     /**
