@@ -133,11 +133,12 @@ public class CompositeMigrationResolver implements MigrationResolver {
      */
     /* private -> for testing */
     static void checkForIncompatibilities(List<ResolvedMigration> migrations) {
+    	ResolvedMigrationComparator resolvedMigrationComparator = new ResolvedMigrationComparator();
         // check for more than one migration with same version
         for (int i = 0; i < migrations.size() - 1; i++) {
             ResolvedMigration current = migrations.get(i);
             ResolvedMigration next = migrations.get(i + 1);
-            if (new ResolvedMigrationComparator().compare(current, next) == 0) {
+            if (resolvedMigrationComparator.compare(current, next) == 0) {
                 if (current.getVersion() != null) {
                     throw new FlywayException(String.format("Found more than one migration with version %s\nOffenders:\n-> %s (%s)\n-> %s (%s)",
                             current.getVersion(),
