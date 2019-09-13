@@ -446,12 +446,19 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @return The error message, or {@code null} if everything is fine.
      */
     public String validate() {
+        StringBuilder builder = new StringBuilder();
+        boolean hasFailures = false;
+
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
             String message = migrationInfo.validate();
             if (message != null) {
-                return message;
+                if (!hasFailures)
+                    builder.append("\n");
+
+                builder.append(message + "\n");
+                hasFailures = true;
             }
         }
-        return null;
+        return (hasFailures) ? builder.toString() : null;
     }
 }
