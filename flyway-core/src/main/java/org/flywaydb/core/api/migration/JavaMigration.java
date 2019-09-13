@@ -79,4 +79,10 @@ public interface JavaMigration {
      * @throws Exception when the migration failed.
      */
     void migrate(Context context) throws Exception;
+    
+    /**
+     * Whether this is an intermediate baseline migration.
+     * @return {@code true} if it is, {@code false} if not.
+     */
+    boolean isIntermediateBaseline();
 }

@@ -22,9 +22,12 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.scanner.Scanner;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
@@ -35,6 +38,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
@@ -141,26 +145,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         context.future = future;
         context.target = target;
 
-        Map<Pair<MigrationVersion, Boolean>, ResolvedMigration> resolvedVersioned = new TreeMap<>();
-        Map<String, ResolvedMigration> resolvedRepeatable = new TreeMap<>();
-
-        for (ResolvedMigration resolvedMigration : resolvedMigrations) {
-            MigrationVersion version = resolvedMigration.getVersion();
-            if (version != null) {
-                if (version.compareTo(context.lastResolved) > 0) {
-                    context.lastResolved = version;
-                }
-                //noinspection RedundantConditionalExpression
-                resolvedVersioned.put(Pair.of(version,
-
-
-
-                                false), resolvedMigration);
-            } else {
-                resolvedRepeatable.put(resolvedMigration.getDescription(), resolvedMigration);
-            }
-        }
-
+        boolean isIntermediateMigrationApplied = false;
         List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedVersioned = new ArrayList<>();
         List<AppliedMigration> appliedRepeatable = new ArrayList<>();
         for (AppliedMigration appliedMigration : appliedMigrations) {
@@ -174,6 +159,10 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
             if (appliedMigration.getType() == MigrationType.BASELINE) {
                 context.baseline = version;
+            }
+            if (appliedMigration.getType().isIntermediateBaseline()) {
+                context.baseline = version;
+                isIntermediateMigrationApplied = true;
             }
 
 
@@ -204,8 +193,39 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             context.target = context.lastApplied;
         }
 
+        Map<Pair<MigrationVersion, Boolean>, ResolvedMigration> resolvedVersioned = new TreeMap<>();
+        Map<String, ResolvedMigration> resolvedRepeatable = new TreeMap<>();
+        ResolvedMigration pendingIntermediateBaselineMigration = null;
+
+        for (ResolvedMigration resolvedMigration : resolvedMigrations) {
+            MigrationVersion version = resolvedMigration.getVersion();
+            if (version != null) {
+                if (version.compareTo(context.lastResolved) > 0) {
+                    context.lastResolved = version;
+                }
+                if (resolvedMigration.getType().isIntermediateBaseline()) {
+                	if (!isIntermediateMigrationApplied
+                			&& context.lastApplied == MigrationVersion.EMPTY
+                			&& version.compareTo(context.pendingIntermediateBaseline) > 0)  {
+	                	context.pendingIntermediateBaseline = version;
+	                	pendingIntermediateBaselineMigration = resolvedMigration;
+                	}
+                } else {
+	                //noinspection RedundantConditionalExpression
+	                resolvedVersioned.put(Pair.of(version,
+	
+	
+	
+	                                false), resolvedMigration);
+                }
+            } else {
+                resolvedRepeatable.put(resolvedMigration.getDescription(), resolvedMigration);
+            }
+        }
+
         List<MigrationInfoImpl> migrationInfos1 = new ArrayList<>();
         Set<ResolvedMigration> pendingResolvedVersioned = new HashSet<>(resolvedVersioned.values());
+
         for (Pair<AppliedMigration, AppliedMigrationAttributes> av : appliedVersioned) {
             ResolvedMigration resolvedMigration = resolvedVersioned.get(Pair.of(av.getLeft().getVersion(), av.getLeft().getType().isUndo()));
             if (resolvedMigration != null
@@ -222,8 +242,20 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             ));
         }
 
+        boolean intermediateBaselineExists = MigrationVersion.EMPTY != context.pendingIntermediateBaseline; 
         for (ResolvedMigration prv : pendingResolvedVersioned) {
+        	if (intermediateBaselineExists 
+        			&& prv.getVersion().compareTo(context.pendingIntermediateBaseline) <= 0) continue;
+
             migrationInfos1.add(new MigrationInfoImpl(prv, null, context, false
+
+
+
+            ));
+        }
+
+        if (intermediateBaselineExists) {
+            migrationInfos1.add(new MigrationInfoImpl(pendingIntermediateBaselineMigration, null, context, false
 
 
 

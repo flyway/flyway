@@ -169,6 +169,15 @@ public class ClassicConfiguration implements Configuration {
      */
     private String sqlMigrationPrefix = "V";
 
+    /**
+     * The file name prefix for intermediate baseline SQL migrations. (default: IB)
+     * <p>
+     * <p>Intermediate baseline SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to IB1_1__My_description.sql</p>
+     */
+    private String intermediateBaselineSqlMigrationPrefix = "IB";
+
+
 
 
 
@@ -521,6 +530,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getSqlMigrationPrefix() {
         return sqlMigrationPrefix;
+    }
+
+    @Override
+    public String getIntermediateBaselineSqlMigrationPrefix() {
+        return intermediateBaselineSqlMigrationPrefix;
     }
 
     @Override

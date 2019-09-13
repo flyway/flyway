@@ -113,6 +113,17 @@ public interface Configuration {
     String getSqlMigrationPrefix();
 
     /**
+     * The file name prefix for intermediate baseline SQL migrations.
+     * <p>Intermediate baseline SQL migrations are responsible for creating baselines for new deployments while 
+     * keeping older migrations if needed for upgrading older deployments</p>
+     * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to IB1.1__My_description.sql</p>
+     *
+     * @return The file name prefix for intermediate baseline sql migrations. (default: IB)
+     */
+    String getIntermediateBaselineSqlMigrationPrefix();
+
+    /**
      * The file name prefix for undo SQL migrations.
      * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
      * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,

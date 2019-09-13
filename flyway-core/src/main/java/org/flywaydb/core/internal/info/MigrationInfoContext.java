@@ -74,6 +74,11 @@ public class MigrationInfoContext {
      */
     public MigrationVersion lastApplied = MigrationVersion.EMPTY;
 
+    /**
+     * The pending intermediate baseline migration version.
+     */
+    public MigrationVersion pendingIntermediateBaseline = MigrationVersion.EMPTY;
+
     public Map<String, Integer> latestRepeatableRuns = new HashMap<>();
 
     @Override

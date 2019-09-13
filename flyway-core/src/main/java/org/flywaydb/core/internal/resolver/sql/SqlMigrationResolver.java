@@ -100,6 +100,13 @@ public class SqlMigrationResolver implements MigrationResolver {
 
         );
 
+        addMigrations(migrations, configuration.getIntermediateBaselineSqlMigrationPrefix(), separator, suffixes,
+                false
+
+
+
+        );
+
         Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
     }
@@ -152,6 +159,10 @@ public class SqlMigrationResolver implements MigrationResolver {
             Pair<MigrationVersion, String> info =
                     MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffixes, repeatable);
 
+            MigrationType migrationType = MigrationType.SQL;
+            if (prefix.equals(configuration.getIntermediateBaselineSqlMigrationPrefix())) {
+                migrationType = MigrationType.SQL_IBASE;
+            }
             migrations.add(new ResolvedMigrationImpl(
                     info.getLeft(),
                     info.getRight(),
@@ -160,7 +171,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-                            MigrationType.SQL,
+                            migrationType,
                     resource.getAbsolutePathOnDisk(),
                     new SqlMigrationExecutor(sqlScriptExecutorFactory, sqlScript
 
