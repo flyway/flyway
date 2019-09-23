@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.resource;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.BomFilter;
 import org.flywaydb.core.internal.util.IOUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -29,6 +30,7 @@ import java.util.zip.CRC32;
  * A loadable resource.
  */
 public abstract class LoadableResource implements Resource, Comparable<LoadableResource> {
+
     private Integer checksum;
 
     /**
@@ -60,10 +62,16 @@ public abstract class LoadableResource implements Resource, Comparable<LoadableR
             BufferedReader reader = null;
             try {
                 reader = new BufferedReader(read(), 4096);
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    //noinspection Since15
-                    crc32.update(StringUtils.trimLineBreak(line).getBytes(StandardCharsets.UTF_8));
+
+                String line = reader.readLine();
+
+                if (line != null) {
+                    line = BomFilter.FilterBomFromString(line);
+
+                    do {
+                        //noinspection Since15
+                        crc32.update(StringUtils.trimLineBreak(line).getBytes(StandardCharsets.UTF_8));
+                    } while ((line = reader.readLine()) != null);
                 }
             } catch (IOException e) {
                 throw new FlywayException("Unable to calculate checksum for " + getFilename() + ": " + e.getMessage(), e);
