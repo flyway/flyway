@@ -31,8 +31,6 @@ import java.sql.SQLException;
  * SQL Server database.
  */
 public class SQLServerDatabase extends Database<SQLServerConnection> {
-    private final boolean azure;
-
     /**
      * Creates a new instance.
      *
@@ -48,12 +46,6 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
 
         );
-        try {
-            azure = "SQL Azure".equals(getMainConnection().getJdbcTemplate().queryForString(
-                    "SELECT CAST(SERVERPROPERTY('edition') AS VARCHAR)"));
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to determine database edition", e);
-        }
     }
 
     @Override
@@ -191,7 +183,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
     @Override
     public String getRawCreateScript(Table table, boolean baseline) {
-        String filegroup = azure || configuration.getTablespace() == null
+        String filegroup = isAzure() || configuration.getTablespace() == null
                 ? ""
                 : " ON \"" + configuration.getTablespace() + "\"";
 
@@ -217,7 +209,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
      * @return Whether this is a SQL Azure database.
      */
     boolean isAzure() {
-        return azure;
+        return getMainConnection().isAzureConnection();
     }
 
 }
