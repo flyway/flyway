@@ -53,7 +53,8 @@ public class PlaceholderReplacingReader extends FilterReader {
         int minReplacementLength = Integer.MAX_VALUE;
         for (Map.Entry<String, String> entry : placeholders.entrySet()) {
             maxPlaceholderLength = Math.max(maxPlaceholderLength, prefixSuffixLength + entry.getKey().length());
-            minReplacementLength = Math.min(minReplacementLength, entry.getValue().length());
+            int valueLength = (entry.getValue() != null) ? entry.getValue().length() : 0;
+            minReplacementLength = Math.min(minReplacementLength, valueLength);
         }
         readAheadLimitAdjustment = Math.max(maxPlaceholderLength - minReplacementLength, 0);
     }
@@ -99,15 +100,16 @@ public class PlaceholderReplacingReader extends FilterReader {
                 placeholder.deleteCharAt(placeholder.length() - 1);
             }
 
-            replacement = placeholders.get(placeholder.toString());
-            if (replacement == null) {
+
+            if (!placeholders.containsKey(placeholder.toString())) {
                 throw new FlywayException("No value provided for placeholder: "
                         + prefix + placeholder + suffix
                         + ".  Check your configuration!");
             }
+            replacement = placeholders.get(placeholder.toString());
 
             // Empty placeholder value -> move to the next character
-            if (replacement.length() == 0) {
+            if (replacement == null || replacement.length() == 0) {
                 replacement = null;
                 return read();
             }

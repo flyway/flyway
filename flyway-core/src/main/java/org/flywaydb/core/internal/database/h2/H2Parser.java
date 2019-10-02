@@ -30,6 +30,13 @@ public class H2Parser extends Parser {
     }
 
     @Override
+    protected char getAlternativeIdentifierQuote() {
+        // Necessary for MySQL compatibility mode. We don't know the mode at this point so be generous and
+        // parse backticks even though they may not run on the database.
+        return '`';
+    }
+
+    @Override
     protected char getAlternativeStringLiteralQuote() {
         return '$';
     }
