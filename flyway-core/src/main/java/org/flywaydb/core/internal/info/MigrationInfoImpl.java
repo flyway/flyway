@@ -240,6 +240,11 @@ public class MigrationInfoImpl implements MigrationInfo {
         return null;
     }
 
+    @Override
+    public String getPhysicalLocation() {
+        return resolvedMigration.getPhysicalLocation();
+    }
+
     /**
      * Validates this migrationInfo for consistency.
      *

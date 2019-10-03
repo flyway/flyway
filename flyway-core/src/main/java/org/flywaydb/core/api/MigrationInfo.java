@@ -71,4 +71,9 @@ public interface MigrationInfo extends Comparable<MigrationInfo> {
      * @return The execution time (in millis) of this migration. (Only for applied migrations)
      */
     Integer getExecutionTime();
+
+    /**
+     * @return The physical location of the migration on disk.
+     */
+    String getPhysicalLocation();
 }

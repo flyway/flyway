@@ -25,6 +25,8 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.output.InfoOutput;
+import org.flywaydb.core.internal.output.InfoOutputFactory;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
@@ -460,5 +462,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
         return (hasFailures) ? builder.toString() : null;
+    }
+
+    @Override
+    public InfoOutput getInfoOutput() {
+        InfoOutputFactory infoOutputFactory = new InfoOutputFactory();
+        return infoOutputFactory.create(this.context.getConfiguration(), this.all(), this.current());
     }
 }

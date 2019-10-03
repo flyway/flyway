@@ -143,6 +143,7 @@
         <version.slf4j>1.7.16</version.slf4j>
         <version.jre>11.0.2</version.jre>
         <version.jansi>1.18</version.jansi>
+        <version.gson>2.8.5</version.gson>
     </properties>
 
     <dependencyManagement>
@@ -401,6 +402,11 @@
                 <groupId>org.fusesource.jansi</groupId>
                 <artifactId>jansi</artifactId>
                 <version>${version.jansi}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${version.gson}</version>
             </dependency>
             <dependency>
                 <groupId>net.adoptopenjdk</groupId>

@@ -15,6 +15,9 @@
  */
 package org.flywaydb.commandline;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
@@ -25,19 +28,14 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.commandline.ConsoleLog.Level;
+import org.flywaydb.core.internal.output.ExceptionOutput;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.Console;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Main class and central entry point of the Flyway command-line tool.
@@ -45,7 +43,7 @@ import java.util.Map;
 public class Main {
     private static Log LOG;
 
-    private static List<String> VALID_OPERATIONS_AND_FLAGS = Arrays.asList("-X", "-q", "-n", "-v", "-?",
+    private static List<String> VALID_OPERATIONS_AND_FLAGS = Arrays.asList("-X", "-q", "-n", "-v", "-json.experimental", "-?",
             "-community", "-pro", "-enterprise",
             "help", "migrate", "clean", "info", "validate", "undo", "baseline", "repair");
 
@@ -54,8 +52,14 @@ public class Main {
      *
      * @param level The minimum level to log at.
      */
-    static void initLogging(Level level) {
-        LogFactory.setFallbackLogCreator(new ConsoleLogCreator(level));
+    static void initLogging(Level level, Boolean jsonOutput) {
+        if (jsonOutput) {
+            // We want to suppress all logging as the JSON output is performed using a different mechanism
+            LogFactory.setFallbackLogCreator(new NoopLogCreator());
+        } else {
+            LogFactory.setFallbackLogCreator(new ConsoleLogCreator(level));
+        }
+
         LOG = LogFactory.getLog(Main.class);
     }
 
@@ -65,8 +69,16 @@ public class Main {
      * @param args The command-line arguments.
      */
     public static void main(String[] args) {
+        Boolean jsonOutput = false;
+
+        for (String arg : args) {
+            if ("-json.experimental".equals(arg)) {
+                jsonOutput = true;
+            }
+        }
+
         Level logLevel = getLogLevel(args);
-        initLogging(logLevel);
+        initLogging(logLevel, jsonOutput);
 
         try {
             if (isPrintVersionAndExit(args)) {
@@ -108,7 +120,7 @@ public class Main {
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 
             for (String operation : operations) {
-                executeOperation(flyway, operation);
+                executeOperation(flyway, operation, jsonOutput);
             }
         } catch (Exception e) {
             if (logLevel == Level.DEBUG) {
@@ -155,7 +167,7 @@ public class Main {
      * @param flyway    The Flyway instance.
      * @param operation The operation to execute.
      */
-    private static void executeOperation(Flyway flyway, String operation) {
+    private static void executeOperation(Flyway flyway, String operation, Boolean jsonOutput) {
         if ("clean".equals(operation)) {
             flyway.clean();
         } else if ("baseline".equals(operation)) {
@@ -167,14 +179,25 @@ public class Main {
         } else if ("validate".equals(operation)) {
             flyway.validate();
         } else if ("info".equals(operation)) {
-            MigrationInfoService info = flyway.info();
-            MigrationInfo current = info.current();
-            MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
-            MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
+            try {
+                MigrationInfoService info = flyway.info();
+                MigrationInfo current = info.current();
+                MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
 
-            LOG.info("Schema version: " + schemaVersionToOutput);
-            LOG.info("");
-            LOG.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));
+                MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
+                LOG.info("Schema version: " + schemaVersionToOutput);
+                LOG.info("");
+                LOG.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));
+
+                if (jsonOutput) {
+                    printJson(info.getInfoOutput());
+                }
+            } catch (Exception e) {
+                if (jsonOutput) {
+                    printJson(new ExceptionOutput("Info failed", e));
+                }
+                throw e;
+            }
         } else if ("repair".equals(operation)) {
             flyway.repair();
         } else {
@@ -182,6 +205,11 @@ public class Main {
             printUsage();
             System.exit(1);
         }
+    }
+
+    private static void printJson(Object object) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        System.out.println(gson.toJson(object));
     }
 
     /**
@@ -348,7 +376,7 @@ public class Main {
     /**
      * Gets all the jar files contained in the jars folder. (For Java Migrations)
      *
-     * @param config      The configured properties.
+     * @param config The configured properties.
      * @return The jar files.
      */
     private static List<File> getJavaMigrationJarFiles(Map<String, String> config) {
