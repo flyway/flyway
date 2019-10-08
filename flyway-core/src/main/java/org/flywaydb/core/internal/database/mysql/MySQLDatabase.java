@@ -179,7 +179,20 @@ public class MySQLDatabase extends Database<MySQLConnection> {
             }
         }
 
-        return super.determineVersion();
+        /*
+         * Azure Database for MySQL reports version numbers incorrectly - it claims to be 5.6 (the gateway
+         * version) while the db itself is 5.7, visible from SELECT VERSION(). We work around this specific case.
+         * This code should be simplified as soon as Azure is fixed.
+         * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
+         */
+        MigrationVersion jdbcMetadataVersion = super.determineVersion();
+        String selectVersionOutput = DatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
+        if (selectVersionOutput.startsWith("5.7") && jdbcMetadataVersion.toString().startsWith("5.6")) {
+            LOG.warn("Azure MySQL database - reporting v5.6 in JDBC metadata but database actually v" + selectVersionOutput);
+            return MigrationVersion.fromVersion(selectVersionOutput);
+        }
+
+        return jdbcMetadataVersion;
     }
 
 
