@@ -128,13 +128,13 @@
         <version.derby>10.15.1.3</version.derby>
         <version.h2>1.4.199</version.h2>
         <version.hsqldb>2.5.0</version.hsqldb>
-        <version.jaybird>3.0.5</version.jaybird>
+        <version.jaybird>3.0.6</version.jaybird>
         <version.jna>4.5.2</version.jna>
         <version.jtds>1.3.1</version.jtds>
         <version.mariadb>2.4.0</version.mariadb>
         <version.mysql>8.0.17</version.mysql>
         <version.mssql-jdbc>7.2.0.jre8</version.mssql-jdbc>
-        <version.postgresql>42.2.5.jre6</version.postgresql>
+        <version.postgresql>42.2.8.jre6</version.postgresql>
         <version.sqlite>3.23.1</version.sqlite>
         <version.osgi>4.3.1</version.osgi>
         <version.equinox>3.12.0</version.equinox>
@@ -143,7 +143,7 @@
         <version.slf4j>1.7.16</version.slf4j>
         <version.jre>11.0.2</version.jre>
         <version.jansi>1.18</version.jansi>
-        <version.gson>2.8.5</version.gson>
+        <version.gson>2.8.6</version.gson>
     </properties>
 
     <dependencyManagement>
@@ -151,7 +151,7 @@
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
-                <version>1.1.1</version>
+                <version>1.2</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -354,7 +354,7 @@
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
-                <version>2.3.0</version>
+                <version>2.3.1</version>
             </dependency>
             <dependency>
                 <groupId>com.google.android</groupId>
@@ -396,7 +396,7 @@
             <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
-                <version>1.8.4</version>
+                <version>1.9.14</version>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.jansi</groupId>
@@ -759,7 +759,7 @@
                     </plugin>
                     <plugin>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.4</version>
+                        <version>1.6</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -768,6 +768,9 @@
                                     <!--suppress MavenModelInspection -->
                                     <goal>sign</goal>
                                 </goals>
+                                <configuration>
+                                    <passphraseServerId>flyway-gpg</passphraseServerId>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
