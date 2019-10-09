@@ -44,8 +44,8 @@
     <scm>
 
         <url>https://github.com/flyway/flyway</url>
-        <connection>scm:git:https://github.com/flyway/flyway.git</connection>
-        <developerConnection>scm:git:https://github.com/flyway/flyway.git</developerConnection>
+        <connection>scm:git:${env.FLYWAY_REPO_URL}</connection>
+        <developerConnection>scm:git:${env.FLYWAY_REPO_URL}</developerConnection>
 
 
 
