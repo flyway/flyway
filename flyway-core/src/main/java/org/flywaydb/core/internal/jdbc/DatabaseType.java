@@ -92,7 +92,9 @@ public enum DatabaseType {
         // #2289: MariaDB JDBC driver 2.4.0 and newer report MariaDB as "MariaDB"
         if (databaseProductName.startsWith("MariaDB")
                 // Older versions of the driver report MariaDB as "MySQL"
-                || databaseProductName.contains("MySQL") && databaseProductVersion.contains("MariaDB")) {
+                || (databaseProductName.contains("MySQL") && databaseProductVersion.contains("MariaDB"))
+                // Azure Database For MariaDB reports as "MySQL"
+                || (databaseProductName.contains("MySQL") && getSelectVersionOutput(connection).contains("MariaDB"))) {
             return MARIADB;
         }
 

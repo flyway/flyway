@@ -166,32 +166,51 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         if (databaseType == DatabaseType.MARIADB) {
             try {
                 String productVersion = jdbcMetaData.getDatabaseProductVersion();
+                productVersion = correctForAzureMariaDB(productVersion);
+
                 Matcher matcher = MARIADB_VERSION_PATTERN.matcher(productVersion);
 
-                if (!matcher.find()){
+                if (!matcher.find()) {
                     throw new FlywayException("Unable to determine MariaDB version from '" + productVersion + "'");
                 }
 
                 return MigrationVersion.fromVersion(matcher.group(1));
 
-            } catch (SQLException e){
+            } catch (SQLException e) {
                 throw new FlywaySqlException("Unable to determine MariaDB server version", e);
             }
         }
-
-        /*
-         * Azure Database for MySQL reports version numbers incorrectly - it claims to be 5.6 (the gateway
-         * version) while the db itself is 5.7, visible from SELECT VERSION(). We work around this specific case.
-         * This code should be simplified as soon as Azure is fixed.
-         * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
-         */
         MigrationVersion jdbcMetadataVersion = super.determineVersion();
+        return correctForAzureMySQL(jdbcMetadataVersion);
+    }
+
+    /*
+     * Azure Database for MySQL reports version numbers incorrectly - it claims to be 5.6 (the gateway
+     * version) while the db itself is 5.7, visible from SELECT VERSION(). We work around this specific case.
+     * This code should be simplified as soon as Azure is fixed.
+     * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
+     */
+    private MigrationVersion correctForAzureMySQL(MigrationVersion jdbcMetadataVersion) {
         String selectVersionOutput = DatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
         if (selectVersionOutput.startsWith("5.7") && jdbcMetadataVersion.toString().startsWith("5.6")) {
             LOG.warn("Azure MySQL database - reporting v5.6 in JDBC metadata but database actually v" + selectVersionOutput);
             return MigrationVersion.fromVersion(selectVersionOutput);
         }
+        return jdbcMetadataVersion;
+    }
 
+    /*
+     * Azure Database for MariaDB also reports version numbers incorrectly - it claims to be MySQL 5.6 (the gateway
+     * version) while the db itself is something like 10.3.6-MariaDB, visible from SELECT VERSION().
+     * This code should be simplified as soon as Azure is fixed.
+     * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
+     */
+    private String correctForAzureMariaDB(String jdbcMetadataVersion) {
+        String selectVersionOutput = DatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
+        if (jdbcMetadataVersion.startsWith("5.6")) {
+            LOG.warn("Azure MariaDB database - reporting v5.6 in JDBC metadata but database actually v" + selectVersionOutput);
+            return selectVersionOutput;
+        }
         return jdbcMetadataVersion;
     }
 
