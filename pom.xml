@@ -707,6 +707,7 @@
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
                     <deployAtEnd>true</deployAtEnd>
+                    <retryFailedDeploymentCount>3</retryFailedDeploymentCount>
                 </configuration>
             </plugin>
             <plugin>
