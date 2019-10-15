@@ -68,14 +68,12 @@ public enum DatabaseType {
         String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
         String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
 
-        String postgreSQLVersion = databaseProductName.startsWith("PostgreSQL") ? getPostgreSQLVersion(connection) : "";
-
-        return fromDatabaseProductNameAndPostgreSQLVersion(databaseProductName, databaseProductVersion, postgreSQLVersion);
+        return fromDatabaseProductNameAndVersion(databaseProductName, databaseProductVersion, connection);
     }
 
-    private static DatabaseType fromDatabaseProductNameAndPostgreSQLVersion(String databaseProductName,
-                                                                            String databaseProductVersion,
-                                                                            String postgreSQLVersion) {
+    private static DatabaseType fromDatabaseProductNameAndVersion(String databaseProductName,
+                                                                  String databaseProductVersion,
+                                                                  Connection connection) {
         if (databaseProductName.startsWith("Apache Derby")) {
             return DERBY;
         }
@@ -101,7 +99,9 @@ public enum DatabaseType {
         // #2289: MariaDB JDBC driver 2.4.0 and newer report MariaDB as "MariaDB"
         if (databaseProductName.startsWith("MariaDB")
                 // Older versions of the driver report MariaDB as "MySQL"
-                || databaseProductName.contains("MySQL") && databaseProductVersion.contains("MariaDB")) {
+                || (databaseProductName.contains("MySQL") && databaseProductVersion.contains("MariaDB"))
+                // Azure Database For MariaDB reports as "MySQL"
+                || (databaseProductName.contains("MySQL") && getSelectVersionOutput(connection).contains("MariaDB"))) {
             return MARIADB;
         }
 
@@ -113,11 +113,12 @@ public enum DatabaseType {
         if (databaseProductName.startsWith("Oracle")) {
             return ORACLE;
         }
-        if (databaseProductName.startsWith("PostgreSQL 8") && postgreSQLVersion.contains("Redshift")) {
-            return REDSHIFT;
-        }
         if (databaseProductName.startsWith("PostgreSQL")) {
-            if (postgreSQLVersion.contains("CockroachDB")) {
+            String selectVersionQueryOutput = getSelectVersionOutput(connection);
+            if (databaseProductName.startsWith("PostgreSQL 8") && selectVersionQueryOutput.contains("Redshift")) {
+                return REDSHIFT;
+            }
+            if (selectVersionQueryOutput.contains("CockroachDB")) {
                 return COCKROACHDB;
             }
             return POSTGRESQL;
@@ -149,12 +150,13 @@ public enum DatabaseType {
     }
 
     /**
-     * Retrieves the PostgreSQL version string for this connection.
+     * Retrieves the version string for this connection as described by SELECT VERSION(), which may differ
+     * from the connection metadata.
      *
      * @param connection The connection to use.
-     * @return The PostgreSQL version string.
+     * @return The version string.
      */
-    private static String getPostgreSQLVersion(Connection connection) {
+    public static String getSelectVersionOutput(Connection connection) {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
 

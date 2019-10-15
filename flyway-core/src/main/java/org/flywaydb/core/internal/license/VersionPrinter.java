@@ -85,7 +85,7 @@ public class VersionPrinter {
     }
 
     public static void printVersionOnly() {
-        LOG.info(EDITION + " " + version + " by Boxfuse");
+        LOG.info(EDITION + " " + version + " by Redgate");
     }
 
 

@@ -1,9 +1,12 @@
-sudo: required
-language: java
-jdk:
-  - openjdk10
-  - openjdk11
-  - openjdk12
-install: "sh ./mvnw install -e"
-before_script: echo OK
-script: echo Done.
+language: minimal
+
+env:
+  matrix:
+    - JDK_VERSION=10
+    - JDK_VERSION=11
+    - JDK_VERSION=12
+
+install: skip
+
+script:
+  - docker run -it --rm -v "$PWD":/usr/src/flyway -w /usr/src/flyway maven:3-jdk-$JDK_VERSION mvn install -e

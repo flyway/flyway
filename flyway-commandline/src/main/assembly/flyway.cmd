@@ -66,6 +66,6 @@ if "%FLYWAY_EDITION%"=="" (
 @REM Exit using the same code returned from Java
 EXIT /B %ERRORLEVEL%
 
-:getCurrentBatch variableName
+:getCurrentBatch
     set "%~1=%~f0"
     goto :eof

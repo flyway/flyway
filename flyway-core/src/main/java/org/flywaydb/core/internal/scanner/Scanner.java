@@ -31,18 +31,19 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Scanner for Resources and Classes.
  */
-public class Scanner implements ResourceProvider, ClassProvider {
+public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     private static final Log LOG = LogFactory.getLog(Scanner.class);
 
     private final List<LoadableResource> resources = new ArrayList<>();
-    private final List<Class<?>> classes = new ArrayList<>();
+    private final List<Class<? extends I>> classes = new ArrayList<>();
 
-    public Scanner(Collection<Location> locations, ClassLoader classLoader, Charset encoding
+    public Scanner(Class<I> implementedInterface, Collection<Location> locations, ClassLoader classLoader, Charset encoding
 
 
 
@@ -59,9 +60,9 @@ public class Scanner implements ResourceProvider, ClassProvider {
             if (location.isFileSystem()) {
                 resources.addAll(fileSystemScanner.scanForResources(location));
             } else {
-                ResourceAndClassScanner resourceAndClassScanner = android
-                        ? new AndroidScanner(classLoader, encoding, location)
-                        : new ClassPathScanner(classLoader, encoding, location);
+                ResourceAndClassScanner<I> resourceAndClassScanner = android
+                        ? new AndroidScanner<>(implementedInterface, classLoader, encoding, location)
+                        : new ClassPathScanner<>(implementedInterface, classLoader, encoding, location);
                 resources.addAll(resourceAndClassScanner.scanForResources());
                 classes.addAll(resourceAndClassScanner.scanForClasses());
             }
@@ -100,22 +101,12 @@ public class Scanner implements ResourceProvider, ClassProvider {
     }
 
     /**
-     * Scans the classpath for concrete classes under the specified package implementing this interface.
+     * Scans the classpath for concrete classes under the specified package implementing the specified interface.
      * Non-instantiable abstract classes are filtered out.
      *
-     * @param implementedInterface The interface the matching classes should implement.
      * @return The non-abstract classes that were found.
      */
-    public <I> Collection<Class<? extends I>> getClasses(Class<I> implementedInterface) {
-        List<Class<? extends I>> result = new ArrayList<>();
-        for (Class<?> clazz : classes) {
-            if (!implementedInterface.isAssignableFrom(clazz)) {
-                continue;
-            }
-
-            //noinspection unchecked
-            result.add((Class<? extends I>) clazz);
-        }
-        return result;
+    public Collection<Class<? extends I>> getClasses() {
+        return Collections.unmodifiableCollection(classes);
     }
 }

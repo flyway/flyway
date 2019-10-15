@@ -240,6 +240,11 @@ public class MigrationInfoImpl implements MigrationInfo {
         return null;
     }
 
+    @Override
+    public String getPhysicalLocation() {
+        return resolvedMigration.getPhysicalLocation();
+    }
+
     /**
      * Validates this migrationInfo for consistency.
      *
@@ -356,31 +361,31 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         // Below baseline migrations come before applied ones
         if (state == MigrationState.BELOW_BASELINE && oState.isApplied()) {
-            return Integer.MIN_VALUE;
+            return -1;
         }
         if (state.isApplied() && oState == MigrationState.BELOW_BASELINE) {
-            return Integer.MAX_VALUE;
+            return 1;
         }
 
         if (state == MigrationState.IGNORED && oState.isApplied()) {
             if (getVersion() != null && o.getVersion() != null) {
                 return getVersion().compareTo(o.getVersion());
             }
-            return Integer.MIN_VALUE;
+            return -1;
         }
         if (state.isApplied() && oState == MigrationState.IGNORED) {
             if (getVersion() != null && o.getVersion() != null) {
                 return getVersion().compareTo(o.getVersion());
             }
-            return Integer.MAX_VALUE;
+            return 1;
         }
 
         // Sort installed before pending
         if (getInstalledRank() != null) {
-            return Integer.MIN_VALUE;
+            return -1;
         }
         if (o.getInstalledRank() != null) {
-            return Integer.MAX_VALUE;
+            return 1;
         }
 
         // No migration installed, sort according to other criteria
@@ -406,10 +411,10 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         // One versioned and one repeatable migration: versioned migration goes before repeatable one
         if (getVersion() != null) {
-            return Integer.MIN_VALUE;
+            return -1;
         }
         if (o.getVersion() != null) {
-            return Integer.MAX_VALUE;
+            return 1;
         }
 
         // Two repeatable migrations: sort by description

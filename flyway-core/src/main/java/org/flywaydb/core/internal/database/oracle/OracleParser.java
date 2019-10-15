@@ -360,9 +360,21 @@ public class OracleParser extends Parser {
 
 
 
+    @Override
+    protected boolean isDelimiter(String peek, Delimiter delimiter) {
+        if (delimiter.isAloneOnLine()) {
+            return peek.startsWith(delimiter.getDelimiter())
+                    && (peek.length() == 1 || Character.isWhitespace(peek.charAt(1)));
+        }
 
 
 
+
+
+
+
+        return super.isDelimiter(peek, delimiter);
+    }
 
 
 

@@ -190,28 +190,28 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
 
         if (this == EMPTY) {
             if (o == EMPTY) return 0;
-            else return Integer.MIN_VALUE;
+            else return -1;
         }
 
         if (this == CURRENT) {
-            return o == CURRENT ? 0 : Integer.MIN_VALUE;
+            return o == CURRENT ? 0 : -1;
         }
 
         if (this == LATEST) {
             if (o == LATEST) return 0;
-            else return Integer.MAX_VALUE;
+            else return 1;
         }
 
         if (o == EMPTY) {
-            return Integer.MAX_VALUE;
+            return 1;
         }
 
         if (o == CURRENT) {
-            return Integer.MAX_VALUE;
+            return 1;
         }
 
         if (o == LATEST) {
-            return Integer.MIN_VALUE;
+            return -1;
         }
         final List<BigInteger> parts1 = versionParts;
         final List<BigInteger> parts2 = o.versionParts;

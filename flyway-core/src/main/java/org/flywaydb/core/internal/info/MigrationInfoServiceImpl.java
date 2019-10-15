@@ -25,6 +25,8 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.output.InfoOutput;
+import org.flywaydb.core.internal.output.InfoOutputFactory;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
@@ -446,12 +448,25 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @return The error message, or {@code null} if everything is fine.
      */
     public String validate() {
+        StringBuilder builder = new StringBuilder();
+        boolean hasFailures = false;
+
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
             String message = migrationInfo.validate();
             if (message != null) {
-                return message;
+                if (!hasFailures)
+                    builder.append("\n");
+
+                builder.append(message + "\n");
+                hasFailures = true;
             }
         }
-        return null;
+        return (hasFailures) ? builder.toString() : null;
+    }
+
+    @Override
+    public InfoOutput getInfoOutput() {
+        InfoOutputFactory infoOutputFactory = new InfoOutputFactory();
+        return infoOutputFactory.create(this.context.getConfiguration(), this.all(), this.current());
     }
 }

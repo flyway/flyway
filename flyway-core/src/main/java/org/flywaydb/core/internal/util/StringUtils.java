@@ -537,7 +537,7 @@ public class StringUtils {
             String part = str.substring(oldPos, pos);
             int spacePos = part.lastIndexOf(' ');
             if (spacePos > 0) {
-                pos = spacePos + 1;
+                pos = oldPos + spacePos + 1;
             }
 
             result.append(str.substring(oldPos, pos).trim()).append("\n");

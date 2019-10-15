@@ -472,7 +472,7 @@ public abstract class Parser {
             }
             return handleKeyword(reader, context, pos, line, col, text);
         }
-        if (StringUtils.isCharAnyOf(c, ",=*.:;[]~+-/%^|?!@$&#<>'{}")) {
+        if (StringUtils.isCharAnyOf(c, ",=*.:;[]~+-/%^|?!@$&#<>'{}\\")) {
             String text = "" + (char) reader.read();
             return new Token(TokenType.SYMBOL, pos, line, col, text, text, context.getParensDepth());
         }

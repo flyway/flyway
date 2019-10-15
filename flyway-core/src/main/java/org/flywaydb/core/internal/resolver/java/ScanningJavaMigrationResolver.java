@@ -36,7 +36,7 @@ public class ScanningJavaMigrationResolver implements MigrationResolver {
     /**
      * The Scanner to use.
      */
-    private final ClassProvider classProvider;
+    private final ClassProvider<JavaMigration> classProvider;
 
     /**
      * The configuration to inject (if necessary) in the migration classes.
@@ -49,7 +49,7 @@ public class ScanningJavaMigrationResolver implements MigrationResolver {
      * @param classProvider The class provider.
      * @param configuration The configuration to inject (if necessary) in the migration classes.
      */
-    public ScanningJavaMigrationResolver(ClassProvider classProvider, Configuration configuration) {
+    public ScanningJavaMigrationResolver(ClassProvider<JavaMigration> classProvider, Configuration configuration) {
         this.classProvider = classProvider;
         this.configuration = configuration;
     }
@@ -58,7 +58,7 @@ public class ScanningJavaMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations(Context context) {
         List<ResolvedMigration> migrations = new ArrayList<>();
 
-        for (Class<?> clazz : classProvider.getClasses(JavaMigration.class)) {
+        for (Class<?> clazz : classProvider.getClasses()) {
             JavaMigration javaMigration = ClassUtils.instantiate(clazz.getName(), configuration.getClassLoader());
             migrations.add(new ResolvedJavaMigration(javaMigration));
         }

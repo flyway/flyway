@@ -15,12 +15,15 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -28,11 +31,14 @@ import org.flywaydb.core.internal.jdbc.JdbcUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * MySQL database.
  */
 public class MySQLDatabase extends Database<MySQLConnection> {
+    private static final Pattern MARIADB_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+-MariaDB");
     private static final Log LOG = LogFactory.getLog(MySQLDatabase.class);
 
     /**
@@ -153,6 +159,59 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     @Override
     protected MySQLConnection doGetConnection(Connection connection) {
         return new MySQLConnection(this, connection);
+    }
+
+    @Override
+    protected MigrationVersion determineVersion() {
+        if (databaseType == DatabaseType.MARIADB) {
+            try {
+                String productVersion = jdbcMetaData.getDatabaseProductVersion();
+                productVersion = correctForAzureMariaDB(productVersion);
+
+                Matcher matcher = MARIADB_VERSION_PATTERN.matcher(productVersion);
+
+                if (!matcher.find()) {
+                    throw new FlywayException("Unable to determine MariaDB version from '" + productVersion + "'");
+                }
+
+                return MigrationVersion.fromVersion(matcher.group(1));
+
+            } catch (SQLException e) {
+                throw new FlywaySqlException("Unable to determine MariaDB server version", e);
+            }
+        }
+        MigrationVersion jdbcMetadataVersion = super.determineVersion();
+        return correctForAzureMySQL(jdbcMetadataVersion);
+    }
+
+    /*
+     * Azure Database for MySQL reports version numbers incorrectly - it claims to be 5.6 (the gateway
+     * version) while the db itself is 5.7, visible from SELECT VERSION(). We work around this specific case.
+     * This code should be simplified as soon as Azure is fixed.
+     * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
+     */
+    private MigrationVersion correctForAzureMySQL(MigrationVersion jdbcMetadataVersion) {
+        String selectVersionOutput = DatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
+        if (selectVersionOutput.startsWith("5.7") && jdbcMetadataVersion.toString().startsWith("5.6")) {
+            LOG.warn("Azure MySQL database - reporting v5.6 in JDBC metadata but database actually v" + selectVersionOutput);
+            return MigrationVersion.fromVersion(selectVersionOutput);
+        }
+        return jdbcMetadataVersion;
+    }
+
+    /*
+     * Azure Database for MariaDB also reports version numbers incorrectly - it claims to be MySQL 5.6 (the gateway
+     * version) while the db itself is something like 10.3.6-MariaDB, visible from SELECT VERSION().
+     * This code should be simplified as soon as Azure is fixed.
+     * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
+     */
+    private String correctForAzureMariaDB(String jdbcMetadataVersion) {
+        String selectVersionOutput = DatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
+        if (jdbcMetadataVersion.startsWith("5.6")) {
+            LOG.warn("Azure MariaDB database - reporting v5.6 in JDBC metadata but database actually v" + selectVersionOutput);
+            return selectVersionOutput;
+        }
+        return jdbcMetadataVersion;
     }
 
 

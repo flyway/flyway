@@ -43,10 +43,10 @@ public class ResolvedMigrationComparator implements Comparator<ResolvedMigration
             return v;
         }
         if (o1.getVersion() != null) {
-            return Integer.MIN_VALUE;
+            return -1;
         }
         if (o2.getVersion() != null) {
-            return Integer.MAX_VALUE;
+            return 1;
         }
         return o1.getDescription().compareTo(o2.getDescription());
     }

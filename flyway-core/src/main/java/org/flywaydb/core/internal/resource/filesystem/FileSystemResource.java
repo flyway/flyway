@@ -17,11 +17,13 @@ package org.flywaydb.core.internal.resource.filesystem;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.internal.util.BomStrippingReader;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -31,6 +33,9 @@ import java.nio.file.StandardOpenOption;
  * A resource on the filesystem.
  */
 public class FileSystemResource extends LoadableResource {
+
+    private static final Log LOG = LogFactory.getLog(FileSystemResource.class);
+
 
 
 
@@ -92,6 +97,13 @@ public class FileSystemResource extends LoadableResource {
     public Reader read() {
         try {
             return Channels.newReader(FileChannel.open(file.toPath(), StandardOpenOption.READ), encoding.newDecoder(), 4096);
+        } catch (IOException e){
+            LOG.debug("Unable to load filesystem resource" + file.getPath() + " using FileChannel.open." +
+                    " Falling back to FileInputStream implementation. Exception message: " + e.getMessage());
+        }
+
+        try {
+            return new BufferedReader(new BomStrippingReader(new InputStreamReader(new FileInputStream(file), encoding)));
         } catch (IOException e) {
             throw new FlywayException("Unable to load filesystem resource: " + file.getPath() + " (encoding: " + encoding + ")", e);
         }

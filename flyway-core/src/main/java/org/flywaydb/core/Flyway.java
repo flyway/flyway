@@ -23,6 +23,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.callback.DefaultCallbackExecutor;
@@ -38,6 +39,7 @@ import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.command.DbRepair;
 import org.flywaydb.core.internal.command.DbSchemas;
 import org.flywaydb.core.internal.command.DbValidate;
+import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 import org.flywaydb.core.internal.database.DatabaseFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
@@ -83,6 +85,11 @@ public class Flyway {
      * Whether the database connection info has already been printed in the logs.
      */
     private boolean dbConnectionInfoPrinted;
+
+    /**
+     * Designed so we can fail fast if the configuration is invalid
+     */
+    private ConfigurationValidator  configurationValidator = new ConfigurationValidator();
 
     /**
      * This is your starting point. This creates a configuration which can be customized to your needs before being
@@ -371,7 +378,7 @@ public class Flyway {
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(ResourceProvider resourceProvider,
-                                                      ClassProvider classProvider,
+                                                      ClassProvider<JavaMigration> classProvider,
                                                       SqlScriptExecutorFactory sqlScriptExecutorFactory,
                                                       SqlScriptFactory sqlScriptFactory) {
         return new CompositeMigrationResolver(resourceProvider, classProvider, configuration,
@@ -394,9 +401,7 @@ public class Flyway {
 
         );
 
-        if (configuration.getDataSource() == null) {
-            throw new FlywayException("Unable to connect to the database. Configure the url, user and password!");
-        }
+        configurationValidator.validate(configuration);
 
 
 
@@ -410,12 +415,14 @@ public class Flyway {
 
 
         final ResourceProvider resourceProvider;
-        ClassProvider classProvider;
+        ClassProvider<JavaMigration> classProvider;
         if (!scannerRequired && configuration.isSkipDefaultResolvers() && configuration.isSkipDefaultCallbacks()) {
             resourceProvider = NoopResourceProvider.INSTANCE;
+            //noinspection unchecked
             classProvider = NoopClassProvider.INSTANCE;
         } else {
-            Scanner scanner = new Scanner(
+            Scanner<JavaMigration> scanner = new Scanner<>(
+                    JavaMigration.class,
                     Arrays.asList(configuration.getLocations()),
                     configuration.getClassLoader(),
                     configuration.getEncoding()

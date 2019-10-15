@@ -118,6 +118,7 @@
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                 <include>org.fusesource.jansi:jansi</include>
+                <include>com.google.code.gson:gson</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -139,6 +140,7 @@
             <excludes>
                 <exclude>org.flywaydb:flyway-*</exclude>
                 <exclude>org.fusesource.jansi:jansi</exclude>
+                <exclude>com.google.code.gson:gson</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

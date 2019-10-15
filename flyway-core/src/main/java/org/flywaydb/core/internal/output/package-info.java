@@ -13,19 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.clazz;
-
-import java.util.Collection;
-import java.util.Collections;
-
 /**
- * ClassProvider that does nothing.
+ * Private API. No compatibility guarantees provided.
  */
-public enum NoopClassProvider implements ClassProvider {
-    INSTANCE;
-
-    @Override
-    public Collection<Class<?>> getClasses() {
-        return Collections.emptyList();
-    }
-}
+package org.flywaydb.core.internal.output;

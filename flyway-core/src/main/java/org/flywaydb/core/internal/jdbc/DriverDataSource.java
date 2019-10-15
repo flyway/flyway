@@ -66,7 +66,7 @@ public class DriverDataSource implements DataSource {
      * The name of the application that created the connection. This is useful for databases that allow setting this
      * in order to easily correlate individual application with database connections.
      */
-    private static final String APPLICATION_NAME = "Flyway by Boxfuse";
+    private static final String APPLICATION_NAME = "Flyway by Redgate";
 
     /**
      * The JDBC Driver instance to use.

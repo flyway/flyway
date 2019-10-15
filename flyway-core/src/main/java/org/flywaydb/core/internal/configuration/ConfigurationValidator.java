@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.clazz;
+package org.flywaydb.core.internal.configuration;
 
-import java.util.Collection;
-import java.util.Collections;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 
-/**
- * ClassProvider that does nothing.
- */
-public enum NoopClassProvider implements ClassProvider {
-    INSTANCE;
+public class ConfigurationValidator {
+    public void validate(Configuration configuration) {
 
-    @Override
-    public Collection<Class<?>> getClasses() {
-        return Collections.emptyList();
+
+
+
+
+
+
+
+        if (configuration.getDataSource() == null) {
+            throw new FlywayException("Unable to connect to the database. Configure the url, user and password!");
+        }
     }
 }

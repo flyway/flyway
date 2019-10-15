@@ -9,7 +9,10 @@ target
 .classpath
 .settings
 .metadata
-.idea
 .gradle
 *.h2.db
 .DS_Store
+
+.idea/
+!.idea/runConfigurations
+

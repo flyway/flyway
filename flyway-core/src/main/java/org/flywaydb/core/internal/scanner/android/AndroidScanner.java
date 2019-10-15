@@ -37,16 +37,18 @@ import java.util.List;
 /**
  * Class & resource scanner for Android.
  */
-public class AndroidScanner implements ResourceAndClassScanner {
+public class AndroidScanner<I> implements ResourceAndClassScanner<I> {
     private static final Log LOG = LogFactory.getLog(AndroidScanner.class);
 
     private final Context context;
 
+    private final Class<I> implementedInterface;
     private final ClassLoader clazzLoader;
     private final Charset encoding;
     private final Location location;
 
-    public AndroidScanner(ClassLoader clazzLoader, Charset encoding, Location location) {
+    public AndroidScanner(Class<I> implementedInterface, ClassLoader clazzLoader, Charset encoding, Location location) {
+        this.implementedInterface = implementedInterface;
         this.clazzLoader = clazzLoader;
         this.encoding = encoding;
         this.location = location;
@@ -74,10 +76,10 @@ public class AndroidScanner implements ResourceAndClassScanner {
     }
 
     @Override
-    public Collection<Class<?>> scanForClasses() {
+    public Collection<Class<? extends I>> scanForClasses() {
         String pkg = location.getPath().replace("/", ".");
 
-        List<Class<?>> classes = new ArrayList<>();
+        List<Class<? extends I>> classes = new ArrayList<>();
         String sourceDir = context.getApplicationInfo().sourceDir;
         DexFile dex = null;
         try {
@@ -86,7 +88,7 @@ public class AndroidScanner implements ResourceAndClassScanner {
             while (entries.hasMoreElements()) {
                 String className = entries.nextElement();
                 if (className.startsWith(pkg)) {
-                    Class<?> clazz = ClassUtils.loadClass(className, clazzLoader);
+                    Class<? extends I> clazz = ClassUtils.loadClass(implementedInterface, className, clazzLoader);
                     if (clazz != null) {
                         classes.add(clazz);
                     }

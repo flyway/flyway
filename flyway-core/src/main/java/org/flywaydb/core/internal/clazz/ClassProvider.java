@@ -20,12 +20,11 @@ import java.util.Collection;
 /**
  * A facility to obtain classes.
  */
-public interface ClassProvider {
+public interface ClassProvider<I> {
     /**
-     * Retrieve all classes which implement this interface.
+     * Retrieve all classes which implement the specified interface.
      *
-     * @param implementedInterface The interface the matching classes should implement.
      * @return The non-abstract classes that were found.
      */
-    <I> Collection<Class<? extends I>> getClasses(Class<I> implementedInterface);
+    Collection<Class<? extends I>> getClasses();
 }

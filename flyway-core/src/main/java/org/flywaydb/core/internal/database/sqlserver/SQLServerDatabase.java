@@ -31,8 +31,6 @@ import java.sql.SQLException;
  * SQL Server database.
  */
 public class SQLServerDatabase extends Database<SQLServerConnection> {
-    private final boolean azure;
-
     /**
      * Creates a new instance.
      *
@@ -48,12 +46,6 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
 
         );
-        try {
-            azure = "SQL Azure".equals(getMainConnection().getJdbcTemplate().queryForString(
-                    "SELECT CAST(SERVERPROPERTY('edition') AS VARCHAR)"));
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to determine database edition", e);
-        }
     }
 
     @Override
@@ -73,17 +65,35 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
 
 
+
+
+
+
+
+
     @Override
     public final void ensureSupported() {
-        ensureDatabaseIsRecentEnough("10.0");
+        if (isAzure()) {
+            ensureDatabaseIsRecentEnough("11.0");
 
-        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("13.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("12.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("15.0");
+            recommendFlywayUpgradeIfNecessary("12.0");
+        } else {
+            ensureDatabaseIsRecentEnough("10.0");
+
+            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("13.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+
+            recommendFlywayUpgradeIfNecessary("15.0");
+        }
     }
 
     @Override
     protected String computeVersionDisplayName(MigrationVersion version) {
+        if (isAzure()) {
+            return "Azure v" + getVersion().getMajorAsString();
+        }
+
         if (getVersion().isAtLeast("8")) {
             if ("8".equals(getVersion().getMajorAsString())) {
                 return "2000";
@@ -173,7 +183,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
     @Override
     public String getRawCreateScript(Table table, boolean baseline) {
-        String filegroup = azure || configuration.getTablespace() == null
+        String filegroup = isAzure() || configuration.getTablespace() == null
                 ? ""
                 : " ON \"" + configuration.getTablespace() + "\"";
 
@@ -199,7 +209,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
      * @return Whether this is a SQL Azure database.
      */
     boolean isAzure() {
-        return azure;
+        return getMainConnection().isAzureConnection();
     }
 
 }

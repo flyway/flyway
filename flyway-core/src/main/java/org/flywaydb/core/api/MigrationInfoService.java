@@ -18,7 +18,7 @@ package org.flywaydb.core.api;
 /**
  * Info about all migrations, including applied, current and pending with details and status.
  */
-public interface MigrationInfoService {
+public interface MigrationInfoService extends InfoOutputProvider {
     /**
      * Retrieves the full set of infos about applied, current and future migrations.
      *

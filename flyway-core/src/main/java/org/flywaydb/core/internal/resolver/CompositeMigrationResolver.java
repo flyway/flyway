@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
@@ -62,7 +63,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param customMigrationResolvers Custom Migration Resolvers.
      */
     public CompositeMigrationResolver(ResourceProvider resourceProvider,
-                                      ClassProvider classProvider,
+                                      ClassProvider<JavaMigration> classProvider,
                                       Configuration configuration,
                                       SqlScriptExecutorFactory sqlScriptExecutorFactory,
                                       SqlScriptFactory sqlScriptFactory,
@@ -132,11 +133,12 @@ public class CompositeMigrationResolver implements MigrationResolver {
      */
     /* private -> for testing */
     static void checkForIncompatibilities(List<ResolvedMigration> migrations) {
+    	ResolvedMigrationComparator resolvedMigrationComparator = new ResolvedMigrationComparator();
         // check for more than one migration with same version
         for (int i = 0; i < migrations.size() - 1; i++) {
             ResolvedMigration current = migrations.get(i);
             ResolvedMigration next = migrations.get(i + 1);
-            if (new ResolvedMigrationComparator().compare(current, next) == 0) {
+            if (resolvedMigrationComparator.compare(current, next) == 0) {
                 if (current.getVersion() != null) {
                     throw new FlywayException(String.format("Found more than one migration with version %s\nOffenders:\n-> %s (%s)\n-> %s (%s)",
                             current.getVersion(),
