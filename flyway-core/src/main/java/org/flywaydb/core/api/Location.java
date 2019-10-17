@@ -15,12 +15,17 @@
  */
 package org.flywaydb.core.api;
 
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+
 import java.io.File;
 
 /**
  * A location to load migrations from.
  */
 public final class Location implements Comparable<Location> {
+    private static final Log LOG = LogFactory.getLog(Location.class);
+
     /**
      * The prefix for classpath locations.
      */
@@ -58,6 +63,9 @@ public final class Location implements Comparable<Location> {
         }
 
         if (isClassPath()) {
+            if (path.contains(".")) {
+                LOG.warn("Use of dots (.) as path separators will be deprecated in Flyway 7. Path: " + path);
+            }
             path = path.replace(".", "/");
             if (path.startsWith("/")) {
                 path = path.substring(1);
