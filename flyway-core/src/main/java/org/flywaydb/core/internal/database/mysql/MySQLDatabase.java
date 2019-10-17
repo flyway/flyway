@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
  */
 public class MySQLDatabase extends Database<MySQLConnection> {
     private static final Pattern MARIADB_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+-MariaDB");
+    private static final Pattern MYSQL_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+\\w*");
     private static final Log LOG = LogFactory.getLog(MySQLDatabase.class);
 
     /**
@@ -163,25 +164,18 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     @Override
     protected MigrationVersion determineVersion() {
+        String selectVersionOutput = DatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
         if (databaseType == DatabaseType.MARIADB) {
             try {
                 String productVersion = jdbcMetaData.getDatabaseProductVersion();
-                productVersion = correctForAzureMariaDB(productVersion);
-
-                Matcher matcher = MARIADB_VERSION_PATTERN.matcher(productVersion);
-
-                if (!matcher.find()) {
-                    throw new FlywayException("Unable to determine MariaDB version from '" + productVersion + "'");
-                }
-
-                return MigrationVersion.fromVersion(matcher.group(1));
+                return correctForAzureMariaDB(productVersion, selectVersionOutput);
 
             } catch (SQLException e) {
                 throw new FlywaySqlException("Unable to determine MariaDB server version", e);
             }
         }
         MigrationVersion jdbcMetadataVersion = super.determineVersion();
-        return correctForAzureMySQL(jdbcMetadataVersion);
+        return correctForAzureMySQL(jdbcMetadataVersion, selectVersionOutput);
     }
 
     /*
@@ -190,11 +184,10 @@ public class MySQLDatabase extends Database<MySQLConnection> {
      * This code should be simplified as soon as Azure is fixed.
      * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
      */
-    private MigrationVersion correctForAzureMySQL(MigrationVersion jdbcMetadataVersion) {
-        String selectVersionOutput = DatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
+    static MigrationVersion correctForAzureMySQL(MigrationVersion jdbcMetadataVersion, String selectVersionOutput) {
         if (selectVersionOutput.startsWith("5.7") && jdbcMetadataVersion.toString().startsWith("5.6")) {
-            LOG.warn("Azure MySQL database - reporting v5.6 in JDBC metadata but database actually v" + selectVersionOutput);
-            return MigrationVersion.fromVersion(selectVersionOutput);
+            LOG.debug("Azure MySQL database - reporting v5.6 in JDBC metadata but database actually v" + selectVersionOutput);
+            return extractVersionFromString(MYSQL_VERSION_PATTERN, selectVersionOutput);
         }
         return jdbcMetadataVersion;
     }
@@ -205,13 +198,23 @@ public class MySQLDatabase extends Database<MySQLConnection> {
      * This code should be simplified as soon as Azure is fixed.
      * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
      */
-    private String correctForAzureMariaDB(String jdbcMetadataVersion) {
-        String selectVersionOutput = DatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
+    static MigrationVersion correctForAzureMariaDB(String jdbcMetadataVersion, String selectVersionOutput) {
         if (jdbcMetadataVersion.startsWith("5.6")) {
-            LOG.warn("Azure MariaDB database - reporting v5.6 in JDBC metadata but database actually v" + selectVersionOutput);
-            return selectVersionOutput;
+            LOG.debug("Azure MariaDB database - reporting v5.6 in JDBC metadata but database actually v" + selectVersionOutput);
+            return extractVersionFromString(MARIADB_VERSION_PATTERN, selectVersionOutput);
         }
-        return jdbcMetadataVersion;
+        return extractVersionFromString(MARIADB_VERSION_PATTERN, jdbcMetadataVersion);
+    }
+
+    /*
+     * Given a version string that may contain unwanted text, extract out the version part.
+     */
+    private static MigrationVersion extractVersionFromString(Pattern pattern, String versionString) {
+        Matcher matcher = pattern.matcher(versionString);
+        if (!matcher.find()) {
+            throw new FlywayException("Unable to determine version from '" + versionString + "'");
+        }
+        return MigrationVersion.fromVersion(matcher.group(1));
     }
 
 
