@@ -31,6 +31,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Configuration-related utilities.
@@ -311,11 +313,29 @@ public class ConfigUtils {
         try {
             String contents = FileCopyUtils.copyToString(new InputStreamReader(new FileInputStream(configFile), encoding));
             Properties properties = new Properties();
+            contents = expandEnvironmentVariables(contents, System.getenv());
             properties.load(new StringReader(contents.replace("\\", "\\\\")));
             return propertiesToMap(properties);
         } catch (IOException e) {
             throw new FlywayException(errorMessage, e);
         }
+    }
+
+    static String expandEnvironmentVariables(String value, Map<String, String> environmentVariables) {
+        Pattern pattern = Pattern.compile("\\$\\{([A-Za-z0-9_]+)}");
+        Matcher matcher = pattern.matcher(value);
+        String expandedValue = value;
+
+        while (matcher.find()) {
+            String variableName = matcher.group(1);
+            String variableValue = environmentVariables.containsKey(variableName)
+                    ? environmentVariables.get(variableName)
+                    : "";
+
+            expandedValue = expandedValue.replaceAll(Pattern.quote(matcher.group(0)), variableValue);
+        }
+
+        return expandedValue;
     }
 
     /**
