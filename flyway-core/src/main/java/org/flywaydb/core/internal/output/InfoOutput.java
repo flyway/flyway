@@ -22,16 +22,17 @@ public class InfoOutput {
     public String database;
     public String schemaVersion;
     public String schemaName;
-    public int executionTime;
     public List<MigrationOutput> migrations;
 
-    public InfoOutput(String productVersion, String database, String schemaVersion, String schemaName,
-                      int executionTime, List<MigrationOutput> migrations) {
+    public InfoOutput(String productVersion,
+                      String database,
+                      String schemaVersion,
+                      String schemaName,
+                      List<MigrationOutput> migrations) {
         this.productVersion = productVersion;
         this.database = database;
         this.schemaVersion = schemaVersion;
         this.schemaName = schemaName;
-        this.executionTime = executionTime;
         this.migrations = migrations;
     }
 }

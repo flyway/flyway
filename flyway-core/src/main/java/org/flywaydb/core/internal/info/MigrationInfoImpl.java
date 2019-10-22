@@ -242,7 +242,10 @@ public class MigrationInfoImpl implements MigrationInfo {
 
     @Override
     public String getPhysicalLocation() {
-        return resolvedMigration.getPhysicalLocation();
+        if (resolvedMigration != null) {
+            return resolvedMigration.getPhysicalLocation();
+        }
+        return "";
     }
 
     /**

@@ -16,11 +16,9 @@
 package org.flywaydb.core.internal.output;
 
 public class ErrorOutput {
-    public String message;
-    public String details;
+    public ErrorOutputItem error;
 
     public ErrorOutput(String message, String details) {
-        this.message = message;
-        this.details = details;
+        this.error = new ErrorOutputItem(message, details);
     }
 }

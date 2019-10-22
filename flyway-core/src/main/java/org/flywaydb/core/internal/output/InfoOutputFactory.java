@@ -16,7 +16,6 @@
 package org.flywaydb.core.internal.output;
 
 import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -36,19 +35,14 @@ public class InfoOutputFactory {
         }
 
         Set<MigrationVersion> undoableVersions = getUndoableVersions(migrationInfos);
-        migrationInfos = removeAvailableUndos(migrationInfos);
+
+
+
+
 
         List<MigrationOutput> migrationOutputs = new ArrayList<>();
         for (MigrationInfo migrationInfo : migrationInfos) {
-            migrationOutputs.add(
-                    new MigrationOutput(getCategory(migrationInfo),
-                            migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
-                            migrationInfo.getDescription(),
-                            migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
-                            migrationInfo.getInstalledOn() != null ? migrationInfo.getInstalledOn().toString() : "",
-                            migrationInfo.getState().getDisplayName(),
-                            getUndoableStatus(migrationInfo, undoableVersions),
-                            migrationInfo.getPhysicalLocation()));
+            migrationOutputs.add(createMigrationOutput(undoableVersions, migrationInfo));
         }
 
         MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
@@ -59,8 +53,20 @@ public class InfoOutputFactory {
                 databaseName,
                 currentSchemaVersion.getVersion(),
                 join(", ", configuration.getSchemas()),
-                0,
                 migrationOutputs);
+    }
+
+    private MigrationOutput createMigrationOutput(Set<MigrationVersion> undoableVersions, MigrationInfo migrationInfo) {
+        return new MigrationOutput(getCategory(migrationInfo),
+                migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
+                migrationInfo.getDescription(),
+                migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
+                migrationInfo.getInstalledOn() != null ? migrationInfo.getInstalledOn().toString() : "",
+                migrationInfo.getState().getDisplayName(),
+                getUndoableStatus(migrationInfo, undoableVersions),
+                migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
+                migrationInfo.getInstalledBy() != null ? migrationInfo.getInstalledBy() : "",
+                migrationInfo.getExecutionTime() != null ? migrationInfo.getExecutionTime() : 0);
     }
 
     private String join(String joiner, String[] strings) {
@@ -109,13 +115,11 @@ public class InfoOutputFactory {
     private static MigrationInfo[] removeAvailableUndos(MigrationInfo[] migrationInfos) {
         List<MigrationInfo> result = new ArrayList<>();
 
-
-
-
-
-
-
-
+        for (MigrationInfo migrationInfo : migrationInfos) {
+            if (!migrationInfo.getState().equals(MigrationState.AVAILABLE)) {
+                result.add(migrationInfo);
+            }
+        }
 
         return result.toArray(new MigrationInfo[0]);
     }

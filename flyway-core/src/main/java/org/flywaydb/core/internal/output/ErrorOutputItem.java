@@ -15,10 +15,12 @@
  */
 package org.flywaydb.core.internal.output;
 
-public class ExceptionOutput {
-    public ErrorOutput error;
+class ErrorOutputItem {
+    public String message;
+    public String details;
 
-    public ExceptionOutput(String message, Exception exception) {
-        this.error = new ErrorOutput(message, exception.getMessage());
+    ErrorOutputItem(String message, String details) {
+        this.message = message;
+        this.details = details;
     }
 }

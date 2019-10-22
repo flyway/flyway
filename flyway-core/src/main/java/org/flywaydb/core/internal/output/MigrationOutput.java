@@ -24,9 +24,11 @@ public class MigrationOutput {
     public String state;
     public String undoable;
     public String filepath;
+    public String installedBy;
+    public int executionTime;
 
     public MigrationOutput(String category, String version, String description, String type, String installedOn,
-                           String state, String undoable, String filepath) {
+                           String state, String undoable, String filepath, String installedBy, int executionTime) {
         this.category = category;
         this.version = version;
         this.description = description;
@@ -35,5 +37,7 @@ public class MigrationOutput {
         this.state = state;
         this.undoable = undoable;
         this.filepath = filepath;
+        this.installedBy = installedBy;
+        this.executionTime = executionTime;
     }
 }

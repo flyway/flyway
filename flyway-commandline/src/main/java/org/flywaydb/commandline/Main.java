@@ -28,7 +28,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.core.internal.output.ExceptionOutput;
+import org.flywaydb.core.internal.output.ErrorOutput;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -126,13 +126,22 @@ public class Main {
             if (logLevel == Level.DEBUG) {
                 LOG.error("Unexpected error", e);
             } else {
-                if (e instanceof FlywayException) {
-                    LOG.error(e.getMessage());
-                } else {
-                    LOG.error(e.toString());
+                String msg = getMessageFromException(e);
+                LOG.error(msg);
+
+                if (jsonOutput) {
+                    printJson(new ErrorOutput("Error", msg));
                 }
             }
             System.exit(1);
+        }
+    }
+
+    static String getMessageFromException(Exception e) {
+        if (e instanceof FlywayException) {
+            return e.getMessage();
+        } else {
+            return e.toString();
         }
     }
 
@@ -179,24 +188,17 @@ public class Main {
         } else if ("validate".equals(operation)) {
             flyway.validate();
         } else if ("info".equals(operation)) {
-            try {
-                MigrationInfoService info = flyway.info();
-                MigrationInfo current = info.current();
-                MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
+            MigrationInfoService info = flyway.info();
+            MigrationInfo current = info.current();
+            MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
 
-                MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
-                LOG.info("Schema version: " + schemaVersionToOutput);
-                LOG.info("");
-                LOG.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));
+            MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
+            LOG.info("Schema version: " + schemaVersionToOutput);
+            LOG.info("");
+            LOG.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));
 
-                if (jsonOutput) {
-                    printJson(info.getInfoOutput());
-                }
-            } catch (Exception e) {
-                if (jsonOutput) {
-                    printJson(new ExceptionOutput("Info failed", e));
-                }
-                throw e;
+            if (jsonOutput) {
+                printJson(info.getInfoOutput());
             }
         } else if ("repair".equals(operation)) {
             flyway.repair();
@@ -208,7 +210,7 @@ public class Main {
     }
 
     private static void printJson(Object object) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
         System.out.println(gson.toJson(object));
     }
 
