@@ -364,7 +364,7 @@ public class OracleParser extends Parser {
     protected boolean isDelimiter(String peek, Delimiter delimiter) {
         if (delimiter.isAloneOnLine()) {
             return peek.startsWith(delimiter.getDelimiter())
-                    && (peek.length() == 1 || Character.isWhitespace(peek.charAt(1)));
+                    && (peek.length() == 1 || isNewline(peek.charAt(1)));
         }
 
 
@@ -374,6 +374,10 @@ public class OracleParser extends Parser {
 
 
         return super.isDelimiter(peek, delimiter);
+    }
+
+    private boolean isNewline(char c) {
+        return c == '\n' || c == '\r';
     }
 
 
