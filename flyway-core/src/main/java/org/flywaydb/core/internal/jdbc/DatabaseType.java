@@ -17,17 +17,11 @@ package org.flywaydb.core.internal.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 
 /**
  * The various types of databases Flyway supports.
  */
-@SuppressWarnings("SqlDialectInspection")
 public enum DatabaseType {
     COCKROACHDB("CockroachDB", Types.NULL, false),
     DB2("DB2", Types.VARCHAR, true),
@@ -48,7 +42,8 @@ public enum DatabaseType {
     SQLSERVER("SQL Server", Types.VARCHAR, true),
     SYBASEASE_JTDS("Sybase ASE", Types.NULL, true),
     SYBASEASE_JCONNECT("Sybase ASE", Types.VARCHAR, true),
-    SAPHANA("SAP HANA", Types.VARCHAR, true);
+    SAPHANA("SAP HANA", Types.VARCHAR, true),
+    VERTICA("Vertica", Types.VARCHAR, true);
 
     private final String name;
 
@@ -117,11 +112,6 @@ public enum DatabaseType {
             return POSTGRESQL;
         }
         if (databaseProductName.startsWith("DB2")) {
-
-
-
-
-
             return DB2;
         }
         if (databaseProductName.startsWith("ASE")) {
@@ -138,6 +128,9 @@ public enum DatabaseType {
         }
         if (databaseProductName.startsWith("Firebird")) {
             return FIREBIRD;
+        }
+        if (databaseProductName.startsWith("Vertica")) {
+            return VERTICA;
         }
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }

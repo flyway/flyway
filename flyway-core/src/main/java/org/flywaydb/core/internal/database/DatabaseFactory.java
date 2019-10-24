@@ -19,7 +19,6 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabase;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBParser;
@@ -27,7 +26,6 @@ import org.flywaydb.core.internal.database.db2.DB2Database;
 import org.flywaydb.core.internal.database.db2.DB2Parser;
 import org.flywaydb.core.internal.database.derby.DerbyDatabase;
 import org.flywaydb.core.internal.database.derby.DerbyParser;
-
 import org.flywaydb.core.internal.database.firebird.FirebirdDatabase;
 import org.flywaydb.core.internal.database.firebird.FirebirdParser;
 import org.flywaydb.core.internal.database.h2.H2Database;
@@ -53,18 +51,14 @@ import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabase;
 import org.flywaydb.core.internal.database.sqlserver.SQLServerParser;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEDatabase;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEParser;
+import org.flywaydb.core.internal.database.vertica.VerticaDatabase;
+import org.flywaydb.core.internal.database.vertica.VerticaParser;
 import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
-import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
-import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
+import org.flywaydb.core.internal.sqlscript.*;
 
 import java.sql.Connection;
 
@@ -92,7 +86,6 @@ public class DatabaseFactory {
                                           JdbcConnectionFactory jdbcConnectionFactory
 
 
-
     ) {
         OracleDatabase.enableTnsnamesOraSupport();
 
@@ -105,7 +98,6 @@ public class DatabaseFactory {
         DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
 
         Database database = createDatabase(databaseType, configuration, jdbcConnectionFactory
-
 
 
         );
@@ -122,12 +114,10 @@ public class DatabaseFactory {
                                            JdbcConnectionFactory jdbcConnectionFactory
 
 
-
     ) {
         switch (databaseType) {
             case COCKROACHDB:
                 return new CockroachDBDatabase(configuration, jdbcConnectionFactory
-
 
 
                 );
@@ -135,16 +125,11 @@ public class DatabaseFactory {
                 return new DB2Database(configuration, jdbcConnectionFactory
 
 
-
                 );
-
-
-
 
 
             case DERBY:
                 return new DerbyDatabase(configuration, jdbcConnectionFactory
-
 
 
                 );
@@ -152,11 +137,9 @@ public class DatabaseFactory {
                 return new FirebirdDatabase(configuration, jdbcConnectionFactory
 
 
-
                 );
             case H2:
                 return new H2Database(configuration, jdbcConnectionFactory
-
 
 
                 );
@@ -164,11 +147,9 @@ public class DatabaseFactory {
                 return new HSQLDBDatabase(configuration, jdbcConnectionFactory
 
 
-
                 );
             case INFORMIX:
                 return new InformixDatabase(configuration, jdbcConnectionFactory
-
 
 
                 );
@@ -177,11 +158,9 @@ public class DatabaseFactory {
                 return new MySQLDatabase(configuration, jdbcConnectionFactory
 
 
-
                 );
             case ORACLE:
                 return new OracleDatabase(configuration, jdbcConnectionFactory
-
 
 
                 );
@@ -189,11 +168,9 @@ public class DatabaseFactory {
                 return new PostgreSQLDatabase(configuration, jdbcConnectionFactory
 
 
-
                 );
             case REDSHIFT:
                 return new RedshiftDatabase(configuration, jdbcConnectionFactory
-
 
 
                 );
@@ -201,11 +178,9 @@ public class DatabaseFactory {
                 return new SQLiteDatabase(configuration, jdbcConnectionFactory
 
 
-
                 );
             case SAPHANA:
                 return new SAPHANADatabase(configuration, jdbcConnectionFactory
-
 
 
                 );
@@ -213,15 +188,12 @@ public class DatabaseFactory {
                 return new SQLServerDatabase(configuration, jdbcConnectionFactory
 
 
-
                 );
             case SYBASEASE_JCONNECT:
             case SYBASEASE_JTDS:
-                return new SybaseASEDatabase(configuration, jdbcConnectionFactory
-
-
-
-                );
+                return new SybaseASEDatabase(configuration, jdbcConnectionFactory);
+            case VERTICA:
+                return new VerticaDatabase(configuration, jdbcConnectionFactory);
             default:
                 throw new FlywayException("Unsupported Database: " + databaseType.name());
         }
@@ -232,43 +204,23 @@ public class DatabaseFactory {
         final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
 
 
+        return new SqlScriptFactory() {
+            @Override
+            public SqlScript createSqlScript(LoadableResource resource, boolean mixed
 
 
+            ) {
+                return new ParserSqlScript(createParser(jdbcConnectionFactory, configuration
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-            return new SqlScriptFactory() {
-                @Override
-                public SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-                ) {
-                    return new ParserSqlScript(createParser(jdbcConnectionFactory, configuration
-
-
-
-                    ), resource, mixed);
-                }
-            };
-
+                ), resource, mixed);
+            }
+        };
 
 
     }
 
     private static Parser createParser(JdbcConnectionFactory jdbcConnectionFactory, Configuration configuration
-
 
 
     ) {
@@ -278,8 +230,6 @@ public class DatabaseFactory {
                 return new CockroachDBParser(configuration);
             case DB2:
                 return new DB2Parser(configuration);
-
-
 
 
             case DERBY:
@@ -299,14 +249,6 @@ public class DatabaseFactory {
                 return new OracleParser(configuration
 
 
-
-
-
-
-
-
-
-
                 );
             case POSTGRESQL:
                 return new PostgreSQLParser(configuration);
@@ -321,6 +263,8 @@ public class DatabaseFactory {
             case SYBASEASE_JCONNECT:
             case SYBASEASE_JTDS:
                 return new SybaseASEParser(configuration);
+            case VERTICA:
+                return new VerticaParser(configuration);
             default:
                 throw new FlywayException("Unsupported Database: " + databaseType.name());
         }
@@ -330,12 +274,8 @@ public class DatabaseFactory {
             final JdbcConnectionFactory jdbcConnectionFactory
 
 
-
-
     ) {
         final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
-
-
 
 
         if (DatabaseType.ORACLE == databaseType) {
@@ -344,10 +284,8 @@ public class DatabaseFactory {
                 public SqlScriptExecutor createSqlScriptExecutor(Connection connection
 
 
-
                 ) {
                     return new OracleSqlScriptExecutor(new JdbcTemplate(connection, databaseType)
-
 
 
                     );
@@ -360,10 +298,8 @@ public class DatabaseFactory {
             public SqlScriptExecutor createSqlScriptExecutor(Connection connection
 
 
-
             ) {
                 return new DefaultSqlScriptExecutor(new JdbcTemplate(connection, databaseType)
-
 
 
                 );
