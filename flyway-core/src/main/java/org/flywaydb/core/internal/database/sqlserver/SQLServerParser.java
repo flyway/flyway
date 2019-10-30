@@ -22,9 +22,20 @@ import org.flywaydb.core.internal.parser.Token;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 public class SQLServerParser extends Parser {
+    // #2175, 2298, 2542: Various system sprocs, mostly around replication, cannot be executed within a transaction.
+    // These procedures are only present in SQL Server. Not on Azure nor in PDW.
+    private static final List<String> SPROCS_INVALID_IN_TRANSACTIONS = Arrays.asList(
+            "SP_ADDSUBSCRIPTION", "SP_DROPSUBSCRIPTION",
+            "SP_ADDDISTRIBUTOR", "SP_DROPDISTRIBUTOR",
+            "SP_ADDDISTPUBLISHER", "SP_DROPDISTPUBLISHER",
+            "SP_ADDLINKEDSERVER", "SP_DROPLINKEDSERVER",
+            "SP_ADDLINKEDSRVLOGIN", "SP_DROPLINKEDSRVLOGIN",
+            "SP_SERVEROPTION", "SP_REPLICATIONDBOPTION");
+
     public SQLServerParser(Configuration configuration) {
         super(configuration, 3);
     }
@@ -60,13 +71,8 @@ public class SQLServerParser extends Parser {
         }
 
         String previous = keywords.get(keywords.size() - 2).getText();
-        // #2175: The procedure 'sp_addsubscription' cannot be executed within a transaction.
-        // #2298: The procedures 'sp_serveroption' and 'sp_droplinkedsrvlogin' cannot be executed within a transaction.
-        // These procedures is only present in SQL Server. Not on Azure nor in PDW.
-        if ("EXEC".equals(previous) && (
-                "SP_ADDSUBSCRIPTION".equals(current) ||
-                        "SP_DROPLINKEDSRVLOGIN".equals(current) ||
-                        "SP_SERVEROPTION".equals(current))) {
+
+        if ("EXEC".equals(previous) && SPROCS_INVALID_IN_TRANSACTIONS.contains(current)) {
             return false;
         }
 
