@@ -19,10 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationInfoService;
-import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
@@ -126,22 +123,23 @@ public class Main {
             if (logLevel == Level.DEBUG) {
                 LOG.error("Unexpected error", e);
             } else {
-                String msg = getMessageFromException(e);
-                LOG.error(msg);
+                String message = "Fault encountered";
+                String details = e.toString();
+                String errorCode = ErrorCode.FAULT.toString();
+
+                if (e instanceof FlywayException) {
+                    details = e.getMessage();
+                    errorCode = ((FlywayException) e).getErrorCode().toString();
+                    message = "Error running command";
+                }
 
                 if (jsonOutput) {
-                    printJson(new ErrorOutput("Error", msg));
+                    printJson(new ErrorOutput(errorCode, message, details));
                 }
+
+                LOG.error(details);
             }
             System.exit(1);
-        }
-    }
-
-    static String getMessageFromException(Exception e) {
-        if (e instanceof FlywayException) {
-            return e.getMessage();
-        } else {
-            return e.toString();
         }
     }
 

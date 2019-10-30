@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver;
 
+import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
@@ -145,14 +146,16 @@ public class CompositeMigrationResolver implements MigrationResolver {
                             current.getPhysicalLocation(),
                             current.getType(),
                             next.getPhysicalLocation(),
-                            next.getType()));
+                            next.getType()),
+                    ErrorCode.DUPLICATE_VERSIONED_MIGRATION);
                 }
                 throw new FlywayException(String.format("Found more than one repeatable migration with description %s\nOffenders:\n-> %s (%s)\n-> %s (%s)",
                         current.getDescription(),
                         current.getPhysicalLocation(),
                         current.getType(),
                         next.getPhysicalLocation(),
-                        next.getType()));
+                        next.getType()),
+                        ErrorCode.DUPLICATE_REPEATABLE_MIGRATION);
             }
         }
     }

@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.exception;
 
+import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -31,7 +32,7 @@ public class FlywaySqlException extends FlywayException {
      * @param sqlException Cause of the problem.
      */
     public FlywaySqlException(String message, SQLException sqlException) {
-        super(message, sqlException);
+        super(message, sqlException, ErrorCode.DB_CONNECTION);
     }
 
     @Override

@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.output;
+package org.flywaydb.core.api;
 
-class ErrorOutputItem {
-    public String code;
-    public String message;
-    public String details;
-
-    ErrorOutputItem(String code, String message, String details) {
-        this.code = code;
-        this.message = message;
-        this.details = details;
-    }
+public enum ErrorCode {
+    FAULT,
+    ERROR,
+    JDBC_DRIVER,
+    DB_CONNECTION,
+    DUPLICATE_VERSIONED_MIGRATION,
+    DUPLICATE_REPEATABLE_MIGRATION,
+    DUPLICATE_UNDO_MIGRATION,
+    CONFIGURATION;
 }

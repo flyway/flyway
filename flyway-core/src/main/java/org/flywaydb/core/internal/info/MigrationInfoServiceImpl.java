@@ -15,12 +15,7 @@
  */
 package org.flywaydb.core.internal.info;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationInfoService;
-import org.flywaydb.core.api.MigrationState;
-import org.flywaydb.core.api.MigrationType;
-import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
@@ -266,6 +261,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         Collections.sort(migrationInfos1);
         migrationInfos = migrationInfos1;
     }
+
 
 
 

@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.configuration;
 
+import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 
@@ -28,8 +29,11 @@ public class ConfigurationValidator {
 
 
 
+
         if (configuration.getDataSource() == null) {
-            throw new FlywayException("Unable to connect to the database. Configure the url, user and password!");
+            throw new FlywayException(
+                    "Unable to connect to the database. Configure the url, user and password!",
+                    ErrorCode.CONFIGURATION);
         }
     }
 }

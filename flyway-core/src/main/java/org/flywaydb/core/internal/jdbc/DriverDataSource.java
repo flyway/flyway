@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -147,13 +148,16 @@ public class DriverDataSource implements DataSource {
             String backupDriverClass = detectBackupDriverForUrl(url);
             if (backupDriverClass == null) {
                 throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass
-                        + " => Check whether the jar file is present", e);
+                        + " => Check whether the jar file is present", e,
+                        ErrorCode.JDBC_DRIVER);
             }
             try {
                 this.driver = ClassUtils.instantiate(backupDriverClass, classLoader);
             } catch (Exception e1) {
                 // Only report original exception about primary driver
-                throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass + " => Check whether the jar file is present", e);
+                throw new FlywayException(
+                        "Unable to instantiate JDBC driver: " + driverClass + " => Check whether the jar file is present", e,
+                        ErrorCode.JDBC_DRIVER);
             }
         }
 

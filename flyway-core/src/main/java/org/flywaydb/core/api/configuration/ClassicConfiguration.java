@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.api.configuration;
 
+import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
@@ -759,6 +760,11 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
+
+
+
+
     }
 
     /**
@@ -1087,7 +1093,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setPlaceholderPrefix(String placeholderPrefix) {
         if (!StringUtils.hasLength(placeholderPrefix)) {
-            throw new FlywayException("placeholderPrefix cannot be empty!");
+            throw new FlywayException("placeholderPrefix cannot be empty!", ErrorCode.CONFIGURATION);
         }
         this.placeholderPrefix = placeholderPrefix;
     }
@@ -1099,7 +1105,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setPlaceholderSuffix(String placeholderSuffix) {
         if (!StringUtils.hasLength(placeholderSuffix)) {
-            throw new FlywayException("placeholderSuffix cannot be empty!");
+            throw new FlywayException("placeholderSuffix cannot be empty!", ErrorCode.CONFIGURATION);
         }
         this.placeholderSuffix = placeholderSuffix;
     }
@@ -1153,7 +1159,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setJavaMigrations(JavaMigration... javaMigrations) {
         if (javaMigrations == null) {
-            throw new FlywayException("javaMigrations cannot be null");
+            throw new FlywayException("javaMigrations cannot be null", ErrorCode.CONFIGURATION);
         }
         this.javaMigrations = javaMigrations;
     }
@@ -1234,7 +1240,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setSqlMigrationSeparator(String sqlMigrationSeparator) {
         if (!StringUtils.hasLength(sqlMigrationSeparator)) {
-            throw new FlywayException("sqlMigrationSeparator cannot be empty!");
+            throw new FlywayException("sqlMigrationSeparator cannot be empty!", ErrorCode.CONFIGURATION);
         }
 
         this.sqlMigrationSeparator = sqlMigrationSeparator;
@@ -1286,7 +1292,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setConnectRetries(int connectRetries) {
         if (connectRetries < 0) {
-            throw new FlywayException("Invalid number of connectRetries (must be 0 or greater): " + connectRetries);
+            throw new FlywayException("Invalid number of connectRetries (must be 0 or greater): " + connectRetries, ErrorCode.CONFIGURATION);
         }
         this.connectRetries = connectRetries;
     }
@@ -1395,7 +1401,7 @@ public class ClassicConfiguration implements Configuration {
             if (o instanceof Callback) {
                 this.callbacks.add((Callback) o);
             } else {
-                throw new FlywayException("Invalid callback: " + callback + " (must implement org.flywaydb.core.api.callback.Callback)");
+                throw new FlywayException("Invalid callback: " + callback + " (must implement org.flywaydb.core.api.callback.Callback)", ErrorCode.CONFIGURATION);
             }
         }
     }
@@ -1840,7 +1846,7 @@ public class ClassicConfiguration implements Configuration {
 
         for (String key : props.keySet()) {
             if (key.startsWith("flyway.")) {
-                throw new FlywayException("Unknown configuration property: " + key);
+                throw new FlywayException("Unknown configuration property: " + key, ErrorCode.CONFIGURATION);
             }
         }
     }
@@ -1848,7 +1854,8 @@ public class ClassicConfiguration implements Configuration {
     private Boolean getBooleanProp(Map<String, String> props, String key) {
         String value = props.remove(key);
         if (value != null && !"true".equals(value) && !"false".equals(value)) {
-            throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value);
+            throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value,
+                    ErrorCode.CONFIGURATION);
         }
         return value == null ? null : Boolean.valueOf(value);
     }
@@ -1861,7 +1868,8 @@ public class ClassicConfiguration implements Configuration {
         try {
             return Integer.valueOf(value);
         } catch (NumberFormatException e) {
-            throw new FlywayException("Invalid value for " + key + " (should be a positive integer): " + value);
+            throw new FlywayException("Invalid value for " + key + " (should be a positive integer): " + value,
+                    ErrorCode.CONFIGURATION);
         }
     }
 
