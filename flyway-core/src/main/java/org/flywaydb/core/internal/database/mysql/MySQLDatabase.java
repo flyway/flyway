@@ -48,6 +48,11 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     private final boolean pxcStrict;
 
     /**
+     * Whether this database is enforcing GTID consistency.
+     */
+    private final boolean gtidConsistencyEnforced;
+
+    /**
      * Whether the event scheduler table is queryable.
      */
     final boolean eventSchedulerQueryable;
@@ -70,6 +75,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(rawMainJdbcConnection, databaseType);
         pxcStrict = isRunningInPerconaXtraDBClusterWithStrictMode(jdbcTemplate);
+        gtidConsistencyEnforced = isRunningInGTIDConsistencyMode(jdbcTemplate);
         eventSchedulerQueryable = DatabaseType.MYSQL == databaseType || isEventSchedulerQueryable(jdbcTemplate);
     }
 
@@ -99,12 +105,36 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         return false;
     }
 
+   static boolean isRunningInGTIDConsistencyMode(JdbcTemplate jdbcTemplate) {
+        try {
+            String gtidConsistency = jdbcTemplate.queryForString("SELECT @@GLOBAL.ENFORCE_GTID_CONSISTENCY");
+            if ("ON".equals(gtidConsistency)) {
+                LOG.debug("Detected GTID consistency being enforced");
+                return true;
+            }
+        } catch (SQLException e) {
+            LOG.debug("Unable to detect whether database enforces GTID consistency. Assuming not.");
+        }
+
+        return false;
+    }
+
     boolean isMariaDB() {
         return databaseType == DatabaseType.MARIADB;
     }
 
     boolean isPxcStrict() {
         return pxcStrict;
+    }
+
+    /*
+     * CREATE TABLE ... AS SELECT ... cannot be used in two scenarios:
+     * - Percona XtraDB Cluster in strict mode doesn't support it
+     * - When GTID consistency is being enforced. Note that if GTID_MODE is ON, then ENFORCE_GTID_CONSISTENCY is
+     * necessarily ON as well.
+     */
+    private boolean isCreateTableAsSelectAllowed() {
+        return !pxcStrict && !gtidConsistencyEnforced;
     }
 
     @Override
@@ -119,7 +149,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
         String baselineMarker = "";
         if (baseline) {
-            if (!pxcStrict) {
+            if (isCreateTableAsSelectAllowed()) {
                 baselineMarker = " AS SELECT" +
                         "     1 as \"installed_rank\"," +
                         "     '" + configuration.getBaselineVersion() + "' as \"version\"," +
@@ -132,8 +162,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
                         "     0 as \"execution_time\"," +
                         "     TRUE as \"success\"\n";
             } else {
-                // Percona XtraDB Cluster in strict mode doesn't support CREATE TABLE ... AS SELECT ...
-                // So revert to regular insert, which unfortunately is not safe in concurrent scenarios
+                // Revert to regular insert, which unfortunately is not safe in concurrent scenarios
                 // due to MySQL implicit commits after DDL statements.
                 baselineMarker = ";\n" + getBaselineStatement(table);
             }
