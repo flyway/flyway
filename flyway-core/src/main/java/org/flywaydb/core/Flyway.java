@@ -49,6 +49,7 @@ import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.resource.NoopResourceProvider;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
+import org.flywaydb.core.internal.scanner.ResourceNameCache;
 import org.flywaydb.core.internal.scanner.Scanner;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
@@ -136,6 +137,11 @@ public class Flyway {
     public Configuration getConfiguration() {
         return new ClassicConfiguration(configuration);
     }
+
+    /**
+     * Used to cache resource names for classpath scanning between commands
+     */
+    private ResourceNameCache resourceNameCache = new ResourceNameCache();
 
     /**
      * <p>Starts the database migration. All pending migrations will be applied in order.
@@ -429,6 +435,7 @@ public class Flyway {
 
 
 
+                    , resourceNameCache
             );
             resourceProvider = scanner;
             classProvider = scanner;

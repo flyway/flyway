@@ -47,6 +47,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
 
 
+            , ResourceNameCache resourceNameCache
     ) {
         FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding
 
@@ -62,7 +63,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
             } else {
                 ResourceAndClassScanner<I> resourceAndClassScanner = android
                         ? new AndroidScanner<>(implementedInterface, classLoader, encoding, location)
-                        : new ClassPathScanner<>(implementedInterface, classLoader, encoding, location);
+                        : new ClassPathScanner<>(implementedInterface, classLoader, encoding, location, resourceNameCache);
                 resources.addAll(resourceAndClassScanner.scanForResources());
                 classes.addAll(resourceAndClassScanner.scanForClasses());
             }

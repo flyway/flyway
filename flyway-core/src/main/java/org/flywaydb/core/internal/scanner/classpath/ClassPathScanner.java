@@ -20,6 +20,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
+import org.flywaydb.core.internal.scanner.ResourceNameCache;
 import org.flywaydb.core.internal.scanner.classpath.jboss.JBossVFSv2UrlResolver;
 import org.flywaydb.core.internal.scanner.classpath.jboss.JBossVFSv3ClassPathLocationScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -64,17 +65,19 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
     /**
      * Cache resource names.
      */
-    private final Map<ClassPathLocationScanner, Map<URL, Set<String>>> resourceNameCache = new HashMap<>();
+    private final ResourceNameCache resourceNameCache;
 
     /**
      * Creates a new Classpath scanner.
      *
      * @param classLoader The ClassLoader for loading migrations on the classpath.
      */
-    public ClassPathScanner(Class<I> implementedInterface, ClassLoader classLoader, Charset encoding, Location location) {
+    public ClassPathScanner(Class<I> implementedInterface, ClassLoader classLoader, Charset encoding, Location location,
+                            ResourceNameCache resourceNameCache) {
         this.implementedInterface = implementedInterface;
         this.classLoader = classLoader;
         this.location = location;
+        this.resourceNameCache = resourceNameCache;
 
         LOG.debug("Scanning for classpath resources at '" + location + "' ...");
         for (String resourceName : findResourceNames()) {
@@ -142,10 +145,10 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
                 String scanRoot = UrlUtils.toFilePath(resolvedUrl);
                 LOG.warn("Unable to scan location: " + scanRoot + " (unsupported protocol: " + protocol + ")");
             } else {
-                Set<String> names = resourceNameCache.get(classPathLocationScanner).get(resolvedUrl);
+                Set<String> names = resourceNameCache.get(classPathLocationScanner, resolvedUrl);
                 if (names == null) {
                     names = classPathLocationScanner.findResourceNames(location.getPath(), resolvedUrl);
-                    resourceNameCache.get(classPathLocationScanner).put(resolvedUrl, names);
+                    resourceNameCache.put(classPathLocationScanner, resolvedUrl, names);
                 }
                 resourceNames.addAll(names);
             }
