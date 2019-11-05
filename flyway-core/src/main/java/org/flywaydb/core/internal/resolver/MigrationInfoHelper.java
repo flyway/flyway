@@ -63,14 +63,20 @@ public class MigrationInfoHelper {
         if (StringUtils.hasText(version)) {
             if (repeatable) {
                 throw new FlywayException("Wrong repeatable migration name format: " + migrationName
-                        + "(It cannot contain a version and should look like this: "
+                        + " (It cannot contain a version and should look like this: "
                         + prefix + separator + description + suffixes[0] + ")");
             }
-            return Pair.of(MigrationVersion.fromVersion(version), description);
+            try {
+                return Pair.of(MigrationVersion.fromVersion(version), description);
+            } catch (Exception e) {
+                throw new FlywayException("Wrong versioned migration name format: " + migrationName
+                        + " (could not recognise version number " + version + ")", e);
+            }
         }
+
         if (!repeatable) {
             throw new FlywayException("Wrong versioned migration name format: " + migrationName
-                    + "(It must contain a version and should look like this: "
+                    + " (It must contain a version and should look like this: "
                     + prefix + "1.2" + separator + description + suffixes[0] + ")");
         }
         return Pair.of(null, description);
