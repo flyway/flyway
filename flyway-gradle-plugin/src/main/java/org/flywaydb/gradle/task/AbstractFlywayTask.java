@@ -745,7 +745,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         }
 
         if (getProject().getProperties().containsKey(ConfigUtils.CONFIG_FILES)) {
-            for (String file : StringUtils.tokenizeToStringArray(System.getProperties().getProperty(ConfigUtils.CONFIG_FILES), ",")) {
+            for (String file : StringUtils.tokenizeToStringArray(String.valueOf(getProject().getProperties().get(ConfigUtils.CONFIG_FILES)), ",")) {
                 configFiles.add(toFile(file));
             }
             return configFiles;
