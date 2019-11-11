@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database.hsqldb;
 
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParserContext;
 import org.flywaydb.core.internal.parser.Token;
@@ -33,8 +34,8 @@ public class HSQLDBParser extends Parser {
             "CONSTRAINT", "TABLE", "COLUMN", "INDEX", "SEQUENCE", "VIEW", "SCHEMA"
     );
 
-    public HSQLDBParser(Configuration configuration) {
-        super(configuration, 2);
+    public HSQLDBParser(Configuration configuration, ParsingContext parsingContext) {
+        super(configuration, parsingContext,2);
     }
 
     @Override

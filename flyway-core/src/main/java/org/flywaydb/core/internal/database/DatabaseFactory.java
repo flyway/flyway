@@ -56,6 +56,7 @@ import org.flywaydb.core.internal.database.sybasease.SybaseASEParser;
 import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
@@ -228,8 +229,10 @@ public class DatabaseFactory {
     }
 
     public static SqlScriptFactory createSqlScriptFactory(final JdbcConnectionFactory jdbcConnectionFactory,
-                                                          final Configuration configuration) {
+                                                          final Configuration configuration,
+                                                          final ParsingContext parsingContext) {
         final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
+
 
 
 
@@ -259,6 +262,7 @@ public class DatabaseFactory {
 
 
 
+                            , parsingContext
                     ), resource, mixed);
                 }
             };
@@ -271,30 +275,32 @@ public class DatabaseFactory {
 
 
 
+            , ParsingContext parsingContext
     ) {
         final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
+
         switch (databaseType) {
             case COCKROACHDB:
-                return new CockroachDBParser(configuration);
+                return new CockroachDBParser(configuration, parsingContext);
             case DB2:
-                return new DB2Parser(configuration);
+                return new DB2Parser(configuration, parsingContext);
 
 
 
 
             case DERBY:
-                return new DerbyParser(configuration);
+                return new DerbyParser(configuration, parsingContext);
             case FIREBIRD:
-                return new FirebirdParser(configuration);
+                return new FirebirdParser(configuration, parsingContext);
             case H2:
-                return new H2Parser(configuration);
+                return new H2Parser(configuration, parsingContext);
             case HSQLDB:
-                return new HSQLDBParser(configuration);
+                return new HSQLDBParser(configuration, parsingContext);
             case INFORMIX:
-                return new InformixParser(configuration);
+                return new InformixParser(configuration, parsingContext);
             case MARIADB:
             case MYSQL:
-                return new MySQLParser(configuration);
+                return new MySQLParser(configuration, parsingContext);
             case ORACLE:
                 return new OracleParser(configuration
 
@@ -307,20 +313,21 @@ public class DatabaseFactory {
 
 
 
+                        , parsingContext
                 );
             case POSTGRESQL:
-                return new PostgreSQLParser(configuration);
+                return new PostgreSQLParser(configuration, parsingContext);
             case REDSHIFT:
-                return new RedshiftParser(configuration);
+                return new RedshiftParser(configuration, parsingContext);
             case SQLITE:
-                return new SQLiteParser(configuration);
+                return new SQLiteParser(configuration, parsingContext);
             case SAPHANA:
-                return new SAPHANAParser(configuration);
+                return new SAPHANAParser(configuration, parsingContext);
             case SQLSERVER:
-                return new SQLServerParser(configuration);
+                return new SQLServerParser(configuration, parsingContext);
             case SYBASEASE_JCONNECT:
             case SYBASEASE_JTDS:
-                return new SybaseASEParser(configuration);
+                return new SybaseASEParser(configuration, parsingContext);
             default:
                 throw new FlywayException("Unsupported Database: " + databaseType.name());
         }

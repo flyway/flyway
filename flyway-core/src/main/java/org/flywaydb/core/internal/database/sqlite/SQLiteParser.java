@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database.sqlite;
 
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParserContext;
 import org.flywaydb.core.internal.parser.Token;
@@ -23,8 +24,8 @@ import org.flywaydb.core.internal.parser.Token;
 import java.util.List;
 
 public class SQLiteParser extends Parser {
-    public SQLiteParser(Configuration configuration) {
-        super(configuration, 3);
+    public SQLiteParser(Configuration configuration, ParsingContext parsingContext) {
+        super(configuration, parsingContext, 3);
     }
 
     @Override

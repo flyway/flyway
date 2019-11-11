@@ -16,17 +16,13 @@
 package org.flywaydb.core.internal.database.derby;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.parser.ParserContext;
-import org.flywaydb.core.internal.parser.PeekingReader;
-import org.flywaydb.core.internal.parser.Token;
-import org.flywaydb.core.internal.parser.TokenType;
+import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
 
 public class DerbyParser extends Parser {
-    public DerbyParser(Configuration configuration) {
-        super(configuration, 3);
+    public DerbyParser(Configuration configuration, ParsingContext parsingContext) {
+        super(configuration, parsingContext, 3);
     }
 
     @Override

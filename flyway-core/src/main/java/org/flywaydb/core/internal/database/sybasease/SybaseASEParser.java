@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database.sybasease;
 
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.PeekingReader;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
@@ -23,8 +24,8 @@ import org.flywaydb.core.internal.sqlscript.Delimiter;
 import java.io.IOException;
 
 public class SybaseASEParser extends Parser {
-    public SybaseASEParser(Configuration configuration) {
-        super(configuration, 2);
+    public SybaseASEParser(Configuration configuration, ParsingContext parsingContext) {
+        super(configuration, parsingContext, 2);
     }
 
     @Override

@@ -39,6 +39,7 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.resource.NoopResourceProvider;
 import org.flywaydb.core.internal.resource.ResourceProvider;
@@ -484,8 +485,9 @@ public class Flyway {
 
         );
 
+        final ParsingContext parsingContext = new ParsingContext();
         final SqlScriptFactory sqlScriptFactory =
-                DatabaseFactory.createSqlScriptFactory(jdbcConnectionFactory, configuration);
+                DatabaseFactory.createSqlScriptFactory(jdbcConnectionFactory, configuration, parsingContext);
 
         final SqlScriptExecutorFactory noCallbackSqlScriptExecutorFactory = DatabaseFactory.createSqlScriptExecutorFactory(
                 jdbcConnectionFactory
@@ -523,6 +525,13 @@ public class Flyway {
 
 
             );
+
+            Schema currentSchema = getSchemaNameForParsingContext(database);
+
+            if (currentSchema != null) {
+                parsingContext.setCurrentSchema(currentSchema.getName());
+            }
+
             dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
 
@@ -573,6 +582,15 @@ public class Flyway {
             showMemoryUsage();
         }
         return result;
+    }
+
+    private Schema getSchemaNameForParsingContext(Database database) {
+        try {
+            return database.getMainConnection().getCurrentSchema();
+        } catch (FlywayException e) {
+            LOG.debug("Could not get schema for flyway.currentSchema placeholder.");
+            return null;
+        }
     }
 
     private void showMemoryUsage() {

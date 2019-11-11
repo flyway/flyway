@@ -32,10 +32,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -58,8 +55,9 @@ public abstract class Parser {
     private final char alternativeStringLiteralQuote;
     private final char alternativeSingleLineComment;
     private final Set<String> validKeywords;
+    private final ParsingContext parsingContext;
 
-    protected Parser(Configuration configuration, int peekDepth) {
+    protected Parser(Configuration configuration, ParsingContext parsingContext, int peekDepth) {
         this.configuration = configuration;
         this.peekDepth = peekDepth;
         this.identifierQuote = getIdentifierQuote();
@@ -67,6 +65,7 @@ public abstract class Parser {
         this.alternativeStringLiteralQuote = getAlternativeStringLiteralQuote();
         this.alternativeSingleLineComment = getAlternativeSingleLineComment();
         this.validKeywords = getValidKeywords();
+        this.parsingContext = parsingContext;
     }
 
     protected Delimiter getDefaultDelimiter() {
@@ -124,10 +123,17 @@ public abstract class Parser {
      */
     protected Reader replacePlaceholders(Reader r) {
         if (configuration.isPlaceholderReplacement()) {
+            Map<String, String> placeholders = new HashMap<>();
+            Map<String, String> configurationPlaceholders = configuration.getPlaceholders();
+            Map<String, String> parsingContextPlaceholders = parsingContext.getPlaceholders();
+
+            placeholders.putAll(configurationPlaceholders);
+            placeholders.putAll(parsingContextPlaceholders);
+
             return new PlaceholderReplacingReader(
                     configuration.getPlaceholderPrefix(),
                     configuration.getPlaceholderSuffix(),
-                    configuration.getPlaceholders(),
+                    placeholders,
                     r);
         }
         return r;

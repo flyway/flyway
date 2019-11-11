@@ -17,13 +17,7 @@ package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.api.configuration.Configuration;
 
-import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.parser.ParserContext;
-import org.flywaydb.core.internal.parser.PeekingReader;
-import org.flywaydb.core.internal.parser.Recorder;
-import org.flywaydb.core.internal.parser.StatementType;
-import org.flywaydb.core.internal.parser.Token;
-import org.flywaydb.core.internal.parser.TokenType;
+import org.flywaydb.core.internal.parser.*;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
@@ -177,8 +171,9 @@ public class OracleParser extends Parser {
 
 
 
+            , ParsingContext parsingContext
     ) {
-        super(configuration, 3);
+        super(configuration, parsingContext, 3);
 
 
 

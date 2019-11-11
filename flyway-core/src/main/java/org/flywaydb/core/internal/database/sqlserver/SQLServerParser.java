@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database.sqlserver;
 
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.PeekingReader;
 import org.flywaydb.core.internal.parser.Token;
@@ -36,8 +37,8 @@ public class SQLServerParser extends Parser {
             "SP_ADDLINKEDSRVLOGIN", "SP_DROPLINKEDSRVLOGIN",
             "SP_SERVEROPTION", "SP_REPLICATIONDBOPTION");
 
-    public SQLServerParser(Configuration configuration) {
-        super(configuration, 3);
+    public SQLServerParser(Configuration configuration, ParsingContext parsingContext) {
+        super(configuration, parsingContext, 3);
     }
 
     @Override

@@ -16,17 +16,13 @@
 package org.flywaydb.core.internal.database.h2;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.parser.ParserContext;
-import org.flywaydb.core.internal.parser.PeekingReader;
-import org.flywaydb.core.internal.parser.Token;
-import org.flywaydb.core.internal.parser.TokenType;
+import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
 
 public class H2Parser extends Parser {
-    public H2Parser(Configuration configuration) {
-        super(configuration, 2);
+    public H2Parser(Configuration configuration, ParsingContext parsingContext) {
+        super(configuration, parsingContext, 2);
     }
 
     @Override

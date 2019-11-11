@@ -24,8 +24,8 @@ public class FirebirdParser extends Parser {
 
     private static final String TERM_WITH_SPACES = " TERM ";
 
-    public FirebirdParser(Configuration configuration) {
-        super(configuration, 3);
+    public FirebirdParser(Configuration configuration, ParsingContext parsingContext) {
+        super(configuration, parsingContext, 3);
     }
 
     @Override

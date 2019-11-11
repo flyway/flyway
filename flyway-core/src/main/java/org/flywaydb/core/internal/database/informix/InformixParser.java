@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database.informix;
 
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParserContext;
 import org.flywaydb.core.internal.parser.Token;
@@ -23,8 +24,8 @@ import org.flywaydb.core.internal.parser.Token;
 import java.util.List;
 
 public class InformixParser extends Parser {
-    public InformixParser(Configuration configuration) {
-        super(configuration, 2);
+    public InformixParser(Configuration configuration, ParsingContext parsingContext) {
+        super(configuration, parsingContext, 2);
     }
 
     @Override

@@ -16,11 +16,7 @@
 package org.flywaydb.core.internal.database.db2;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.parser.ParserContext;
-import org.flywaydb.core.internal.parser.PeekingReader;
-import org.flywaydb.core.internal.parser.Token;
-import org.flywaydb.core.internal.parser.TokenType;
+import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,8 +25,8 @@ public class DB2Parser extends Parser {
     private static final String COMMENT_DIRECTIVE = "--#";
     private static final String SET_TERMINATOR_DIRECTIVE = COMMENT_DIRECTIVE + "SET TERMINATOR ";
 
-    public DB2Parser(Configuration configuration) {
-        super(configuration, COMMENT_DIRECTIVE.length());
+    public DB2Parser(Configuration configuration, ParsingContext parsingContext) {
+        super(configuration, parsingContext, COMMENT_DIRECTIVE.length());
     }
 
     @Override
