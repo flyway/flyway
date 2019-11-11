@@ -76,7 +76,6 @@
                 <include>flyway-community.txt</include>
                 <include>LICENSES-THIRD-PARTY.txt</include>
 
-                <include>flyway-trial.txt</include>
                 <include>flyway-pro.txt</include>
                 <include>flyway-enterprise.txt</include>
 
