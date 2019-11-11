@@ -32,13 +32,7 @@ import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
 import org.flywaydb.core.internal.callback.SqlScriptCallbackFactory;
 import org.flywaydb.core.internal.clazz.ClassProvider;
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
-import org.flywaydb.core.internal.command.DbBaseline;
-import org.flywaydb.core.internal.command.DbClean;
-import org.flywaydb.core.internal.command.DbInfo;
-import org.flywaydb.core.internal.command.DbMigrate;
-import org.flywaydb.core.internal.command.DbRepair;
-import org.flywaydb.core.internal.command.DbSchemas;
-import org.flywaydb.core.internal.command.DbValidate;
+import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 import org.flywaydb.core.internal.database.DatabaseFactory;
 import org.flywaydb.core.internal.database.base.Database;
@@ -370,6 +364,47 @@ public class Flyway {
 
             ) {
                 new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor, configuration).repair();
+                return null;
+            }
+        }, true);
+    }
+
+    public void skip() throws FlywayException {
+        execute(new Command<Void>() {
+            public Void execute(MigrationResolver migrationResolver,
+                                SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor
+
+
+
+            ) {
+                if (!schemaHistory.exists()) {
+                    List<Schema> nonEmptySchemas = new ArrayList<>();
+                    for (Schema schema : schemas) {
+                        if (schema.exists() && !schema.empty()) {
+                            nonEmptySchemas.add(schema);
+                        }
+                    }
+
+                    if (!nonEmptySchemas.isEmpty()) {
+                        if (configuration.isBaselineOnMigrate()) {
+                            doBaseline(schemaHistory, callbackExecutor);
+                        } else {
+                            // Second check for MySQL which is sometimes flaky otherwise
+                            if (!schemaHistory.exists()) {
+                                throw new FlywayException("Found non-empty schema(s) "
+                                        + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
+                                        + " without schema history table! Use baseline()"
+                                        + " or set baselineOnMigrate to true to initialize the schema history table.");
+                            }
+                        }
+                    } else {
+                        new DbSchemas(database, schemas, schemaHistory).create(false);
+                        schemaHistory.create(false);
+                    }
+                }
+
+                new DbSkip(database, schemaHistory, schemas[0], migrationResolver, configuration,
+                        callbackExecutor).skip();
                 return null;
             }
         }, true);

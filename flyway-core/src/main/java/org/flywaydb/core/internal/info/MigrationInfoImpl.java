@@ -163,6 +163,7 @@ public class MigrationInfoImpl implements MigrationInfo {
                     return MigrationState.IGNORED;
                 }
             }
+
             return MigrationState.PENDING;
         }
 
@@ -205,6 +206,11 @@ public class MigrationInfoImpl implements MigrationInfo {
         if (outOfOrder) {
             return MigrationState.OUT_OF_ORDER;
         }
+
+        if (MigrationType.SKIPPED == appliedMigration.getType()) {
+            return MigrationState.SKIPPED;
+        }
+
         return MigrationState.SUCCESS;
     }
 
@@ -308,7 +314,8 @@ public class MigrationInfoImpl implements MigrationInfo {
                     // Versioned migrations
                     "version " + appliedMigration.getVersion();
             if (getVersion() == null || getVersion().compareTo(context.baseline) > 0) {
-                if (resolvedMigration.getType() != appliedMigration.getType()) {
+                if (resolvedMigration.getType() != appliedMigration.getType() &&
+                        MigrationType.SKIPPED != appliedMigration.getType()) {
                     return createMismatchMessage("type", migrationIdentifier,
                             appliedMigration.getType(), resolvedMigration.getType());
                 }

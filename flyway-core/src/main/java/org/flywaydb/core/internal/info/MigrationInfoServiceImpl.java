@@ -187,7 +187,9 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
 
 
 
-                        context.lastApplied = version;
+                        if (MigrationType.SKIPPED != av.getLeft().getType()) {
+                            context.lastApplied = version;
+                        }
 
 
 

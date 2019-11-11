@@ -166,6 +166,29 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     }
 
     @Override
+    protected void doSkipMigration(int installedRank, MigrationVersion version, String description, String script, Integer checksum) {
+        connection.restoreOriginalState();
+
+        // Lock again for databases with no clean DDL transactions like Oracle
+        // to prevent implicit commits from triggering deadlocks
+        // in highly concurrent environments
+        if (!database.supportsDdlTransactions()) {
+            table.lock();
+        }
+
+        try {
+            String versionStr = version == null ? null : version.toString();
+
+            jdbcTemplate.update(database.getInsertStatement(table),
+                    installedRank, versionStr, description, MigrationType.SKIPPED.name(), script, checksum, database.getInstalledBy(), 0, true);
+
+            LOG.debug("Schema History table " + table + " successfully updated to reflect changes");
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to insert row for version '" + version + "' in Schema History table " + table, e);
+        }
+    }
+
+    @Override
     public List<AppliedMigration> allAppliedMigrations() {
         if (!exists()) {
             return new ArrayList<>();
@@ -255,8 +278,9 @@ class JdbcTableSchemaHistory extends SchemaHistory {
 
         String description = resolvedMigration.getDescription();
         Integer checksum = resolvedMigration.getChecksum();
-        MigrationType type = appliedMigration.getType().isSynthetic()
-                ? appliedMigration.getType()
+        MigrationType appliedMigrationType = appliedMigration.getType();
+        MigrationType type = appliedMigrationType.isSynthetic() || MigrationType.SKIPPED == appliedMigrationType
+                ? appliedMigrationType
                 : resolvedMigration.getType();
 
         LOG.info("Repairing Schema History table for version " + version

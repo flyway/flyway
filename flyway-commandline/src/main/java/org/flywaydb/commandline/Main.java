@@ -45,7 +45,7 @@ public class Main {
 
     private static List<String> VALID_OPERATIONS_AND_FLAGS = Arrays.asList("-X", "-q", "-n", "-v", "-json.experimental", "-?",
             "-community", "-pro", "-enterprise",
-            "help", "migrate", "clean", "info", "validate", "undo", "baseline", "repair");
+            "help", "migrate", "clean", "info", "validate", "undo", "baseline", "repair", "skip");
 
     /**
      * Initializes the logging.
@@ -202,6 +202,8 @@ public class Main {
             }
         } else if ("repair".equals(operation)) {
             flyway.repair();
+        } else if ("skip".equals(operation)) {
+            flyway.skip();
         } else {
             LOG.error("Invalid operation: " + operation);
             printUsage();
@@ -285,6 +287,7 @@ public class Main {
         LOG.info("undo     : [" + "pro] Undoes the most recently applied versioned migration");
         LOG.info("baseline : Baselines an existing database at the baselineVersion");
         LOG.info("repair   : Repairs the schema history table");
+        LOG.info("skip     : Mark migrations to be skipped");
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
         LOG.info("-------");

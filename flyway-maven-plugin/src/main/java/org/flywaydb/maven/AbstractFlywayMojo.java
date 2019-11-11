@@ -457,6 +457,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String installedBy;
 
     /**
+     * For use with the skip command.
+     * Mark versioned migrations to skip in the schema history table. Skipped migrations will be ignored for every subsequent migrate.
+     * The migrations to skip are configured with the skipVersions configuration option.
+     * If no versions are specified, all pending migrations will be marked to be skipped.
+     */
+    @Parameter(property = ConfigUtils.SKIP_VERSIONS)
+    private String[] skipVersions;
+
+    /**
      * Rules for the built-in error handler that let you override specific SQL states and errors codes in order to force
      * specific errors or warnings to be treated as debug messages, info messages, warnings or errors.
      * <p>Each error override has the following format: {@code STATE:12345:W}.
@@ -708,6 +717,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.MIXED, mixed);
             putIfSet(conf, ConfigUtils.GROUP, group);
             putIfSet(conf, ConfigUtils.INSTALLED_BY, installedBy);
+            putArrayIfSet(conf, ConfigUtils.SKIP_VERSIONS, skipVersions);
             putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError);
             putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled);
             putIfSet(conf, ConfigUtils.OUT_OF_ORDER, outOfOrder);

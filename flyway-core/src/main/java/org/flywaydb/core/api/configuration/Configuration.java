@@ -491,4 +491,10 @@ public interface Configuration {
      * @return {@code true} to output the results table (default: {@code true})
      */
     boolean outputQueryResults();
+
+    /**
+     *  Versioned migrations to skip. Only works with the skip command
+     * @return list of versions to skip
+     */
+    String[] getSkipVersions();
 }
