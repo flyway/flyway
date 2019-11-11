@@ -27,12 +27,7 @@ import java.util.Set;
 
 public class InfoOutputFactory {
     public InfoOutput create(Configuration configuration, MigrationInfo[] migrationInfos, MigrationInfo current) {
-        String databaseName = "";
-        try {
-            databaseName = configuration.getDataSource().getConnection().getCatalog();
-        } catch (Exception e){
-            // No op
-        }
+        String databaseName = getDatabaseName(configuration);
 
         Set<MigrationVersion> undoableVersions = getUndoableVersions(migrationInfos);
 
@@ -54,6 +49,14 @@ public class InfoOutputFactory {
                 currentSchemaVersion.getVersion(),
                 join(", ", configuration.getSchemas()),
                 migrationOutputs);
+    }
+
+    private String getDatabaseName(Configuration configuration) {
+        try {
+            return configuration.getDataSource().getConnection().getCatalog();
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private MigrationOutput createMigrationOutput(Set<MigrationVersion> undoableVersions, MigrationInfo migrationInfo) {
