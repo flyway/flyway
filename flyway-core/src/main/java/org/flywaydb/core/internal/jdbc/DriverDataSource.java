@@ -55,6 +55,7 @@ public class DriverDataSource implements DataSource {
     private static final String REDSHIFT_JDBC4_DRIVER = "com.amazon.redshift.jdbc4.Driver";
     private static final String REDSHIFT_JDBC41_DRIVER = "com.amazon.redshift.jdbc41.Driver";
     private static final String SAPHANA_JDBC_URL_PREFIX = "jdbc:sap:";
+    private static final String SNOWFLAKE_JDBC_URL_PREFIX = "jdbc:snowflake:";
     private static final String SQLDROID_DRIVER = "org.sqldroid.SQLDroidDriver";
     private static final String SQLSERVER_JDBC_URL_PREFIX = "jdbc:sqlserver:";
     private static final String SYBASE_JDBC_URL_PREFIX = "jdbc:sybase:";
@@ -365,6 +366,10 @@ public class DriverDataSource implements DataSource {
 
         if (url.startsWith(SAPHANA_JDBC_URL_PREFIX)) {
             return "com.sap.db.jdbc.Driver";
+        }
+
+        if (url.startsWith(SNOWFLAKE_JDBC_URL_PREFIX)) {
+            return "net.snowflake.client.jdbc.SnowflakeDriver";
         }
 
         if (url.startsWith("jdbc:informix-sqli:")) {

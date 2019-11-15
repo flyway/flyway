@@ -35,7 +35,7 @@ public enum DatabaseType {
 
 
     DERBY("Derby", Types.VARCHAR, true),
-    FIREBIRD("Firebird", Types.NULL, true), // TODO does it suppor tread only transactions
+    FIREBIRD("Firebird", Types.NULL, true), // TODO does it support read only transactions?
     H2("H2", Types.VARCHAR, true),
     HSQLDB("HSQLDB", Types.VARCHAR, true),
     INFORMIX("Informix", Types.VARCHAR, true),
@@ -48,7 +48,8 @@ public enum DatabaseType {
     SQLSERVER("SQL Server", Types.VARCHAR, true),
     SYBASEASE_JTDS("Sybase ASE", Types.NULL, true),
     SYBASEASE_JCONNECT("Sybase ASE", Types.VARCHAR, true),
-    SAPHANA("SAP HANA", Types.VARCHAR, true);
+    SAPHANA("SAP HANA", Types.VARCHAR, true),
+    SNOWFLAKE("Snowflake", Types.VARCHAR, false);
 
     private final String name;
 
@@ -138,6 +139,9 @@ public enum DatabaseType {
         }
         if (databaseProductName.startsWith("Firebird")) {
             return FIREBIRD;
+        }
+        if (databaseProductName.startsWith("Snowflake")) {
+            return SNOWFLAKE;
         }
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }

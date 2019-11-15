@@ -47,6 +47,8 @@ import org.flywaydb.core.internal.database.redshift.RedshiftDatabase;
 import org.flywaydb.core.internal.database.redshift.RedshiftParser;
 import org.flywaydb.core.internal.database.saphana.SAPHANADatabase;
 import org.flywaydb.core.internal.database.saphana.SAPHANAParser;
+import org.flywaydb.core.internal.database.snowflake.SnowflakeDatabase;
+import org.flywaydb.core.internal.database.snowflake.SnowflakeParser;
 import org.flywaydb.core.internal.database.sqlite.SQLiteDatabase;
 import org.flywaydb.core.internal.database.sqlite.SQLiteParser;
 import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabase;
@@ -198,6 +200,12 @@ public class DatabaseFactory {
 
 
                 );
+            case SNOWFLAKE:
+                return new SnowflakeDatabase(configuration, jdbcConnectionFactory
+
+
+
+                );
             case SQLITE:
                 return new SQLiteDatabase(configuration, jdbcConnectionFactory
 
@@ -323,6 +331,8 @@ public class DatabaseFactory {
                 return new SQLiteParser(configuration, parsingContext);
             case SAPHANA:
                 return new SAPHANAParser(configuration, parsingContext);
+            case SNOWFLAKE:
+                return new SnowflakeParser(configuration, parsingContext);
             case SQLSERVER:
                 return new SQLServerParser(configuration, parsingContext);
             case SYBASEASE_JCONNECT:
