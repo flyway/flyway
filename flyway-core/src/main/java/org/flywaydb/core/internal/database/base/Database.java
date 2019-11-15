@@ -359,7 +359,7 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     public abstract String getRawCreateScript(Table table, boolean baseline);
 
-    public final String getInsertStatement(Table table) {
+    public String getInsertStatement(Table table) {
         return "INSERT INTO " + table
                 + " (" + quote("installed_rank")
                 + ", " + quote("version")

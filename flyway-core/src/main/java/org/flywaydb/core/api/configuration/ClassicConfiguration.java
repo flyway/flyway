@@ -46,6 +46,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger;
+
 /**
  * JavaBean-style configuration for Flyway. This is primarily meant for compatibility with scenarios where the
  * new FluentConfiguration isn't an easy fit, such as Spring XML bean configuration.
@@ -1673,7 +1676,7 @@ public class ClassicConfiguration implements Configuration {
                 StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
             setDataSource(new DriverDataSource(classLoader, driver, url, user, password));
         }
-        Integer connectRetriesProp = getIntegerProp(props, ConfigUtils.CONNECT_RETRIES);
+        Integer connectRetriesProp = removeInteger(props, ConfigUtils.CONNECT_RETRIES);
         if (connectRetriesProp != null) {
             setConnectRetries(connectRetriesProp);
         }
@@ -1685,7 +1688,7 @@ public class ClassicConfiguration implements Configuration {
         if (locationsProp != null) {
             setLocationsAsStrings(StringUtils.tokenizeToStringArray(locationsProp, ","));
         }
-        Boolean placeholderReplacementProp = getBooleanProp(props, ConfigUtils.PLACEHOLDER_REPLACEMENT);
+        Boolean placeholderReplacementProp = removeBoolean(props, ConfigUtils.PLACEHOLDER_REPLACEMENT);
         if (placeholderReplacementProp != null) {
             setPlaceholderReplacement(placeholderReplacementProp);
         }
@@ -1733,15 +1736,15 @@ public class ClassicConfiguration implements Configuration {
         if (tablespaceProp != null) {
             setTablespace(tablespaceProp);
         }
-        Boolean cleanOnValidationErrorProp = getBooleanProp(props, ConfigUtils.CLEAN_ON_VALIDATION_ERROR);
+        Boolean cleanOnValidationErrorProp = removeBoolean(props, ConfigUtils.CLEAN_ON_VALIDATION_ERROR);
         if (cleanOnValidationErrorProp != null) {
             setCleanOnValidationError(cleanOnValidationErrorProp);
         }
-        Boolean cleanDisabledProp = getBooleanProp(props, ConfigUtils.CLEAN_DISABLED);
+        Boolean cleanDisabledProp = removeBoolean(props, ConfigUtils.CLEAN_DISABLED);
         if (cleanDisabledProp != null) {
             setCleanDisabled(cleanDisabledProp);
         }
-        Boolean validateOnMigrateProp = getBooleanProp(props, ConfigUtils.VALIDATE_ON_MIGRATE);
+        Boolean validateOnMigrateProp = removeBoolean(props, ConfigUtils.VALIDATE_ON_MIGRATE);
         if (validateOnMigrateProp != null) {
             setValidateOnMigrate(validateOnMigrateProp);
         }
@@ -1753,23 +1756,23 @@ public class ClassicConfiguration implements Configuration {
         if (baselineDescriptionProp != null) {
             setBaselineDescription(baselineDescriptionProp);
         }
-        Boolean baselineOnMigrateProp = getBooleanProp(props, ConfigUtils.BASELINE_ON_MIGRATE);
+        Boolean baselineOnMigrateProp = removeBoolean(props, ConfigUtils.BASELINE_ON_MIGRATE);
         if (baselineOnMigrateProp != null) {
             setBaselineOnMigrate(baselineOnMigrateProp);
         }
-        Boolean ignoreMissingMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_MISSING_MIGRATIONS);
+        Boolean ignoreMissingMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_MISSING_MIGRATIONS);
         if (ignoreMissingMigrationsProp != null) {
             setIgnoreMissingMigrations(ignoreMissingMigrationsProp);
         }
-        Boolean ignoreIgnoredMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_IGNORED_MIGRATIONS);
+        Boolean ignoreIgnoredMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_IGNORED_MIGRATIONS);
         if (ignoreIgnoredMigrationsProp != null) {
             setIgnoreIgnoredMigrations(ignoreIgnoredMigrationsProp);
         }
-        Boolean ignorePendingMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_PENDING_MIGRATIONS);
+        Boolean ignorePendingMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_PENDING_MIGRATIONS);
         if (ignorePendingMigrationsProp != null) {
             setIgnorePendingMigrations(ignorePendingMigrationsProp);
         }
-        Boolean ignoreFutureMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_FUTURE_MIGRATIONS);
+        Boolean ignoreFutureMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_FUTURE_MIGRATIONS);
         if (ignoreFutureMigrationsProp != null) {
             setIgnoreFutureMigrations(ignoreFutureMigrationsProp);
         }
@@ -1777,11 +1780,11 @@ public class ClassicConfiguration implements Configuration {
         if (targetProp != null) {
             setTarget(MigrationVersion.fromVersion(targetProp));
         }
-        Boolean outOfOrderProp = getBooleanProp(props, ConfigUtils.OUT_OF_ORDER);
+        Boolean outOfOrderProp = removeBoolean(props, ConfigUtils.OUT_OF_ORDER);
         if (outOfOrderProp != null) {
             setOutOfOrder(outOfOrderProp);
         }
-        Boolean outputQueryResultsProp = getBooleanProp(props, ConfigUtils.OUTPUT_QUERY_RESULTS);
+        Boolean outputQueryResultsProp = removeBoolean(props, ConfigUtils.OUTPUT_QUERY_RESULTS);
         if (outputQueryResultsProp != null) {
             setOutputQueryResults(outputQueryResultsProp);
         }
@@ -1789,7 +1792,7 @@ public class ClassicConfiguration implements Configuration {
         if (StringUtils.hasLength(resolversProp)) {
             setResolversAsClassNames(StringUtils.tokenizeToStringArray(resolversProp, ","));
         }
-        Boolean skipDefaultResolversProp = getBooleanProp(props, ConfigUtils.SKIP_DEFAULT_RESOLVERS);
+        Boolean skipDefaultResolversProp = removeBoolean(props, ConfigUtils.SKIP_DEFAULT_RESOLVERS);
         if (skipDefaultResolversProp != null) {
             setSkipDefaultResolvers(skipDefaultResolversProp);
         }
@@ -1797,7 +1800,7 @@ public class ClassicConfiguration implements Configuration {
         if (StringUtils.hasLength(callbacksProp)) {
             setCallbacksAsClassNames(StringUtils.tokenizeToStringArray(callbacksProp, ","));
         }
-        Boolean skipDefaultCallbacksProp = getBooleanProp(props, ConfigUtils.SKIP_DEFAULT_CALLBACKS);
+        Boolean skipDefaultCallbacksProp = removeBoolean(props, ConfigUtils.SKIP_DEFAULT_CALLBACKS);
         if (skipDefaultCallbacksProp != null) {
             setSkipDefaultCallbacks(skipDefaultCallbacksProp);
         }
@@ -1818,12 +1821,12 @@ public class ClassicConfiguration implements Configuration {
         }
         setPlaceholders(placeholdersFromProps);
 
-        Boolean mixedProp = getBooleanProp(props, ConfigUtils.MIXED);
+        Boolean mixedProp = removeBoolean(props, ConfigUtils.MIXED);
         if (mixedProp != null) {
             setMixed(mixedProp);
         }
 
-        Boolean groupProp = getBooleanProp(props, ConfigUtils.GROUP);
+        Boolean groupProp = removeBoolean(props, ConfigUtils.GROUP);
         if (groupProp != null) {
             setGroup(groupProp);
         }
@@ -1843,22 +1846,22 @@ public class ClassicConfiguration implements Configuration {
             setErrorOverrides(StringUtils.tokenizeToStringArray(errorOverridesProp, ","));
         }
 
-        Boolean streamProp = getBooleanProp(props, ConfigUtils.STREAM);
+        Boolean streamProp = removeBoolean(props, ConfigUtils.STREAM);
         if (streamProp != null) {
             setStream(streamProp);
         }
 
-        Boolean batchProp = getBooleanProp(props, ConfigUtils.BATCH);
+        Boolean batchProp = removeBoolean(props, ConfigUtils.BATCH);
         if (batchProp != null) {
             setBatch(batchProp);
         }
 
-        Boolean oracleSqlplusProp = getBooleanProp(props, ConfigUtils.ORACLE_SQLPLUS);
+        Boolean oracleSqlplusProp = removeBoolean(props, ConfigUtils.ORACLE_SQLPLUS);
         if (oracleSqlplusProp != null) {
             setOracleSqlplus(oracleSqlplusProp);
         }
 
-        Boolean oracleSqlplusWarnProp = getBooleanProp(props, ConfigUtils.ORACLE_SQLPLUS_WARN);
+        Boolean oracleSqlplusWarnProp = removeBoolean(props, ConfigUtils.ORACLE_SQLPLUS_WARN);
         if (oracleSqlplusWarnProp != null) {
             setOracleSqlplusWarn(oracleSqlplusWarnProp);
         }
@@ -1877,28 +1880,6 @@ public class ClassicConfiguration implements Configuration {
             if (key.startsWith("flyway.")) {
                 throw new FlywayException("Unknown configuration property: " + key, ErrorCode.CONFIGURATION);
             }
-        }
-    }
-
-    private Boolean getBooleanProp(Map<String, String> props, String key) {
-        String value = props.remove(key);
-        if (value != null && !"true".equals(value) && !"false".equals(value)) {
-            throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value,
-                    ErrorCode.CONFIGURATION);
-        }
-        return value == null ? null : Boolean.valueOf(value);
-    }
-
-    private Integer getIntegerProp(Map<String, String> props, String key) {
-        String value = props.remove(key);
-        if (value == null) {
-            return null;
-        }
-        try {
-            return Integer.valueOf(value);
-        } catch (NumberFormatException e) {
-            throw new FlywayException("Invalid value for " + key + " (should be a positive integer): " + value,
-                    ErrorCode.CONFIGURATION);
         }
     }
 
