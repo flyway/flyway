@@ -48,6 +48,7 @@ public class ParserSqlScript implements SqlScript {
      */
     protected final LoadableResource resource;
 
+    private final SqlScriptMetadata metadata;
     protected final Parser parser;
     private final boolean mixed;
     private boolean parsed;
@@ -65,6 +66,7 @@ public class ParserSqlScript implements SqlScript {
      */
     public ParserSqlScript(Parser parser, LoadableResource resource, boolean mixed) {
         this.resource = resource;
+        this.metadata = SqlScriptMetadata.fromResource(resource);
         this.parser = parser;
 
 
@@ -93,7 +95,7 @@ public class ParserSqlScript implements SqlScript {
                     nonTransactionalStatementFound = true;
                 }
 
-                if (!mixed && transactionalStatementFound && nonTransactionalStatementFound) {
+                if (!mixed && transactionalStatementFound && nonTransactionalStatementFound && metadata.executeInTransaction() == null) {
                     throw new FlywayException(
                             "Detected both transactional and non-transactional statements within the same migration"
                                     + " (even though mixed is false). Offending statement found at line "
@@ -184,6 +186,12 @@ public class ParserSqlScript implements SqlScript {
 
     @Override
     public boolean executeInTransaction() {
+        Boolean executeInTransactionOverride = metadata.executeInTransaction();
+        if (executeInTransactionOverride != null) {
+            LOG.debug("Using executeInTransaction=" + executeInTransactionOverride + " from script configuration");
+            return executeInTransactionOverride;
+        }
+
         validate();
 
         return !nonTransactionalStatementFound;

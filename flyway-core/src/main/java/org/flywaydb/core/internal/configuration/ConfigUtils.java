@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.configuration;
 
+import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -386,6 +387,31 @@ public class ConfigUtils {
                 config.put(key, StringUtils.arrayToCommaDelimitedString(value));
                 return;
             }
+        }
+    }
+
+    public static Boolean removeBoolean(Map<String, String> props, String key) {
+        String value = props.remove(key);
+        if (value == null) {
+            return null;
+        }
+        if (!"true".equals(value) && !"false".equals(value)) {
+            throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value,
+                    ErrorCode.CONFIGURATION);
+        }
+        return Boolean.valueOf(value);
+    }
+
+    public static Integer removeInteger(Map<String, String> props, String key) {
+        String value = props.remove(key);
+        if (value == null) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            throw new FlywayException("Invalid value for " + key + " (should be a positive integer): " + value,
+                    ErrorCode.CONFIGURATION);
         }
     }
 
