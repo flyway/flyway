@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 
 import org.flywaydb.core.internal.parser.*;
@@ -331,15 +332,15 @@ public class OracleParser extends Parser {
     }
 
     @Override
-    protected void adjustDelimiter(ParserContext context, StatementType statementType) {
+    protected void adjustDelimiter(ParserContext context, StatementType statementType, Delimiter delimiter, String plSqlDelimiter) {
         if (statementType == PLSQL_STATEMENT || statementType == PLSQL_VIEW_STATEMENT) {
-            context.setDelimiter(PLSQL_DELIMITER);
+            context.setDelimiter(plSqlDelimiter != null ? new Delimiter(plSqlDelimiter, true) : PLSQL_DELIMITER);
 
 
 
 
         } else {
-            context.setDelimiter(Delimiter.SEMICOLON);
+            context.setDelimiter(delimiter);
         }
     }
 

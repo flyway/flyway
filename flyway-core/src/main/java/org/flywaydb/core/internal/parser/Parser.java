@@ -57,6 +57,9 @@ public abstract class Parser {
     private final Set<String> validKeywords;
     private final ParsingContext parsingContext;
 
+    private Delimiter delimiter;
+    private String plSqlDelimiter;
+
     protected Parser(Configuration configuration, ParsingContext parsingContext, int peekDepth) {
         this.configuration = configuration;
         this.peekDepth = peekDepth;
@@ -66,10 +69,25 @@ public abstract class Parser {
         this.alternativeSingleLineComment = getAlternativeSingleLineComment();
         this.validKeywords = getValidKeywords();
         this.parsingContext = parsingContext;
+
+        this.delimiter = configuration.getDelimiter() == null ? getDefaultDelimiter() : new Delimiter(configuration.getDelimiter(), false);
+        String plSqlDelimiter = configuration.getPlSqlDelimiter();
+        if (plSqlDelimiter != null && plSqlDelimiter.equals(";")) {
+            throw new FlywayException("The PL/SQL delimiter cannot be " + plSqlDelimiter + ". Please change the plsqldelimiter in your config file or disable this property if you are not using any PL/SQL block.");
+        }
+        this.plSqlDelimiter = plSqlDelimiter;
     }
 
     protected Delimiter getDefaultDelimiter() {
         return Delimiter.SEMICOLON;
+    }
+
+    protected Delimiter getDelimiter() {
+        return this.delimiter;
+    }
+
+    protected String getPlSqlDelimiter() {
+        return this.plSqlDelimiter;
     }
 
     protected char getIdentifierQuote() {
@@ -101,7 +119,7 @@ public abstract class Parser {
     public final SqlStatementIterator parse(final LoadableResource resource) {
         PositionTracker tracker = new PositionTracker();
         Recorder recorder = new Recorder();
-        ParserContext context = new ParserContext(getDefaultDelimiter());
+        ParserContext context = new ParserContext(getDelimiter() == null ? getDefaultDelimiter() : getDelimiter());
 
         LOG.debug("Parsing " + resource.getFilename() + " ...");
         PeekingReader peekingReader =
@@ -268,7 +286,7 @@ public abstract class Parser {
                         } else {
                             statementType = detectStatementType(simplifiedStatement);
                         }
-                        adjustDelimiter(context, statementType);
+                        adjustDelimiter(context, statementType, getDelimiter(), getPlSqlDelimiter());
                     }
                     if (canExecuteInTransaction == null) {
                         if (keywords.size() > getTransactionalDetectionCutoff()) {
@@ -307,7 +325,7 @@ public abstract class Parser {
      * Resets the delimiter to its default value before parsing a new statement.
      */
     protected void resetDelimiter(ParserContext context) {
-        context.setDelimiter(getDefaultDelimiter());
+        context.setDelimiter(getDelimiter() == null ? getDefaultDelimiter() : getDelimiter());
     }
 
     /**
@@ -315,7 +333,9 @@ public abstract class Parser {
      *
      * @param statementType The statement type.
      */
-    protected void adjustDelimiter(ParserContext context, StatementType statementType) {
+    protected void adjustDelimiter(ParserContext context, StatementType statementType, Delimiter delimiter,
+                                   String plSqlDelimiter)
+    {
     }
 
     /**

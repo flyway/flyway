@@ -46,6 +46,20 @@ public interface Configuration {
     DataSource getDataSource();
 
     /**
+     * Retrieves the delimiter used to end a regular SQL statement.
+     *
+     * @return The regular SQL statement delimiter. (default: ;)
+     */
+    String getDelimiter();
+
+    /**
+     * Retrieves the delimiter used to end PL/SQL code.
+     *
+     * @return The PL/SQL delimiter. (default: /)
+     */
+    String getPlSqlDelimiter();
+
+    /**
      * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
      * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
      *

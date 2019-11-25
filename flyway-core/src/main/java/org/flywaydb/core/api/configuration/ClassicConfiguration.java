@@ -146,6 +146,16 @@ public class ClassicConfiguration implements Configuration {
     private MigrationVersion target;
 
     /**
+     * The delimiter that will replace the default delimiter for standard SQL
+     */
+    private String delimiter;
+
+    /**
+     * The delimiter that will replace the default delimiter for PL/SQL
+     */
+    private String plSqlDelimiter;
+
+    /**
      * Whether placeholders should be replaced. (default: true)
      */
     private boolean placeholderReplacement = true;
@@ -507,6 +517,14 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public MigrationVersion getTarget() {
         return target;
+    }
+
+    @Override
+    public String getDelimiter() { return this.delimiter; }
+
+    @Override
+    public String getPlSqlDelimiter() {
+        return plSqlDelimiter;
     }
 
     @Override
@@ -1087,6 +1105,22 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Sets the delimiter for standard SQL specified in the conf file
+     *
+     * @param delimiter
+     */
+    public void setDelimiter(String delimiter) { this.delimiter = delimiter; }
+
+    /**
+     * Sets the delimiter for PL/SQL specified in the conf file
+     *
+     * @param plSqlDelimiter
+     */
+    public void setPlSqlDelimiter(String plSqlDelimiter) {
+        this.plSqlDelimiter = plSqlDelimiter;
+    }
+
+    /**
      * Sets whether placeholders should be replaced.
      *
      * @param placeholderReplacement Whether placeholders should be replaced. (default: true)
@@ -1593,6 +1627,8 @@ public class ClassicConfiguration implements Configuration {
         setLocations(configuration.getLocations());
         setMixed(configuration.isMixed());
         setOutOfOrder(configuration.isOutOfOrder());
+        setDelimiter(configuration.getDelimiter());
+        setPlSqlDelimiter(configuration.getPlSqlDelimiter());
         setPlaceholderPrefix(configuration.getPlaceholderPrefix());
         setPlaceholderReplacement(configuration.isPlaceholderReplacement());
         setPlaceholders(configuration.getPlaceholders());
@@ -1683,6 +1719,14 @@ public class ClassicConfiguration implements Configuration {
         String initSqlProp = props.remove(ConfigUtils.INIT_SQL);
         if (initSqlProp != null) {
             setInitSql(initSqlProp);
+        }
+        String delimiter = props.remove(ConfigUtils.DELIMITER);
+        if (delimiter != null) {
+            setDelimiter(delimiter);
+        }
+        String plSqlDelimiter = props.remove(ConfigUtils.PL_SQL_DELIMITER);
+        if (plSqlDelimiter != null) {
+            setPlSqlDelimiter(plSqlDelimiter);
         }
         String locationsProp = props.remove(ConfigUtils.LOCATIONS);
         if (locationsProp != null) {
