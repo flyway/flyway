@@ -25,20 +25,10 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.callback.DefaultCallbackExecutor;
-import org.flywaydb.core.internal.callback.NoopCallback;
-import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
-import org.flywaydb.core.internal.callback.SqlScriptCallbackFactory;
+import org.flywaydb.core.internal.callback.*;
 import org.flywaydb.core.internal.clazz.ClassProvider;
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
-import org.flywaydb.core.internal.command.DbBaseline;
-import org.flywaydb.core.internal.command.DbClean;
-import org.flywaydb.core.internal.command.DbInfo;
-import org.flywaydb.core.internal.command.DbMigrate;
-import org.flywaydb.core.internal.command.DbRepair;
-import org.flywaydb.core.internal.command.DbSchemas;
-import org.flywaydb.core.internal.command.DbValidate;
+import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 import org.flywaydb.core.internal.database.DatabaseFactory;
 import org.flywaydb.core.internal.database.base.Database;
@@ -487,12 +477,6 @@ public class Flyway {
 
             );
 
-            Schema currentSchema = getSchemaNameForParsingContext(database);
-
-            if (currentSchema != null) {
-                parsingContext.setCurrentSchema(currentSchema.getName());
-            }
-
             dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
 
@@ -503,6 +487,8 @@ public class Flyway {
 
 
 
+
+            parsingContext.populate(database);
 
             database.ensureSupported();
 
@@ -543,15 +529,6 @@ public class Flyway {
             showMemoryUsage();
         }
         return result;
-    }
-
-    private Schema getSchemaNameForParsingContext(Database database) {
-        try {
-            return database.getMainConnection().getCurrentSchema();
-        } catch (FlywayException e) {
-            LOG.debug("Could not get schema for flyway.currentSchema placeholder.");
-            return null;
-        }
     }
 
     private void showMemoryUsage() {

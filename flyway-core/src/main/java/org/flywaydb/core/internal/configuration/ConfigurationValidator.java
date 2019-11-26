@@ -35,5 +35,11 @@ public class ConfigurationValidator {
                     "Unable to connect to the database. Configure the url, user and password!",
                     ErrorCode.CONFIGURATION);
         }
+
+        for (String key : configuration.getPlaceholders().keySet()) {
+            if (key.toLowerCase().startsWith("flyway:")) {
+                throw new FlywayException("Invalid placeholder ('flyway:' prefix is reserved): " + key);
+            }
+        }
     }
 }

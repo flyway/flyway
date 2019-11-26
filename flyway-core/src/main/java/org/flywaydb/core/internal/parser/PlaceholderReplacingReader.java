@@ -87,26 +87,35 @@ public class PlaceholderReplacingReader extends FilterReader {
             }
             buffer.delete(0, buffer.length());
 
-            StringBuilder placeholder = new StringBuilder();
+            StringBuilder placeholderBuilder = new StringBuilder();
             do {
                 int r1 = in.read();
                 if (r1 == -1) {
                     break;
                 } else {
-                    placeholder.append((char) r1);
+                    placeholderBuilder.append((char) r1);
                 }
-            } while (!endsWith(placeholder, suffix));
+            } while (!endsWith(placeholderBuilder, suffix));
             for (int i = 0; i < suffix.length(); i++) {
-                placeholder.deleteCharAt(placeholder.length() - 1);
+                placeholderBuilder.deleteCharAt(placeholderBuilder.length() - 1);
             }
 
 
-            if (!placeholders.containsKey(placeholder.toString())) {
+            String placeholder = placeholderBuilder.toString();
+            if (!placeholders.containsKey(placeholder)) {
+                String canonicalPlaceholder = prefix + placeholder + suffix;
+
+                if (placeholder.contains("flyway:")) {
+                    throw new FlywayException("Failed to populate value for default placeholder: "
+                            + canonicalPlaceholder + ".");
+                }
+
                 throw new FlywayException("No value provided for placeholder: "
-                        + prefix + placeholder + suffix
+                        + canonicalPlaceholder
                         + ".  Check your configuration!");
             }
-            replacement = placeholders.get(placeholder.toString());
+
+            replacement = placeholders.get(placeholder);
 
             // Empty placeholder value -> move to the next character
             if (replacement == null || replacement.length() == 0) {
