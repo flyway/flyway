@@ -505,11 +505,7 @@ public class Flyway {
                 }
                 StringResource resource = new StringResource(configuration.getInitSql());
 
-                SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, true
-
-
-
-                );
+                SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, true, resourceProvider);
                 noCallbackSqlScriptExecutorFactory.createSqlScriptExecutor(connection
 
 

@@ -22,9 +22,5 @@ public interface SqlScriptFactory {
     /**
      * @return A new SQL script.
      */
-    SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-    );
+    SqlScript createSqlScript(LoadableResource resource, boolean mixed, ResourceProvider resourceProvider);
 }

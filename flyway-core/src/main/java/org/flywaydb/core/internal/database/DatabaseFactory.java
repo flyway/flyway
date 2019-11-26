@@ -62,14 +62,11 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
-import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScript;
-import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
-import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
-import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
+import org.flywaydb.core.internal.sqlscript.*;
 
 import java.sql.Connection;
+
+import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.getMetadataResource;
 
 /**
  * Factory for obtaining the correct Database instance for the current connection.
@@ -255,23 +252,15 @@ public class DatabaseFactory {
 
 
 
-
-
-
-
             return new SqlScriptFactory() {
                 @Override
-                public SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-                ) {
+                public SqlScript createSqlScript(LoadableResource resource, boolean mixed, ResourceProvider resourceProvider) {
                     return new ParserSqlScript(createParser(jdbcConnectionFactory, configuration
 
 
 
                             , parsingContext
-                    ), resource, mixed);
+                    ), resource, getMetadataResource(resourceProvider, resource), mixed);
                 }
             };
 

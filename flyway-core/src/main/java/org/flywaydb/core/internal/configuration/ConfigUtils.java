@@ -22,11 +22,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -315,14 +311,30 @@ public class ConfigUtils {
         }
 
         LOG.debug("Loading config file: " + configFile.getAbsolutePath());
+
         try {
-            String contents = FileCopyUtils.copyToString(new InputStreamReader(new FileInputStream(configFile), encoding));
+            return readConfiguration(new InputStreamReader(new FileInputStream(configFile), encoding));
+        } catch (IOException | FlywayException e) {
+            throw new FlywayException(errorMessage, e);
+        }
+    }
+
+    /**
+     * Reads the configuration.
+     *
+     * @param reader The reader used to read the configuration.
+     * @return The properties from the configuration file. An empty Map if none.
+     * @throws FlywayException when the configuration could not be read.
+     */
+    public static Map<String, String> readConfiguration(Reader reader) throws FlywayException {
+        try {
+            String contents = FileCopyUtils.copyToString(reader);
             Properties properties = new Properties();
             contents = expandEnvironmentVariables(contents, System.getenv());
             properties.load(new StringReader(contents.replace("\\", "\\\\")));
             return propertiesToMap(properties);
         } catch (IOException e) {
-            throw new FlywayException(errorMessage, e);
+            throw new FlywayException("Unable to read config", e);
         }
     }
 
@@ -390,8 +402,16 @@ public class ConfigUtils {
         }
     }
 
-    public static Boolean removeBoolean(Map<String, String> props, String key) {
-        String value = props.remove(key);
+    /**
+     * Removes this property from the config.
+     *
+     * @param config The config.
+     * @param key    The property name.
+     * @return The property value as a boolean if it exists, otherwise <code>null</code>.
+     * @throws FlywayException when the property value is not a valid boolean.
+     */
+    public static Boolean removeBoolean(Map<String, String> config, String key) {
+        String value = config.remove(key);
         if (value == null) {
             return null;
         }
@@ -402,8 +422,16 @@ public class ConfigUtils {
         return Boolean.valueOf(value);
     }
 
-    public static Integer removeInteger(Map<String, String> props, String key) {
-        String value = props.remove(key);
+    /**
+     * Removes this property from the config.
+     *
+     * @param config The config.
+     * @param key    The property name.
+     * @return The property value as an integer if it exists, otherwise <code>null</code>.
+     * @throws FlywayException when the property value is not a valid integer.
+     */
+    public static Integer removeInteger(Map<String, String> config, String key) {
+        String value = config.remove(key);
         if (value == null) {
             return null;
         }

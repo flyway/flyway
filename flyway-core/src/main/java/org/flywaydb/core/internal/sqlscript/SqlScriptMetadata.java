@@ -21,8 +21,8 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.internal.resource.ResourceProvider;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,11 +49,17 @@ public class SqlScriptMetadata {
     }
 
     public static SqlScriptMetadata fromResource(LoadableResource resource) {
-        File metadataFile = new File(resource.getAbsolutePathOnDisk() + ".conf");
-        if (metadataFile.exists()) {
-            LOG.debug("Found script configuration: " + metadataFile.toPath().getFileName());
-            return new SqlScriptMetadata(ConfigUtils.loadConfigurationFile(metadataFile, "UTF-8", false));
+        if (resource != null) {
+            LOG.debug("Found script configuration: " + resource.getFilename());
+            return new SqlScriptMetadata(ConfigUtils.readConfiguration(resource.read()));
         }
         return new SqlScriptMetadata(new HashMap<>());
+    }
+
+    public static LoadableResource getMetadataResource(ResourceProvider resourceProvider, LoadableResource resource) {
+        if (resourceProvider == null) {
+            return null;
+        }
+        return resourceProvider.getResource(resource.getRelativePath() + ".conf");
     }
 }

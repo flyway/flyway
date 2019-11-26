@@ -116,11 +116,7 @@ public class SqlMigrationResolver implements MigrationResolver {
                 continue;
             }
 
-            SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed()
-
-
-
-            );
+            SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed(), resourceProvider);
 
 
 

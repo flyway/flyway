@@ -61,12 +61,13 @@ public class ParserSqlScript implements SqlScript {
     /**
      * Creates a new sql script from this source.
      *
-     * @param resource The sql script resource.
-     * @param mixed    Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * @param resource         The sql script resource.
+     * @param metadataResource The sql script metadata resource.
+     * @param mixed            Whether to allow mixing transactional and non-transactional statements within the same migration.
      */
-    public ParserSqlScript(Parser parser, LoadableResource resource, boolean mixed) {
+    public ParserSqlScript(Parser parser, LoadableResource resource, LoadableResource metadataResource, boolean mixed) {
         this.resource = resource;
-        this.metadata = SqlScriptMetadata.fromResource(resource);
+        this.metadata = SqlScriptMetadata.fromResource(metadataResource);
         this.parser = parser;
 
 
