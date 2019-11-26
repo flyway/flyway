@@ -88,7 +88,6 @@ public class ConfigUtils {
     public static final String URL = "flyway.url";
     public static final String USER = "flyway.user";
     public static final String VALIDATE_ON_MIGRATE = "flyway.validateOnMigrate";
-    public static final String SKIP_VERSIONS = "flyway.skipVersions";
 
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
@@ -186,9 +185,6 @@ public class ConfigUtils {
         }
         if ("FLYWAY_INSTALLED_BY".equals(key)) {
             return INSTALLED_BY;
-        }
-        if ("FLYWAY_SKIP_VERSIONS".equals(key)) {
-            return SKIP_VERSIONS;
         }
         if ("FLYWAY_LICENSE_KEY".equals(key)) {
             return LICENSE_KEY;

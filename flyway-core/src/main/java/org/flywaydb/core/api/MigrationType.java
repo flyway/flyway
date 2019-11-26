@@ -73,12 +73,7 @@ public enum MigrationType {
     /**
      * Undo migrations using custom MigrationResolvers.
      */
-    UNDO_CUSTOM(false, true),
-
-    /**
-     * Versioned migrations that have been skipped
-     */
-    SKIPPED(false, false);
+    UNDO_CUSTOM(false, true);
 
     private final boolean synthetic;
     private final boolean undo;

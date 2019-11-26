@@ -445,13 +445,6 @@ public class ClassicConfiguration implements Configuration {
 
 
     /**
-     * For use with the skip command.
-     * Mark versioned migrations to skip in the schema history table. Skipped migrations will be ignored for every subsequent migrate.
-     * If no versions are specified, all pending migrations will be marked to be skipped.
-     */
-    private String[] skipVersions = new String[0];
-
-    /**
      * Creates a new default configuration.
      */
     public ClassicConfiguration() {
@@ -703,14 +696,6 @@ public class ClassicConfiguration implements Configuration {
 
 
 
-    }
-
-    /**
-     * Gets the versioned migrations to skip.
-     */
-    @Override
-    public String[] getSkipVersions() {
-        return this.skipVersions;
     }
 
     /**
@@ -1549,14 +1534,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     *  Versioned migrations to skip. Only works with the skip command
-     * @param skipVersions
-     */
-    public void setSkipVersions(String... skipVersions) {
-        this.skipVersions = skipVersions;
-    }
-
-    /**
      * Configure with the same values as this existing configuration.
      *
      * @param configuration The configuration to use.
@@ -1609,7 +1586,6 @@ public class ClassicConfiguration implements Configuration {
         setTablespace(configuration.getTablespace());
         setTarget(configuration.getTarget());
         setValidateOnMigrate(configuration.isValidateOnMigrate());
-        setSkipVersions(configuration.getSkipVersions());
     }
 
     /**
@@ -1869,11 +1845,6 @@ public class ClassicConfiguration implements Configuration {
         String licenseKeyProp = props.remove(ConfigUtils.LICENSE_KEY);
         if (licenseKeyProp != null) {
             setLicenseKey(licenseKeyProp);
-        }
-
-        String skipVersionsProp = props.remove(ConfigUtils.SKIP_VERSIONS);
-        if (skipVersionsProp != null) {
-            setSkipVersions(skipVersionsProp);
         }
 
         for (String key : props.keySet()) {

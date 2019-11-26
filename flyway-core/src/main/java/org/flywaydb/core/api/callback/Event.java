@@ -180,23 +180,7 @@ public enum Event {
     /**
      * Fired after info has failed. This event will be fired in a separate transaction from the actual info operation.
      */
-    AFTER_INFO_ERROR("afterInfoError"),
-
-    /**
-     * Fired before skip is executed
-     */
-    BEFORE_SKIP("beforeSkip"),
-
-    /**
-     * Fired after skip is executed.
-     */
-    AFTER_SKIP("afterSkip"),
-
-    /**
-     * Fired after skip has failed
-     */
-    AFTER_SKIP_ERROR("afterSkipError");
-
+    AFTER_INFO_ERROR("afterInfoError");
 
     private final String id;
 

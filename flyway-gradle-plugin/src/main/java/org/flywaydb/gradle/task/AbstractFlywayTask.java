@@ -23,7 +23,6 @@ import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.file.FileCollection;
@@ -384,13 +383,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String installedBy;
 
     /**
-     * For use with the skip command.
-     * Mark versioned migrations to skip in the schema history table. Skipped migrations will be ignored for every subsequent migrate.
-     * If no versions are specified, all pending migrations will be marked to be skipped.
-     */
-    public String[] skipVersions;
-
-    /**
      * Gradle configurations that will be added to the classpath for running Flyway tasks.
      * (default: <code>compile</code>, <code>runtime</code>, <code>testCompile</code>, <code>testRuntime</code>)
      * <p>Also configurable with Gradle or System Property: ${flyway.configurations}</p>
@@ -625,7 +617,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.MIXED, mixed, extension.mixed);
         putIfSet(conf, ConfigUtils.GROUP, group, extension.group);
         putIfSet(conf, ConfigUtils.INSTALLED_BY, installedBy, extension.installedBy);
-        putIfSet(conf, ConfigUtils.SKIP_VERSIONS, skipVersions, extension.skipVersions);
         putIfSet(conf, ConfigUtils.ENCODING, encoding, extension.encoding);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement, extension.placeholderReplacement);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix, extension.placeholderPrefix);

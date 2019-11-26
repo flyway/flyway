@@ -169,15 +169,6 @@ public abstract class SchemaHistory {
                 success);
     }
 
-    public final void skipMigration(MigrationVersion version, String description, String script, Integer checksum) {
-        doSkipMigration(
-                calculateInstalledRank(),
-                version,
-                AbbreviationUtils.abbreviateDescription(description),
-                AbbreviationUtils.abbreviateScript(script),
-                checksum);
-    }
-
     /**
      * Calculates the installed rank for the new migration to be inserted.
      *
@@ -194,9 +185,6 @@ public abstract class SchemaHistory {
     protected abstract void doAddAppliedMigration(int installedRank, MigrationVersion version, String description,
                                                   MigrationType type, String script, Integer checksum,
                                                   int executionTime, boolean success);
-
-    protected abstract void doSkipMigration(int installedRank, MigrationVersion version, String description,
-                                            String script, Integer checksum);
 
     @Override
     public String toString() {

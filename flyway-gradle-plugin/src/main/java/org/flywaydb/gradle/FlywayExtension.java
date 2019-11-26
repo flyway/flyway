@@ -442,13 +442,4 @@ public class FlywayExtension {
      * <p>Also configurable with Gradle or System Property: ${flyway.configFiles}</p>
      */
     public String[] configFiles;
-
-    /**
-     * For use with the skip command.
-     * Mark versioned migrations to skip in the schema history table. Skipped migrations will be ignored for every subsequent migrate.
-     * The migrations to skip are configured with the skipVersions configuration option.
-     * If no versions are specified, all pending migrations will be marked to be skipped.
-     * <p>Also configurable with Gradle or System Property: ${flyway.skipVersions}</p>
-     */
-    public String[] skipVersions;
 }
