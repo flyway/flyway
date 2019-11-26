@@ -79,15 +79,16 @@ public class Main {
 
         Level logLevel = getLogLevel(args);
         initLogging(logLevel, jsonOutput);
+        CommandLineFlags commandLineFlags = CommandLineFlags.createFromArguments(args);
 
         try {
-            if (isPrintVersionAndExit(args)) {
+            if (commandLineFlags.getPrintVersionAndExit()) {
                 printVersion();
                 System.exit(0);
             }
 
             List<String> operations = determineOperations(args);
-            if (operations.isEmpty() || operations.contains("help") || isFlagSet(args, "-?")) {
+            if (operations.isEmpty() || operations.contains("help") || commandLineFlags.getPrintUsage()) {
                 printUsage();
                 return;
             }
@@ -102,7 +103,7 @@ public class Main {
             config.putAll(envVars);
             overrideConfigurationWithArgs(config, args);
 
-            if (!isSuppressPrompt(args)) {
+            if (!commandLineFlags.getIsSuppressPrompt()) {
                 promptForCredentialsIfMissing(config);
             }
 
@@ -120,14 +121,14 @@ public class Main {
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 
             for (String operation : operations) {
-                executeOperation(flyway, operation, jsonOutput);
+                executeOperation(flyway, operation, commandLineFlags.getJsonOutput());
             }
         } catch (Exception e) {
-            if (jsonOutput) {
+            if (commandLineFlags.getJsonOutput()) {
                 ErrorOutput errorOutput = ErrorOutput.fromException(e);
                 printJson(errorOutput);
             } else {
-                if (logLevel == Level.DEBUG) {
+                if (commandLineFlags.getLogLevel() == Level.DEBUG) {
                     LOG.error("Unexpected error", e);
                 } else {
                     LOG.error(getMessageFromException(e));
@@ -136,6 +137,7 @@ public class Main {
             System.exit(1);
         }
     }
+
 
     static String getMessageFromException(Exception e) {
         if (e instanceof FlywayException) {
@@ -151,23 +153,6 @@ public class Main {
                 throw new FlywayException("Invalid argument: " + arg);
             }
         }
-    }
-
-    private static boolean isPrintVersionAndExit(String[] args) {
-        return isFlagSet(args, "-v");
-    }
-
-    private static boolean isSuppressPrompt(String[] args) {
-        return isFlagSet(args, "-n");
-    }
-
-    private static boolean isFlagSet(String[] args, String flag) {
-        for (String arg : args) {
-            if (flag.equals(arg)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -212,24 +197,6 @@ public class Main {
     private static void printJson(Object object) {
         Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
         System.out.println(gson.toJson(object));
-    }
-
-    /**
-     * Checks the desired log level.
-     *
-     * @param args The command-line arguments.
-     * @return The desired log level.
-     */
-    private static Level getLogLevel(String[] args) {
-        for (String arg : args) {
-            if ("-X".equals(arg)) {
-                return Level.DEBUG;
-            }
-            if ("-q".equals(arg)) {
-                return Level.WARN;
-            }
-        }
-        return Level.INFO;
     }
 
     /**
