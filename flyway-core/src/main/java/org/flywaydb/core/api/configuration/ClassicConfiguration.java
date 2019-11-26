@@ -520,7 +520,7 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public String getDelimiter() { return this.delimiter; }
+    public String getDelimiter() { return delimiter; }
 
     @Override
     public String getPlSqlDelimiter() {

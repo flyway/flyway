@@ -57,8 +57,8 @@ public abstract class Parser {
     private final Set<String> validKeywords;
     private final ParsingContext parsingContext;
 
-    private Delimiter delimiter;
-    private String plSqlDelimiter;
+    private final Delimiter delimiter;
+    private final String plSqlDelimiter;
 
     protected Parser(Configuration configuration, ParsingContext parsingContext, int peekDepth) {
         this.configuration = configuration;
