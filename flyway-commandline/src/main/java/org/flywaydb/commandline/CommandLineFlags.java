@@ -86,7 +86,7 @@ class CommandLineFlags {
             logLevel = Level.WARN;
         }
 
-        if (isFlagSet(args, "-json.experimental")) {
+        if (isFlagSet(args, "-json")) {
             jsonOutput = true;
         }
 

@@ -44,7 +44,7 @@ import java.util.*;
 public class Main {
     private static Log LOG;
 
-    private static List<String> VALID_OPERATIONS_AND_FLAGS = Arrays.asList("-X", "-q", "-n", "-v", "-json.experimental", "-?",
+    private static List<String> VALID_OPERATIONS_AND_FLAGS = Arrays.asList("-X", "-q", "-n", "-v", "-json", "-?",
             "-community", "-pro", "-enterprise",
             "help", "migrate", "clean", "info", "validate", "undo", "baseline", "repair");
 
@@ -110,6 +110,10 @@ public class Main {
             if (operations.isEmpty() || operations.contains("help") || commandLineFlags.getPrintUsage()) {
                 printUsage();
                 return;
+            }
+
+            if (commandLineFlags.getJsonOutput() && !operations.contains("info")) {
+                throw new FlywayException("The -json flag is only supported by the info command.");
             }
 
             validateArgs(args);
