@@ -17,13 +17,14 @@ package org.flywaydb.commandline;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.flywaydb.commandline.ConsoleLog.Level;
+import org.flywaydb.commandline.PrintStreamLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
@@ -47,20 +48,47 @@ public class Main {
             "-community", "-pro", "-enterprise",
             "help", "migrate", "clean", "info", "validate", "undo", "baseline", "repair");
 
-    /**
-     * Initializes the logging.
-     *
-     * @param level The minimum level to log at.
-     */
-    static void initLogging(Level level, Boolean jsonOutput) {
-        if (jsonOutput) {
+
+    static LogCreator getLogCreator(CommandLineFlags commandLineFlags, String logFilepath) {
+        Level level = commandLineFlags.getLogLevel();
+
+        if (commandLineFlags.getJsonOutput()) {
             // We want to suppress all logging as the JSON output is performed using a different mechanism
-            LogFactory.setFallbackLogCreator(new NoopLogCreator());
-        } else {
-            LogFactory.setFallbackLogCreator(new ConsoleLogCreator(level));
+            return new NoopLogCreator();
         }
 
+        ConsoleLogCreator consoleLogCreator = new ConsoleLogCreator(level);
+
+        if (!logFilepath.isEmpty()) {
+            FileLogCreator fileLogCreator = new FileLogCreator(level, logFilepath);
+            LogCreator[] logCreators = new LogCreator[]{
+                    fileLogCreator,
+                    consoleLogCreator
+            };
+
+            return new MultiLogCreator(logCreators);
+        }
+
+        return new ConsoleLogCreator(level);
+    }
+
+    /**
+     * Initializes the logging.
+     */
+    static void initLogging(CommandLineFlags commandLineFlags, String logFilepath) {
+        LogCreator logCreator = getLogCreator(commandLineFlags, logFilepath);
+        LogFactory.setFallbackLogCreator(logCreator);
         LOG = LogFactory.getLog(Main.class);
+    }
+
+    static String getLogFilepathFromArguments(String[] args) {
+        for (String arg : args) {
+            if (arg.startsWith("-logFile=")) {
+                return getArgumentValue(arg);
+            }
+        }
+
+        return "";
     }
 
     /**
@@ -69,17 +97,8 @@ public class Main {
      * @param args The command-line arguments.
      */
     public static void main(String[] args) {
-        Boolean jsonOutput = false;
-
-        for (String arg : args) {
-            if ("-json.experimental".equals(arg)) {
-                jsonOutput = true;
-            }
-        }
-
-        Level logLevel = getLogLevel(args);
-        initLogging(logLevel, jsonOutput);
         CommandLineFlags commandLineFlags = CommandLineFlags.createFromArguments(args);
+        initLogging(commandLineFlags, getLogFilepathFromArguments(args));
 
         try {
             if (commandLineFlags.getPrintVersionAndExit()) {
@@ -116,7 +135,6 @@ public class Main {
             if (!jarFiles.isEmpty()) {
                 classLoader = ClassUtils.addJarsOrDirectoriesToClasspath(classLoader, jarFiles);
             }
-
             filterProperties(config);
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 
@@ -218,6 +236,7 @@ public class Main {
         config.remove(ConfigUtils.JAR_DIRS);
         config.remove(ConfigUtils.CONFIG_FILES);
         config.remove(ConfigUtils.CONFIG_FILE_ENCODING);
+        config.remove(ConfigUtils.LOG_FILE);
     }
 
     /**

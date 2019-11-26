@@ -15,34 +15,31 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.commandline.PrintStreamLog.Level;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 
-/**
- * Log Creator for the Command-Line console.
- */
-class ConsoleLogCreator implements LogCreator {
-    private final Level level;
+import java.util.ArrayList;
+import java.util.List;
 
-    /**
-     * Creates a new Console Log Creator.
-     *
-     * @param level The minimum level to log at.
-     */
-    public ConsoleLogCreator(Level level) {
-        this.level = level;
+/**
+ * Log creator for a MultiLog
+ */
+class MultiLogCreator implements LogCreator {
+
+    private final LogCreator[] logCreators;
+
+    public MultiLogCreator(LogCreator[] logCreators) {
+        this.logCreators = logCreators;
     }
 
+    @Override
     public Log createLogger(Class<?> clazz) {
-        PrintStreamLog log = new PrintStreamLog(level, System.out, System.err);
+        List<Log> logs = new ArrayList<>();
 
-        // We don't want colorized output when there's no console (for example, in a redirect)
-        if (System.console() == null) {
-            return log;
+        for (LogCreator logCreator : logCreators) {
+            logs.add(logCreator.createLogger(clazz));
         }
 
-        ColorizedConsoleLog.install();
-        return new ColorizedConsoleLog(log);
+        return new MultiLogger(logs.toArray(new Log[0]));
     }
 }
