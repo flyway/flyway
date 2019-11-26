@@ -105,14 +105,24 @@ public class ClassicConfiguration implements Configuration {
     private Charset encoding = StandardCharsets.UTF_8;
 
     /**
+     * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
+     * flyway.schemas is, we use the first schema in that list. In Flyway 7, you will need to specify this value
+     * and not rely on flyway.schemas (default: The default schema for the database connection)
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>This schema will be the one containing the schema history table.</li>
+     * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
+     * </ul>
+     */
+    private String defaultSchemaName = null;
+
+    /**
      * The schemas managed by Flyway. These schema names are case-sensitive.
      * <p>Consequences:</p>
      * <ul>
-     * <li>Flyway will automatically attempt to create all these schemas, unless the first one already exists.</li>
-     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
-     * <li>The first schema in the list will also be the one containing the schema history table.</li>
+     * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
      * <li>The schemas will be cleaned in the order of this list.</li>
-     * <li>If Flyway created them, the schemas themselves will as be dropped when cleaning.</li>
+     * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
      * </ul>
      */
     private String[] schemaNames = {};
@@ -483,9 +493,10 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public String[] getSchemas() {
-        return schemaNames;
-    }
+    public String getDefaultSchema() { return defaultSchemaName; }
+
+    @Override
+    public String[] getSchemas() { return schemaNames; }
 
     @Override
     public String getTable() {
@@ -951,7 +962,7 @@ public class ClassicConfiguration implements Configuration {
      * Whether to disable clean.
      * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
      *
-     * @param cleanDisabled {@code true} to disabled clean. {@code false} to leave it enabled.  (default: {@code false})
+     * @param cleanDisabled {@code true} to disable clean. {@code false} to leave it enabled.  (default: {@code false})
      */
     public void setCleanDisabled(boolean cleanDisabled) {
         this.cleanDisabled = cleanDisabled;
@@ -1004,14 +1015,29 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Sets the schemas managed by Flyway. These schema names are case-sensitive. (default: The default schema for the database connection)
+     * Sets the default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
+     * flyway.schemas is, we use the first schema in that list. In Flyway 7, you will need to specify this value
+     * and not rely on flyway.schemas (default: The default schema for the database connection)
      * <p>Consequences:</p>
      * <ul>
-     * <li>Flyway will automatically attempt to create all these schemas, unless the first one already exists.</li>
-     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
-     * <li>The first schema in the list will also be the one containing the schema history table.</li>
+     * <li>This schema will be the one containing the schema history table.</li>
+     * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
+     * </ul>
+     *
+     * @param schema The default schema managed by Flyway.
+     */
+    public void setDefaultSchema(String schema) {
+        this.defaultSchemaName = schema;
+    }
+
+    /**
+     * Sets the schemas managed by Flyway. These schema names are case-sensitive. (default: The value of getDefaultSchema(),
+     * or failing that the default schema for the database connection)
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
      * <li>The schemas will be cleaned in the order of this list.</li>
-     * <li>If Flyway created them, the schemas themselves will as be dropped when cleaning.</li>
+     * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
      * </ul>
      *
      * @param schemas The schemas managed by Flyway. May not be {@code null}. Must contain at least one element.
@@ -1576,6 +1602,7 @@ public class ClassicConfiguration implements Configuration {
         setPlaceholderSuffix(configuration.getPlaceholderSuffix());
         setRepeatableSqlMigrationPrefix(configuration.getRepeatableSqlMigrationPrefix());
         setResolvers(configuration.getResolvers());
+        setDefaultSchema(configuration.getDefaultSchema());
         setSchemas(configuration.getSchemas());
         setSkipDefaultCallbacks(configuration.isSkipDefaultCallbacks());
         setSkipDefaultResolvers(configuration.isSkipDefaultResolvers());
@@ -1699,6 +1726,10 @@ public class ClassicConfiguration implements Configuration {
         String encodingProp = props.remove(ConfigUtils.ENCODING);
         if (encodingProp != null) {
             setEncodingAsString(encodingProp);
+        }
+        String defaultSchemaProp = props.remove(ConfigUtils.DEFAULT_SCHEMA);
+        if (defaultSchemaProp != null) {
+            setDefaultSchema(defaultSchemaProp);
         }
         String schemasProp = props.remove(ConfigUtils.SCHEMAS);
         if (schemasProp != null) {

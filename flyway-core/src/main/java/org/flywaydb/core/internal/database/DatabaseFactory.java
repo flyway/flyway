@@ -110,9 +110,10 @@ public class DatabaseFactory {
 
         );
 
-        if (!database.supportsChangingCurrentSchema() && configuration.getSchemas().length > 0) {
+        String intendedCurrentSchema = configuration.getDefaultSchema();
+        if (!database.supportsChangingCurrentSchema() && intendedCurrentSchema != null) {
             LOG.warn(databaseProductName + " does not support setting the schema for the current session. " +
-                    "Default schema will NOT be changed to " + configuration.getSchemas()[0] + " !");
+                    "Default schema will NOT be changed to " + intendedCurrentSchema + " !");
         }
 
         return database;
