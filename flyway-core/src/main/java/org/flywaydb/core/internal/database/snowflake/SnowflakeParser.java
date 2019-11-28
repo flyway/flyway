@@ -16,11 +16,29 @@
 package org.flywaydb.core.internal.database.snowflake;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.parser.*;
+
+import java.io.IOException;
 
 public class SnowflakeParser extends Parser {
     public SnowflakeParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 2);
+    }
+
+    @Override
+    protected boolean isAlternativeStringLiteral(String peek) {
+        if (peek.startsWith("$$")) {
+            return true;
+        }
+
+        return super.isAlternativeStringLiteral(peek);
+    }
+
+    @Override
+    protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+        String doubleDollarQuote = (char) reader.read() + reader.readUntilIncluding("$$");
+        reader.swallowUntilExcluding(doubleDollarQuote);
+        reader.swallow(doubleDollarQuote.length());
+        return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 }
