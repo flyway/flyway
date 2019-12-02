@@ -51,7 +51,7 @@ public class SqlScript implements Comparable<SqlScript> {
     /**
      * The sql statements contained in this script.
      */
-    private final List<SqlStatement> sqlStatements;
+    private List<SqlStatement> sqlStatements;
 
     /**
      * Whether this SQL script contains at least one transactional statement.
@@ -68,6 +68,8 @@ public class SqlScript implements Comparable<SqlScript> {
      */
     protected final LoadableResource resource;
 
+    private boolean resourceLoaded;
+
     /**
      * Creates a new sql script from this source.
      *
@@ -78,15 +80,7 @@ public class SqlScript implements Comparable<SqlScript> {
         this.resource = resource;
         this.sqlStatementBuilderFactory = sqlStatementBuilderFactory;
         this.mixed = mixed;
-
-        LOG.debug("Parsing " + resource.getFilename() + " ...");
-        LineReader reader = null;
-        try {
-            reader = resource.loadAsString();
-            this.sqlStatements = extractStatements(reader);
-        } finally {
-            IOUtils.close(reader);
-        }
+        this.resourceLoaded = false;
     }
 
     /**
@@ -176,25 +170,9 @@ public class SqlScript implements Comparable<SqlScript> {
      * @return The sql statements contained in this script.
      */
     public List<SqlStatement> getSqlStatements() {
+        loadAndExtractStatements(resource);
         return sqlStatements;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /**
@@ -211,11 +189,26 @@ public class SqlScript implements Comparable<SqlScript> {
      * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
      */
     public boolean executeInTransaction() {
+        loadAndExtractStatements(resource);
         return !nonTransactionalStatementFound;
     }
 
     @Override
     public int compareTo(SqlScript o) {
         return resource.getRelativePath().compareTo(o.resource.getRelativePath());
+    }
+
+    private void loadAndExtractStatements(final LoadableResource resource) {
+        if (!resourceLoaded) {
+            LOG.debug("Parsing " + resource.getFilename() + " ...");
+            LineReader reader = null;
+            try {
+                reader = resource.loadAsString();
+                this.sqlStatements = extractStatements(reader);
+            } finally {
+                IOUtils.close(reader);
+            }
+            resourceLoaded = true;
+        }
     }
 }
