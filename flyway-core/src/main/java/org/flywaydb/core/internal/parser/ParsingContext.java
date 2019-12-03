@@ -39,12 +39,12 @@ public class ParsingContext {
     }
 
     public void populate(Database database) {
-        Schema schema = getDefaultSchema(database);
+        Schema currentSchema = getCurrentSchema(database);
         String catalog = getCatalog(database);
-        String currentUser = getUser(database);
+        String currentUser = getCurrentUser(database);
 
-        if (schema != null) {
-            placeholders.put(DEFAULT_SCHEMA_PLACEHOLDER, schema.getName());
+        if (currentSchema != null) {
+            placeholders.put(DEFAULT_SCHEMA_PLACEHOLDER, currentSchema.getName());
         }
 
         if (catalog != null) {
@@ -63,7 +63,7 @@ public class ParsingContext {
         }
     }
 
-    private Schema getDefaultSchema(Database database) {
+    private Schema getCurrentSchema(Database database) {
         try {
             return database.getMainConnection().getCurrentSchema();
         } catch (FlywayException e) {
@@ -72,7 +72,7 @@ public class ParsingContext {
         }
     }
 
-    private String getUser(Database database) {
+    private String getCurrentUser(Database database) {
         try {
             return database.getCurrentUser();
         } catch (FlywayException e) {
