@@ -58,7 +58,6 @@ public abstract class Parser {
     private final ParsingContext parsingContext;
 
     private final Delimiter delimiter;
-    private final String plSqlDelimiter;
 
     protected Parser(Configuration configuration, ParsingContext parsingContext, int peekDepth) {
         this.configuration = configuration;
@@ -70,12 +69,9 @@ public abstract class Parser {
         this.validKeywords = getValidKeywords();
         this.parsingContext = parsingContext;
 
-        this.delimiter = configuration.getDelimiter() == null ? getDefaultDelimiter() : new Delimiter(configuration.getDelimiter(), false);
-        String plSqlDelimiter = configuration.getPlSqlDelimiter();
-        if (plSqlDelimiter != null && plSqlDelimiter.equals(";")) {
-            throw new FlywayException("The PL/SQL delimiter cannot be " + plSqlDelimiter + ". Please change the plsqldelimiter in your config file or disable this property if you are not using any PL/SQL block.");
-        }
-        this.plSqlDelimiter = plSqlDelimiter;
+        this.delimiter = configuration.getDelimiter() == null ?
+                getDefaultDelimiter()
+                : new Delimiter(configuration.getDelimiter(), configuration.isDelimiterOnNewLine());
     }
 
     protected Delimiter getDefaultDelimiter() {
@@ -84,10 +80,6 @@ public abstract class Parser {
 
     protected Delimiter getDelimiter() {
         return this.delimiter;
-    }
-
-    protected String getPlSqlDelimiter() {
-        return this.plSqlDelimiter;
     }
 
     protected char getIdentifierQuote() {
@@ -119,7 +111,7 @@ public abstract class Parser {
     public final SqlStatementIterator parse(final LoadableResource resource) {
         PositionTracker tracker = new PositionTracker();
         Recorder recorder = new Recorder();
-        ParserContext context = new ParserContext(getDelimiter() == null ? getDefaultDelimiter() : getDelimiter());
+        ParserContext context = new ParserContext(getDelimiter());
 
         LOG.debug("Parsing " + resource.getFilename() + " ...");
         PeekingReader peekingReader =
@@ -286,7 +278,7 @@ public abstract class Parser {
                         } else {
                             statementType = detectStatementType(simplifiedStatement);
                         }
-                        adjustDelimiter(context, statementType, getDelimiter(), getPlSqlDelimiter());
+                        adjustDelimiter(context, statementType);
                     }
                     if (canExecuteInTransaction == null) {
                         if (keywords.size() > getTransactionalDetectionCutoff()) {
@@ -325,7 +317,7 @@ public abstract class Parser {
      * Resets the delimiter to its default value before parsing a new statement.
      */
     protected void resetDelimiter(ParserContext context) {
-        context.setDelimiter(getDelimiter() == null ? getDefaultDelimiter() : getDelimiter());
+        context.setDelimiter(getDelimiter());
     }
 
     /**
@@ -333,9 +325,7 @@ public abstract class Parser {
      *
      * @param statementType The statement type.
      */
-    protected void adjustDelimiter(ParserContext context, StatementType statementType, Delimiter delimiter,
-                                   String plSqlDelimiter)
-    {
+    protected void adjustDelimiter(ParserContext context, StatementType statementType) {
     }
 
     /**

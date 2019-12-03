@@ -203,11 +203,14 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @return The default delimiter for this database.
      */
     public Delimiter getDefaultDelimiter() {
-        if (configuration.getDelimiter().equals("")) {
+        if (configuration.getDelimiter() == null) {
             return Delimiter.SEMICOLON;
         }
         else {
-            return new Delimiter(configuration.getDelimiter(), false);
+            return new Delimiter(
+                configuration.getDelimiter(),
+                configuration.isDelimiterOnNewLine()
+            );
         }
     }
 

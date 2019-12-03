@@ -48,11 +48,11 @@ public class SQLServerParser extends Parser {
 
     @Override
     protected boolean isDelimiter(String peek, Delimiter delimiter) {
-        return (peek.length() >= 2
-                && (peek.charAt(0) == 'G' || peek.charAt(0) == 'g')
-                && (peek.charAt(1) == 'O' || peek.charAt(1) == 'o')
-                && (peek.length() == 2 || Character.isWhitespace(peek.charAt(2)))
-                || (peek.length() >= 2 && peek.charAt(0) == delimiter.getDelimiter().charAt(0)));
+        String delimiterText = delimiter.getDelimiter().toUpperCase();
+        int delimiterTextLength = delimiterText.length();
+        return (peek.length() >= delimiterTextLength
+                && peek.toUpperCase().startsWith(delimiterText)
+                && (peek.length() == delimiterTextLength || Character.isWhitespace(peek.charAt(delimiterTextLength))));
     }
 
     @Override

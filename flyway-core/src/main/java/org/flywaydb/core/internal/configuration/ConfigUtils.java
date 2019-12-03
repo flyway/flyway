@@ -66,7 +66,8 @@ public class ConfigUtils {
     public static final String IGNORE_PENDING_MIGRATIONS = "flyway.ignorePendingMigrations";
     public static final String INIT_SQL = "flyway.initSql";
     public static final String DELIMITER = "flyway.delimiter";
-    public static final String PL_SQL_DELIMITER = "flyway.plsqlDelimiter";
+    public static final String DELIMITER_ON_NEW_LINE = "flyway.delimiterOnNewLine";
+    public static final String PL_SQL_DELIMITER = "flyway.oracle.plsqlDelimiter";
     public static final String INSTALLED_BY = "flyway.installedBy";
     public static final String LICENSE_KEY = "flyway.licenseKey";
     public static final String LOCATIONS = "flyway.locations";

@@ -36,7 +36,7 @@ public class OracleParser extends Parser {
 
 
     /**
-     * Delimiter of PL/SQL blocks and statements.
+     * Default delimiter of PL/SQL blocks and statements.
      */
     private static final Delimiter PLSQL_DELIMITER = new Delimiter("/", true
 
@@ -44,7 +44,11 @@ public class OracleParser extends Parser {
 
     );
 
-
+    /**
+     * Current delimiter of PL/SQL blocks and statements. This member is initialized from configuration. If no
+     * oracle.plSqlDelimiter is specified in the configuration, the default delimiter for PL/SQL blocks is used.
+     */
+    private final Delimiter plSqlDelimiter;
 
 
 
@@ -176,6 +180,14 @@ public class OracleParser extends Parser {
     ) {
         super(configuration, parsingContext, 3);
 
+        String plSqlDelimiter = configuration.getPlSqlDelimiter();
+        if (plSqlDelimiter != null && plSqlDelimiter.equals(";")) {
+            throw new FlywayException(
+                    "The PL/SQL delimiter cannot be '" + plSqlDelimiter
+                            + "'. Please change the oracle.plsqlDelimiter in your config file or disable this property if you are not using any PL/SQL block."
+            );
+        }
+        this.plSqlDelimiter = plSqlDelimiter == null ? PLSQL_DELIMITER : new Delimiter(plSqlDelimiter, true);
 
 
 
@@ -332,15 +344,15 @@ public class OracleParser extends Parser {
     }
 
     @Override
-    protected void adjustDelimiter(ParserContext context, StatementType statementType, Delimiter delimiter, String plSqlDelimiter) {
+    protected void adjustDelimiter(ParserContext context, StatementType statementType) {
         if (statementType == PLSQL_STATEMENT || statementType == PLSQL_VIEW_STATEMENT) {
-            context.setDelimiter(plSqlDelimiter != null ? new Delimiter(plSqlDelimiter, true) : PLSQL_DELIMITER);
+            context.setDelimiter(plSqlDelimiter);
 
 
 
 
         } else {
-            context.setDelimiter(delimiter);
+            context.setDelimiter(super.getDelimiter());
         }
     }
 
@@ -359,8 +371,9 @@ public class OracleParser extends Parser {
     @Override
     protected boolean isDelimiter(String peek, Delimiter delimiter) {
         if (delimiter.isAloneOnLine()) {
-            return peek.startsWith(delimiter.getDelimiter())
-                    && (peek.length() == 1 || isNewline(peek.charAt(1)));
+            String delimiterText = delimiter.getDelimiter();
+            return peek.startsWith(delimiterText)
+                    && (peek.length() == delimiterText.length() || isNewline(peek.charAt(1)));
         }
 
 

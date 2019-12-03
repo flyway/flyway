@@ -148,12 +148,22 @@ public class ClassicConfiguration implements Configuration {
     /**
      * The delimiter that will replace the default delimiter for standard SQL
      */
-    private String delimiter;
+    private String delimiter = null;
+
+    /**
+     * Whether the delimiter for standard SQL is on a new line by itself or not.
+     * <ul>
+     * <li>{@code false}: Th delimiter is not on a new line by itself</li>
+     * <li>{@code true}: The delimiter is on a new line by itself</li>
+     * </ul>
+     * Defaults to {@code false}.
+     */
+    private boolean delimiterOnNewLine = false;
 
     /**
      * The delimiter that will replace the default delimiter for PL/SQL
      */
-    private String plSqlDelimiter;
+    private String plSqlDelimiter = null;
 
     /**
      * Whether placeholders should be replaced. (default: true)
@@ -520,7 +530,14 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public String getDelimiter() { return delimiter; }
+    public String getDelimiter() {
+        return delimiter;
+    }
+
+    @Override
+    public boolean isDelimiterOnNewLine() {
+        return delimiterOnNewLine;
+    }
 
     @Override
     public String getPlSqlDelimiter() {
@@ -1109,7 +1126,18 @@ public class ClassicConfiguration implements Configuration {
      *
      * @param delimiter
      */
-    public void setDelimiter(String delimiter) { this.delimiter = delimiter; }
+    public void setDelimiter(String delimiter) {
+        this.delimiter = delimiter;
+    }
+
+    /**
+     * Sets the delimiter for standard SQL specified in the conf file
+     *
+     * @param delimiterOnNewLine Whether delimiter should be on a new line by itself. (default: false)
+     */
+    public void setDelimiterOnNewLine(boolean delimiterOnNewLine) {
+        this.delimiterOnNewLine = delimiterOnNewLine;
+    }
 
     /**
      * Sets the delimiter for PL/SQL specified in the conf file
@@ -1628,6 +1656,7 @@ public class ClassicConfiguration implements Configuration {
         setMixed(configuration.isMixed());
         setOutOfOrder(configuration.isOutOfOrder());
         setDelimiter(configuration.getDelimiter());
+        setDelimiterOnNewLine(configuration.isDelimiterOnNewLine());
         setPlSqlDelimiter(configuration.getPlSqlDelimiter());
         setPlaceholderPrefix(configuration.getPlaceholderPrefix());
         setPlaceholderReplacement(configuration.isPlaceholderReplacement());
@@ -1724,6 +1753,11 @@ public class ClassicConfiguration implements Configuration {
         if (delimiter != null) {
             setDelimiter(delimiter);
         }
+        Boolean delimiterOnNewline = removeBoolean(props, ConfigUtils.DELIMITER_ON_NEW_LINE);
+        if (delimiterOnNewline != null) {
+            setDelimiterOnNewLine(delimiterOnNewline);
+        }
+
         String plSqlDelimiter = props.remove(ConfigUtils.PL_SQL_DELIMITER);
         if (plSqlDelimiter != null) {
             setPlSqlDelimiter(plSqlDelimiter);

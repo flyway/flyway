@@ -53,6 +53,13 @@ public interface Configuration {
     String getDelimiter();
 
     /**
+     * Whether the delimiter is required to be on a new line by itself or not.
+     *
+     * @return {@code true} to have the delimiter on a new line by itself {@code false} to allow the delimiter on the same line with the statement. (default: {@code false})
+     */
+    boolean isDelimiterOnNewLine();
+
+    /**
      * Retrieves the delimiter used to end PL/SQL code.
      *
      * @return The PL/SQL delimiter. (default: /)

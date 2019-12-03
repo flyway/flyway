@@ -105,10 +105,19 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public String getDelimiter() { return config.getDelimiter(); }
+    public String getDelimiter() {
+        return config.getDelimiter();
+    }
 
     @Override
-    public String getPlSqlDelimiter() { return config.getPlSqlDelimiter(); }
+    public boolean isDelimiterOnNewLine() {
+        return config.isDelimiterOnNewLine();
+    }
+
+    @Override
+    public String getPlSqlDelimiter() {
+        return config.getPlSqlDelimiter();
+    }
 
     @Override
     public boolean isPlaceholderReplacement() {

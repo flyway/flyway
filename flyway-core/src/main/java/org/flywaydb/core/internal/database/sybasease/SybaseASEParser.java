@@ -35,10 +35,10 @@ public class SybaseASEParser extends Parser {
 
     @Override
     protected boolean isDelimiter(String peek, Delimiter delimiter) {
-        return peek.length() == 2
-                && (peek.charAt(0) == 'G' || peek.charAt(0) == 'g')
-                && (peek.charAt(1) == 'O' || peek.charAt(1) == 'o')
-                || (peek.length() >= 2 && peek.charAt(0) == delimiter.getDelimiter().charAt(0));
+        String delimiterText = delimiter.getDelimiter();
+        int delimiterTextLength = delimiterText.length();
+        return peek.length() == delimiterTextLength
+                && peek.equalsIgnoreCase(delimiterText);
     }
 
     @Override
