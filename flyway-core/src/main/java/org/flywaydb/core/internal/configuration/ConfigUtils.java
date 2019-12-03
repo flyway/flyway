@@ -352,7 +352,7 @@ public class ConfigUtils {
                     : "";
 
             LOG.debug("Expanding environment variable in config: " + variableName + " -> " + variableValue);
-            expandedValue = expandedValue.replaceAll(Pattern.quote(matcher.group(0)), variableValue);
+            expandedValue = expandedValue.replaceAll(Pattern.quote(matcher.group(0)), Matcher.quoteReplacement(variableValue));
         }
 
         return expandedValue;
