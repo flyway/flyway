@@ -435,7 +435,7 @@ public class ConfigUtils {
         try {
             return Integer.valueOf(value);
         } catch (NumberFormatException e) {
-            throw new FlywayException("Invalid value for " + key + " (should be a positive integer): " + value,
+            throw new FlywayException("Invalid value for " + key + " (should be an integer): " + value,
                     ErrorCode.CONFIGURATION);
         }
     }

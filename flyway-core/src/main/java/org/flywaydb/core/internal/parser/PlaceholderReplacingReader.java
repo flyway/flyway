@@ -107,7 +107,7 @@ public class PlaceholderReplacingReader extends FilterReader {
 
                 if (placeholder.contains("flyway:")) {
                     throw new FlywayException("Failed to populate value for default placeholder: "
-                            + canonicalPlaceholder + ".");
+                            + canonicalPlaceholder);
                 }
 
                 throw new FlywayException("No value provided for placeholder: "
