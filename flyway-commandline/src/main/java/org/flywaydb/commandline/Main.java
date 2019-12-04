@@ -17,13 +17,14 @@ package org.flywaydb.commandline;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.flywaydb.commandline.ConsoleLog.Level;
+import org.flywaydb.commandline.PrintStreamLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
@@ -43,23 +44,35 @@ import java.util.*;
 public class Main {
     private static Log LOG;
 
-    private static List<String> VALID_OPERATIONS_AND_FLAGS = Arrays.asList("-X", "-q", "-n", "-v", "-json.experimental", "-?",
-            "-community", "-pro", "-enterprise",
-            "help", "migrate", "clean", "info", "validate", "undo", "baseline", "repair", "skip");
+    static LogCreator getLogCreator(CommandLineArguments commandLineArguments) {
+        Level level = commandLineArguments.getLogLevel();
+
+        if (commandLineArguments.shouldOutputJson()) {
+            // We want to suppress all logging as the JSON output is performed using a different mechanism
+            return new NoopLogCreator();
+        }
+
+        ConsoleLogCreator consoleLogCreator = new ConsoleLogCreator(level);
+
+        if (commandLineArguments.isLogFilepathSet()) {
+            FileLogCreator fileLogCreator = new FileLogCreator(level, commandLineArguments.getLogFilepath());
+            LogCreator[] logCreators = new LogCreator[]{
+                    fileLogCreator,
+                    consoleLogCreator
+            };
+
+            return new MultiLogCreator(logCreators);
+        }
+
+        return new ConsoleLogCreator(level);
+    }
 
     /**
      * Initializes the logging.
-     *
-     * @param level The minimum level to log at.
      */
-    static void initLogging(Level level, Boolean jsonOutput) {
-        if (jsonOutput) {
-            // We want to suppress all logging as the JSON output is performed using a different mechanism
-            LogFactory.setFallbackLogCreator(new NoopLogCreator());
-        } else {
-            LogFactory.setFallbackLogCreator(new ConsoleLogCreator(level));
-        }
-
+    static void initLogging(CommandLineArguments commandLineArguments) {
+        LogCreator logCreator = getLogCreator(commandLineArguments);
+        LogFactory.setFallbackLogCreator(logCreator);
         LOG = LogFactory.getLog(Main.class);
     }
 
@@ -69,40 +82,33 @@ public class Main {
      * @param args The command-line arguments.
      */
     public static void main(String[] args) {
-        Boolean jsonOutput = false;
-
-        for (String arg : args) {
-            if ("-json.experimental".equals(arg)) {
-                jsonOutput = true;
-            }
-        }
-
-        Level logLevel = getLogLevel(args);
-        initLogging(logLevel, jsonOutput);
+        CommandLineArguments commandLineArguments = CommandLineArguments.createFromArguments(args);
+        initLogging(commandLineArguments);
 
         try {
-            if (isPrintVersionAndExit(args)) {
+            if (commandLineArguments.shouldPrintVersionAndExit()) {
                 printVersion();
                 System.exit(0);
             }
 
-            List<String> operations = determineOperations(args);
-            if (operations.isEmpty() || operations.contains("help") || isFlagSet(args, "-?")) {
+            if (commandLineArguments.hasOperation("help") || commandLineArguments.shouldPrintUsage()) {
                 printUsage();
                 return;
             }
 
-            validateArgs(args);
+            if (commandLineArguments.shouldOutputJson() && !commandLineArguments.hasOperation("info") ) {
+                throw new FlywayException("The -json flag is only supported by the info command.");
+            }
 
             Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
 
             Map<String, String> config = new HashMap<>();
             initializeDefaults(config);
-            loadConfigurationFromConfigFiles(config, args, envVars);
+            loadConfigurationFromConfigFiles(config, commandLineArguments, envVars);
             config.putAll(envVars);
-            overrideConfigurationWithArgs(config, args);
+            config = overrideConfiguration(config, commandLineArguments.getConfiguration());
 
-            if (!isSuppressPrompt(args)) {
+            if (!commandLineArguments.shouldSuppressPrompt()) {
                 promptForCredentialsIfMissing(config);
             }
 
@@ -115,19 +121,18 @@ public class Main {
             if (!jarFiles.isEmpty()) {
                 classLoader = ClassUtils.addJarsOrDirectoriesToClasspath(classLoader, jarFiles);
             }
-
             filterProperties(config);
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 
-            for (String operation : operations) {
-                executeOperation(flyway, operation, jsonOutput);
+            for (String operation : commandLineArguments.getOperations()) {
+                executeOperation(flyway, operation, commandLineArguments.shouldOutputJson());
             }
         } catch (Exception e) {
-            if (jsonOutput) {
+            if (commandLineArguments.shouldOutputJson()) {
                 ErrorOutput errorOutput = ErrorOutput.fromException(e);
                 printJson(errorOutput);
             } else {
-                if (logLevel == Level.DEBUG) {
+                if (commandLineArguments.getLogLevel() == Level.DEBUG) {
                     LOG.error("Unexpected error", e);
                 } else {
                     LOG.error(getMessageFromException(e));
@@ -137,6 +142,16 @@ public class Main {
         }
     }
 
+    private static Map<String, String> overrideConfiguration(Map<String, String> existingConfiguration, Map<String, String> newConfiguration) {
+        Map<String, String> combinedConfiguration = new HashMap<>();
+
+        combinedConfiguration.putAll(existingConfiguration);
+        combinedConfiguration.putAll(newConfiguration);
+
+        return combinedConfiguration;
+    }
+
+
     static String getMessageFromException(Exception e) {
         if (e instanceof FlywayException) {
             return e.getMessage();
@@ -145,30 +160,6 @@ public class Main {
         }
     }
 
-    static void validateArgs(String[] args) {
-        for (String arg : args) {
-            if (!isPropertyArgument(arg) && !VALID_OPERATIONS_AND_FLAGS.contains(arg)) {
-                throw new FlywayException("Invalid argument: " + arg);
-            }
-        }
-    }
-
-    private static boolean isPrintVersionAndExit(String[] args) {
-        return isFlagSet(args, "-v");
-    }
-
-    private static boolean isSuppressPrompt(String[] args) {
-        return isFlagSet(args, "-n");
-    }
-
-    private static boolean isFlagSet(String[] args, String flag) {
-        for (String arg : args) {
-            if (flag.equals(arg)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * Executes this operation on this Flyway instance.
@@ -176,7 +167,7 @@ public class Main {
      * @param flyway    The Flyway instance.
      * @param operation The operation to execute.
      */
-    private static void executeOperation(Flyway flyway, String operation, Boolean jsonOutput) {
+    private static void executeOperation(Flyway flyway, String operation, boolean jsonOutput) {
         if ("clean".equals(operation)) {
             flyway.clean();
         } else if ("baseline".equals(operation)) {
@@ -202,8 +193,6 @@ public class Main {
             }
         } else if ("repair".equals(operation)) {
             flyway.repair();
-        } else if ("skip".equals(operation)) {
-            flyway.skip();
         } else {
             LOG.error("Invalid operation: " + operation);
             printUsage();
@@ -214,24 +203,6 @@ public class Main {
     private static void printJson(Object object) {
         Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
         System.out.println(gson.toJson(object));
-    }
-
-    /**
-     * Checks the desired log level.
-     *
-     * @param args The command-line arguments.
-     * @return The desired log level.
-     */
-    private static Level getLogLevel(String[] args) {
-        for (String arg : args) {
-            if ("-X".equals(arg)) {
-                return Level.DEBUG;
-            }
-            if ("-q".equals(arg)) {
-                return Level.WARN;
-            }
-        }
-        return Level.INFO;
     }
 
     /**
@@ -287,7 +258,6 @@ public class Main {
         LOG.info("undo     : [" + "pro] Undoes the most recently applied versioned migration");
         LOG.info("baseline : Baselines an existing database at the baselineVersion");
         LOG.info("repair   : Repairs the schema history table");
-        LOG.info("skip     : Mark migrations to be skipped");
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
         LOG.info("-------");
@@ -418,18 +388,18 @@ public class Main {
      * Loads the configuration from the various possible locations.
      *
      * @param config  The properties object to load to configuration into.
-     * @param args    The command-line arguments passed in.
+     * @param commandLineArguments    The command-line arguments passed in.
      * @param envVars The environment variables, converted into properties.
      */
     /* private -> for testing */
-    static void loadConfigurationFromConfigFiles(Map<String, String> config, String[] args, Map<String, String> envVars) {
-        String encoding = determineConfigurationFileEncoding(args, envVars);
+    static void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {
+        String encoding = determineConfigurationFileEncoding(commandLineArguments, envVars);
 
         config.putAll(ConfigUtils.loadConfigurationFile(new File(getInstallationDir() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
         config.putAll(ConfigUtils.loadConfigurationFile(new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
         config.putAll(ConfigUtils.loadConfigurationFile(new File(ConfigUtils.CONFIG_FILE_NAME), encoding, false));
 
-        for (File configFile : determineConfigFilesFromArgs(args, envVars)) {
+        for (File configFile : determineConfigFilesFromArgs(commandLineArguments, envVars)) {
             config.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
         }
     }
@@ -465,11 +435,11 @@ public class Main {
     /**
      * Determines the files to use for loading the configuration.
      *
-     * @param args    The command-line arguments passed in.
+     * @param commandLineArguments    The command-line arguments passed in.
      * @param envVars The environment variables converted to Flyway properties.
      * @return The configuration files.
      */
-    private static List<File> determineConfigFilesFromArgs(String[] args, Map<String, String> envVars) {
+    private static List<File> determineConfigFilesFromArgs(CommandLineArguments commandLineArguments, Map<String, String> envVars) {
         List<File> configFiles = new ArrayList<>();
 
         if (envVars.containsKey(ConfigUtils.CONFIG_FILES)) {
@@ -479,14 +449,11 @@ public class Main {
             return configFiles;
         }
 
-        for (String arg : args) {
-            String argValue = getArgumentValue(arg);
-            if (isPropertyArgument(arg) && ConfigUtils.CONFIG_FILES.equals(getArgumentProperty(arg))) {
-                for (String file : StringUtils.tokenizeToStringArray(argValue, ",")) {
-                    configFiles.add(new File(file));
-                }
-            }
+
+        for (String file : commandLineArguments.getConfigFiles()) {
+            configFiles.add(new File(file));
         }
+
         return configFiles;
     }
 
@@ -506,95 +473,19 @@ public class Main {
     /**
      * Determines the encoding to use for loading the configuration.
      *
-     * @param args    The command-line arguments passed in.
+     * @param commandLineArguments    The command-line arguments passed in.
      * @param envVars The environment variables converted to Flyway properties.
      * @return The encoding. (default: UTF-8)
      */
-    private static String determineConfigurationFileEncoding(String[] args, Map<String, String> envVars) {
+    private static String determineConfigurationFileEncoding(CommandLineArguments commandLineArguments, Map<String, String> envVars) {
         if (envVars.containsKey(ConfigUtils.CONFIG_FILE_ENCODING)) {
             return envVars.get(ConfigUtils.CONFIG_FILE_ENCODING);
         }
 
-        for (String arg : args) {
-            if (isPropertyArgument(arg) && ConfigUtils.CONFIG_FILE_ENCODING.equals(getArgumentProperty(arg))) {
-                return getArgumentValue(arg);
-            }
+        if (commandLineArguments.isConfigFileEncodingSet()) {
+            return commandLineArguments.getConfigFileEncoding();
         }
 
         return "UTF-8";
-    }
-
-    /**
-     * Overrides the configuration from the config file with the properties passed in directly from the command-line.
-     *
-     * @param config The properties to override.
-     * @param args   The command-line arguments that were passed in.
-     */
-    /* private -> for testing*/
-    static void overrideConfigurationWithArgs(Map<String, String> config, String[] args) {
-        for (String arg : args) {
-            if (isPropertyArgument(arg)) {
-                config.put(getArgumentProperty(arg), getArgumentValue(arg));
-            }
-        }
-    }
-
-    /**
-     * Checks whether this command-line argument tries to set a property.
-     *
-     * @param arg The command-line argument to check.
-     * @return {@code true} if it does, {@code false} if not.
-     */
-    /* private -> for testing*/
-    static boolean isPropertyArgument(String arg) {
-        return arg.startsWith("-") && arg.contains("=");
-    }
-
-    /**
-     * Retrieves the property this command-line argument tries to assign.
-     *
-     * @param arg The command-line argument to check, typically in the form -key=value.
-     * @return The property.
-     */
-    /* private -> for testing*/
-    static String getArgumentProperty(String arg) {
-        int index = arg.indexOf("=");
-
-        return "flyway." + arg.substring(1, index);
-    }
-
-    /**
-     * Retrieves the value this command-line argument tries to assign.
-     *
-     * @param arg The command-line argument to check, typically in the form -key=value.
-     * @return The value or an empty string if no value is assigned.
-     */
-    /* private -> for testing*/
-    static String getArgumentValue(String arg) {
-        int index = arg.indexOf("=");
-
-        if ((index < 0) || (index == arg.length())) {
-            return "";
-        }
-
-        return arg.substring(index + 1);
-    }
-
-    /**
-     * Determine the operations Flyway should execute.
-     *
-     * @param args The command-line arguments passed in.
-     * @return The operations. An empty list if none.
-     */
-    private static List<String> determineOperations(String[] args) {
-        List<String> operations = new ArrayList<>();
-
-        for (String arg : args) {
-            if (!arg.startsWith("-")) {
-                operations.add(arg);
-            }
-        }
-
-        return operations;
     }
 }

@@ -105,14 +105,24 @@ public class ClassicConfiguration implements Configuration {
     private Charset encoding = StandardCharsets.UTF_8;
 
     /**
+     * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
+     * flyway.schemas is, we use the first schema in that list. In Flyway 7, you will need to specify this value
+     * and not rely on flyway.schemas (default: The default schema for the database connection)
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>This schema will be the one containing the schema history table.</li>
+     * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
+     * </ul>
+     */
+    private String defaultSchemaName = null;
+
+    /**
      * The schemas managed by Flyway. These schema names are case-sensitive.
      * <p>Consequences:</p>
      * <ul>
-     * <li>Flyway will automatically attempt to create all these schemas, unless the first one already exists.</li>
-     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
-     * <li>The first schema in the list will also be the one containing the schema history table.</li>
+     * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
      * <li>The schemas will be cleaned in the order of this list.</li>
-     * <li>If Flyway created them, the schemas themselves will as be dropped when cleaning.</li>
+     * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
      * </ul>
      */
     private String[] schemaNames = {};
@@ -465,13 +475,6 @@ public class ClassicConfiguration implements Configuration {
 
 
     /**
-     * For use with the skip command.
-     * Mark versioned migrations to skip in the schema history table. Skipped migrations will be ignored for every subsequent migrate.
-     * If no versions are specified, all pending migrations will be marked to be skipped.
-     */
-    private String[] skipVersions = new String[0];
-
-    /**
      * Creates a new default configuration.
      */
     public ClassicConfiguration() {
@@ -510,9 +513,10 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public String[] getSchemas() {
-        return schemaNames;
-    }
+    public String getDefaultSchema() { return defaultSchemaName; }
+
+    @Override
+    public String[] getSchemas() { return schemaNames; }
 
     @Override
     public String getTable() {
@@ -741,14 +745,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Gets the versioned migrations to skip.
-     */
-    @Override
-    public String[] getSkipVersions() {
-        return this.skipVersions;
-    }
-
-    /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
@@ -903,7 +899,7 @@ public class ClassicConfiguration implements Configuration {
      * <p>Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
      * statements that do not run at all within a transaction.</p>
      * <p>This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
-     * DDL statement was run within within a transaction, the database will issue an implicit commit before and after
+     * DDL statement was run within a transaction, the database will issue an implicit commit before and after
      * its execution.</p>
      *
      * @param mixed {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
@@ -1001,7 +997,7 @@ public class ClassicConfiguration implements Configuration {
      * Whether to disable clean.
      * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
      *
-     * @param cleanDisabled {@code true} to disabled clean. {@code false} to leave it enabled.  (default: {@code false})
+     * @param cleanDisabled {@code true} to disable clean. {@code false} to leave it enabled.  (default: {@code false})
      */
     public void setCleanDisabled(boolean cleanDisabled) {
         this.cleanDisabled = cleanDisabled;
@@ -1054,14 +1050,29 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Sets the schemas managed by Flyway. These schema names are case-sensitive. (default: The default schema for the database connection)
+     * Sets the default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
+     * flyway.schemas is, we use the first schema in that list. In Flyway 7, you will need to specify this value
+     * and not rely on flyway.schemas (default: The default schema for the database connection)
      * <p>Consequences:</p>
      * <ul>
-     * <li>Flyway will automatically attempt to create all these schemas, unless the first one already exists.</li>
-     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
-     * <li>The first schema in the list will also be the one containing the schema history table.</li>
+     * <li>This schema will be the one containing the schema history table.</li>
+     * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
+     * </ul>
+     *
+     * @param schema The default schema managed by Flyway.
+     */
+    public void setDefaultSchema(String schema) {
+        this.defaultSchemaName = schema;
+    }
+
+    /**
+     * Sets the schemas managed by Flyway. These schema names are case-sensitive. (default: The value of getDefaultSchema(),
+     * or failing that the default schema for the database connection)
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
      * <li>The schemas will be cleaned in the order of this list.</li>
-     * <li>If Flyway created them, the schemas themselves will as be dropped when cleaning.</li>
+     * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
      * </ul>
      *
      * @param schemas The schemas managed by Flyway. May not be {@code null}. Must contain at least one element.
@@ -1611,14 +1622,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     *  Versioned migrations to skip. Only works with the skip command
-     * @param skipVersions
-     */
-    public void setSkipVersions(String... skipVersions) {
-        this.skipVersions = skipVersions;
-    }
-
-    /**
      * Configure with the same values as this existing configuration.
      *
      * @param configuration The configuration to use.
@@ -1664,6 +1667,7 @@ public class ClassicConfiguration implements Configuration {
         setPlaceholderSuffix(configuration.getPlaceholderSuffix());
         setRepeatableSqlMigrationPrefix(configuration.getRepeatableSqlMigrationPrefix());
         setResolvers(configuration.getResolvers());
+        setDefaultSchema(configuration.getDefaultSchema());
         setSchemas(configuration.getSchemas());
         setSkipDefaultCallbacks(configuration.isSkipDefaultCallbacks());
         setSkipDefaultResolvers(configuration.isSkipDefaultResolvers());
@@ -1674,7 +1678,6 @@ public class ClassicConfiguration implements Configuration {
         setTablespace(configuration.getTablespace());
         setTarget(configuration.getTarget());
         setValidateOnMigrate(configuration.isValidateOnMigrate());
-        setSkipVersions(configuration.getSkipVersions());
     }
 
     /**
@@ -1801,6 +1804,10 @@ public class ClassicConfiguration implements Configuration {
         String encodingProp = props.remove(ConfigUtils.ENCODING);
         if (encodingProp != null) {
             setEncodingAsString(encodingProp);
+        }
+        String defaultSchemaProp = props.remove(ConfigUtils.DEFAULT_SCHEMA);
+        if (defaultSchemaProp != null) {
+            setDefaultSchema(defaultSchemaProp);
         }
         String schemasProp = props.remove(ConfigUtils.SCHEMAS);
         if (schemasProp != null) {
@@ -1947,11 +1954,6 @@ public class ClassicConfiguration implements Configuration {
         String licenseKeyProp = props.remove(ConfigUtils.LICENSE_KEY);
         if (licenseKeyProp != null) {
             setLicenseKey(licenseKeyProp);
-        }
-
-        String skipVersionsProp = props.remove(ConfigUtils.SKIP_VERSIONS);
-        if (skipVersionsProp != null) {
-            setSkipVersions(skipVersionsProp);
         }
 
         for (String key : props.keySet()) {

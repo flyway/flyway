@@ -75,16 +75,27 @@ public class FlywayExtension {
     public String tablespace;
 
     /**
+     * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
+     * flyway.schemas is, we use the first schema in that list. In Flyway 7, you will need to specify this value
+     * and not rely on flyway.schemas (default: The default schema for the database connection)
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>This schema will be the one containing the schema history table.</li>
+     * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
+     * </ul>
+     * <p>Also configurable with Maven or System Property: ${flyway.defaultSchema}</p>
+     */
+    public String defaultSchema;
+
+    /**
      * The schemas managed by Flyway. These schema names are case-sensitive. (default: The default schema for the database connection)
      * <p>Consequences:</p>
      * <ul>
-     * <li>Flyway will automatically attempt to create all these schemas, unless the first one already exists.</li>
-     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
-     * <li>The first schema in the list will also be the one containing the schema history table.</li>
+     * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
      * <li>The schemas will be cleaned in the order of this list.</li>
-     * <li>If Flyway created them, the schemas themselves will as be dropped when cleaning.</li>
+     * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
      * </ul>
-     * <p>Also configurable with Gradle or System Property: ${flyway.schemas} (comma-separated list)</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.schemas} (comma-separated list)</p>
      */
     public String[] schemas;
 
@@ -319,7 +330,7 @@ public class FlywayExtension {
      * <p>Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
      * statements that do not run at all within a transaction.</p>
      * <p>This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
-     * DDL statement was run within within a transaction, the database will issue an implicit commit before and after
+     * DDL statement was run within a transaction, the database will issue an implicit commit before and after
      * its execution.</p>
      * <p>{@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})</p>
      */
@@ -442,13 +453,4 @@ public class FlywayExtension {
      * <p>Also configurable with Gradle or System Property: ${flyway.configFiles}</p>
      */
     public String[] configFiles;
-
-    /**
-     * For use with the skip command.
-     * Mark versioned migrations to skip in the schema history table. Skipped migrations will be ignored for every subsequent migrate.
-     * The migrations to skip are configured with the skipVersions configuration option.
-     * If no versions are specified, all pending migrations will be marked to be skipped.
-     * <p>Also configurable with Gradle or System Property: ${flyway.skipVersions}</p>
-     */
-    public String[] skipVersions;
 }

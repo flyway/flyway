@@ -25,11 +25,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.callback.DefaultCallbackExecutor;
-import org.flywaydb.core.internal.callback.NoopCallback;
-import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
-import org.flywaydb.core.internal.callback.SqlScriptCallbackFactory;
+import org.flywaydb.core.internal.callback.*;
 import org.flywaydb.core.internal.clazz.ClassProvider;
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
 import org.flywaydb.core.internal.command.*;
@@ -52,6 +48,7 @@ import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 import org.flywaydb.core.internal.util.IOUtils;
+import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -370,47 +367,6 @@ public class Flyway {
         }, true);
     }
 
-    public void skip() throws FlywayException {
-        execute(new Command<Void>() {
-            public Void execute(MigrationResolver migrationResolver,
-                                SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor
-
-
-
-            ) {
-                if (!schemaHistory.exists()) {
-                    List<Schema> nonEmptySchemas = new ArrayList<>();
-                    for (Schema schema : schemas) {
-                        if (schema.exists() && !schema.empty()) {
-                            nonEmptySchemas.add(schema);
-                        }
-                    }
-
-                    if (!nonEmptySchemas.isEmpty()) {
-                        if (configuration.isBaselineOnMigrate()) {
-                            doBaseline(schemaHistory, callbackExecutor);
-                        } else {
-                            // Second check for MySQL which is sometimes flaky otherwise
-                            if (!schemaHistory.exists()) {
-                                throw new FlywayException("Found non-empty schema(s) "
-                                        + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
-                                        + " without schema history table! Use baseline()"
-                                        + " or set baselineOnMigrate to true to initialize the schema history table.");
-                            }
-                        }
-                    } else {
-                        new DbSchemas(database, schemas, schemaHistory).create(false);
-                        schemaHistory.create(false);
-                    }
-                }
-
-                new DbSkip(database, schemaHistory, schemas[0], migrationResolver, configuration,
-                        callbackExecutor).skip();
-                return null;
-            }
-        }, true);
-    }
-
     /**
      * Creates the MigrationResolver.
      *
@@ -505,11 +461,7 @@ public class Flyway {
                 }
                 StringResource resource = new StringResource(configuration.getInitSql());
 
-                SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, true
-
-
-
-                );
+                SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, true, resourceProvider);
                 noCallbackSqlScriptExecutorFactory.createSqlScriptExecutor(connection
 
 
@@ -526,26 +478,23 @@ public class Flyway {
 
             );
 
-            Schema currentSchema = getSchemaNameForParsingContext(database);
-
-            if (currentSchema != null) {
-                parsingContext.setCurrentSchema(currentSchema.getName());
-            }
-
             dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
 
-            Schema[] schemas = prepareSchemas(database);
+            Pair<Schema, List<Schema>> schemas = prepareSchemas(database);
+            Schema defaultSchema = schemas.getLeft();
 
 
 
 
 
 
+
+            parsingContext.populate(database);
 
             database.ensureSupported();
 
-            DefaultCallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, schemas[0],
+            DefaultCallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, defaultSchema,
                     prepareCallbacks(database, resourceProvider, jdbcConnectionFactory, sqlScriptFactory
 
 
@@ -562,13 +511,13 @@ public class Flyway {
             result = command.execute(
                     createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory),
                     SchemaHistoryFactory.getSchemaHistory(configuration, noCallbackSqlScriptExecutorFactory, sqlScriptFactory,
-                            database, schemas[0]
+                            database, defaultSchema
 
 
 
                     ),
                     database,
-                    schemas,
+                    schemas.getRight().toArray(new Schema[0]),
                     callbackExecutor
 
 
@@ -584,15 +533,6 @@ public class Flyway {
         return result;
     }
 
-    private Schema getSchemaNameForParsingContext(Database database) {
-        try {
-            return database.getMainConnection().getCurrentSchema();
-        } catch (FlywayException e) {
-            LOG.debug("Could not get schema for flyway.currentSchema placeholder.");
-            return null;
-        }
-    }
-
     private void showMemoryUsage() {
         Runtime runtime = Runtime.getRuntime();
         long free = runtime.freeMemory();
@@ -604,28 +544,58 @@ public class Flyway {
         LOG.debug("Memory usage: " + usedMB + " of " + totalMB + "M");
     }
 
-    private Schema[] prepareSchemas(Database database) {
+    private Pair<Schema, List<Schema>> prepareSchemas(Database database) {
+        String defaultSchemaName = configuration.getDefaultSchema();
         String[] schemaNames = configuration.getSchemas();
+
+        if (!isDefaultSchemaValid(defaultSchemaName, schemaNames)) {
+            throw new FlywayException("The defaultSchema property is specified but is not a member of the schemas property");
+        }
+
+        LOG.debug("Schemas: " + StringUtils.arrayToCommaDelimitedString(schemaNames));
+        LOG.debug("Default schema: " + defaultSchemaName);
+
+        List<Schema> schemas = new ArrayList<>();
+
         if (schemaNames.length == 0) {
             Schema currentSchema = database.getMainConnection().getCurrentSchema();
             if (currentSchema == null) {
                 throw new FlywayException("Unable to determine schema for the schema history table." +
-                        " Set a default schema for the connection or specify one using the schemas property!");
+                        " Set a default schema for the connection or specify one using the defaultSchema property!");
             }
-            schemaNames = new String[]{currentSchema.getName()};
-        }
-
-        if (schemaNames.length == 1) {
-            LOG.debug("Schema: " + schemaNames[0]);
+            schemas.add(currentSchema);
         } else {
-            LOG.debug("Schemas: " + StringUtils.arrayToCommaDelimitedString(schemaNames));
+            for (String schemaName : schemaNames) {
+                    schemas.add(database.getMainConnection().getSchema(schemaName));
+            }
         }
 
-        Schema[] schemas = new Schema[schemaNames.length];
-        for (int i = 0; i < schemaNames.length; i++) {
-            schemas[i] = database.getMainConnection().getSchema(schemaNames[i]);
+        // This behaviour will change in Flyway 7.
+        if (defaultSchemaName == null && schemaNames.length > 0) {
+            LOG.warn("Using the first specified schema " + schemaNames[0] + " as default schema. From Flyway 6.1 you " +
+                    "can specify defaultSchema explicitly in your configuration, and from Flyway 7 this will become mandatory.");
+            defaultSchemaName = schemaNames[0];
         }
-        return schemas;
+
+        Schema defaultSchema = (defaultSchemaName != null)
+                ? database.getMainConnection().getSchema(defaultSchemaName)
+                : database.getMainConnection().getCurrentSchema();
+
+        return Pair.of(defaultSchema, schemas);
+    }
+
+    private boolean isDefaultSchemaValid(String defaultSchema, String[] schemas) {
+        // No default schema specified
+        if (defaultSchema == null) {
+            return true;
+        }
+        // Default schema is one of those Flyway is managing
+        for (String schema : schemas) {
+            if (defaultSchema.equals(schema)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<Callback> prepareCallbacks(Database database, ResourceProvider resourceProvider,

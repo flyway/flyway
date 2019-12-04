@@ -358,11 +358,7 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @return The script.
      */
     public final SqlScript getCreateScript(SqlScriptFactory sqlScriptFactory, Table table, boolean baseline) {
-        return sqlScriptFactory.createSqlScript(new StringResource(getRawCreateScript(table, baseline)), false
-
-
-
-        );
+        return sqlScriptFactory.createSqlScript(new StringResource(getRawCreateScript(table, baseline)), false, null);
     }
 
     public abstract String getRawCreateScript(Table table, boolean baseline);

@@ -18,51 +18,59 @@ package org.flywaydb.commandline;
 import org.flywaydb.core.api.logging.Log;
 
 /**
- * Wrapper around a simple Console output.
+ * Log implementation that forwards method calls to multiple implementations
  */
-class ConsoleLog implements Log {
- 	public enum Level {
- 		DEBUG, INFO, WARN
- 	}
-	
-    private final Level level;
+class MultiLogger implements Log {
 
-    /**
-     * Creates a new Console Log.
-     *
-     * @param level the log level.
-     */
-    public ConsoleLog(Level level) {
-        this.level = level;
+    private final Log[] logs;
+
+    public MultiLogger(Log[] logs) {
+        this.logs = logs;
     }
 
     @Override
     public boolean isDebugEnabled() {
-        return level == Level.DEBUG;
+        for (Log log : logs) {
+            if (!log.isDebugEnabled()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
+    @Override
     public void debug(String message) {
-        if (isDebugEnabled()) {
-            System.out.println("DEBUG: " + message);
+        for (Log log : logs) {
+            log.debug(message);
         }
     }
 
+    @Override
     public void info(String message) {
-    	if (level.compareTo(Level.INFO) <= 0) {
-	        System.out.println(message);
-	    }
+        for (Log log : logs) {
+            log.info(message);
+        }
     }
 
+    @Override
     public void warn(String message) {
-    	System.out.println("WARNING: " + message);
+        for (Log log : logs) {
+            log.warn(message);
+        }
     }
 
+    @Override
     public void error(String message) {
-        System.err.println("ERROR: " + message);
+        for (Log log : logs) {
+            log.error(message);
+        }
     }
 
+    @Override
     public void error(String message, Exception e) {
-        System.err.println("ERROR: " + message);
-        e.printStackTrace(System.err);
+        for (Log log : logs) {
+            log.error(message, e);
+        }
     }
 }

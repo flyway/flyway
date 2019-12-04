@@ -23,7 +23,6 @@ import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.file.FileCollection;
@@ -121,14 +120,25 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String tablespace;
 
     /**
+     * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
+     * flyway.schemas is, we use the first schema in that list. In Flyway 7, you will need to specify this value
+     * and not rely on flyway.schemas (default: The default schema for the database connection)
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>This schema will be the one containing the schema history table.</li>
+     * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
+     * </ul>
+     * <p>Also configurable with Gradle or System Property: ${flyway.defaultSchema}</p>
+     */
+    public String defaultSchema;
+
+    /**
      * The schemas managed by Flyway. These schema names are case-sensitive. (default: The default schema for the database connection)
      * <p>Consequences:</p>
      * <ul>
-     * <li>Flyway will automatically attempt to create all these schemas, unless the first one already exists.</li>
-     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
-     * <li>The first schema in the list will also be the one containing the schema history table.</li>
+     * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
      * <li>The schemas will be cleaned in the order of this list.</li>
-     * <li>If Flyway created them, the schemas themselves will as be dropped when cleaning.</li>
+     * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
      * </ul>
      * <p>Also configurable with Gradle or System Property: ${flyway.schemas} (comma-separated list)</p>
      */
@@ -365,7 +375,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * <p>Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
      * statements that do not run at all within a transaction.</p>
      * <p>This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
-     * DDL statement was run within within a transaction, the database will issue an implicit commit before and after
+     * DDL statement was run within a transaction, the database will issue an implicit commit before and after
      * its execution.</p>
      * <p>{@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})</p>
      */
@@ -382,13 +392,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * {@code null} for the current database user of the connection. (default: {@code null}).
      */
     public String installedBy;
-
-    /**
-     * For use with the skip command.
-     * Mark versioned migrations to skip in the schema history table. Skipped migrations will be ignored for every subsequent migrate.
-     * If no versions are specified, all pending migrations will be marked to be skipped.
-     */
-    public String[] skipVersions;
 
     /**
      * Gradle configurations that will be added to the classpath for running Flyway tasks.
@@ -625,7 +628,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.MIXED, mixed, extension.mixed);
         putIfSet(conf, ConfigUtils.GROUP, group, extension.group);
         putIfSet(conf, ConfigUtils.INSTALLED_BY, installedBy, extension.installedBy);
-        putIfSet(conf, ConfigUtils.SKIP_VERSIONS, skipVersions, extension.skipVersions);
         putIfSet(conf, ConfigUtils.ENCODING, encoding, extension.encoding);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement, extension.placeholderReplacement);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix, extension.placeholderPrefix);
@@ -643,6 +645,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate, extension.baselineOnMigrate);
         putIfSet(conf, ConfigUtils.SKIP_DEFAULT_RESOLVERS, skipDefaultResolvers, extension.skipDefaultResolvers);
         putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks, extension.skipDefaultCallbacks);
+        putIfSet(conf, ConfigUtils.DEFAULT_SCHEMA, defaultSchema, extension.defaultSchema);
 
         putIfSet(conf, ConfigUtils.SCHEMAS, StringUtils.arrayToCommaDelimitedString(schemas), StringUtils.arrayToCommaDelimitedString(extension.schemas));
         putIfSet(conf, ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locations), StringUtils.arrayToCommaDelimitedString(extension.locations));

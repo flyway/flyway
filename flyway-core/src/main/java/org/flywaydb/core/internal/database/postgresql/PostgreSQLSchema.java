@@ -186,11 +186,13 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable
     private List<String> generateDropStatementsForRoutines() throws SQLException {
         // #2193: PostgreSQL 11 removed the 'proisagg' column and replaced it with 'prokind'.
         String isAggregate = database.getVersion().isAtLeast("11") ? "pg_proc.prokind = 'a'" : "pg_proc.proisagg";
+        // PROCEDURE is only available from PostgreSQL 11
+        String isProcedure = database.getVersion().isAtLeast("11") ? "pg_proc.prokind = 'p'" : "FALSE";
 
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
                         // Search for all functions
-                        "SELECT proname, oidvectortypes(proargtypes) AS args, " + isAggregate + " as agg "
+                        "SELECT proname, oidvectortypes(proargtypes) AS args, " + isAggregate + " as agg, " + isProcedure + " as proc "
                                 + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
                                 // that don't depend on an extension
                                 + "LEFT JOIN pg_depend dep ON dep.objid = pg_proc.oid AND dep.deptype = 'e' "
@@ -200,7 +202,12 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable
 
         List<String> statements = new ArrayList<>();
         for (Map<String, String> row : rows) {
-            String type = isTrue(row.get("agg")) ? "AGGREGATE" : "FUNCTION";
+            String type = "FUNCTION";
+            if (isTrue(row.get("agg"))) {
+                type = "AGGREGATE";
+            } else if (isTrue(row.get("proc"))) {
+                type = "PROCEDURE";
+            }
             statements.add("DROP " + type + " IF EXISTS "
                     + database.quote(name, row.get("proname")) + "(" + row.get("args") + ") CASCADE");
         }

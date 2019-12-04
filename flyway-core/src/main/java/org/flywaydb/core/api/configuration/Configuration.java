@@ -96,7 +96,7 @@ public interface Configuration {
     String getBaselineDescription();
 
     /**
-     * Retrieves the The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
+     * Retrieves the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      *
      * @return The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. An empty array if none.
      * (default: none)
@@ -244,14 +244,27 @@ public interface Configuration {
     String getTablespace();
 
     /**
+     * Retrieves the default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
+     * flyway.schemas is, we use the first schema in that list. In Flyway 7, you will need to specify this value
+     * and not rely on flyway.schemas (default: The default schema for the database connection)
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>This schema will be the one containing the schema history table.</li>
+     * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
+     * </ul>
+     *
+     * @return The schemas managed by Flyway. (default: The first schema specified in getSchemas(), and failing that
+     * the default schema for the database connection)
+     */
+    String getDefaultSchema();
+
+    /**
      * Retrieves the schemas managed by Flyway. These schema names are case-sensitive.
      * <p>Consequences:</p>
      * <ul>
-     * <li>Flyway will automatically attempt to create all these schemas, unless the first one already exists.</li>
-     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
-     * <li>The first schema in the list will also be the one containing the schema history table.</li>
+     * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
      * <li>The schemas will be cleaned in the order of this list.</li>
-     * <li>If Flyway created them, the schemas themselves will as be dropped when cleaning.</li>
+     * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
      * </ul>
      *
      * @return The schemas managed by Flyway. (default: The default schema for the database connection)
@@ -381,7 +394,7 @@ public interface Configuration {
      * Whether to disable clean.
      * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
      *
-     * @return {@code true} to disabled clean. {@code false} to leave it enabled. (default: {@code false})
+     * @return {@code true} to disable clean. {@code false} to leave it enabled. (default: {@code false})
      */
     boolean isCleanDisabled();
 
@@ -392,7 +405,7 @@ public interface Configuration {
      * <p>Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
      * statements that do not run at all within a transaction.</p>
      * <p>This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
-     * DDL statement was run within within a transaction, the database will issue an implicit commit before and after
+     * DDL statement was run within a transaction, the database will issue an implicit commit before and after
      * its execution.</p>
      *
      * @return {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
@@ -512,10 +525,4 @@ public interface Configuration {
      * @return {@code true} to output the results table (default: {@code true})
      */
     boolean outputQueryResults();
-
-    /**
-     *  Versioned migrations to skip. Only works with the skip command
-     * @return list of versions to skip
-     */
-    String[] getSkipVersions();
 }

@@ -79,11 +79,7 @@ public class SqlScriptCallbackFactory {
                             "-> " + existing.getResource().getAbsolutePathOnDisk() + "\n" +
                             "-> " + resource.getAbsolutePathOnDisk());
                 }
-                SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed()
-
-
-
-                );
+                SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed(), resourceProvider);
                 callbacksFound.put(name, sqlScript);
                 callbacks.add(new SqlScriptCallback(event, description, sqlScriptExecutorFactory, sqlScript
 

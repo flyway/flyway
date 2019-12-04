@@ -16,10 +16,7 @@
 package org.flywaydb.core.internal.database.sqlserver;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.parser.PeekingReader;
-import org.flywaydb.core.internal.parser.Token;
+import org.flywaydb.core.internal.parser.*;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 
 import java.io.IOException;
@@ -47,8 +44,8 @@ public class SQLServerParser extends Parser {
     }
 
     @Override
-    protected boolean isDelimiter(String peek, Delimiter delimiter) {
-        String delimiterText = delimiter.getDelimiter().toUpperCase();
+    protected boolean isDelimiter(String peek, ParserContext context) {
+        String delimiterText = super.getDelimiter().getDelimiter().toUpperCase();
         int delimiterTextLength = delimiterText.length();
         return (peek.length() >= delimiterTextLength
                 && peek.toUpperCase().startsWith(delimiterText)

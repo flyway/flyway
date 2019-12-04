@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database.sybasease;
 
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.ParserContext;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.PeekingReader;
@@ -34,8 +35,8 @@ public class SybaseASEParser extends Parser {
     }
 
     @Override
-    protected boolean isDelimiter(String peek, Delimiter delimiter) {
-        String delimiterText = delimiter.getDelimiter();
+    protected boolean isDelimiter(String peek, ParserContext context) {
+        String delimiterText = super.getDelimiter().getDelimiter();
         int delimiterTextLength = delimiterText.length();
         return peek.length() == delimiterTextLength
                 && peek.equalsIgnoreCase(delimiterText);

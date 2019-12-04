@@ -371,6 +371,30 @@ public class PeekingReader extends FilterReader {
     }
 
     /**
+     * Reads all characters in this stream until the delimiting sequence is encountered.
+     *
+     * @param delimiterSequence The delimiting sequence.
+     * @return The string read, including the delimiting characters.
+     */
+    public String readUntilIncluding(String delimiterSequence) throws IOException {
+        StringBuilder result = new StringBuilder();
+
+        do {
+            int r = read();
+            if (r == -1) {
+                break;
+            }
+            char c = (char) r;
+
+            result.append(c);
+            if (result.toString().endsWith(delimiterSequence)) {
+                break;
+            }
+        } while (true);
+        return result.toString();
+    }
+
+    /**
      * Reads all characters in this stream as long as they can be part of a keyword.
      *
      * @param delimiter The current delimiter.

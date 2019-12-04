@@ -16,33 +16,41 @@
 package org.flywaydb.commandline;
 
 import org.flywaydb.commandline.PrintStreamLog.Level;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+
 /**
- * Log Creator for the Command-Line console.
+ * Log Creator for logging to a file
  */
-class ConsoleLogCreator implements LogCreator {
+class FileLogCreator implements LogCreator {
     private final Level level;
+    private final String filePath;
 
     /**
-     * Creates a new Console Log Creator.
+     * Creates a new file Log Creator.
      *
      * @param level The minimum level to log at.
+     * @param filePath File to write logs into
      */
-    public ConsoleLogCreator(Level level) {
+    public FileLogCreator(Level level, String filePath) {
         this.level = level;
+        this.filePath = filePath;
     }
 
     public Log createLogger(Class<?> clazz) {
-        PrintStreamLog log = new PrintStreamLog(level, System.out, System.err);
+        PrintStream filePrintStream = getFilePrintStream();
+        return new PrintStreamLog(level, filePrintStream, filePrintStream);
+    }
 
-        // We don't want colorized output when there's no console (for example, in a redirect)
-        if (System.console() == null) {
-            return log;
+    private PrintStream getFilePrintStream() {
+        try {
+            return new PrintStream(this.filePath);
+        } catch (FileNotFoundException e) {
+            throw new FlywayException("Could not open file " + filePath + " for logging.");
         }
-
-        ColorizedConsoleLog.install();
-        return new ColorizedConsoleLog(log);
     }
 }
