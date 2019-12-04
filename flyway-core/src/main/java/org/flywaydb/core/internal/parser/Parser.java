@@ -465,7 +465,7 @@ public abstract class Parser {
             reader.swallowUntilExcludingWithEscape('\'', true);
             return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
         }
-        if (isDelimiter(peek, context.getDelimiter())) {
+        if (isDelimiter(peek, context)) {
             return handleDelimiter(reader, context, pos, line, col);
         }
         if (c == '_' || Character.isLetter(c)) {
@@ -511,7 +511,8 @@ public abstract class Parser {
         return alternativeStringLiteralQuote != 0 && peek.charAt(0) == alternativeStringLiteralQuote;
     }
 
-    protected boolean isDelimiter(String peek, Delimiter delimiter) {
+    protected boolean isDelimiter(String peek, ParserContext context) {
+        Delimiter delimiter = context.getDelimiter();
         return peek.startsWith(delimiter.getDelimiter());
     }
 

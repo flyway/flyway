@@ -355,11 +355,51 @@ public class OracleParser extends Parser {
 
 
 
+
     @Override
-    protected boolean isDelimiter(String peek, Delimiter delimiter) {
-        if (delimiter.isAloneOnLine()) {
-            return peek.startsWith(delimiter.getDelimiter())
-                    && (peek.length() == 1 || isNewline(peek.charAt(1)));
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+        String keywordText = keyword.getText();
+
+        if ("BEGIN".equals(keywordText)
+                || (("IF".equals(keywordText) || "CASE".equals(keywordText) || "LOOP".equals(keywordText)) && !containsWithinLast(1, tokens, "END"))
+                || ("TRIGGER".equals(keywordText) && containsWithinLast(1, tokens, "COMPOUND"))
+                || (("AS".equals(keywordText) || "IS".equals(keywordText)) && (
+                containsWithinLast(4, tokens, "PACKAGE")
+                        || containsWithinLast(3, tokens, "PACKAGE", "BODY")
+                        || containsWithinLast(3, tokens, "TYPE", "BODY")))
+        ) {
+            context.increaseBlockDepth();
+        } else if ("END".equals(keywordText)) {
+            context.decreaseBlockDepth();
+        }
+    }
+
+    /**
+     * Checks if the specified token texts are found consecutively within the last tokens in the list
+     */
+    private static boolean containsWithinLast(int count, List<Token> tokens, String... consecutiveTokenTexts) {
+        int j = consecutiveTokenTexts.length - 1;
+        for (int i = tokens.size() - 1; i >= 0 && i >= tokens.size() - count; i--) {
+            if (consecutiveTokenTexts[j].equals(tokens.get(i).getText())) {
+                if (j == 0) {
+                    return true;
+                }
+                j--;
+            } else if (j < consecutiveTokenTexts.length - 1) {
+                // Token texts weren't consecutive, so reset
+                j = consecutiveTokenTexts.length - 1;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    protected boolean isDelimiter(String peek, ParserContext context) {
+        Delimiter delimiter = context.getDelimiter();
+
+        // Only consider alone-on-line delimiters (such as "/" for PL/SQL) if we're at the top level
+        if (delimiter.isAloneOnLine() && context.getBlockDepth() > 0) {
+            return false;
         }
 
 
@@ -368,11 +408,7 @@ public class OracleParser extends Parser {
 
 
 
-        return super.isDelimiter(peek, delimiter);
-    }
-
-    private boolean isNewline(char c) {
-        return c == '\n' || c == '\r';
+        return super.isDelimiter(peek, context);
     }
 
 
