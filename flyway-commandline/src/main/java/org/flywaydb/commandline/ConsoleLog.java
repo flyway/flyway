@@ -17,31 +17,23 @@ package org.flywaydb.commandline;
 
 import org.flywaydb.core.api.logging.Log;
 
-import java.io.PrintStream;
-
 /**
- * Wrapper around a simple Console output.
+ * Console output for standard output and standard error.
  */
-class PrintStreamLog implements Log {
+class ConsoleLog implements Log {
  	public enum Level {
  		DEBUG, INFO, WARN
  	}
 	
     private final Level level;
- 	private final PrintStream outStream;
- 	private final PrintStream errStream;
 
     /**
      * Creates a new PrintStream Log.
      *
      * @param level the log level.
-     * @param outStream the output stream to use.
-     * @param errStream the error stream to use.
      */
-    public PrintStreamLog(Level level, PrintStream outStream, PrintStream errStream) {
+    public ConsoleLog(Level level) {
         this.level = level;
-        this.outStream = outStream;
-        this.errStream = errStream;
     }
 
     @Override
@@ -51,26 +43,26 @@ class PrintStreamLog implements Log {
 
     public void debug(String message) {
         if (isDebugEnabled()) {
-            outStream.println("DEBUG: " + message);
+            System.out.println("DEBUG: " + message);
         }
     }
 
     public void info(String message) {
     	if (level.compareTo(Level.INFO) <= 0) {
-            outStream.println(message);
+            System.out.println(message);
 	    }
     }
 
     public void warn(String message) {
-        outStream.println("WARNING: " + message);
+        System.out.println("WARNING: " + message);
     }
 
     public void error(String message) {
-        errStream.println("ERROR: " + message);
+        System.err.println("ERROR: " + message);
     }
 
     public void error(String message, Exception e) {
-        errStream.println("ERROR: " + message);
-        e.printStackTrace(errStream);
+        System.err.println("ERROR: " + message);
+        e.printStackTrace(System.err);
     }
 }

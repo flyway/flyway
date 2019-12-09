@@ -25,10 +25,9 @@ import java.util.List;
  * Log creator for a MultiLog
  */
 class MultiLogCreator implements LogCreator {
+    private final List<LogCreator> logCreators;
 
-    private final LogCreator[] logCreators;
-
-    public MultiLogCreator(LogCreator[] logCreators) {
+    MultiLogCreator(List<LogCreator> logCreators) {
         this.logCreators = logCreators;
     }
 
@@ -40,6 +39,6 @@ class MultiLogCreator implements LogCreator {
             logs.add(logCreator.createLogger(clazz));
         }
 
-        return new MultiLogger(logs.toArray(new Log[0]));
+        return new MultiLogger(logs);
     }
 }

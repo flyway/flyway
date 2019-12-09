@@ -15,7 +15,7 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.commandline.PrintStreamLog.Level;
+import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.StringUtils;
 

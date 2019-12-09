@@ -17,7 +17,7 @@ package org.flywaydb.commandline;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.flywaydb.commandline.PrintStreamLog.Level;
+import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
@@ -46,25 +46,17 @@ public class Main {
 
     static LogCreator getLogCreator(CommandLineArguments commandLineArguments) {
         Level level = commandLineArguments.getLogLevel();
+        List<LogCreator> logCreators = new ArrayList<>();
 
-        if (commandLineArguments.shouldOutputJson()) {
-            // We want to suppress all logging as the JSON output is performed using a different mechanism
-            return new NoopLogCreator();
+        if (!commandLineArguments.shouldOutputJson()) {
+            logCreators.add(new ConsoleLogCreator(level));
+
+            if (commandLineArguments.isLogFilepathSet()) {
+                logCreators.add(new FileLogCreator(level, commandLineArguments.getLogFilepath()));
+            }
         }
 
-        ConsoleLogCreator consoleLogCreator = new ConsoleLogCreator(level);
-
-        if (commandLineArguments.isLogFilepathSet()) {
-            FileLogCreator fileLogCreator = new FileLogCreator(level, commandLineArguments.getLogFilepath());
-            LogCreator[] logCreators = new LogCreator[]{
-                    fileLogCreator,
-                    consoleLogCreator
-            };
-
-            return new MultiLogCreator(logCreators);
-        }
-
-        return new ConsoleLogCreator(level);
+        return new MultiLogCreator(logCreators);
     }
 
     /**

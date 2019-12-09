@@ -17,14 +17,16 @@ package org.flywaydb.commandline;
 
 import org.flywaydb.core.api.logging.Log;
 
+import java.util.List;
+
 /**
  * Log implementation that forwards method calls to multiple implementations
  */
 class MultiLogger implements Log {
 
-    private final Log[] logs;
+    private final List<Log> logs;
 
-    public MultiLogger(Log[] logs) {
+    public MultiLogger(List<Log> logs) {
         this.logs = logs;
     }
 

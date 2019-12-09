@@ -15,20 +15,23 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.commandline.PrintStreamLog.Level;
+import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * Log Creator for logging to a file
  */
 class FileLogCreator implements LogCreator {
     private final Level level;
-    private final String filePath;
+    private final Path path;
 
     /**
      * Creates a new file Log Creator.
@@ -38,19 +41,20 @@ class FileLogCreator implements LogCreator {
      */
     public FileLogCreator(Level level, String filePath) {
         this.level = level;
-        this.filePath = filePath;
+        this.path = Paths.get(filePath);
+
+        prepareLogFile(path);
     }
 
     public Log createLogger(Class<?> clazz) {
-        PrintStream filePrintStream = getFilePrintStream();
-        return new PrintStreamLog(level, filePrintStream, filePrintStream);
+        return new FileLog(path, level);
     }
 
-    private PrintStream getFilePrintStream() {
+    private static void prepareLogFile(Path path) {
         try {
-            return new PrintStream(this.filePath);
-        } catch (FileNotFoundException e) {
-            throw new FlywayException("Could not open file " + filePath + " for logging.");
+            Files.write(path, "".getBytes(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+        } catch(IOException exception) {
+            throw new FlywayException("Could not initialize log file at " + path + ".", exception);
         }
     }
 }

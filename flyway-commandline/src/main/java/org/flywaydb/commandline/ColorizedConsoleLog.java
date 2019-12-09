@@ -26,13 +26,13 @@ import java.io.PrintStream;
  * Wrapper which adds color to a Console output.
  */
 class ColorizedConsoleLog implements Log {
-    private final PrintStreamLog log;
+    private final ConsoleLog log;
 
     public static void install() {
         AnsiConsole.systemInstall();
     }
 
-    public ColorizedConsoleLog(PrintStreamLog log) {
+    public ColorizedConsoleLog(ConsoleLog log) {
         this.log = log;
     }
 

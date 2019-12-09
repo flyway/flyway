@@ -15,7 +15,7 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.commandline.PrintStreamLog.Level;
+import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 
@@ -35,7 +35,7 @@ class ConsoleLogCreator implements LogCreator {
     }
 
     public Log createLogger(Class<?> clazz) {
-        PrintStreamLog log = new PrintStreamLog(level, System.out, System.err);
+        ConsoleLog log = new ConsoleLog(level);
 
         // We don't want colorized output when there's no console (for example, in a redirect)
         if (System.console() == null) {
