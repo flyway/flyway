@@ -21,6 +21,8 @@ import org.flywaydb.core.internal.parser.*;
 import java.io.IOException;
 
 public class MySQLParser extends Parser {
+    private static final char ALTERNATIVE_SINGLE_LINE_COMMENT = '#';
+
     public MySQLParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 8);
     }
@@ -50,8 +52,10 @@ public class MySQLParser extends Parser {
     }
 
     @Override
-    protected char getAlternativeSingleLineComment() {
-        return '#';
+    protected boolean isSingleLineComment(String peek, ParserContext context) {
+        return (super.isSingleLineComment(peek, context)
+                // Normally MySQL treats # as a comment, but this may have been overridden by DELIMITER # directive
+                || (peek.charAt(0) == ALTERNATIVE_SINGLE_LINE_COMMENT && !isDelimiter(peek, context)));
     }
 
     @Override

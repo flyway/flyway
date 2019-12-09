@@ -53,7 +53,6 @@ public abstract class Parser {
     private final char identifierQuote;
     private final char alternativeIdentifierQuote;
     private final char alternativeStringLiteralQuote;
-    private final char alternativeSingleLineComment;
     private final Set<String> validKeywords;
     private final ParsingContext parsingContext;
 
@@ -63,7 +62,6 @@ public abstract class Parser {
         this.identifierQuote = getIdentifierQuote();
         this.alternativeIdentifierQuote = getAlternativeIdentifierQuote();
         this.alternativeStringLiteralQuote = getAlternativeStringLiteralQuote();
-        this.alternativeSingleLineComment = getAlternativeSingleLineComment();
         this.validKeywords = getValidKeywords();
         this.parsingContext = parsingContext;
     }
@@ -81,10 +79,6 @@ public abstract class Parser {
     }
 
     protected char getAlternativeStringLiteralQuote() {
-        return 0;
-    }
-
-    protected char getAlternativeSingleLineComment() {
         return 0;
     }
 
@@ -441,7 +435,7 @@ public abstract class Parser {
         if (isCommentDirective(peek)) {
             return handleCommentDirective(reader, context, pos, line, col);
         }
-        if (peek.startsWith("--") || (alternativeSingleLineComment != 0 && c == alternativeSingleLineComment)) {
+        if (isSingleLineComment(peek, context)) {
             reader.swallowUntilExcluding('\n', '\r');
             return new Token(TokenType.COMMENT, pos, line, col, null, null, context.getParensDepth());
         }
@@ -514,6 +508,10 @@ public abstract class Parser {
     protected boolean isDelimiter(String peek, ParserContext context) {
         Delimiter delimiter = context.getDelimiter();
         return peek.startsWith(delimiter.getDelimiter());
+    }
+
+    protected boolean isSingleLineComment(String peek, ParserContext context) {
+        return peek.startsWith("--");
     }
 
     /**
