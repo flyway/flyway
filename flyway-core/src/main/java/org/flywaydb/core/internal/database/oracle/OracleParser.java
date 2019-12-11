@@ -359,14 +359,15 @@ public class OracleParser extends Parser {
     @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
         String keywordText = keyword.getText();
+        int parensDepth = keyword.getParensDepth();
 
-        if ("BEGIN".equals(keywordText)
-                || (("IF".equals(keywordText) || "CASE".equals(keywordText) || "LOOP".equals(keywordText)) && !containsWithinLast(1, tokens, "END"))
-                || ("TRIGGER".equals(keywordText) && containsWithinLast(1, tokens, "COMPOUND"))
+        if ("BEGIN".equals(keywordText) || "CASE".equals(keywordText)
+                || (("IF".equals(keywordText) || "LOOP".equals(keywordText)) && !containsWithinLast(1, tokens, parensDepth, "END"))
+                || ("TRIGGER".equals(keywordText) && containsWithinLast(1, tokens, parensDepth, "COMPOUND"))
                 || (("AS".equals(keywordText) || "IS".equals(keywordText)) && (
-                containsWithinLast(4, tokens, "PACKAGE")
-                        || containsWithinLast(3, tokens, "PACKAGE", "BODY")
-                        || containsWithinLast(3, tokens, "TYPE", "BODY")))
+                containsWithinLast(4, tokens, parensDepth, "PACKAGE")
+                        || containsWithinLast(3, tokens, parensDepth, "PACKAGE", "BODY")
+                        || containsWithinLast(3, tokens, parensDepth, "TYPE", "BODY")))
         ) {
             context.increaseBlockDepth();
         } else if ("END".equals(keywordText)) {
@@ -377,9 +378,14 @@ public class OracleParser extends Parser {
     /**
      * Checks if the specified token texts are found consecutively within the last tokens in the list
      */
-    private static boolean containsWithinLast(int count, List<Token> tokens, String... consecutiveTokenTexts) {
+    private static boolean containsWithinLast(int count, List<Token> tokens, int parensDepth, String... consecutiveTokenTexts) {
         int j = consecutiveTokenTexts.length - 1;
-        for (int i = tokens.size() - 1; i >= 0 && i >= tokens.size() - count; i--) {
+        int remaining = count;
+        for (int i = tokens.size() - 1; i >= 0 && remaining > 0; i--) {
+            // Only consider tokens at the same parenthesis depth
+            if (tokens.get(i).getParensDepth() != parensDepth) {
+                continue;
+            }
             if (consecutiveTokenTexts[j].equals(tokens.get(i).getText())) {
                 if (j == 0) {
                     return true;
@@ -389,6 +395,7 @@ public class OracleParser extends Parser {
                 // Token texts weren't consecutive, so reset
                 j = consecutiveTokenTexts.length - 1;
             }
+            remaining--;
         }
         return false;
     }
