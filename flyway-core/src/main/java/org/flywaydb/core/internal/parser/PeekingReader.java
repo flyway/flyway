@@ -20,9 +20,10 @@ import org.flywaydb.core.internal.sqlscript.Delimiter;
 import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
 
 public class PeekingReader extends FilterReader {
-    private final int[] peekBuffer = new int[256];
+    private int[] peekBuffer = new int[256];
     private int peekMax = 0;
     private int peekBufferOffset = 0;
 
@@ -159,6 +160,12 @@ public class PeekingReader extends FilterReader {
      * @return The characters.
      */
     public String peek(int numChars) throws IOException {
+        // If we need to peek beyond the physical size of the peek buffer - eg. we have encountered a very
+        // long string literal - then expand the buffer to be big enough to contain it.
+        if (numChars >= peekBuffer.length) {
+            resizePeekBuffer(numChars);
+        }
+
         if (peekBufferOffset + numChars >= peekMax) {
             refillPeekBuffer();
         }
@@ -175,6 +182,10 @@ public class PeekingReader extends FilterReader {
             return null;
         }
         return result.toString();
+    }
+
+    private void resizePeekBuffer(int newSize) {
+        peekBuffer = Arrays.copyOf(peekBuffer, newSize + peekBufferOffset);
     }
 
     /**
