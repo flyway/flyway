@@ -209,13 +209,13 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     /*
      * Azure Database for MySQL reports version numbers incorrectly - it claims to be 5.6 (the gateway
-     * version) while the db itself is 5.7, visible from SELECT VERSION(). We work around this specific case.
-     * This code should be simplified as soon as Azure is fixed.
+     * version) while the db itself is 5.7 or greater, visible from SELECT VERSION(). We work around this specific
+     * case. This code should be simplified as soon as Azure is fixed.
      * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
      * A similar issue applies to Percona, except there the metadata claims to be 5.5.
      */
     static MigrationVersion correctForMySQLWithBadMetadata(MigrationVersion jdbcMetadataVersion, String selectVersionOutput) {
-        if (selectVersionOutput.startsWith("5.7") && jdbcMetadataVersion.toString().compareTo("5.7") < 0) {
+        if (selectVersionOutput.compareTo("5.7") >= 0 && jdbcMetadataVersion.toString().compareTo("5.7") < 0) {
             LOG.debug("MySQL-based database - reporting v" + jdbcMetadataVersion.toString() +" in JDBC metadata but database actually v" + selectVersionOutput);
             return extractVersionFromString(MYSQL_VERSION_PATTERN, selectVersionOutput);
         }
