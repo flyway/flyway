@@ -435,7 +435,7 @@ public abstract class Parser {
         if (isCommentDirective(peek)) {
             return handleCommentDirective(reader, context, pos, line, col);
         }
-        if (isSingleLineComment(peek, context)) {
+        if (isSingleLineComment(peek, context, col)) {
             reader.swallowUntilExcluding('\n', '\r');
             return new Token(TokenType.COMMENT, pos, line, col, null, null, context.getParensDepth());
         }
@@ -459,7 +459,7 @@ public abstract class Parser {
             reader.swallowUntilExcludingWithEscape('\'', true);
             return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
         }
-        if (isDelimiter(peek, context)) {
+        if (isDelimiter(peek, context, col)) {
             return handleDelimiter(reader, context, pos, line, col);
         }
         if (c == '_' || Character.isLetter(c)) {
@@ -505,12 +505,12 @@ public abstract class Parser {
         return alternativeStringLiteralQuote != 0 && peek.charAt(0) == alternativeStringLiteralQuote;
     }
 
-    protected boolean isDelimiter(String peek, ParserContext context) {
+    protected boolean isDelimiter(String peek, ParserContext context, int col) {
         Delimiter delimiter = context.getDelimiter();
         return peek.startsWith(delimiter.getDelimiter());
     }
 
-    protected boolean isSingleLineComment(String peek, ParserContext context) {
+    protected boolean isSingleLineComment(String peek, ParserContext context, int col) {
         return peek.startsWith("--");
     }
 

@@ -52,10 +52,10 @@ public class MySQLParser extends Parser {
     }
 
     @Override
-    protected boolean isSingleLineComment(String peek, ParserContext context) {
-        return (super.isSingleLineComment(peek, context)
+    protected boolean isSingleLineComment(String peek, ParserContext context, int col) {
+        return (super.isSingleLineComment(peek, context, col)
                 // Normally MySQL treats # as a comment, but this may have been overridden by DELIMITER # directive
-                || (peek.charAt(0) == ALTERNATIVE_SINGLE_LINE_COMMENT && !isDelimiter(peek, context)));
+                || (peek.charAt(0) == ALTERNATIVE_SINGLE_LINE_COMMENT && !isDelimiter(peek, context, col)));
     }
 
     @Override

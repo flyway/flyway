@@ -401,11 +401,12 @@ public class OracleParser extends Parser {
     }
 
     @Override
-    protected boolean isDelimiter(String peek, ParserContext context) {
+    protected boolean isDelimiter(String peek, ParserContext context, int col) {
         Delimiter delimiter = context.getDelimiter();
 
-        // Only consider alone-on-line delimiters (such as "/" for PL/SQL) if we're at the top level
-        if (delimiter.isAloneOnLine() && context.getBlockDepth() > 0) {
+        // Only consider alone-on-line delimiters (such as "/" for PL/SQL) if
+        // we're at the top level and it's the first character on the line
+        if (delimiter.isAloneOnLine() && (context.getBlockDepth() > 0 || col > 1)) {
             return false;
         }
 
@@ -415,7 +416,7 @@ public class OracleParser extends Parser {
 
 
 
-        return super.isDelimiter(peek, context);
+        return super.isDelimiter(peek, context, col);
     }
 
 
