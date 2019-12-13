@@ -36,6 +36,11 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.io.Console;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 /**
@@ -51,7 +56,9 @@ public class Main {
         if (!commandLineArguments.shouldOutputJson()) {
             logCreators.add(new ConsoleLogCreator(level));
 
-            if (commandLineArguments.isLogFilepathSet()) {
+            if (commandLineArguments.isOutputFileSet()) {
+                logCreators.add(new FileLogCreator(level, commandLineArguments.getOutputFile()));
+            } else if (commandLineArguments.isLogFilepathSet()) {
                 logCreators.add(new FileLogCreator(level, commandLineArguments.getLogFilepath()));
             }
         }
@@ -74,10 +81,12 @@ public class Main {
      * @param args The command-line arguments.
      */
     public static void main(String[] args) {
-        CommandLineArguments commandLineArguments = CommandLineArguments.createFromArguments(args);
+        CommandLineArguments commandLineArguments = new CommandLineArguments(args);
         initLogging(commandLineArguments);
-
+        
         try {
+            commandLineArguments.validate(LOG);
+
             if (commandLineArguments.shouldPrintVersionAndExit()) {
                 printVersion();
                 System.exit(0);
@@ -86,10 +95,6 @@ public class Main {
             if (commandLineArguments.hasOperation("help") || commandLineArguments.shouldPrintUsage()) {
                 printUsage();
                 return;
-            }
-
-            if (commandLineArguments.shouldOutputJson() && !commandLineArguments.hasOperation("info") ) {
-                throw new FlywayException("The -json flag is only supported by the info command.");
             }
 
             Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
@@ -117,12 +122,12 @@ public class Main {
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 
             for (String operation : commandLineArguments.getOperations()) {
-                executeOperation(flyway, operation, commandLineArguments.shouldOutputJson());
+                executeOperation(flyway, operation, commandLineArguments);
             }
         } catch (Exception e) {
             if (commandLineArguments.shouldOutputJson()) {
                 ErrorOutput errorOutput = ErrorOutput.fromException(e);
-                printJson(errorOutput);
+                printJson(commandLineArguments, errorOutput);
             } else {
                 if (commandLineArguments.getLogLevel() == Level.DEBUG) {
                     LOG.error("Unexpected error", e);
@@ -159,7 +164,7 @@ public class Main {
      * @param flyway    The Flyway instance.
      * @param operation The operation to execute.
      */
-    private static void executeOperation(Flyway flyway, String operation, boolean jsonOutput) {
+    private static void executeOperation(Flyway flyway, String operation, CommandLineArguments commandLineArguments) {
         if ("clean".equals(operation)) {
             flyway.clean();
         } else if ("baseline".equals(operation)) {
@@ -180,8 +185,8 @@ public class Main {
             LOG.info("");
             LOG.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));
 
-            if (jsonOutput) {
-                printJson(info.getInfoOutput());
+            if (commandLineArguments.shouldOutputJson()) {
+                printJson(commandLineArguments, info.getInfoOutput());
             }
         } else if ("repair".equals(operation)) {
             flyway.repair();
@@ -192,9 +197,26 @@ public class Main {
         }
     }
 
-    private static void printJson(Object object) {
+    private static void printJson(CommandLineArguments commandLineArguments, Object object) {
+        String json = convertObjectToJsonString(object);
+
+        if (commandLineArguments.isOutputFileSet()) {
+            Path path = Paths.get(commandLineArguments.getOutputFile());
+            byte[] bytes = json.getBytes();
+
+            try {
+                Files.write(path, bytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+            } catch (IOException e) {
+                throw new FlywayException("Could not write to output file " + commandLineArguments.getOutputFile(), e);
+            }
+        }
+
+        System.out.println(json);
+    }
+
+    private static String convertObjectToJsonString(Object object) {
         Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-        System.out.println(gson.toJson(object));
+        return gson.toJson(object);
     }
 
     /**

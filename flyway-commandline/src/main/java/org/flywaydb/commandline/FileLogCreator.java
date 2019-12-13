@@ -43,14 +43,14 @@ class FileLogCreator implements LogCreator {
         this.level = level;
         this.path = Paths.get(filePath);
 
-        prepareLogFile(path);
+        prepareOutputFile(path);
     }
 
     public Log createLogger(Class<?> clazz) {
         return new FileLog(path, level);
     }
 
-    private static void prepareLogFile(Path path) {
+    private static void prepareOutputFile(Path path) {
         try {
             Files.write(path, "".getBytes(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
         } catch(IOException exception) {

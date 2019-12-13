@@ -17,6 +17,7 @@ package org.flywaydb.commandline;
 
 import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.*;
@@ -35,6 +36,7 @@ class CommandLineArguments {
     private static String ENTERPRISE_FLAG = "-enterprise";
 
     // Command line specific configuration options
+    private static String OUTPUT_FILE = "outputFile";
     private static String LOG_FILE = "logFile";
     private static String CONFIG_FILE_ENCODING = "configFileEncoding";
     private static String CONFIG_FILES = "configFiles";
@@ -61,14 +63,8 @@ class CommandLineArguments {
 
     private final String[] args;
 
-    private CommandLineArguments(String[] args) {
+    CommandLineArguments(String[] args) {
         this.args = args;
-    }
-
-    static CommandLineArguments createFromArguments(String[] args) {
-        validate(args);
-
-        return new CommandLineArguments(args);
     }
 
     private static boolean isFlagSet(String[] args, String flag) {
@@ -133,7 +129,7 @@ class CommandLineArguments {
     }
 
     private static boolean isConfigurationOptionIgnored(String configurationOptionName) {
-        return LOG_FILE.equals(configurationOptionName);
+        return OUTPUT_FILE.equals(configurationOptionName) || LOG_FILE.endsWith(configurationOptionName);
     }
 
     private static String getConfigurationOptionNameFromArg(String arg) {
@@ -146,11 +142,27 @@ class CommandLineArguments {
         return arg.startsWith("-") && arg.contains("=");
     }
 
-    private static void validate(String[] args) {
+    void validate(Log log) {
         for (String arg : args) {
             if (!isConfigurationArg(arg) && !CommandLineArguments.VALID_OPERATIONS_AND_FLAGS.contains(arg)) {
                 throw new FlywayException("Invalid argument: " + arg);
             }
+        }
+
+        if (isLogFilepathSet()) {
+            if (isOutputFileSet()) {
+                throw new FlywayException("-logFile and -outputFile are incompatible. -logFile is deprecated. Instead use -outputFile.");
+            }
+
+            if (shouldOutputJson()) {
+                throw new FlywayException("-logFile and -json are incompatible. -logFile is deprecated. Instead use -outputFile to print JSON to a file.");
+            }
+
+            log.warn("-logFile is deprecated. Instead use -outputFile.");
+        }
+
+        if (shouldOutputJson() && !hasOperation("info") ) {
+            throw new FlywayException("The -json flag is only supported by the info command.");
         }
     }
 
@@ -194,8 +206,16 @@ class CommandLineArguments {
         return getConfigFilesFromArgs(args);
     }
 
+    String getOutputFile() {
+        return getArgumentValue(OUTPUT_FILE, args);
+    }
+
     String getLogFilepath() {
         return getArgumentValue(LOG_FILE, args);
+    }
+
+    boolean isOutputFileSet() {
+        return getOutputFile() != null && !getOutputFile().isEmpty();
     }
 
     boolean isLogFilepathSet() {
