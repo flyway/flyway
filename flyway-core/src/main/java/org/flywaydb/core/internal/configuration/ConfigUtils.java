@@ -451,10 +451,16 @@ public class ConfigUtils {
             for (Map.Entry<String, String> entry : new TreeMap<>(config).entrySet()) {
                 String value = entry.getValue();
 
-                // Mask the password. Ex.: T0pS3cr3t -> *********
-                value = ConfigUtils.PASSWORD.equals(entry.getKey())
-                        ? StringUtils.trimOrPad("", value.length(), '*')
-                        : value;
+                switch (entry.getKey()) {
+                    // Mask the password. Ex.: T0pS3cr3t -> *********
+                    case ConfigUtils.PASSWORD:
+                        value = StringUtils.trimOrPad("", value.length(), '*');
+                        break;
+                    // Mask the licence key, leaving a few characters to confirm which key is in use
+                    case ConfigUtils.LICENSE_KEY:
+                        value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
+                        break;
+                }
 
                 LOG.debug(entry.getKey() + " -> " + value);
             }
