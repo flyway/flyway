@@ -361,8 +361,8 @@ public class OracleParser extends Parser {
         String keywordText = keyword.getText();
         int parensDepth = keyword.getParensDepth();
 
-        if ("BEGIN".equals(keywordText) || "CASE".equals(keywordText)
-                || (("IF".equals(keywordText) || "LOOP".equals(keywordText)) && !containsWithinLast(1, tokens, parensDepth, "END"))
+        if ("BEGIN".equals(keywordText) || (("IF".equals(keywordText)
+                || "CASE".equals(keywordText) || "LOOP".equals(keywordText)) && !containsWithinLast(1, tokens, parensDepth, "END"))
                 || ("TRIGGER".equals(keywordText) && containsWithinLast(1, tokens, parensDepth, "COMPOUND"))
                 || (("AS".equals(keywordText) || "IS".equals(keywordText)) && (
                 containsWithinLast(4, tokens, parensDepth, "PACKAGE")
