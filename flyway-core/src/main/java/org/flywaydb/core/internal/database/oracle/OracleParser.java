@@ -25,6 +25,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -53,10 +54,12 @@ public class OracleParser extends Parser {
 
     private static final Pattern PLSQL_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\s(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER)");
-    private static final Pattern JAVA_REGEX = Pattern.compile(
-            "^CREATE(\\sOR\\sREPLACE)?(\\sAND\\s(RESOLVE|COMPILE))?(\\sNOFORCE)?\\sJAVA\\s(SOURCE|RESOURCE|CLASS)");
     private static final Pattern DECLARE_BEGIN_REGEX = Pattern.compile("^DECLARE|BEGIN|WITH");
     private static final StatementType PLSQL_STATEMENT = new StatementType();
+
+    private static final Pattern JAVA_REGEX = Pattern.compile(
+            "^CREATE(\\sOR\\sREPLACE)?(\\sAND\\s(RESOLVE|COMPILE))?(\\sNOFORCE)?\\sJAVA\\s(SOURCE|RESOURCE|CLASS)");
+    private static final StatementType PLSQL_JAVA_STATEMENT = new StatementType();
 
     private static Pattern toRegex(String... commands) {
         return Pattern.compile(toRegexPattern(commands));
@@ -65,6 +68,7 @@ public class OracleParser extends Parser {
     private static String toRegexPattern(String... commands) {
         return "^(" + StringUtils.arrayToDelimitedString("|", commands) + ")";
     }
+
 
 
 
@@ -277,9 +281,12 @@ public class OracleParser extends Parser {
     @Override
     protected StatementType detectStatementType(String simplifiedStatement) {
         if (PLSQL_REGEX.matcher(simplifiedStatement).matches()
-                || DECLARE_BEGIN_REGEX.matcher(simplifiedStatement).matches()
-                || JAVA_REGEX.matcher(simplifiedStatement).matches()) {
+                || DECLARE_BEGIN_REGEX.matcher(simplifiedStatement).matches()) {
             return PLSQL_STATEMENT;
+        }
+
+        if (JAVA_REGEX.matcher(simplifiedStatement).matches()) {
+            return PLSQL_JAVA_STATEMENT;
         }
 
         if (PLSQL_VIEW_REGEX.matcher(simplifiedStatement).matches()) {
@@ -332,7 +339,7 @@ public class OracleParser extends Parser {
 
     @Override
     protected void adjustDelimiter(ParserContext context, StatementType statementType) {
-        if (statementType == PLSQL_STATEMENT || statementType == PLSQL_VIEW_STATEMENT) {
+        if (statementType == PLSQL_STATEMENT || statementType == PLSQL_VIEW_STATEMENT || statementType == PLSQL_JAVA_STATEMENT) {
             context.setDelimiter(PLSQL_DELIMITER);
 
 
@@ -355,14 +362,21 @@ public class OracleParser extends Parser {
 
 
 
+    // These words increase the block depth - unless preceded by END (in which case the END will decrease the block depth)
+    private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("IF", "LOOP", "CASE");
 
     @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+        // Don't adjust block depth inside of Java statements, as they can contain arbitrary code (like "if")
+        if (context.getStatementType() == PLSQL_JAVA_STATEMENT) {
+            return;
+        }
+
         String keywordText = keyword.getText();
         int parensDepth = keyword.getParensDepth();
 
-        if ("BEGIN".equals(keywordText) || (("IF".equals(keywordText)
-                || "CASE".equals(keywordText) || "LOOP".equals(keywordText)) && !containsWithinLast(1, tokens, parensDepth, "END"))
+        if ("BEGIN".equals(keywordText)
+                || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !containsWithinLast(1, tokens, parensDepth, "END"))
                 || ("TRIGGER".equals(keywordText) && containsWithinLast(1, tokens, parensDepth, "COMPOUND"))
                 || (("AS".equals(keywordText) || "IS".equals(keywordText)) && (
                 containsWithinLast(4, tokens, parensDepth, "PACKAGE")

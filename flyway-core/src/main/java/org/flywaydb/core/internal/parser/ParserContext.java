@@ -22,6 +22,7 @@ public class ParserContext {
     private int parensDepth = 0;
     private int blockDepth = 0;
     private Delimiter delimiter;
+    private StatementType statementType;
 
     public ParserContext(Delimiter delimiter) {
         this.delimiter = delimiter;
@@ -60,5 +61,13 @@ public class ParserContext {
 
     public void setDelimiter(Delimiter delimiter) {
         this.delimiter = delimiter;
+    }
+
+    public StatementType getStatementType() {
+        return statementType;
+    }
+
+    public void setStatementType(StatementType statementType) {
+        this.statementType = statementType;
     }
 }

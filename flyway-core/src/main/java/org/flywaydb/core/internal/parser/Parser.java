@@ -261,6 +261,7 @@ public abstract class Parser {
                             statementType = StatementType.GENERIC;
                         } else {
                             statementType = detectStatementType(simplifiedStatement);
+                            context.setStatementType(statementType);
                         }
                         adjustDelimiter(context, statementType);
                     }
