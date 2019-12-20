@@ -173,7 +173,7 @@ public class Flyway {
                             if (!schemaHistory.exists()) {
                                 throw new FlywayException("Found non-empty schema(s) "
                                         + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
-                                        + " without schema history table! Use baseline()"
+                                        + " but no schema history table. Use baseline()"
                                         + " or set baselineOnMigrate to true to initialize the schema history table.");
                             }
                         }
