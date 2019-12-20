@@ -294,7 +294,7 @@
             <dependency>
                 <groupId>com.ibm.informix</groupId>
                 <artifactId>jdbc</artifactId>
-                <version>4.10.10.0</version>
+                <version>4.50.3</version>
                 <optional>true</optional>
             </dependency>
 
