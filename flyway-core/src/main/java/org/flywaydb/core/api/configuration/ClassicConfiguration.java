@@ -1878,11 +1878,7 @@ public class ClassicConfiguration implements Configuration {
             setLicenseKey(licenseKeyProp);
         }
 
-        for (String key : props.keySet()) {
-            if (key.startsWith("flyway.")) {
-                throw new FlywayException("Unknown configuration property: " + key, ErrorCode.CONFIGURATION);
-            }
-        }
+        ConfigUtils.checkConfigurationForUnrecognisedProperties(props, "flyway.");
     }
 
     /**

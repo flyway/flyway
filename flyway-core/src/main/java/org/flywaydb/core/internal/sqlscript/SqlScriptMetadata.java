@@ -22,7 +22,9 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.internal.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,9 +41,7 @@ public class SqlScriptMetadata {
         metadata = new HashMap<>(metadata);
         this.executeInTransaction = removeBoolean(metadata, EXECUTE_IN_TRANSACTION);
 
-        for (String key : metadata.keySet()) {
-            throw new FlywayException("Unknown script configuration property: " + key, ErrorCode.CONFIGURATION);
-        }
+        ConfigUtils.checkConfigurationForUnrecognisedProperties(metadata, null);
     }
 
     public Boolean executeInTransaction() {

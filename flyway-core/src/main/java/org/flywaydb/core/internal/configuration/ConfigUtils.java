@@ -23,11 +23,7 @@ import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -464,6 +460,29 @@ public class ConfigUtils {
 
                 LOG.debug(entry.getKey() + " -> " + value);
             }
+        }
+    }
+
+    /**
+     *  Checks the configuration for any unrecognised properties remaining after expected ones have been consumed
+     *
+     *  @param config The configured properties.
+     *  @param prefix The expected prefix for Flyway configuration parameters - or null if none.
+     */
+    public static void checkConfigurationForUnrecognisedProperties(Map<String, String> config, String prefix) {
+        ArrayList<String> unknownFlywayProperties = new ArrayList<>();
+        for (String key : config.keySet()) {
+            if (prefix == null || key.startsWith(prefix)) {
+                unknownFlywayProperties.add(key);
+            }
+        }
+
+        if (!unknownFlywayProperties.isEmpty()) {
+            String property = (unknownFlywayProperties.size() == 1) ? "property" : "properties";
+            String message = String.format("Unknown configuration %s: %s",
+                    property,
+                    StringUtils.arrayToCommaDelimitedString(unknownFlywayProperties.toArray()));
+            throw new FlywayException(message, ErrorCode.CONFIGURATION);
         }
     }
 }
