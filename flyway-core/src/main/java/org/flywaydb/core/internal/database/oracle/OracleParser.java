@@ -451,8 +451,10 @@ public class OracleParser extends Parser {
         if (peek.length() < 3) {
             return false;
         }
-
-        return peek.charAt(0) == 'q' && peek.charAt(1) == '\'';
+        // Oracle's quoted-literal syntax is introduced by q (case-insensitive) followed by a literal surrounded by
+        // any of !!, [], {}, (), <> provided the selected pair do not appear in the literal string; the others may do.
+        char firstChar = peek.charAt(0);
+        return (firstChar == 'q' || firstChar == 'Q') && peek.charAt(1) == '\'';
     }
 
     @Override
@@ -466,6 +468,8 @@ public class OracleParser extends Parser {
 
     private String computeAlternativeCloseQuote(char specialChar) {
         switch (specialChar) {
+            case '!':
+                return "!'";
             case '[':
                 return "]'";
             case '(':
