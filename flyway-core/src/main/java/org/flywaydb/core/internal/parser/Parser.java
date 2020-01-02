@@ -101,8 +101,8 @@ public abstract class Parser {
         PeekingReader peekingReader =
                 new PeekingReader(
                         new RecordingReader(recorder,
-                                replacePlaceholders(
-                                        new PositionTrackingReader(tracker,
+                                new PositionTrackingReader(tracker,
+                                        replacePlaceholders(
                                                 new BomStrippingReader(
                                                         new BufferedReader(resource.read(), 4096))))));
 
