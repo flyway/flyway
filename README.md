@@ -29,7 +29,7 @@ Flyway is brought to you by [Axel Fontaine](https://twitter.com/axelfontaine) an
 https://flywaydb.org/documentation/contribute
 
 ## License
-Copyright (C) 2010-2019 [Boxfuse GmbH](https://boxfuse.com)
+Copyright (C) 2010-2020 [Boxfuse GmbH](https://boxfuse.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
