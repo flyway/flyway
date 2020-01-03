@@ -362,17 +362,34 @@ public class OracleParser extends Parser {
 
 
 
+    @Override
+    protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+        // In Oracle, symbols { } affect the block depth in embedded Java code
+        if (token.getType() == TokenType.SYMBOL && context.getStatementType() == PLSQL_JAVA_STATEMENT) {
+            return true;
+        }
+        
+        return super.shouldAdjustBlockDepth(context, token);
+    }
+
     // These words increase the block depth - unless preceded by END (in which case the END will decrease the block depth)
     private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("IF", "LOOP", "CASE");
 
     @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
-        // Don't adjust block depth inside of Java statements, as they can contain arbitrary code (like "if")
+        String keywordText = keyword.getText();
+
+        // In embedded Java code we judge the end of a class definition by the depth of braces.
+        // We ignore normal SQL keywords as Java code can contain arbitrary identifiers.
         if (context.getStatementType() == PLSQL_JAVA_STATEMENT) {
+            if ("{".equals(keywordText)) {
+                context.increaseBlockDepth();
+            } else if ("}".equals(keywordText)) {
+                context.decreaseBlockDepth();
+            }
             return;
         }
 
-        String keywordText = keyword.getText();
         int parensDepth = keyword.getParensDepth();
 
         if ("BEGIN".equals(keywordText)

@@ -196,12 +196,15 @@ public abstract class Parser {
                     continue;
                 }
 
-                int parensDepth = token.getParensDepth();
-                if (tokenType == TokenType.KEYWORD && parensDepth == 0) {
-                    keywords.add(token);
+                if (shouldAdjustBlockDepth(context, token)) {
+                    if (tokenType == TokenType.KEYWORD) {
+                        keywords.add(token);
+                    }
                     adjustBlockDepth(context, tokens, token);
                 }
 
+
+                int parensDepth = token.getParensDepth();
                 int blockDepth = context.getBlockDepth();
                 if (TokenType.EOF == tokenType
                         || (TokenType.DELIMITER == tokenType && parensDepth == 0 && blockDepth == 0)) {
@@ -284,6 +287,10 @@ public abstract class Parser {
             throw new FlywayException("Unable to parse statement in " + resource.getAbsolutePath()
                     + " at line " + statementLine + " col " + statementCol + ": " + e.getMessage(), e);
         }
+    }
+
+    protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+        return (token.getType() == TokenType.KEYWORD && token.getParensDepth() == 0);
     }
 
     /**
