@@ -37,6 +37,7 @@ import java.util.logging.Logger;
 public class DriverDataSource implements DataSource {
     private static final Log LOG = LogFactory.getLog(DriverDataSource.class);
 
+    private static final String CLICKHOUSE_JDBC_URL_PREFIX = "jdbc:clickhouse:";
     private static final String DB2_JDBC_URL_PREFIX = "jdbc:db2:";
     private static final String DERBY_CLIENT_JDBC_URL_PREFIX = "jdbc:derby://";
     private static final String DERBY_EMBEDDED_JDBC_URL_PREFIX = "jdbc:derby:";
@@ -297,6 +298,10 @@ public class DriverDataSource implements DataSource {
             return TEST_CONTAINERS_JDBC_DRIVER;
         }
 
+        if (url.startsWith(CLICKHOUSE_JDBC_URL_PREFIX)) {
+            return "ru.yandex.clickhouse.ClickHouseDriver";
+        }
+
         if (url.startsWith(DB2_JDBC_URL_PREFIX)) {
             return "com.ibm.db2.jcc.DB2Driver";
         }
@@ -350,6 +355,10 @@ public class DriverDataSource implements DataSource {
 
         if (url.startsWith(REDSHIFT_JDBC_URL_PREFIX)) {
             return "com.amazon.redshift.jdbc42.Driver";
+        }
+
+        if (url.startsWith("jdbc:clickhouse:")) {
+            return "ru.yandex.clickhouse.ClickHouseDriver";
         }
 
         if (url.startsWith("jdbc:jtds:")) {

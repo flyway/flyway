@@ -145,6 +145,7 @@
         <version.jre>11.0.2</version.jre>
         <version.jansi>1.18</version.jansi>
         <version.gson>2.8.6</version.gson>
+        <version.clickhouse-jdbc>0.2.3</version.clickhouse-jdbc>
     </properties>
 
     <dependencyManagement>
@@ -295,6 +296,12 @@
                 <groupId>com.ibm.informix</groupId>
                 <artifactId>jdbc</artifactId>
                 <version>4.50.3</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>ru.yandex.clickhouse</groupId>
+                <artifactId>clickhouse-jdbc</artifactId>
+                <version>${version.clickhouse-jdbc}</version>
                 <optional>true</optional>
             </dependency>
 

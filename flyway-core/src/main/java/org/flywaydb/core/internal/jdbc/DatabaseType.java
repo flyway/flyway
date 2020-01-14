@@ -29,11 +29,9 @@ import java.sql.Types;
  */
 @SuppressWarnings("SqlDialectInspection")
 public enum DatabaseType {
+    CLICKHOUSE("ClickHouse", Types.NULL, false),
     COCKROACHDB("CockroachDB", Types.NULL, false),
     DB2("DB2", Types.VARCHAR, true),
-
-
-
     DERBY("Derby", Types.VARCHAR, true),
     FIREBIRD("Firebird", Types.NULL, true), // TODO does it support read only transactions?
     H2("H2", Types.VARCHAR, true),
@@ -142,6 +140,9 @@ public enum DatabaseType {
         }
         if (databaseProductName.startsWith("Snowflake")) {
             return SNOWFLAKE;
+        }
+        if (databaseProductName.startsWith("ClickHouse")) {
+            return CLICKHOUSE;
         }
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
