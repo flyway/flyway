@@ -22,6 +22,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
 
 import java.util.Date;
@@ -319,8 +320,7 @@ public class MigrationInfoImpl implements MigrationInfo {
                                 appliedMigration.getChecksum(), resolvedMigration.getChecksum());
                     }
                 }
-                if (!AbbreviationUtils.abbreviateDescription(resolvedMigration.getDescription())
-                        .equals(appliedMigration.getDescription())) {
+                if (descriptionMismatch(resolvedMigration, appliedMigration)) {
                     return createMismatchMessage("description", migrationIdentifier,
                             appliedMigration.getDescription(), resolvedMigration.getDescription());
                 }
@@ -335,6 +335,16 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         return null;
+    }
+
+    private boolean descriptionMismatch(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration) {
+        // For some databases, we can't put an empty description into the history table
+        if (SchemaHistory.NO_DESCRIPTION_MARKER.equals(appliedMigration.getDescription())) {
+            return !"".equals(resolvedMigration.getDescription());
+        }
+        // The default
+        return (!AbbreviationUtils.abbreviateDescription(resolvedMigration.getDescription())
+                .equals(appliedMigration.getDescription()));
     }
 
     /**

@@ -117,6 +117,12 @@ public class OracleDatabase extends Database<OracleConnection> {
     }
 
     @Override
+    public boolean supportsEmptyMigrationDescription() {
+        // Oracle will convert the empty string to NULL implicitly, and throw an exception as the column is NOT NULL
+        return false;
+    }
+
+    @Override
     protected String doGetCurrentUser() throws SQLException {
         return getMainConnection().getJdbcTemplate().queryForString("SELECT USER FROM DUAL");
     }
