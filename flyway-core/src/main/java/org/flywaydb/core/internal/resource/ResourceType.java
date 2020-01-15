@@ -15,26 +15,22 @@
  */
 package org.flywaydb.core.internal.resource;
 
-import java.util.Collection;
+public enum ResourceType {
+    MIGRATION,
 
-/**
- * A facility to obtain loadable resources.
- */
-public interface ResourceProvider {
-    /**
-     * Retrieves the resource with this name.
-     *
-     * @param name The name of the resource.
-     * @return The resource or {@code null} if not found.
-     */
-    LoadableResource getResource(String name);
+
+
+    REPEATABLE_MIGRATION,
+    CALLBACK;
 
     /**
-     * Retrieve all resources whose name begins with this prefix and ends with any of these suffixes.
-     *
-     * @param prefix   The prefix.
-     * @param suffixes The suffixes.
-     * @return The matching resources.
+     * Whether the given resource type represents a resource that is versioned.
      */
-    Collection<LoadableResource> getResources(String prefix, String[] suffixes);
+    public static boolean isVersioned(ResourceType type) {
+        return (type == ResourceType.MIGRATION
+
+
+
+            );
+    }
 }

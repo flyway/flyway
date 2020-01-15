@@ -368,6 +368,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean ignoreFutureMigrations;
 
     /**
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     * <p>Also configurable with Maven or System Property: ${flyway.validateMigrationNaming}</p>
+     */
+    @Parameter(property = ConfigUtils.VALIDATE_MIGRATION_NAMING)
+    private Boolean validateMigrationNaming;
+
+    /**
      * Whether placeholders should be replaced. (default: true)<br>
      * <p>Also configurable with Maven or System Property: ${flyway.placeholderReplacement}</p>
      */
@@ -730,6 +738,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.IGNORE_IGNORED_MIGRATIONS, ignoreIgnoredMigrations);
             putIfSet(conf, ConfigUtils.IGNORE_PENDING_MIGRATIONS, ignorePendingMigrations);
             putIfSet(conf, ConfigUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations);
+            putIfSet(conf, ConfigUtils.VALIDATE_MIGRATION_NAMING, validateMigrationNaming);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_SUFFIX, placeholderSuffix);

@@ -346,6 +346,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean ignoreFutureMigrations;
 
     /**
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     *{@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
+     */
+    public Boolean validateMigrationNaming;
+
+    /**
      * Whether to disable clean. (default: {@code false})
      * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
      */
@@ -641,6 +648,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.IGNORE_IGNORED_MIGRATIONS, ignoreIgnoredMigrations, extension.ignoreIgnoredMigrations);
         putIfSet(conf, ConfigUtils.IGNORE_PENDING_MIGRATIONS, ignorePendingMigrations, extension.ignorePendingMigrations);
         putIfSet(conf, ConfigUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations, extension.ignoreFutureMigrations);
+        putIfSet(conf, ConfigUtils.VALIDATE_MIGRATION_NAMING, validateMigrationNaming, extension.validateMigrationNaming);
         putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled, extension.cleanDisabled);
         putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate, extension.baselineOnMigrate);
         putIfSet(conf, ConfigUtils.SKIP_DEFAULT_RESOLVERS, skipDefaultResolvers, extension.skipDefaultResolvers);

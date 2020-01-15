@@ -40,6 +40,7 @@ import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.resource.NoopResourceProvider;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
+import org.flywaydb.core.internal.resource.ResourceNameValidator;
 import org.flywaydb.core.internal.scanner.ResourceNameCache;
 import org.flywaydb.core.internal.scanner.Scanner;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
@@ -83,6 +84,11 @@ public class Flyway {
      * Designed so we can fail fast if the configuration is invalid
      */
     private ConfigurationValidator  configurationValidator = new ConfigurationValidator();
+
+    /**
+     * Designed so we can fail fast if the SQL file resources are invalid
+     */
+    private ResourceNameValidator resourceNameValidator = new ResourceNameValidator();
 
     /**
      * This is your starting point. This creates a configuration which can be customized to your needs before being
@@ -431,6 +437,10 @@ public class Flyway {
             );
             resourceProvider = scanner;
             classProvider = scanner;
+        }
+
+        if (configuration.isValidateMigrationNaming()) {
+            resourceNameValidator.validateSQLMigrationNaming(resourceProvider, configuration);
         }
 
         JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(),

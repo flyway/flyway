@@ -280,6 +280,13 @@ public class ClassicConfiguration implements Configuration {
     private boolean ignoreFutureMigrations = true;
 
     /**
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     * {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
+     */
+    private boolean validateMigrationNaming = false;
+
+    /**
      * Whether to automatically call validate or not when running migrate. (default: {@code true})
      */
     private boolean validateOnMigrate = true;
@@ -576,6 +583,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isIgnoreFutureMigrations() {
         return ignoreFutureMigrations;
+    }
+
+    @Override
+    public boolean isValidateMigrationNaming() {
+        return validateMigrationNaming;
     }
 
     @Override
@@ -933,6 +945,17 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setIgnoreFutureMigrations(boolean ignoreFutureMigrations) {
         this.ignoreFutureMigrations = ignoreFutureMigrations;
+    }
+
+    /**
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     *
+     * @param validateMigrationNaming {@code false} to continue normally, {@code true} to fail
+     *                                                fast with an exception. (default: {@code false})
+     */
+    public void setValidateMigrationNaming(boolean validateMigrationNaming) {
+        this.validateMigrationNaming = validateMigrationNaming;
     }
 
     /**
@@ -1587,6 +1610,7 @@ public class ClassicConfiguration implements Configuration {
 
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
+        setValidateMigrationNaming(configuration.isValidateMigrationNaming());
         setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
         setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
         setIgnoreIgnoredMigrations(configuration.isIgnoreIgnoredMigrations());
@@ -1782,6 +1806,10 @@ public class ClassicConfiguration implements Configuration {
         Boolean ignoreFutureMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_FUTURE_MIGRATIONS);
         if (ignoreFutureMigrationsProp != null) {
             setIgnoreFutureMigrations(ignoreFutureMigrationsProp);
+        }
+        Boolean validateMigrationNamingProp = removeBoolean(props, ConfigUtils.VALIDATE_MIGRATION_NAMING);
+        if (validateMigrationNamingProp != null) {
+            setValidateMigrationNaming(validateMigrationNamingProp);
         }
         String targetProp = props.remove(ConfigUtils.TARGET);
         if (targetProp != null) {

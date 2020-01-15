@@ -85,6 +85,7 @@ public class ConfigUtils {
     public static final String URL = "flyway.url";
     public static final String USER = "flyway.user";
     public static final String VALIDATE_ON_MIGRATE = "flyway.validateOnMigrate";
+    public static final String VALIDATE_MIGRATION_NAMING = "flyway.validateMigrationNaming";
 
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";

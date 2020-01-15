@@ -171,6 +171,9 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public boolean isValidateMigrationNaming() { return config.isValidateMigrationNaming(); }
+
+    @Override
     public boolean isValidateOnMigrate() {
         return config.isValidateOnMigrate();
     }
@@ -286,7 +289,9 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public boolean outputQueryResults() { return config.outputQueryResults(); }
+    public boolean outputQueryResults() {
+        return config.outputQueryResults();
+    }
 
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
@@ -460,6 +465,18 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration ignoreFutureMigrations(boolean ignoreFutureMigrations) {
         config.setIgnoreFutureMigrations(ignoreFutureMigrations);
+        return this;
+    }
+
+    /**
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     *
+     * @param validateMigrationNaming {@code false} to continue normally, {@code true} to fail
+     *                                                fast with an exception. (default: {@code false})
+     */
+    public FluentConfiguration validateMigrationNaming(boolean validateMigrationNaming){
+        config.setValidateMigrationNaming(validateMigrationNaming);
         return this;
     }
 

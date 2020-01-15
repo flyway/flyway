@@ -46,6 +46,7 @@ public class MigrationInfoHelper {
     public static Pair<MigrationVersion, String> extractVersionAndDescription(String migrationName,
                                                                               String prefix, String separator,
                                                                               String[] suffixes, boolean repeatable) {
+        // Only handles Java migrations now
         String cleanMigrationName = cleanMigrationName(migrationName, prefix, suffixes);
 
         int separatorPos = cleanMigrationName.indexOf(separator);

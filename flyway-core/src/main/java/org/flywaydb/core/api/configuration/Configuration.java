@@ -351,6 +351,14 @@ public interface Configuration {
     boolean isIgnoreFutureMigrations();
 
     /**
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     *
+     * @return {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
+     */
+    boolean isValidateMigrationNaming();
+
+    /**
      * Whether to automatically call validate or not when running migrate.
      *
      * @return {@code true} if validate should be called. {@code false} if not. (default: {@code true})

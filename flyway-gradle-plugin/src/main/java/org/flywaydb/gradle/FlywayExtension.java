@@ -301,6 +301,14 @@ public class FlywayExtension {
     public Boolean ignoreFutureMigrations;
 
     /**
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     *{@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
+     * <p>Also configurable with Gradle or System Property: ${flyway.validateMigrationNaming}</p>
+     */
+    public Boolean validateMigrationNaming;
+
+    /**
      * Whether to disable clean. (default: {@code false})
      * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
      */
