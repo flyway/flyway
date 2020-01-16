@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
  * MySQL database.
  */
 public class MySQLDatabase extends Database<MySQLConnection> {
-    private static final Pattern MARIADB_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+-MariaDB");
+    private static final Pattern MARIADB_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+(-\\d+)*-MariaDB(-\\w+)*");
     private static final Pattern MYSQL_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+\\w*");
     private static final Log LOG = LogFactory.getLog(MySQLDatabase.class);
 
