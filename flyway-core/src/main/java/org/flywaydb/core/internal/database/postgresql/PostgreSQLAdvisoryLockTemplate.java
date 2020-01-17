@@ -83,17 +83,22 @@ public class PostgreSQLAdvisoryLockTemplate {
             try {
                 jdbcTemplate.execute("SELECT pg_advisory_unlock(" + lockNum + ")");
             } catch (SQLException e) {
-                LOG.error("Unable to release PostgreSQL advisory lock", e);
+                throw new FlywayException("Unable to release PostgreSQL advisory lock", e);
             }
         }
     }
 
     private void lock() throws SQLException {
+        int retries = 0;
         while (!tryLock()) {
             try {
                 Thread.sleep(100L);
             } catch (InterruptedException e) {
                 throw new FlywayException("Interrupted while attempting to acquire PostgreSQL advisory lock", e);
+            }
+
+            if (++retries >= 50) {
+                throw new FlywayException("Number of retries exceeded while attempting to acquire PostgreSQL advisory lock");
             }
         }
     }
