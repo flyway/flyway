@@ -224,9 +224,10 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     /*
      * Azure Database for MariaDB also reports version numbers incorrectly - it claims to be MySQL 5.6 (the gateway
-     * version) while the db itself is something like 10.3.6-MariaDB, visible from SELECT VERSION().
+     * version) while the db itself is something like 10.3.6-MariaDB-suffix, visible from SELECT VERSION().
      * This code should be simplified as soon as Azure is fixed.
      * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
+     * https://mariadb.com/kb/en/server-system-variables/#version
      */
     static MigrationVersion correctForAzureMariaDB(String jdbcMetadataVersion, String selectVersionOutput) {
         if (jdbcMetadataVersion.startsWith("5.6")) {
