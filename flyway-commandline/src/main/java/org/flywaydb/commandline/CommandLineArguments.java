@@ -24,6 +24,36 @@ import java.util.*;
 
 class CommandLineArguments {
 
+    enum Color {
+        ALWAYS("always"),
+        NEVER("never"),
+        AUTO("auto");
+
+        private final String value;
+
+        Color(String value) {
+            this.value = value;
+        }
+
+        public static Color fromString(String value) {
+            if (value.isEmpty()) {
+                return AUTO;
+            }
+
+            for (Color color : values()) {
+                if (color.value.equals(value)) {
+                    return color;
+                }
+            }
+
+            return null;
+        }
+
+        public static boolean isValid(String value) {
+            return fromString(value) != null;
+        }
+    }
+
     // Flags
     private static String DEBUG_FLAG = "-X";
     private static String QUIET_FLAG = "-q";
@@ -40,6 +70,7 @@ class CommandLineArguments {
     private static String LOG_FILE = "logFile";
     private static String CONFIG_FILE_ENCODING = "configFileEncoding";
     private static String CONFIG_FILES = "configFiles";
+    private static String COLOR = "color";
 
     private static List<String> VALID_OPERATIONS_AND_FLAGS = Arrays.asList(
             DEBUG_FLAG,
@@ -88,7 +119,7 @@ class CommandLineArguments {
     private static String parseConfigurationOptionValueFromArg(String arg) {
         int index = arg.indexOf("=");
 
-        if ((index < 0) || (index == arg.length())) {
+        if (index < 0 || index == arg.length()) {
             return "";
         }
 
@@ -129,7 +160,9 @@ class CommandLineArguments {
     }
 
     private static boolean isConfigurationOptionIgnored(String configurationOptionName) {
-        return OUTPUT_FILE.equals(configurationOptionName) || LOG_FILE.endsWith(configurationOptionName);
+        return OUTPUT_FILE.equals(configurationOptionName) ||
+                LOG_FILE.equals(configurationOptionName) ||
+                COLOR.equals(configurationOptionName);
     }
 
     private static String getConfigurationOptionNameFromArg(String arg) {
@@ -163,6 +196,11 @@ class CommandLineArguments {
 
         if (shouldOutputJson() && !hasOperation("info") ) {
             throw new FlywayException("The -json flag is only supported by the info command.");
+        }
+
+        String colorArgumentValue = getArgumentValue(COLOR, args);
+        if (!Color.isValid(colorArgumentValue)) {
+            throw new FlywayException("'" + colorArgumentValue + "' is an invalid value for the -color option. Use 'always', 'never', or 'auto'.");
         }
     }
 
@@ -215,11 +253,11 @@ class CommandLineArguments {
     }
 
     boolean isOutputFileSet() {
-        return getOutputFile() != null && !getOutputFile().isEmpty();
+        return !getOutputFile().isEmpty();
     }
 
     boolean isLogFilepathSet() {
-        return getLogFilepath() != null && !getLogFilepath().isEmpty();
+        return !getLogFilepath().isEmpty();
     }
 
     String getConfigFileEncoding() {
@@ -227,7 +265,11 @@ class CommandLineArguments {
     }
 
     boolean isConfigFileEncodingSet() {
-        return getConfigFileEncoding() != null && !getConfigFileEncoding().isEmpty();
+        return !getConfigFileEncoding().isEmpty();
+    }
+
+    Color getColor() {
+        return Color.fromString(getArgumentValue(COLOR, args));
     }
 
     Map<String, String> getConfiguration() {

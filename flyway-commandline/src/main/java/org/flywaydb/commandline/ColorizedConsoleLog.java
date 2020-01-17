@@ -28,7 +28,11 @@ import java.io.PrintStream;
 class ColorizedConsoleLog implements Log {
     private final ConsoleLog log;
 
-    public static void install() {
+    public static void install(boolean force) {
+        if (force) {
+            System.setProperty("jansi.force", "true");
+        }
+
         AnsiConsole.systemInstall();
     }
 
