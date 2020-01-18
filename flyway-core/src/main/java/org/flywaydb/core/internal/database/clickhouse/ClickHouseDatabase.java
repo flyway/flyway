@@ -54,20 +54,19 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection> {
                 "    description String," +
                 "    type String," +
                 "    script String," +
-                "    checksum Int32," +
+                "    checksum Nullable(Int32)," +
                 "    installed_by String," +
-                "    installed_on DateTime," +
+                "    installed_on DateTime DEFAULT now()," +
                 "    execution_time Int32," +
-                "    success UInt8" +
-                ") ENGINE = TinyLog;";
-
-        //todo: (baseline ? getBaselineStatement(table) + ";\n" : "")
+                "    success UInt8," +
+                "    CONSTRAINT success CHECK success in (0,1)" +
+                ") ENGINE = TinyLog;" +
+                (baseline ? getBaselineStatement(table) + ";" : "");
     }
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        // ClickHouse doesn't appear to have any concept of users
-        return "null";
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT currentUser()");
     }
 
     @Override
