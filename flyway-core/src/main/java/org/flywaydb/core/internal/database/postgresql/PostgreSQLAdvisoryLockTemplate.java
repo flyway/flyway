@@ -109,7 +109,7 @@ public class PostgreSQLAdvisoryLockTemplate {
                 new RowMapper<Boolean>() {
                     @Override
                     public Boolean mapRow(ResultSet rs) throws SQLException {
-                        return rs.getBoolean(0);
+                        return rs.getBoolean(1);
                     }
                 });
         return results.size() == 1 && results.get(0);
