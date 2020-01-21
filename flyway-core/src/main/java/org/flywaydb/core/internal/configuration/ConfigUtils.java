@@ -151,6 +151,9 @@ public class ConfigUtils {
         if ("FLYWAY_CONNECT_RETRIES".equals(key)) {
             return CONNECT_RETRIES;
         }
+        if ("FLYWAY_DEFAULT_SCHEMA".equals(key)) {
+            return DEFAULT_SCHEMA;
+        }
         if ("FLYWAY_DRIVER".equals(key)) {
             return DRIVER;
         }
