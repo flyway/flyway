@@ -580,10 +580,7 @@ public class Flyway {
             }
         }
 
-        // This behaviour will change in Flyway 7.
         if (defaultSchemaName == null && schemaNames.length > 0) {
-            LOG.warn("Using the first specified schema " + schemaNames[0] + " as default schema. From Flyway 6.1 you " +
-                    "can specify defaultSchema explicitly in your configuration, and from Flyway 7 this will become mandatory.");
             defaultSchemaName = schemaNames[0];
         }
 

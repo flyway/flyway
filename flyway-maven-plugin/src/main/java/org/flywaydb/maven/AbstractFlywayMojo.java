@@ -116,9 +116,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String initSql;
 
     /**
-     * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
-     * flyway.schemas is, we use the first schema in that list. In Flyway 7, you will need to specify this value
-     * and not rely on flyway.schemas (default: The default schema for the database connection)
+     * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but <i>schemas</i>
+     * is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default schema
+     * for the database connection.
      * <p>Consequences:</p>
      * <ul>
      * <li>This schema will be the one containing the schema history table.</li>
@@ -130,7 +130,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String defaultSchema;
 
     /**
-     * The schemas managed by Flyway. These schema names are case-sensitive. (default: The default schema for the database connection)
+     * The schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
+     * the default schema for the database connection. If <i>defaultSchema</i> is not specified, then the first of
+     * this list also acts as default schema.
      * <p>Consequences:</p>
      * <ul>
      * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
@@ -144,10 +146,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * <p>The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)</p>
-     * <p> By default (single-schema mode) the
-     * schema history table is placed in the default schema for the connection provided by the datasource. <br/> When the
-     * {@code flyway.schemas} property is set (multi-schema mode), the schema history table is placed in the first schema of
-     * the list. </p>
+     * <p> By default (single-schema mode) the schema history table is placed in the default schema for the connection
+     * provided by the datasource. <br/> When the {@code flyway.schemas} property is set (multi-schema mode), the
+     * schema history table is placed in the first schema of the list. </p>
      * <p>Also configurable with Maven or System Property: ${flyway.table}</p>
      */
     @Parameter(property = ConfigUtils.TABLE)
@@ -155,8 +156,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * <p>The tablespace where to create the schema history table that will be used by Flyway.</p>
-     * <p>This setting is only relevant for databases that do support the notion of tablespaces. It's value is simply
-     * ignored for all others.</p> (default: The default tablespace for the database connection)
+     * <p>If not specified, Flyway uses the default tablespace for the database connection.
+     * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply
+     * ignored for all others.</p>
      * <p>Also configurable with Maven or System Property: ${flyway.tablespace}</p>
      */
     @Parameter(property = ConfigUtils.TABLESPACE)
