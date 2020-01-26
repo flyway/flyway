@@ -15,12 +15,12 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
+import org.flywaydb.commandline.ConsoleLog.Level;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,12 +36,19 @@ class FileLogCreator implements LogCreator {
     /**
      * Creates a new file Log Creator.
      *
-     * @param level The minimum level to log at.
-     * @param filePath File to write logs into
+     * @param commandLineArguments The command line arguments
      */
-    public FileLogCreator(Level level, String filePath) {
-        this.level = level;
-        this.path = Paths.get(filePath);
+    FileLogCreator(CommandLineArguments commandLineArguments) {
+        String outputFilepath = "";
+
+        if (commandLineArguments.isOutputFileSet()) {
+            outputFilepath = commandLineArguments.getOutputFile();
+        } else if (commandLineArguments.isLogFilepathSet()) {
+            outputFilepath = commandLineArguments.getLogFilepath();
+        }
+
+        this.level = commandLineArguments.getLogLevel();
+        this.path = Paths.get(outputFilepath);
 
         prepareOutputFile(path);
     }

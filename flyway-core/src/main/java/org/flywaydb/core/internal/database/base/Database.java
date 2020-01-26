@@ -427,4 +427,9 @@ public abstract class Database<C extends Connection> implements Closeable {
     public DatabaseType getDatabaseType() {
         return databaseType;
     }
+
+    /**
+     *  Whether the database supports an empty string as a migration description.
+     */
+    public boolean supportsEmptyMigrationDescription() { return true; }
 }

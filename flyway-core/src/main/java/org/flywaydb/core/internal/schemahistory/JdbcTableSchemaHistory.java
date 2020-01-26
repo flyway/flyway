@@ -155,6 +155,10 @@ class JdbcTableSchemaHistory extends SchemaHistory {
         try {
             String versionStr = version == null ? null : version.toString();
 
+            if (!database.supportsEmptyMigrationDescription() && "".equals(description)) {
+                description = NO_DESCRIPTION_MARKER;
+            }
+
             jdbcTemplate.update(database.getInsertStatement(table),
                     installedRank, versionStr, description, type.name(), script, checksum, database.getInstalledBy(),
                     executionTime, success);

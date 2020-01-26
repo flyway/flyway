@@ -41,4 +41,8 @@ class MultiLogCreator implements LogCreator {
 
         return new MultiLogger(logs);
     }
+
+    static MultiLogCreator empty() {
+        return new MultiLogCreator(new ArrayList<>());
+    }
 }

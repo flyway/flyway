@@ -90,6 +90,13 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     }
 
     @Override
+    public boolean supportsEmptyMigrationDescription() {
+        // Sybase will convert the empty string to a single space implicitly, which won't error on updating the
+        // history table but will subsequently fail validation of the history table against the file name.
+        return false;
+    }
+
+    @Override
     public Delimiter getDefaultDelimiter() {
         return Delimiter.GO;
     }

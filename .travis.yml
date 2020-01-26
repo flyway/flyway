@@ -5,6 +5,7 @@ env:
     - JDK_VERSION=10
     - JDK_VERSION=11
     - JDK_VERSION=12
+    - JDK_VERSION=13
 
 install: skip
 

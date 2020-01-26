@@ -50,17 +50,17 @@ public class Main {
     private static Log LOG;
 
     static LogCreator getLogCreator(CommandLineArguments commandLineArguments) {
-        Level level = commandLineArguments.getLogLevel();
+        // JSON output uses a different mechanism, so we do not create any loggers
+        if (commandLineArguments.shouldOutputJson()) {
+            return MultiLogCreator.empty();
+        }
+
         List<LogCreator> logCreators = new ArrayList<>();
 
-        if (!commandLineArguments.shouldOutputJson()) {
-            logCreators.add(new ConsoleLogCreator(level));
+        logCreators.add(new ConsoleLogCreator(commandLineArguments));
 
-            if (commandLineArguments.isOutputFileSet()) {
-                logCreators.add(new FileLogCreator(level, commandLineArguments.getOutputFile()));
-            } else if (commandLineArguments.isLogFilepathSet()) {
-                logCreators.add(new FileLogCreator(level, commandLineArguments.getLogFilepath()));
-            }
+        if (commandLineArguments.isOutputFileSet() || commandLineArguments.isLogFilepathSet()) {
+            logCreators.add(new FileLogCreator(commandLineArguments));
         }
 
         return new MultiLogCreator(logCreators);
@@ -305,6 +305,7 @@ public class Main {
         LOG.info("callbacks                    : Comma-separated list of FlywayCallback classes");
         LOG.info("skipDefaultCallbacks         : Skips default callbacks (sql)");
         LOG.info("validateOnMigrate            : Validate when running migrate");
+        LOG.info("validateMigrationNaming      : Validate file names of SQL migrations (including callbacks)");
         LOG.info("ignoreMissingMigrations      : Allow missing migrations when validating");
         LOG.info("ignoreIgnoredMigrations      : Allow ignored migrations when validating");
         LOG.info("ignorePendingMigrations      : Allow pending migrations when validating");
@@ -321,6 +322,8 @@ public class Main {
         LOG.info("errorOverrides               : [" + "pro] Rules to override specific SQL states and errors codes");
         LOG.info("oracle.sqlplus               : [" + "pro] Enable Oracle SQL*Plus command support");
         LOG.info("licenseKey                   : [" + "pro] Your Flyway license key");
+        LOG.info("color                        : Whether to colorize output. Values: always, never, or auto (default)");
+        LOG.info("outputFile                   : Send output to the specified file alongside the console");
         LOG.info("");
         LOG.info("Flags");
         LOG.info("-----");
@@ -329,6 +332,7 @@ public class Main {
         LOG.info("-n          : Suppress prompting for a user and password");
         LOG.info("-v          : Print the Flyway version and exit");
         LOG.info("-?          : Print this usage info and exit");
+        LOG.info("-json       : Print the output in JSON format");
         LOG.info("-community  : Run the Flyway Community Edition (default)");
         LOG.info("-pro        : Run the Flyway Pro Edition");
         LOG.info("-enterprise : Run the Flyway Enterprise Edition");

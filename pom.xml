@@ -784,6 +784,9 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode=loopback</arg>
+                                    </gpgArguments>
                                     <passphraseServerId>flyway-gpg</passphraseServerId>
                                 </configuration>
                             </execution>

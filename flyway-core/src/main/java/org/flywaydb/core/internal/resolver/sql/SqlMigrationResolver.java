@@ -16,21 +16,20 @@
 package org.flywaydb.core.internal.resolver.sql;
 
 import org.flywaydb.core.api.MigrationType;
-import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.internal.resource.ResourceName;
+import org.flywaydb.core.internal.resource.ResourceNameParser;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
-import org.flywaydb.core.internal.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -109,10 +108,13 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-    ) {
+    ){
+        ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
+
         for (LoadableResource resource : resourceProvider.getResources(prefix, suffixes)) {
             String filename = resource.getFilename();
-            if (isSqlCallback(filename, separator, suffixes)) {
+            ResourceName result = resourceNameParser.parse(filename);
+            if (!result.isValid() || isSqlCallback(result)) {
                 continue;
             }
 
@@ -145,12 +147,9 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-            Pair<MigrationVersion, String> info =
-                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffixes, repeatable);
-
             migrations.add(new ResolvedMigrationImpl(
-                    info.getLeft(),
-                    info.getRight(),
+                    result.getVersion(),
+                    result.getDescription(),
                     resource.getRelativePath(),
                     checksum,
 
@@ -192,22 +191,13 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Checks whether this filename is actually a sql-based callback instead of a regular migration.
      *
-     * @param filename  The filename to check.
-     * @param separator The separator to use.
-     * @param suffixes  The sql migration suffixes.
+     * @param result  The parsing result to check.
      * @return {@code true} if it is, {@code false} if it isn't.
      */
     /* private -> testing */
-    static boolean isSqlCallback(String filename, String separator, String... suffixes) {
-        for (String suffix : suffixes) {
-            String baseName = filename.substring(0, filename.length() - suffix.length());
-            int index = baseName.indexOf(separator);
-            if (index >= 0) {
-                baseName = baseName.substring(0, index);
-            }
-            if (Event.fromId(baseName) != null) {
-                return true;
-            }
+    static boolean isSqlCallback(ResourceName result) {
+        if (Event.fromId(result.getPrefix()) != null) {
+            return true;
         }
         return false;
     }

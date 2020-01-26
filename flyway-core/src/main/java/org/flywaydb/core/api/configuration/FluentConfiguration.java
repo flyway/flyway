@@ -171,6 +171,9 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public boolean isValidateMigrationNaming() { return config.isValidateMigrationNaming(); }
+
+    @Override
     public boolean isValidateOnMigrate() {
         return config.isValidateOnMigrate();
     }
@@ -286,7 +289,9 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public boolean outputQueryResults() { return config.outputQueryResults(); }
+    public boolean outputQueryResults() {
+        return config.outputQueryResults();
+    }
 
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
@@ -464,6 +469,18 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     *
+     * @param validateMigrationNaming {@code false} to continue normally, {@code true} to fail
+     *                                                fast with an exception. (default: {@code false})
+     */
+    public FluentConfiguration validateMigrationNaming(boolean validateMigrationNaming){
+        config.setValidateMigrationNaming(validateMigrationNaming);
+        return this;
+    }
+
+    /**
      * Whether to automatically call validate or not when running migrate.
      *
      * @param validateOnMigrate {@code true} if validate should be called. {@code false} if not. (default: {@code true})
@@ -550,9 +567,9 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Sets the default schema managed by Flyway. If not specified, but flyway.schemas is, we use the first schema
-     * in that list. In Flyway 7, you will need to specify this value and not rely on flyway.schemas.
-     * (default: The default schema for the database connection)
+     * Sets the default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
+     * <i>schemas</i> is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default
+     * schema for the database connection.
      * <p>Consequences:</p>
      * <ul>
      * <li>This schema will be the one containing the schema history table.</li>
@@ -567,7 +584,9 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Sets the schemas managed by Flyway. These schema names are case-sensitive. (default: The default schema for the database connection)
+     * Sets the schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
+     * the default schema for the database connection. If <i>defaultSchemaName</i> is not specified, then the first of
+     * this list also acts as default schema.
      * <p>Consequences:</p>
      * <ul>
      * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
@@ -597,10 +616,11 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * <p>Sets the tablespace where to create the schema history table that will be used by Flyway.</p>
-     * <p>This setting is only relevant for databases that do support the notion of tablespaces. It's value is simply
+     * <p>If not specified, Flyway uses the default tablespace for the database connection.
+     * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply
      * ignored for all others.</p>
      *
-     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway. (default: The default tablespace for the database connection)
+     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway. 
      */
     public FluentConfiguration tablespace(String tablespace) {
         config.setTablespace(tablespace);

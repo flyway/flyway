@@ -36,10 +36,10 @@ public class SAPHANAParser extends Parser {
         }
         Token previousKeyword = tokens.get(lastKeywordIndex);
 
-        // BEGIN, DO and IF increases block depth
-        if (("BEGIN".equals(keyword.getText()) || "DO".equals(keyword.getText()) || "IF".equals(keyword.getText())
-                // But not END FOR, END IF and END WHILE
-                && !"END".equals(previousKeyword.getText()))) {
+        // BEGIN, CASE, DO and IF increases block depth
+        if ("BEGIN".equals(keyword.getText()) || "CASE".equals(keyword.getText()) || "DO".equals(keyword.getText()) || "IF".equals(keyword.getText())
+                // But not END IF
+                && !"END".equals(previousKeyword.getText())) {
             context.increaseBlockDepth();
         } else if ("END".equals(keyword.getText())) {
             context.decreaseBlockDepth();
