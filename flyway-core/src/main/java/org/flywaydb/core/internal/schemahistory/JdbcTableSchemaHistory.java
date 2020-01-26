@@ -238,10 +238,13 @@ class JdbcTableSchemaHistory extends SchemaHistory {
 
         try {
             clearCache();
-            jdbcTemplate.execute("DELETE FROM " + table
-                    + " WHERE " + database.quote("success") + " = " + database.getBooleanFalse());
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to repair Schema History table " + table, e);
+
+            sqlScriptExecutorFactory
+                    .createSqlScriptExecutor(connection.getJdbcConnection())
+                    .execute(database.getDeleteScript(sqlScriptFactory, table));
+
+        } catch (Throwable e) {
+            throw new FlywayException("Unable to repair Schema History table " + table, e);
         }
     }
 

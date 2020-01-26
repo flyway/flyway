@@ -64,6 +64,21 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection> {
                 (baseline ? getBaselineStatement(table) + ";" : "");
     }
 
+    /**
+     * ClickHouse does not support deleting and updating,
+     * so, we perform the deletion by copying only those rows that satisfy the condition into the newly created table
+     */
+    @Override
+    protected String getRawDeleteScript(Table table) {
+        String backupTableName = quote(table.getSchema().getName(), table.getName() + "_backup");
+
+        return "DROP TABLE IF EXISTS " + backupTableName + ";" +
+                "RENAME TABLE " + table + " TO " + backupTableName + ";" +
+                getRawCreateScript(table, false) + ";" +
+                "INSERT INTO " + table + " SELECT * FROM " + backupTableName + " WHERE success > 0 ORDER BY installed_rank;" +
+                "DROP TABLE " + backupTableName + ";";
+    }
+
     @Override
     protected String doGetCurrentUser() throws SQLException {
         return getMainConnection().getJdbcTemplate().queryForString("SELECT currentUser()");

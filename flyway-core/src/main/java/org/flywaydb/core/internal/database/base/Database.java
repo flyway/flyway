@@ -355,6 +355,14 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     public abstract String getRawCreateScript(Table table, boolean baseline);
 
+    public final SqlScript getDeleteScript(SqlScriptFactory sqlScriptFactory, Table table) {
+        return sqlScriptFactory.createSqlScript(new StringResource(getRawDeleteScript(table)), false, null);
+    }
+
+    protected String getRawDeleteScript(Table table) {
+        return "DELETE FROM " + table + " WHERE " + quote("success") + " = " + getBooleanFalse();
+    }
+
     public String getInsertStatement(Table table) {
         return "INSERT INTO " + table
                 + " (" + quote("installed_rank")
