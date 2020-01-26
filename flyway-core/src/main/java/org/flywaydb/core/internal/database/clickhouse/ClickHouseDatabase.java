@@ -24,7 +24,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * HSQLDB database.
+ * ClickHouse database.
  */
 public class ClickHouseDatabase extends Database<ClickHouseConnection> {
     /**

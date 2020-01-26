@@ -19,6 +19,9 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 
+/**
+ * ClickHouse parser.
+ */
 public class ClickHouseParser extends Parser {
 
     public ClickHouseParser(Configuration configuration, ParsingContext parsingContext) {
