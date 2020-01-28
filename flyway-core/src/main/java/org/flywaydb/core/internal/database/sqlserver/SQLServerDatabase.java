@@ -225,4 +225,20 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         // SQL Server 2016+, or Azure  (which has different versioning)
         return isAzure() || getVersion().isAtLeast("13.0");
     }
+
+    /**
+     * @return Whether this database supports partitions
+     */
+    boolean supportsPartitions() {
+        return isAzure()
+                || SQLServerEngineEdition.ENTERPRISE.equals(getEngineEdition())
+                || getVersion().isAtLeast("13");
+    }
+
+    /**
+     * @return Whether this database supports sequences
+     */
+    boolean supportsSequences() {
+        return getVersion().isAtLeast("11");
+    }
 }
