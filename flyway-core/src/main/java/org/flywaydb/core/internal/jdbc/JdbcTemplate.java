@@ -257,7 +257,21 @@ public class JdbcTemplate {
     private void extractWarnings(Results results, Statement statement) throws SQLException {
         SQLWarning warning = statement.getWarnings();
         while (warning != null) {
-            results.addWarning(new WarningImpl(warning.getErrorCode(), warning.getSQLState(), warning.getMessage()));
+            int code = warning.getErrorCode();
+            String state = warning.getSQLState();
+            String message = warning.getMessage();
+
+            if (state == null)
+            {
+                state = "";
+            }
+
+            if (message == null)
+            {
+                message = "";
+            }
+
+            results.addWarning(new WarningImpl(code, state, message));
             warning = warning.getNextWarning();
         }
     }
