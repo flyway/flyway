@@ -48,12 +48,19 @@ public class OracleParser extends Parser {
 
 
 
+    private static final Pattern PLSQL_PACKAGE_BODY_REGEX = Pattern.compile(
+            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\sBODY\\s.*\\s(IS|AS)");
+    private static final StatementType PLSQL_PACKAGE_BODY_STATEMENT = new StatementType();
+
+    private static final Pattern PLSQL_PACKAGE_DEFINITION_REGEX = Pattern.compile(
+            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\s.*\\s(IS|AS)");
+
     private static final Pattern PLSQL_VIEW_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sVIEW\\s.*\\sAS\\sWITH\\s(PROCEDURE|FUNCTION)");
     private static final StatementType PLSQL_VIEW_STATEMENT = new StatementType();
 
     private static final Pattern PLSQL_REGEX = Pattern.compile(
-            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\s(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER)");
+            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\s(FUNCTION|PROCEDURE|TYPE|TRIGGER)");
     private static final Pattern DECLARE_BEGIN_REGEX = Pattern.compile("^DECLARE|BEGIN|WITH");
     private static final StatementType PLSQL_STATEMENT = new StatementType();
 
@@ -280,7 +287,12 @@ public class OracleParser extends Parser {
 
     @Override
     protected StatementType detectStatementType(String simplifiedStatement) {
+        if (PLSQL_PACKAGE_BODY_REGEX.matcher(simplifiedStatement).matches()) {
+            return PLSQL_PACKAGE_BODY_STATEMENT;
+        }
+
         if (PLSQL_REGEX.matcher(simplifiedStatement).matches()
+                || PLSQL_PACKAGE_DEFINITION_REGEX.matcher(simplifiedStatement).matches()
                 || DECLARE_BEGIN_REGEX.matcher(simplifiedStatement).matches()) {
             return PLSQL_STATEMENT;
         }
@@ -339,7 +351,8 @@ public class OracleParser extends Parser {
 
     @Override
     protected void adjustDelimiter(ParserContext context, StatementType statementType) {
-        if (statementType == PLSQL_STATEMENT || statementType == PLSQL_VIEW_STATEMENT || statementType == PLSQL_JAVA_STATEMENT) {
+        if (statementType == PLSQL_STATEMENT || statementType == PLSQL_VIEW_STATEMENT || statementType == PLSQL_JAVA_STATEMENT
+            || statementType == PLSQL_PACKAGE_BODY_STATEMENT) {
             context.setDelimiter(PLSQL_DELIMITER);
 
 
@@ -364,6 +377,12 @@ public class OracleParser extends Parser {
 
     @Override
     protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+        // Package bodies can have an unbalanced BEGIN without END in the initialisation section.
+        TokenType tokenType = token.getType();
+        if (context.getStatementType() == PLSQL_PACKAGE_BODY_STATEMENT && (TokenType.EOF == tokenType || TokenType.DELIMITER == tokenType)) {
+            return true;
+        }
+
         // In Oracle, symbols { } affect the block depth in embedded Java code
         if (token.getType() == TokenType.SYMBOL && context.getStatementType() == PLSQL_JAVA_STATEMENT) {
             return true;
@@ -403,6 +422,14 @@ public class OracleParser extends Parser {
             context.increaseBlockDepth();
         } else if ("END".equals(keywordText)) {
             context.decreaseBlockDepth();
+        }
+
+        // Package bodies can have an unbalanced BEGIN without END in the initialisation section. This allows us
+        // to exit the package even though we are still at block depth 1 due to the BEGIN.
+        TokenType tokenType = keyword.getType();
+        if (context.getStatementType() == PLSQL_PACKAGE_BODY_STATEMENT && (TokenType.EOF == tokenType || TokenType.DELIMITER == tokenType) && context.getBlockDepth() == 1) {
+            context.decreaseBlockDepth();
+            return;
         }
     }
 
