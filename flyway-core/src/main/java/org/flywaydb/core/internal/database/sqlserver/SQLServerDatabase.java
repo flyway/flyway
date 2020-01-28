@@ -19,7 +19,6 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -212,4 +211,18 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         return getMainConnection().isAzureConnection();
     }
 
+    /**
+     * @return The database engine edition.
+     */
+    SQLServerEngineEdition getEngineEdition() {
+        return getMainConnection().getEngineEdition();
+    }
+
+    /**
+     * @return Whether this database supports temporal tables
+     */
+    boolean supportsTemporalTables() {
+        // SQL Server 2016+, or Azure  (which has different versioning)
+        return isAzure() || getVersion().isAtLeast("13.0");
+    }
 }
