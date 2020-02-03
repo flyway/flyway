@@ -135,7 +135,7 @@
         <version.mysql>8.0.17</version.mysql>
         <version.mssql-jdbc>7.2.0.jre8</version.mssql-jdbc>
         <version.postgresql>42.2.8.jre6</version.postgresql>
-        <version.snowflake>3.10.2</version.snowflake>
+        <version.snowflake>3.11.1</version.snowflake>
         <version.sqlite>3.23.1</version.sqlite>
         <version.osgi>4.3.1</version.osgi>
         <version.equinox>3.15.100</version.equinox>
