@@ -74,9 +74,9 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         );
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(rawMainJdbcConnection, databaseType);
-        pxcStrict = isRunningInPerconaXtraDBClusterWithStrictMode(jdbcTemplate);
-        gtidConsistencyEnforced = isRunningInGTIDConsistencyMode(jdbcTemplate);
-        eventSchedulerQueryable = DatabaseType.MYSQL == databaseType || isEventSchedulerQueryable(jdbcTemplate);
+        pxcStrict = isMySQL() && isRunningInPerconaXtraDBClusterWithStrictMode(jdbcTemplate);
+        gtidConsistencyEnforced = isMySQL() && isRunningInGTIDConsistencyMode(jdbcTemplate);
+        eventSchedulerQueryable = isMySQL() || isEventSchedulerQueryable(jdbcTemplate);
     }
 
     private static boolean isEventSchedulerQueryable(JdbcTemplate jdbcTemplate) {
@@ -117,6 +117,10 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         }
 
         return false;
+    }
+
+    boolean isMySQL() {
+        return databaseType == DatabaseType.MYSQL;
     }
 
     boolean isMariaDB() {
