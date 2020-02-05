@@ -133,7 +133,7 @@ public class DbClean {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
-            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+            TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                 @Override
                 public Void call() {
                     schema.drop();
@@ -143,7 +143,7 @@ public class DbClean {
         } catch (FlywaySqlException e) {
             LOG.debug(e.getMessage());
             LOG.warn("Unable to drop schema " + schema + ". Attempting clean instead...");
-            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+            TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                 @Override
                 public Void call() {
                     schema.clean();
@@ -166,7 +166,7 @@ public class DbClean {
         LOG.debug("Cleaning schema " + schema + " ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+        TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
             @Override
             public Void call() {
                 schema.clean();

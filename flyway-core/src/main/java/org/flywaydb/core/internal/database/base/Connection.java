@@ -124,7 +124,7 @@ public abstract class Connection<D extends Database> implements Closeable {
      * @return The result of the callable.
      */
     public <T> T lock(final Table table, final Callable<T> callable) {
-        return new TransactionTemplate(jdbcTemplate.getConnection(), database.supportsDdlTransactions()).execute(new Callable<T>() {
+        return TransactionTemplate.createTransactionTemplate(jdbcTemplate.getConnection(), database.supportsDdlTransactions()).execute(new Callable<T>() {
             @Override
             public T call() throws Exception {
                 table.lock();
@@ -146,7 +146,7 @@ public abstract class Connection<D extends Database> implements Closeable {
     }
 
     private void restoreOriginalSchema() {
-        new TransactionTemplate(jdbcConnection).execute(new Callable<Void>() {
+        TransactionTemplate.createTransactionTemplate(jdbcConnection).execute(new Callable<Void>() {
             @Override
             public Void call() {
                 try {

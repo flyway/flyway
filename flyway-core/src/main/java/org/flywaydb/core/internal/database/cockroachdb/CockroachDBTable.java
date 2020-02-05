@@ -19,6 +19,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.SqlCallable;
 
 import java.sql.SQLException;
 
@@ -42,11 +43,30 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
 
     @Override
     protected void doDrop() throws SQLException {
+        new CockroachDBRetryingStrategy().execute(new SqlCallable<Integer>() {
+            @Override
+            public Integer call() throws SQLException {
+                doDropOnce();
+                return null;
+            }
+        });
+    }
+
+    protected void doDropOnce() throws SQLException {
         jdbcTemplate.execute("DROP TABLE " + database.quote(schema.getName(), name) + " CASCADE");
     }
 
     @Override
     protected boolean doExists() throws SQLException {
+        return new CockroachDBRetryingStrategy().execute(new SqlCallable<Boolean>() {
+            @Override
+            public Boolean call() throws SQLException {
+                return doExistsOnce();
+            }
+        });
+    }
+
+    protected boolean doExistsOnce() throws SQLException {
         if (schema.cockroachDB1) {
             return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
                     "   SELECT 1\n" +

@@ -101,7 +101,7 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
         for (final Callback callback : callbacks) {
             if (callback.supports(event, context)) {
                 if (callback.canHandleInTransaction(event, context)) {
-                    new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Void>() {
+                    TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Void>() {
                         @Override
                         public Void call() {
                             DefaultCallbackExecutor.this.execute(connection, callback, event, context);

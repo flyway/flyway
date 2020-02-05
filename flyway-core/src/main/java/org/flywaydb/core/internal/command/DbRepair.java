@@ -98,7 +98,7 @@ public class DbRepair {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            boolean repaired = new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Boolean>() {
+            boolean repaired = TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Boolean>() {
                 public Boolean call() {
                     schemaHistory.removeFailedMigrations();
                     migrationInfoService.refresh();

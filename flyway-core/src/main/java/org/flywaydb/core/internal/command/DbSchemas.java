@@ -70,7 +70,7 @@ public class DbSchemas {
         int retries = 0;
         while (true) {
             try {
-                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+                TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Void call() {
                         List<Schema> createdSchemas = new ArrayList<>();

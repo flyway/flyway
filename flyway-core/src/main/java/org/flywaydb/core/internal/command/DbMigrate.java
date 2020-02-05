@@ -276,7 +276,7 @@ public class DbMigrate {
         final StopWatch stopWatch = new StopWatch();
         try {
             if (executeGroupInTransaction) {
-                new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
+                TransactionTemplate.createTransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() {
                         doMigrateGroup(group, stopWatch);
