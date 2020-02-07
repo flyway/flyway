@@ -38,7 +38,9 @@ import java.util.regex.Pattern;
  * MySQL database.
  */
 public class MySQLDatabase extends Database<MySQLConnection> {
+    // See https://mariadb.com/kb/en/version/
     private static final Pattern MARIADB_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+(-\\d+)*-MariaDB(-\\w+)*");
+    private static final Pattern MARIADB_WITH_MAXSCALE_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+(-\\d+)* (\\d+\\.\\d+)\\.\\d+(-\\d+)*-maxscale(-\\w+)*");
     private static final Pattern MYSQL_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+\\w*");
     private static final Log LOG = LogFactory.getLog(MySQLDatabase.class);
 
@@ -221,7 +223,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     static MigrationVersion correctForMySQLWithBadMetadata(MigrationVersion jdbcMetadataVersion, String selectVersionOutput) {
         if (selectVersionOutput.compareTo("5.7") >= 0 && jdbcMetadataVersion.toString().compareTo("5.7") < 0) {
             LOG.debug("MySQL-based database - reporting v" + jdbcMetadataVersion.toString() +" in JDBC metadata but database actually v" + selectVersionOutput);
-            return extractVersionFromString(MYSQL_VERSION_PATTERN, selectVersionOutput);
+            return extractVersionFromString(selectVersionOutput, MYSQL_VERSION_PATTERN);
         }
         return jdbcMetadataVersion;
     }
@@ -236,20 +238,22 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     static MigrationVersion correctForAzureMariaDB(String jdbcMetadataVersion, String selectVersionOutput) {
         if (jdbcMetadataVersion.startsWith("5.6")) {
             LOG.debug("Azure MariaDB database - reporting v5.6 in JDBC metadata but database actually v" + selectVersionOutput);
-            return extractVersionFromString(MARIADB_VERSION_PATTERN, selectVersionOutput);
+            return extractVersionFromString(selectVersionOutput, MARIADB_VERSION_PATTERN, MARIADB_WITH_MAXSCALE_VERSION_PATTERN);
         }
-        return extractVersionFromString(MARIADB_VERSION_PATTERN, jdbcMetadataVersion);
+        return extractVersionFromString(jdbcMetadataVersion, MARIADB_VERSION_PATTERN, MARIADB_WITH_MAXSCALE_VERSION_PATTERN);
     }
 
     /*
      * Given a version string that may contain unwanted text, extract out the version part.
      */
-    private static MigrationVersion extractVersionFromString(Pattern pattern, String versionString) {
-        Matcher matcher = pattern.matcher(versionString);
-        if (!matcher.find()) {
-            throw new FlywayException("Unable to determine version from '" + versionString + "'");
+    private static MigrationVersion extractVersionFromString(String versionString, Pattern... patterns) {
+        for (Pattern pattern : patterns) {
+            Matcher matcher = pattern.matcher(versionString);
+            if (matcher.find()) {
+                return MigrationVersion.fromVersion(matcher.group(1));
+            }
         }
-        return MigrationVersion.fromVersion(matcher.group(1));
+        throw new FlywayException("Unable to determine version from '" + versionString + "'");
     }
 
 
