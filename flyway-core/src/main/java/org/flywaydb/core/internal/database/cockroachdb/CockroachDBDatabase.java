@@ -110,7 +110,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return getMainConnection().getJdbcTemplate().queryForString("(SELECT * FROM [SHOW SESSION_USER])");
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT * FROM [SHOW SESSION_USER]");
     }
 
     public boolean supportsDdlTransactions() {
