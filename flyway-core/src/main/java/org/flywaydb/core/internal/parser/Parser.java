@@ -371,6 +371,31 @@ public abstract class Parser {
         return false;
     }
 
+    /**
+     * Checks if the specified token texts are found consecutively within the last tokens in the list
+     */
+    protected static boolean containsWithinLast(int count, List<Token> tokens, int parensDepth, String... consecutiveTokenTexts) {
+        int j = consecutiveTokenTexts.length - 1;
+        int remaining = count;
+        for (int i = tokens.size() - 1; i >= 0 && remaining > 0; i--) {
+            // Only consider tokens at the same parenthesis depth
+            if (tokens.get(i).getParensDepth() != parensDepth) {
+                continue;
+            }
+            if (consecutiveTokenTexts[j].equals(tokens.get(i).getText())) {
+                if (j == 0) {
+                    return true;
+                }
+                j--;
+            } else if (j < consecutiveTokenTexts.length - 1) {
+                // Token texts weren't consecutive, so reset
+                j = consecutiveTokenTexts.length - 1;
+            }
+            remaining--;
+        }
+        return false;
+    }
+
     protected ParsedSqlStatement createStatement(PeekingReader reader, Recorder recorder,
                                                  int statementPos, int statementLine, int statementCol,
                                                  int nonCommentPartPos, int nonCommentPartLine, int nonCommentPartCol,
