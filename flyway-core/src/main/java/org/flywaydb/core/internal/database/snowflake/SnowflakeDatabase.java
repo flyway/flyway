@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,13 +50,14 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
 
 
 
+
     @Override
     public void ensureSupported() {
         ensureDatabaseIsRecentEnough("3.0");
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("3", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessaryForMajorVersion("3.50");
+        recommendFlywayUpgradeIfNecessaryForMajorVersion("4.2");
     }
 
     @Override

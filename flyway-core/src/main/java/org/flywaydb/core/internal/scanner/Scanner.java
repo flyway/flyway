@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,9 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     private final List<LoadableResource> resources = new ArrayList<>();
     private final List<Class<? extends I>> classes = new ArrayList<>();
 
+    /*
+     * Constructor. Scans the given locations for resources, and classes implementing the specified interface.
+     */
     public Scanner(Class<I> implementedInterface, Collection<Location> locations, ClassLoader classLoader, Charset encoding
 
 
@@ -82,7 +85,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     }
 
     /**
-     * Scans this location for resources, starting with the specified prefix and ending with the specified suffix.
+     * Returns all known resources starting with the specified prefix and ending with any of the specified suffixes.
      *
      * @param prefix   The prefix of the resource names to match.
      * @param suffixes The suffixes of the resource names to match.

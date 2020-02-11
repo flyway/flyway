@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,9 @@ import java.util.List;
  * Log creator for a MultiLog
  */
 class MultiLogCreator implements LogCreator {
+    private final List<LogCreator> logCreators;
 
-    private final LogCreator[] logCreators;
-
-    public MultiLogCreator(LogCreator[] logCreators) {
+    MultiLogCreator(List<LogCreator> logCreators) {
         this.logCreators = logCreators;
     }
 
@@ -40,6 +39,10 @@ class MultiLogCreator implements LogCreator {
             logs.add(logCreator.createLogger(clazz));
         }
 
-        return new MultiLogger(logs.toArray(new Log[0]));
+        return new MultiLogger(logs);
+    }
+
+    static MultiLogCreator empty() {
+        return new MultiLogCreator(new ArrayList<>());
     }
 }

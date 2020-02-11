@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.resource.NoopResourceProvider;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
+import org.flywaydb.core.internal.resource.ResourceNameValidator;
 import org.flywaydb.core.internal.scanner.ResourceNameCache;
 import org.flywaydb.core.internal.scanner.Scanner;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
@@ -83,6 +84,11 @@ public class Flyway {
      * Designed so we can fail fast if the configuration is invalid
      */
     private ConfigurationValidator  configurationValidator = new ConfigurationValidator();
+
+    /**
+     * Designed so we can fail fast if the SQL file resources are invalid
+     */
+    private ResourceNameValidator resourceNameValidator = new ResourceNameValidator();
 
     /**
      * This is your starting point. This creates a configuration which can be customized to your needs before being
@@ -173,7 +179,7 @@ public class Flyway {
                             if (!schemaHistory.exists()) {
                                 throw new FlywayException("Found non-empty schema(s) "
                                         + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
-                                        + " without schema history table! Use baseline()"
+                                        + " but no schema history table. Use baseline()"
                                         + " or set baselineOnMigrate to true to initialize the schema history table.");
                             }
                         }
@@ -433,6 +439,10 @@ public class Flyway {
             classProvider = scanner;
         }
 
+        if (configuration.isValidateMigrationNaming()) {
+            resourceNameValidator.validateSQLMigrationNaming(resourceProvider, configuration);
+        }
+
         JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(),
                 configuration.getConnectRetries()
 
@@ -570,10 +580,7 @@ public class Flyway {
             }
         }
 
-        // This behaviour will change in Flyway 7.
         if (defaultSchemaName == null && schemaNames.length > 0) {
-            LOG.warn("Using the first specified schema " + schemaNames[0] + " as default schema. From Flyway 6.1 you " +
-                    "can specify defaultSchema explicitly in your configuration, and from Flyway 7 this will become mandatory.");
             defaultSchemaName = schemaNames[0];
         }
 

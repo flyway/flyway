@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,7 +103,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                         LOG.info("Creating Schema History table " + table + (baseline ? " with baseline" : "") + " ...");
                     }
                     try {
-                        new TransactionTemplate(connection.getJdbcConnection(), true).execute(new Callable<Object>() {
+                        TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection(), true).execute(new Callable<Object>() {
                             @Override
                             public Object call() {
                                 sqlScriptExecutorFactory.createSqlScriptExecutor(connection.getJdbcConnection()
@@ -154,6 +154,10 @@ class JdbcTableSchemaHistory extends SchemaHistory {
 
         try {
             String versionStr = version == null ? null : version.toString();
+
+            if (!database.supportsEmptyMigrationDescription() && "".equals(description)) {
+                description = NO_DESCRIPTION_MARKER;
+            }
 
             jdbcTemplate.update(database.getInsertStatement(table),
                     installedRank, versionStr, description, type.name(), script, checksum, database.getInstalledBy(),

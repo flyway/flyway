@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class SybaseASEParser extends Parser {
     }
 
     @Override
-    protected boolean isDelimiter(String peek, ParserContext context) {
+    protected boolean isDelimiter(String peek, ParserContext context, int col) {
         String delimiterText = super.getDelimiter().getDelimiter();
         int delimiterTextLength = delimiterText.length();
         return peek.length() == delimiterTextLength

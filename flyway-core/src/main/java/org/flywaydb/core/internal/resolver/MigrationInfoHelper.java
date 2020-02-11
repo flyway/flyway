@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ public class MigrationInfoHelper {
     public static Pair<MigrationVersion, String> extractVersionAndDescription(String migrationName,
                                                                               String prefix, String separator,
                                                                               String[] suffixes, boolean repeatable) {
+        // Only handles Java migrations now
         String cleanMigrationName = cleanMigrationName(migrationName, prefix, suffixes);
 
         int separatorPos = cleanMigrationName.indexOf(separator);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,6 +87,13 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
                 "go\n" +
                 "CREATE INDEX " + table.getName() + "_s_idx ON " + table.getName() + " (success)\n" +
                 "go\n";
+    }
+
+    @Override
+    public boolean supportsEmptyMigrationDescription() {
+        // Sybase will convert the empty string to a single space implicitly, which won't error on updating the
+        // history table but will subsequently fail validation of the history table against the file name.
+        return false;
     }
 
     @Override

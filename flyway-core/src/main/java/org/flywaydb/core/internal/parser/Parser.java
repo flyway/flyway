@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,6 @@ public abstract class Parser {
     private final char identifierQuote;
     private final char alternativeIdentifierQuote;
     private final char alternativeStringLiteralQuote;
-    private final char alternativeSingleLineComment;
     private final Set<String> validKeywords;
     private final ParsingContext parsingContext;
 
@@ -65,7 +64,6 @@ public abstract class Parser {
         this.identifierQuote = getIdentifierQuote();
         this.alternativeIdentifierQuote = getAlternativeIdentifierQuote();
         this.alternativeStringLiteralQuote = getAlternativeStringLiteralQuote();
-        this.alternativeSingleLineComment = getAlternativeSingleLineComment();
         this.validKeywords = getValidKeywords();
         this.parsingContext = parsingContext;
 
@@ -94,10 +92,6 @@ public abstract class Parser {
         return 0;
     }
 
-    protected char getAlternativeSingleLineComment() {
-        return 0;
-    }
-
     protected Set<String> getValidKeywords() {
         return null;
     }
@@ -117,8 +111,8 @@ public abstract class Parser {
         PeekingReader peekingReader =
                 new PeekingReader(
                         new RecordingReader(recorder,
-                                replacePlaceholders(
-                                        new PositionTrackingReader(tracker,
+                                new PositionTrackingReader(tracker,
+                                        replacePlaceholders(
                                                 new BomStrippingReader(
                                                         new BufferedReader(resource.read(), 4096))))));
 
@@ -212,12 +206,15 @@ public abstract class Parser {
                     continue;
                 }
 
-                int parensDepth = token.getParensDepth();
-                if (tokenType == TokenType.KEYWORD && parensDepth == 0) {
-                    keywords.add(token);
+                if (shouldAdjustBlockDepth(context, token)) {
+                    if (tokenType == TokenType.KEYWORD) {
+                        keywords.add(token);
+                    }
                     adjustBlockDepth(context, tokens, token);
                 }
 
+
+                int parensDepth = token.getParensDepth();
                 int blockDepth = context.getBlockDepth();
                 if (TokenType.EOF == tokenType
                         || (TokenType.DELIMITER == tokenType && parensDepth == 0 && blockDepth == 0)) {
@@ -277,6 +274,7 @@ public abstract class Parser {
                             statementType = StatementType.GENERIC;
                         } else {
                             statementType = detectStatementType(simplifiedStatement);
+                            context.setStatementType(statementType);
                         }
                         adjustDelimiter(context, statementType);
                     }
@@ -299,6 +297,10 @@ public abstract class Parser {
             throw new FlywayException("Unable to parse statement in " + resource.getAbsolutePath()
                     + " at line " + statementLine + " col " + statementCol + ": " + e.getMessage(), e);
         }
+    }
+
+    protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+        return (token.getType() == TokenType.KEYWORD && token.getParensDepth() == 0);
     }
 
     /**
@@ -379,6 +381,31 @@ public abstract class Parser {
         return false;
     }
 
+    /**
+     * Checks if the specified token texts are found consecutively within the last tokens in the list
+     */
+    protected static boolean containsWithinLast(int count, List<Token> tokens, int parensDepth, String... consecutiveTokenTexts) {
+        int j = consecutiveTokenTexts.length - 1;
+        int remaining = count;
+        for (int i = tokens.size() - 1; i >= 0 && remaining > 0; i--) {
+            // Only consider tokens at the same parenthesis depth
+            if (tokens.get(i).getParensDepth() != parensDepth) {
+                continue;
+            }
+            if (consecutiveTokenTexts[j].equals(tokens.get(i).getText())) {
+                if (j == 0) {
+                    return true;
+                }
+                j--;
+            } else if (j < consecutiveTokenTexts.length - 1) {
+                // Token texts weren't consecutive, so reset
+                j = consecutiveTokenTexts.length - 1;
+            }
+            remaining--;
+        }
+        return false;
+    }
+
     protected ParsedSqlStatement createStatement(PeekingReader reader, Recorder recorder,
                                                  int statementPos, int statementLine, int statementCol,
                                                  int nonCommentPartPos, int nonCommentPartLine, int nonCommentPartCol,
@@ -451,7 +478,7 @@ public abstract class Parser {
         if (isCommentDirective(peek)) {
             return handleCommentDirective(reader, context, pos, line, col);
         }
-        if (peek.startsWith("--") || (alternativeSingleLineComment != 0 && c == alternativeSingleLineComment)) {
+        if (isSingleLineComment(peek, context, col)) {
             reader.swallowUntilExcluding('\n', '\r');
             return new Token(TokenType.COMMENT, pos, line, col, null, null, context.getParensDepth());
         }
@@ -475,7 +502,7 @@ public abstract class Parser {
             reader.swallowUntilExcludingWithEscape('\'', true);
             return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
         }
-        if (isDelimiter(peek, context)) {
+        if (isDelimiter(peek, context, col)) {
             return handleDelimiter(reader, context, pos, line, col);
         }
         if (c == '_' || Character.isLetter(c)) {
@@ -521,9 +548,13 @@ public abstract class Parser {
         return alternativeStringLiteralQuote != 0 && peek.charAt(0) == alternativeStringLiteralQuote;
     }
 
-    protected boolean isDelimiter(String peek, ParserContext context) {
+    protected boolean isDelimiter(String peek, ParserContext context, int col) {
         Delimiter delimiter = context.getDelimiter();
         return peek.startsWith(delimiter.getDelimiter());
+    }
+
+    protected boolean isSingleLineComment(String peek, ParserContext context, int col) {
+        return peek.startsWith("--");
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ public class DbRepair {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            boolean repaired = new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Boolean>() {
+            boolean repaired = TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Boolean>() {
                 public Boolean call() {
                     schemaHistory.removeFailedMigrations();
                     migrationInfoService.refresh();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,16 +113,17 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     /**
      * <p>The tablespace where to create the schema history table that will be used by Flyway.</p>
-     * <p>This setting is only relevant for databases that do support the notion of tablespaces. It's value is simply
-     * ignored for all others.</p> (default: The default tablespace for the database connection)
+     * <p>If not specified, Flyway uses the default tablespace for the database connection.
+     * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply
+     * ignored for all others.</p>
      * <p>Also configurable with Gradle or System Property: ${flyway.tablespace}</p>
      */
     public String tablespace;
 
     /**
      * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
-     * flyway.schemas is, we use the first schema in that list. In Flyway 7, you will need to specify this value
-     * and not rely on flyway.schemas (default: The default schema for the database connection)
+     * <i>schemas</i> is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the
+     * default schema for the database connection.
      * <p>Consequences:</p>
      * <ul>
      * <li>This schema will be the one containing the schema history table.</li>
@@ -133,7 +134,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String defaultSchema;
 
     /**
-     * The schemas managed by Flyway. These schema names are case-sensitive. (default: The default schema for the database connection)
+     * The schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
+     * the default schema for the database connection. If <i>defaultSchema</i> is not specified, then the first of
+     * this list also acts as default schema.
      * <p>Consequences:</p>
      * <ul>
      * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
@@ -344,6 +347,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * <p>Also configurable with Gradle or System Property: ${flyway.ignoreFutureMigrations}</p>
      */
     public Boolean ignoreFutureMigrations;
+
+    /**
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     *{@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
+     */
+    public Boolean validateMigrationNaming;
 
     /**
      * Whether to disable clean. (default: {@code false})
@@ -641,6 +651,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.IGNORE_IGNORED_MIGRATIONS, ignoreIgnoredMigrations, extension.ignoreIgnoredMigrations);
         putIfSet(conf, ConfigUtils.IGNORE_PENDING_MIGRATIONS, ignorePendingMigrations, extension.ignorePendingMigrations);
         putIfSet(conf, ConfigUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations, extension.ignoreFutureMigrations);
+        putIfSet(conf, ConfigUtils.VALIDATE_MIGRATION_NAMING, validateMigrationNaming, extension.validateMigrationNaming);
         putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled, extension.cleanDisabled);
         putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate, extension.baselineOnMigrate);
         putIfSet(conf, ConfigUtils.SKIP_DEFAULT_RESOLVERS, skipDefaultResolvers, extension.skipDefaultResolvers);

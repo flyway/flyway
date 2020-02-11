@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,8 +106,8 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
-     * flyway.schemas is, we use the first schema in that list. In Flyway 7, you will need to specify this value
-     * and not rely on flyway.schemas (default: The default schema for the database connection)
+     * <i>schemaNames</i> is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses
+     * the default schema for the database connection.
      * <p>Consequences:</p>
      * <ul>
      * <li>This schema will be the one containing the schema history table.</li>
@@ -117,7 +117,9 @@ public class ClassicConfiguration implements Configuration {
     private String defaultSchemaName = null;
 
     /**
-     * The schemas managed by Flyway. These schema names are case-sensitive.
+     * The schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
+     * the default schema for the database connection. If <i>defaultSchemaName</i> is not specified, then the first of
+     * this list also acts as default schema.
      * <p>Consequences:</p>
      * <ul>
      * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
@@ -130,16 +132,16 @@ public class ClassicConfiguration implements Configuration {
     /**
      * <p>The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)</p><p> By default
      * (single-schema mode) the schema history table is placed in the default schema for the connection provided by the
-     * datasource. </p> <p> When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is
+     * datasource. </p> <p>When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is
      * placed in the first schema of the list. </p>
      */
     private String table = "flyway_schema_history";
 
     /**
-     * <p>Retrieves the tablespace where to create the schema history table that will be used by Flyway.</p>
-     * <p>This setting is only relevant for databases that do support the notion of tablespaces. It's value is simply
+     * <p>The tablespace where to create the schema history table that will be used by Flyway.</p>
+     * <p>If not specified, Flyway uses the default tablespace for the database connection.
+     * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply
      * ignored for all others.</p>
-     * (default: The default tablespace for the database connection)
      */
     private String tablespace;
 
@@ -298,6 +300,13 @@ public class ClassicConfiguration implements Configuration {
      * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
      */
     private boolean ignoreFutureMigrations = true;
+
+    /**
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     * {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
+     */
+    private boolean validateMigrationNaming = false;
 
     /**
      * Whether to automatically call validate or not when running migrate. (default: {@code true})
@@ -611,6 +620,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isIgnoreFutureMigrations() {
         return ignoreFutureMigrations;
+    }
+
+    @Override
+    public boolean isValidateMigrationNaming() {
+        return validateMigrationNaming;
     }
 
     @Override
@@ -971,6 +985,17 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     *
+     * @param validateMigrationNaming {@code false} to continue normally, {@code true} to fail
+     *                                                fast with an exception. (default: {@code false})
+     */
+    public void setValidateMigrationNaming(boolean validateMigrationNaming) {
+        this.validateMigrationNaming = validateMigrationNaming;
+    }
+
+    /**
      * Whether to automatically call validate or not when running migrate.
      *
      * @param validateOnMigrate {@code true} if validate should be called. {@code false} if not. (default: {@code true})
@@ -1051,8 +1076,8 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Sets the default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
-     * flyway.schemas is, we use the first schema in that list. In Flyway 7, you will need to specify this value
-     * and not rely on flyway.schemas (default: The default schema for the database connection)
+     * <i>Schemas</i> is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default
+     * schema for the database connection.
      * <p>Consequences:</p>
      * <ul>
      * <li>This schema will be the one containing the schema history table.</li>
@@ -1066,8 +1091,9 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Sets the schemas managed by Flyway. These schema names are case-sensitive. (default: The value of getDefaultSchema(),
-     * or failing that the default schema for the database connection)
+     * Sets the schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
+     * the default schema for the database connection. If <i>defaultSchema</i> is not specified, then the first of
+     * this list also acts as default schema.
      * <p>Consequences:</p>
      * <ul>
      * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
@@ -1082,7 +1108,7 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * <p>Sets the name of the schema history table that will be used by Flyway.</p><p> By default (single-schema mode)
+     * <p>Sets the name of the schema history table that will be used by Flyway. </p><p> By default (single-schema mode)
      * the schema history table is placed in the default schema for the connection provided by the datasource. </p> <p> When
      * the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first schema
      * of the list. </p>
@@ -1095,10 +1121,11 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * <p>Sets the tablespace where to create the schema history table that will be used by Flyway.</p>
-     * <p>This setting is only relevant for databases that do support the notion of tablespaces. It's value is simply
+     * <p>If not specified, Flyway uses the default tablespace for the database connection.This setting is only relevant
+     * for databases that do support the notion of tablespaces. Its value is simply
      * ignored for all others.</p>
      *
-     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway. (default: The default tablespace for the database connection)
+     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway.
      */
     public void setTablespace(String tablespace) {
         this.tablespace = tablespace;
@@ -1649,6 +1676,7 @@ public class ClassicConfiguration implements Configuration {
 
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
+        setValidateMigrationNaming(configuration.isValidateMigrationNaming());
         setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
         setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
         setIgnoreIgnoredMigrations(configuration.isIgnoreIgnoredMigrations());
@@ -1861,6 +1889,10 @@ public class ClassicConfiguration implements Configuration {
         if (ignoreFutureMigrationsProp != null) {
             setIgnoreFutureMigrations(ignoreFutureMigrationsProp);
         }
+        Boolean validateMigrationNamingProp = removeBoolean(props, ConfigUtils.VALIDATE_MIGRATION_NAMING);
+        if (validateMigrationNamingProp != null) {
+            setValidateMigrationNaming(validateMigrationNamingProp);
+        }
         String targetProp = props.remove(ConfigUtils.TARGET);
         if (targetProp != null) {
             setTarget(MigrationVersion.fromVersion(targetProp));
@@ -1956,11 +1988,7 @@ public class ClassicConfiguration implements Configuration {
             setLicenseKey(licenseKeyProp);
         }
 
-        for (String key : props.keySet()) {
-            if (key.startsWith("flyway.")) {
-                throw new FlywayException("Unknown configuration property: " + key, ErrorCode.CONFIGURATION);
-            }
-        }
+        ConfigUtils.checkConfigurationForUnrecognisedProperties(props, "flyway.");
     }
 
     /**

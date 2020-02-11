@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,7 @@ import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,6 +88,7 @@ public class ConfigUtils {
     public static final String URL = "flyway.url";
     public static final String USER = "flyway.user";
     public static final String VALIDATE_ON_MIGRATE = "flyway.validateOnMigrate";
+    public static final String VALIDATE_MIGRATION_NAMING = "flyway.validateMigrationNaming";
 
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
@@ -156,6 +153,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_CONNECT_RETRIES".equals(key)) {
             return CONNECT_RETRIES;
+        }
+        if ("FLYWAY_DEFAULT_SCHEMA".equals(key)) {
+            return DEFAULT_SCHEMA;
         }
         if ("FLYWAY_DRIVER".equals(key)) {
             return DRIVER;
@@ -454,13 +454,42 @@ public class ConfigUtils {
             for (Map.Entry<String, String> entry : new TreeMap<>(config).entrySet()) {
                 String value = entry.getValue();
 
-                // Mask the password. Ex.: T0pS3cr3t -> *********
-                value = ConfigUtils.PASSWORD.equals(entry.getKey())
-                        ? StringUtils.trimOrPad("", value.length(), '*')
-                        : value;
+                switch (entry.getKey()) {
+                    // Mask the password. Ex.: T0pS3cr3t -> *********
+                    case ConfigUtils.PASSWORD:
+                        value = StringUtils.trimOrPad("", value.length(), '*');
+                        break;
+                    // Mask the licence key, leaving a few characters to confirm which key is in use
+                    case ConfigUtils.LICENSE_KEY:
+                        value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
+                        break;
+                }
 
                 LOG.debug(entry.getKey() + " -> " + value);
             }
+        }
+    }
+
+    /**
+     *  Checks the configuration for any unrecognised properties remaining after expected ones have been consumed
+     *
+     *  @param config The configured properties.
+     *  @param prefix The expected prefix for Flyway configuration parameters - or null if none.
+     */
+    public static void checkConfigurationForUnrecognisedProperties(Map<String, String> config, String prefix) {
+        ArrayList<String> unknownFlywayProperties = new ArrayList<>();
+        for (String key : config.keySet()) {
+            if (prefix == null || key.startsWith(prefix)) {
+                unknownFlywayProperties.add(key);
+            }
+        }
+
+        if (!unknownFlywayProperties.isEmpty()) {
+            String property = (unknownFlywayProperties.size() == 1) ? "property" : "properties";
+            String message = String.format("Unknown configuration %s: %s",
+                    property,
+                    StringUtils.arrayToCommaDelimitedString(unknownFlywayProperties.toArray()));
+            throw new FlywayException(message, ErrorCode.CONFIGURATION);
         }
     }
 }

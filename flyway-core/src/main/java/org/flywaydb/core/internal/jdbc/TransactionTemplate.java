@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,28 @@ public class TransactionTemplate {
      *
      * @param connection The connection for the transaction.
      */
-    public TransactionTemplate(Connection connection) {
+    public static TransactionTemplate createTransactionTemplate(Connection connection) {
+        return createTransactionTemplate(connection, true);
+    }
+
+    /**
+     * Creates a new transaction template for this connection.
+     *
+     * @param connection          The connection for the transaction.
+     * @param rollbackOnException Whether to roll back the transaction when an exception is thrown.
+     */
+    public static TransactionTemplate createTransactionTemplate(Connection connection, boolean rollbackOnException) {
+        if (DatabaseType.fromJdbcConnection(connection) == DatabaseType.COCKROACHDB)
+            return new CockroachRetryingTransactionTemplate(connection, rollbackOnException);
+        return new TransactionTemplate(connection, rollbackOnException);
+    }
+
+    /**
+     * Creates a new transaction template for this connection.
+     *
+     * @param connection The connection for the transaction.
+     */
+    protected TransactionTemplate(Connection connection) {
         this(connection, true);
     }
 
@@ -55,7 +76,7 @@ public class TransactionTemplate {
      * @param connection          The connection for the transaction.
      * @param rollbackOnException Whether to roll back the transaction when an exception is thrown.
      */
-    public TransactionTemplate(Connection connection, boolean rollbackOnException) {
+    protected TransactionTemplate(Connection connection, boolean rollbackOnException) {
         this.connection = connection;
         this.rollbackOnException = rollbackOnException;
     }

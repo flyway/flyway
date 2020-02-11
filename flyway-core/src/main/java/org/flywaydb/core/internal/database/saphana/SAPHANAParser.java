@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,10 +36,10 @@ public class SAPHANAParser extends Parser {
         }
         Token previousKeyword = tokens.get(lastKeywordIndex);
 
-        // BEGIN, DO and IF increases block depth
-        if (("BEGIN".equals(keyword.getText()) || "DO".equals(keyword.getText()) || "IF".equals(keyword.getText())
-                // But not END FOR, END IF and END WHILE
-                && !"END".equals(previousKeyword.getText()))) {
+        // BEGIN, CASE, DO and IF increases block depth
+        if ("BEGIN".equals(keyword.getText()) || "CASE".equals(keyword.getText()) || "DO".equals(keyword.getText()) || "IF".equals(keyword.getText())
+                // But not END IF
+                && !"END".equals(previousKeyword.getText())) {
             context.increaseBlockDepth();
         } else if ("END".equals(keyword.getText())) {
             context.decreaseBlockDepth();

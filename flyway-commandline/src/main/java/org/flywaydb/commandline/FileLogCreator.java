@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,42 +15,53 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.commandline.PrintStreamLog.Level;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
+import org.flywaydb.commandline.ConsoleLog.Level;
 
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * Log Creator for logging to a file
  */
 class FileLogCreator implements LogCreator {
     private final Level level;
-    private final String filePath;
+    private final Path path;
 
     /**
      * Creates a new file Log Creator.
      *
-     * @param level The minimum level to log at.
-     * @param filePath File to write logs into
+     * @param commandLineArguments The command line arguments
      */
-    public FileLogCreator(Level level, String filePath) {
-        this.level = level;
-        this.filePath = filePath;
+    FileLogCreator(CommandLineArguments commandLineArguments) {
+        String outputFilepath = "";
+
+        if (commandLineArguments.isOutputFileSet()) {
+            outputFilepath = commandLineArguments.getOutputFile();
+        } else if (commandLineArguments.isLogFilepathSet()) {
+            outputFilepath = commandLineArguments.getLogFilepath();
+        }
+
+        this.level = commandLineArguments.getLogLevel();
+        this.path = Paths.get(outputFilepath);
+
+        prepareOutputFile(path);
     }
 
     public Log createLogger(Class<?> clazz) {
-        PrintStream filePrintStream = getFilePrintStream();
-        return new PrintStreamLog(level, filePrintStream, filePrintStream);
+        return new FileLog(path, level);
     }
 
-    private PrintStream getFilePrintStream() {
+    private static void prepareOutputFile(Path path) {
         try {
-            return new PrintStream(this.filePath);
-        } catch (FileNotFoundException e) {
-            throw new FlywayException("Could not open file " + filePath + " for logging.");
+            Files.write(path, "".getBytes(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+        } catch(IOException exception) {
+            throw new FlywayException("Could not initialize log file at " + path + ".", exception);
         }
     }
 }

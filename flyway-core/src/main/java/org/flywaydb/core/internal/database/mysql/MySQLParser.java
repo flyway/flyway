@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,12 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class MySQLParser extends Parser {
+    private static final char ALTERNATIVE_SINGLE_LINE_COMMENT = '#';
+
     public MySQLParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 8);
     }
@@ -50,8 +54,10 @@ public class MySQLParser extends Parser {
     }
 
     @Override
-    protected char getAlternativeSingleLineComment() {
-        return '#';
+    protected boolean isSingleLineComment(String peek, ParserContext context, int col) {
+        return (super.isSingleLineComment(peek, context, col)
+                // Normally MySQL treats # as a comment, but this may have been overridden by DELIMITER # directive
+                || (peek.charAt(0) == ALTERNATIVE_SINGLE_LINE_COMMENT && !isDelimiter(peek, context, col)));
     }
 
     @Override
@@ -87,5 +93,26 @@ public class MySQLParser extends Parser {
                 && isDigit(text.charAt(5))
                 && isDigit(text.charAt(6))
                 && isDigit(text.charAt(7));
+    }
+
+    // These words increase the block depth - unless preceded by END (in which case the END will decrease the block depth)
+    // See: https://dev.mysql.com/doc/refman/8.0/en/flow-control-statements.html
+    private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("IF", "LOOP", "CASE", "REPEAT", "WHILE");
+
+    @Override
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+        String keywordText = keyword.getText();
+
+        int parensDepth = keyword.getParensDepth();
+
+        if ("BEGIN".equals(keywordText)
+               || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !containsWithinLast(1, tokens, parensDepth, "END"))) {
+            context.increaseBlockDepth();
+        } else if ("END".equals(keywordText)
+                || (("EXISTS".equals(keywordText)
+                    && containsWithinLast(1, tokens, parensDepth, "IF")
+                    && containsWithinLast(3, tokens, parensDepth, "DROP")))) {
+            context.decreaseBlockDepth();
+        }
     }
 }

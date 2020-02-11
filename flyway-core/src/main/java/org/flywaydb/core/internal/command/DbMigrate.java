@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -276,7 +276,7 @@ public class DbMigrate {
         final StopWatch stopWatch = new StopWatch();
         try {
             if (executeGroupInTransaction) {
-                new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
+                TransactionTemplate.createTransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
                     @Override
                     public Object call() {
                         doMigrateGroup(group, stopWatch);

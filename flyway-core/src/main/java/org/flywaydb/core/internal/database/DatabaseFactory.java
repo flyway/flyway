@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabase;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBParser;
+import org.flywaydb.core.internal.database.cockroachdb.CockroachDBRetryingStrategy;
 import org.flywaydb.core.internal.database.db2.DB2Database;
 import org.flywaydb.core.internal.database.db2.DB2Parser;
 import org.flywaydb.core.internal.database.derby.DerbyDatabase;
@@ -66,6 +67,7 @@ import org.flywaydb.core.internal.sqlscript.*;
 
 import java.sql.Connection;
 
+import static org.flywaydb.core.internal.jdbc.DatabaseType.COCKROACHDB;
 import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.getMetadataResource;
 
 /**
@@ -376,5 +378,19 @@ public class DatabaseFactory {
                 );
             }
         };
+    }
+
+    public static DatabaseExecutionStrategy createExecutionStrategy(Connection connection) {
+        if (connection == null) {
+            return new DefaultExecutionStrategy();
+        }
+
+        DatabaseType databaseType = DatabaseType.fromJdbcConnection(connection);
+        switch (databaseType) {
+            case COCKROACHDB:
+                return new CockroachDBRetryingStrategy();
+            default:
+                return new DefaultExecutionStrategy();
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,9 @@ import java.util.regex.Pattern;
  * MySQL database.
  */
 public class MySQLDatabase extends Database<MySQLConnection> {
-    private static final Pattern MARIADB_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+-MariaDB");
+    // See https://mariadb.com/kb/en/version/
+    private static final Pattern MARIADB_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+(-\\d+)*-MariaDB(-\\w+)*");
+    private static final Pattern MARIADB_WITH_MAXSCALE_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+(-\\d+)* (\\d+\\.\\d+)\\.\\d+(-\\d+)*-maxscale(-\\w+)*");
     private static final Pattern MYSQL_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+\\w*");
     private static final Log LOG = LogFactory.getLog(MySQLDatabase.class);
 
@@ -74,9 +76,9 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         );
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(rawMainJdbcConnection, databaseType);
-        pxcStrict = isRunningInPerconaXtraDBClusterWithStrictMode(jdbcTemplate);
-        gtidConsistencyEnforced = isRunningInGTIDConsistencyMode(jdbcTemplate);
-        eventSchedulerQueryable = DatabaseType.MYSQL == databaseType || isEventSchedulerQueryable(jdbcTemplate);
+        pxcStrict = isMySQL() && isRunningInPerconaXtraDBClusterWithStrictMode(jdbcTemplate);
+        gtidConsistencyEnforced = isMySQL() && isRunningInGTIDConsistencyMode(jdbcTemplate);
+        eventSchedulerQueryable = isMySQL() || isEventSchedulerQueryable(jdbcTemplate);
     }
 
     private static boolean isEventSchedulerQueryable(JdbcTemplate jdbcTemplate) {
@@ -117,6 +119,10 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         }
 
         return false;
+    }
+
+    boolean isMySQL() {
+        return databaseType == DatabaseType.MYSQL;
     }
 
     boolean isMariaDB() {
@@ -209,42 +215,45 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     /*
      * Azure Database for MySQL reports version numbers incorrectly - it claims to be 5.6 (the gateway
-     * version) while the db itself is 5.7, visible from SELECT VERSION(). We work around this specific case.
-     * This code should be simplified as soon as Azure is fixed.
+     * version) while the db itself is 5.7 or greater, visible from SELECT VERSION(). We work around this specific
+     * case. This code should be simplified as soon as Azure is fixed.
      * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
      * A similar issue applies to Percona, except there the metadata claims to be 5.5.
      */
     static MigrationVersion correctForMySQLWithBadMetadata(MigrationVersion jdbcMetadataVersion, String selectVersionOutput) {
-        if (selectVersionOutput.startsWith("5.7") && jdbcMetadataVersion.toString().compareTo("5.7") < 0) {
+        if (selectVersionOutput.compareTo("5.7") >= 0 && jdbcMetadataVersion.toString().compareTo("5.7") < 0) {
             LOG.debug("MySQL-based database - reporting v" + jdbcMetadataVersion.toString() +" in JDBC metadata but database actually v" + selectVersionOutput);
-            return extractVersionFromString(MYSQL_VERSION_PATTERN, selectVersionOutput);
+            return extractVersionFromString(selectVersionOutput, MYSQL_VERSION_PATTERN);
         }
         return jdbcMetadataVersion;
     }
 
     /*
      * Azure Database for MariaDB also reports version numbers incorrectly - it claims to be MySQL 5.6 (the gateway
-     * version) while the db itself is something like 10.3.6-MariaDB, visible from SELECT VERSION().
+     * version) while the db itself is something like 10.3.6-MariaDB-suffix, visible from SELECT VERSION().
      * This code should be simplified as soon as Azure is fixed.
      * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
+     * https://mariadb.com/kb/en/server-system-variables/#version
      */
     static MigrationVersion correctForAzureMariaDB(String jdbcMetadataVersion, String selectVersionOutput) {
         if (jdbcMetadataVersion.startsWith("5.6")) {
             LOG.debug("Azure MariaDB database - reporting v5.6 in JDBC metadata but database actually v" + selectVersionOutput);
-            return extractVersionFromString(MARIADB_VERSION_PATTERN, selectVersionOutput);
+            return extractVersionFromString(selectVersionOutput, MARIADB_VERSION_PATTERN, MARIADB_WITH_MAXSCALE_VERSION_PATTERN);
         }
-        return extractVersionFromString(MARIADB_VERSION_PATTERN, jdbcMetadataVersion);
+        return extractVersionFromString(jdbcMetadataVersion, MARIADB_VERSION_PATTERN, MARIADB_WITH_MAXSCALE_VERSION_PATTERN);
     }
 
     /*
      * Given a version string that may contain unwanted text, extract out the version part.
      */
-    private static MigrationVersion extractVersionFromString(Pattern pattern, String versionString) {
-        Matcher matcher = pattern.matcher(versionString);
-        if (!matcher.find()) {
-            throw new FlywayException("Unable to determine version from '" + versionString + "'");
+    private static MigrationVersion extractVersionFromString(String versionString, Pattern... patterns) {
+        for (Pattern pattern : patterns) {
+            Matcher matcher = pattern.matcher(versionString);
+            if (matcher.find()) {
+                return MigrationVersion.fromVersion(matcher.group(1));
+            }
         }
-        return MigrationVersion.fromVersion(matcher.group(1));
+        throw new FlywayException("Unable to determine version from '" + versionString + "'");
     }
 
 

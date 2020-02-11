@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
         for (final Callback callback : callbacks) {
             if (callback.supports(event, context)) {
                 if (callback.canHandleInTransaction(event, context)) {
-                    new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Void>() {
+                    TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Void>() {
                         @Override
                         public Void call() {
                             DefaultCallbackExecutor.this.execute(connection, callback, event, context);

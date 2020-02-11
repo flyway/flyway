@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -52,16 +53,25 @@ public class OracleParser extends Parser {
 
 
 
+    private static final Pattern PLSQL_PACKAGE_BODY_REGEX = Pattern.compile(
+            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\sBODY\\s.*\\s(IS|AS)");
+    private static final StatementType PLSQL_PACKAGE_BODY_STATEMENT = new StatementType();
+
+    private static final Pattern PLSQL_PACKAGE_DEFINITION_REGEX = Pattern.compile(
+            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\s.*\\s(IS|AS)");
+
     private static final Pattern PLSQL_VIEW_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sVIEW\\s.*\\sAS\\sWITH\\s(PROCEDURE|FUNCTION)");
     private static final StatementType PLSQL_VIEW_STATEMENT = new StatementType();
 
     private static final Pattern PLSQL_REGEX = Pattern.compile(
-            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\s(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER)");
-    private static final Pattern JAVA_REGEX = Pattern.compile(
-            "^CREATE(\\sOR\\sREPLACE)?(\\sAND\\s(RESOLVE|COMPILE))?(\\sNOFORCE)?\\sJAVA\\s(SOURCE|RESOURCE|CLASS)");
+            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\s(FUNCTION|PROCEDURE|TYPE|TRIGGER)");
     private static final Pattern DECLARE_BEGIN_REGEX = Pattern.compile("^DECLARE|BEGIN|WITH");
     private static final StatementType PLSQL_STATEMENT = new StatementType();
+
+    private static final Pattern JAVA_REGEX = Pattern.compile(
+            "^CREATE(\\sOR\\sREPLACE)?(\\sAND\\s(RESOLVE|COMPILE))?(\\sNOFORCE)?\\sJAVA\\s(SOURCE|RESOURCE|CLASS)");
+    private static final StatementType PLSQL_JAVA_STATEMENT = new StatementType();
 
     private static Pattern toRegex(String... commands) {
         return Pattern.compile(toRegexPattern(commands));
@@ -70,6 +80,7 @@ public class OracleParser extends Parser {
     private static String toRegexPattern(String... commands) {
         return "^(" + StringUtils.arrayToDelimitedString("|", commands) + ")";
     }
+
 
 
 
@@ -289,10 +300,18 @@ public class OracleParser extends Parser {
 
     @Override
     protected StatementType detectStatementType(String simplifiedStatement) {
+        if (PLSQL_PACKAGE_BODY_REGEX.matcher(simplifiedStatement).matches()) {
+            return PLSQL_PACKAGE_BODY_STATEMENT;
+        }
+
         if (PLSQL_REGEX.matcher(simplifiedStatement).matches()
-                || DECLARE_BEGIN_REGEX.matcher(simplifiedStatement).matches()
-                || JAVA_REGEX.matcher(simplifiedStatement).matches()) {
+                || PLSQL_PACKAGE_DEFINITION_REGEX.matcher(simplifiedStatement).matches()
+                || DECLARE_BEGIN_REGEX.matcher(simplifiedStatement).matches()) {
             return PLSQL_STATEMENT;
+        }
+
+        if (JAVA_REGEX.matcher(simplifiedStatement).matches()) {
+            return PLSQL_JAVA_STATEMENT;
         }
 
         if (PLSQL_VIEW_REGEX.matcher(simplifiedStatement).matches()) {
@@ -345,7 +364,8 @@ public class OracleParser extends Parser {
 
     @Override
     protected void adjustDelimiter(ParserContext context, StatementType statementType) {
-        if (statementType == PLSQL_STATEMENT || statementType == PLSQL_VIEW_STATEMENT) {
+        if (statementType == PLSQL_STATEMENT || statementType == PLSQL_VIEW_STATEMENT || statementType == PLSQL_JAVA_STATEMENT
+                || statementType == PLSQL_PACKAGE_BODY_STATEMENT) {
             context.setDelimiter(plSqlDelimiter);
 
 
@@ -368,50 +388,71 @@ public class OracleParser extends Parser {
 
 
 
+    @Override
+    protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+        // Package bodies can have an unbalanced BEGIN without END in the initialisation section.
+        TokenType tokenType = token.getType();
+        if (context.getStatementType() == PLSQL_PACKAGE_BODY_STATEMENT && (TokenType.EOF == tokenType || TokenType.DELIMITER == tokenType)) {
+            return true;
+        }
+
+        // In Oracle, symbols { } affect the block depth in embedded Java code
+        if (token.getType() == TokenType.SYMBOL && context.getStatementType() == PLSQL_JAVA_STATEMENT) {
+            return true;
+        }
+        
+        return super.shouldAdjustBlockDepth(context, token);
+    }
+
+    // These words increase the block depth - unless preceded by END (in which case the END will decrease the block depth)
+    private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("IF", "LOOP", "CASE");
 
     @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
         String keywordText = keyword.getText();
 
+        // In embedded Java code we judge the end of a class definition by the depth of braces.
+        // We ignore normal SQL keywords as Java code can contain arbitrary identifiers.
+        if (context.getStatementType() == PLSQL_JAVA_STATEMENT) {
+            if ("{".equals(keywordText)) {
+                context.increaseBlockDepth();
+            } else if ("}".equals(keywordText)) {
+                context.decreaseBlockDepth();
+            }
+            return;
+        }
+
+        int parensDepth = keyword.getParensDepth();
+
         if ("BEGIN".equals(keywordText)
-                || (("IF".equals(keywordText) || "CASE".equals(keywordText) || "LOOP".equals(keywordText)) && !containsWithinLast(1, tokens, "END"))
-                || ("TRIGGER".equals(keywordText) && containsWithinLast(1, tokens, "COMPOUND"))
+                || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !containsWithinLast(1, tokens, parensDepth, "END"))
+                || ("TRIGGER".equals(keywordText) && containsWithinLast(1, tokens, parensDepth, "COMPOUND"))
                 || (("AS".equals(keywordText) || "IS".equals(keywordText)) && (
-                containsWithinLast(4, tokens, "PACKAGE")
-                        || containsWithinLast(3, tokens, "PACKAGE", "BODY")
-                        || containsWithinLast(3, tokens, "TYPE", "BODY")))
+                containsWithinLast(4, tokens, parensDepth, "PACKAGE")
+                        || containsWithinLast(3, tokens, parensDepth, "PACKAGE", "BODY")
+                        || containsWithinLast(3, tokens, parensDepth, "TYPE", "BODY")))
         ) {
             context.increaseBlockDepth();
         } else if ("END".equals(keywordText)) {
             context.decreaseBlockDepth();
         }
-    }
 
-    /**
-     * Checks if the specified token texts are found consecutively within the last tokens in the list
-     */
-    private static boolean containsWithinLast(int count, List<Token> tokens, String... consecutiveTokenTexts) {
-        int j = consecutiveTokenTexts.length - 1;
-        for (int i = tokens.size() - 1; i >= 0 && i >= tokens.size() - count; i--) {
-            if (consecutiveTokenTexts[j].equals(tokens.get(i).getText())) {
-                if (j == 0) {
-                    return true;
-                }
-                j--;
-            } else if (j < consecutiveTokenTexts.length - 1) {
-                // Token texts weren't consecutive, so reset
-                j = consecutiveTokenTexts.length - 1;
-            }
+        // Package bodies can have an unbalanced BEGIN without END in the initialisation section. This allows us
+        // to exit the package even though we are still at block depth 1 due to the BEGIN.
+        TokenType tokenType = keyword.getType();
+        if (context.getStatementType() == PLSQL_PACKAGE_BODY_STATEMENT && (TokenType.EOF == tokenType || TokenType.DELIMITER == tokenType) && context.getBlockDepth() == 1) {
+            context.decreaseBlockDepth();
+            return;
         }
-        return false;
     }
 
     @Override
-    protected boolean isDelimiter(String peek, ParserContext context) {
+    protected boolean isDelimiter(String peek, ParserContext context, int col) {
         Delimiter delimiter = context.getDelimiter();
 
-        // Only consider alone-on-line delimiters (such as "/" for PL/SQL) if we're at the top level
-        if (delimiter.isAloneOnLine() && context.getBlockDepth() > 0) {
+        // Only consider alone-on-line delimiters (such as "/" for PL/SQL) if
+        // we're at the top level and it's the first character on the line
+        if (delimiter.isAloneOnLine() && (context.getBlockDepth() > 0 || col > 1)) {
             return false;
         }
 
@@ -421,7 +462,7 @@ public class OracleParser extends Parser {
 
 
 
-        return super.isDelimiter(peek, context);
+        return super.isDelimiter(peek, context, col);
     }
 
 
@@ -442,8 +483,10 @@ public class OracleParser extends Parser {
         if (peek.length() < 3) {
             return false;
         }
-
-        return peek.charAt(0) == 'q' && peek.charAt(1) == '\'';
+        // Oracle's quoted-literal syntax is introduced by q (case-insensitive) followed by a literal surrounded by
+        // any of !!, [], {}, (), <> provided the selected pair do not appear in the literal string; the others may do.
+        char firstChar = peek.charAt(0);
+        return (firstChar == 'q' || firstChar == 'Q') && peek.charAt(1) == '\'';
     }
 
     @Override
@@ -457,6 +500,8 @@ public class OracleParser extends Parser {
 
     private String computeAlternativeCloseQuote(char specialChar) {
         switch (specialChar) {
+            case '!':
+                return "!'";
             case '[':
                 return "]'";
             case '(':

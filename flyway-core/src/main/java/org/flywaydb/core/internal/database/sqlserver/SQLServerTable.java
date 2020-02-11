@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,8 +67,11 @@ public class SQLServerTable extends Table<SQLServerDatabase, SQLServerSchema> {
      * Drops system versioning for this table if it is active.
      */
     void dropSystemVersioningIfPresent() throws SQLException {
-        if (jdbcTemplate.queryForInt("SELECT temporal_type FROM sys.tables WHERE object_id = OBJECT_ID('" + this + "', 'U')") == 2) {
-            jdbcTemplate.execute("ALTER TABLE " + this + " SET (SYSTEM_VERSIONING = OFF)");
+        /* Column temporal_type only exists in SQL Server 2016+, so the query below won't run in other versions */
+        if (database.supportsTemporalTables()) {
+            if (jdbcTemplate.queryForInt("SELECT temporal_type FROM sys.tables WHERE object_id = OBJECT_ID('" + this + "', 'U')") == 2) {
+                jdbcTemplate.execute("ALTER TABLE " + this + " SET (SYSTEM_VERSIONING = OFF)");
+            }
         }
     }
 

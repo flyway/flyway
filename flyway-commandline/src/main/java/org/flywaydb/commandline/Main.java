@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.flywaydb.commandline;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.flywaydb.commandline.PrintStreamLog.Level;
+import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
@@ -36,6 +36,11 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.io.Console;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 /**
@@ -45,26 +50,20 @@ public class Main {
     private static Log LOG;
 
     static LogCreator getLogCreator(CommandLineArguments commandLineArguments) {
-        Level level = commandLineArguments.getLogLevel();
-
+        // JSON output uses a different mechanism, so we do not create any loggers
         if (commandLineArguments.shouldOutputJson()) {
-            // We want to suppress all logging as the JSON output is performed using a different mechanism
-            return new NoopLogCreator();
+            return MultiLogCreator.empty();
         }
 
-        ConsoleLogCreator consoleLogCreator = new ConsoleLogCreator(level);
+        List<LogCreator> logCreators = new ArrayList<>();
 
-        if (commandLineArguments.isLogFilepathSet()) {
-            FileLogCreator fileLogCreator = new FileLogCreator(level, commandLineArguments.getLogFilepath());
-            LogCreator[] logCreators = new LogCreator[]{
-                    fileLogCreator,
-                    consoleLogCreator
-            };
+        logCreators.add(new ConsoleLogCreator(commandLineArguments));
 
-            return new MultiLogCreator(logCreators);
+        if (commandLineArguments.isOutputFileSet() || commandLineArguments.isLogFilepathSet()) {
+            logCreators.add(new FileLogCreator(commandLineArguments));
         }
 
-        return new ConsoleLogCreator(level);
+        return new MultiLogCreator(logCreators);
     }
 
     /**
@@ -82,10 +81,12 @@ public class Main {
      * @param args The command-line arguments.
      */
     public static void main(String[] args) {
-        CommandLineArguments commandLineArguments = CommandLineArguments.createFromArguments(args);
+        CommandLineArguments commandLineArguments = new CommandLineArguments(args);
         initLogging(commandLineArguments);
-
+        
         try {
+            commandLineArguments.validate(LOG);
+
             if (commandLineArguments.shouldPrintVersionAndExit()) {
                 printVersion();
                 System.exit(0);
@@ -94,10 +95,6 @@ public class Main {
             if (commandLineArguments.hasOperation("help") || commandLineArguments.shouldPrintUsage()) {
                 printUsage();
                 return;
-            }
-
-            if (commandLineArguments.shouldOutputJson() && !commandLineArguments.hasOperation("info") ) {
-                throw new FlywayException("The -json flag is only supported by the info command.");
             }
 
             Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
@@ -125,12 +122,12 @@ public class Main {
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 
             for (String operation : commandLineArguments.getOperations()) {
-                executeOperation(flyway, operation, commandLineArguments.shouldOutputJson());
+                executeOperation(flyway, operation, commandLineArguments);
             }
         } catch (Exception e) {
             if (commandLineArguments.shouldOutputJson()) {
                 ErrorOutput errorOutput = ErrorOutput.fromException(e);
-                printJson(errorOutput);
+                printJson(commandLineArguments, errorOutput);
             } else {
                 if (commandLineArguments.getLogLevel() == Level.DEBUG) {
                     LOG.error("Unexpected error", e);
@@ -167,7 +164,7 @@ public class Main {
      * @param flyway    The Flyway instance.
      * @param operation The operation to execute.
      */
-    private static void executeOperation(Flyway flyway, String operation, boolean jsonOutput) {
+    private static void executeOperation(Flyway flyway, String operation, CommandLineArguments commandLineArguments) {
         if ("clean".equals(operation)) {
             flyway.clean();
         } else if ("baseline".equals(operation)) {
@@ -188,8 +185,8 @@ public class Main {
             LOG.info("");
             LOG.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));
 
-            if (jsonOutput) {
-                printJson(info.getInfoOutput());
+            if (commandLineArguments.shouldOutputJson()) {
+                printJson(commandLineArguments, info.getInfoOutput());
             }
         } else if ("repair".equals(operation)) {
             flyway.repair();
@@ -200,9 +197,26 @@ public class Main {
         }
     }
 
-    private static void printJson(Object object) {
+    private static void printJson(CommandLineArguments commandLineArguments, Object object) {
+        String json = convertObjectToJsonString(object);
+
+        if (commandLineArguments.isOutputFileSet()) {
+            Path path = Paths.get(commandLineArguments.getOutputFile());
+            byte[] bytes = json.getBytes();
+
+            try {
+                Files.write(path, bytes, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+            } catch (IOException e) {
+                throw new FlywayException("Could not write to output file " + commandLineArguments.getOutputFile(), e);
+            }
+        }
+
+        System.out.println(json);
+    }
+
+    private static String convertObjectToJsonString(Object object) {
         Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-        System.out.println(gson.toJson(object));
+        return gson.toJson(object);
     }
 
     /**
@@ -291,6 +305,7 @@ public class Main {
         LOG.info("callbacks                    : Comma-separated list of FlywayCallback classes");
         LOG.info("skipDefaultCallbacks         : Skips default callbacks (sql)");
         LOG.info("validateOnMigrate            : Validate when running migrate");
+        LOG.info("validateMigrationNaming      : Validate file names of SQL migrations (including callbacks)");
         LOG.info("ignoreMissingMigrations      : Allow missing migrations when validating");
         LOG.info("ignoreIgnoredMigrations      : Allow ignored migrations when validating");
         LOG.info("ignorePendingMigrations      : Allow pending migrations when validating");
@@ -307,6 +322,8 @@ public class Main {
         LOG.info("errorOverrides               : [" + "pro] Rules to override specific SQL states and errors codes");
         LOG.info("oracle.sqlplus               : [" + "pro] Enable Oracle SQL*Plus command support");
         LOG.info("licenseKey                   : [" + "pro] Your Flyway license key");
+        LOG.info("color                        : Whether to colorize output. Values: always, never, or auto (default)");
+        LOG.info("outputFile                   : Send output to the specified file alongside the console");
         LOG.info("");
         LOG.info("Flags");
         LOG.info("-----");
@@ -315,6 +332,7 @@ public class Main {
         LOG.info("-n          : Suppress prompting for a user and password");
         LOG.info("-v          : Print the Flyway version and exit");
         LOG.info("-?          : Print this usage info and exit");
+        LOG.info("-json       : Print the output in JSON format");
         LOG.info("-community  : Run the Flyway Community Edition (default)");
         LOG.info("-pro        : Run the Flyway Pro Edition");
         LOG.info("-enterprise : Run the Flyway Enterprise Edition");

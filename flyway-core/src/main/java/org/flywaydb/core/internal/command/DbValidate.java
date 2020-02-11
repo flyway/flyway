@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ public class DbValidate {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        Pair<Integer, String> result = new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Pair<Integer, String>>() {
+        Pair<Integer, String> result = TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Pair<Integer, String>>() {
             @Override
             public Pair<Integer, String> call() {
                 MigrationInfoServiceImpl migrationInfoService =

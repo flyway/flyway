@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,11 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase, SnowflakeTable> {
             jdbcTemplate.execute(dropStatement);
         }
 
-        for (String dropStatement : generateDropStatementsWithArgs("FUNCTION")) {
+        for (String dropStatement : generateDropStatementsWithArgs("USER FUNCTIONS", "FUNCTION")) {
+            jdbcTemplate.execute(dropStatement);
+        }
+
+        for (String dropStatement : generateDropStatementsWithArgs("PROCEDURES", "PROCEDURE")) {
             jdbcTemplate.execute(dropStatement);
         }
     }
@@ -122,14 +126,14 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase, SnowflakeTable> {
         });
     }
 
-    private List<String> generateDropStatementsWithArgs(final String objectType) throws SQLException {
-        return jdbcTemplate.query("SHOW USER FUNCTIONS IN SCHEMA " + database.quote(name), new RowMapper<String>() {
+    private List<String> generateDropStatementsWithArgs(final String showObjectType, final String dropObjectType) throws SQLException {
+        return jdbcTemplate.query("SHOW " + showObjectType + " IN SCHEMA " + database.quote(name), new RowMapper<String>() {
             @Override
             public String mapRow(ResultSet rs) throws SQLException {
                 String nameAndArgsList = rs.getString("arguments");
                 int indexOfEndOfArgs = nameAndArgsList.indexOf(") RETURN ");
                 String functionName = nameAndArgsList.substring(0, indexOfEndOfArgs + 1);
-                return "DROP FUNCTION " + name + "." + functionName;
+                return "DROP " + dropObjectType + " " + name + "." + functionName;
             }
         });
     }

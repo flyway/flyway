@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -185,7 +185,7 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
     protected MySQLTable[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema=?" +
-                        " AND table_type='BASE TABLE'", name);
+                        " AND table_type IN ('BASE TABLE', 'SYSTEM VERSIONED')", name);
 
         MySQLTable[] tables = new MySQLTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.internal.resource.ResourceName;
+import org.flywaydb.core.internal.resource.ResourceNameParser;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
@@ -58,19 +60,16 @@ public class SqlScriptCallbackFactory {
 
         LOG.debug("Scanning for SQL callbacks ...");
         Collection<LoadableResource> resources = resourceProvider.getResources("", configuration.getSqlMigrationSuffixes());
+        ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
+
         for (LoadableResource resource : resources) {
-            String name = stripSuffix(resource.getFilename(), configuration.getSqlMigrationSuffixes());
-            String id;
-            String description;
-            int separatorIndex = name.indexOf(configuration.getSqlMigrationSeparator());
-            if (separatorIndex >= 0) {
-                id = name.substring(0, separatorIndex);
-                description = name.substring(separatorIndex + configuration.getSqlMigrationSeparator().length());
-            } else {
-                id = name;
-                description = null;
+            ResourceName parsedName = resourceNameParser.parse(resource.getFilename());
+            if (!parsedName.isValid()) {
+                continue;
             }
-            Event event = Event.fromId(id);
+
+            String name = parsedName.getFilenameWithoutSuffix();
+            Event event = Event.fromId(parsedName.getPrefix());
             if (event != null) {
                 SqlScript existing = callbacksFound.get(name);
                 if (existing != null) {
@@ -81,7 +80,7 @@ public class SqlScriptCallbackFactory {
                 }
                 SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed(), resourceProvider);
                 callbacksFound.put(name, sqlScript);
-                callbacks.add(new SqlScriptCallback(event, description, sqlScriptExecutorFactory, sqlScript
+                callbacks.add(new SqlScriptCallback(event, parsedName.getDescription(), sqlScriptExecutorFactory, sqlScript
 
 
 
@@ -93,15 +92,6 @@ public class SqlScriptCallbackFactory {
 
     public List<Callback> getCallbacks() {
         return new ArrayList<>(callbacks);
-    }
-
-    private String stripSuffix(String fileName, String[] suffixes) {
-        for (String suffix : suffixes) {
-            if (fileName.endsWith(suffix)) {
-                return fileName.substring(0, fileName.length() - suffix.length());
-            }
-        }
-        return fileName;
     }
 
     private static class SqlScriptCallback implements Callback, Comparable<SqlScriptCallback> {
