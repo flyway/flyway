@@ -34,27 +34,27 @@ public class DB2Parser extends Parser {
         boolean previousTokenIsKeyword = !tokens.isEmpty() && tokens.get(tokens.size() - 1).getType() == TokenType.KEYWORD;
 
         int lastKeywordIndex = getLastKeywordIndex(tokens);
-        Token previousKeyword = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex) : null;
+        String previousKeyword = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex).getText() : null;
 
         lastKeywordIndex = getLastKeywordIndex(tokens, lastKeywordIndex);
-        Token previousPreviousToken = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex) : null;
+        String previousPreviousToken = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex).getText() : null;
 
         if (
             // BEGIN increases block depth, exception when used with ROW BEGIN
                 ("BEGIN".equals(keyword.getText())
-                        && (!"ROW".equals(previousKeyword.getText())
-                        || previousPreviousToken == null || "EACH".equals(previousPreviousToken.getText())))
+                        && (!"ROW".equals(previousKeyword)
+                        || previousPreviousToken == null || "EACH".equals(previousPreviousToken)))
                         // CASE, DO, IF and REPEAT increase block depth
                         || (("CASE".equals(keyword.getText()) || "DO".equals(keyword.getText())
                         || "IF".equals(keyword.getText()) || "REPEAT".equals(keyword.getText())))) {
             // But not END IF and END WHILE
-            if (!previousTokenIsKeyword || !"END".equals(previousKeyword.getText())) {
+            if (!previousTokenIsKeyword || !"END".equals(previousKeyword)) {
                 context.increaseBlockDepth();
 
             }
         } else if (
             // END decreases block depth, exception when used with ROW END
-                "END".equals(keyword.getText()) && !"ROW".equals(previousKeyword.getText())) {
+                "END".equals(keyword.getText()) && !"ROW".equals(previousKeyword)) {
             context.decreaseBlockDepth();
         }
     }
