@@ -396,6 +396,33 @@ public abstract class Parser {
         return false;
     }
 
+    /**
+     * Check if the previous tokens in the statement at the same depth as the current token match the provided regex
+     */
+    protected static boolean doTokensMatchPattern(List<Token> previousTokens, Token current, Pattern regex) {
+        ArrayList<String> tokenStrings = new ArrayList<>();
+        tokenStrings.add(current.getText());
+
+        for (int i = previousTokens.size()-1; i >= 0; i--) {
+            Token prevToken = previousTokens.get(i);
+            if (prevToken.getParensDepth() != current.getParensDepth()) {
+                break;
+            }
+
+            tokenStrings.add(prevToken.getText());
+        }
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = tokenStrings.size()-1; i >= 0; i--) {
+            builder.append(tokenStrings.get(i));
+            if (i != 0) {
+                builder.append(" ");
+            }
+        }
+
+        return regex.matcher(builder.toString()).matches();
+    }
+
     protected ParsedSqlStatement createStatement(PeekingReader reader, Recorder recorder,
                                                  int statementPos, int statementLine, int statementCol,
                                                  int nonCommentPartPos, int nonCommentPartLine, int nonCommentPartCol,

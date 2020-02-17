@@ -21,6 +21,7 @@ import org.flywaydb.core.internal.parser.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class MySQLParser extends Parser {
     private static final char ALTERNATIVE_SINGLE_LINE_COMMENT = '#';
@@ -99,6 +100,11 @@ public class MySQLParser extends Parser {
     // See: https://dev.mysql.com/doc/refman/8.0/en/flow-control-statements.html
     private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("IF", "LOOP", "CASE", "REPEAT", "WHILE");
 
+    private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(
+            "^CREATE\\s([^\\s]*\\s)?IF\\sNOT\\sEXISTS");
+    private static final Pattern DROP_IF_EXISTS = Pattern.compile(
+            "^DROP\\s([^\\s]*\\s)?IF\\sEXISTS");
+
     @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
         String keywordText = keyword.getText();
@@ -109,9 +115,8 @@ public class MySQLParser extends Parser {
                || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !containsWithinLast(1, tokens, parensDepth, "END"))) {
             context.increaseBlockDepth();
         } else if ("END".equals(keywordText)
-                || (("EXISTS".equals(keywordText)
-                    && containsWithinLast(1, tokens, parensDepth, "IF")
-                    && containsWithinLast(3, tokens, parensDepth, "DROP")))) {
+                || doTokensMatchPattern(tokens, keyword, CREATE_IF_NOT_EXISTS)
+                || doTokensMatchPattern(tokens, keyword, DROP_IF_EXISTS)) {
             context.decreaseBlockDepth();
         }
     }
