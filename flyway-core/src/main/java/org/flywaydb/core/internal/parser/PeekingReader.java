@@ -134,13 +134,13 @@ public class PeekingReader extends FilterReader {
      *
      * @return {@code true} if it is, {@code false} if not.
      */
-    public boolean peekKeywordPart() throws IOException {
+    public boolean peekKeywordPart(ParserContext context) throws IOException {
         int r = peek();
-        return isKeywordPart(r);
+        return isKeywordPart(r, context);
     }
 
-    private boolean isKeywordPart(int r) {
-        return r != -1 && ((char) r == '_' || (char) r == '$' || Character.isLetterOrDigit((char) r));
+    private boolean isKeywordPart(int r, ParserContext context) {
+        return r != -1 && ((char) r == '_' || (char) r == '$' || Character.isLetterOrDigit((char) r) || context.isLetter((char)r));
     }
 
     /**
@@ -411,10 +411,10 @@ public class PeekingReader extends FilterReader {
      * @param delimiter The current delimiter.
      * @return The string read.
      */
-    public String readKeywordPart(Delimiter delimiter) throws IOException {
+    public String readKeywordPart(Delimiter delimiter, ParserContext context) throws IOException {
         StringBuilder result = new StringBuilder();
         do {
-            if ((delimiter == null || !peek(delimiter.getDelimiter())) && peekKeywordPart()) {
+            if ((delimiter == null || !peek(delimiter.getDelimiter())) && peekKeywordPart(context)) {
                 result.append((char) read());
             } else {
                 break;

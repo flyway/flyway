@@ -488,7 +488,7 @@ public abstract class Parser {
             reader.swallow();
             String text = reader.readUntilExcludingWithEscape(c, true);
             if (reader.peek('.')) {
-                text = readAdditionalIdentifierParts(reader, c, context.getDelimiter());
+                text = readAdditionalIdentifierParts(reader, c, context.getDelimiter(), context);
             }
             return new Token(TokenType.IDENTIFIER, pos, line, col, text, text, context.getParensDepth());
         }
@@ -522,10 +522,10 @@ public abstract class Parser {
         if (isDelimiter(peek, context, col)) {
             return handleDelimiter(reader, context, pos, line, col);
         }
-        if (c == '_' || Character.isLetter(c)) {
-            String text = readKeyword(reader, context.getDelimiter());
+        if (c == '_' || context.isLetter(c)) {
+            String text = readKeyword(reader, context.getDelimiter(), context);
             if (reader.peek('.')) {
-                text += readAdditionalIdentifierParts(reader, identifierQuote, context.getDelimiter());
+                text += readAdditionalIdentifierParts(reader, identifierQuote, context.getDelimiter(), context);
             }
             if (!isKeyword(text)) {
                 return new Token(TokenType.IDENTIFIER, pos, line, col, text, text, context.getParensDepth());
@@ -550,8 +550,8 @@ public abstract class Parser {
         throw new FlywayException("Unknown char " + (char) reader.read() + " encountered on line " + line + " at column " + col);
     }
 
-    protected String readKeyword(PeekingReader reader, Delimiter delimiter) throws IOException {
-        return "" + (char) reader.read() + reader.readKeywordPart(delimiter);
+    protected String readKeyword(PeekingReader reader, Delimiter delimiter, ParserContext context) throws IOException {
+        return "" + (char) reader.read() + reader.readKeywordPart(delimiter, context);
     }
 
     protected Token handleDelimiter(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
@@ -594,7 +594,7 @@ public abstract class Parser {
     }
 
     @SuppressWarnings("Duplicates")
-    private String readAdditionalIdentifierParts(PeekingReader reader, char quote, Delimiter delimiter) throws IOException {
+    private String readAdditionalIdentifierParts(PeekingReader reader, char quote, Delimiter delimiter, ParserContext context) throws IOException {
         String result = "";
         reader.swallow();
         result += ".";
@@ -602,7 +602,7 @@ public abstract class Parser {
             reader.swallow();
             result += reader.readUntilExcludingWithEscape(quote, true);
         } else {
-            result += reader.readKeywordPart(delimiter);
+            result += reader.readKeywordPart(delimiter, context);
         }
         if (reader.peek('.')) {
             reader.swallow();
@@ -611,7 +611,7 @@ public abstract class Parser {
                 reader.swallow();
                 result += reader.readUntilExcludingWithEscape(quote, true);
             } else {
-                result += reader.readKeywordPart(delimiter);
+                result += reader.readKeywordPart(delimiter, context);
             }
         }
         return result;

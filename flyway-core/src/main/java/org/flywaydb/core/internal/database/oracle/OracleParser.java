@@ -35,6 +35,14 @@ public class OracleParser extends Parser {
 
 
 
+
+
+
+
+
+
+
+
     /**
      * Delimiter of PL/SQL blocks and statements.
      */
@@ -75,6 +83,9 @@ public class OracleParser extends Parser {
     private static String toRegexPattern(String... commands) {
         return "^(" + StringUtils.arrayToDelimitedString("|", commands) + ")";
     }
+
+
+
 
 
 
@@ -267,6 +278,10 @@ public class OracleParser extends Parser {
 
 
 
+
+
+
+
         if (PLSQL_VIEW_STATEMENT == statementType) {
             sql = sql.trim();
 
@@ -304,6 +319,9 @@ public class OracleParser extends Parser {
         if (PLSQL_VIEW_REGEX.matcher(simplifiedStatement).matches()) {
             return PLSQL_VIEW_STATEMENT;
         }
+
+
+
 
 
 

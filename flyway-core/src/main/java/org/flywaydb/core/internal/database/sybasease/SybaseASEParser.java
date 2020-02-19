@@ -42,8 +42,8 @@ public class SybaseASEParser extends Parser {
     }
 
     @Override
-    protected String readKeyword(PeekingReader reader, Delimiter delimiter) throws IOException {
+    protected String readKeyword(PeekingReader reader, Delimiter delimiter, ParserContext context) throws IOException {
         // #2414: Ignore delimiter as GO (unlike ;) can be part of a regular keyword
-        return "" + (char) reader.read() + reader.readKeywordPart(null);
+        return "" + (char) reader.read() + reader.readKeywordPart(null, context);
     }
 }

@@ -70,4 +70,15 @@ public class ParserContext {
     public void setStatementType(StatementType statementType) {
         this.statementType = statementType;
     }
+
+    public boolean isLetter(char c) {
+        if (Character.isLetter(c)) {
+            return true;
+        }
+        // Some statement types admit other characters as letters
+        if (getStatementType() != null) {
+            return statementType.treatAsIfLetter(c);
+        }
+        return false;
+    }
 }

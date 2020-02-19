@@ -15,19 +15,28 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+import org.flywaydb.core.internal.jdbc.Results;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Sybase ASE database.
  */
 public class SybaseASEDatabase extends Database<SybaseASEConnection> {
+    private static final Log LOG = LogFactory.getLog(SybaseASEDatabase.class);
+
+    private String databaseName = null;
+
     /**
      * Creates a new Sybase ASE database.
      *
@@ -137,4 +146,44 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
         return false;
     }
 
+
+    boolean getDdlInTranOption() {
+        try {
+            // http://infocenter.sybase.com/help/index.jsp?topic=/com.sybase.infocenter.dc36273.1600/doc/html/san1393052037182.html
+            String databaseName = getDatabaseName();
+            // The Sybase driver (v7.07) concatenates "null" to this query and we can't see why. By adding a one-line
+            // comment marker we can at least prevent this causing us problems until we get a resolution.
+            String getDatabaseMetadataQuery = "sp_helpdb " + databaseName + " -- ";
+            Results results = getMainConnection().getJdbcTemplate().executeStatement(getDatabaseMetadataQuery);
+            for (int resultsIndex = 0; resultsIndex < results.getResults().size(); resultsIndex++) {
+                List<String> columns = results.getResults().get(resultsIndex).getColumns();
+                if (columns != null) {
+                    int statusIndex = getStatusIndex(columns);
+                    if (statusIndex > -1) {
+                        String options = results.getResults().get(resultsIndex).getData().get(0).get(statusIndex);
+                        return (options.contains("ddl in tran"));
+                    }
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            throw new FlywayException(e);
+        }
+    }
+
+    private int getStatusIndex(List<String> columns) {
+        for (int statusIndex = 0; statusIndex < columns.size(); statusIndex++) {
+            if ("status".equals(columns.get(statusIndex))) {
+                return statusIndex;
+            }
+        }
+        return -1;
+    }
+
+    String getDatabaseName() throws SQLException {
+        if (databaseName == null) {
+            databaseName = getMainConnection().getJdbcTemplate().queryForString("select db_name()");
+        }
+        return databaseName;
+    }
 }
