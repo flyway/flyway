@@ -42,11 +42,12 @@ public class InfoOutputFactory {
 
         MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
         MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
+        String schemaVersion =  schemaVersionToOutput.getVersion();
 
         return new InfoOutput(
-                schemaVersionToOutput.getVersion(),
+                schemaVersion,
                 databaseName,
-                currentSchemaVersion.getVersion(),
+                schemaVersion,
                 join(", ", configuration.getSchemas()),
                 migrationOutputs);
     }
