@@ -28,6 +28,7 @@ import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
+import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.output.ErrorOutput;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -440,14 +441,37 @@ public class Main {
             return;
         }
 
-        if (!config.containsKey(ConfigUtils.USER)) {
+        String url = config.get(ConfigUtils.URL);
+        if (!config.containsKey(ConfigUtils.USER) && needsUser(url)) {
             config.put(ConfigUtils.USER, console.readLine("Database user: "));
         }
 
-        if (!config.containsKey(ConfigUtils.PASSWORD)) {
+        if (!config.containsKey(ConfigUtils.PASSWORD) && needsPassword(url)) {
             char[] password = console.readPassword("Database password: ");
             config.put(ConfigUtils.PASSWORD, password == null ? "" : String.valueOf(password));
         }
+    }
+
+    /**
+     * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a username.
+     */
+    private static boolean needsUser(String url) {
+        // Using Snowflake private-key auth instead of password allows user to be passed on URL
+        if (DriverDataSource.DriverType.SNOWFLAKE.matches(url)) {
+            return !url.contains("user=");
+        }
+        return true;
+    }
+
+    /**
+     * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a password.
+     */
+    private static boolean needsPassword(String url) {
+        // Using Snowflake private-key auth instead of password
+        if (DriverDataSource.DriverType.SNOWFLAKE.matches(url)) {
+            return !url.contains("private_key_file=");
+        }
+        return true;
     }
 
     /**
