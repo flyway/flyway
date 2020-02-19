@@ -413,7 +413,7 @@ public class OracleParser extends Parser {
     private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("IF", "LOOP", "CASE");
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
         String keywordText = keyword.getText();
 
         // In embedded Java code we judge the end of a class definition by the depth of braces.

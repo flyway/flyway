@@ -106,12 +106,16 @@ public class MySQLParser extends Parser {
             "^DROP\\s([^\\s]*\\s)?IF\\sEXISTS");
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
         String keywordText = keyword.getText();
 
         int parensDepth = keyword.getParensDepth();
 
-        if ("BEGIN".equals(keywordText)
+        if (("IF".equals(keywordText) || "REPEAT".equals(keywordText)) && "(".equals(reader.peek(1))) {
+            // do not enter a block if this is the function version of these keywords
+            return;
+        }
+        else if ("BEGIN".equals(keywordText)
                || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !containsWithinLast(1, tokens, parensDepth, "END"))) {
             context.increaseBlockDepth();
         } else if ("END".equals(keywordText)

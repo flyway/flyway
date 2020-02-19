@@ -16,11 +16,9 @@
 package org.flywaydb.core.internal.database.hsqldb;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.parser.ParserContext;
-import org.flywaydb.core.internal.parser.Token;
+import org.flywaydb.core.internal.parser.*;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -68,7 +66,7 @@ public class HSQLDBParser extends Parser {
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
         int lastKeywordIndex = getLastKeywordIndex(tokens);
         Token previousKeyword = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex) : null;
         String keywordText = keyword.getText();

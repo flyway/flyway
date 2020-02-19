@@ -30,7 +30,7 @@ public class DB2Parser extends Parser {
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
         boolean previousTokenIsKeyword = !tokens.isEmpty() && tokens.get(tokens.size() - 1).getType() == TokenType.KEYWORD;
 
         int lastKeywordIndex = getLastKeywordIndex(tokens);

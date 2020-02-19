@@ -200,7 +200,7 @@ public abstract class Parser {
                     if (tokenType == TokenType.KEYWORD) {
                         keywords.add(token);
                     }
-                    adjustBlockDepth(context, tokens, token);
+                    adjustBlockDepth(context, tokens, token, reader);
                 }
 
 
@@ -327,7 +327,7 @@ public abstract class Parser {
         return 10;
     }
 
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
     }
 
     protected static int getLastKeywordIndex(List<Token> tokens) {
