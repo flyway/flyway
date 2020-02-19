@@ -55,6 +55,11 @@ public class JdbcUtils {
             try {
                 return dataSource.getConnection();
             } catch (SQLException e) {
+                if ("08S01".equals(e.getSQLState()) && e.getMessage().contains("This driver is not configured for integrated authentication")) {
+                    throw new FlywaySqlException("Unable to obtain connection from database"
+                            + getDataSourceInfo(dataSource) + ": " + e.getMessage() + "\nTo setup integrated authentication see https://flywaydb.org/documentation/database/sqlserver#windows-authentication.", e);
+                }
+
                 if (++retries > connectRetries) {
                     throw new FlywaySqlException("Unable to obtain connection from database"
                             + getDataSourceInfo(dataSource) + ": " + e.getMessage(), e);

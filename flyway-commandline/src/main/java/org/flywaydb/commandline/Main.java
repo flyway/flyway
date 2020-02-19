@@ -460,6 +460,9 @@ public class Main {
         if (DriverDataSource.DriverType.SNOWFLAKE.matches(url)) {
             return !url.contains("user=");
         }
+        if (DriverDataSource.DriverType.SQLSERVER.matches(url)) {
+            return !url.contains("integratedSecurity=");
+        }
         return true;
     }
 
@@ -470,6 +473,9 @@ public class Main {
         // Using Snowflake private-key auth instead of password
         if (DriverDataSource.DriverType.SNOWFLAKE.matches(url)) {
             return !url.contains("private_key_file=");
+        }
+        if (DriverDataSource.DriverType.SQLSERVER.matches(url)) {
+            return !url.contains("integratedSecurity=");
         }
         return true;
     }
