@@ -55,6 +55,10 @@ public class VersionPrinter {
         // Do nothing.
     }
 
+    public static String getVersion() {
+        return version;
+    }
+
     /**
      * Prints the Flyway version.
      */

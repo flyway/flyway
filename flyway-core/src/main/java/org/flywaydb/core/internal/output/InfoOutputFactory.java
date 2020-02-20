@@ -19,6 +19,7 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.license.VersionPrinter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,9 +44,10 @@ public class InfoOutputFactory {
         MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
         MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
         String schemaVersion =  schemaVersionToOutput.getVersion();
+        String flywayVersion = VersionPrinter.getVersion();
 
         return new InfoOutput(
-                schemaVersion,
+                flywayVersion,
                 databaseName,
                 schemaVersion,
                 join(", ", configuration.getSchemas()),
