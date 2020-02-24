@@ -75,6 +75,7 @@ public class DbBaseline {
         try {
             if (!schemaHistory.exists()) {
                 schemaHistory.create(true);
+                LOG.info("Successfully baselined schema with version: " + baselineVersion);
             } else {
                 AppliedMigration baselineMarker = schemaHistory.getBaselineMarker();
                 if (baselineMarker != null) {
@@ -95,14 +96,16 @@ public class DbBaseline {
                     if (schemaHistory.hasNonSyntheticAppliedMigrations()) {
                         throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations");
                     }
+                    else {
+                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations.\n" +
+                                "Delete the schema history table with the clean command, and run baseline again.");
+                    }
                 }
             }
         } catch (FlywayException e) {
             callbackExecutor.onEvent(Event.AFTER_BASELINE_ERROR);
             throw e;
         }
-
-        LOG.info("Successfully baselined schema with version: " + baselineVersion);
 
         callbackExecutor.onEvent(Event.AFTER_BASELINE);
     }

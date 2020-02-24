@@ -27,11 +27,11 @@ import java.util.concurrent.Callable;
 /**
  * Spring-like template for executing transactions.
  */
-public class TransactionTemplate {
-    private static final Log LOG = LogFactory.getLog(TransactionTemplate.class);
+public class TransactionalExecutionTemplate implements ExecutionTemplate {
+    private static final Log LOG = LogFactory.getLog(TransactionalExecutionTemplate.class);
 
     /**
-     * The connection for the transaction.
+     * The connection to the database
      */
     private final Connection connection;
 
@@ -43,40 +43,10 @@ public class TransactionTemplate {
     /**
      * Creates a new transaction template for this connection.
      *
-     * @param connection The connection for the transaction.
-     */
-    public static TransactionTemplate createTransactionTemplate(Connection connection) {
-        return createTransactionTemplate(connection, true);
-    }
-
-    /**
-     * Creates a new transaction template for this connection.
-     *
      * @param connection          The connection for the transaction.
      * @param rollbackOnException Whether to roll back the transaction when an exception is thrown.
      */
-    public static TransactionTemplate createTransactionTemplate(Connection connection, boolean rollbackOnException) {
-        if (DatabaseType.fromJdbcConnection(connection) == DatabaseType.COCKROACHDB)
-            return new CockroachRetryingTransactionTemplate(connection, rollbackOnException);
-        return new TransactionTemplate(connection, rollbackOnException);
-    }
-
-    /**
-     * Creates a new transaction template for this connection.
-     *
-     * @param connection The connection for the transaction.
-     */
-    protected TransactionTemplate(Connection connection) {
-        this(connection, true);
-    }
-
-    /**
-     * Creates a new transaction template for this connection.
-     *
-     * @param connection          The connection for the transaction.
-     * @param rollbackOnException Whether to roll back the transaction when an exception is thrown.
-     */
-    protected TransactionTemplate(Connection connection, boolean rollbackOnException) {
+    TransactionalExecutionTemplate(Connection connection, boolean rollbackOnException) {
         this.connection = connection;
         this.rollbackOnException = rollbackOnException;
     }
@@ -84,15 +54,16 @@ public class TransactionTemplate {
     /**
      * Executes this callback within a transaction.
      *
-     * @param transactionCallback The callback to execute.
+     * @param callback The callback to execute.
      * @return The result of the transaction code.
      */
-    public <T> T execute(Callable<T> transactionCallback) {
+    @Override
+    public <T> T execute(Callable<T> callback) {
         boolean oldAutocommit = true;
         try {
             oldAutocommit = connection.getAutoCommit();
             connection.setAutoCommit(false);
-            T result = transactionCallback.call();
+            T result = callback.call();
             connection.commit();
             return result;
         } catch (Exception e) {

@@ -36,6 +36,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     private static final Log LOG = LogFactory.getLog(SybaseASEDatabase.class);
 
     private String databaseName = null;
+    private boolean supportsMultiStatementTransactions = false;
 
     /**
      * Creates a new Sybase ASE database.
@@ -146,6 +147,37 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
         return false;
     }
 
+    @Override
+    /**
+     * Multi statement transaction support is dependent on the 'ddl in tran' option being set.
+     * However, setting 'ddl in tran' doesn't necessarily mean that multi-statement transactions are supported.
+     * i.e.
+     *  - multi statement transaction support => ddl in tran
+     *  - ddl in tran =/> multi statement transaction support
+     * Also, ddl in tran can change during execution for unknown reasons.
+     * Therefore, as a best guess:
+     *  - When this method is called, check ddl in tran
+     *  - If ddl in tran is true, assume support for multi statement transactions forever more
+     *      - Never check ddl in tran again
+     *  - If ddl in tran is false, return false
+     *      - Check ddl in tran again on the next call
+     */
+    public boolean supportsMultiStatementTransactions() {
+        if (supportsMultiStatementTransactions) {
+            LOG.debug("ddl in tran was found to be true at some point during execution." +
+                    "Therefore multi statement transaction support is assumed.");
+            return true;
+        }
+
+        boolean ddlInTran = getDdlInTranOption();
+
+        if (ddlInTran) {
+            LOG.debug("ddl in tran is true. Multi statement transaction support is now assumed.");
+            supportsMultiStatementTransactions = true;
+        }
+
+        return supportsMultiStatementTransactions;
+    }
 
     boolean getDdlInTranOption() {
         try {

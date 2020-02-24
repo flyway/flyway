@@ -30,11 +30,11 @@ import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-import org.flywaydb.core.internal.jdbc.TransactionTemplate;
 
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -98,7 +98,7 @@ public class DbRepair {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            boolean repaired = TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Boolean>() {
+            boolean repaired = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(new Callable<Boolean>() {
                 public Boolean call() {
                     schemaHistory.removeFailedMigrations();
                     migrationInfoService.refresh();

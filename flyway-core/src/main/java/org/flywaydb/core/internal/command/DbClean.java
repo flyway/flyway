@@ -24,10 +24,10 @@ import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-import org.flywaydb.core.internal.jdbc.TransactionTemplate;
 
 import java.util.concurrent.Callable;
 
@@ -64,6 +64,11 @@ public class DbClean {
     private boolean cleanDisabled;
 
     /**
+     * The database
+     */
+    private Database database;
+
+    /**
      * Creates a new database cleaner.
      *
      * @param database         The DB support for the connection.
@@ -74,6 +79,7 @@ public class DbClean {
      */
     public DbClean(Database database, SchemaHistory schemaHistory, Schema[] schemas,
                    CallbackExecutor callbackExecutor, boolean cleanDisabled) {
+        this.database = database;
         this.connection = database.getMainConnection();
         this.schemaHistory = schemaHistory;
         this.schemas = schemas;
@@ -133,7 +139,8 @@ public class DbClean {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
-            TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                    database).execute(new Callable<Object>() {
                 @Override
                 public Void call() {
                     schema.drop();
@@ -143,7 +150,8 @@ public class DbClean {
         } catch (FlywaySqlException e) {
             LOG.debug(e.getMessage());
             LOG.warn("Unable to drop schema " + schema + ". Attempting clean instead...");
-            TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                    database).execute(new Callable<Object>() {
                 @Override
                 public Void call() {
                     schema.clean();
@@ -166,7 +174,8 @@ public class DbClean {
         LOG.debug("Cleaning schema " + schema + " ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+        ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                database).execute(new Callable<Object>() {
             @Override
             public Void call() {
                 schema.clean();

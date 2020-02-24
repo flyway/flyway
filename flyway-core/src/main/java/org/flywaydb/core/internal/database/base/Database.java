@@ -424,4 +424,9 @@ public abstract class Database<C extends Connection> implements Closeable {
      *  Whether the database supports an empty string as a migration description.
      */
     public boolean supportsEmptyMigrationDescription() { return true; }
+
+    /**
+     * Whether the database supports multi-statement transactions
+     */
+    public boolean supportsMultiStatementTransactions() { return true; }
 }

@@ -20,7 +20,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 
 import java.util.ArrayList;
@@ -49,6 +49,11 @@ public class DbSchemas {
     private final SchemaHistory schemaHistory;
 
     /**
+     * The database
+     */
+    private final Database database;
+
+    /**
      * Creates a new DbSchemas.
      *
      * @param database      The database to use.
@@ -56,6 +61,7 @@ public class DbSchemas {
      * @param schemaHistory The schema history table.
      */
     public DbSchemas(Database database, Schema[] schemas, SchemaHistory schemaHistory) {
+        this.database = database;
         this.connection = database.getMainConnection();
         this.schemas = schemas;
         this.schemaHistory = schemaHistory;
@@ -70,7 +76,7 @@ public class DbSchemas {
         int retries = 0;
         while (true) {
             try {
-                TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+                ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(new Callable<Object>() {
                     @Override
                     public Void call() {
                         List<Schema> createdSchemas = new ArrayList<>();

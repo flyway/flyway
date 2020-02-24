@@ -27,8 +27,8 @@ import java.util.concurrent.Callable;
  * Spring-like template for executing transactions. Cockroach always operates with transaction isolation
  * level SERIALIZABLE and needs a retrying pattern.
  */
-public class CockroachRetryingTransactionTemplate extends TransactionTemplate {
-    private static final Log LOG = LogFactory.getLog(CockroachRetryingTransactionTemplate.class);
+public class CockroachRetryingTransactionalExecutionTemplate extends TransactionalExecutionTemplate {
+    private static final Log LOG = LogFactory.getLog(CockroachRetryingTransactionalExecutionTemplate.class);
 
     private static final String DEADLOCK_OR_TIMEOUT_ERROR_CODE = "40001";
     private static final int MAX_RETRIES = 50;
@@ -36,19 +36,10 @@ public class CockroachRetryingTransactionTemplate extends TransactionTemplate {
     /**
      * Creates a new transaction template for this connection.
      *
-     * @param connection The connection for the transaction.
-     */
-    protected CockroachRetryingTransactionTemplate(Connection connection) {
-        super(connection, true);
-    }
-
-    /**
-     * Creates a new transaction template for this connection.
-     *
      * @param connection          The connection for the transaction.
      * @param rollbackOnException Whether to roll back the transaction when an exception is thrown.
      */
-    protected CockroachRetryingTransactionTemplate(Connection connection, boolean rollbackOnException) {
+    CockroachRetryingTransactionalExecutionTemplate(Connection connection, boolean rollbackOnException) {
         super(connection, rollbackOnException);
     }
 

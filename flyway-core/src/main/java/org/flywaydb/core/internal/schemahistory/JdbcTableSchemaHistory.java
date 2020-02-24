@@ -27,7 +27,7 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.RowMapper;
-import org.flywaydb.core.internal.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
@@ -103,7 +103,8 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                         LOG.info("Creating Schema History table " + table + (baseline ? " with baseline" : "") + " ...");
                     }
                     try {
-                        TransactionTemplate.createTransactionTemplate(connection.getJdbcConnection(), true).execute(new Callable<Object>() {
+                        ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                                database).execute(new Callable<Object>() {
                             @Override
                             public Object call() {
                                 sqlScriptExecutorFactory.createSqlScriptExecutor(connection.getJdbcConnection()
