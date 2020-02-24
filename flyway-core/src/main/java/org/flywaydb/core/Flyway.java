@@ -379,14 +379,16 @@ public class Flyway {
      * @param resourceProvider The resource provider.
      * @param classProvider    The class provider.
      * @param sqlScriptFactory The SQL statement builder factory.
+     * @param parsingContext   The parsing context.
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(ResourceProvider resourceProvider,
                                                       ClassProvider<JavaMigration> classProvider,
                                                       SqlScriptExecutorFactory sqlScriptExecutorFactory,
-                                                      SqlScriptFactory sqlScriptFactory) {
+                                                      SqlScriptFactory sqlScriptFactory,
+                                                      ParsingContext parsingContext) {
         return new CompositeMigrationResolver(resourceProvider, classProvider, configuration,
-                sqlScriptExecutorFactory, sqlScriptFactory, configuration.getResolvers());
+                sqlScriptExecutorFactory, sqlScriptFactory, parsingContext, configuration.getResolvers());
     }
 
     /**
@@ -519,7 +521,7 @@ public class Flyway {
             );
 
             result = command.execute(
-                    createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory),
+                    createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory, parsingContext),
                     SchemaHistoryFactory.getSchemaHistory(configuration, noCallbackSqlScriptExecutorFactory, sqlScriptFactory,
                             database, defaultSchema
 

@@ -42,6 +42,11 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     private final String script;
 
     /**
+     * The equivalent checksum of the migration.
+     */
+    private final Integer equivalentChecksum;
+
+    /**
      * The checksum of the migration.
      */
     private final Integer checksum;
@@ -64,19 +69,23 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     /**
      * Creates a new resolved migration.
      *
-     * @param version          The target version of this migration.
-     * @param description      The description of the migration.
-     * @param script           The name of the script to execute for this migration, relative to its classpath location.
-     * @param checksum         The checksum of the migration.
-     * @param type             The type of migration (SQL, ...)
-     * @param physicalLocation The physical location of the migration on disk.
-     * @param executor         The executor to run this migration.
+     * @param version               The target version of this migration.
+     * @param description           The description of the migration.
+     * @param script                The name of the script to execute for this migration, relative to its classpath location.
+     * @param checksum              The checksum of the migration.
+     * @param equivalentChecksum    The equivalent checksum of the migration.
+     * @param type                  The type of migration (SQL, ...)
+     * @param physicalLocation      The physical location of the migration on disk.
+     * @param executor              The executor to run this migration.
      */
-    public ResolvedMigrationImpl(MigrationVersion version, String description, String script, Integer checksum, MigrationType type, String physicalLocation, MigrationExecutor executor) {
+    public ResolvedMigrationImpl(MigrationVersion version, String description, String script,
+                                 Integer checksum, Integer equivalentChecksum,
+                                 MigrationType type, String physicalLocation, MigrationExecutor executor) {
         this.version = version;
         this.description = description;
         this.script = script;
         this.checksum = checksum;
+        this.equivalentChecksum = equivalentChecksum;
         this.type = type;
         this.physicalLocation = physicalLocation;
         this.executor = executor;
@@ -99,7 +108,9 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
 
     @Override
     public Integer getChecksum() {
-        return checksum;
+        return checksum == null ?
+                equivalentChecksum :
+                checksum;
     }
 
     @Override
@@ -130,6 +141,7 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         ResolvedMigrationImpl migration = (ResolvedMigrationImpl) o;
 
         if (checksum != null ? !checksum.equals(migration.checksum) : migration.checksum != null) return false;
+        if (equivalentChecksum != null ? !equivalentChecksum.equals(migration.equivalentChecksum) : migration.equivalentChecksum != null) return false;
         if (description != null ? !description.equals(migration.description) : migration.description != null)
             return false;
         if (script != null ? !script.equals(migration.script) : migration.script != null) return false;
@@ -143,6 +155,7 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (script != null ? script.hashCode() : 0);
         result = 31 * result + (checksum != null ? checksum.hashCode() : 0);
+        result = 31 * result + (equivalentChecksum != null ? equivalentChecksum.hashCode() : 0);
         result = 31 * result + type.hashCode();
         return result;
     }
@@ -153,7 +166,7 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
                 "version=" + version +
                 ", description='" + description + '\'' +
                 ", script='" + script + '\'' +
-                ", checksum=" + checksum +
+                ", checksum=" + getChecksum() +
                 ", type=" + type +
                 ", physicalLocation='" + physicalLocation + '\'' +
                 ", executor=" + executor +
@@ -165,5 +178,17 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
      */
     public void validate() {
         // Do nothing by default.
+    }
+
+    @Override
+    public boolean checksumMatches(Integer checksum) {
+        return Objects.equals(checksum, this.checksum) ||
+                Objects.equals(checksum, this.equivalentChecksum);
+    }
+
+    @Override
+    public boolean checksumMatchesWithoutBeingIdentical(Integer checksum) {
+        // The checksum in the database matches the one calculated without replacement.
+        return Objects.equals(checksum, this.equivalentChecksum);
     }
 }

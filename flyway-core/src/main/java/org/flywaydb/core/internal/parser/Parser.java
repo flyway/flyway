@@ -112,25 +112,18 @@ public abstract class Parser {
     /**
      * Configures this reader for placeholder replacement.
      *
-     * @param r The original reader.
+     * @param reader The original reader.
      * @return The new reader with placeholder replacement.
      */
-    protected Reader replacePlaceholders(Reader r) {
+    protected Reader replacePlaceholders(Reader reader) {
         if (configuration.isPlaceholderReplacement()) {
-            Map<String, String> placeholders = new HashMap<>();
-            Map<String, String> configurationPlaceholders = configuration.getPlaceholders();
-            Map<String, String> parsingContextPlaceholders = parsingContext.getPlaceholders();
-
-            placeholders.putAll(configurationPlaceholders);
-            placeholders.putAll(parsingContextPlaceholders);
-
-            return new PlaceholderReplacingReader(
-                    configuration.getPlaceholderPrefix(),
-                    configuration.getPlaceholderSuffix(),
-                    placeholders,
-                    r);
+            return PlaceholderReplacingReader.create(
+                    configuration,
+                    parsingContext,
+                    reader);
         }
-        return r;
+
+        return reader;
     }
 
     private SqlStatement getNextStatement(Resource resource, PeekingReader reader, Recorder recorder, PositionTracker tracker, ParserContext context) {

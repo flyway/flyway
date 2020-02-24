@@ -34,6 +34,7 @@ public class ResolvedJavaMigration extends ResolvedMigrationImpl {
                 javaMigration.getDescription(),
                 javaMigration.getClass().getName(),
                 javaMigration.getChecksum(),
+                null,
 
 
 

@@ -240,7 +240,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             ResolvedMigration resolvedMigration = resolvedRepeatable.get(appliedRepeatableMigration.getDescription());
             int latestRank = context.latestRepeatableRuns.get(appliedRepeatableMigration.getDescription());
             if (resolvedMigration != null && appliedRepeatableMigration.getInstalledRank() == latestRank
-                    && Objects.equals(appliedRepeatableMigration.getChecksum(), resolvedMigration.getChecksum())) {
+                    && resolvedMigration.checksumMatches(appliedRepeatableMigration.getChecksum())) {
                 pendingResolvedRepeatable.remove(resolvedMigration);
             }
             migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false

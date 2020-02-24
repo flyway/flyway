@@ -23,6 +23,7 @@ import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.clazz.ClassProvider;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resolver.java.FixedJavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.java.ScanningJavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
@@ -62,17 +63,19 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param configuration            The Flyway configuration.
      * @param sqlScriptFactory         The SQL statement builder factory.
      * @param customMigrationResolvers Custom Migration Resolvers.
+     * @param parsingContext           The parsing context
      */
     public CompositeMigrationResolver(ResourceProvider resourceProvider,
                                       ClassProvider<JavaMigration> classProvider,
                                       Configuration configuration,
                                       SqlScriptExecutorFactory sqlScriptExecutorFactory,
                                       SqlScriptFactory sqlScriptFactory,
+                                      ParsingContext parsingContext,
                                       MigrationResolver... customMigrationResolvers
     ) {
         if (!configuration.isSkipDefaultResolvers()) {
             migrationResolvers.add(new SqlMigrationResolver(resourceProvider, sqlScriptExecutorFactory, sqlScriptFactory,
-                    configuration));
+                    configuration, parsingContext));
             migrationResolvers.add(new ScanningJavaMigrationResolver(classProvider, configuration));
         }
         migrationResolvers.add(new FixedJavaMigrationResolver(configuration.getJavaMigrations()));

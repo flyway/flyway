@@ -140,7 +140,20 @@ public class DbRepair {
                 schemaHistory.update(applied, resolved);
                 repaired = true;
             }
+
+            if (resolved != null
+                    && resolved.getVersion() == null
+                    && applied != null
+                    && !applied.getType().isSynthetic()
+
+
+
+                    && resolved.checksumMatchesWithoutBeingIdentical(applied.getChecksum())) {
+                schemaHistory.update(applied, resolved);
+                repaired = true;
+            }
         }
+
         return repaired;
     }
 
@@ -151,7 +164,7 @@ public class DbRepair {
     }
 
     private boolean checksumUpdateNeeded(ResolvedMigration resolved, AppliedMigration applied) {
-        return !Objects.equals(resolved.getChecksum(), applied.getChecksum());
+        return !resolved.checksumMatches(applied.getChecksum());
     }
 
     private boolean descriptionUpdateNeeded(ResolvedMigration resolved, AppliedMigration applied) {

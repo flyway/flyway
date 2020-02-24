@@ -22,7 +22,7 @@ import org.flywaydb.core.api.executor.MigrationExecutor;
 /**
  * Migration resolved through a MigrationResolver. Can be applied against a database.
  */
-public interface ResolvedMigration {
+public interface ResolvedMigration extends ChecksumMatcher {
     /**
      * @return The version of the database after applying this migration. {@code null} for repeatable migrations.
      */

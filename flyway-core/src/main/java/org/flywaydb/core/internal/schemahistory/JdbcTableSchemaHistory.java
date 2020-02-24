@@ -268,13 +268,25 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                 + " (Description: " + description + ", Type: " + type + ", Checksum: " + checksum + ")  ...");
 
         try {
-            jdbcTemplate.update("UPDATE " + table
-                            + " SET "
-                            + database.quote("description") + "=? , "
-                            + database.quote("type") + "=? , "
-                            + database.quote("checksum") + "=?"
-                            + " WHERE " + database.quote("version") + "=?",
-                    description, type, checksum, version);
+            if (resolvedMigration.getVersion() != null) {
+                jdbcTemplate.update("UPDATE " + table
+                                + " SET "
+                                + database.quote("description") + "=? , "
+                                + database.quote("type") + "=? , "
+                                + database.quote("checksum") + "=?"
+                                + " WHERE " + database.quote("version") + "=?",
+                        description, type, checksum, version);
+            }
+            else {
+                jdbcTemplate.update("UPDATE " + table
+                                + " SET "
+                                + database.quote("description") + "=? , "
+                                + database.quote("type") + "=? , "
+                                + database.quote("checksum") + "=?"
+                                + " WHERE " + database.quote("checksum") + "=" + appliedMigration.getChecksum(),
+                        description, type, checksum);
+            }
+
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to repair Schema History table " + table
                     + " for version " + version, e);
