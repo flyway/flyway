@@ -326,9 +326,45 @@ public class ConfigUtils {
     public static Map<String, String> readConfiguration(Reader reader) throws FlywayException {
         try {
             String contents = FileCopyUtils.copyToString(reader);
+            String[] lines = contents.split("\n");
+
+            StringBuilder confBuilder = new StringBuilder();
+            for (int i = 0; i < lines.length; i++) {
+                String line = lines[i];
+                String replacedLine = line.trim().replace("\\", "\\\\");
+
+                // if the line ends in a \\, then it may be a multiline property
+                if (replacedLine.endsWith("\\\\")) {
+
+                    // if we arent the last line
+                    if (i < lines.length-1) {
+                        // look ahead to see if the next line is a property, a blank line, or another multiline
+                        String nextLine = lines[i+1];
+
+                        boolean restoreMultilineDelimiter = false;
+                        if (nextLine.isEmpty()) {
+                            // blank line
+                        } else if (nextLine.contains("=")) {
+                            // property
+                        } else {
+                            // line with content, this was a multiline property
+                            restoreMultilineDelimiter = true;
+                        }
+
+                        if (restoreMultilineDelimiter) {
+                            // its a multiline property, so restore the original single slash
+                            replacedLine = replacedLine.substring(0, replacedLine.length()-2) + "\\";
+                        }
+                    }
+                }
+
+                confBuilder.append(replacedLine).append("\n");
+            }
+            contents = confBuilder.toString();
+
             Properties properties = new Properties();
             contents = expandEnvironmentVariables(contents, System.getenv());
-            properties.load(new StringReader(contents.replace("\\", "\\\\")));
+            properties.load(new StringReader(contents));
             return propertiesToMap(properties);
         } catch (IOException e) {
             throw new FlywayException("Unable to read config", e);
