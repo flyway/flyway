@@ -464,4 +464,12 @@ public class FlywayExtension {
      * <p>Also configurable with Gradle or System Property: ${flyway.configFiles}</p>
      */
     public String[] configFiles;
+
+    /**
+     * The working directory to consider when dealing with relative paths for both config files and locations.
+     * (default: basedir, the directory where the POM resides)
+     * <p/>
+     * <p>Also configurable with Gradle or System Property: ${flyway.workingDirectory}</p>
+     */
+    public String workingDirectory;
 }

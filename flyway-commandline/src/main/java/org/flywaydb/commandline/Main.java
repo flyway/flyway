@@ -19,10 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationInfoService;
-import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -101,8 +98,13 @@ public class Main {
             Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
 
             Map<String, String> config = new HashMap<>();
-            initializeDefaults(config);
+            initializeDefaults(config, commandLineArguments);
             loadConfigurationFromConfigFiles(config, commandLineArguments, envVars);
+
+            if (commandLineArguments.isWorkingDirectorySet()) {
+                makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments, config);
+            }
+            
             config.putAll(envVars);
             config = overrideConfiguration(config, commandLineArguments.getConfiguration());
 
@@ -138,6 +140,22 @@ public class Main {
             }
             System.exit(1);
         }
+    }
+
+    private static void makeRelativeLocationsBasedOnWorkingDirectory(CommandLineArguments commandLineArguments, Map<String, String> config) {
+        String[] locations = config.get(ConfigUtils.LOCATIONS).split(",");
+        for (int i = 0; i < locations.length; i++) {
+            if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
+                String newLocation = locations[i].substring(Location.FILESYSTEM_PREFIX.length());
+                File file = new File(newLocation);
+                if (!file.isAbsolute()) {
+                    file = new File(commandLineArguments.getWorkingDirectory(), newLocation);
+                }
+                locations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
+            }
+        }
+
+        config.put(ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locations));
     }
 
     private static Map<String, String> overrideConfiguration(Map<String, String> existingConfiguration, Map<String, String> newConfiguration) {
@@ -225,10 +243,14 @@ public class Main {
      *
      * @param config The config object to initialize.
      */
-    private static void initializeDefaults(Map<String, String> config) {
-        config.put(ConfigUtils.LOCATIONS, "filesystem:" + new File(getInstallationDir(), "sql").getAbsolutePath());
-        config.put(ConfigUtils.JAR_DIRS, new File(getInstallationDir(), "jars").getAbsolutePath());
+    private static void initializeDefaults(Map<String, String> config, CommandLineArguments commandLineArguments) {
+        // To maintain override order, return extension value first if present
+        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : getInstallationDir();
+
+        config.put(ConfigUtils.LOCATIONS, "filesystem:" + new File(workingDirectory, "sql").getAbsolutePath());
+        config.put(ConfigUtils.JAR_DIRS, new File(workingDirectory, "jars").getAbsolutePath());
     }
+
 
     /**
      * Filters there properties to remove the Flyway Commandline-specific ones.
@@ -490,16 +512,18 @@ public class Main {
     private static List<File> determineConfigFilesFromArgs(CommandLineArguments commandLineArguments, Map<String, String> envVars) {
         List<File> configFiles = new ArrayList<>();
 
+        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : "";
+
         if (envVars.containsKey(ConfigUtils.CONFIG_FILES)) {
             for (String file : StringUtils.tokenizeToStringArray(envVars.get(ConfigUtils.CONFIG_FILES), ",")) {
-                configFiles.add(new File(file));
+                configFiles.add(new File(workingDirectory, file));
             }
             return configFiles;
         }
 
 
         for (String file : commandLineArguments.getConfigFiles()) {
-            configFiles.add(new File(file));
+            configFiles.add(new File(workingDirectory, file));
         }
 
         return configFiles;

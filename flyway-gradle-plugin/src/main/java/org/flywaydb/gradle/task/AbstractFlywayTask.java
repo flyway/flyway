@@ -509,6 +509,14 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     public String[] configFiles;
 
+    /**
+     * The working directory to consider when dealing with relative paths for both config files and locations.
+     * (default: basedir, the directory where the POM resides)
+     * <p/>
+     * <p>Also configurable with Gradle or System Property: ${flyway.workingDirectory}</p>
+     */
+    public String workingDirectory;
+
     public AbstractFlywayTask() {
         super();
         setGroup("Flyway");
@@ -616,8 +624,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     private Map<String, String> createFlywayConfig(Map<String, String> envVars) {
         Map<String, String> conf = new HashMap<>();
-        conf.put(ConfigUtils.LOCATIONS, Location.FILESYSTEM_PREFIX + getProject().getProjectDir().getAbsolutePath() + "/src/main/resources/db/migration");
 
+        addLocationsToConfig(conf);
         addConfigFromProperties(conf, loadConfigurationFromDefaultConfigFiles(envVars));
 
         putIfSet(conf, ConfigUtils.DRIVER, driver, extension.driver);
@@ -659,7 +667,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.DEFAULT_SCHEMA, defaultSchema, extension.defaultSchema);
 
         putIfSet(conf, ConfigUtils.SCHEMAS, StringUtils.arrayToCommaDelimitedString(schemas), StringUtils.arrayToCommaDelimitedString(extension.schemas));
-        putIfSet(conf, ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locations), StringUtils.arrayToCommaDelimitedString(extension.locations));
         putIfSet(conf, ConfigUtils.RESOLVERS, StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));
         putIfSet(conf, ConfigUtils.CALLBACKS, StringUtils.arrayToCommaDelimitedString(callbacks), StringUtils.arrayToCommaDelimitedString(extension.callbacks));
         putIfSet(conf, ConfigUtils.ERROR_OVERRIDES, StringUtils.arrayToCommaDelimitedString(errorOverrides), StringUtils.arrayToCommaDelimitedString(extension.errorOverrides));
@@ -685,7 +692,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         }
 
         addConfigFromProperties(conf, getProject().getProperties());
-        addConfigFromProperties(conf, loadConfigurationFromConfigFiles(envVars));
+        addConfigFromProperties(conf, loadConfigurationFromConfigFiles(getWorkingDirectory(), envVars));
         addConfigFromProperties(conf, envVars);
         addConfigFromProperties(conf, System.getProperties());
         removeGradlePluginSpecificPropertiesToAvoidWarnings(conf);
@@ -693,17 +700,67 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         return conf;
     }
 
+    private void addLocationsToConfig(Map<String, String> conf) {
+        File workingDirectory = getWorkingDirectory();
+
+        conf.put(ConfigUtils.LOCATIONS, Location.FILESYSTEM_PREFIX + workingDirectory + "/src/main/resources/db/migration");
+
+        String[] locationsToAdd = getLocations();
+
+        if (locationsToAdd != null) {
+            for (int i = 0; i < locationsToAdd.length; i++) {
+                if (locationsToAdd[i].startsWith(Location.FILESYSTEM_PREFIX)) {
+                    String newLocation = locationsToAdd[i].substring(Location.FILESYSTEM_PREFIX.length());
+                    File file = new File(newLocation);
+                    if (!file.isAbsolute()) {
+                        file = new File(workingDirectory, newLocation);
+                    }
+                    locationsToAdd[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
+                }
+            }
+        }
+
+        putIfSet(conf, ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locationsToAdd));
+    }
+
+    private String[] getLocations() {
+        // To maintain override order, return extension value first if present
+        if (extension.locations != null) {
+            return extension.locations;
+        }
+
+        if (locations != null) {
+            return locations;
+        }
+
+        return null;
+    }
+
+    private File getWorkingDirectory() {
+        // To maintain override order, return extension value first if present
+        if (extension.workingDirectory != null) {
+            return new File(extension.workingDirectory);
+        }
+
+        if (workingDirectory != null) {
+            return new File(workingDirectory);
+        }
+
+        return new File(getProject().getProjectDir().getAbsolutePath());
+    }
+
     /**
      * Retrieve the properties from the config files (if specified).
      *
+     * @param workingDirectory The working directory to use.
      * @param envVars The environment variables converted to Flyway properties.
      * @return The properties.
      */
-    private Map<String, String> loadConfigurationFromConfigFiles(Map<String, String> envVars) {
+    private Map<String, String> loadConfigurationFromConfigFiles(File workingDirectory, Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(envVars);
 
         Map<String, String> conf = new HashMap<>();
-        for (File configFile : determineConfigFiles(envVars)) {
+        for (File configFile : determineConfigFiles(workingDirectory, envVars)) {
             conf.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
         }
         return conf;
@@ -747,43 +804,44 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * Determines the files to use for loading the configuration.
      *
+     * @param workingDirectory The working directory to use.
      * @param envVars The environment variables converted to Flyway properties.
      * @return The configuration files.
      */
-    private List<File> determineConfigFiles(Map<String, String> envVars) {
+    private List<File> determineConfigFiles(File workingDirectory, Map<String, String> envVars) {
         List<File> configFiles = new ArrayList<>();
 
         if (envVars.containsKey(ConfigUtils.CONFIG_FILES)) {
             for (String file : StringUtils.tokenizeToStringArray(envVars.get(ConfigUtils.CONFIG_FILES), ",")) {
-                configFiles.add(toFile(file));
+                configFiles.add(toFile(workingDirectory, file));
             }
             return configFiles;
         }
 
         if (System.getProperties().containsKey(ConfigUtils.CONFIG_FILES)) {
             for (String file : StringUtils.tokenizeToStringArray(System.getProperties().getProperty(ConfigUtils.CONFIG_FILES), ",")) {
-                configFiles.add(toFile(file));
+                configFiles.add(toFile(workingDirectory, file));
             }
             return configFiles;
         }
 
         if (getProject().getProperties().containsKey(ConfigUtils.CONFIG_FILES)) {
             for (String file : StringUtils.tokenizeToStringArray(String.valueOf(getProject().getProperties().get(ConfigUtils.CONFIG_FILES)), ",")) {
-                configFiles.add(toFile(file));
+                configFiles.add(toFile(workingDirectory, file));
             }
             return configFiles;
         }
 
         if (this.configFiles != null) {
             for (String file : this.configFiles) {
-                configFiles.add(toFile(file));
+                configFiles.add(toFile(workingDirectory, file));
             }
             return configFiles;
         }
 
         if (extension.configFiles != null) {
             for (String file : extension.configFiles) {
-                configFiles.add(toFile(file));
+                configFiles.add(toFile(workingDirectory, file));
             }
             return configFiles;
         }
@@ -794,15 +852,16 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * Converts this fileName into a file, adjusting relative paths if necessary to make them relative to the pom.
      *
+     * @param workingDirectory  The working directory to use.
      * @param fileName The name of the file, relative or absolute.
      * @return The resulting file.
      */
-    private File toFile(String fileName) {
+    private File toFile(File workingDirectory, String fileName) {
         File file = new File(fileName);
         if (file.isAbsolute()) {
             return file;
         }
-        return new File(getProject().getProjectDir(), fileName);
+        return new File(workingDirectory, fileName);
     }
 
     /**
@@ -815,6 +874,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         conf.remove(ConfigUtils.CONFIG_FILE_ENCODING);
         conf.remove(ConfigUtils.CONFIGURATIONS);
         conf.remove("flyway.version");
+        conf.remove("flyway.workingDirectory");
     }
 
     private static void addConfigFromProperties(Map<String, String> config, Properties properties) {
