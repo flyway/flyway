@@ -168,9 +168,8 @@ public class SqlMigrationResolver implements MigrationResolver {
 
             SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed(), resourceProvider);
 
-
-
-
+            List<LoadableResource> resources = new ArrayList<>();
+            resources.add(resource);
 
 
 
