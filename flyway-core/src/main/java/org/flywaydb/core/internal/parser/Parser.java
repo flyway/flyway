@@ -365,27 +365,24 @@ public abstract class Parser {
     }
 
     /**
-     * Checks if the specified token texts are found consecutively within the last tokens in the list
+     * Returns true if the previous token matches the tokenText
      */
-    protected static boolean containsWithinLast(int count, List<Token> tokens, int parensDepth, String... consecutiveTokenTexts) {
-        int j = consecutiveTokenTexts.length - 1;
-        int remaining = count;
-        for (int i = tokens.size() - 1; i >= 0 && remaining > 0; i--) {
+    protected static boolean lastTokenIs(List<Token> tokens, int parensDepth, String tokenText) {
+        for (int i = tokens.size()-1; i >= 0; i--) {
+            Token previousToken = tokens.get(i);
+
             // Only consider tokens at the same parenthesis depth
-            if (tokens.get(i).getParensDepth() != parensDepth) {
+            if (previousToken.getParensDepth() != parensDepth) {
                 continue;
             }
-            if (consecutiveTokenTexts[j].equals(tokens.get(i).getText())) {
-                if (j == 0) {
-                    return true;
-                }
-                j--;
-            } else if (j < consecutiveTokenTexts.length - 1) {
-                // Token texts weren't consecutive, so reset
-                j = consecutiveTokenTexts.length - 1;
+            // Skip over comments and blank lines
+            if (previousToken.getType() == TokenType.COMMENT || previousToken.getType() == TokenType.BLANK_LINES) {
+                continue;
             }
-            remaining--;
+
+            return tokenText.equals(previousToken.getText());
         }
+
         return false;
     }
 
@@ -402,7 +399,9 @@ public abstract class Parser {
                 break;
             }
 
-            tokenStrings.add(prevToken.getText());
+            if (prevToken.getType() == TokenType.KEYWORD) {
+                tokenStrings.add(prevToken.getText());
+            }
         }
 
         StringBuilder builder = new StringBuilder();

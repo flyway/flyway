@@ -56,6 +56,9 @@ public class OracleParser extends Parser {
 
 
 
+    private static final Pattern PLSQL_TYPE_BODY_REGEX = Pattern.compile(
+            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sTYPE\\sBODY\\s([^\\s]*\\s)?(IS|AS)");
+
     private static final Pattern PLSQL_PACKAGE_BODY_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\sBODY\\s([^\\s]*\\s)?(IS|AS)");
     private static final StatementType PLSQL_PACKAGE_BODY_STATEMENT = new StatementType();
@@ -430,12 +433,11 @@ public class OracleParser extends Parser {
         int parensDepth = keyword.getParensDepth();
 
         if ("BEGIN".equals(keywordText)
-                || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !containsWithinLast(1, tokens, parensDepth, "END"))
-                || ("TRIGGER".equals(keywordText) && containsWithinLast(1, tokens, parensDepth, "COMPOUND"))
-                || (("AS".equals(keywordText) || "IS".equals(keywordText)) && (
-                containsWithinLast(4, tokens, parensDepth, "PACKAGE")
-                        || containsWithinLast(3, tokens, parensDepth, "PACKAGE", "BODY")
-                        || containsWithinLast(3, tokens, parensDepth, "TYPE", "BODY")))
+                || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !lastTokenIs(tokens, parensDepth, "END"))
+                || ("TRIGGER".equals(keywordText) && lastTokenIs(tokens, parensDepth, "COMPOUND"))
+                || doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_BODY_REGEX)
+                || doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_DEFINITION_REGEX)
+                || doTokensMatchPattern(tokens, keyword, PLSQL_TYPE_BODY_REGEX)
         ) {
             context.increaseBlockDepth();
         } else if ("END".equals(keywordText)) {
