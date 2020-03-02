@@ -22,11 +22,14 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.util.ClassUtils;
 
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -1049,6 +1052,39 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration configuration(Map<String, String> props) {
         config.configure(props);
+        return this;
+    }
+
+    /**
+     * Load configuration files from the default locations:
+     * $installationDir$/conf/flyway.conf
+     * $user.home$/flyway.conf
+     * $workingDirectory$/flyway.conf
+     *
+     * The configuration files must be encoded with UTF-8.
+     *
+     * @throws FlywayException when the configuration failed.
+     */
+    public FluentConfiguration loadDefaultConfigurationFiles() {
+        return loadDefaultConfigurationFiles("UTF-8");
+    }
+
+    /**
+     * Load configuration files from the default locations:
+     * $installationDir$/conf/flyway.conf
+     * $user.home$/flyway.conf
+     * $workingDirectory$/flyway.conf
+     *
+     * @param encoding the conf file encoding.
+     * @throws FlywayException when the configuration failed.
+     */
+    public FluentConfiguration loadDefaultConfigurationFiles(String encoding) {
+        String installationPath = ClassUtils.getLocationOnDisk(FluentConfiguration.class);
+        File installationDir = new File(installationPath).getParentFile();
+
+        Map<String, String> configMap = ConfigUtils.loadDefaultConfigurationFiles(installationDir, encoding);
+
+        config.configure(configMap);
         return this;
     }
 

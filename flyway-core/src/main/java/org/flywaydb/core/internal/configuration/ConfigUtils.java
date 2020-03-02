@@ -288,6 +288,24 @@ public class ConfigUtils {
     }
 
     /**
+     * Load configuration files from the default locations:
+     * $installationDir$/conf/flyway.conf
+     * $user.home$/flyway.conf
+     * $workingDirectory$/flyway.conf
+     *
+     * @param encoding the conf file encoding.
+     * @throws FlywayException when the configuration failed.
+     */
+    public static Map<String, String> loadDefaultConfigurationFiles(File installationDir, String encoding) {
+        Map<String, String> configMap = new HashMap<>();
+        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(installationDir.getAbsolutePath() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+
+        return configMap;
+    }
+
+    /**
      * Loads the configuration from this configuration file.
      *
      * @param configFile    The configuration file to load.

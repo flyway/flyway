@@ -435,10 +435,9 @@ public class Main {
     /* private -> for testing */
     static void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(commandLineArguments, envVars);
+        File installationDir = new File(getInstallationDir());
 
-        config.putAll(ConfigUtils.loadConfigurationFile(new File(getInstallationDir() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
-        config.putAll(ConfigUtils.loadConfigurationFile(new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
-        config.putAll(ConfigUtils.loadConfigurationFile(new File(ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        config.putAll(ConfigUtils.loadDefaultConfigurationFiles(installationDir, encoding));
 
         for (File configFile : determineConfigFilesFromArgs(commandLineArguments, envVars)) {
             config.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
