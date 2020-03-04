@@ -22,8 +22,12 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class ParsingContext {
     private static final Log LOG = LogFactory.getLog(ParsingContext.class);
@@ -31,6 +35,7 @@ public class ParsingContext {
     private static final String DEFAULT_SCHEMA_PLACEHOLDER = "flyway:defaultSchema";
     private static final String USER_PLACEHOLDER = "flyway:user";
     private static final String DATABASE_PLACEHOLDER = "flyway:database";
+    private static final String TIMESTAMP_PLACEHOLDER = "flyway:timestamp";
 
     private Map<String, String> placeholders = new HashMap<>();
 
@@ -52,6 +57,7 @@ public class ParsingContext {
         }
 
         placeholders.put(USER_PLACEHOLDER, currentUser);
+        placeholders.put(TIMESTAMP_PLACEHOLDER, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
     }
 
     private String getCatalog(Database database) {
