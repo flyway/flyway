@@ -158,6 +158,10 @@ public class DbValidate {
             } else {
                 LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
                         count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+
+                if (count == 0) {
+                    LOG.warn("No migrations found. Are your locations set up correctly?");
+                }
             }
             callbackExecutor.onEvent(Event.AFTER_VALIDATE);
         } else {

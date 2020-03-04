@@ -205,7 +205,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         }
 
         if (!locationResolved) {
-            LOG.warn("Unable to resolve location " + location);
+            LOG.warn("Unable to resolve location " + location + ". Note this warning will become an error in Flyway 7.");
         }
 
         return resourceNames;
@@ -233,7 +233,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
                 urls = classLoader.getResources(location.getPath() + "/flyway.location");
                 if (!urls.hasMoreElements()) {
                     LOG.warn("Unable to resolve location " + location + " (ClassLoader: " + classLoader + ")"
-                            + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
+                            + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!\nNote this warning will become an error in Flyway 7.");
                 }
                 while (urls.hasMoreElements()) {
                     URL url = urls.nextElement();
@@ -241,7 +241,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
                 }
             } catch (IOException e) {
                 LOG.warn("Unable to resolve location " + location + " (ClassLoader: " + classLoader + ")"
-                        + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
+                        + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!\nNote this warning will become an error in Flyway 7.");
             }
         } else {
             Enumeration<URL> urls;
@@ -251,7 +251,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
                     locationUrls.add(urls.nextElement());
                 }
             } catch (IOException e) {
-                LOG.warn("Unable to resolve location " + location + " (ClassLoader: " + classLoader + "): " + e.getMessage());
+                LOG.warn("Unable to resolve location " + location + " (ClassLoader: " + classLoader + "): " + e.getMessage() + "\nNote this warning will become an error in Flyway 7.");
             }
         }
 

@@ -200,7 +200,7 @@ public class DbMigrate {
             Collections.reverse(resolved);
             if (resolved.isEmpty()) {
                 LOG.warn("Schema " + schema + " has version " + currentSchemaVersion
-                        + ", but no migration could be resolved in the configured locations !");
+                        + ", but no migration could be resolved in the configured locations ! Note this warning will become an error in Flyway 7.");
             } else {
                 for (MigrationInfo migrationInfo : resolved) {
                     // Only consider versioned migrations
