@@ -101,9 +101,9 @@ public class MySQLParser extends Parser {
     private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("IF", "LOOP", "CASE", "REPEAT", "WHILE");
 
     private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(
-            "^CREATE\\s([^\\s]*\\s)*IF\\sNOT\\sEXISTS");
+            ".*CREATE\\s([^\\s]*\\s)*IF\\sNOT\\sEXISTS");
     private static final Pattern DROP_IF_EXISTS = Pattern.compile(
-            "^DROP\\s([^\\s]*\\s)*IF\\sEXISTS");
+            ".*DROP\\s([^\\s]*\\s)*IF\\sEXISTS");
 
     @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {

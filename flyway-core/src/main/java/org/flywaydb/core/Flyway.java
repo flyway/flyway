@@ -502,7 +502,7 @@ public class Flyway {
 
 
 
-            parsingContext.populate(database);
+            parsingContext.populate(database, configuration);
 
             database.ensureSupported();
 

@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.parser;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
@@ -43,13 +44,25 @@ public class ParsingContext {
         return placeholders;
     }
 
-    public void populate(Database database) {
+    public void populate(Database database, Configuration configuration) {
+        String defaultSchemaName = configuration.getDefaultSchema();
+        String[] schemaNames = configuration.getSchemas();
+
         Schema currentSchema = getCurrentSchema(database);
         String catalog = getCatalog(database);
         String currentUser = getCurrentUser(database);
 
-        if (currentSchema != null) {
-            placeholders.put(DEFAULT_SCHEMA_PLACEHOLDER, currentSchema.getName());
+        // cf. Flyway.prepareSchemas()
+        if (defaultSchemaName == null) {
+            if (schemaNames.length > 0) {
+                defaultSchemaName = schemaNames[0];
+            } else {
+                defaultSchemaName = currentSchema.getName();
+            }
+        }
+
+        if (defaultSchemaName != null) {
+            placeholders.put(DEFAULT_SCHEMA_PLACEHOLDER, defaultSchemaName);
         }
 
         if (catalog != null) {

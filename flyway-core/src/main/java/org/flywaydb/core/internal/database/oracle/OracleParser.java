@@ -64,7 +64,7 @@ public class OracleParser extends Parser {
     private static final StatementType PLSQL_PACKAGE_BODY_STATEMENT = new StatementType();
 
     private static final Pattern PLSQL_PACKAGE_DEFINITION_REGEX = Pattern.compile(
-            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\s([^\\s]*\\s)?(IS|AS)");
+            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\s([^\\s]*\\s)?(AUTHID\\s[^\\s]*\\s)?(IS|AS)");
 
     private static final Pattern PLSQL_VIEW_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sVIEW\\s([^\\s]*\\s)?AS\\sWITH\\s(PROCEDURE|FUNCTION)");

@@ -301,20 +301,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
 
 
 
-            for (String statement : cleanPartitionSchemes()) {
-                jdbcTemplate.execute(statement);
-            }
-
-            for (String statement : cleanPartitionFunctions()) {
-                jdbcTemplate.execute(statement);
-            }
-
-
-
-
-
-
-
             for (String statement : cleanObjects("SEQUENCE", ObjectType.SEQUENCE_OBJECT)) {
                 jdbcTemplate.execute(statement);
             }
@@ -527,38 +513,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         List<String> statements = new ArrayList<>();
         for (String assemblyName : assemblyNames) {
             statements.add("DROP ASSEMBLY " + database.quote(assemblyName));
-        }
-        return statements;
-    }
-
-    /**
-     * Cleans the Partition Schemes in this database.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanPartitionSchemes() throws SQLException {
-        List<String> partitionSchemeNames =
-                jdbcTemplate.queryForStringList("SELECT name FROM sys.partition_schemes");
-        List<String> statements = new ArrayList<>();
-        for (String partitionSchemeName : partitionSchemeNames) {
-            statements.add("DROP PARTITION SCHEME " + database.quote(partitionSchemeName));
-        }
-        return statements;
-    }
-
-    /**
-     * Cleans the Partition Functions in this database.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanPartitionFunctions() throws SQLException {
-        List<String> partitionFunctionNames =
-                jdbcTemplate.queryForStringList("SELECT name FROM sys.partition_functions");
-        List<String> statements = new ArrayList<>();
-        for (String partitionFunctionName : partitionFunctionNames) {
-            statements.add("DROP PARTITION FUNCTION " + database.quote(partitionFunctionName));
         }
         return statements;
     }
