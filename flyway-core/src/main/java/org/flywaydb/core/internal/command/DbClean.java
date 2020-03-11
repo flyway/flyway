@@ -107,6 +107,8 @@ public class DbClean {
                 LOG.error("Error while checking whether the schemas should be dropped", e);
             }
 
+            dropDatabaseObjectsPreSchemas();
+
             for (Schema schema : schemas) {
                 if (!schema.exists()) {
                     LOG.warn("Unable to clean unknown schema: " + schema);
@@ -119,6 +121,9 @@ public class DbClean {
                     cleanSchema(schema);
                 }
             }
+
+            dropDatabaseObjectsPostSchemas();
+
         } catch (FlywayException e) {
             callbackExecutor.onEvent(Event.AFTER_CLEAN_ERROR);
             throw e;
@@ -126,6 +131,60 @@ public class DbClean {
 
         callbackExecutor.onEvent(Event.AFTER_CLEAN);
         schemaHistory.clearCache();
+    }
+
+    /**
+     * Drops database-level objects that need to be cleaned prior to schema-level objects
+     *
+     * @throws FlywayException when the drop failed.
+     */
+    private void dropDatabaseObjectsPreSchemas() {
+        LOG.debug("Dropping pre-schema database level objects...");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        try {
+            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                    database).execute(new Callable<Object>() {
+                @Override
+                public Void call() {
+                    database.cleanPreSchemas();
+                    return null;
+                }
+            });
+        } catch (FlywaySqlException e) {
+            LOG.debug(e.getMessage());
+            LOG.warn("Unable to drop pre-schema database level objects");
+        }
+        stopWatch.stop();
+        LOG.info(String.format("Successfully dropped pre-schema database level objects (execution time %s)",
+                TimeFormat.format(stopWatch.getTotalTimeMillis())));
+    }
+
+    /**
+     * Drops database-level objects that need to be cleaned after all schema-level objects
+     *
+     * @throws FlywayException when the drop failed.
+     */
+    private void dropDatabaseObjectsPostSchemas() {
+        LOG.debug("Dropping post-schema database level objects...");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        try {
+            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                    database).execute(new Callable<Object>() {
+                @Override
+                public Void call() {
+                    database.cleanPostSchemas();
+                    return null;
+                }
+            });
+        } catch (FlywaySqlException e) {
+            LOG.debug(e.getMessage());
+            LOG.warn("Unable to drop post-schema database level objects");
+        }
+        stopWatch.stop();
+        LOG.info(String.format("Successfully dropped post-schema database level objects (execution time %s)",
+                TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 
     /**

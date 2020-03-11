@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.resource.StringResource;
@@ -88,6 +89,8 @@ public abstract class Database<C extends Connection> implements Closeable {
      */
     private String installedBy;
 
+    protected JdbcTemplate jdbcTemplate;
+
     /**
      * Creates a new Database instance with this JdbcTemplate.
      *
@@ -106,6 +109,7 @@ public abstract class Database<C extends Connection> implements Closeable {
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to get metadata for connection", e);
         }
+        this.jdbcTemplate = new JdbcTemplate(rawMainJdbcConnection, databaseType);
         this.jdbcConnectionFactory = jdbcConnectionFactory;
 
 
@@ -429,4 +433,44 @@ public abstract class Database<C extends Connection> implements Closeable {
      * Whether the database supports multi-statement transactions
      */
     public boolean supportsMultiStatementTransactions() { return true; }
+
+    /**
+     * Cleans all the objects in this database that need to be done prior to cleaning schemas.
+     */
+    public void cleanPreSchemas() {
+        try {
+            doCleanPreSchemas();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to clean database " + this, e);
+        }
+    }
+
+    /**
+     * Cleans all the objects in this database that need to be done prior to cleaning schemas.
+     *
+     * @throws SQLException when the clean failed.
+     */
+    protected void doCleanPreSchemas() throws SQLException {
+        // Default is to do nothing.
+    }
+
+    /**
+     * Cleans all the objects in this database that need to be done after cleaning schemas.
+     */
+    public void cleanPostSchemas() {
+        try {
+            doCleanPostSchemas();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to clean schema " + this, e);
+        }
+    }
+
+    /**
+     * Cleans all the objects in this database that need to be done after cleaning schemas.
+     *
+     * @throws SQLException when the clean failed.
+     */
+    protected void doCleanPostSchemas() throws SQLException {
+        // Default is to do nothing
+    }
 }
