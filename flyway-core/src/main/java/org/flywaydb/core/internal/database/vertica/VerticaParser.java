@@ -30,8 +30,12 @@ public class VerticaParser extends Parser {
     private static final Pattern COPY_FROM_STDIN_REGEX = Pattern.compile("^COPY( .*)? FROM STDIN");
     private static final StatementType COPY_FROM_STDIN = new StatementType();
 
-    public VerticaParser(Configuration configuration) {
-        super(configuration, 1);
+    public VerticaParser(Configuration configuration, ParsingContext parsingContext, int peekDepth) {
+        super(configuration, parsingContext, peekDepth);
+    }
+
+    public VerticaParser(Configuration configuration, ParsingContext parsingContext) {
+        this(configuration, parsingContext, 1);
     }
 
     @Override
