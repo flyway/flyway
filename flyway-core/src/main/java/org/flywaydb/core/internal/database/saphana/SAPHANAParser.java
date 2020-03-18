@@ -20,10 +20,26 @@ import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class SAPHANAParser extends Parser {
+    private static final StatementType SQLSCRIPT_STATEMENT = new StatementType();
+
+    private static final Pattern SQLSCRIPT_REGEX = Pattern.compile(
+            "^CREATE(\\sOR\\sREPLACE)?\\s(FUNCTION|PROCEDURE)");
+
     public SAPHANAParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 2);
+    }
+
+    protected boolean tokensContain(List<Token> tokens, String tokenText) {
+        for (int i = tokens.size()-1; i >= 0; i--) {
+            Token previousToken = tokens.get(i);
+            if (tokenText.equals(previousToken.getText())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -34,13 +50,38 @@ public class SAPHANAParser extends Parser {
         }
         Token previousKeyword = tokens.get(lastKeywordIndex);
 
+        if ( "PROCEDURE".equals(keyword.getText()) || "FUNCTION".equals(keyword.getText()) ) {
+            String previous = tokens.get(lastKeywordIndex).getText();
+
+            if ("CREATE".equals(previous) || "REPLACE".equals(previous)) {
+                context.increaseBlockDepth();
+            }
+        }
+
+
         // BEGIN, CASE, DO and IF increases block depth
         if ("BEGIN".equals(keyword.getText()) || "CASE".equals(keyword.getText()) || "DO".equals(keyword.getText()) || "IF".equals(keyword.getText())
+
                 // But not END IF
                 && !"END".equals(previousKeyword.getText())) {
             context.increaseBlockDepth();
         } else if ("END".equals(keyword.getText())) {
             context.decreaseBlockDepth();
         }
+
+        if (context.getStatementType() == SQLSCRIPT_STATEMENT && tokensContain(tokens, "BEGIN")
+                && "END".equals(keyword.getText()) && context.getBlockDepth() == 1) {
+            context.decreaseBlockDepth();
+            return;
+        }
+    }
+
+    @Override
+    protected StatementType detectStatementType(String simplifiedStatement) {
+        if (SQLSCRIPT_REGEX.matcher(simplifiedStatement).matches()) {
+            return SQLSCRIPT_STATEMENT;
+        }
+
+        return super.detectStatementType(simplifiedStatement);
     }
 }
