@@ -128,7 +128,26 @@
 
 
 
+
+        <repository>
+            <id>maven.oracle.com</id>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <url>https://maven.oracle.com</url>
+            <layout>default</layout>
+        </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven.oracle.com</id>
+            <url>https://maven.oracle.com</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <properties>
         <version.maven>3.0</version.maven>
@@ -142,7 +161,7 @@
         <version.mariadb>2.4.0</version.mariadb>
         <version.mysql>8.0.17</version.mysql>
         <version.mssql-jdbc>7.2.0.jre8</version.mssql-jdbc>
-        <version.oracle>18.3.0.0.0</version.oracle>
+        <version.oracle>18.3.0.0</version.oracle>
         <version.postgresql>42.2.8.jre6</version.postgresql>
         <version.snowflake>3.11.1</version.snowflake>
         <version.sqlite>3.23.1</version.sqlite>
@@ -295,7 +314,7 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
-                <groupId>com.oracle</groupId>
+                <groupId>com.oracle.jdbc</groupId>
                 <artifactId>ojdbc8</artifactId>
                 <version>${version.oracle}</version>
                 <optional>true</optional>
