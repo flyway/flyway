@@ -38,7 +38,7 @@ class ConsoleLogCreator implements LogCreator {
         ConsoleLog log = new ConsoleLog(commandLineArguments.getLogLevel());
         Color color = commandLineArguments.getColor();
 
-        if (Color.NEVER.equals(color)) {
+        if (Color.NEVER.equals(color) || (Color.AUTO.equals(color) && System.console() == null)) {
             return log;
         }
 
