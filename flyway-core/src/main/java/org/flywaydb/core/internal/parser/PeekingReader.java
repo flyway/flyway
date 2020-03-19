@@ -184,6 +184,20 @@ public class PeekingReader extends FilterReader {
         return result.toString();
     }
 
+    /**
+     * Return the next non-whitespace character
+     * @return The character
+     */
+    public char peekNextNonWhitespace() throws IOException {
+        int i = 1;
+        String c = peek(i++);
+        while (c.trim().isEmpty()) {
+            c = peek(i++);
+        }
+
+        return c.charAt(c.length()-1);
+    }
+
     private void resizePeekBuffer(int newSize) {
         peekBuffer = Arrays.copyOf(peekBuffer, newSize + peekBufferOffset);
     }
