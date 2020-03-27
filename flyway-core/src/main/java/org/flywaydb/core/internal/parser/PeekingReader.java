@@ -175,6 +175,8 @@ public class PeekingReader extends FilterReader {
             int r = peekBuffer[peekBufferOffset + i];
             if (r == -1) {
                 break;
+            } else if (peekBufferOffset + i > peekMax) {
+                break;
             }
             result.append((char) r);
         }

@@ -128,6 +128,7 @@ public abstract class Parser {
 
     private SqlStatement getNextStatement(Resource resource, PeekingReader reader, Recorder recorder, PositionTracker tracker, ParserContext context) {
         resetDelimiter(context);
+        context.setStatementType(StatementType.UNKNOWN);
 
         int statementLine = tracker.getLine();
         int statementCol = tracker.getCol();
@@ -143,7 +144,7 @@ public abstract class Parser {
             int nonCommentPartLine = -1;
             int nonCommentPartCol = -1;
 
-            StatementType statementType = null;
+            StatementType statementType = StatementType.UNKNOWN;
             Boolean canExecuteInTransaction = null;
 
 
@@ -252,13 +253,13 @@ public abstract class Parser {
 
                 )
                         && parensDepth == 0
-                        && (statementType == null || canExecuteInTransaction == null)) {
+                        && (statementType == StatementType.UNKNOWN || canExecuteInTransaction == null)) {
                     if (!simplifiedStatement.isEmpty()) {
                         simplifiedStatement += " ";
                     }
                     simplifiedStatement += keywordToUpperCase(token.getText());
 
-                    if (statementType == null) {
+                    if (statementType == StatementType.UNKNOWN) {
                         if (keywords.size() > getTransactionalDetectionCutoff()) {
                             statementType = StatementType.GENERIC;
                         } else {
@@ -439,7 +440,7 @@ public abstract class Parser {
     }
 
     protected StatementType detectStatementType(String simplifiedStatement) {
-        return null;
+        return StatementType.UNKNOWN;
     }
 
     protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {

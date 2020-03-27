@@ -18,6 +18,8 @@ package org.flywaydb.core.internal.parser;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 
+import java.security.InvalidParameterException;
+
 public class ParserContext {
     private int parensDepth = 0;
     private int blockDepth = 0;
@@ -68,6 +70,10 @@ public class ParserContext {
     }
 
     public void setStatementType(StatementType statementType) {
+        if (statementType == null) {
+            throw new InvalidParameterException("statementType must be non-null");
+        }
+
         this.statementType = statementType;
     }
 
@@ -76,7 +82,7 @@ public class ParserContext {
             return true;
         }
         // Some statement types admit other characters as letters
-        if (getStatementType() != null) {
+        if (getStatementType() != StatementType.UNKNOWN) {
             return statementType.treatAsIfLetter(c);
         }
         return false;

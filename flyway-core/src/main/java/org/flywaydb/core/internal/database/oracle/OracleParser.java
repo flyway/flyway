@@ -189,6 +189,7 @@ public class OracleParser extends Parser {
 
 
 
+
     public OracleParser(Configuration configuration
 
 
@@ -408,7 +409,14 @@ public class OracleParser extends Parser {
         if (token.getType() == TokenType.SYMBOL && context.getStatementType() == PLSQL_JAVA_STATEMENT) {
             return true;
         }
-        
+
+
+
+
+
+
+
+
         return super.shouldAdjustBlockDepth(context, token);
     }
 
@@ -468,6 +476,10 @@ public class OracleParser extends Parser {
 
 
 
+
+        if (col == 1 && "/".equals(peek.trim())) {
+            return true;
+        }
 
         return super.isDelimiter(peek, context, col);
     }
