@@ -111,8 +111,8 @@
         </repository>
 
         <repository>
-            <id>jcenter</id>
-            <url>https://jcenter.bintray.com/</url>
+            <id>repo.gradle.org</id>
+            <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
         </repository>
         <repository>
             <id>flyway-repo-public</id>
