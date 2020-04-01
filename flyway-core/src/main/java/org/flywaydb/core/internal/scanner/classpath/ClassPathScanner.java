@@ -20,6 +20,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
+import org.flywaydb.core.internal.scanner.LocationScannerCache;
 import org.flywaydb.core.internal.scanner.ResourceNameCache;
 import org.flywaydb.core.internal.scanner.classpath.jboss.JBossVFSv2UrlResolver;
 import org.flywaydb.core.internal.scanner.classpath.jboss.JBossVFSv3ClassPathLocationScanner;
@@ -60,7 +61,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
     /**
      * Cache location scanners.
      */
-    private final Map<String, ClassPathLocationScanner> locationScannerCache = new HashMap<>();
+    private final LocationScannerCache locationScannerCache;
 
     /**
      * Cache resource names.
@@ -73,11 +74,13 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
      * @param classLoader The ClassLoader for loading migrations on the classpath.
      */
     public ClassPathScanner(Class<I> implementedInterface, ClassLoader classLoader, Charset encoding, Location location,
-                            ResourceNameCache resourceNameCache) {
+                            ResourceNameCache resourceNameCache,
+                            LocationScannerCache locationScannerCache) {
         this.implementedInterface = implementedInterface;
         this.classLoader = classLoader;
         this.location = location;
         this.resourceNameCache = resourceNameCache;
+        this.locationScannerCache = locationScannerCache;
 
         LOG.debug("Scanning for classpath resources at '" + location + "' ...");
         for (String resourceName : findResourceNames()) {

@@ -22,6 +22,7 @@ import org.flywaydb.core.internal.clazz.ClassProvider;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.scanner.android.AndroidScanner;
+import org.flywaydb.core.internal.scanner.classpath.ClassPathLocationScanner;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
 import org.flywaydb.core.internal.scanner.filesystem.FileSystemScanner;
@@ -29,10 +30,7 @@ import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Scanner for Resources and Classes.
@@ -51,6 +49,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
 
             , ResourceNameCache resourceNameCache
+            , LocationScannerCache locationScannerCache
     ) {
         FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding
 
@@ -66,7 +65,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
             } else {
                 ResourceAndClassScanner<I> resourceAndClassScanner = android
                         ? new AndroidScanner<>(implementedInterface, classLoader, encoding, location)
-                        : new ClassPathScanner<>(implementedInterface, classLoader, encoding, location, resourceNameCache);
+                        : new ClassPathScanner<>(implementedInterface, classLoader, encoding, location, resourceNameCache, locationScannerCache);
                 resources.addAll(resourceAndClassScanner.scanForResources());
                 classes.addAll(resourceAndClassScanner.scanForClasses());
             }

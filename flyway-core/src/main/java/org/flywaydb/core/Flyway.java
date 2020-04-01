@@ -41,8 +41,10 @@ import org.flywaydb.core.internal.resource.NoopResourceProvider;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.resource.ResourceNameValidator;
+import org.flywaydb.core.internal.scanner.LocationScannerCache;
 import org.flywaydb.core.internal.scanner.ResourceNameCache;
 import org.flywaydb.core.internal.scanner.Scanner;
+import org.flywaydb.core.internal.scanner.classpath.ClassPathLocationScanner;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
@@ -53,21 +55,20 @@ import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
  * <p>
  * It is THE public API from which all important Flyway functions such as clean, validate and migrate can be called.
  * </p>
- * <p>To get started all you need to do is</p>
+ * <p>To get started all you need to do is create a configured Flyway object and then invoke its principal methods.</p>
  * <pre>
  * Flyway flyway = Flyway.configure().dataSource(url, user, password).load();
  * flyway.migrate();
  * </pre>
+ * Note that a configured Flyway object is immutable. If you change the configuration you will end up creating a new Flyway
+ * object.
  * <p>
  */
 public class Flyway {
@@ -140,6 +141,11 @@ public class Flyway {
      * Used to cache resource names for classpath scanning between commands
      */
     private ResourceNameCache resourceNameCache = new ResourceNameCache();
+
+    /**
+     * Used to cache LocationScanners between commands
+     */
+    private final LocationScannerCache locationScannerCache = new LocationScannerCache();
 
     /**
      * <p>Starts the database migration. All pending migrations will be applied in order.
@@ -436,6 +442,7 @@ public class Flyway {
 
 
                     , resourceNameCache
+                    , locationScannerCache
             );
             resourceProvider = scanner;
             classProvider = scanner;
