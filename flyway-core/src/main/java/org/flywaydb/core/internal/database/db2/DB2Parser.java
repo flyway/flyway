@@ -20,6 +20,7 @@ import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class DB2Parser extends Parser {
     private static final String COMMENT_DIRECTIVE = "--#";
@@ -28,6 +29,11 @@ public class DB2Parser extends Parser {
     public DB2Parser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, COMMENT_DIRECTIVE.length());
     }
+
+    private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(
+            ".*CREATE\\s([^\\s]+\\s){0,2}IF\\sNOT\\sEXISTS");
+    private static final Pattern DROP_IF_EXISTS = Pattern.compile(
+            ".*DROP\\s([^\\s]+\\s){0,2}IF\\sEXISTS");
 
     @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
@@ -54,7 +60,9 @@ public class DB2Parser extends Parser {
             }
         } else if (
             // END decreases block depth, exception when used with ROW END
-                "END".equals(keyword.getText()) && !"ROW".equals(previousKeyword)) {
+                ("END".equals(keyword.getText()) && !"ROW".equals(previousKeyword))
+                        || doTokensMatchPattern(tokens, keyword, CREATE_IF_NOT_EXISTS)
+                        || doTokensMatchPattern(tokens, keyword, DROP_IF_EXISTS)) {
             context.decreaseBlockDepth();
         }
     }
