@@ -43,7 +43,7 @@ public class ChecksumCalculator {
 
 
 
-            checksum = calculateChecksumForReader(loadableResources[0].read());
+            checksum = calculateChecksumForResource(loadableResources[0]);
 
 
 
@@ -59,12 +59,12 @@ public class ChecksumCalculator {
         return checksum;
     }
 
-    private static int calculateChecksumForReader(Reader reader) {
+    private static int calculateChecksumForResource(LoadableResource resource) {
         final CRC32 crc32 = new CRC32();
 
         BufferedReader bufferedReader = null;
         try {
-            bufferedReader = new BufferedReader(reader, 4096);
+            bufferedReader = new BufferedReader(resource.read(), 4096);
 
             String line = bufferedReader.readLine();
 
@@ -77,7 +77,7 @@ public class ChecksumCalculator {
                 } while ((line = bufferedReader.readLine()) != null);
             }
         } catch (IOException e) {
-            throw new FlywayException("Unable to calculate checksum " + e.getMessage(), e);
+            throw new FlywayException("Unable to calculate checksum of " + resource.getFilename() + "\r\n" + e.getMessage(), e);
         } finally {
             IOUtils.close(bufferedReader);
         }
