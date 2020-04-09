@@ -115,18 +115,9 @@
             <url>https://repo.gradle.org/gradle/libs-releases-local/</url>
         </repository>
         <repository>
-            <id>flyway-repo-public</id>
-            <url>https://flywaydb.org/repo</url>
-        </repository>
-        <repository>
             <id>flyway-repo</id>
-            <url>https://repo.flywaydb.org/repo</url>
+            <url>https://nexus.flywaydb.org/repository/flyway/</url>
         </repository>
-
-
-
-
-
 
 
 
@@ -142,7 +133,12 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+
+
+
+
             <url>https://maven.oracle.com</url>
+
             <layout>default</layout>
         </repository>
     </repositories>
@@ -150,7 +146,12 @@
     <pluginRepositories>
         <pluginRepository>
             <id>maven.oracle.com</id>
+
+
+
+
             <url>https://maven.oracle.com</url>
+
         </pluginRepository>
     </pluginRepositories>
 
