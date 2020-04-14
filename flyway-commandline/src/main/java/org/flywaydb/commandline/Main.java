@@ -31,10 +31,7 @@ import org.flywaydb.core.internal.output.ErrorOutput;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.io.Console;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -81,7 +78,7 @@ public class Main {
     public static void main(String[] args) {
         CommandLineArguments commandLineArguments = new CommandLineArguments(args);
         initLogging(commandLineArguments);
-        
+
         try {
             commandLineArguments.validate(LOG);
 
@@ -442,6 +439,39 @@ public class Main {
         for (File configFile : determineConfigFilesFromArgs(commandLineArguments, envVars)) {
             config.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
         }
+
+        config.putAll(readConfigFromInputStream(System.in));
+    }
+
+    private static Map<String, String> readConfigFromInputStream(InputStream inputStream) {
+        Map<String, String> config = new HashMap<>();
+
+        try {
+            // System.in.available() : returns an estimate of the number of bytes that can be read (or skipped over) from this input stream
+            // Used to check if there is any data in the stream
+            if (inputStream != null && inputStream.available() > 0) {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+                LOG.debug("Attempting to load configuration from standard input");
+
+                if (bufferedReader.ready()) {
+                    Map<String, String> configurationFromStandardInput = ConfigUtils.readConfiguration(bufferedReader);
+
+                    if (configurationFromStandardInput.isEmpty()) {
+                        LOG.debug("Empty configuration provided from standard input");
+                    } else {
+                        LOG.info("Loaded configuration from standard input");
+                        config.putAll(configurationFromStandardInput);
+                    }
+                } else {
+                    LOG.debug("Could not load configuration from standard input");
+                }
+            }
+        } catch (Exception e) {
+            LOG.debug("Could not load configuration from standard input " + e.getMessage());
+        }
+
+        return config;
     }
 
     /**
