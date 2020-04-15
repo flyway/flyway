@@ -56,7 +56,7 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
                         + "(SELECT 1 as found FROM information_schema.tables WHERE table_schema=?) UNION ALL "
                         + "(SELECT 1 as found FROM information_schema.views WHERE table_schema=? LIMIT 1) UNION ALL "
                         + "(SELECT 1 as found FROM information_schema.table_constraints WHERE table_schema=? LIMIT 1) UNION ALL "
-                        + "(SELECT 1 as found FROM information_schema.triggers WHERE trigger_schema=? LIMIT 1) UNION ALL "
+                        + "(SELECT 1 as found FROM information_schema.triggers WHERE event_object_schema=?  LIMIT 1) UNION ALL "
                         + "(SELECT 1 as found FROM information_schema.routines WHERE routine_schema=? LIMIT 1)"
                         // #2410 Unlike MySQL, MariaDB 10.0 and newer don't allow the events table to be queried
                         // when the event scheduled is DISABLED or in some rare cases OFF
