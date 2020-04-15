@@ -507,33 +507,14 @@ public class Main {
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a username.
      */
     private static boolean needsUser(String url) {
-        // Using Snowflake private-key auth instead of password allows user to be passed on URL
-        if (DriverDataSource.DriverType.SNOWFLAKE.matches(url)
-            || DriverDataSource.DriverType.POSTGRESQL.matches(url)) {
-            return !url.contains("user=");
-        }
-        if (DriverDataSource.DriverType.SQLSERVER.matches(url)) {
-            return !url.contains("integratedSecurity=");
-        }
-        return true;
+        return DriverDataSource.detectUserRequiredByUrl(url);
     }
 
     /**
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a password.
      */
     private static boolean needsPassword(String url) {
-        // Using Snowflake private-key auth instead of password
-        if (DriverDataSource.DriverType.SNOWFLAKE.matches(url)) {
-            return !url.contains("private_key_file=");
-        }
-        // Postgres supports password in URL
-        if (DriverDataSource.DriverType.POSTGRESQL.matches(url)) {
-            return !url.contains("password=");
-        }
-        if (DriverDataSource.DriverType.SQLSERVER.matches(url)) {
-            return !url.contains("integratedSecurity=");
-        }
-        return true;
+        return DriverDataSource.detectPasswordRequiredByUrl(url);
     }
 
     /**

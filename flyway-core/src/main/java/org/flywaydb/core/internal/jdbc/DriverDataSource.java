@@ -30,6 +30,7 @@ import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * YAGNI: The simplest DataSource implementation that works for Flyway.
@@ -235,6 +236,61 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
+     * Detects whether a user is required from configuration. This may not be the case if the driver supports
+     * other authentication mechanisms, or supports the user being encoded in the URL
+     *
+     * @param url The url to check
+     * @return false if a username needs to be provided
+     */
+    public static boolean detectUserRequiredByUrl(String url) {
+        // Using Snowflake private-key auth instead of password allows user to be passed on URL
+        if (DriverDataSource.DriverType.SNOWFLAKE.matches(url)
+                || DriverDataSource.DriverType.POSTGRESQL.matches(url)) {
+            return !url.contains("user=");
+        }
+        if (DriverDataSource.DriverType.SQLSERVER.matches(url)) {
+            return !url.contains("integratedSecurity=")
+                    && !url.contains("authentication=ActiveDirectoryIntegrated")
+                    && !url.contains("authentication=ActiveDirectoryMSI");
+        }
+        if (DriverDataSource.DriverType.ORACLE.matches(url)) {
+            // Oracle usernames/passwords can be 1-30 chars, can only contain alphanumerics and # _ $
+            Pattern pattern = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/[a-zA-Z0-9#_$]+@//.*");
+            return !pattern.matcher(url).matches();
+        }
+        return true;
+    }
+
+    /**
+     * Detects whether a password is required from configuration. This may not be the case if the driver supports
+     * other authentication mechanisms, or supports the password being encoded in the URL
+     *
+     * @param url The url to check
+     * @return false if a username needs to be provided
+     */
+    public static boolean detectPasswordRequiredByUrl(String url) {
+        // Using Snowflake private-key auth instead of password
+        if (DriverDataSource.DriverType.SNOWFLAKE.matches(url)) {
+            return !url.contains("private_key_file=");
+        }
+        // Postgres supports password in URL
+        if (DriverDataSource.DriverType.POSTGRESQL.matches(url)) {
+            return !url.contains("password=");
+        }
+        if (DriverDataSource.DriverType.SQLSERVER.matches(url)) {
+            return !url.contains("integratedSecurity=")
+                    && !url.contains("authentication=ActiveDirectoryIntegrated")
+                    && ! url.contains("authentication=ActiveDirectoryMSI");
+        }
+        if (DriverDataSource.DriverType.ORACLE.matches(url)) {
+            // Oracle usernames/passwords can be 1-30 chars, can only contain alphanumerics and # _ $
+            Pattern pattern = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/[a-zA-Z0-9#_$]+@//.*");
+            return !pattern.matcher(url).matches();
+        }
+        return true;
+    }
+
+    /**
      * Detects a fallback password in case this one is missing.
      *
      * @param password The password to check.
@@ -293,7 +349,7 @@ public class DriverDataSource implements DataSource {
      */
     private DriverType detectDriverTypeForUrl(String url) {
         for (DriverType type : DriverType.values()) {
-            if (url.startsWith(type.prefix)) {
+            if (type.matches(url)) {
                 return type;
             }
         }
