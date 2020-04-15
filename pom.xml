@@ -172,7 +172,7 @@
         <version.snowflake>3.11.1</version.snowflake>
         <version.sqlite>3.23.1</version.sqlite>
         <version.osgi>4.3.1</version.osgi>
-        <version.equinox>3.15.100</version.equinox>
+        <version.equinox>3.15.200</version.equinox>
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
         <version.android>4.0.1.2</version.android>
         <version.slf4j>1.7.30</version.slf4j>
