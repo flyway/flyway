@@ -93,13 +93,18 @@ public class DbBaseline {
                     if (schemaHistory.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
                         throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " with version 0 as this version was used for schema creation");
                     }
+
                     if (schemaHistory.hasNonSyntheticAppliedMigrations()) {
                         throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations");
                     }
-                    else {
-                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations.\n" +
+
+                    if (schemaHistory.allAppliedMigrations().isEmpty()) {
+                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already exists, and is empty.\n" +
                                 "Delete the schema history table with the clean command, and run baseline again.");
                     }
+
+                    throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations.\n" +
+                            "Delete the schema history table with the clean command, and run baseline again.");
                 }
             }
         } catch (FlywayException e) {
