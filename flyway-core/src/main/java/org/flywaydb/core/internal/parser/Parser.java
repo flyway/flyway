@@ -372,9 +372,9 @@ public abstract class Parser {
     }
 
     /**
-     * Returns true if the previous token matches the tokenText
+     * Returns the last token at the given parensDepth. Skips comments and blank lines. Will return null if no token found.
      */
-    protected static boolean lastTokenIs(List<Token> tokens, int parensDepth, String tokenText) {
+    protected static Token getPreviousToken(List<Token> tokens, int parensDepth) {
         for (int i = tokens.size()-1; i >= 0; i--) {
             Token previousToken = tokens.get(i);
 
@@ -387,10 +387,22 @@ public abstract class Parser {
                 continue;
             }
 
-            return tokenText.equals(previousToken.getText());
+            return previousToken;
         }
 
-        return false;
+        return null;
+    }
+
+    /**
+     * Returns true if the previous token matches the tokenText
+     */
+    protected static boolean lastTokenIs(List<Token> tokens, int parensDepth, String tokenText) {
+        Token previousToken = getPreviousToken(tokens, parensDepth);
+        if (previousToken == null) {
+            return false;
+        }
+
+        return tokenText.equals(previousToken.getText());
     }
 
     /**

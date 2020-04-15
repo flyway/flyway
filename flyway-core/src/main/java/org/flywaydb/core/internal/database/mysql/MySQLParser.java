@@ -96,6 +96,16 @@ public class MySQLParser extends Parser {
                 && isDigit(text.charAt(7));
     }
 
+    @Override
+    protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+        TokenType tokenType = token.getType();
+        if (TokenType.DELIMITER == tokenType || ";".equals(token.getText())) {
+            return true;
+        }
+
+        return super.shouldAdjustBlockDepth(context, token);
+    }
+
     // These words increase the block depth - unless preceded by END (in which case the END will decrease the block depth)
     // See: https://dev.mysql.com/doc/refman/8.0/en/flow-control-statements.html
     private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("IF", "LOOP", "CASE", "REPEAT", "WHILE");
@@ -105,26 +115,44 @@ public class MySQLParser extends Parser {
     private static final Pattern DROP_IF_EXISTS = Pattern.compile(
             ".*DROP\\s([^\\s]+\\s){1,2}IF\\sEXISTS");
 
+    private boolean doesDelimiterEndFunction(List<Token> tokens, Token delimiter) {
+
+        // if there's not enough tokens, its not the function
+        if (tokens.size() < 2) {
+            return false;
+        }
+
+        // if the previous keyword was not inside some brackets, it's not the function
+        if (tokens.get(tokens.size()-1).getParensDepth() != delimiter.getParensDepth()+1) {
+            return false;
+        }
+
+        // if the previous token was not IF or REPEAT, it's not the function
+        Token previousToken = getPreviousToken(tokens, delimiter.getParensDepth());
+        if (previousToken == null || !("IF".equals(previousToken.getText()) || "REPEAT".equals(previousToken.getText()))) {
+            return false;
+        }
+
+        return true;
+    }
+
     @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
         String keywordText = keyword.getText();
 
         int parensDepth = keyword.getParensDepth();
 
-        if (("IF".equals(keywordText) || "REPEAT".equals(keywordText)) && '(' == reader.peekNextNonWhitespace()) {
-            // do not enter a block if this is the function version of these keywords
-            return;
-        }
-        if (context.getBlockDepth() > 0 && "EXISTS".equals(keywordText) && '(' == reader.peekNextNonWhitespace() && "IF".equals(tokens.get(tokens.size()-1).getText())) {
-            // if this a IF EXISTS(SELECT then drop out of the block entered by the preceding IF
-            context.decreaseBlockDepth();
-        }
-        else if ("BEGIN".equals(keywordText)
+        if ("BEGIN".equals(keywordText)
                || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !lastTokenIs(tokens, parensDepth, "END"))) {
             context.increaseBlockDepth();
         } else if ("END".equals(keywordText)
                 || doTokensMatchPattern(tokens, keyword, CREATE_IF_NOT_EXISTS)
                 || doTokensMatchPattern(tokens, keyword, DROP_IF_EXISTS)) {
+            context.decreaseBlockDepth();
+        }
+
+        // Add manual handling for the function variations of these control keywords
+        if ((keyword.getType() == TokenType.DELIMITER || ";".equals(keywordText)) && context.getBlockDepth() > 0 && doesDelimiterEndFunction(tokens, keyword)) {
             context.decreaseBlockDepth();
         }
     }
