@@ -158,10 +158,10 @@
     <properties>
         <version.maven>3.0</version.maven>
         <version.gradle>3.0</version.gradle>
-        <version.derby>10.15.1.3</version.derby>
+        <version.derby>10.15.2.0</version.derby>
         <version.h2>1.4.200</version.h2>
         <version.hsqldb>2.5.0</version.hsqldb>
-        <version.jaybird>3.0.6</version.jaybird>
+        <version.jaybird>3.0.8</version.jaybird>
         <version.jna>4.5.2</version.jna>
         <version.jtds>1.3.1</version.jtds>
         <version.mariadb>2.4.0</version.mariadb>
@@ -175,7 +175,7 @@
         <version.equinox>3.15.100</version.equinox>
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
         <version.android>4.0.1.2</version.android>
-        <version.slf4j>1.7.16</version.slf4j>
+        <version.slf4j>1.7.30</version.slf4j>
         <version.jre>11.0.2</version.jre>
         <version.jansi>1.18</version.jansi>
         <version.gson>2.8.6</version.gson>
