@@ -52,9 +52,7 @@ public class ClassPathResource extends LoadableResource {
     public ClassPathResource(Location location, String fileNameWithAbsolutePath, ClassLoader classLoader,
                              Charset encoding) {
         this.fileNameWithAbsolutePath = fileNameWithAbsolutePath;
-        this.fileNameWithRelativePath = location == null || location.getPath().isEmpty()
-                ? fileNameWithAbsolutePath
-                : fileNameWithAbsolutePath.substring(location.getPath().length() + 1);
+        this.fileNameWithRelativePath = location == null ? fileNameWithAbsolutePath : location.getPathRelativeToThis(fileNameWithAbsolutePath);
         this.classLoader = classLoader;
         this.encoding = encoding;
     }

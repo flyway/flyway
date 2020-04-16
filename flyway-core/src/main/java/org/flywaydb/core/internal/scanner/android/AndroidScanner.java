@@ -63,10 +63,12 @@ public class AndroidScanner<I> implements ResourceAndClassScanner<I> {
     public Collection<LoadableResource> scanForResources() {
         List<LoadableResource> resources = new ArrayList<>();
 
-        String path = location.getPath();
+        String path = location.getRootPath();
         try {
             for (String asset : context.getAssets().list(path)) {
-                resources.add(new AndroidResource(location, context.getAssets(), path, asset, encoding));
+                if (location.matchesPath(asset)) {
+                    resources.add(new AndroidResource(location, context.getAssets(), path, asset, encoding));
+                }
             }
         } catch (IOException e) {
             LOG.warn("Unable to scan for resources: " + e.getMessage());
@@ -77,7 +79,7 @@ public class AndroidScanner<I> implements ResourceAndClassScanner<I> {
 
     @Override
     public Collection<Class<? extends I>> scanForClasses() {
-        String pkg = location.getPath().replace("/", ".");
+        String pkg = location.getRootPath().replace("/", ".");
 
         List<Class<? extends I>> classes = new ArrayList<>();
         String sourceDir = context.getApplicationInfo().sourceDir;

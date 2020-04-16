@@ -66,7 +66,7 @@ public class FileSystemScanner {
      * @return The resources that were found.
      */
     public Collection<LoadableResource> scanForResources(Location location) {
-        String path = location.getPath();
+        String path = location.getRootPath();
         LOG.debug("Scanning for filesystem resources at '" + path + "'");
 
         File dir = new File(path);
@@ -86,12 +86,15 @@ public class FileSystemScanner {
         Set<LoadableResource> resources = new TreeSet<>();
 
         for (String resourceName : findResourceNamesFromFileSystem(path, new File(path))) {
-            resources.add(new FileSystemResource(location, resourceName, encoding
+
+            if (location.matchesPath(resourceName)) {
+                resources.add(new FileSystemResource(location, resourceName, encoding
 
 
 
-            ));
-            LOG.debug("Found filesystem resource: " + resourceName);
+                ));
+                LOG.debug("Found filesystem resource: " + resourceName);
+            }
         }
 
         return resources;

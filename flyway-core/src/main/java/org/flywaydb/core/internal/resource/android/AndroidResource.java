@@ -39,9 +39,7 @@ public class AndroidResource extends LoadableResource {
         this.assetManager = assetManager;
         this.fileNameWithAbsolutePath = path + "/" + name;
         this.fileName = name;
-        this.fileNameWithRelativePath = location.getPath().isEmpty()
-                ? fileNameWithAbsolutePath
-                : fileNameWithAbsolutePath.substring(location.getPath().length() + 1);
+        this.fileNameWithRelativePath = location == null ? fileNameWithAbsolutePath : location.getPathRelativeToThis(fileNameWithAbsolutePath);
         this.encoding = encoding;
     }
 

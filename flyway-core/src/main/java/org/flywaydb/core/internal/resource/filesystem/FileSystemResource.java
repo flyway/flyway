@@ -64,10 +64,7 @@ public class FileSystemResource extends LoadableResource {
 
     ) {
         this.file = new File(new File(fileNameWithPath).getPath());
-        this.relativePath = (location == null || location.getPath().isEmpty()
-                ? file.getPath()
-                : file.getAbsolutePath().substring(new File(location.getPath()).getAbsolutePath().length() + 1))
-                .replace("\\", "/");
+        this.relativePath = location == null ? file.getPath() : location.getPathRelativeToThis(file.getPath()).replace("\\", "/");
         this.encoding = encoding;
 
 
