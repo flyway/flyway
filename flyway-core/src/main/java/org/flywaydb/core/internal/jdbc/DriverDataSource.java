@@ -65,8 +65,8 @@ public class DriverDataSource implements DataSource {
         SQLLITE("jdbc:sqlite:", "org.sqlite.JDBC"),
         SQLSERVER("jdbc:sqlserver:", "com.microsoft.sqlserver.jdbc.SQLServerDriver"),
         SYBASE("jdbc:sybase:", "com.sybase.jdbc4.jdbc.SybDriver"),
-        TEST_CONTAINERS("jdbc:tc:", "org.testcontainers.jdbc.ContainerDatabaseDriver");
-
+        TEST_CONTAINERS("jdbc:tc:", "org.testcontainers.jdbc.ContainerDatabaseDriver"),
+        GOOGLE_CLOUD_SPANNER("jdbc:cloudspanner:","com.google.cloud.spanner.jdbc.JdbcDriver");
         DriverType(String prefix, String driverClass) {
             this.prefix = prefix;
             this.driverClass = driverClass;

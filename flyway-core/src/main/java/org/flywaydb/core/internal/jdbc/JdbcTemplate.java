@@ -306,7 +306,7 @@ public class JdbcTemplate {
                     while (resultSet.next()) {
                         List<String> row = new ArrayList<>();
                         for (int i = 1; i <= columnCount; i++) {
-                            row.add(resultSet.getString(i));
+                            row.add(resultSet.getObject(i).toString());
                         }
                         data.add(row);
                     }

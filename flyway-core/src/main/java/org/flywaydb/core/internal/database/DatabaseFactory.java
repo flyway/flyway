@@ -21,6 +21,8 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.cloudspanner.CloudSpannerDatabase;
+import org.flywaydb.core.internal.database.cloudspanner.CloudSpannerParser;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabase;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBParser;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBRetryingStrategy;
@@ -134,6 +136,8 @@ public class DatabaseFactory {
 
 
                 );
+            case CLOUDSPANNER:
+                return new CloudSpannerDatabase(configuration, jdbcConnectionFactory);
             case DB2:
                 return new DB2Database(configuration, jdbcConnectionFactory
 
@@ -280,6 +284,8 @@ public class DatabaseFactory {
         final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
 
         switch (databaseType) {
+            case CLOUDSPANNER:
+                return new CloudSpannerParser(configuration, parsingContext);
             case COCKROACHDB:
                 return new CockroachDBParser(configuration, parsingContext);
             case DB2:
