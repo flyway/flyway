@@ -80,11 +80,11 @@
         <snapshotRepository>
             <id>${snapshotRepository.id}</id>
             <name>${snapshotRepository.name}</name>
-            <url>${releaseRepository.url}</url>
+            <url>${snapshotRepository.url}</url>
         </snapshotRepository>
         <repository>
-            <id>${repository.id}</id>
-            <name>${repository.name}</name>
+            <id>${releaseRepository.id}</id>
+            <name>${releaseRepository.name}</name>
             <url>${releaseRepository.url}</url>
         </repository>
     </distributionManagement>
