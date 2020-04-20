@@ -117,6 +117,21 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         <repository>
             <id>maven.oracle.com</id>
             <releases>
@@ -125,26 +140,26 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-
-
-
-
             <url>https://maven.oracle.com</url>
-
-            <layout>default</layout>
+             <layout>default</layout>
         </repository>
+
     </repositories>
 
     <pluginRepositories>
+
+
+
+
+
+
+
+
         <pluginRepository>
             <id>maven.oracle.com</id>
-
-
-
-
             <url>https://maven.oracle.com</url>
-
         </pluginRepository>
+
     </pluginRepositories>
 
     <properties>
