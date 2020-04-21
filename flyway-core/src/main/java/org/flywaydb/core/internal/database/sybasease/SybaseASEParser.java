@@ -26,7 +26,7 @@ import java.io.IOException;
 
 public class SybaseASEParser extends Parser {
     public SybaseASEParser(Configuration configuration, ParsingContext parsingContext) {
-        super(configuration, parsingContext, 2);
+        super(configuration, parsingContext, 3);
     }
 
     @Override
@@ -36,9 +36,10 @@ public class SybaseASEParser extends Parser {
 
     @Override
     protected boolean isDelimiter(String peek, ParserContext context, int col) {
-        return peek.length() == 2
+        return peek.length() >= 2
                 && (peek.charAt(0) == 'G' || peek.charAt(0) == 'g')
-                && (peek.charAt(1) == 'O' || peek.charAt(1) == 'o');
+                && (peek.charAt(1) == 'O' || peek.charAt(1) == 'o')
+                && (peek.length() == 2 || Character.isWhitespace(peek.charAt(2)));
     }
 
     @Override
