@@ -54,16 +54,21 @@ public class DriverDataSource implements DataSource {
         INFORMIX("jdbc:informix-sqli:", "com.informix.jdbc.IfxDriver"),
         JTDS("jdbc:jtds:", "net.sourceforge.jtds.jdbc.Driver"),
         MARIADB("jdbc:mariadb:", "org.mariadb.jdbc.Driver"),
+        MARIADB_SECRETSMANAGER("jdbc-secretsmanager:mariadb:", "com.amazonaws.secretsmanager.sql.AWSSecretsManagerMariaDBDriver"),
         MYSQL("jdbc:mysql:", "com.mysql.cj.jdbc.Driver"),
+        MYSQL_SECRETSMANAGER("jdbc-secretsmanager:mysql:", "com.amazonaws.secretsmanager.sql.AWSSecretsManagerMySQLDriver"),
         MYSQL_GOOGLE("jdbc:google:", "com.mysql.jdbc.GoogleDriver"),
         ORACLE("jdbc:oracle", "oracle.jdbc.OracleDriver"),
+        ORACLE_SECRETSMANAGER("jdbc-secretsmanager:oracle", "com.amazonaws.secretsmanager.sql.AWSSecretsManagerOracleDriver"),
         POSTGRESQL("jdbc:postgresql:", "org.postgresql.Driver"),
+        POSTGRESQL_SECRETSMANAGER("jdbc-secretsmanager:postgresql:", "com.amazonaws.secretsmanager.sql.AWSSecretsManagerPostgreSQLDriver"),
         REDSHIFT("jdbc:redshift:", "com.amazon.redshift.jdbc42.Driver"),
         SAPHANA("jdbc:sap:", "com.sap.db.jdbc.Driver"),
         SNOWFLAKE("jdbc:snowflake:", "net.snowflake.client.jdbc.SnowflakeDriver"),
         SQLDROID("jdbc:sqldroid:", "org.sqldroid.SQLDroidDriver"),
         SQLLITE("jdbc:sqlite:", "org.sqlite.JDBC"),
         SQLSERVER("jdbc:sqlserver:", "com.microsoft.sqlserver.jdbc.SQLServerDriver"),
+        SQLSERVER_SECRETSMANAGER("jdbc-secretsmanager:sqlserver:", "com.amazonaws.secretsmanager.sql.AWSSecretsManagerMSSQLServerDriver"),
         SYBASE("jdbc:sybase:", "com.sybase.jdbc4.jdbc.SybDriver"),
         TEST_CONTAINERS("jdbc:tc:", "org.testcontainers.jdbc.ContainerDatabaseDriver");
 
@@ -212,7 +217,7 @@ public class DriverDataSource implements DataSource {
             throw new FlywayException("Missing required JDBC URL. Unable to create DataSource!");
         }
 
-        if (!url.toLowerCase().startsWith("jdbc:")) {
+        if (!url.toLowerCase().matches("(jdbc:|jdbc-secretsmanager:).*")) {
             throw new FlywayException("Invalid JDBC URL (should start with jdbc:) : " + url);
         }
         return url;
@@ -286,6 +291,13 @@ public class DriverDataSource implements DataSource {
             // Oracle usernames/passwords can be 1-30 chars, can only contain alphanumerics and # _ $
             Pattern pattern = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/[a-zA-Z0-9#_$]+@//.*");
             return !pattern.matcher(url).matches();
+        }
+        if (DriverDataSource.DriverType.MARIADB_SECRETSMANAGER.matches(url) ||
+            DriverDataSource.DriverType.MYSQL_SECRETSMANAGER.matches(url) ||
+            DriverDataSource.DriverType.ORACLE_SECRETSMANAGER.matches(url) ||
+            DriverDataSource.DriverType.POSTGRESQL_SECRETSMANAGER.matches(url) ||
+            DriverDataSource.DriverType.SQLSERVER_SECRETSMANAGER.matches(url)) {
+            return false;
         }
         return true;
     }
