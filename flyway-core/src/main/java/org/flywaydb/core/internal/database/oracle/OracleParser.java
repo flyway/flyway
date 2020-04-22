@@ -466,8 +466,8 @@ public class OracleParser extends Parser {
         Delimiter delimiter = context.getDelimiter();
 
         // Only consider alone-on-line delimiters (such as "/" for PL/SQL) if
-        // we're at the top level and it's the first character on the line
-        if (delimiter.isAloneOnLine() && (context.getBlockDepth() > 0 || col > 1)) {
+        // it's the first character on the line
+        if (delimiter.isAloneOnLine() && col > 1) {
             return false;
         }
 
