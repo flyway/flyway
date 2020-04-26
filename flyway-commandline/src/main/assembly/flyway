@@ -63,9 +63,9 @@ fi
 
 CP="$INSTALLDIR/lib/*:$INSTALLDIR/lib/$FLYWAY_EDITION/*:$INSTALLDIR/drivers/*"
 
-EXTRA_ARGS=
+EXTRA_ARGS=${FLYWAY_EXTRA_ARGS:=}
 if $linux; then
-  EXTRA_ARGS=-Djava.security.egd=file:/dev/../dev/urandom
+  EXTRA_ARGS="$EXTRA_ARGS -Djava.security.egd=file:/dev/../dev/urandom"
 fi
 
 if `command -v cygpath > /dev/null`; then CP=`cygpath -pw "$CP"`; fi
