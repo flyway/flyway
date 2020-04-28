@@ -168,7 +168,7 @@ public abstract class Parser {
 
                 TokenType tokenType = token.getType();
                 if (tokenType == TokenType.NEW_DELIMITER) {
-                    if (!tokens.isEmpty()) {
+                    if (!tokens.isEmpty() && nonCommentPartPos >= 0) {
                         String sql = recorder.stop();
                         throw new FlywayException("Delimiter changed inside statement at line " + statementLine
                                 + " col " + statementCol + ": " + sql);
