@@ -102,7 +102,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
         );
 
-        Collections.sort(migrations, new ResolvedMigrationComparator());
+        Collections.sort(migrations, new ResolvedMigrationComparator(context.getConfiguration().getRepeatableMigrationComparator()));
         return migrations;
     }
 

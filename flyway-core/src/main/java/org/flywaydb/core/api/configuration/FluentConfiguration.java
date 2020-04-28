@@ -22,6 +22,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
 
@@ -29,7 +30,7 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -294,6 +295,21 @@ public class FluentConfiguration implements Configuration {
     @Override
     public boolean outputQueryResults() {
         return config.outputQueryResults();
+    }
+
+    @Override
+    public Comparator<ResolvedMigration> getRepeatableMigrationComparator() {
+        return config.getRepeatableMigrationComparator();
+    }
+
+    public FluentConfiguration repeatableMigrationComparator(String comparator) {
+        config.setRepeatableMigrationComparatorAsClassName(comparator);
+        return this;
+    }
+
+    public FluentConfiguration repeatableMigrationComparator(Comparator<ResolvedMigration> comparator) {
+        config.setRepeatableMigrationComparator(comparator);
+        return this;
     }
 
     /**

@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
  * Configuration-related utilities.
  */
 public class ConfigUtils {
+
     private static Log LOG = LogFactory.getLog(ConfigUtils.class);
 
     /**
@@ -71,6 +72,7 @@ public class ConfigUtils {
     public static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
     public static final String REPEATABLE_SQL_MIGRATION_PREFIX = "flyway.repeatableSqlMigrationPrefix";
     public static final String RESOLVERS = "flyway.resolvers";
+    public static final String REPEATABLE_MIGRATION_COMPARATOR = "flyway.repeatableMigrationComparator";
     public static final String SCHEMAS = "flyway.schemas";
     public static final String SKIP_DEFAULT_CALLBACKS = "flyway.skipDefaultCallbacks";
     public static final String SKIP_DEFAULT_RESOLVERS = "flyway.skipDefaultResolvers";

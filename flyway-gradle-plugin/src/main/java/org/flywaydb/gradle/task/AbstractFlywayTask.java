@@ -183,6 +183,12 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean skipDefaultResolvers;
 
     /**
+     * Fully qualified class name of custom Comparator to determine the order of repeatable migrations.
+     * <p>(default: by description)</p>
+     */
+    public String repeatableMigrationComparator;
+
+    /**
      * The file name prefix for versioned SQL migrations. (default: V)
      * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
@@ -671,6 +677,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.CALLBACKS, StringUtils.arrayToCommaDelimitedString(callbacks), StringUtils.arrayToCommaDelimitedString(extension.callbacks));
         putIfSet(conf, ConfigUtils.ERROR_OVERRIDES, StringUtils.arrayToCommaDelimitedString(errorOverrides), StringUtils.arrayToCommaDelimitedString(extension.errorOverrides));
 
+        putIfSet(conf, ConfigUtils.REPEATABLE_MIGRATION_COMPARATOR, repeatableMigrationComparator, extension.repeatableMigrationComparator);
         putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput, extension.dryRunOutput);
         putIfSet(conf, ConfigUtils.STREAM, stream, extension.stream);
         putIfSet(conf, ConfigUtils.BATCH, batch, extension.batch);

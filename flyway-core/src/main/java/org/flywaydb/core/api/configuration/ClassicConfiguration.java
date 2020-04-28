@@ -24,23 +24,23 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.Edition;
+import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -389,80 +389,12 @@ public class ClassicConfiguration implements Configuration {
      */
     private String installedBy;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * The {@link Comparator} to determine the order of repeatable migrations.
+     * <p>
+     * By default repeatable migrations are applied in the order of their description.
+     */
+    private Comparator<ResolvedMigration> repeatableMigrationComparator = ResolvedMigrationComparator.DEFAULT_REPEATABLE_MIGRATION_COMPARATOR;
 
     /**
      * Creates a new default configuration.
@@ -724,6 +656,11 @@ public class ClassicConfiguration implements Configuration {
 
     }
 
+    @Override
+    public Comparator<ResolvedMigration> getRepeatableMigrationComparator() {
+        return repeatableMigrationComparator;
+    }
+
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.
@@ -870,6 +807,25 @@ public class ClassicConfiguration implements Configuration {
             installedBy = null;
         }
         this.installedBy = installedBy;
+    }
+
+    /**
+     * Sets the {@link Comparator} to determine the order of repeatable migrations.
+     *
+     * @param repeatableMigrationComparator The comparator to determine the order of repeatable migrations.
+     */
+    public void setRepeatableMigrationComparator(Comparator<ResolvedMigration> repeatableMigrationComparator) {
+        this.repeatableMigrationComparator = repeatableMigrationComparator;
+    }
+
+    /**
+     * Sets custom {@link Comparator} to determine the order of repeatable migrations.
+     *
+     * @param comparator The fully qualified class name of the custom {@link Comparator} to determine the order of repeatable migrations.
+     */
+    public void setRepeatableMigrationComparatorAsClassName(String comparator) {
+        Comparator<ResolvedMigration> repeatableMigrationComparator = ClassUtils.instantiate(comparator, classLoader);
+        setRepeatableMigrationComparator(repeatableMigrationComparator);
     }
 
     /**
@@ -1643,6 +1599,7 @@ public class ClassicConfiguration implements Configuration {
         setTablespace(configuration.getTablespace());
         setTarget(configuration.getTarget());
         setValidateOnMigrate(configuration.isValidateOnMigrate());
+        setRepeatableMigrationComparator(configuration.getRepeatableMigrationComparator());
     }
 
     /**

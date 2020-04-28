@@ -306,6 +306,7 @@ public class Main {
         LOG.info("locations                    : Classpath locations to scan recursively for migrations");
         LOG.info("resolvers                    : Comma-separated list of custom MigrationResolvers");
         LOG.info("skipDefaultResolvers         : Skips default resolvers (jdbc, sql and Spring-jdbc)");
+        LOG.info("repeatableMigrationComparator: Fully qualified class name of repeatable migrations comparator");
         LOG.info("sqlMigrationPrefix           : File name prefix for versioned SQL migrations");
         LOG.info("undoSqlMigrationPrefix       : [" + "pro] File name prefix for undo SQL migrations");
         LOG.info("repeatableSqlMigrationPrefix : File name prefix for repeatable SQL migrations");

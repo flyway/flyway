@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -107,7 +108,8 @@ public class CompositeMigrationResolver implements MigrationResolver {
      */
     private List<ResolvedMigration> doFindAvailableMigrations(Context context) throws FlywayException {
         List<ResolvedMigration> migrations = new ArrayList<>(collectMigrations(migrationResolvers, context));
-        Collections.sort(migrations, new ResolvedMigrationComparator());
+        Comparator<ResolvedMigration> repeatableMigrationComparator = context.getConfiguration().getRepeatableMigrationComparator();
+        Collections.sort(migrations, new ResolvedMigrationComparator(repeatableMigrationComparator));
 
         checkForIncompatibilities(migrations);
 
@@ -137,7 +139,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      */
     /* private -> for testing */
     static void checkForIncompatibilities(List<ResolvedMigration> migrations) {
-    	ResolvedMigrationComparator resolvedMigrationComparator = new ResolvedMigrationComparator();
+    	ResolvedMigrationComparator resolvedMigrationComparator = new ResolvedMigrationComparator(ResolvedMigrationComparator.DEFAULT_REPEATABLE_MIGRATION_COMPARATOR);
         // check for more than one migration with same version
         for (int i = 0; i < migrations.size() - 1; i++) {
             ResolvedMigration current = migrations.get(i);

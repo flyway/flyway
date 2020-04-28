@@ -138,6 +138,12 @@ public class FlywayExtension {
     public Boolean skipDefaultResolvers;
 
     /**
+     * Fully qualified class name of custom Comparator to determine the order of repeatable migrations.
+     * <p>(default: by description)</p>
+     */
+    public String repeatableMigrationComparator;
+
+    /**
      * The file name prefix for versioned SQL migrations. (default: V)
      * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>

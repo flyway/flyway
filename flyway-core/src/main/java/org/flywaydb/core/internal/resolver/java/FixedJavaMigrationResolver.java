@@ -51,7 +51,7 @@ public class FixedJavaMigrationResolver implements MigrationResolver {
             migrations.add(new ResolvedJavaMigration(javaMigration));
         }
 
-        Collections.sort(migrations, new ResolvedMigrationComparator());
+        Collections.sort(migrations, new ResolvedMigrationComparator(context.getConfiguration().getRepeatableMigrationComparator()));
         return migrations;
     }
 }

@@ -20,10 +20,12 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 
 import javax.sql.DataSource;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.Comparator;
 import java.util.Map;
 
 /**
@@ -515,4 +517,11 @@ public interface Configuration {
      * @return {@code true} to output the results table (default: {@code true})
      */
     boolean outputQueryResults();
+
+    /**
+     * The {@link Comparator} to determine the order of repeatable migrations.
+     * <p>
+     * By default repeatable migrations are applied in the order of their description.
+     */
+    Comparator<ResolvedMigration> getRepeatableMigrationComparator();
 }

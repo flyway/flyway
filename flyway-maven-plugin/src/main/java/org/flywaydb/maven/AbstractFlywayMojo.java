@@ -209,6 +209,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean skipDefaultResolvers;
 
     /**
+     * Fully qualified class name of custom Comparator to determine the order of repeatable migrations.
+     * <p>(default: by description)</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.repeatableMigrationComparator} (Fully qualified class name)</p>
+     */
+    public String repeatableMigrationComparator;
+
+    /**
      * The encoding of Sql migrations. (default: UTF-8)<br> <p>Also configurable with Maven or System Property:
      * ${flyway.encoding}</p>
      */
@@ -719,6 +726,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.BASELINE_DESCRIPTION, baselineDescription);
             putArrayIfSet(conf, ConfigUtils.LOCATIONS, locations);
             putArrayIfSet(conf, ConfigUtils.RESOLVERS, resolvers);
+            putIfSet(conf, ConfigUtils.REPEATABLE_MIGRATION_COMPARATOR, repeatableMigrationComparator);
             putIfSet(conf, ConfigUtils.SKIP_DEFAULT_RESOLVERS, skipDefaultResolvers);
             putArrayIfSet(conf, ConfigUtils.CALLBACKS, callbacks);
             putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks);
