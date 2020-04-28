@@ -26,8 +26,12 @@ import java.util.regex.Pattern;
 public class MySQLParser extends Parser {
     private static final char ALTERNATIVE_SINGLE_LINE_COMMENT = '#';
 
+    // Are we in an IF function (like 'IF(500<1000, 5, 10);'), distinct from an IF condition
+    private boolean inIfFunction;
+
     public MySQLParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 8);
+        inIfFunction = false;
     }
 
     @Override
@@ -142,6 +146,10 @@ public class MySQLParser extends Parser {
 
         int parensDepth = keyword.getParensDepth();
 
+        if (keywordText.equals("IF") && reader.peekNextNonWhitespace() == '(') {
+            inIfFunction = true;
+        }
+
         if ("BEGIN".equals(keywordText)
                || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !lastTokenIs(tokens, parensDepth, "END"))) {
             context.increaseBlockDepth();
@@ -151,9 +159,14 @@ public class MySQLParser extends Parser {
             context.decreaseBlockDepth();
         }
 
-        // Add manual handling for the function variations of these control keywords
-        if ((keyword.getType() == TokenType.DELIMITER || ";".equals(keywordText)) && context.getBlockDepth() > 0 && doesDelimiterEndFunction(tokens, keyword)) {
+        if (";".equals(keywordText) && inIfFunction) {
+            inIfFunction = false;
             context.decreaseBlockDepth();
+        } else {
+            // Add manual handling for the function variations of these control keywords
+            if ((keyword.getType() == TokenType.DELIMITER || ";".equals(keywordText)) && context.getBlockDepth() > 0 && doesDelimiterEndFunction(tokens, keyword)) {
+                context.decreaseBlockDepth();
+            }
         }
     }
 }
