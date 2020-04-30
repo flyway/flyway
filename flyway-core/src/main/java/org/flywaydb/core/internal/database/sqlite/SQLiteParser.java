@@ -43,7 +43,7 @@ public class SQLiteParser extends Parser {
     @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
         String lastKeyword = keyword.getText();
-        if ("BEGIN".equals(lastKeyword)) {
+        if ("BEGIN".equals(lastKeyword) || "CASE".equals(lastKeyword)) {
             context.increaseBlockDepth();
         } else if ("END".equals(lastKeyword)) {
             context.decreaseBlockDepth();

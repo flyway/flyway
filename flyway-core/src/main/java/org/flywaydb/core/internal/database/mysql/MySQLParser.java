@@ -25,13 +25,23 @@ import java.util.regex.Pattern;
 
 public class MySQLParser extends Parser {
     private static final char ALTERNATIVE_SINGLE_LINE_COMMENT = '#';
+    private IfState ifState;
+    private String previousKeywordText;
 
-    // Are we in an IF function (like 'IF(500<1000, 5, 10);'), distinct from an IF condition
-    private boolean inIfFunction;
+    enum IfState {
+        NONE,
+        IF_FUNCTION,
+        IF_NOT,
+        IF_EXISTS,
+        IF,
+        IF_THEN,
+        UNKNOWN
+    }
 
     public MySQLParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 8);
-        inIfFunction = false;
+        ifState = IfState.NONE;
+        previousKeywordText = "";
     }
 
     @Override
@@ -112,7 +122,7 @@ public class MySQLParser extends Parser {
 
     // These words increase the block depth - unless preceded by END (in which case the END will decrease the block depth)
     // See: https://dev.mysql.com/doc/refman/8.0/en/flow-control-statements.html
-    private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("IF", "LOOP", "CASE", "REPEAT", "WHILE");
+    private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("LOOP", "CASE", "REPEAT", "WHILE");
 
     private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(
             ".*CREATE\\s([^\\s]+\\s){1,2}IF\\sNOT\\sEXISTS");
@@ -146,27 +156,55 @@ public class MySQLParser extends Parser {
 
         int parensDepth = keyword.getParensDepth();
 
-        if (keywordText.equals("IF") && reader.peekNextNonWhitespace() == '(') {
-            inIfFunction = true;
+        if (IfState.IF.equals(ifState)) {
+            ifState = IfState.UNKNOWN;
+
+            if (keywordText.equals("EXISTS")) {
+                ifState = IfState.IF_EXISTS;
+            }
+
+            if (keywordText.equals("NOT")) {
+                ifState = IfState.IF_NOT;
+            }
         }
 
-        if ("BEGIN".equals(keywordText)
-               || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !lastTokenIs(tokens, parensDepth, "END"))) {
+        if (keywordText.equals("THEN")) {
+            ifState = IfState.IF_THEN;
+        }
+
+        if (keywordText.equals("IF") && !previousKeywordText.equals("END")) {
             context.increaseBlockDepth();
-        } else if ("END".equals(keywordText)
-                || doTokensMatchPattern(tokens, keyword, CREATE_IF_NOT_EXISTS)
-                || doTokensMatchPattern(tokens, keyword, DROP_IF_EXISTS)) {
-            context.decreaseBlockDepth();
+            if (reader.peekNextNonWhitespace() == '(') {
+                ifState = IfState.IF_FUNCTION;
+            } else {
+                ifState = IfState.IF;
+            }
         }
 
-        if (";".equals(keywordText) && inIfFunction) {
-            inIfFunction = false;
+        if ("BEGIN".equals(keywordText) || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !lastTokenIs(tokens, parensDepth, "END"))) {
+            context.increaseBlockDepth();
+        }
+
+        if ("END".equals(keywordText)) {
             context.decreaseBlockDepth();
+            if (IfState.IF_THEN.equals(ifState)) {
+                ifState = IfState.NONE;
+            }
+        }
+
+        if (";".equals(keywordText) &&
+                (IfState.IF_NOT.equals(ifState) ||
+                        IfState.IF_EXISTS.equals(ifState) ||
+                        IfState.IF_FUNCTION.equals(ifState))) {
+            context.decreaseBlockDepth();
+            ifState = IfState.NONE;
         } else {
             // Add manual handling for the function variations of these control keywords
             if ((keyword.getType() == TokenType.DELIMITER || ";".equals(keywordText)) && context.getBlockDepth() > 0 && doesDelimiterEndFunction(tokens, keyword)) {
                 context.decreaseBlockDepth();
             }
         }
+
+        previousKeywordText = keywordText;
     }
 }
