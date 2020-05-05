@@ -113,7 +113,7 @@ public class ConfigUtils {
             String convertedKey = convertKey(entry.getKey());
             if (convertedKey != null) {
                 // Known environment variable
-                result.put(convertKey(entry.getKey()), entry.getValue());
+                result.put(convertedKey, entry.getValue());
             }
         }
 
@@ -215,7 +215,7 @@ public class ConfigUtils {
             return PLACEHOLDER_SUFFIX;
         }
         if (key.matches("FLYWAY_PLACEHOLDERS_.+")) {
-            return PLACEHOLDERS_PROPERTY_PREFIX + key.substring("FLYWAY_PLACEHOLDERS_".length()).toLowerCase(Locale.ENGLISH);
+            return PLACEHOLDERS_PROPERTY_PREFIX + key.substring("FLYWAY_PLACEHOLDERS_".length());
         }
         if ("FLYWAY_REPEATABLE_SQL_MIGRATION_PREFIX".equals(key)) {
             return REPEATABLE_SQL_MIGRATION_PREFIX;
