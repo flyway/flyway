@@ -144,6 +144,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     protected void doAddAppliedMigration(int installedRank, MigrationVersion version, String description,
                                          MigrationType type, String script, Integer checksum,
                                          int executionTime, boolean success) {
+        boolean tableIsLocked = false;
         connection.restoreOriginalState();
 
         // Lock again for databases with no clean DDL transactions like Oracle
@@ -151,6 +152,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
         // in highly concurrent environments
         if (!database.supportsDdlTransactions()) {
             table.lock();
+            tableIsLocked = true;
         }
 
         try {
@@ -167,6 +169,10 @@ class JdbcTableSchemaHistory extends SchemaHistory {
             LOG.debug("Schema History table " + table + " successfully updated to reflect changes");
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to insert row for version '" + version + "' in Schema History table " + table, e);
+        } finally {
+            if (tableIsLocked) {
+                table.unlock();
+            }
         }
     }
 

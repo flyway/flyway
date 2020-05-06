@@ -33,8 +33,12 @@ public class TableLockingExecutionTemplate implements ExecutionTemplate {
         return executionTemplate.execute(new Callable<T>() {
             @Override
             public T call() throws Exception {
-                table.lock();
-                return callback.call();
+                try {
+                    table.lock();
+                    return callback.call();
+                } finally {
+                    table.unlock();
+                }
             }
         });
     }

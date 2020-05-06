@@ -15,19 +15,32 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.Results;
 import org.flywaydb.core.internal.util.SqlCallable;
 
+import java.math.BigInteger;
 import java.sql.SQLException;
+import java.util.Random;
 
 /**
  * CockroachDB-specific table.
+ *
+ * Note that CockroachDB doesn't support table locks. We therefore use a row in the schema history as a lock indicator;
+ * if another process ahs inserted such a row we wait (potentially indefinitely) for it to be removed before
+ * carrying out a migration.
  */
 public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSchema> {
     private static final Log LOG = LogFactory.getLog(CockroachDBTable.class);
+
+    /**
+     * A random string, used as an ID of this instance of Flyway.
+     */
+    private String tableLockString = RandomStringGenerator.getNextRandomString();
 
     /**
      * Creates a new CockroachDB table.
@@ -86,7 +99,62 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
     }
 
     @Override
-    protected void doLock() {
-        LOG.debug("Unable to lock " + this + " as CockroachDB does not support locking. No concurrent migration supported.");
+    protected void doLock() throws SQLException {
+        if (lockDepth > 0) {
+            // Lock has already been taken - so the relevant row in the table already exists
+            return;
+        }
+
+        int retryCount = 0;
+        do {
+            try {
+                if (insertLockingRow()) {
+                    return;
+                }
+                retryCount++;
+                LOG.debug("Waiting for lock on " + this);
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                // Ignore - if interrupted, we still need to wait for lock to become available
+            }
+        } while (retryCount < 50);
+
+        throw new FlywayException("Unable to obtain table lock - another Flyway instance may be running");
+    }
+
+    private boolean insertLockingRow() {
+        // Insert the locking row - the primary keyness of installed_rank will prevent us having two.
+        Results results = jdbcTemplate.executeStatement("INSERT INTO " + this + " VALUES (-100, '" + tableLockString + "', 'flyway-lock', '', '', 0, '', now(), 0, TRUE)");
+        // Succeeded if one row updated and no errors.
+        return (results.getResults().size() > 0
+                && results.getResults().get(0).getUpdateCount() == 1
+                && results.getErrors().size() == 0);
+    }
+
+    @Override
+    protected void doUnlock() throws SQLException {
+        // Leave the locking row alone until we get to the final level of unlocking
+        if (lockDepth > 1) {
+            return;
+        }
+
+        // Check that there are no other locks in place. This should not happen!
+        int competingLocksTaken = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + this + " WHERE version != '" + tableLockString + "' AND DESCRIPTION = 'flyway-lock'");
+        if (competingLocksTaken > 0) {
+            throw new FlywayException("Internal error: on unlocking, a competing lock was found");
+        }
+
+        // Remove the locking row
+        jdbcTemplate.executeStatement("DELETE FROM " + this + " WHERE version = '" + tableLockString + "' AND DESCRIPTION = 'flyway-lock'");
+    }
+}
+
+class RandomStringGenerator {
+    static final Random random = new Random();
+
+    //get next random string
+    public static String getNextRandomString(){
+        BigInteger bInt = new BigInteger(128, random);
+        return bInt.toString(16);
     }
 }
