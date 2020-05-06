@@ -132,7 +132,7 @@ public class Main {
                 if (commandLineArguments.getLogLevel() == Level.DEBUG) {
                     LOG.error("Unexpected error", e);
                 } else {
-                    LOG.error(getMessageFromException(e));
+                    LOG.error(getMessagesFromException(e));
                 }
             }
             System.exit(1);
@@ -165,12 +165,19 @@ public class Main {
     }
 
 
-    static String getMessageFromException(Exception e) {
-        if (e instanceof FlywayException) {
-            return e.getMessage();
-        } else {
-            return e.toString();
+    static String getMessagesFromException(Throwable e) {
+        String condensedMessages = "";
+        String preamble = "";
+        while (e != null) {
+            if (e instanceof FlywayException) {
+                condensedMessages += preamble + e.getMessage();
+            } else {
+                condensedMessages += preamble + e.toString();
+            }
+            preamble = "\r\nCaused by: ";
+            e = e.getCause();
         }
+        return condensedMessages;
     }
 
 
