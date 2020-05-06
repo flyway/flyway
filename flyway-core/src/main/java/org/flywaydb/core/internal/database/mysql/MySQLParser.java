@@ -172,7 +172,7 @@ public class MySQLParser extends Parser {
             ifState = IfState.IF_THEN;
         }
 
-        if (keywordText.equals("IF") && !previousKeywordText.equals("END")) {
+        if (keywordText.equals("IF") && !previousKeywordText.equals("END") && !IfState.IF_FUNCTION.equals(ifState)) {
             context.increaseBlockDepth();
             if (reader.peekNextNonWhitespace() == '(') {
                 ifState = IfState.IF_FUNCTION;
@@ -192,15 +192,11 @@ public class MySQLParser extends Parser {
             }
         }
 
-        if (";".equals(keywordText) &&
-                (IfState.IF_NOT.equals(ifState) ||
-                        IfState.IF_EXISTS.equals(ifState) ||
-                        IfState.IF_FUNCTION.equals(ifState))) {
-            context.decreaseBlockDepth();
-            ifState = IfState.NONE;
-        } else {
-            // Add manual handling for the function variations of these control keywords
-            if ((keyword.getType() == TokenType.DELIMITER || ";".equals(keywordText)) && context.getBlockDepth() > 0 && doesDelimiterEndFunction(tokens, keyword)) {
+        if (";".equals(keywordText) || TokenType.DELIMITER.equals(keyword.getType())) {
+            if (IfState.IF_NOT.equals(ifState) ||  IfState.IF_EXISTS.equals(ifState) || IfState.IF_FUNCTION.equals(ifState)) {
+                context.decreaseBlockDepth();
+                ifState = IfState.NONE;
+            } else if (context.getBlockDepth() > 0 && doesDelimiterEndFunction(tokens, keyword)) {
                 context.decreaseBlockDepth();
             }
         }
