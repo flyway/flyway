@@ -19,6 +19,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -29,6 +30,10 @@ public class DB2Parser extends Parser {
     public DB2Parser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, COMMENT_DIRECTIVE.length());
     }
+
+    // WHILE and FOR both contain DO before the body of the block, so are both handled by the DO keyword
+    // See https://www.ibm.com/support/knowledgecenter/en/SSEPEK_10.0.0/sqlref/src/tpc/db2z_sqlplnativeintro.html
+    private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("LOOP", "CASE", "DO", "REPEAT", "IF");
 
     private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(
             ".*CREATE\\s([^\\s]+\\s){0,2}IF\\sNOT\\sEXISTS");
@@ -47,12 +52,10 @@ public class DB2Parser extends Parser {
 
         if (
             // BEGIN increases block depth, exception when used with ROW BEGIN
-                ("BEGIN".equals(keyword.getText())
-                        && (!"ROW".equals(previousKeyword)
-                        || previousPreviousToken == null || "EACH".equals(previousPreviousToken)))
-                        // CASE, DO, IF and REPEAT increase block depth
-                        || (("CASE".equals(keyword.getText()) || "DO".equals(keyword.getText())
-                        || "IF".equals(keyword.getText()) || "REPEAT".equals(keyword.getText())))) {
+                ("BEGIN".equals(keyword.getText()) && (!"ROW".equals(previousKeyword) || previousPreviousToken == null || "EACH".equals(previousPreviousToken)))
+                        // Control flow keywords increase depth
+                        || CONTROL_FLOW_KEYWORDS.contains(keyword.getText())
+                       ) {
             // But not END IF and END WHILE
             if (!previousTokenIsKeyword || !"END".equals(previousKeyword)) {
                 context.increaseBlockDepth();

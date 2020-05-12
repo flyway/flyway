@@ -284,8 +284,9 @@ public abstract class Parser {
             } while (true);
         } catch (Exception e) {
             IOUtils.close(reader);
+            String docsPage = "https://flywaydb.org/documentation/knownparserlimitations";
             throw new FlywayException("Unable to parse statement in " + resource.getAbsolutePath()
-                    + " at line " + statementLine + " col " + statementCol + ": " + e.getMessage(), e);
+                    + " at line " + statementLine + " col " + statementCol + ". See " + docsPage + " for more information: " + e.getMessage(), e);
         }
     }
 
