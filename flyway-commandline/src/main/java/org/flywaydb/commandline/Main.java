@@ -97,6 +97,7 @@ public class Main {
             Map<String, String> config = new HashMap<>();
             initializeDefaults(config, commandLineArguments);
             loadConfigurationFromConfigFiles(config, commandLineArguments, envVars);
+            config.putAll(readConfigFromInputStream(System.in));
 
             if (commandLineArguments.isWorkingDirectorySet()) {
                 makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments, config);
@@ -446,11 +447,10 @@ public class Main {
         for (File configFile : determineConfigFilesFromArgs(commandLineArguments, envVars)) {
             config.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
         }
-
-        config.putAll(readConfigFromInputStream(System.in));
     }
 
-    private static Map<String, String> readConfigFromInputStream(InputStream inputStream) {
+    /* private -> for testing */
+    static Map<String, String> readConfigFromInputStream(InputStream inputStream) {
         Map<String, String> config = new HashMap<>();
 
         try {
@@ -460,8 +460,10 @@ public class Main {
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
                 LOG.debug("Attempting to load configuration from standard input");
+                bufferedReader.mark(0);
 
-                if (bufferedReader.ready()) {
+                if (bufferedReader.ready() && bufferedReader.read() != -1) {
+                    bufferedReader.reset();
                     Map<String, String> configurationFromStandardInput = ConfigUtils.readConfiguration(bufferedReader);
 
                     if (configurationFromStandardInput.isEmpty()) {
