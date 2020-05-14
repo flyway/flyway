@@ -21,12 +21,12 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.jar.JarFile;
 
 public class ParserSqlScript implements SqlScript {
     private static final Log LOG = LogFactory.getLog(ParserSqlScript.class);
@@ -52,10 +52,7 @@ public class ParserSqlScript implements SqlScript {
     protected final Parser parser;
     private final boolean mixed;
     private boolean parsed;
-
-
-
-
+    private boolean inMemory = true;
 
 
     /**
@@ -71,21 +68,32 @@ public class ParserSqlScript implements SqlScript {
         this.parser = parser;
 
 
-
         this.mixed = mixed;
     }
 
+    private static long getFileSize(File file) {
+        return file.length();
+    }
+
+
+    private static long getFreeMemory() {
+        Runtime runtime = Runtime.getRuntime();
+        return runtime.freeMemory();
+    }
+
     protected void parse() {
+
         try (SqlStatementIterator sqlStatementIterator = parser.parse(resource)) {
             boolean transactionalStatementFound = false;
             while (sqlStatementIterator.hasNext()) {
                 SqlStatement sqlStatement = sqlStatementIterator.next();
-
-
-
-                    this.sqlStatements.add(sqlStatement);
-
-
+                if (inMemory) {
+                    long freeMemory = getFreeMemory();
+                    if (freeMemory <= 100) {
+                        this.sqlStatements.clear();
+                        inMemory = false;
+                    }
+                }
 
 
                 sqlStatementCount++;
@@ -103,13 +111,6 @@ public class ParserSqlScript implements SqlScript {
                                     + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
                                     + (sqlStatement.canExecuteInTransaction() ? "" : " [non-transactional]"));
                 }
-
-
-
-
-
-
-
 
 
                 if (LOG.isDebugEnabled()) {
@@ -132,33 +133,53 @@ public class ParserSqlScript implements SqlScript {
     public SqlStatementIterator getSqlStatements() {
         validate();
 
+        if (inMemory) {
+            final Iterator<SqlStatement> iterator = sqlStatements.iterator();
+            return new SqlStatementIterator() {
+                @Override
+                public void close() {
+                }
 
+                @Override
+                public boolean hasNext() {
+                    return iterator.hasNext();
+                }
 
+                @Override
+                public SqlStatement next() {
+                    return iterator.next();
+                }
 
+                @Override
+                public void remove() {
+                    iterator.remove();
+                }
+            };
+        } else {
+            SqlStatementIterator sqlStatementIterator = parser.parse(resource);
+            return new SqlStatementIterator() {
+                @Override
+                public void close() {
+                    sqlStatementIterator.close();
+                }
 
+                @Override
+                public boolean hasNext() {
+                    return sqlStatementIterator.hasNext();
+                }
 
+                @Override
+                public SqlStatement next() {
+                    return sqlStatementIterator.next();
+                }
 
-        final Iterator<SqlStatement> iterator = sqlStatements.iterator();
-        return new SqlStatementIterator() {
-            @Override
-            public void close() {
-            }
+                @Override
+                public void remove() {
+                    sqlStatementIterator.remove();
+                }
+            };
+        }
 
-            @Override
-            public boolean hasNext() {
-                return iterator.hasNext();
-            }
-
-            @Override
-            public SqlStatement next() {
-                return iterator.next();
-            }
-
-            @Override
-            public void remove() {
-                iterator.remove();
-            }
-        };
     }
 
     @Override
@@ -167,17 +188,6 @@ public class ParserSqlScript implements SqlScript {
 
         return sqlStatementCount;
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
     @Override
