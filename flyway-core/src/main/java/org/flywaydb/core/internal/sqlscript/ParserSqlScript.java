@@ -21,12 +21,9 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.jar.JarFile;
 
 public class ParserSqlScript implements SqlScript {
     private static final Log LOG = LogFactory.getLog(ParserSqlScript.class);
@@ -69,10 +66,6 @@ public class ParserSqlScript implements SqlScript {
 
 
         this.mixed = mixed;
-    }
-
-    private static long getFileSize(File file) {
-        return file.length();
     }
 
 
