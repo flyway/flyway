@@ -82,13 +82,14 @@ public class ParserSqlScript implements SqlScript {
                 SqlStatement sqlStatement = sqlStatementIterator.next();
                 if (inMemory) {
                     long freeMemory = getFreeMemory();
-                    if (freeMemory <= 100) {
-                        this.sqlStatements.clear();
+                    if (freeMemory <= 300000) {
+                        LOG.warn("Running out of memory for migration " + resource.getRelativePath() + ", migrating from disk read");
+                        sqlStatements.clear();
                         inMemory = false;
+                    } else {
+                        sqlStatements.add(sqlStatement);
                     }
                 }
-
-
                 sqlStatementCount++;
 
                 if (sqlStatement.canExecuteInTransaction()) {
@@ -168,7 +169,6 @@ public class ParserSqlScript implements SqlScript {
 
                 @Override
                 public void remove() {
-                    sqlStatementIterator.remove();
                 }
             };
         }
