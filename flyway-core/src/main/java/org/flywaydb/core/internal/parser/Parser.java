@@ -523,7 +523,7 @@ public abstract class Parser {
         }
         if (peek.startsWith("B'") || peek.startsWith("E'") || peek.startsWith("X'")) {
             reader.swallow(2);
-            reader.swallowUntilExcludingWithEscape('\'', true);
+            reader.swallowUntilExcludingWithEscape('\'', true, '\\');
             return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
         }
         if (peek.startsWith("U&'")) {
@@ -544,10 +544,6 @@ public abstract class Parser {
             }
             return handleKeyword(reader, context, pos, line, col, text);
         }
-        if (StringUtils.isCharAnyOf(c, ",=*.:;[]~+-/%^|?!@$&#<>'{}\\")) {
-            String text = "" + (char) reader.read();
-            return new Token(TokenType.SYMBOL, pos, line, col, text, text, context.getParensDepth());
-        }
         if (c == ' ' || c == '\r' || c == '\u00A0' /* Non-linebreaking space */) {
             reader.swallow();
             return null;
@@ -559,7 +555,9 @@ public abstract class Parser {
             }
             return null;
         }
-        throw new FlywayException("Unknown char " + (char) reader.read() + " encountered on line " + line + " at column " + col);
+
+        String text = "" + (char) reader.read();
+        return new Token(TokenType.SYMBOL, pos, line, col, text, text, context.getParensDepth());
     }
 
     protected String readKeyword(PeekingReader reader, Delimiter delimiter, ParserContext context) throws IOException {
