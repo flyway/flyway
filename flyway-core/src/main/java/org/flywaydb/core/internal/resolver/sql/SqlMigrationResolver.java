@@ -162,7 +162,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         for (LoadableResource resource : resourceProvider.getResources(prefix, suffixes)) {
             String filename = resource.getFilename();
             ResourceName result = resourceNameParser.parse(filename);
-            if (!result.isValid() || isSqlCallback(result)) {
+            if (!result.isValid() || isSqlCallback(result) || !prefix.equals(result.getPrefix())) {
                 continue;
             }
 
