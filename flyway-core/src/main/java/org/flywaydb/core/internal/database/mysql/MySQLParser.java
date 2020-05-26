@@ -173,6 +173,10 @@ public class MySQLParser extends Parser {
         }
 
         if (keywordText.equals("IF") && !previousKeywordText.equals("END") && !IfState.IF_FUNCTION.equals(ifState)) {
+            if (IfState.IF_EXISTS.equals(ifState) || IfState.IF_NOT.equals(ifState)) {
+                context.decreaseBlockDepth();
+            }
+
             context.increaseBlockDepth();
             if (reader.peekNextNonWhitespace() == '(') {
                 ifState = IfState.IF_FUNCTION;
