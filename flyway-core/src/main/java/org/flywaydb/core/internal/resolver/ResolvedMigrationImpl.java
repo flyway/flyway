@@ -42,7 +42,8 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     private final String script;
 
     /**
-     * The equivalent checksum of the migration.
+     * The equivalent checksum of the migration. For versioned migrations, this is the same as the checksum.
+     * For repeatable migrations, it is the checksum calculated prior to placeholder replacement.
      */
     private final Integer equivalentChecksum;
 
@@ -188,7 +189,9 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
 
     @Override
     public boolean checksumMatchesWithoutBeingIdentical(Integer checksum) {
-        // The checksum in the database matches the one calculated without replacement.
-        return Objects.equals(checksum, this.equivalentChecksum);
+        // The checksum in the database matches the one calculated without replacement, but not the one with.
+        // That is, the script has placeholders and the checksum was originally calculated ignoring their values.
+        return Objects.equals(checksum, this.equivalentChecksum)
+                && !Objects.equals(checksum, this.checksum);
     }
 }
