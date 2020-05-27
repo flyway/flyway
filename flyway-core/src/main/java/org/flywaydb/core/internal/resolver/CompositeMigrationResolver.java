@@ -167,7 +167,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
                                 current.getType(),
                                 next.getPhysicalLocation(),
                                 next.getType()),
-                                ErrorCode.DUPLICATE_INTERMAEDIATE_BASELINE_MIGRATION);
+                                ErrorCode.DUPLICATE_INTERMEDIATE_BASELINE_MIGRATION);
                     }
                 } else {
                     if (!versionedMigrations.add(next)) {
