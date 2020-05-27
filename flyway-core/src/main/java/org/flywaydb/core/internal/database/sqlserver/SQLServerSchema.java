@@ -449,11 +449,17 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         for (DBObject table : tables) {
             String tableName = database.quote(name, table.name);
             List<String> indexes = jdbcTemplate.queryForStringList(
-                    "SELECT name FROM sys.indexes" +
-                            " WHERE object_id=OBJECT_ID(N'" + tableName + "')" +
+                    "SELECT i.name FROM sys.indexes i" +
+                            " JOIN sys.index_columns ic on i.index_id = ic.index_id" +
+                            " JOIN sys.columns c ON ic.column_id = c.column_id AND i.object_id = c.object_id" +
+                            " WHERE i.object_id=OBJECT_ID(N'" + tableName + "')" +
                             " AND is_primary_key = 0" +
                             " AND is_unique_constraint = 1" +
-                            " AND name IS NOT NULL");
+                            " AND i.name IS NOT NULL" +
+                            " GROUP BY i.name" +
+                            // We can't delete the unique ROWGUIDCOL constraint from a table which has a FILESTREAM column.
+                            // It will auto-delete when the table is dropped.
+                            " HAVING MAX(CAST(is_rowguidcol AS INT)) = 0 OR MAX(CAST(is_filestream AS INT)) = 0");
             for (String index : indexes) {
                 statements.add("ALTER TABLE " + tableName + " DROP CONSTRAINT " + database.quote(index));
             }
