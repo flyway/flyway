@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,4 +71,9 @@ public interface MigrationInfo extends Comparable<MigrationInfo> {
      * @return The execution time (in millis) of this migration. (Only for applied migrations)
      */
     Integer getExecutionTime();
+
+    /**
+     * @return The physical location of the migration on disk.
+     */
+    String getPhysicalLocation();
 }

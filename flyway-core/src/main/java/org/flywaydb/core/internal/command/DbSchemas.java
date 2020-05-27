@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,11 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -47,6 +49,11 @@ public class DbSchemas {
     private final SchemaHistory schemaHistory;
 
     /**
+     * The database
+     */
+    private final Database database;
+
+    /**
      * Creates a new DbSchemas.
      *
      * @param database      The database to use.
@@ -54,6 +61,7 @@ public class DbSchemas {
      * @param schemaHistory The schema history table.
      */
     public DbSchemas(Database database, Schema[] schemas, SchemaHistory schemaHistory) {
+        this.database = database;
         this.connection = database.getMainConnection();
         this.schemas = schemas;
         this.schemaHistory = schemaHistory;
@@ -68,22 +76,24 @@ public class DbSchemas {
         int retries = 0;
         while (true) {
             try {
-                new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+                ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(new Callable<Object>() {
                     @Override
                     public Void call() {
+                        List<Schema> createdSchemas = new ArrayList<>();
                         for (Schema schema : schemas) {
-                            if (schema.exists()) {
-                                LOG.debug("Schema " + schema + " already exists. Skipping schema creation.");
-                                return null;
+                            if (!schema.exists()) {
+                                LOG.debug("Creating schema: " + schema);
+                                schema.create();
+                                createdSchemas.add(schema);
+                            } else {
+                                LOG.debug("Skipping creation of existing schema: " + schema);
                             }
                         }
 
-                        for (Schema schema : schemas) {
-                            schema.create();
+                        if (!createdSchemas.isEmpty()) {
+                            schemaHistory.create(baseline);
+                            schemaHistory.addSchemasMarker(createdSchemas.toArray(new Schema[0]));
                         }
-
-                        schemaHistory.create(baseline);
-                        schemaHistory.addSchemasMarker(schemas);
 
                         return null;
                     }

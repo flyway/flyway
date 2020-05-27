@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,15 @@
  */
 package org.flywaydb.core.internal.info;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationInfoService;
-import org.flywaydb.core.api.MigrationState;
-import org.flywaydb.core.api.MigrationType;
-import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.output.InfoOutput;
+import org.flywaydb.core.internal.output.InfoOutputFactory;
 import org.flywaydb.core.internal.scanner.Scanner;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
@@ -275,7 +272,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             ResolvedMigration resolvedMigration = resolvedRepeatable.get(appliedRepeatableMigration.getDescription());
             int latestRank = context.latestRepeatableRuns.get(appliedRepeatableMigration.getDescription());
             if (resolvedMigration != null && appliedRepeatableMigration.getInstalledRank() == latestRank
-                    && Objects.equals(appliedRepeatableMigration.getChecksum(), resolvedMigration.getChecksum())) {
+                    && resolvedMigration.checksumMatches(appliedRepeatableMigration.getChecksum())) {
                 pendingResolvedRepeatable.remove(resolvedMigration);
             }
             migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false
@@ -296,6 +293,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         Collections.sort(migrationInfos1);
         migrationInfos = migrationInfos1;
     }
+
 
 
 
@@ -492,5 +490,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
         return (hasFailures) ? builder.toString() : null;
+    }
+
+    @Override
+    public InfoOutput getInfoOutput() {
+        InfoOutputFactory infoOutputFactory = new InfoOutputFactory();
+        return infoOutputFactory.create(this.context.getConfiguration(), this.all(), this.current());
     }
 }

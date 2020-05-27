@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
-import org.flywaydb.core.internal.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StopWatch;
@@ -77,6 +77,8 @@ public class DbValidate {
      */
     private final CallbackExecutor callbackExecutor;
 
+    private final Database database;
+
     /**
      * Creates a new database validator.
      *
@@ -90,6 +92,7 @@ public class DbValidate {
      */
     public DbValidate(Database database, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
                       Configuration configuration, boolean pending, CallbackExecutor callbackExecutor) {
+        this.database = database;
         this.connection = database.getMainConnection();
         this.schemaHistory = schemaHistory;
         this.schema = schema;
@@ -123,7 +126,8 @@ public class DbValidate {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        Pair<Integer, String> result = new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Pair<Integer, String>>() {
+        Pair<Integer, String> result = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                database).execute(new Callable<Pair<Integer, String>>() {
             @Override
             public Pair<Integer, String> call() {
                 MigrationInfoServiceImpl migrationInfoService =
@@ -154,6 +158,10 @@ public class DbValidate {
             } else {
                 LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
                         count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+
+                if (count == 0) {
+                    LOG.warn("No migrations found. Are your locations set up correctly?");
+                }
             }
             callbackExecutor.onEvent(Event.AFTER_VALIDATE);
         } else {

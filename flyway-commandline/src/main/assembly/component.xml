@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2010-2019 Boxfuse GmbH
+    Copyright 2010-2020 Redgate Software Ltd
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -76,7 +76,6 @@
                 <include>flyway-community.txt</include>
                 <include>LICENSES-THIRD-PARTY.txt</include>
 
-                <include>flyway-trial.txt</include>
                 <include>flyway-pro.txt</include>
                 <include>flyway-enterprise.txt</include>
 
@@ -118,6 +117,7 @@
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                 <include>org.fusesource.jansi:jansi</include>
+                <include>com.google.code.gson:gson</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -139,6 +139,7 @@
             <excludes>
                 <exclude>org.flywaydb:flyway-*</exclude>
                 <exclude>org.fusesource.jansi:jansi</exclude>
+                <exclude>com.google.code.gson:gson</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

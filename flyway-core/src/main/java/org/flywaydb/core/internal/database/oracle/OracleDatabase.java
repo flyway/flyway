@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,12 @@ public class OracleDatabase extends Database<OracleConnection> {
                 ")" + tablespace + ";\n" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "") +
                 "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");\n";
+    }
+
+    @Override
+    public boolean supportsEmptyMigrationDescription() {
+        // Oracle will convert the empty string to NULL implicitly, and throw an exception as the column is NOT NULL
+        return false;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,10 @@ import org.flywaydb.core.internal.sqlscript.Delimiter;
 import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
 
 public class PeekingReader extends FilterReader {
-    private final int[] peekBuffer = new int[256];
+    private int[] peekBuffer = new int[256];
     private int peekMax = 0;
     private int peekBufferOffset = 0;
 
@@ -133,13 +134,13 @@ public class PeekingReader extends FilterReader {
      *
      * @return {@code true} if it is, {@code false} if not.
      */
-    public boolean peekKeywordPart() throws IOException {
+    public boolean peekKeywordPart(ParserContext context) throws IOException {
         int r = peek();
-        return isKeywordPart(r);
+        return isKeywordPart(r, context);
     }
 
-    private boolean isKeywordPart(int r) {
-        return r != -1 && ((char) r == '_' || (char) r == '$' || Character.isLetterOrDigit((char) r));
+    private boolean isKeywordPart(int r, ParserContext context) {
+        return r != -1 && ((char) r == '_' || (char) r == '$' || Character.isLetterOrDigit((char) r) || context.isLetter((char)r));
     }
 
     /**
@@ -159,6 +160,12 @@ public class PeekingReader extends FilterReader {
      * @return The characters.
      */
     public String peek(int numChars) throws IOException {
+        // If we need to peek beyond the physical size of the peek buffer - eg. we have encountered a very
+        // long string literal - then expand the buffer to be big enough to contain it.
+        if (numChars >= peekBuffer.length) {
+            resizePeekBuffer(numChars);
+        }
+
         if (peekBufferOffset + numChars >= peekMax) {
             refillPeekBuffer();
         }
@@ -168,6 +175,8 @@ public class PeekingReader extends FilterReader {
             int r = peekBuffer[peekBufferOffset + i];
             if (r == -1) {
                 break;
+            } else if (peekBufferOffset + i > peekMax) {
+                break;
             }
             result.append((char) r);
         }
@@ -175,6 +184,24 @@ public class PeekingReader extends FilterReader {
             return null;
         }
         return result.toString();
+    }
+
+    /**
+     * Return the next non-whitespace character
+     * @return The character
+     */
+    public char peekNextNonWhitespace() throws IOException {
+        int i = 1;
+        String c = peek(i++);
+        while (c.trim().isEmpty()) {
+            c = peek(i++);
+        }
+
+        return c.charAt(c.length()-1);
+    }
+
+    private void resizePeekBuffer(int newSize) {
+        peekBuffer = Arrays.copyOf(peekBuffer, newSize + peekBufferOffset);
     }
 
     /**
@@ -371,15 +398,39 @@ public class PeekingReader extends FilterReader {
     }
 
     /**
+     * Reads all characters in this stream until the delimiting sequence is encountered.
+     *
+     * @param delimiterSequence The delimiting sequence.
+     * @return The string read, including the delimiting characters.
+     */
+    public String readUntilIncluding(String delimiterSequence) throws IOException {
+        StringBuilder result = new StringBuilder();
+
+        do {
+            int r = read();
+            if (r == -1) {
+                break;
+            }
+            char c = (char) r;
+
+            result.append(c);
+            if (result.toString().endsWith(delimiterSequence)) {
+                break;
+            }
+        } while (true);
+        return result.toString();
+    }
+
+    /**
      * Reads all characters in this stream as long as they can be part of a keyword.
      *
      * @param delimiter The current delimiter.
      * @return The string read.
      */
-    public String readKeywordPart(Delimiter delimiter) throws IOException {
+    public String readKeywordPart(Delimiter delimiter, ParserContext context) throws IOException {
         StringBuilder result = new StringBuilder();
         do {
-            if ((delimiter == null || !peek(delimiter.getDelimiter())) && peekKeywordPart()) {
+            if ((delimiter == null || !peek(delimiter.getDelimiter())) && peekKeywordPart(context)) {
                 result.append((char) read());
             } else {
                 break;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,14 +116,28 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String initSql;
 
     /**
-     * The schemas managed by Flyway. These schema names are case-sensitive. (default: The default schema for the database connection)
+     * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but <i>schemas</i>
+     * is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default schema
+     * for the database connection.
      * <p>Consequences:</p>
      * <ul>
-     * <li>Flyway will automatically attempt to create all these schemas, unless the first one already exists.</li>
-     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
-     * <li>The first schema in the list will also be the one containing the schema history table.</li>
+     * <li>This schema will be the one containing the schema history table.</li>
+     * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
+     * </ul>
+     * <p>Also configurable with Maven or System Property: ${flyway.defaultSchema}</p>
+     */
+    @Parameter
+    private String defaultSchema;
+
+    /**
+     * The schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
+     * the default schema for the database connection. If <i>defaultSchema</i> is not specified, then the first of
+     * this list also acts as default schema.
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
      * <li>The schemas will be cleaned in the order of this list.</li>
-     * <li>If Flyway created them, the schemas themselves will as be dropped when cleaning.</li>
+     * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
      * </ul>
      * <p>Also configurable with Maven or System Property: ${flyway.schemas} (comma-separated list)</p>
      */
@@ -132,10 +146,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * <p>The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)</p>
-     * <p> By default (single-schema mode) the
-     * schema history table is placed in the default schema for the connection provided by the datasource. <br/> When the
-     * {@code flyway.schemas} property is set (multi-schema mode), the schema history table is placed in the first schema of
-     * the list. </p>
+     * <p> By default (single-schema mode) the schema history table is placed in the default schema for the connection
+     * provided by the datasource. <br/> When the {@code flyway.schemas} property is set (multi-schema mode), the
+     * schema history table is placed in the first schema of the list. </p>
      * <p>Also configurable with Maven or System Property: ${flyway.table}</p>
      */
     @Parameter(property = ConfigUtils.TABLE)
@@ -143,8 +156,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * <p>The tablespace where to create the schema history table that will be used by Flyway.</p>
-     * <p>This setting is only relevant for databases that do support the notion of tablespaces. It's value is simply
-     * ignored for all others.</p> (default: The default tablespace for the database connection)
+     * <p>If not specified, Flyway uses the default tablespace for the database connection.
+     * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply
+     * ignored for all others.</p>
      * <p>Also configurable with Maven or System Property: ${flyway.tablespace}</p>
      */
     @Parameter(property = ConfigUtils.TABLESPACE)
@@ -356,6 +370,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean ignoreFutureMigrations;
 
     /**
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     * <p>Also configurable with Maven or System Property: ${flyway.validateMigrationNaming}</p>
+     */
+    @Parameter(property = ConfigUtils.VALIDATE_MIGRATION_NAMING)
+    private Boolean validateMigrationNaming;
+
+    /**
      * Whether placeholders should be replaced. (default: true)<br>
      * <p>Also configurable with Maven or System Property: ${flyway.placeholderReplacement}</p>
      */
@@ -432,7 +454,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
      * statements that do not run at all within a transaction.</p>
      * <p>This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
-     * DDL statement was run within within a transaction, the database will issue an implicit commit before and after
+     * DDL statement was run within a transaction, the database will issue an implicit commit before and after
      * its execution.</p>
      * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      * <p>Also configurable with Maven or System Property: ${flyway.mixed}</p>
@@ -689,6 +711,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.PASSWORD, password);
             putIfSet(conf, ConfigUtils.CONNECT_RETRIES, connectRetries);
             putIfSet(conf, ConfigUtils.INIT_SQL, initSql);
+            putIfSet(conf, ConfigUtils.DEFAULT_SCHEMA, defaultSchema);
             putArrayIfSet(conf, ConfigUtils.SCHEMAS, schemas);
             putIfSet(conf, ConfigUtils.TABLE, table);
             putIfSet(conf, ConfigUtils.TABLESPACE, tablespace);
@@ -717,6 +740,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.IGNORE_IGNORED_MIGRATIONS, ignoreIgnoredMigrations);
             putIfSet(conf, ConfigUtils.IGNORE_PENDING_MIGRATIONS, ignorePendingMigrations);
             putIfSet(conf, ConfigUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations);
+            putIfSet(conf, ConfigUtils.VALIDATE_MIGRATION_NAMING, validateMigrationNaming);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_SUFFIX, placeholderSuffix);

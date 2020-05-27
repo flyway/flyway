@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,13 @@ public class SybaseASETable extends Table<SybaseASEDatabase, SybaseASESchema> {
 
     @Override
     protected void doLock() throws SQLException {
-        jdbcTemplate.execute("LOCK TABLE " + this + " IN EXCLUSIVE MODE");
+        // Flyway's locking assumes transactions are being used to release locks on commit at some later point
+        // (hence the lack of an 'unlock' method)
+        // If multi statement transactions aren't supported, then locking a table makes no sense,
+        // since that's the only operation we can do
+        if (database.supportsMultiStatementTransactions()) {
+            jdbcTemplate.execute("LOCK TABLE " + this + " IN EXCLUSIVE MODE");
+        }
     }
 
     @Override

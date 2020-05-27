@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -233,7 +233,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
      * Checks whether Oracle Locator metadata exists for the schema.
      *
      * @return {@code true} if it exists, {@code false} if not.
-     * @throws SQLException when checking checking metadata existence failed.
+     * @throws SQLException when checking metadata existence failed.
      */
     private boolean locatorMetadataExists() throws SQLException {
         return database.queryReturnsRows("SELECT * FROM ALL_SDO_GEOM_METADATA WHERE OWNER = ?", name);

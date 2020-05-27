@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.exception;
 
+import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -31,7 +32,7 @@ public class FlywaySqlException extends FlywayException {
      * @param sqlException Cause of the problem.
      */
     public FlywaySqlException(String message, SQLException sqlException) {
-        super(message, sqlException);
+        super(message, sqlException, ErrorCode.DB_CONNECTION);
     }
 
     @Override

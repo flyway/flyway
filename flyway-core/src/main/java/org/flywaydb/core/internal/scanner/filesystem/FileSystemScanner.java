@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,32 +66,35 @@ public class FileSystemScanner {
      * @return The resources that were found.
      */
     public Collection<LoadableResource> scanForResources(Location location) {
-        String path = location.getPath();
+        String path = location.getRootPath();
         LOG.debug("Scanning for filesystem resources at '" + path + "'");
 
         File dir = new File(path);
         if (!dir.exists()) {
-            LOG.warn("Skipping filesystem location:" + path + " (not found)");
+            LOG.warn("Skipping filesystem location:" + path + " (not found). Note this warning will become an error in Flyway 7.");
             return Collections.emptyList();
         }
         if (!dir.canRead()) {
-            LOG.warn("Skipping filesystem location:" + path + " (not readable)");
+            LOG.warn("Skipping filesystem location:" + path + " (not readable). Note this warning will become an error in Flyway 7.");
             return Collections.emptyList();
         }
         if (!dir.isDirectory()) {
-            LOG.warn("Skipping filesystem location:" + path + " (not a directory)");
+            LOG.warn("Skipping filesystem location:" + path + " (not a directory). Note this warning will become an error in Flyway 7.");
             return Collections.emptyList();
         }
 
         Set<LoadableResource> resources = new TreeSet<>();
 
         for (String resourceName : findResourceNamesFromFileSystem(path, new File(path))) {
-            resources.add(new FileSystemResource(location, resourceName, encoding
+
+            if (location.matchesPath(resourceName)) {
+                resources.add(new FileSystemResource(location, resourceName, encoding
 
 
 
-            ));
-            LOG.debug("Found filesystem resource: " + resourceName);
+                ));
+                LOG.debug("Found filesystem resource: " + resourceName);
+            }
         }
 
         return resources;

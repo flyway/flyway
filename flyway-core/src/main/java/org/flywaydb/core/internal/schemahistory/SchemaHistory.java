@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import java.util.concurrent.Callable;
  * The schema history used to track all applied migrations.
  */
 public abstract class SchemaHistory {
+    public static final String NO_DESCRIPTION_MARKER = "<< no description >>";
+
     /**
      * The schema history table used by Flyway.
      * Non-final due to the table name fallback mechanism. Will be made final in Flyway 6.0.

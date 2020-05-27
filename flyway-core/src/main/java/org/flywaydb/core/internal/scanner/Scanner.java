@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.flywaydb.core.internal.clazz.ClassProvider;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.scanner.android.AndroidScanner;
+import org.flywaydb.core.internal.scanner.classpath.ClassPathLocationScanner;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
 import org.flywaydb.core.internal.scanner.filesystem.FileSystemScanner;
@@ -29,10 +30,7 @@ import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Scanner for Resources and Classes.
@@ -43,10 +41,15 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     private final List<LoadableResource> resources = new ArrayList<>();
     private final List<Class<? extends I>> classes = new ArrayList<>();
 
+    /*
+     * Constructor. Scans the given locations for resources, and classes implementing the specified interface.
+     */
     public Scanner(Class<I> implementedInterface, Collection<Location> locations, ClassLoader classLoader, Charset encoding
 
 
 
+            , ResourceNameCache resourceNameCache
+            , LocationScannerCache locationScannerCache
     ) {
         FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding
 
@@ -62,7 +65,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
             } else {
                 ResourceAndClassScanner<I> resourceAndClassScanner = android
                         ? new AndroidScanner<>(implementedInterface, classLoader, encoding, location)
-                        : new ClassPathScanner<>(implementedInterface, classLoader, encoding, location);
+                        : new ClassPathScanner<>(implementedInterface, classLoader, encoding, location, resourceNameCache, locationScannerCache);
                 resources.addAll(resourceAndClassScanner.scanForResources());
                 classes.addAll(resourceAndClassScanner.scanForClasses());
             }
@@ -81,7 +84,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     }
 
     /**
-     * Scans this location for resources, starting with the specified prefix and ending with the specified suffix.
+     * Returns all known resources starting with the specified prefix and ending with any of the specified suffixes.
      *
      * @param prefix   The prefix of the resource names to match.
      * @param suffixes The suffixes of the resource names to match.

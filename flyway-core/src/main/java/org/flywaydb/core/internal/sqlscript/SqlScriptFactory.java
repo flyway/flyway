@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,5 @@ public interface SqlScriptFactory {
     /**
      * @return A new SQL script.
      */
-    SqlScript createSqlScript(LoadableResource resource, boolean mixed
-
-
-
-    );
+    SqlScript createSqlScript(LoadableResource resource, boolean mixed, ResourceProvider resourceProvider);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.flywaydb.commandline;
 import org.flywaydb.core.api.logging.Log;
 
 /**
- * Wrapper around a simple Console output.
+ * Console output for standard output and standard error.
  */
 class ConsoleLog implements Log {
  	public enum Level {
@@ -28,7 +28,7 @@ class ConsoleLog implements Log {
     private final Level level;
 
     /**
-     * Creates a new Console Log.
+     * Creates a new PrintStream Log.
      *
      * @param level the log level.
      */
@@ -49,12 +49,12 @@ class ConsoleLog implements Log {
 
     public void info(String message) {
     	if (level.compareTo(Level.INFO) <= 0) {
-	        System.out.println(message);
+            System.out.println(message);
 	    }
     }
 
     public void warn(String message) {
-    	System.out.println("WARNING: " + message);
+        System.out.println("WARNING: " + message);
     }
 
     public void error(String message) {

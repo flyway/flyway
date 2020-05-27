@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public interface ResourceProvider {
     LoadableResource getResource(String name);
 
     /**
-     * Retrieve all resources whose name begins with this prefix and ends with either of these suffixes.
+     * Retrieve all resources whose name begins with this prefix and ends with any of these suffixes.
      *
      * @param prefix   The prefix.
      * @param suffixes The suffixes.

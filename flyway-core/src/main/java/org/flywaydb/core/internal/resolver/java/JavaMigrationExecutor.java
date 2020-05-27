@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,11 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.migration.JavaMigration;
+import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
+import org.flywaydb.core.internal.database.DatabaseFactory;
+import org.flywaydb.core.internal.database.cockroachdb.CockroachDBRetryingStrategy;
+import org.flywaydb.core.internal.jdbc.DatabaseType;
+import org.flywaydb.core.internal.util.SqlCallable;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -44,6 +49,17 @@ public class JavaMigrationExecutor implements MigrationExecutor {
 
     @Override
     public void execute(final Context context) throws SQLException {
+        DatabaseExecutionStrategy strategy = DatabaseFactory.createExecutionStrategy(context.getConnection());
+        strategy.execute(new SqlCallable<Boolean>() {
+                @Override
+                public Boolean call() throws SQLException {
+                    executeOnce(context);
+                    return true;
+                }
+            });
+    }
+
+    private void executeOnce(final Context context) throws SQLException {
         try {
             javaMigration.migrate(new org.flywaydb.core.api.migration.Context() {
                 @Override

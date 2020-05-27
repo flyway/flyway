@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,17 @@
  */
 package org.flywaydb.core.internal.configuration;
 
+import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeMap;
+import java.io.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Configuration-related utilities.
@@ -52,6 +47,7 @@ public class ConfigUtils {
     public static final String CLEAN_DISABLED = "flyway.cleanDisabled";
     public static final String CLEAN_ON_VALIDATION_ERROR = "flyway.cleanOnValidationError";
     public static final String CONNECT_RETRIES = "flyway.connectRetries";
+    public static final String DEFAULT_SCHEMA = "flyway.defaultSchema";
     public static final String DRIVER = "flyway.driver";
     public static final String DRYRUN_OUTPUT = "flyway.dryRunOutput";
     public static final String ENCODING = "flyway.encoding";
@@ -89,6 +85,7 @@ public class ConfigUtils {
     public static final String URL = "flyway.url";
     public static final String USER = "flyway.user";
     public static final String VALIDATE_ON_MIGRATE = "flyway.validateOnMigrate";
+    public static final String VALIDATE_MIGRATION_NAMING = "flyway.validateMigrationNaming";
 
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
@@ -153,6 +150,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_CONNECT_RETRIES".equals(key)) {
             return CONNECT_RETRIES;
+        }
+        if ("FLYWAY_DEFAULT_SCHEMA".equals(key)) {
+            return DEFAULT_SCHEMA;
         }
         if ("FLYWAY_DRIVER".equals(key)) {
             return DRIVER;
@@ -288,6 +288,24 @@ public class ConfigUtils {
     }
 
     /**
+     * Load configuration files from the default locations:
+     * $installationDir$/conf/flyway.conf
+     * $user.home$/flyway.conf
+     * $workingDirectory$/flyway.conf
+     *
+     * @param encoding the conf file encoding.
+     * @throws FlywayException when the configuration failed.
+     */
+    public static Map<String, String> loadDefaultConfigurationFiles(File installationDir, String encoding) {
+        Map<String, String> configMap = new HashMap<>();
+        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(installationDir.getAbsolutePath() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+
+        return configMap;
+    }
+
+    /**
      * Loads the configuration from this configuration file.
      *
      * @param configFile    The configuration file to load.
@@ -308,14 +326,85 @@ public class ConfigUtils {
         }
 
         LOG.debug("Loading config file: " + configFile.getAbsolutePath());
+
         try {
-            String contents = FileCopyUtils.copyToString(new InputStreamReader(new FileInputStream(configFile), encoding));
-            Properties properties = new Properties();
-            properties.load(new StringReader(contents.replace("\\", "\\\\")));
-            return propertiesToMap(properties);
-        } catch (IOException e) {
+            return readConfiguration(new InputStreamReader(new FileInputStream(configFile), encoding));
+        } catch (IOException | FlywayException e) {
             throw new FlywayException(errorMessage, e);
         }
+    }
+
+    /**
+     * Reads the configuration.
+     *
+     * @param reader The reader used to read the configuration.
+     * @return The properties from the configuration file. An empty Map if none.
+     * @throws FlywayException when the configuration could not be read.
+     */
+    public static Map<String, String> readConfiguration(Reader reader) throws FlywayException {
+        try {
+            String contents = FileCopyUtils.copyToString(reader);
+            String[] lines = contents.split("\n");
+
+            StringBuilder confBuilder = new StringBuilder();
+            for (int i = 0; i < lines.length; i++) {
+                String line = lines[i];
+                String replacedLine = line.trim().replace("\\", "\\\\");
+
+                // if the line ends in a \\, then it may be a multiline property
+                if (replacedLine.endsWith("\\\\")) {
+
+                    // if we arent the last line
+                    if (i < lines.length-1) {
+                        // look ahead to see if the next line is a property, a blank line, or another multiline
+                        String nextLine = lines[i+1];
+
+                        boolean restoreMultilineDelimiter = false;
+                        if (nextLine.isEmpty()) {
+                            // blank line
+                        } else if (nextLine.contains("=")) {
+                            // property
+                        } else {
+                            // line with content, this was a multiline property
+                            restoreMultilineDelimiter = true;
+                        }
+
+                        if (restoreMultilineDelimiter) {
+                            // its a multiline property, so restore the original single slash
+                            replacedLine = replacedLine.substring(0, replacedLine.length()-2) + "\\";
+                        }
+                    }
+                }
+
+                confBuilder.append(replacedLine).append("\n");
+            }
+            contents = confBuilder.toString();
+
+            Properties properties = new Properties();
+            contents = expandEnvironmentVariables(contents, System.getenv());
+            properties.load(new StringReader(contents));
+            return propertiesToMap(properties);
+        } catch (IOException e) {
+            throw new FlywayException("Unable to read config", e);
+        }
+    }
+
+    static String expandEnvironmentVariables(String value, Map<String, String> environmentVariables) {
+        Pattern pattern = Pattern.compile("\\$\\{([A-Za-z0-9_]+)}");
+        Matcher matcher = pattern.matcher(value);
+        String expandedValue = value;
+
+        while (matcher.find()) {
+            String variableName = matcher.group(1);
+            String variableValue = environmentVariables.containsKey(variableName)
+                    ? environmentVariables.get(variableName)
+                    : "";
+
+            LOG.debug("Expanding environment variable in config: " + variableName + " -> " + variableValue);
+            expandedValue = expandedValue.replaceAll(Pattern.quote(matcher.group(0)), Matcher.quoteReplacement(variableValue));
+        }
+
+        return expandedValue;
     }
 
     /**
@@ -365,6 +454,47 @@ public class ConfigUtils {
     }
 
     /**
+     * Removes this property from the config.
+     *
+     * @param config The config.
+     * @param key    The property name.
+     * @return The property value as a boolean if it exists, otherwise <code>null</code>.
+     * @throws FlywayException when the property value is not a valid boolean.
+     */
+    public static Boolean removeBoolean(Map<String, String> config, String key) {
+        String value = config.remove(key);
+        if (value == null) {
+            return null;
+        }
+        if (!"true".equals(value) && !"false".equals(value)) {
+            throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value,
+                    ErrorCode.CONFIGURATION);
+        }
+        return Boolean.valueOf(value);
+    }
+
+    /**
+     * Removes this property from the config.
+     *
+     * @param config The config.
+     * @param key    The property name.
+     * @return The property value as an integer if it exists, otherwise <code>null</code>.
+     * @throws FlywayException when the property value is not a valid integer.
+     */
+    public static Integer removeInteger(Map<String, String> config, String key) {
+        String value = config.remove(key);
+        if (value == null) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            throw new FlywayException("Invalid value for " + key + " (should be an integer): " + value,
+                    ErrorCode.CONFIGURATION);
+        }
+    }
+
+    /**
      * Dumps the configuration to the console when debug output is activated.
      *
      * @param config The configured properties.
@@ -375,13 +505,42 @@ public class ConfigUtils {
             for (Map.Entry<String, String> entry : new TreeMap<>(config).entrySet()) {
                 String value = entry.getValue();
 
-                // Mask the password. Ex.: T0pS3cr3t -> *********
-                value = ConfigUtils.PASSWORD.equals(entry.getKey())
-                        ? StringUtils.trimOrPad("", value.length(), '*')
-                        : value;
+                switch (entry.getKey()) {
+                    // Mask the password. Ex.: T0pS3cr3t -> *********
+                    case ConfigUtils.PASSWORD:
+                        value = StringUtils.trimOrPad("", value.length(), '*');
+                        break;
+                    // Mask the licence key, leaving a few characters to confirm which key is in use
+                    case ConfigUtils.LICENSE_KEY:
+                        value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
+                        break;
+                }
 
                 LOG.debug(entry.getKey() + " -> " + value);
             }
+        }
+    }
+
+    /**
+     *  Checks the configuration for any unrecognised properties remaining after expected ones have been consumed
+     *
+     *  @param config The configured properties.
+     *  @param prefix The expected prefix for Flyway configuration parameters - or null if none.
+     */
+    public static void checkConfigurationForUnrecognisedProperties(Map<String, String> config, String prefix) {
+        ArrayList<String> unknownFlywayProperties = new ArrayList<>();
+        for (String key : config.keySet()) {
+            if (prefix == null || key.startsWith(prefix)) {
+                unknownFlywayProperties.add(key);
+            }
+        }
+
+        if (!unknownFlywayProperties.isEmpty()) {
+            String property = (unknownFlywayProperties.size() == 1) ? "property" : "properties";
+            String message = String.format("Unknown configuration %s: %s",
+                    property,
+                    StringUtils.arrayToCommaDelimitedString(unknownFlywayProperties.toArray()));
+            throw new FlywayException(message, ErrorCode.CONFIGURATION);
         }
     }
 }

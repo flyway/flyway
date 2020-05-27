@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver;
 
+import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
@@ -22,6 +23,7 @@ import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.clazz.ClassProvider;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resolver.java.FixedJavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.java.ScanningJavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
@@ -62,17 +64,19 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param configuration            The Flyway configuration.
      * @param sqlScriptFactory         The SQL statement builder factory.
      * @param customMigrationResolvers Custom Migration Resolvers.
+     * @param parsingContext           The parsing context
      */
     public CompositeMigrationResolver(ResourceProvider resourceProvider,
                                       ClassProvider<JavaMigration> classProvider,
                                       Configuration configuration,
                                       SqlScriptExecutorFactory sqlScriptExecutorFactory,
                                       SqlScriptFactory sqlScriptFactory,
+                                      ParsingContext parsingContext,
                                       MigrationResolver... customMigrationResolvers
     ) {
         if (!configuration.isSkipDefaultResolvers()) {
             migrationResolvers.add(new SqlMigrationResolver(resourceProvider, sqlScriptExecutorFactory, sqlScriptFactory,
-                    configuration));
+                    configuration, parsingContext));
             migrationResolvers.add(new ScanningJavaMigrationResolver(classProvider, configuration));
         }
         migrationResolvers.add(new FixedJavaMigrationResolver(configuration.getJavaMigrations()));
@@ -134,47 +138,50 @@ public class CompositeMigrationResolver implements MigrationResolver {
      */
     /* private -> for testing */
     static void checkForIncompatibilities(List<ResolvedMigration> migrations) {
-    	ResolvedMigrationComparator resolvedMigrationComparator = new ResolvedMigrationComparator();
-    	TreeSet<ResolvedMigration> repeatableMigrations = new TreeSet<>(resolvedMigrationComparator);
-    	TreeSet<ResolvedMigration> versionedMigrations = new TreeSet<>(resolvedMigrationComparator);
-    	TreeSet<ResolvedMigration> intermediateBaselineMigrations = new TreeSet<>(resolvedMigrationComparator);
-    	
-    	for (int i = 0; i < migrations.size(); i++) {
-    		ResolvedMigration next = migrations.get(i);
-    		
-    		if (next.getVersion() == null) {    			
-    			if (!repeatableMigrations.add(next)) {
-    				ResolvedMigration current = repeatableMigrations.pollLast();
+        ResolvedMigrationComparator resolvedMigrationComparator = new ResolvedMigrationComparator();
+        TreeSet<ResolvedMigration> repeatableMigrations = new TreeSet<>(resolvedMigrationComparator);
+        TreeSet<ResolvedMigration> versionedMigrations = new TreeSet<>(resolvedMigrationComparator);
+        TreeSet<ResolvedMigration> intermediateBaselineMigrations = new TreeSet<>(resolvedMigrationComparator);
+
+        for (int i = 0; i < migrations.size(); i++) {
+            ResolvedMigration next = migrations.get(i);
+
+            if (next.getVersion() == null) {
+                if (!repeatableMigrations.add(next)) {
+                    ResolvedMigration current = repeatableMigrations.pollLast();
                     throw new FlywayException(String.format("Found more than one repeatable migration with description %s%nOffenders:%n-> %s (%s)%n-> %s (%s)",
                             current.getDescription(),
                             current.getPhysicalLocation(),
                             current.getType(),
                             next.getPhysicalLocation(),
-                            next.getType()));    				
-    			}
-    		} else {
-    			if (next.getType().isIntermediateBaseline()) {
-    				if (!intermediateBaselineMigrations.add(next)) {
-    					ResolvedMigration current = intermediateBaselineMigrations.pollLast();
+                            next.getType()),
+                            ErrorCode.DUPLICATE_REPEATABLE_MIGRATION);
+                }
+            } else {
+                if (next.getType().isIntermediateBaseline()) {
+                    if (!intermediateBaselineMigrations.add(next)) {
+                        ResolvedMigration current = intermediateBaselineMigrations.pollLast();
                         throw new FlywayException(String.format("Found more than one intermediate baseline migration with version %s%nOffenders:%n-> %s (%s)%n-> %s (%s)",
                                 current.getVersion(),
                                 current.getPhysicalLocation(),
                                 current.getType(),
                                 next.getPhysicalLocation(),
-                                next.getType()));    				
-    				}
-    			} else {
-    				if (!versionedMigrations.add(next)) {
-    					ResolvedMigration current = versionedMigrations.pollLast();
+                                next.getType()),
+                                ErrorCode.DUPLICATE_INTERMAEDIATE_BASELINE_MIGRATION);
+                    }
+                } else {
+                    if (!versionedMigrations.add(next)) {
+                        ResolvedMigration current = versionedMigrations.pollLast();
                         throw new FlywayException(String.format("Found more than one migration with version %s%nOffenders:%n-> %s (%s)%n-> %s (%s)",
                                 current.getVersion(),
                                 current.getPhysicalLocation(),
                                 current.getType(),
                                 next.getPhysicalLocation(),
-                                next.getType()));    					
-    				}
-    			}
-    		}
-    	}
+                                next.getType()),
+                                ErrorCode.DUPLICATE_VERSIONED_MIGRATION);
+                    }
+                }
+            }
+        }
     }
 }

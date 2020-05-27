@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.database.base;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 
 import java.io.Closeable;
 import java.sql.SQLException;
@@ -124,13 +124,9 @@ public abstract class Connection<D extends Database> implements Closeable {
      * @return The result of the callable.
      */
     public <T> T lock(final Table table, final Callable<T> callable) {
-        return new TransactionTemplate(jdbcTemplate.getConnection(), database.supportsDdlTransactions()).execute(new Callable<T>() {
-            @Override
-            public T call() throws Exception {
-                table.lock();
-                return callable.call();
-            }
-        });
+        return ExecutionTemplateFactory
+                .createTableExclusiveExecutionTemplate(jdbcTemplate.getConnection(), table, database)
+                .execute(callable);
     }
 
     public final JdbcTemplate getJdbcTemplate() {
@@ -146,7 +142,7 @@ public abstract class Connection<D extends Database> implements Closeable {
     }
 
     private void restoreOriginalSchema() {
-        new TransactionTemplate(jdbcConnection).execute(new Callable<Void>() {
+        ExecutionTemplateFactory.createExecutionTemplate(jdbcConnection, database).execute(new Callable<Void>() {
             @Override
             public Void call() {
                 try {

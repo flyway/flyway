@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.api.configuration;
 
+import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
@@ -25,6 +26,7 @@ import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -44,6 +46,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger;
 
 /**
  * JavaBean-style configuration for Flyway. This is primarily meant for compatibility with scenarios where the
@@ -101,14 +106,26 @@ public class ClassicConfiguration implements Configuration {
     private Charset encoding = StandardCharsets.UTF_8;
 
     /**
-     * The schemas managed by Flyway. These schema names are case-sensitive.
+     * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
+     * <i>schemaNames</i> is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses
+     * the default schema for the database connection.
      * <p>Consequences:</p>
      * <ul>
-     * <li>Flyway will automatically attempt to create all these schemas, unless the first one already exists.</li>
-     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
-     * <li>The first schema in the list will also be the one containing the schema history table.</li>
+     * <li>This schema will be the one containing the schema history table.</li>
+     * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
+     * </ul>
+     */
+    private String defaultSchemaName = null;
+
+    /**
+     * The schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
+     * the default schema for the database connection. If <i>defaultSchemaName</i> is not specified, then the first of
+     * this list also acts as default schema.
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
      * <li>The schemas will be cleaned in the order of this list.</li>
-     * <li>If Flyway created them, the schemas themselves will as be dropped when cleaning.</li>
+     * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
      * </ul>
      */
     private String[] schemaNames = {};
@@ -116,16 +133,16 @@ public class ClassicConfiguration implements Configuration {
     /**
      * <p>The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)</p><p> By default
      * (single-schema mode) the schema history table is placed in the default schema for the connection provided by the
-     * datasource. </p> <p> When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is
+     * datasource. </p> <p>When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is
      * placed in the first schema of the list. </p>
      */
     private String table = "flyway_schema_history";
 
     /**
-     * <p>Retrieves the tablespace where to create the schema history table that will be used by Flyway.</p>
-     * <p>This setting is only relevant for databases that do support the notion of tablespaces. It's value is simply
+     * <p>The tablespace where to create the schema history table that will be used by Flyway.</p>
+     * <p>If not specified, Flyway uses the default tablespace for the database connection.
+     * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply
      * ignored for all others.</p>
-     * (default: The default tablespace for the database connection)
      */
     private String tablespace;
 
@@ -273,6 +290,13 @@ public class ClassicConfiguration implements Configuration {
      * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
      */
     private boolean ignoreFutureMigrations = true;
+
+    /**
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     * {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
+     */
+    private boolean validateMigrationNaming = false;
 
     /**
      * Whether to automatically call validate or not when running migrate. (default: {@code true})
@@ -488,9 +512,10 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public String[] getSchemas() {
-        return schemaNames;
-    }
+    public String getDefaultSchema() { return defaultSchemaName; }
+
+    @Override
+    public String[] getSchemas() { return schemaNames; }
 
     @Override
     public String getTable() {
@@ -575,6 +600,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isIgnoreFutureMigrations() {
         return ignoreFutureMigrations;
+    }
+
+    @Override
+    public boolean isValidateMigrationNaming() {
+        return validateMigrationNaming;
     }
 
     @Override
@@ -773,6 +803,11 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
+
+
+
+
     }
 
     /**
@@ -858,7 +893,7 @@ public class ClassicConfiguration implements Configuration {
      * <p>Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
      * statements that do not run at all within a transaction.</p>
      * <p>This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
-     * DDL statement was run within within a transaction, the database will issue an implicit commit before and after
+     * DDL statement was run within a transaction, the database will issue an implicit commit before and after
      * its execution.</p>
      *
      * @param mixed {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
@@ -930,6 +965,17 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     *
+     * @param validateMigrationNaming {@code false} to continue normally, {@code true} to fail
+     *                                                fast with an exception. (default: {@code false})
+     */
+    public void setValidateMigrationNaming(boolean validateMigrationNaming) {
+        this.validateMigrationNaming = validateMigrationNaming;
+    }
+
+    /**
      * Whether to automatically call validate or not when running migrate.
      *
      * @param validateOnMigrate {@code true} if validate should be called. {@code false} if not. (default: {@code true})
@@ -956,7 +1002,7 @@ public class ClassicConfiguration implements Configuration {
      * Whether to disable clean.
      * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
      *
-     * @param cleanDisabled {@code true} to disabled clean. {@code false} to leave it enabled.  (default: {@code false})
+     * @param cleanDisabled {@code true} to disable clean. {@code false} to leave it enabled.  (default: {@code false})
      */
     public void setCleanDisabled(boolean cleanDisabled) {
         this.cleanDisabled = cleanDisabled;
@@ -1009,14 +1055,30 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Sets the schemas managed by Flyway. These schema names are case-sensitive. (default: The default schema for the database connection)
+     * Sets the default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
+     * <i>Schemas</i> is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default
+     * schema for the database connection.
      * <p>Consequences:</p>
      * <ul>
-     * <li>Flyway will automatically attempt to create all these schemas, unless the first one already exists.</li>
-     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
-     * <li>The first schema in the list will also be the one containing the schema history table.</li>
+     * <li>This schema will be the one containing the schema history table.</li>
+     * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
+     * </ul>
+     *
+     * @param schema The default schema managed by Flyway.
+     */
+    public void setDefaultSchema(String schema) {
+        this.defaultSchemaName = schema;
+    }
+
+    /**
+     * Sets the schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
+     * the default schema for the database connection. If <i>defaultSchema</i> is not specified, then the first of
+     * this list also acts as default schema.
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
      * <li>The schemas will be cleaned in the order of this list.</li>
-     * <li>If Flyway created them, the schemas themselves will as be dropped when cleaning.</li>
+     * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
      * </ul>
      *
      * @param schemas The schemas managed by Flyway. May not be {@code null}. Must contain at least one element.
@@ -1026,7 +1088,7 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * <p>Sets the name of the schema history table that will be used by Flyway.</p><p> By default (single-schema mode)
+     * <p>Sets the name of the schema history table that will be used by Flyway. </p><p> By default (single-schema mode)
      * the schema history table is placed in the default schema for the connection provided by the datasource. </p> <p> When
      * the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first schema
      * of the list. </p>
@@ -1039,10 +1101,11 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * <p>Sets the tablespace where to create the schema history table that will be used by Flyway.</p>
-     * <p>This setting is only relevant for databases that do support the notion of tablespaces. It's value is simply
+     * <p>If not specified, Flyway uses the default tablespace for the database connection.This setting is only relevant
+     * for databases that do support the notion of tablespaces. Its value is simply
      * ignored for all others.</p>
      *
-     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway. (default: The default tablespace for the database connection)
+     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway.
      */
     public void setTablespace(String tablespace) {
         this.tablespace = tablespace;
@@ -1101,7 +1164,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setPlaceholderPrefix(String placeholderPrefix) {
         if (!StringUtils.hasLength(placeholderPrefix)) {
-            throw new FlywayException("placeholderPrefix cannot be empty!");
+            throw new FlywayException("placeholderPrefix cannot be empty!", ErrorCode.CONFIGURATION);
         }
         this.placeholderPrefix = placeholderPrefix;
     }
@@ -1113,7 +1176,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setPlaceholderSuffix(String placeholderSuffix) {
         if (!StringUtils.hasLength(placeholderSuffix)) {
-            throw new FlywayException("placeholderSuffix cannot be empty!");
+            throw new FlywayException("placeholderSuffix cannot be empty!", ErrorCode.CONFIGURATION);
         }
         this.placeholderSuffix = placeholderSuffix;
     }
@@ -1167,7 +1230,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setJavaMigrations(JavaMigration... javaMigrations) {
         if (javaMigrations == null) {
-            throw new FlywayException("javaMigrations cannot be null");
+            throw new FlywayException("javaMigrations cannot be null", ErrorCode.CONFIGURATION);
         }
         this.javaMigrations = javaMigrations;
     }
@@ -1248,7 +1311,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setSqlMigrationSeparator(String sqlMigrationSeparator) {
         if (!StringUtils.hasLength(sqlMigrationSeparator)) {
-            throw new FlywayException("sqlMigrationSeparator cannot be empty!");
+            throw new FlywayException("sqlMigrationSeparator cannot be empty!", ErrorCode.CONFIGURATION);
         }
 
         this.sqlMigrationSeparator = sqlMigrationSeparator;
@@ -1300,7 +1363,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setConnectRetries(int connectRetries) {
         if (connectRetries < 0) {
-            throw new FlywayException("Invalid number of connectRetries (must be 0 or greater): " + connectRetries);
+            throw new FlywayException("Invalid number of connectRetries (must be 0 or greater): " + connectRetries, ErrorCode.CONFIGURATION);
         }
         this.connectRetries = connectRetries;
     }
@@ -1409,7 +1472,7 @@ public class ClassicConfiguration implements Configuration {
             if (o instanceof Callback) {
                 this.callbacks.add((Callback) o);
             } else {
-                throw new FlywayException("Invalid callback: " + callback + " (must implement org.flywaydb.core.api.callback.Callback)");
+                throw new FlywayException("Invalid callback: " + callback + " (must implement org.flywaydb.core.api.callback.Callback)", ErrorCode.CONFIGURATION);
             }
         }
     }
@@ -1531,7 +1594,8 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLicenseKey(String licenseKey) {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("licenseKey");
+          LOG.warn(Edition.PRO + " or " + Edition.ENTERPRISE + " upgrade required: " + licenseKey
+            + " is not supported by " + Edition.COMMUNITY + ".");
 
 
 
@@ -1566,6 +1630,7 @@ public class ClassicConfiguration implements Configuration {
 
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
+        setValidateMigrationNaming(configuration.isValidateMigrationNaming());
         setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
         setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
         setIgnoreIgnoredMigrations(configuration.isIgnoreIgnoredMigrations());
@@ -1581,6 +1646,7 @@ public class ClassicConfiguration implements Configuration {
         setPlaceholderSuffix(configuration.getPlaceholderSuffix());
         setRepeatableSqlMigrationPrefix(configuration.getRepeatableSqlMigrationPrefix());
         setResolvers(configuration.getResolvers());
+        setDefaultSchema(configuration.getDefaultSchema());
         setSchemas(configuration.getSchemas());
         setSkipDefaultCallbacks(configuration.isSkipDefaultCallbacks());
         setSkipDefaultResolvers(configuration.isSkipDefaultResolvers());
@@ -1657,7 +1723,7 @@ public class ClassicConfiguration implements Configuration {
                 StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
             setDataSource(new DriverDataSource(classLoader, driver, url, user, password));
         }
-        Integer connectRetriesProp = getIntegerProp(props, ConfigUtils.CONNECT_RETRIES);
+        Integer connectRetriesProp = removeInteger(props, ConfigUtils.CONNECT_RETRIES);
         if (connectRetriesProp != null) {
             setConnectRetries(connectRetriesProp);
         }
@@ -1669,7 +1735,7 @@ public class ClassicConfiguration implements Configuration {
         if (locationsProp != null) {
             setLocationsAsStrings(StringUtils.tokenizeToStringArray(locationsProp, ","));
         }
-        Boolean placeholderReplacementProp = getBooleanProp(props, ConfigUtils.PLACEHOLDER_REPLACEMENT);
+        Boolean placeholderReplacementProp = removeBoolean(props, ConfigUtils.PLACEHOLDER_REPLACEMENT);
         if (placeholderReplacementProp != null) {
             setPlaceholderReplacement(placeholderReplacementProp);
         }
@@ -1705,6 +1771,10 @@ public class ClassicConfiguration implements Configuration {
         if (encodingProp != null) {
             setEncodingAsString(encodingProp);
         }
+        String defaultSchemaProp = props.remove(ConfigUtils.DEFAULT_SCHEMA);
+        if (defaultSchemaProp != null) {
+            setDefaultSchema(defaultSchemaProp);
+        }
         String schemasProp = props.remove(ConfigUtils.SCHEMAS);
         if (schemasProp != null) {
             setSchemas(StringUtils.tokenizeToStringArray(schemasProp, ","));
@@ -1717,15 +1787,15 @@ public class ClassicConfiguration implements Configuration {
         if (tablespaceProp != null) {
             setTablespace(tablespaceProp);
         }
-        Boolean cleanOnValidationErrorProp = getBooleanProp(props, ConfigUtils.CLEAN_ON_VALIDATION_ERROR);
+        Boolean cleanOnValidationErrorProp = removeBoolean(props, ConfigUtils.CLEAN_ON_VALIDATION_ERROR);
         if (cleanOnValidationErrorProp != null) {
             setCleanOnValidationError(cleanOnValidationErrorProp);
         }
-        Boolean cleanDisabledProp = getBooleanProp(props, ConfigUtils.CLEAN_DISABLED);
+        Boolean cleanDisabledProp = removeBoolean(props, ConfigUtils.CLEAN_DISABLED);
         if (cleanDisabledProp != null) {
             setCleanDisabled(cleanDisabledProp);
         }
-        Boolean validateOnMigrateProp = getBooleanProp(props, ConfigUtils.VALIDATE_ON_MIGRATE);
+        Boolean validateOnMigrateProp = removeBoolean(props, ConfigUtils.VALIDATE_ON_MIGRATE);
         if (validateOnMigrateProp != null) {
             setValidateOnMigrate(validateOnMigrateProp);
         }
@@ -1737,35 +1807,39 @@ public class ClassicConfiguration implements Configuration {
         if (baselineDescriptionProp != null) {
             setBaselineDescription(baselineDescriptionProp);
         }
-        Boolean baselineOnMigrateProp = getBooleanProp(props, ConfigUtils.BASELINE_ON_MIGRATE);
+        Boolean baselineOnMigrateProp = removeBoolean(props, ConfigUtils.BASELINE_ON_MIGRATE);
         if (baselineOnMigrateProp != null) {
             setBaselineOnMigrate(baselineOnMigrateProp);
         }
-        Boolean ignoreMissingMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_MISSING_MIGRATIONS);
+        Boolean ignoreMissingMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_MISSING_MIGRATIONS);
         if (ignoreMissingMigrationsProp != null) {
             setIgnoreMissingMigrations(ignoreMissingMigrationsProp);
         }
-        Boolean ignoreIgnoredMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_IGNORED_MIGRATIONS);
+        Boolean ignoreIgnoredMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_IGNORED_MIGRATIONS);
         if (ignoreIgnoredMigrationsProp != null) {
             setIgnoreIgnoredMigrations(ignoreIgnoredMigrationsProp);
         }
-        Boolean ignorePendingMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_PENDING_MIGRATIONS);
+        Boolean ignorePendingMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_PENDING_MIGRATIONS);
         if (ignorePendingMigrationsProp != null) {
             setIgnorePendingMigrations(ignorePendingMigrationsProp);
         }
-        Boolean ignoreFutureMigrationsProp = getBooleanProp(props, ConfigUtils.IGNORE_FUTURE_MIGRATIONS);
+        Boolean ignoreFutureMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_FUTURE_MIGRATIONS);
         if (ignoreFutureMigrationsProp != null) {
             setIgnoreFutureMigrations(ignoreFutureMigrationsProp);
+        }
+        Boolean validateMigrationNamingProp = removeBoolean(props, ConfigUtils.VALIDATE_MIGRATION_NAMING);
+        if (validateMigrationNamingProp != null) {
+            setValidateMigrationNaming(validateMigrationNamingProp);
         }
         String targetProp = props.remove(ConfigUtils.TARGET);
         if (targetProp != null) {
             setTarget(MigrationVersion.fromVersion(targetProp));
         }
-        Boolean outOfOrderProp = getBooleanProp(props, ConfigUtils.OUT_OF_ORDER);
+        Boolean outOfOrderProp = removeBoolean(props, ConfigUtils.OUT_OF_ORDER);
         if (outOfOrderProp != null) {
             setOutOfOrder(outOfOrderProp);
         }
-        Boolean outputQueryResultsProp = getBooleanProp(props, ConfigUtils.OUTPUT_QUERY_RESULTS);
+        Boolean outputQueryResultsProp = removeBoolean(props, ConfigUtils.OUTPUT_QUERY_RESULTS);
         if (outputQueryResultsProp != null) {
             setOutputQueryResults(outputQueryResultsProp);
         }
@@ -1773,7 +1847,7 @@ public class ClassicConfiguration implements Configuration {
         if (StringUtils.hasLength(resolversProp)) {
             setResolversAsClassNames(StringUtils.tokenizeToStringArray(resolversProp, ","));
         }
-        Boolean skipDefaultResolversProp = getBooleanProp(props, ConfigUtils.SKIP_DEFAULT_RESOLVERS);
+        Boolean skipDefaultResolversProp = removeBoolean(props, ConfigUtils.SKIP_DEFAULT_RESOLVERS);
         if (skipDefaultResolversProp != null) {
             setSkipDefaultResolvers(skipDefaultResolversProp);
         }
@@ -1781,7 +1855,7 @@ public class ClassicConfiguration implements Configuration {
         if (StringUtils.hasLength(callbacksProp)) {
             setCallbacksAsClassNames(StringUtils.tokenizeToStringArray(callbacksProp, ","));
         }
-        Boolean skipDefaultCallbacksProp = getBooleanProp(props, ConfigUtils.SKIP_DEFAULT_CALLBACKS);
+        Boolean skipDefaultCallbacksProp = removeBoolean(props, ConfigUtils.SKIP_DEFAULT_CALLBACKS);
         if (skipDefaultCallbacksProp != null) {
             setSkipDefaultCallbacks(skipDefaultCallbacksProp);
         }
@@ -1802,12 +1876,12 @@ public class ClassicConfiguration implements Configuration {
         }
         setPlaceholders(placeholdersFromProps);
 
-        Boolean mixedProp = getBooleanProp(props, ConfigUtils.MIXED);
+        Boolean mixedProp = removeBoolean(props, ConfigUtils.MIXED);
         if (mixedProp != null) {
             setMixed(mixedProp);
         }
 
-        Boolean groupProp = getBooleanProp(props, ConfigUtils.GROUP);
+        Boolean groupProp = removeBoolean(props, ConfigUtils.GROUP);
         if (groupProp != null) {
             setGroup(groupProp);
         }
@@ -1827,22 +1901,22 @@ public class ClassicConfiguration implements Configuration {
             setErrorOverrides(StringUtils.tokenizeToStringArray(errorOverridesProp, ","));
         }
 
-        Boolean streamProp = getBooleanProp(props, ConfigUtils.STREAM);
+        Boolean streamProp = removeBoolean(props, ConfigUtils.STREAM);
         if (streamProp != null) {
             setStream(streamProp);
         }
 
-        Boolean batchProp = getBooleanProp(props, ConfigUtils.BATCH);
+        Boolean batchProp = removeBoolean(props, ConfigUtils.BATCH);
         if (batchProp != null) {
             setBatch(batchProp);
         }
 
-        Boolean oracleSqlplusProp = getBooleanProp(props, ConfigUtils.ORACLE_SQLPLUS);
+        Boolean oracleSqlplusProp = removeBoolean(props, ConfigUtils.ORACLE_SQLPLUS);
         if (oracleSqlplusProp != null) {
             setOracleSqlplus(oracleSqlplusProp);
         }
 
-        Boolean oracleSqlplusWarnProp = getBooleanProp(props, ConfigUtils.ORACLE_SQLPLUS_WARN);
+        Boolean oracleSqlplusWarnProp = removeBoolean(props, ConfigUtils.ORACLE_SQLPLUS_WARN);
         if (oracleSqlplusWarnProp != null) {
             setOracleSqlplusWarn(oracleSqlplusWarnProp);
         }
@@ -1852,31 +1926,7 @@ public class ClassicConfiguration implements Configuration {
             setLicenseKey(licenseKeyProp);
         }
 
-        for (String key : props.keySet()) {
-            if (key.startsWith("flyway.")) {
-                throw new FlywayException("Unknown configuration property: " + key);
-            }
-        }
-    }
-
-    private Boolean getBooleanProp(Map<String, String> props, String key) {
-        String value = props.remove(key);
-        if (value != null && !"true".equals(value) && !"false".equals(value)) {
-            throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value);
-        }
-        return value == null ? null : Boolean.valueOf(value);
-    }
-
-    private Integer getIntegerProp(Map<String, String> props, String key) {
-        String value = props.remove(key);
-        if (value == null) {
-            return null;
-        }
-        try {
-            return Integer.valueOf(value);
-        } catch (NumberFormatException e) {
-            throw new FlywayException("Invalid value for " + key + " (should be a positive integer): " + value);
-        }
+        ConfigUtils.checkConfigurationForUnrecognisedProperties(props, "flyway.");
     }
 
     /**

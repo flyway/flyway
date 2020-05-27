@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import java.io.Reader;
  */
 public class BomStrippingReader extends FilterReader {
     private static final int EMPTY_STREAM = -1;
-    private static final char BOM = '\ufeff';
 
     /**
      * Creates a new BOM-stripping reader.
@@ -39,7 +38,7 @@ public class BomStrippingReader extends FilterReader {
     @Override
     public int read() throws IOException {
         int c = super.read();
-        if (c != EMPTY_STREAM && (char) c == BOM) {
+        if (c != EMPTY_STREAM && BomFilter.isBom((char)c)) {
             // Skip BOM
             return super.read();
         }

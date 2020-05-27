@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
-import org.flywaydb.core.internal.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StopWatch;
@@ -200,7 +200,7 @@ public class DbMigrate {
             Collections.reverse(resolved);
             if (resolved.isEmpty()) {
                 LOG.warn("Schema " + schema + " has version " + currentSchemaVersion
-                        + ", but no migration could be resolved in the configured locations !");
+                        + ", but no migration could be resolved in the configured locations ! Note this warning will become an error in Flyway 7.");
             } else {
                 for (MigrationInfo migrationInfo : resolved) {
                     // Only consider versioned migrations
@@ -276,7 +276,7 @@ public class DbMigrate {
         final StopWatch stopWatch = new StopWatch();
         try {
             if (executeGroupInTransaction) {
-                new TransactionTemplate(connectionUserObjects.getJdbcConnection()).execute(new Callable<Object>() {
+                ExecutionTemplateFactory.createExecutionTemplate(connectionUserObjects.getJdbcConnection(), database).execute(new Callable<Object>() {
                     @Override
                     public Object call() {
                         doMigrateGroup(group, stopWatch);

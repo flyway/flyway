@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,54 +25,50 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.callback.DefaultCallbackExecutor;
-import org.flywaydb.core.internal.callback.NoopCallback;
-import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
-import org.flywaydb.core.internal.callback.SqlScriptCallbackFactory;
+import org.flywaydb.core.internal.callback.*;
 import org.flywaydb.core.internal.clazz.ClassProvider;
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
-import org.flywaydb.core.internal.command.DbBaseline;
-import org.flywaydb.core.internal.command.DbClean;
-import org.flywaydb.core.internal.command.DbInfo;
-import org.flywaydb.core.internal.command.DbMigrate;
-import org.flywaydb.core.internal.command.DbRepair;
-import org.flywaydb.core.internal.command.DbSchemas;
-import org.flywaydb.core.internal.command.DbValidate;
+import org.flywaydb.core.internal.command.*;
+import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 import org.flywaydb.core.internal.database.DatabaseFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.resource.NoopResourceProvider;
 import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
+import org.flywaydb.core.internal.resource.ResourceNameValidator;
+import org.flywaydb.core.internal.scanner.LocationScannerCache;
+import org.flywaydb.core.internal.scanner.ResourceNameCache;
 import org.flywaydb.core.internal.scanner.Scanner;
+import org.flywaydb.core.internal.scanner.classpath.ClassPathLocationScanner;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 import org.flywaydb.core.internal.util.IOUtils;
+import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
  * <p>
  * It is THE public API from which all important Flyway functions such as clean, validate and migrate can be called.
  * </p>
- * <p>To get started all you need to do is</p>
+ * <p>To get started all you need to do is create a configured Flyway object and then invoke its principal methods.</p>
  * <pre>
  * Flyway flyway = Flyway.configure().dataSource(url, user, password).load();
  * flyway.migrate();
  * </pre>
+ * Note that a configured Flyway object is immutable. If you change the configuration you will end up creating a new Flyway
+ * object.
  * <p>
  */
 public class Flyway {
@@ -84,6 +80,16 @@ public class Flyway {
      * Whether the database connection info has already been printed in the logs.
      */
     private boolean dbConnectionInfoPrinted;
+
+    /**
+     * Designed so we can fail fast if the configuration is invalid
+     */
+    private ConfigurationValidator  configurationValidator = new ConfigurationValidator();
+
+    /**
+     * Designed so we can fail fast if the SQL file resources are invalid
+     */
+    private ResourceNameValidator resourceNameValidator = new ResourceNameValidator();
 
     /**
      * This is your starting point. This creates a configuration which can be customized to your needs before being
@@ -132,6 +138,16 @@ public class Flyway {
     }
 
     /**
+     * Used to cache resource names for classpath scanning between commands
+     */
+    private ResourceNameCache resourceNameCache = new ResourceNameCache();
+
+    /**
+     * Used to cache LocationScanners between commands
+     */
+    private final LocationScannerCache locationScannerCache = new LocationScannerCache();
+
+    /**
      * <p>Starts the database migration. All pending migrations will be applied in order.
      * Calling migrate on an up-to-date database has no effect.</p>
      * <img src="https://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
@@ -169,7 +185,7 @@ public class Flyway {
                             if (!schemaHistory.exists()) {
                                 throw new FlywayException("Found non-empty schema(s) "
                                         + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
-                                        + " without schema history table! Use baseline()"
+                                        + " but no schema history table. Use baseline()"
                                         + " or set baselineOnMigrate to true to initialize the schema history table.");
                             }
                         }
@@ -369,14 +385,16 @@ public class Flyway {
      * @param resourceProvider The resource provider.
      * @param classProvider    The class provider.
      * @param sqlScriptFactory The SQL statement builder factory.
+     * @param parsingContext   The parsing context.
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(ResourceProvider resourceProvider,
                                                       ClassProvider<JavaMigration> classProvider,
                                                       SqlScriptExecutorFactory sqlScriptExecutorFactory,
-                                                      SqlScriptFactory sqlScriptFactory) {
+                                                      SqlScriptFactory sqlScriptFactory,
+                                                      ParsingContext parsingContext) {
         return new CompositeMigrationResolver(resourceProvider, classProvider, configuration,
-                sqlScriptExecutorFactory, sqlScriptFactory, configuration.getResolvers());
+                sqlScriptExecutorFactory, sqlScriptFactory, parsingContext, configuration.getResolvers());
     }
 
     /**
@@ -395,9 +413,7 @@ public class Flyway {
 
         );
 
-        if (configuration.getDataSource() == null) {
-            throw new FlywayException("Unable to connect to the database. Configure the url, user and password!");
-        }
+        configurationValidator.validate(configuration);
 
 
 
@@ -425,9 +441,15 @@ public class Flyway {
 
 
 
+                    , resourceNameCache
+                    , locationScannerCache
             );
             resourceProvider = scanner;
             classProvider = scanner;
+        }
+
+        if (configuration.isValidateMigrationNaming()) {
+            resourceNameValidator.validateSQLMigrationNaming(resourceProvider, configuration);
         }
 
         JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(),
@@ -438,8 +460,9 @@ public class Flyway {
 
         );
 
+        final ParsingContext parsingContext = new ParsingContext();
         final SqlScriptFactory sqlScriptFactory =
-                DatabaseFactory.createSqlScriptFactory(jdbcConnectionFactory, configuration);
+                DatabaseFactory.createSqlScriptFactory(jdbcConnectionFactory, configuration, parsingContext);
 
         final SqlScriptExecutorFactory noCallbackSqlScriptExecutorFactory = DatabaseFactory.createSqlScriptExecutorFactory(
                 jdbcConnectionFactory
@@ -457,11 +480,7 @@ public class Flyway {
                 }
                 StringResource resource = new StringResource(configuration.getInitSql());
 
-                SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, true
-
-
-
-                );
+                SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, true, resourceProvider);
                 noCallbackSqlScriptExecutorFactory.createSqlScriptExecutor(connection
 
 
@@ -477,20 +496,24 @@ public class Flyway {
 
 
             );
+
             dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
 
-            Schema[] schemas = prepareSchemas(database);
+            Pair<Schema, List<Schema>> schemas = prepareSchemas(database);
+            Schema defaultSchema = schemas.getLeft();
 
 
 
 
 
 
+
+            parsingContext.populate(database, configuration);
 
             database.ensureSupported();
 
-            DefaultCallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, schemas[0],
+            DefaultCallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, defaultSchema,
                     prepareCallbacks(database, resourceProvider, jdbcConnectionFactory, sqlScriptFactory
 
 
@@ -505,15 +528,15 @@ public class Flyway {
             );
 
             result = command.execute(
-                    createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory),
+                    createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory, parsingContext),
                     SchemaHistoryFactory.getSchemaHistory(configuration, noCallbackSqlScriptExecutorFactory, sqlScriptFactory,
-                            database, schemas[0]
+                            database, defaultSchema
 
 
 
                     ),
                     database,
-                    schemas,
+                    schemas.getRight().toArray(new Schema[0]),
                     callbackExecutor
 
 
@@ -540,28 +563,55 @@ public class Flyway {
         LOG.debug("Memory usage: " + usedMB + " of " + totalMB + "M");
     }
 
-    private Schema[] prepareSchemas(Database database) {
+    private Pair<Schema, List<Schema>> prepareSchemas(Database database) {
+        String defaultSchemaName = configuration.getDefaultSchema();
         String[] schemaNames = configuration.getSchemas();
+
+        if (!isDefaultSchemaValid(defaultSchemaName, schemaNames)) {
+            throw new FlywayException("The defaultSchema property is specified but is not a member of the schemas property");
+        }
+
+        LOG.debug("Schemas: " + StringUtils.arrayToCommaDelimitedString(schemaNames));
+        LOG.debug("Default schema: " + defaultSchemaName);
+
+        List<Schema> schemas = new ArrayList<>();
+
         if (schemaNames.length == 0) {
             Schema currentSchema = database.getMainConnection().getCurrentSchema();
             if (currentSchema == null) {
                 throw new FlywayException("Unable to determine schema for the schema history table." +
-                        " Set a default schema for the connection or specify one using the schemas property!");
+                        " Set a default schema for the connection or specify one using the defaultSchema property!");
             }
-            schemaNames = new String[]{currentSchema.getName()};
-        }
-
-        if (schemaNames.length == 1) {
-            LOG.debug("Schema: " + schemaNames[0]);
+            schemas.add(currentSchema);
         } else {
-            LOG.debug("Schemas: " + StringUtils.arrayToCommaDelimitedString(schemaNames));
+            for (String schemaName : schemaNames) {
+                    schemas.add(database.getMainConnection().getSchema(schemaName));
+            }
         }
 
-        Schema[] schemas = new Schema[schemaNames.length];
-        for (int i = 0; i < schemaNames.length; i++) {
-            schemas[i] = database.getMainConnection().getSchema(schemaNames[i]);
+        if (defaultSchemaName == null && schemaNames.length > 0) {
+            defaultSchemaName = schemaNames[0];
         }
-        return schemas;
+
+        Schema defaultSchema = (defaultSchemaName != null)
+                ? database.getMainConnection().getSchema(defaultSchemaName)
+                : database.getMainConnection().getCurrentSchema();
+
+        return Pair.of(defaultSchema, schemas);
+    }
+
+    private boolean isDefaultSchemaValid(String defaultSchema, String[] schemas) {
+        // No default schema specified
+        if (defaultSchema == null) {
+            return true;
+        }
+        // Default schema is one of those Flyway is managing
+        for (String schema : schemas) {
+            if (defaultSchema.equals(schema)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<Callback> prepareCallbacks(Database database, ResourceProvider resourceProvider,

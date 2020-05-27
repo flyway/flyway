@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,9 +39,7 @@ public class AndroidResource extends LoadableResource {
         this.assetManager = assetManager;
         this.fileNameWithAbsolutePath = path + "/" + name;
         this.fileName = name;
-        this.fileNameWithRelativePath = location.getPath().isEmpty()
-                ? fileNameWithAbsolutePath
-                : fileNameWithAbsolutePath.substring(location.getPath().length() + 1);
+        this.fileNameWithRelativePath = location == null ? fileNameWithAbsolutePath : location.getPathRelativeToThis(fileNameWithAbsolutePath);
         this.encoding = encoding;
     }
 

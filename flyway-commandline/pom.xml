@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2010-2019 Boxfuse GmbH
+    Copyright 2010-2020 Redgate Software Ltd
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -95,12 +95,20 @@
             <artifactId>postgresql</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.snowflake</groupId>
+            <artifactId>snowflake-jdbc</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.fusesource.jansi</groupId>
             <artifactId>jansi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
         </dependency>
 
 
@@ -216,6 +224,10 @@
                     <classifier>macos-x64</classifier>
                     <type>tar.gz</type>
                     <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.oracle.jdbc</groupId>
+                    <artifactId>ojdbc8</artifactId>
                 </dependency>
             </dependencies>
             <build>

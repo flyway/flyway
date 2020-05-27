@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.resource;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.BomFilter;
 import org.flywaydb.core.internal.util.IOUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -29,6 +30,7 @@ import java.util.zip.CRC32;
  * A loadable resource.
  */
 public abstract class LoadableResource implements Resource, Comparable<LoadableResource> {
+
     private Integer checksum;
 
     /**
@@ -48,33 +50,6 @@ public abstract class LoadableResource implements Resource, Comparable<LoadableR
 
 
 
-    /**
-     * Calculates the checksum of this resource. The checksum is encoding and line-ending independent.
-     *
-     * @return The crc-32 checksum of the bytes.
-     */
-    public final int checksum() {
-        if (checksum == null) {
-            final CRC32 crc32 = new CRC32();
-
-            BufferedReader reader = null;
-            try {
-                reader = new BufferedReader(read(), 4096);
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    //noinspection Since15
-                    crc32.update(StringUtils.trimLineBreak(line).getBytes(StandardCharsets.UTF_8));
-                }
-            } catch (IOException e) {
-                throw new FlywayException("Unable to calculate checksum for " + getFilename() + ": " + e.getMessage(), e);
-            } finally {
-                IOUtils.close(reader);
-            }
-
-            checksum = (int) crc32.getValue();
-        }
-        return checksum;
-    }
 
     @Override
     public int compareTo(LoadableResource o) {

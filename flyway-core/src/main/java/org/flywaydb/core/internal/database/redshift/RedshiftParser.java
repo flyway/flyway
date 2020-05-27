@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,7 @@
 package org.flywaydb.core.internal.database.redshift;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.parser.ParserContext;
-import org.flywaydb.core.internal.parser.PeekingReader;
-import org.flywaydb.core.internal.parser.Token;
-import org.flywaydb.core.internal.parser.TokenType;
+import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,8 +29,8 @@ public class RedshiftParser extends Parser {
     private static final Pattern ALTER_TABLE_APPEND_FROM_REGEX = Pattern.compile("^ALTER TABLE( .*)? APPEND FROM");
     private static final Pattern ALTER_TABLE_ALTER_COLUMN_REGEX = Pattern.compile("^ALTER TABLE( .*)? ALTER COLUMN");
 
-    public RedshiftParser(Configuration configuration) {
-        super(configuration, 3);
+    public RedshiftParser(Configuration configuration, ParsingContext parsingContext) {
+        super(configuration, parsingContext, 3);
     }
 
     @Override

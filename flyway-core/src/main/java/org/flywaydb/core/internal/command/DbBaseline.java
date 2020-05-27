@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,7 @@ public class DbBaseline {
         try {
             if (!schemaHistory.exists()) {
                 schemaHistory.create(true);
+                LOG.info("Successfully baselined schema with version: " + baselineVersion);
             } else {
                 AppliedMigration baselineMarker = schemaHistory.getBaselineMarker();
                 if (baselineMarker != null) {
@@ -92,17 +93,24 @@ public class DbBaseline {
                     if (schemaHistory.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
                         throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " with version 0 as this version was used for schema creation");
                     }
+
                     if (schemaHistory.hasNonSyntheticAppliedMigrations()) {
                         throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations");
                     }
+
+                    if (schemaHistory.allAppliedMigrations().isEmpty()) {
+                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already exists, and is empty.\n" +
+                                "Delete the schema history table with the clean command, and run baseline again.");
+                    }
+
+                    throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations.\n" +
+                            "Delete the schema history table with the clean command, and run baseline again.");
                 }
             }
         } catch (FlywayException e) {
             callbackExecutor.onEvent(Event.AFTER_BASELINE_ERROR);
             throw e;
         }
-
-        LOG.info("Successfully baselined schema with version: " + baselineVersion);
 
         callbackExecutor.onEvent(Event.AFTER_BASELINE);
     }

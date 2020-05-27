@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,29 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+import org.flywaydb.core.internal.jdbc.Results;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Sybase ASE database.
  */
 public class SybaseASEDatabase extends Database<SybaseASEConnection> {
+    private static final Log LOG = LogFactory.getLog(SybaseASEDatabase.class);
+
+    private String databaseName = null;
+    private boolean supportsMultiStatementTransactions = false;
+
     /**
      * Creates a new Sybase ASE database.
      *
@@ -90,6 +100,13 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     }
 
     @Override
+    public boolean supportsEmptyMigrationDescription() {
+        // Sybase will convert the empty string to a single space implicitly, which won't error on updating the
+        // history table but will subsequently fail validation of the history table against the file name.
+        return false;
+    }
+
+    @Override
     public Delimiter getDefaultDelimiter() {
         return Delimiter.GO;
     }
@@ -130,4 +147,75 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
         return false;
     }
 
+    @Override
+    /**
+     * Multi statement transaction support is dependent on the 'ddl in tran' option being set.
+     * However, setting 'ddl in tran' doesn't necessarily mean that multi-statement transactions are supported.
+     * i.e.
+     *  - multi statement transaction support => ddl in tran
+     *  - ddl in tran =/> multi statement transaction support
+     * Also, ddl in tran can change during execution for unknown reasons.
+     * Therefore, as a best guess:
+     *  - When this method is called, check ddl in tran
+     *  - If ddl in tran is true, assume support for multi statement transactions forever more
+     *      - Never check ddl in tran again
+     *  - If ddl in tran is false, return false
+     *      - Check ddl in tran again on the next call
+     */
+    public boolean supportsMultiStatementTransactions() {
+        if (supportsMultiStatementTransactions) {
+            LOG.debug("ddl in tran was found to be true at some point during execution." +
+                    "Therefore multi statement transaction support is assumed.");
+            return true;
+        }
+
+        boolean ddlInTran = getDdlInTranOption();
+
+        if (ddlInTran) {
+            LOG.debug("ddl in tran is true. Multi statement transaction support is now assumed.");
+            supportsMultiStatementTransactions = true;
+        }
+
+        return supportsMultiStatementTransactions;
+    }
+
+    boolean getDdlInTranOption() {
+        try {
+            // http://infocenter.sybase.com/help/index.jsp?topic=/com.sybase.infocenter.dc36273.1600/doc/html/san1393052037182.html
+            String databaseName = getDatabaseName();
+            // The Sybase driver (v7.07) concatenates "null" to this query and we can't see why. By adding a one-line
+            // comment marker we can at least prevent this causing us problems until we get a resolution.
+            String getDatabaseMetadataQuery = "sp_helpdb " + databaseName + " -- ";
+            Results results = getMainConnection().getJdbcTemplate().executeStatement(getDatabaseMetadataQuery);
+            for (int resultsIndex = 0; resultsIndex < results.getResults().size(); resultsIndex++) {
+                List<String> columns = results.getResults().get(resultsIndex).getColumns();
+                if (columns != null) {
+                    int statusIndex = getStatusIndex(columns);
+                    if (statusIndex > -1) {
+                        String options = results.getResults().get(resultsIndex).getData().get(0).get(statusIndex);
+                        return (options.contains("ddl in tran"));
+                    }
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            throw new FlywayException(e);
+        }
+    }
+
+    private int getStatusIndex(List<String> columns) {
+        for (int statusIndex = 0; statusIndex < columns.size(); statusIndex++) {
+            if ("status".equals(columns.get(statusIndex))) {
+                return statusIndex;
+            }
+        }
+        return -1;
+    }
+
+    String getDatabaseName() throws SQLException {
+        if (databaseName == null) {
+            databaseName = getMainConnection().getJdbcTemplate().queryForString("select db_name()");
+        }
+        return databaseName;
+    }
 }

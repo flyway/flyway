@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,20 @@
 package org.flywaydb.core.internal.database.h2;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.parser.ParserContext;
-import org.flywaydb.core.internal.parser.PeekingReader;
-import org.flywaydb.core.internal.parser.Token;
-import org.flywaydb.core.internal.parser.TokenType;
+import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
 
 public class H2Parser extends Parser {
-    public H2Parser(Configuration configuration) {
-        super(configuration, 2);
+    public H2Parser(Configuration configuration, ParsingContext parsingContext) {
+        super(configuration, parsingContext, 2);
+    }
+
+    @Override
+    protected char getAlternativeIdentifierQuote() {
+        // Necessary for MySQL compatibility mode. We don't know the mode at this point so be generous and
+        // parse backticks even though they may not run on the database.
+        return '`';
     }
 
     @Override

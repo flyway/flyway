@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ public class FirebirdParser extends Parser {
 
     private static final String TERM_WITH_SPACES = " TERM ";
 
-    public FirebirdParser(Configuration configuration) {
-        super(configuration, 3);
+    public FirebirdParser(Configuration configuration, ParsingContext parsingContext) {
+        super(configuration, parsingContext, 3);
     }
 
     @Override

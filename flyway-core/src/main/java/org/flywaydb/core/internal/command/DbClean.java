@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-import org.flywaydb.core.internal.jdbc.TransactionTemplate;
 
 import java.util.concurrent.Callable;
 
@@ -64,6 +64,11 @@ public class DbClean {
     private boolean cleanDisabled;
 
     /**
+     * The database
+     */
+    private Database database;
+
+    /**
      * Creates a new database cleaner.
      *
      * @param database         The DB support for the connection.
@@ -74,6 +79,7 @@ public class DbClean {
      */
     public DbClean(Database database, SchemaHistory schemaHistory, Schema[] schemas,
                    CallbackExecutor callbackExecutor, boolean cleanDisabled) {
+        this.database = database;
         this.connection = database.getMainConnection();
         this.schemaHistory = schemaHistory;
         this.schemas = schemas;
@@ -101,6 +107,8 @@ public class DbClean {
                 LOG.error("Error while checking whether the schemas should be dropped", e);
             }
 
+            dropDatabaseObjectsPreSchemas();
+
             for (Schema schema : schemas) {
                 if (!schema.exists()) {
                     LOG.warn("Unable to clean unknown schema: " + schema);
@@ -113,6 +121,9 @@ public class DbClean {
                     cleanSchema(schema);
                 }
             }
+
+            dropDatabaseObjectsPostSchemas();
+
         } catch (FlywayException e) {
             callbackExecutor.onEvent(Event.AFTER_CLEAN_ERROR);
             throw e;
@@ -120,6 +131,60 @@ public class DbClean {
 
         callbackExecutor.onEvent(Event.AFTER_CLEAN);
         schemaHistory.clearCache();
+    }
+
+    /**
+     * Drops database-level objects that need to be cleaned prior to schema-level objects
+     *
+     * @throws FlywayException when the drop failed.
+     */
+    private void dropDatabaseObjectsPreSchemas() {
+        LOG.debug("Dropping pre-schema database level objects...");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        try {
+            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                    database).execute(new Callable<Object>() {
+                @Override
+                public Void call() {
+                    database.cleanPreSchemas();
+                    return null;
+                }
+            });
+        } catch (FlywaySqlException e) {
+            LOG.debug(e.getMessage());
+            LOG.warn("Unable to drop pre-schema database level objects");
+        }
+        stopWatch.stop();
+        LOG.info(String.format("Successfully dropped pre-schema database level objects (execution time %s)",
+                TimeFormat.format(stopWatch.getTotalTimeMillis())));
+    }
+
+    /**
+     * Drops database-level objects that need to be cleaned after all schema-level objects
+     *
+     * @throws FlywayException when the drop failed.
+     */
+    private void dropDatabaseObjectsPostSchemas() {
+        LOG.debug("Dropping post-schema database level objects...");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        try {
+            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                    database).execute(new Callable<Object>() {
+                @Override
+                public Void call() {
+                    database.cleanPostSchemas();
+                    return null;
+                }
+            });
+        } catch (FlywaySqlException e) {
+            LOG.debug(e.getMessage());
+            LOG.warn("Unable to drop post-schema database level objects");
+        }
+        stopWatch.stop();
+        LOG.info(String.format("Successfully dropped post-schema database level objects (execution time %s)",
+                TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 
     /**
@@ -133,7 +198,8 @@ public class DbClean {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
-            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                    database).execute(new Callable<Object>() {
                 @Override
                 public Void call() {
                     schema.drop();
@@ -143,7 +209,8 @@ public class DbClean {
         } catch (FlywaySqlException e) {
             LOG.debug(e.getMessage());
             LOG.warn("Unable to drop schema " + schema + ". Attempting clean instead...");
-            new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                    database).execute(new Callable<Object>() {
                 @Override
                 public Void call() {
                     schema.clean();
@@ -166,7 +233,8 @@ public class DbClean {
         LOG.debug("Cleaning schema " + schema + " ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Object>() {
+        ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                database).execute(new Callable<Object>() {
             @Override
             public Void call() {
                 schema.clean();

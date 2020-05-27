@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,14 @@
 package org.flywaydb.core.internal.database.cockroachdb;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.parser.ParserContext;
-import org.flywaydb.core.internal.parser.PeekingReader;
-import org.flywaydb.core.internal.parser.Token;
-import org.flywaydb.core.internal.parser.TokenType;
+import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
+import java.util.List;
 
 public class CockroachDBParser extends Parser {
-    public CockroachDBParser(Configuration configuration) {
-        super(configuration, 3);
+    public CockroachDBParser(Configuration configuration, ParsingContext parsingContext) {
+        super(configuration, parsingContext, 3);
     }
 
     @Override
@@ -41,5 +38,10 @@ public class CockroachDBParser extends Parser {
         reader.swallowUntilExcluding(dollarQuote);
         reader.swallow(dollarQuote.length());
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
+    }
+
+    @Override
+    protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
+        return false;
     }
 }

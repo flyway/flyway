@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.commandline.ConsoleLog.Level;
+import org.flywaydb.commandline.CommandLineArguments.Color;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 
@@ -23,26 +23,26 @@ import org.flywaydb.core.api.logging.LogCreator;
  * Log Creator for the Command-Line console.
  */
 class ConsoleLogCreator implements LogCreator {
-    private final Level level;
+    private final CommandLineArguments commandLineArguments;
 
     /**
      * Creates a new Console Log Creator.
      *
-     * @param level The minimum level to log at.
+     * @param commandLineArguments The command line arguments.
      */
-    public ConsoleLogCreator(Level level) {
-        this.level = level;
+    ConsoleLogCreator(CommandLineArguments commandLineArguments) {
+        this.commandLineArguments = commandLineArguments;
     }
 
     public Log createLogger(Class<?> clazz) {
-        ConsoleLog log = new ConsoleLog(level);
+        ConsoleLog log = new ConsoleLog(commandLineArguments.getLogLevel());
+        Color color = commandLineArguments.getColor();
 
-        // We don't want colorized output when there's no console (for example, in a redirect)
-        if (System.console() == null) {
+        if (Color.NEVER.equals(color) || (Color.AUTO.equals(color) && System.console() == null)) {
             return log;
         }
 
-        ColorizedConsoleLog.install();
+        ColorizedConsoleLog.install(Color.ALWAYS.equals(color));
         return new ColorizedConsoleLog(log);
     }
 }

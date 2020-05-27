@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ import java.util.concurrent.Callable;
 public class SQLServerConnection extends Connection<SQLServerDatabase> {
     private final String originalDatabaseName;
     private final String originalAnsiNulls;
+    private final boolean azure;
+    private final SQLServerEngineEdition engineEdition;
 
     SQLServerConnection(SQLServerDatabase database, java.sql.Connection connection) {
         super(database, connection);
@@ -37,8 +39,25 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine current database", e);
         }
+
         try {
-            originalAnsiNulls = database.isAzure() ? null :
+            azure = "SQL Azure".equals(getJdbcTemplate().queryForString(
+                    "SELECT CAST(SERVERPROPERTY('edition') AS VARCHAR)"));
+        }
+        catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine database edition.'", e);
+        }
+
+        try {
+            engineEdition = SQLServerEngineEdition.fromCode(getJdbcTemplate().queryForInt(
+                    "SELECT SERVERPROPERTY('engineedition')"));
+        }
+        catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine database engine edition.'", e);
+        }
+
+        try {
+            originalAnsiNulls = azure ? null :
                     jdbcTemplate.queryForString("DECLARE @ANSI_NULLS VARCHAR(3) = 'OFF';\n" +
                             "IF ( (32 & @@OPTIONS) = 32 ) SET @ANSI_NULLS = 'ON';\n" +
                             "SELECT @ANSI_NULLS AS ANSI_NULLS;");
@@ -48,7 +67,9 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     }
 
     void setCurrentDatabase(String databaseName) throws SQLException {
-        jdbcTemplate.execute("USE " + database.quote(databaseName));
+        if (!azure) {
+            jdbcTemplate.execute("USE " + database.quote(databaseName));
+        }
     }
 
 
@@ -60,7 +81,7 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     @Override
     protected void doRestoreOriginalState() throws SQLException {
         setCurrentDatabase(originalDatabaseName);
-        if (!database.isAzure()) {
+        if (!azure) {
             jdbcTemplate.execute("SET ANSI_NULLS " + originalAnsiNulls);
         }
     }
@@ -74,4 +95,8 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     public <T> T lock(Table table, Callable<T> callable) {
         return new SQLServerApplicationLockTemplate(this, jdbcTemplate, originalDatabaseName, table.toString().hashCode()).execute(callable);
     }
+
+    public Boolean isAzureConnection() { return azure; }
+
+    public SQLServerEngineEdition getEngineEdition() { return engineEdition; }
 }

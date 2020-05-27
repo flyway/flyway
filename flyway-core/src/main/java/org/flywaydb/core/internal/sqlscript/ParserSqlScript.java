@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ public class ParserSqlScript implements SqlScript {
      */
     protected final LoadableResource resource;
 
+    private final SqlScriptMetadata metadata;
     protected final Parser parser;
     private final boolean mixed;
     private boolean parsed;
@@ -60,11 +61,13 @@ public class ParserSqlScript implements SqlScript {
     /**
      * Creates a new sql script from this source.
      *
-     * @param resource The sql script resource.
-     * @param mixed    Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * @param resource         The sql script resource.
+     * @param metadataResource The sql script metadata resource.
+     * @param mixed            Whether to allow mixing transactional and non-transactional statements within the same migration.
      */
-    public ParserSqlScript(Parser parser, LoadableResource resource, boolean mixed) {
+    public ParserSqlScript(Parser parser, LoadableResource resource, LoadableResource metadataResource, boolean mixed) {
         this.resource = resource;
+        this.metadata = SqlScriptMetadata.fromResource(metadataResource);
         this.parser = parser;
 
 
@@ -93,7 +96,7 @@ public class ParserSqlScript implements SqlScript {
                     nonTransactionalStatementFound = true;
                 }
 
-                if (!mixed && transactionalStatementFound && nonTransactionalStatementFound) {
+                if (!mixed && transactionalStatementFound && nonTransactionalStatementFound && metadata.executeInTransaction() == null) {
                     throw new FlywayException(
                             "Detected both transactional and non-transactional statements within the same migration"
                                     + " (even though mixed is false). Offending statement found at line "
@@ -184,6 +187,12 @@ public class ParserSqlScript implements SqlScript {
 
     @Override
     public boolean executeInTransaction() {
+        Boolean executeInTransactionOverride = metadata.executeInTransaction();
+        if (executeInTransactionOverride != null) {
+            LOG.debug("Using executeInTransaction=" + executeInTransactionOverride + " from script configuration");
+            return executeInTransactionOverride;
+        }
+
         validate();
 
         return !nonTransactionalStatementFound;

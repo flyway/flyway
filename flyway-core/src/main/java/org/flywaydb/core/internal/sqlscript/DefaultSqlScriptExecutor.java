@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -245,19 +245,20 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
                 handleUpdateCount(updateCount);
             }
 
-            if (
+            outputQueryResult(result);
 
-
-
-                    result.getColumns() != null) {
-                outputQueryResult(result);
-            }
         }
     }
 
     protected void outputQueryResult(Result result) {
-        LOG.info(new AsciiTable(result.getColumns(), result.getData(),
-                true, "", "No rows returned").render());
+        if (
+
+
+
+                result.getColumns() != null) {
+            LOG.info(new AsciiTable(result.getColumns(), result.getData(),
+                    true, "", "No rows returned").render());
+        }
     }
 
     private void handleUpdateCount(long updateCount) {

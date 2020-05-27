@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ public class MigrationInfoHelper {
     public static Pair<MigrationVersion, String> extractVersionAndDescription(String migrationName,
                                                                               String prefix, String separator,
                                                                               String[] suffixes, boolean repeatable) {
+        // Only handles Java migrations now
         String cleanMigrationName = cleanMigrationName(migrationName, prefix, suffixes);
 
         int separatorPos = cleanMigrationName.indexOf(separator);
@@ -63,14 +64,20 @@ public class MigrationInfoHelper {
         if (StringUtils.hasText(version)) {
             if (repeatable) {
                 throw new FlywayException("Wrong repeatable migration name format: " + migrationName
-                        + "(It cannot contain a version and should look like this: "
+                        + " (It cannot contain a version and should look like this: "
                         + prefix + separator + description + suffixes[0] + ")");
             }
-            return Pair.of(MigrationVersion.fromVersion(version), description);
+            try {
+                return Pair.of(MigrationVersion.fromVersion(version), description);
+            } catch (Exception e) {
+                throw new FlywayException("Wrong versioned migration name format: " + migrationName
+                        + " (could not recognise version number " + version + ")", e);
+            }
         }
+
         if (!repeatable) {
             throw new FlywayException("Wrong versioned migration name format: " + migrationName
-                    + "(It must contain a version and should look like this: "
+                    + " (It must contain a version and should look like this: "
                     + prefix + "1.2" + separator + description + suffixes[0] + ")");
         }
         return Pair.of(null, description);

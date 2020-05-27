@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 package org.flywaydb.core.internal.parser;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 
 import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.Map;
 
 public class PlaceholderReplacingReader extends FilterReader {
@@ -53,9 +55,25 @@ public class PlaceholderReplacingReader extends FilterReader {
         int minReplacementLength = Integer.MAX_VALUE;
         for (Map.Entry<String, String> entry : placeholders.entrySet()) {
             maxPlaceholderLength = Math.max(maxPlaceholderLength, prefixSuffixLength + entry.getKey().length());
-            minReplacementLength = Math.min(minReplacementLength, entry.getValue().length());
+            int valueLength = (entry.getValue() != null) ? entry.getValue().length() : 0;
+            minReplacementLength = Math.min(minReplacementLength, valueLength);
         }
         readAheadLimitAdjustment = Math.max(maxPlaceholderLength - minReplacementLength, 0);
+    }
+
+    public static PlaceholderReplacingReader create(Configuration configuration, ParsingContext parsingContext, Reader reader) {
+        Map<String, String> placeholders = new HashMap<>();
+        Map<String, String> configurationPlaceholders = configuration.getPlaceholders();
+        Map<String, String> parsingContextPlaceholders = parsingContext.getPlaceholders();
+
+        placeholders.putAll(configurationPlaceholders);
+        placeholders.putAll(parsingContextPlaceholders);
+
+        return new PlaceholderReplacingReader(
+                configuration.getPlaceholderPrefix(),
+                configuration.getPlaceholderSuffix(),
+                placeholders,
+                reader);
     }
 
     @Override
@@ -86,28 +104,38 @@ public class PlaceholderReplacingReader extends FilterReader {
             }
             buffer.delete(0, buffer.length());
 
-            StringBuilder placeholder = new StringBuilder();
+            StringBuilder placeholderBuilder = new StringBuilder();
             do {
                 int r1 = in.read();
                 if (r1 == -1) {
                     break;
                 } else {
-                    placeholder.append((char) r1);
+                    placeholderBuilder.append((char) r1);
                 }
-            } while (!endsWith(placeholder, suffix));
+            } while (!endsWith(placeholderBuilder, suffix));
             for (int i = 0; i < suffix.length(); i++) {
-                placeholder.deleteCharAt(placeholder.length() - 1);
+                placeholderBuilder.deleteCharAt(placeholderBuilder.length() - 1);
             }
 
-            replacement = placeholders.get(placeholder.toString());
-            if (replacement == null) {
+
+            String placeholder = placeholderBuilder.toString();
+            if (!placeholders.containsKey(placeholder)) {
+                String canonicalPlaceholder = prefix + placeholder + suffix;
+
+                if (placeholder.contains("flyway:")) {
+                    throw new FlywayException("Failed to populate value for default placeholder: "
+                            + canonicalPlaceholder);
+                }
+
                 throw new FlywayException("No value provided for placeholder: "
-                        + prefix + placeholder + suffix
+                        + canonicalPlaceholder
                         + ".  Check your configuration!");
             }
 
+            replacement = placeholders.get(placeholder);
+
             // Empty placeholder value -> move to the next character
-            if (replacement.length() == 0) {
+            if (replacement == null || replacement.length() == 0) {
                 replacement = null;
                 return read();
             }

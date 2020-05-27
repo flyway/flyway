@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.flywaydb.core.api.executor.MigrationExecutor;
 /**
  * Migration resolved through a MigrationResolver. Can be applied against a database.
  */
-public interface ResolvedMigration {
+public interface ResolvedMigration extends ChecksumMatcher {
     /**
      * @return The version of the database after applying this migration. {@code null} for repeatable migrations.
      */

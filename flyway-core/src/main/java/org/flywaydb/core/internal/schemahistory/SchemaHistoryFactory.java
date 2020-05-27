@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ public class SchemaHistoryFactory {
         Table table = schema.getTable(configuration.getTable());
         JdbcTableSchemaHistory jdbcTableSchemaHistory =
                 new JdbcTableSchemaHistory(sqlScriptExecutorFactory, sqlScriptFactory, database, table);
+
 
 
 

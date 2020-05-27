@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
                         + "(SELECT 1 as found FROM information_schema.tables WHERE table_schema=?) UNION ALL "
                         + "(SELECT 1 as found FROM information_schema.views WHERE table_schema=? LIMIT 1) UNION ALL "
                         + "(SELECT 1 as found FROM information_schema.table_constraints WHERE table_schema=? LIMIT 1) UNION ALL "
-                        + "(SELECT 1 as found FROM information_schema.triggers WHERE trigger_schema=? LIMIT 1) UNION ALL "
+                        + "(SELECT 1 as found FROM information_schema.triggers WHERE event_object_schema=?  LIMIT 1) UNION ALL "
                         + "(SELECT 1 as found FROM information_schema.routines WHERE routine_schema=? LIMIT 1)"
                         // #2410 Unlike MySQL, MariaDB 10.0 and newer don't allow the events table to be queried
                         // when the event scheduled is DISABLED or in some rare cases OFF
@@ -185,7 +185,7 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
     protected MySQLTable[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema=?" +
-                        " AND table_type='BASE TABLE'", name);
+                        " AND table_type IN ('BASE TABLE', 'SYSTEM VERSIONED')", name);
 
         MySQLTable[] tables = new MySQLTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {

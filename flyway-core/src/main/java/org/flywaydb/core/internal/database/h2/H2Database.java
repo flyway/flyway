@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,8 +124,8 @@ public class H2Database extends Database<H2Connection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("1.4", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("1.4.199");
-        supportsDropSchemaCascade = getVersion().isAtLeast("1.4.199");
+        recommendFlywayUpgradeIfNecessary("1.4.200");
+        supportsDropSchemaCascade = getVersion().isAtLeast("1.4.200");
     }
 
     @Override

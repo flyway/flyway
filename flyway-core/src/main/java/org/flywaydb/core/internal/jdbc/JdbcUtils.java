@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2019 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,11 @@ public class JdbcUtils {
             try {
                 return dataSource.getConnection();
             } catch (SQLException e) {
+                if ("08S01".equals(e.getSQLState()) && e.getMessage().contains("This driver is not configured for integrated authentication")) {
+                    throw new FlywaySqlException("Unable to obtain connection from database"
+                            + getDataSourceInfo(dataSource) + ": " + e.getMessage() + "\nTo setup integrated authentication see https://flywaydb.org/documentation/database/sqlserver#windows-authentication--azure-active-directory", e);
+                }
+
                 if (++retries > connectRetries) {
                     throw new FlywaySqlException("Unable to obtain connection from database"
                             + getDataSourceInfo(dataSource) + ": " + e.getMessage(), e);
