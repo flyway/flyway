@@ -245,7 +245,7 @@ public class JdbcTemplate {
             } finally {
                 extractWarnings(results, statement);
             }
-            extractResults(results, statement, hasResults);
+            extractResults(results, statement, sql, hasResults);
         } catch (final SQLException e) {
             extractErrors(results, e);
         } finally {
@@ -287,7 +287,7 @@ public class JdbcTemplate {
         results.setException(e);
     }
 
-    private void extractResults(Results results, Statement statement, boolean hasResults) throws SQLException {
+    private void extractResults(Results results, Statement statement, String sql, boolean hasResults) throws SQLException {
         // retrieve all results to ensure all errors are detected
         int updateCount = -1;
         while (hasResults || (updateCount = statement.getUpdateCount()) != -1) {
@@ -312,7 +312,7 @@ public class JdbcTemplate {
                     }
                 }
             }
-            results.addResult(new Result(updateCount, columns, data));
+            results.addResult(new Result(updateCount, columns, data, sql));
             hasResults = statement.getMoreResults();
         }
     }
@@ -387,6 +387,8 @@ public class JdbcTemplate {
 
         return results;
     }
+
+
 
 
 

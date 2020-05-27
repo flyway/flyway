@@ -245,19 +245,20 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
                 handleUpdateCount(updateCount);
             }
 
-            if (
+            outputQueryResult(result);
 
-
-
-                    result.getColumns() != null) {
-                outputQueryResult(result);
-            }
         }
     }
 
     protected void outputQueryResult(Result result) {
-        LOG.info(new AsciiTable(result.getColumns(), result.getData(),
-                true, "", "No rows returned").render());
+        if (
+
+
+
+                result.getColumns() != null) {
+            LOG.info(new AsciiTable(result.getColumns(), result.getData(),
+                    true, "", "No rows returned").render());
+        }
     }
 
     private void handleUpdateCount(long updateCount) {
