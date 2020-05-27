@@ -89,7 +89,7 @@ public class PostgreSQLCopyParsedStatement extends ParsedSqlStatement {
         try {
             try {
                 Long updateCount = (Long) copyManagerCopyInMethod.invoke(copyManager, getSql(), new StringReader(copyData));
-                results.addResult(new Result(updateCount, null, null));
+                results.addResult(new Result(updateCount, null, null, getSql()));
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new SQLException("Unable to execute COPY operation", e);
             }
