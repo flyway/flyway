@@ -22,7 +22,9 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.internal.clazz.ClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.util.ClassUtils;
 
 import javax.sql.DataSource;
@@ -289,6 +291,16 @@ public class FluentConfiguration implements Configuration {
     @Override
     public String getLicenseKey() {
         return config.getLicenseKey();
+    }
+
+    @Override
+    public ResourceProvider getResourceProvider() {
+        return config.getResourceProvider();
+    }
+
+    @Override
+    public ClassProvider<JavaMigration> getJavaMigrationClassProvider() {
+        return config.getJavaMigrationClassProvider();
     }
 
     @Override
@@ -1026,6 +1038,26 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration licenseKey(String licenseKey) {
         config.setLicenseKey(licenseKey);
+        return this;
+    }
+
+    /**
+     * Custom ResourceProvider to be used to look up resources. If not set, the default strategy will be used.
+     *
+     * @param resourceProvider Custom ResourceProvider to be used to look up resources
+     */
+    public FluentConfiguration resourceProvider(ResourceProvider resourceProvider) {
+        config.setResourceProvider(resourceProvider);
+        return this;
+    }
+
+    /**
+     * Custom ClassProvider to be used to look up {@link JavaMigration} classes. If not set, the default strategy will be used.
+     *
+     * @param javaMigrationClassProvider Custom ClassProvider to be used to look up {@link JavaMigration} classes.
+     */
+    public FluentConfiguration javaMigrationClassProvider(ClassProvider<JavaMigration> javaMigrationClassProvider) {
+        config.setJavaMigrationClassProvider(javaMigrationClassProvider);
         return this;
     }
 

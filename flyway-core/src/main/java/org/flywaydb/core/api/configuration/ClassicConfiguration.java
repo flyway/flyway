@@ -24,9 +24,11 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.internal.clazz.ClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.Edition;
+import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -187,10 +189,16 @@ public class ClassicConfiguration implements Configuration {
     private String sqlMigrationPrefix = "V";
 
 
+    /**
+     * Custom Resource provider to use when looking up resources
+     */
+    private ResourceProvider resourceProvider = null;
 
 
-
-
+    /**
+     * Custom ClassProvider for looking up JavaMigration classes
+     */
+    private ClassProvider<JavaMigration> javaMigrationClassProvider = null;
 
 
 
@@ -705,6 +713,16 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+    }
+
+    @Override
+    public ResourceProvider getResourceProvider() {
+        return resourceProvider;
+    }
+
+    @Override
+    public ClassProvider<JavaMigration> getJavaMigrationClassProvider() {
+        return javaMigrationClassProvider;
     }
 
     /**
@@ -1588,6 +1606,14 @@ public class ClassicConfiguration implements Configuration {
 
     }
 
+    public void setResourceProvider(ResourceProvider resourceProvider) {
+        this.resourceProvider = resourceProvider;
+    }
+
+    public void setJavaMigrationClassProvider(ClassProvider<JavaMigration> javaMigrationClassProvider) {
+        this.javaMigrationClassProvider = javaMigrationClassProvider;
+    }
+
     /**
      * Configure with the same values as this existing configuration.
      *
@@ -1643,6 +1669,8 @@ public class ClassicConfiguration implements Configuration {
         setTablespace(configuration.getTablespace());
         setTarget(configuration.getTarget());
         setValidateOnMigrate(configuration.isValidateOnMigrate());
+        setResourceProvider(configuration.getResourceProvider());
+        setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
     }
 
     /**
