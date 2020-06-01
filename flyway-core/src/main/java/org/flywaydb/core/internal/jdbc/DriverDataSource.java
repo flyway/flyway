@@ -321,6 +321,8 @@ public class DriverDataSource implements DataSource {
             result.put("v$session.osuser", osUser.substring(0, Math.min(osUser.length(), 30)));
             result.put("v$session.program", APPLICATION_NAME);
             result.put("oracle.net.keepAlive", "true");
+            String oobb = ClassUtils.getStaticFieldValue("oracle.jdbc.OracleConnection", "CONNECTION_PROPERTY_THIN_NET_DISABLE_OUT_OF_BAND_BREAK", classLoader);
+            result.put(oobb, "true");
         } else if (DriverType.SQLSERVER.equals(type)) {
             result.put("applicationName", APPLICATION_NAME);
         } else if (DriverType.POSTGRESQL.equals(type)) {

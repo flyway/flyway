@@ -20,6 +20,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -194,5 +195,25 @@ public class ClassUtils {
             }
         }
         return new URLClassLoader(urls.toArray(new URL[0]), classLoader);
+    }
+
+
+    /**
+     * Gets the String value of a static field.
+     *
+     * @param className   The fully qualified name of the class to instantiate.
+     * @param classLoader The ClassLoader to use.
+     * @param fieldName   The field name
+     * @return The value of the field.
+     * @throws FlywayException Thrown when the instantiation failed.
+     */
+    public static String getStaticFieldValue(String className, String fieldName, ClassLoader classLoader) {
+        try {
+            Class clazz = Class.forName(className, true, classLoader);
+            Field field = clazz.getField(fieldName);
+            return (String)field.get(null);
+        } catch (Exception e) {
+            throw new FlywayException("Unable to obtain field value " + className + "." + fieldName + " : " + e.getMessage(), e);
+        }
     }
 }
