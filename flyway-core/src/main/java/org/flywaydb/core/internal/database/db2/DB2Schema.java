@@ -133,6 +133,11 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
             jdbcTemplate.execute(dropStatement);
         }
 
+        // modules
+        for (String dropStatement : generateDropStatementsForModules()) {
+            jdbcTemplate.execute(dropStatement);
+        }
+
         for (Function function : allFunctions()) {
             function.drop();
         }
@@ -198,6 +203,16 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
                 ;
 
         return buildDropStatements("DROP VIEW", dropSeqGenQuery);
+    }
+
+    private List<String> generateDropStatementsForModules() throws SQLException {
+        String dropSeqGenQuery =
+                "select MODULENAME from syscat.modules where MODULESCHEMA = '"
+                + name
+                + "' and OWNERTYPE='U'";
+
+
+        return buildDropStatements("DROP MODULE", dropSeqGenQuery);
     }
 
     /**
