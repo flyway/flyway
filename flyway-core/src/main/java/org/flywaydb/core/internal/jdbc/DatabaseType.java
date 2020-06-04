@@ -38,6 +38,7 @@ public enum DatabaseType {
     FIREBIRD("Firebird", Types.NULL, true), // TODO does it support read only transactions?
     H2("H2", Types.VARCHAR, true),
     HSQLDB("HSQLDB", Types.VARCHAR, true),
+    IGNITE_THIN("Apache Ignite", Types.VARCHAR, true),
     INFORMIX("Informix", Types.VARCHAR, true),
     MARIADB("MariaDB", Types.VARCHAR, true),
     MYSQL("MySQL", Types.VARCHAR, true),
@@ -133,6 +134,9 @@ public enum DatabaseType {
         }
         if (databaseProductName.startsWith("HDB")) {
             return SAPHANA;
+        }
+        if (databaseProductName.startsWith("Apache Ignite")) {
+            return IGNITE_THIN;
         }
         if (databaseProductName.startsWith("Informix")) {
             return INFORMIX;

@@ -51,6 +51,7 @@ public class DriverDataSource implements DataSource {
         FIREBIRD_SQL("jdbc:firebirdsql:", "org.firebirdsql.jdbc.FBDriver"),
         H2("jdbc:h2:", "org.h2.Driver"),
         HSQL("jdbc:hsqldb:", "org.hsqldb.jdbcDriver"),
+        IGNITE_THIN("jdbc:ignite:thin:","org.apache.ignite.IgniteJdbcThinDriver"),
         INFORMIX("jdbc:informix-sqli:", "com.informix.jdbc.IfxDriver"),
         JTDS("jdbc:jtds:", "net.sourceforge.jtds.jdbc.Driver"),
         MARIADB("jdbc:mariadb:", "org.mariadb.jdbc.Driver"),
