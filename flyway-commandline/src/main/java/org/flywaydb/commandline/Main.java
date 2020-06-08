@@ -29,6 +29,7 @@ import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.output.ErrorOutput;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.*;
@@ -460,11 +461,14 @@ public class Main {
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
                 LOG.debug("Attempting to load configuration from standard input");
-                bufferedReader.mark(0);
+                int firstCharacter = bufferedReader.read();
 
-                if (bufferedReader.ready() && bufferedReader.read() != -1) {
-                    bufferedReader.reset();
-                    Map<String, String> configurationFromStandardInput = ConfigUtils.readConfiguration(bufferedReader);
+                if (bufferedReader.ready() && firstCharacter != -1) {
+                    // Prepend the first character to the rest of the string
+                    // This is a char, represented as an int, so we cast to a char
+                    // which is implicitly converted to an string
+                    String configurationString = (char)firstCharacter + FileCopyUtils.copyToString(bufferedReader);
+                    Map<String, String> configurationFromStandardInput = ConfigUtils.loadConfigurationFromString(configurationString);
 
                     if (configurationFromStandardInput.isEmpty()) {
                         LOG.debug("Empty configuration provided from standard input");
