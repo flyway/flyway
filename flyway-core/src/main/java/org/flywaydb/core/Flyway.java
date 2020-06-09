@@ -585,7 +585,7 @@ public class Flyway {
             schemas.add(currentSchema);
         } else {
             for (String schemaName : schemaNames) {
-                    schemas.add(database.getMainConnection().getSchema(schemaName));
+                schemas.add(database.getMainConnection().getSchema(schemaName));
             }
         }
 

@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.command;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Connection;
@@ -82,6 +83,10 @@ public class DbSchemas {
                         List<Schema> createdSchemas = new ArrayList<>();
                         for (Schema schema : schemas) {
                             if (!schema.exists()) {
+                                if (schema.getName() == null) {
+                                    throw new FlywayException("Unable to determine schema for the schema history table." +
+                                            " Set a default schema for the connection or specify one using the defaultSchema property!");
+                                }
                                 LOG.debug("Creating schema: " + schema);
                                 schema.create();
                                 createdSchemas.add(schema);
