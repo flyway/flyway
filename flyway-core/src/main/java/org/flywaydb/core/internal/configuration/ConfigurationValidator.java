@@ -19,6 +19,8 @@ import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 
+import java.util.Locale;
+
 public class ConfigurationValidator {
     public void validate(Configuration configuration) {
 
@@ -37,7 +39,7 @@ public class ConfigurationValidator {
         }
 
         for (String key : configuration.getPlaceholders().keySet()) {
-            if (key.toLowerCase().startsWith("flyway:")) {
+            if (key.toLowerCase(Locale.ENGLISH).startsWith("flyway:")) {
                 throw new FlywayException("Invalid placeholder ('flyway:' prefix is reserved): " + key);
             }
         }

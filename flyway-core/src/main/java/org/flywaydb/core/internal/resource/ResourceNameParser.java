@@ -125,7 +125,6 @@ public class ResourceNameParser {
     private List<Pair<String, ResourceType>> populatePrefixes(Configuration configuration) {
         List<Pair<String, ResourceType>> prefixes = new ArrayList<>();
 
-        List<String> versionedPrefixes = new ArrayList<>();
         prefixes.add(Pair.of(configuration.getSqlMigrationPrefix(), ResourceType.MIGRATION));
 
 

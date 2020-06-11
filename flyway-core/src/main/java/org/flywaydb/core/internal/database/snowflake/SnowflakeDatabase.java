@@ -27,6 +27,7 @@ import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class SnowflakeDatabase extends Database<SnowflakeConnection> {
@@ -63,7 +64,7 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
             // Attempt query
             List<Map<String, String>> result = jdbcTemplate.queryForList("SHOW PARAMETERS LIKE 'QUOTED_IDENTIFIERS_IGNORE_CASE'");
             Map<String, String> row = result.get(0);
-            return "TRUE".equals(row.get("value").toUpperCase());
+            return "TRUE".equals(row.get("value").toUpperCase(Locale.ENGLISH));
         } catch (SQLException e) {
             LOG.warn("Could not query for parameter QUOTED_IDENTIFIERS_IGNORE_CASE.");
             return false;

@@ -26,7 +26,7 @@ public class LogFactory {
     /**
      * Factory for implementation-specific loggers.
      */
-    private static LogCreator logCreator;
+    private static volatile LogCreator logCreator;
 
     /**
      * The factory for implementation-specific loggers to be used as a fallback when no other suitable loggers were found.

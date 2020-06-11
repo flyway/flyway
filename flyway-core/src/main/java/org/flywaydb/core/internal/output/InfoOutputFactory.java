@@ -21,6 +21,8 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.license.VersionPrinter;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -56,7 +58,10 @@ public class InfoOutputFactory {
 
     private String getDatabaseName(Configuration configuration) {
         try {
-            return configuration.getDataSource().getConnection().getCatalog();
+            Connection connection = configuration.getDataSource().getConnection();
+            String catalog = connection.getCatalog();
+            connection.close();
+            return catalog;
         } catch (Exception e) {
             return "";
         }
@@ -76,17 +81,17 @@ public class InfoOutputFactory {
     }
 
     private String join(String joiner, String[] strings) {
-        String output = "";
-
         if (strings.length == 1) {
             return strings[0];
         }
 
+        StringBuilder output = new StringBuilder();
+
         for(String s : strings) {
-            output += s + joiner;
+            output.append(s).append(joiner);
         }
 
-        return output;
+        return output.toString();
     }
 
 
