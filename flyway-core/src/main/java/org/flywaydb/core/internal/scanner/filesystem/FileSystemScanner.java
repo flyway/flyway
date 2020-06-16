@@ -20,6 +20,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
+import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -33,7 +34,7 @@ import java.util.TreeSet;
  */
 public class FileSystemScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
-    private final Charset encoding;
+    private final Charset defaultEncoding;
 
 
 
@@ -52,7 +53,7 @@ public class FileSystemScanner {
 
 
     ) {
-        this.encoding = encoding;
+        this.defaultEncoding = encoding;
 
 
 
@@ -86,14 +87,29 @@ public class FileSystemScanner {
         Set<LoadableResource> resources = new TreeSet<>();
 
         for (String resourceName : findResourceNamesFromFileSystem(path, new File(path))) {
-
             if (location.matchesPath(resourceName)) {
+                Charset encoding = defaultEncoding;
+                String encodingBlurb = "";
+                if (new File(resourceName + ".conf").exists()) {
+                    LoadableResource metadataResource = new FileSystemResource(location, resourceName + ".conf", defaultEncoding
+
+
+
+                    );
+                    SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource);
+                    if (metadata.encoding() != null) {
+                        encoding = Charset.forName(metadata.encoding());
+                        encodingBlurb = " (with overriding encoding " + encoding + ")";
+                    }
+                }
                 resources.add(new FileSystemResource(location, resourceName, encoding
 
 
 
                 ));
-                LOG.debug("Found filesystem resource: " + resourceName);
+
+
+                LOG.debug("Found filesystem resource: " + resourceName + encodingBlurb);
             }
         }
 
