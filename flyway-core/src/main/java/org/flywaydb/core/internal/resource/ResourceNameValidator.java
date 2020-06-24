@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.resource;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;

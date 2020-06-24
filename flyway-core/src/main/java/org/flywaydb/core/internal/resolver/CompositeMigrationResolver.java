@@ -22,12 +22,12 @@ import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.clazz.ClassProvider;
+import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resolver.java.FixedJavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.java.ScanningJavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
-import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 

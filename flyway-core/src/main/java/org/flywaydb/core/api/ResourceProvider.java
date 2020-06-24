@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.resource;
+package org.flywaydb.core.api;
+
+import org.flywaydb.core.internal.resource.LoadableResource;
 
 import java.util.Collection;
 

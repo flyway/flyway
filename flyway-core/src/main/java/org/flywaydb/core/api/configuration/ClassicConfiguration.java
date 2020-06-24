@@ -24,11 +24,11 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.internal.clazz.ClassProvider;
+import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.license.Edition;
-import org.flywaydb.core.internal.resource.ResourceProvider;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -189,6 +189,16 @@ public class ClassicConfiguration implements Configuration {
     private String sqlMigrationPrefix = "V";
 
 
+
+
+
+
+
+
+
+
+
+
     /**
      * Custom Resource provider to use when looking up resources
      */
@@ -199,11 +209,6 @@ public class ClassicConfiguration implements Configuration {
      * Custom ClassProvider for looking up JavaMigration classes
      */
     private ClassProvider<JavaMigration> javaMigrationClassProvider = null;
-
-
-
-
-
 
     /**
      * The file name prefix for repeatable SQL migrations. (default: R)
@@ -715,16 +720,6 @@ public class ClassicConfiguration implements Configuration {
 
     }
 
-    @Override
-    public ResourceProvider getResourceProvider() {
-        return resourceProvider;
-    }
-
-    @Override
-    public ClassProvider<JavaMigration> getJavaMigrationClassProvider() {
-        return javaMigrationClassProvider;
-    }
-
     /**
      * Whether Flyway should output a table with the results of queries when executing migrations.
      *
@@ -740,6 +735,16 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+    }
+
+    @Override
+    public ResourceProvider getResourceProvider() {
+        return resourceProvider;
+    }
+
+    @Override
+    public ClassProvider<JavaMigration> getJavaMigrationClassProvider() {
+        return javaMigrationClassProvider;
     }
 
     /**
@@ -1598,8 +1603,9 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLicenseKey(String licenseKey) {
 
-          LOG.warn(Edition.PRO + " or " + Edition.ENTERPRISE + " upgrade required: " + licenseKey
-            + " is not supported by " + Edition.COMMUNITY + ".");
+         LOG.warn(Edition.PRO + " or " + Edition.ENTERPRISE + " upgrade required: " + licenseKey
+         + " is not supported by " + Edition.COMMUNITY + ".");
+
 
 
 

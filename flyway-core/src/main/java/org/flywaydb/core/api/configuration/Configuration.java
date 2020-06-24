@@ -20,8 +20,8 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.internal.clazz.ClassProvider;
-import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.api.ClassProvider;
+import org.flywaydb.core.api.ResourceProvider;
 
 import javax.sql.DataSource;
 import java.io.OutputStream;

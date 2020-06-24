@@ -15,13 +15,12 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -22,16 +22,15 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.internal.clazz.ClassProvider;
+import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.util.ClassUtils;
 
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 

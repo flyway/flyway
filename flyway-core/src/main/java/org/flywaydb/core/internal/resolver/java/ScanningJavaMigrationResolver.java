@@ -20,7 +20,7 @@ import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.clazz.ClassProvider;
+import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.util.ClassUtils;
 

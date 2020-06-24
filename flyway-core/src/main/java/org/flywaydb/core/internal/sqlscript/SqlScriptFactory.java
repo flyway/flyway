@@ -16,7 +16,7 @@
 package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.api.ResourceProvider;
 
 public interface SqlScriptFactory {
     /**
