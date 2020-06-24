@@ -189,7 +189,6 @@ public class MySQLParser extends Parser {
             context.increaseBlockDepth();
         }
 
-
         if ("END".equals(keywordText)) {
             if (lastTokenIs(tokens, parensDepth, "ROW")) {
                 // in mariadb ROW END is not a block closer. See https://mariadb.com/kb/en/temporal-data-tables/
@@ -199,6 +198,11 @@ public class MySQLParser extends Parser {
                     ifState = IfState.NONE;
                 }
             }
+        }
+
+        if ("AS".equals(keywordText) && IfState.IF_FUNCTION.equals(ifState)) {
+            context.decreaseBlockDepth();
+            ifState = IfState.NONE;
         }
 
         if (";".equals(keywordText) || TokenType.DELIMITER.equals(keyword.getType())) {
