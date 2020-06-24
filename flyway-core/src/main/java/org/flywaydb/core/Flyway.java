@@ -426,27 +426,9 @@ public class Flyway {
 
 
 
-        final ResourceProvider resourceProvider;
-        ClassProvider<JavaMigration> classProvider;
-        if (!scannerRequired && configuration.isSkipDefaultResolvers() && configuration.isSkipDefaultCallbacks()) {
-            resourceProvider = NoopResourceProvider.INSTANCE;
-            //noinspection unchecked
-            classProvider = NoopClassProvider.INSTANCE;
-        } else {
-            Scanner<JavaMigration> scanner = new Scanner<>(
-                    JavaMigration.class,
-                    Arrays.asList(configuration.getLocations()),
-                    configuration.getClassLoader(),
-                    configuration.getEncoding()
-
-
-
-                    , resourceNameCache
-                    , locationScannerCache
-            );
-            resourceProvider = scanner;
-            classProvider = scanner;
-        }
+        final Pair<ResourceProvider, ClassProvider<JavaMigration>> resourceProviderClassProviderPair = createResourceAndClassProviders(scannerRequired);
+        final ResourceProvider resourceProvider = resourceProviderClassProviderPair.getLeft();
+        final ClassProvider<JavaMigration> classProvider = resourceProviderClassProviderPair.getRight();
 
         if (configuration.isValidateMigrationNaming()) {
             resourceNameValidator.validateSQLMigrationNaming(resourceProvider, configuration);
@@ -550,6 +532,45 @@ public class Flyway {
             showMemoryUsage();
         }
         return result;
+    }
+
+    private Pair<ResourceProvider, ClassProvider<JavaMigration>> createResourceAndClassProviders(boolean scannerRequired) {
+        ResourceProvider resourceProvider;
+        ClassProvider<JavaMigration> classProvider;
+        if (!scannerRequired && configuration.isSkipDefaultResolvers() && configuration.isSkipDefaultCallbacks()) {
+            resourceProvider = NoopResourceProvider.INSTANCE;
+            //noinspection unchecked
+            classProvider = NoopClassProvider.INSTANCE;
+        } else {
+            if (configuration.getResourceProvider() != null && configuration.getJavaMigrationClassProvider() != null) {
+                // don't create the scanner at all in this case
+                resourceProvider = configuration.getResourceProvider();
+                classProvider = configuration.getJavaMigrationClassProvider();
+            } else {
+                Scanner<JavaMigration> scanner = new Scanner<>(
+                        JavaMigration.class,
+                        Arrays.asList(configuration.getLocations()),
+                        configuration.getClassLoader(),
+                        configuration.getEncoding()
+
+
+
+                        , resourceNameCache
+                        , locationScannerCache
+                );
+                // set the defaults
+                resourceProvider = scanner;
+                classProvider = scanner;
+                if (configuration.getResourceProvider() != null) {
+                    resourceProvider = configuration.getResourceProvider();
+                }
+                if (configuration.getJavaMigrationClassProvider() != null) {
+                    classProvider = configuration.getJavaMigrationClassProvider();
+                }
+            }
+        }
+
+        return Pair.of(resourceProvider, classProvider);
     }
 
     private void showMemoryUsage() {
