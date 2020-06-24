@@ -86,6 +86,10 @@ public abstract class Parser {
         return null;
     }
 
+    protected boolean supportsPeekingMultipleLines() {
+        return true;
+    }
+
     /**
      * Parses this resource into a stream of statements.
      *
@@ -104,7 +108,8 @@ public abstract class Parser {
                                 new PositionTrackingReader(tracker,
                                         replacePlaceholders(
                                                 new BomStrippingReader(
-                                                        new BufferedReader(resource.read(), 4096))))));
+                                                        new BufferedReader(resource.read(), 4096))))),
+                        supportsPeekingMultipleLines());
 
         return new ParserSqlStatementIterator(peekingReader, resource, recorder, tracker, context);
     }
