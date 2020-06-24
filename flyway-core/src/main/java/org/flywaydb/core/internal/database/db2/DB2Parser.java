@@ -58,7 +58,7 @@ public class DB2Parser extends Parser {
                        ) {
             // But not END IF and END WHILE
             if (!previousTokenIsKeyword || !"END".equals(previousKeyword)) {
-                context.increaseBlockDepth();
+                context.increaseBlockDepth(keyword.getText());
 
             }
         } else if (

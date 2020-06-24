@@ -77,7 +77,7 @@ public class HSQLDBParser extends Parser {
                 || "FOR".equals(keywordText)
                 || "CASE".equals(keywordText))
                 && previousKeyword != null && !"END".equals(previousKeywordText))) {
-            context.increaseBlockDepth();
+            context.increaseBlockDepth(keywordText);
         } else if (("EACH".equals(keywordText) || "SQLEXCEPTION".equals(keywordText))
                 && previousKeyword != null
                 && "FOR".equals(previousKeywordText)) {

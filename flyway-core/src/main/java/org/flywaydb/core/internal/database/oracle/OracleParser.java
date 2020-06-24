@@ -431,7 +431,7 @@ public class OracleParser extends Parser {
         // We ignore normal SQL keywords as Java code can contain arbitrary identifiers.
         if (context.getStatementType() == PLSQL_JAVA_STATEMENT) {
             if ("{".equals(keywordText)) {
-                context.increaseBlockDepth();
+                context.increaseBlockDepth("PLSQL_JAVA_STATEMENT");
             } else if ("}".equals(keywordText)) {
                 context.decreaseBlockDepth();
             }
@@ -441,14 +441,14 @@ public class OracleParser extends Parser {
         int parensDepth = keyword.getParensDepth();
 
         if ("BEGIN".equals(keywordText)
-                || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !lastTokenIs(tokens, parensDepth, "END"))
+                || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !precedingEndAttachesToThisKeyword(tokens, parensDepth, context, keywordText))
                 || ("TRIGGER".equals(keywordText) && lastTokenIs(tokens, parensDepth, "COMPOUND"))
                 || doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_BODY_REGEX)
                 || doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_DEFINITION_REGEX)
                 || doTokensMatchPattern(tokens, keyword, PLSQL_TYPE_BODY_REGEX)
         ) {
-            context.increaseBlockDepth();
-        } else if ("END".equals(keywordText)) {
+            context.increaseBlockDepth(keywordText);
+        } else if ("END".equals(keywordText) ) {
             context.decreaseBlockDepth();
         }
 
@@ -459,6 +459,17 @@ public class OracleParser extends Parser {
             context.decreaseBlockDepth();
             return;
         }
+    }
+
+    private boolean precedingEndAttachesToThisKeyword(List<Token> tokens, int parensDepth, ParserContext context, String keywordText) {
+        // Normally IF, LOOP and CASE all pair up with END IF, END LOOP, END CASE
+        // However, CASE ... END is valid in expressions, so in code such as
+        //      FOR i IN 1 .. CASE WHEN foo THEN 5 ELSE 6 END
+        //      LOOP
+        //        ...
+        //      END LOOP
+        // the first END does *not* attach to the subsequent LOOP. The same is possible with $IF ... $END constructions
+        return lastTokenIs(tokens, parensDepth, "END") && keywordText.equals(context.getLastClosedBlockInitiator());
     }
 
     @Override

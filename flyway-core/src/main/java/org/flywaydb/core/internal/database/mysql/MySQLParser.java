@@ -177,7 +177,7 @@ public class MySQLParser extends Parser {
                 context.decreaseBlockDepth();
             }
 
-            context.increaseBlockDepth();
+            context.increaseBlockDepth(keywordText);
             if (reader.peekNextNonWhitespace() == '(') {
                 ifState = IfState.IF_FUNCTION;
             } else {
@@ -186,7 +186,7 @@ public class MySQLParser extends Parser {
         }
 
         if ("BEGIN".equals(keywordText) || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !lastTokenIs(tokens, parensDepth, "END"))) {
-            context.increaseBlockDepth();
+            context.increaseBlockDepth(keywordText);
         }
 
         if ("END".equals(keywordText)) {

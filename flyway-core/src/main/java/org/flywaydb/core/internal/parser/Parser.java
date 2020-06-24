@@ -534,7 +534,7 @@ public abstract class Parser {
         if (isDelimiter(peek, context, col)) {
             return handleDelimiter(reader, context, pos, line, col);
         }
-        if (c == '_' || context.isLetter(c)) {
+        if (isLetter(c, context)) {
             String text = readKeyword(reader, context.getDelimiter(), context);
             if (reader.peek('.')) {
                 text += readAdditionalIdentifierParts(reader, identifierQuote, context.getDelimiter(), context);
@@ -578,6 +578,10 @@ public abstract class Parser {
     protected boolean isDelimiter(String peek, ParserContext context, int col) {
         Delimiter delimiter = context.getDelimiter();
         return peek.startsWith(delimiter.getDelimiter());
+    }
+
+    protected boolean isLetter(char c, ParserContext context) {
+        return (c == '_' || context.isLetter(c));
     }
 
     protected boolean isSingleLineComment(String peek, ParserContext context, int col) {

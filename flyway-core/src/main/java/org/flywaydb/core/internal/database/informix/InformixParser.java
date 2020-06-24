@@ -39,7 +39,7 @@ public class InformixParser extends Parser {
 
             // CREATE( DBA)? (FUNCTION|PROCEDURE)
             if ("CREATE".equals(previous) || "DBA".equals(previous)) {
-                context.increaseBlockDepth();
+                context.increaseBlockDepth(previous);
             } else if ("END".equals(previous)) {
                 context.decreaseBlockDepth();
             }

@@ -66,9 +66,9 @@ public class SAPHANAParser extends Parser {
         if ("BEGIN".equals(keyword.getText()) || "CASE".equals(keyword.getText()) || "DO".equals(keyword.getText()) || "IF".equals(keyword.getText())
                 // But not END IF
                 && !lastTokenIs(tokens, parensDepth, "END")) {
-            context.increaseBlockDepth();
+            context.increaseBlockDepth(keyword.getText());
         } else if (doTokensMatchPattern(tokens, keyword, FUNCTION_OR_PROCEDURE_REGEX)) {
-            context.increaseBlockDepth();
+            context.increaseBlockDepth("FUNCTION_OR_PROCEDURE_REGEX");
         } else if ("END".equals(keyword.getText())) {
             context.decreaseBlockDepth();
         }
