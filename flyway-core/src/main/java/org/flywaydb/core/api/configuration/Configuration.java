@@ -533,4 +533,11 @@ public interface Configuration {
      * (default: null)
      */
     ClassProvider<JavaMigration> getJavaMigrationClassProvider();
+
+    /**
+     * Whether Flyway should attempt to create the schemas specified in the schemas property
+     *
+     * @return @{code true} to attempt to create the schemas (default: {@code true})
+     */
+    boolean getCreateSchemas();
 }

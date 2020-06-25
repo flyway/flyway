@@ -347,6 +347,7 @@ public class Main {
         LOG.info("configFiles                  : Comma-separated list of config files to use");
         LOG.info("configFileEncoding           : Encoding to use when loading the config files");
         LOG.info("jarDirs                      : Comma-separated list of dirs for Jdbc drivers & Java migrations");
+        LOG.info("createSchemas          : Whether Flyway should attempt to create the schemas specified in the schemas property");
         LOG.info("dryRunOutput                 : [" + "pro] File where to output the SQL statements of a migration dry run");
         LOG.info("errorOverrides               : [" + "pro] Rules to override specific SQL states and errors codes");
         LOG.info("oracle.sqlplus               : [" + "pro] Enable Oracle SQL*Plus command support");

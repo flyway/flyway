@@ -86,6 +86,7 @@ public class ConfigUtils {
     public static final String USER = "flyway.user";
     public static final String VALIDATE_ON_MIGRATE = "flyway.validateOnMigrate";
     public static final String VALIDATE_MIGRATION_NAMING = "flyway.validateMigrationNaming";
+    public static final String CREATE_SCHEMAS = "flyway.createSchemas";
 
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
@@ -264,6 +265,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_VALIDATE_ON_MIGRATE".equals(key)) {
             return VALIDATE_ON_MIGRATE;
+        }
+        if ("FLYWAY_CREATE_SCHEMAS".equals(key)) {
+            return CREATE_SCHEMAS;
         }
 
         // Oracle-specific

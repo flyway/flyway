@@ -590,6 +590,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private File[] configFiles;
 
     /**
+     * Whether Flyway should attempt to create the schemas specified in the schemas property
+     *
+     *  <p>Also configurable with Maven or System Property: ${flyway.createSchemas}</p>
+     */
+    @Parameter(property = ConfigUtils.CREATE_SCHEMAS)
+    private Boolean createSchemas;
+
+    /**
      * The working directory to consider when dealing with relative paths for both config files and locations.
      * (default: basedir, the directory where the POM resides)
      * <p/>
@@ -747,6 +755,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate);
             putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate);
             putIfSet(conf, ConfigUtils.DRIVER, driver);
+            putIfSet(conf, ConfigUtils.CREATE_SCHEMAS, createSchemas);
 
             putArrayIfSet(conf, ConfigUtils.ERROR_OVERRIDES, errorOverrides);
             putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput);

@@ -134,6 +134,11 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String defaultSchema;
 
     /**
+     * Whether Flyway should attempt to create the schemas specified in the schemas property
+     */
+    public Boolean createSchemas;
+
+    /**
      * The schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
      * the default schema for the database connection. If <i>defaultSchema</i> is not specified, then the first of
      * this list also acts as default schema.
@@ -665,6 +670,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.SKIP_DEFAULT_RESOLVERS, skipDefaultResolvers, extension.skipDefaultResolvers);
         putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks, extension.skipDefaultCallbacks);
         putIfSet(conf, ConfigUtils.DEFAULT_SCHEMA, defaultSchema, extension.defaultSchema);
+        putIfSet(conf, ConfigUtils.CREATE_SCHEMAS, createSchemas, extension.createSchemas);
 
         putIfSet(conf, ConfigUtils.SCHEMAS, StringUtils.arrayToCommaDelimitedString(schemas), StringUtils.arrayToCommaDelimitedString(extension.schemas));
         putIfSet(conf, ConfigUtils.RESOLVERS, StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));

@@ -472,4 +472,11 @@ public class FlywayExtension {
      * <p>Also configurable with Gradle or System Property: ${flyway.workingDirectory}</p>
      */
     public String workingDirectory;
+
+    /**
+     * Whether Flyway should attempt to create the schemas specified in the schemas property
+     *
+     * <p>Also configurable with Gradle or System Property: ${flyway.createSchemas}</p>
+     */
+    public Boolean createSchemas;
 }

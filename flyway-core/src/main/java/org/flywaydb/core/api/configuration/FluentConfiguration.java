@@ -307,6 +307,11 @@ public class FluentConfiguration implements Configuration {
         return config.outputQueryResults();
     }
 
+    @Override
+    public boolean getCreateSchemas() {
+        return config.getCreateSchemas();
+    }
+
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.
@@ -1116,6 +1121,16 @@ public class FluentConfiguration implements Configuration {
         Map<String, String> configMap = ConfigUtils.loadDefaultConfigurationFiles(installationDir, encoding);
 
         config.configure(configMap);
+        return this;
+    }
+
+    /**
+     * Whether Flyway should attempt to create the schemas specified in the schemas property
+     *
+     * @param createSchemas @{code true} to attempt to create the schemas (default: {@code true})
+     */
+    public FluentConfiguration createSchemas(boolean createSchemas) {
+        config.setShouldCreateSchemas(createSchemas);
         return this;
     }
 

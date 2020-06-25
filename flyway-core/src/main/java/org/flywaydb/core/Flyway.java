@@ -189,7 +189,15 @@ public class Flyway {
                             }
                         }
                     } else {
-                        new DbSchemas(database, schemas, schemaHistory).create(false);
+                        if (configuration.getCreateSchemas()) {
+                            new DbSchemas(database, schemas, schemaHistory).create(false);
+                        } else {
+                            LOG.warn("The configuration option 'createSchemas' is false.\n" +
+                                    "However the schema history table still needs a schema to reside in.\n" +
+                                    "You must manually create a schema for the schema history table to reside in.\n" +
+                                    "See http://flywaydb.org/documentation/migrations#the-createschemas-option-and-the-schema-history-table)");
+                        }
+
                         schemaHistory.create(false);
                     }
                 }
@@ -347,7 +355,15 @@ public class Flyway {
 
 
             ) {
-                new DbSchemas(database, schemas, schemaHistory).create(true);
+                if (configuration.getCreateSchemas()) {
+                    new DbSchemas(database, schemas, schemaHistory).create(true);
+                } else {
+                    LOG.warn("The configuration option 'createSchemas' is false.\n" +
+                            "Even though Flyway is configured not to create any schemas, the schema history table still needs a schema to reside in.\n" +
+                            "You must manually create a schema for the schema history table to reside in.\n" +
+                            "See http://flywaydb.org/documentation/migrations#the-createschemas-option-and-the-schema-history-table");
+                }
+
                 doBaseline(schemaHistory, callbackExecutor);
                 return null;
             }
