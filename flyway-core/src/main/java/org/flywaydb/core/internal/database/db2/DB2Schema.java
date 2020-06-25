@@ -155,7 +155,7 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
      */
     private List<String> generateDropStatementsForProcedures() throws SQLException {
         String dropProcGenQuery =
-                "select SPECIFICNAME from SYSCAT.ROUTINES where ROUTINETYPE='P' and ROUTINESCHEMA = '" + name + "'";
+                "select SPECIFICNAME from SYSCAT.ROUTINES where ROUTINETYPE='P' and ROUTINESCHEMA = '" + name + "'" + " and ROUTINEMODULENAME IS NULL";
         return buildDropStatements("DROP SPECIFIC PROCEDURE", dropProcGenQuery);
     }
 
