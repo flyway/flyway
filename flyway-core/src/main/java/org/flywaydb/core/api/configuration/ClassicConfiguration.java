@@ -402,12 +402,12 @@ public class ClassicConfiguration implements Configuration {
      */
     private String installedBy;
 
-
-
-
-
-
-
+    /**
+     * Whether Flyway should attempt to create the schemas specified in the schemas property
+     * <p>
+     * {@code true} if flyway should create the schemas. {@code false} if flyway should not. (default: {@code true})
+     */
+    private boolean createSchemas = true;
 
 
 
