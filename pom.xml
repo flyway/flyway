@@ -175,7 +175,7 @@
         <version.mysql>8.0.17</version.mysql>
         <version.mssql-jdbc>7.2.0.jre8</version.mssql-jdbc>
         <version.oracle>19.6.0.0</version.oracle>
-        <version.postgresql>42.2.12.jre6</version.postgresql>
+        <version.postgresql>42.2.14</version.postgresql>
         <version.snowflake>3.11.1</version.snowflake>
         <version.sqlite>3.30.1</version.sqlite>
         <version.osgi>4.3.1</version.osgi>
