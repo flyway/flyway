@@ -113,7 +113,9 @@ public class MySQLParser extends Parser {
     @Override
     protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
         TokenType tokenType = token.getType();
-        if (TokenType.DELIMITER == tokenType || ";".equals(token.getText())) {
+        if (TokenType.DELIMITER.equals(tokenType) || ";".equals(token.getText())) {
+            return true;
+        } else if (TokenType.EOF.equals(tokenType)) {
             return true;
         }
 
@@ -159,20 +161,20 @@ public class MySQLParser extends Parser {
         if (IfState.IF.equals(ifState)) {
             ifState = IfState.UNKNOWN;
 
-            if (keywordText.equals("EXISTS")) {
+            if ("EXISTS".equals(keywordText)) {
                 ifState = IfState.IF_EXISTS;
             }
 
-            if (keywordText.equals("NOT")) {
+            if ("NOT".equals(keywordText)) {
                 ifState = IfState.IF_NOT;
             }
         }
 
-        if (keywordText.equals("THEN")) {
+        if ("THEN".equals(keywordText)) {
             ifState = IfState.IF_THEN;
         }
 
-        if (keywordText.equals("IF") && !previousKeywordText.equals("END") && !IfState.IF_FUNCTION.equals(ifState)) {
+        if ("IF".equals(keywordText) && !"END".equals(previousKeywordText) && !IfState.IF_FUNCTION.equals(ifState)) {
             if (IfState.IF_EXISTS.equals(ifState) || IfState.IF_NOT.equals(ifState)) {
                 context.decreaseBlockDepth();
             }
@@ -205,7 +207,7 @@ public class MySQLParser extends Parser {
             ifState = IfState.NONE;
         }
 
-        if (";".equals(keywordText) || TokenType.DELIMITER.equals(keyword.getType())) {
+        if (";".equals(keywordText) || TokenType.DELIMITER.equals(keyword.getType()) || TokenType.EOF.equals(keyword.getType())) {
             if (IfState.IF_NOT.equals(ifState) ||  IfState.IF_EXISTS.equals(ifState) || IfState.IF_FUNCTION.equals(ifState)) {
                 context.decreaseBlockDepth();
                 ifState = IfState.NONE;
