@@ -291,17 +291,6 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
             ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("5.7", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-
-
-
-                if (JdbcUtils.getDriverName(jdbcMetaData).contains("MariaDB")) {
-                    LOG.warn("You are connected to a MySQL " + getVersion() + " database using the MariaDB driver." +
-                            " This is known to cause issues." +
-                            " An upgrade to Oracle's MySQL JDBC driver is highly recommended.");
-                }
-
-
-
             recommendFlywayUpgradeIfNecessary("8.0");
         }
     }
