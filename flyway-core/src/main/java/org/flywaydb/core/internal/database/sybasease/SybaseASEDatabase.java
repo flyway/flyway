@@ -68,6 +68,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
 
 
 
+
     @Override
     public void ensureSupported() {
         ensureDatabaseIsRecentEnough("15.7");
