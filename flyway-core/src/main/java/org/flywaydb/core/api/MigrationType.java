@@ -50,6 +50,22 @@ public enum MigrationType {
     UNDO_JDBC(false, true),
 
     /**
+     * Spring JDBC Java-based migrations.
+     *
+     * @deprecated Will be removed in Flyway 7.0. Use JDBC instead.
+     */
+    @Deprecated
+    SPRING_JDBC(false, false),
+
+    /**
+     * Undo Spring JDBC java-based migrations.
+     *
+     * @deprecated Will be removed in Flyway 7.0. Use UNDO_JDBC instead.
+     */
+    @Deprecated
+    UNDO_SPRING_JDBC(false, true),
+
+    /**
      * Migrations using custom MigrationResolvers.
      */
     CUSTOM(false, false),
