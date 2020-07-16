@@ -51,14 +51,19 @@ public class PlaceholderReplacingReader extends FilterReader {
         this.placeholders = placeholders;
 
         int prefixSuffixLength = prefix.length() + suffix.length();
-        int maxPlaceholderLength = prefixSuffixLength;
-        int minReplacementLength = Integer.MAX_VALUE;
+
+        // As the readers using this will read until they get the necessary characters, this reader needs to assume the
+        // worst case scenario (all the placeholders being sequential) when taking into account how much further ahead
+        // it needs to be adjust the mark
+        int placeholderSizeDifferenceTotal = 0;
+
         for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-            maxPlaceholderLength = Math.max(maxPlaceholderLength, prefixSuffixLength + entry.getKey().length());
-            int valueLength = (entry.getValue() != null) ? entry.getValue().length() : 0;
-            minReplacementLength = Math.min(minReplacementLength, valueLength);
+            int placeholderLength = prefixSuffixLength + entry.getKey().length();
+            int replacementLength = (entry.getValue() != null) ? entry.getValue().length() : 0;
+
+            placeholderSizeDifferenceTotal += Math.max(0, placeholderLength - replacementLength);
         }
-        readAheadLimitAdjustment = Math.max(maxPlaceholderLength - minReplacementLength, 0);
+        readAheadLimitAdjustment = placeholderSizeDifferenceTotal;
     }
 
     public static PlaceholderReplacingReader create(Configuration configuration, ParsingContext parsingContext, Reader reader) {
@@ -79,12 +84,15 @@ public class PlaceholderReplacingReader extends FilterReader {
     @Override
     public int read() throws IOException {
         if (replacement == null) {
+
+            // if we have a previous read, then consume it
             if (buffer.length() > 0) {
                 char c = buffer.charAt(0);
                 buffer.deleteCharAt(0);
                 return c;
             }
 
+            // else read ahead by the prefix length
             int r;
             do {
                 r = super.read();
@@ -94,30 +102,38 @@ public class PlaceholderReplacingReader extends FilterReader {
 
                 buffer.append((char) r);
             } while (buffer.length() < prefix.length() && endsWith(buffer, prefix.substring(0, buffer.length())));
+
+            // if the buffer does not contain the prefix
             if (!endsWith(buffer, prefix)) {
+                // if it contain data, return the first character of it
                 if (buffer.length() > 0) {
                     char c = buffer.charAt(0);
                     buffer.deleteCharAt(0);
                     return c;
                 }
+                // else return -1
                 return -1;
             }
+            // if the buffer contained the prefix, wipe the buffer
             buffer.delete(0, buffer.length());
 
+            // begin reading ahead until we get to the suffix
             StringBuilder placeholderBuilder = new StringBuilder();
             do {
-                int r1 = in.read();
+                int r1 = super.read();
                 if (r1 == -1) {
                     break;
                 } else {
                     placeholderBuilder.append((char) r1);
                 }
             } while (!endsWith(placeholderBuilder, suffix));
+
+            // delete the suffix from the builder
             for (int i = 0; i < suffix.length(); i++) {
                 placeholderBuilder.deleteCharAt(placeholderBuilder.length() - 1);
             }
 
-
+            // look up the placeholder string
             String placeholder = placeholderBuilder.toString();
             if (!placeholders.containsKey(placeholder)) {
                 String canonicalPlaceholder = prefix + placeholder + suffix;
@@ -132,6 +148,7 @@ public class PlaceholderReplacingReader extends FilterReader {
                         + ".  Check your configuration!");
             }
 
+            // set the current placeholder replacement
             replacement = placeholders.get(placeholder);
 
             // Empty placeholder value -> move to the next character
