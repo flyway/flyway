@@ -69,6 +69,11 @@ public final class FeatureDetector {
     private Boolean androidAvailable;
 
     /**
+     * Flag indicating availability of the AWS SDK classes.
+     */
+    private Boolean awsAvailable;
+
+    /**
      * Checks whether Apache Commons Logging is available.
      *
      * @return {@code true} if it is, {@code false if it is not}
@@ -88,7 +93,8 @@ public final class FeatureDetector {
      */
     public boolean isSlf4jAvailable() {
         if (slf4jAvailable == null) {
-            slf4jAvailable = ClassUtils.isPresent("org.slf4j.Logger", classLoader);
+            slf4jAvailable = ClassUtils.isPresent("org.slf4j.Logger", classLoader)
+                    && ClassUtils.isPresent("org.slf4j.impl.StaticLoggerBinder", classLoader);
         }
 
         return slf4jAvailable;
@@ -149,5 +155,20 @@ public final class FeatureDetector {
         }
 
         return androidAvailable;
+    }
+
+    /**
+     * Checks if AWS is available.
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public boolean isAwsAvailable() {
+        if (awsAvailable == null) {
+            ClassLoader classLoader = FeatureDetector.class.getClassLoader();
+            awsAvailable = ClassUtils.isPresent("software.amazon.awssdk.services.s3.S3Client", classLoader);
+            LOG.debug("AWS SDK available: " + awsAvailable);
+        }
+
+        return awsAvailable;
     }
 }

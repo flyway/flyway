@@ -25,6 +25,7 @@ import org.flywaydb.core.internal.scanner.android.AndroidScanner;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
 import org.flywaydb.core.internal.scanner.filesystem.FileSystemScanner;
+import org.flywaydb.core.internal.scanner.s3.AwsS3Scanner;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -61,11 +62,20 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
         );
 
-        boolean android = new FeatureDetector(classLoader).isAndroidAvailable();
+        FeatureDetector detector =  new FeatureDetector(classLoader);
+        boolean android = detector.isAndroidAvailable();
+        boolean aws = detector.isAwsAvailable();
 
         for (Location location : locations) {
             if (location.isFileSystem()) {
                 resources.addAll(fileSystemScanner.scanForResources(location));
+            } else if (location.isAwsS3()) {
+                if (aws) {
+                    AwsS3Scanner awsS3Scanner = new AwsS3Scanner(encoding);
+                    resources.addAll(awsS3Scanner.scanForResources(location));
+                } else {
+                    LOG.error("Can't read location " + location + "; AWS SDK not found");
+                }
             } else {
                 ResourceAndClassScanner<I> resourceAndClassScanner = android
                         ? new AndroidScanner<>(implementedInterface, classLoader, encoding, location)

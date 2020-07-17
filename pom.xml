@@ -186,6 +186,8 @@
         <version.jre>11.0.2</version.jre>
         <version.jansi>1.18</version.jansi>
         <version.gson>2.8.6</version.gson>
+        <aws-java-sdk.version>2.10.56</aws-java-sdk.version>
+        <httpclient.version>4.5.2</httpclient.version>
     </properties>
 
     <dependencyManagement>
@@ -408,6 +410,18 @@
                 <groupId>com.google.android</groupId>
                 <artifactId>android</artifactId>
                 <version>${version.android}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3</artifactId>
+                <version>${aws-java-sdk.version}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
