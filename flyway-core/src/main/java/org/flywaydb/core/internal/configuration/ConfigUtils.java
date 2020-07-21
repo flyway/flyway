@@ -321,7 +321,9 @@ public class ConfigUtils {
     public static Map<String, String> loadConfigurationFile(File configFile, String encoding, boolean failIfMissing) throws FlywayException {
         String errorMessage = "Unable to load config file: " + configFile.getAbsolutePath();
 
-        if (!configFile.isFile() || !configFile.canRead()) {
+        if ("-".equals(configFile.getName())) {
+            return loadConfigurationFromInputStream(System.in);
+        } else if (!configFile.isFile() || !configFile.canRead()) {
             if (!failIfMissing) {
                 LOG.debug(errorMessage);
                 return new HashMap<>();
@@ -336,6 +338,42 @@ public class ConfigUtils {
         } catch (IOException | FlywayException e) {
             throw new FlywayException(errorMessage, e);
         }
+    }
+
+    public static Map<String, String> loadConfigurationFromInputStream(InputStream inputStream) {
+        Map<String, String> config = new HashMap<>();
+
+        try {
+            // System.in.available() : returns an estimate of the number of bytes that can be read (or skipped over) from this input stream
+            // Used to check if there is any data in the stream
+            if (inputStream != null && inputStream.available() > 0) {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+                LOG.debug("Attempting to load configuration from standard input");
+                int firstCharacter = bufferedReader.read();
+
+                if (bufferedReader.ready() && firstCharacter != -1) {
+                    // Prepend the first character to the rest of the string
+                    // This is a char, represented as an int, so we cast to a char
+                    // which is implicitly converted to an string
+                    String configurationString = (char)firstCharacter + FileCopyUtils.copyToString(bufferedReader);
+                    Map<String, String> configurationFromStandardInput = loadConfigurationFromString(configurationString);
+
+                    if (configurationFromStandardInput.isEmpty()) {
+                        LOG.debug("Empty configuration provided from standard input");
+                    } else {
+                        LOG.info("Loaded configuration from standard input");
+                        config.putAll(configurationFromStandardInput);
+                    }
+                } else {
+                    LOG.debug("Could not load configuration from standard input");
+                }
+            }
+        } catch (Exception e) {
+            LOG.debug("Could not load configuration from standard input " + e.getMessage());
+        }
+
+        return config;
     }
 
     /**
