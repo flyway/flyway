@@ -94,9 +94,10 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     static boolean isRunningInPerconaXtraDBClusterWithStrictMode(JdbcTemplate jdbcTemplate) {
         try {
-            if ("ENFORCING".equals(jdbcTemplate.queryForString(
+            String pcx_strict_mode = jdbcTemplate.queryForString(
                     "select VARIABLE_VALUE from performance_schema.global_variables"
-                            + " where variable_name = 'pxc_strict_mode'"))) {
+                            + " where variable_name = 'pxc_strict_mode'");
+            if ("ENFORCING".equals(pcx_strict_mode) || "MASTER".equals(pcx_strict_mode)) {
                 LOG.debug("Detected Percona XtraDB Cluster in strict mode");
                 return true;
             }
