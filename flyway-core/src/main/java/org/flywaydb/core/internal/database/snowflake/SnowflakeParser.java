@@ -43,4 +43,10 @@ public class SnowflakeParser extends Parser {
         reader.swallow(ALTERNATIVE_QUOTE.length());
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
+
+    @Override
+    protected boolean isSingleLineComment(String peek, ParserContext context, int col) {
+        return peek.startsWith("--") || peek.startsWith("//");
+    }
+
 }
