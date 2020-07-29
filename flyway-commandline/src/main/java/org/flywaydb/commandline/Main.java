@@ -55,7 +55,7 @@ public class Main {
 
         logCreators.add(new ConsoleLogCreator(commandLineArguments));
 
-        if (commandLineArguments.isOutputFileSet() || commandLineArguments.isLogFilepathSet()) {
+        if (commandLineArguments.isOutputFileSet()) {
             logCreators.add(new FileLogCreator(commandLineArguments));
         }
 
@@ -81,7 +81,7 @@ public class Main {
         initLogging(commandLineArguments);
 
         try {
-            commandLineArguments.validate(LOG);
+            commandLineArguments.validate();
 
             if (commandLineArguments.shouldPrintVersionAndExit()) {
                 printVersion();

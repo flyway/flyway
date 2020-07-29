@@ -67,7 +67,6 @@ class CommandLineArguments {
 
     // Command line specific configuration options
     private static String OUTPUT_FILE = "outputFile";
-    private static String LOG_FILE = "logFile";
     private static String CONFIG_FILE_ENCODING = "configFileEncoding";
     private static String CONFIG_FILES = "configFiles";
     private static String COLOR = "color";
@@ -162,7 +161,6 @@ class CommandLineArguments {
 
     private static boolean isConfigurationOptionIgnored(String configurationOptionName) {
         return OUTPUT_FILE.equals(configurationOptionName) ||
-                LOG_FILE.equals(configurationOptionName) ||
                 COLOR.equals(configurationOptionName) ||
                 WORKING_DIRECTORY.equals(configurationOptionName);
     }
@@ -177,23 +175,11 @@ class CommandLineArguments {
         return arg.startsWith("-") && arg.contains("=");
     }
 
-    void validate(Log log) {
+    void validate() {
         for (String arg : args) {
             if (!isConfigurationArg(arg) && !CommandLineArguments.VALID_OPERATIONS_AND_FLAGS.contains(arg)) {
                 throw new FlywayException("Invalid argument: " + arg);
             }
-        }
-
-        if (isLogFilepathSet()) {
-            if (isOutputFileSet()) {
-                throw new FlywayException("-logFile and -outputFile are incompatible. -logFile is deprecated. Instead use -outputFile.");
-            }
-
-            if (shouldOutputJson()) {
-                throw new FlywayException("-logFile and -json are incompatible. -logFile is deprecated. Instead use -outputFile to print JSON to a file.");
-            }
-
-            log.warn("-logFile is deprecated. Instead use -outputFile.");
         }
 
         if (shouldOutputJson() && !hasOperation("info") ) {
@@ -250,20 +236,12 @@ class CommandLineArguments {
         return getArgumentValue(OUTPUT_FILE, args);
     }
 
-    String getLogFilepath() {
-        return getArgumentValue(LOG_FILE, args);
-    }
-
     String getWorkingDirectory() {
         return getArgumentValue(WORKING_DIRECTORY, args);
     }
 
     boolean isOutputFileSet() {
         return !getOutputFile().isEmpty();
-    }
-
-    boolean isLogFilepathSet() {
-        return !getLogFilepath().isEmpty();
     }
 
     boolean isWorkingDirectorySet() {
