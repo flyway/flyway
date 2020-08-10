@@ -22,9 +22,9 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
@@ -123,11 +123,11 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     boolean isMySQL() {
-        return databaseType == DatabaseType.MYSQL;
+        return databaseType instanceof MySQLDatabaseType;
     }
 
     boolean isMariaDB() {
-        return databaseType == DatabaseType.MARIADB;
+        return databaseType instanceof MariaDBDatabaseType;
     }
 
     boolean isPxcStrict() {
@@ -201,7 +201,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     @Override
     protected MigrationVersion determineVersion() {
         String selectVersionOutput = DatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
-        if (databaseType == DatabaseType.MARIADB) {
+        if (databaseType instanceof MariaDBDatabaseType) {
             try {
                 String productVersion = jdbcMetaData.getDatabaseProductVersion();
                 return correctForAzureMariaDB(productVersion, selectVersionOutput);
@@ -280,7 +280,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("5.1");
-        if (databaseType == DatabaseType.MARIADB) {
+        if (databaseType instanceof MariaDBDatabaseType) {
 
             ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.1", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 

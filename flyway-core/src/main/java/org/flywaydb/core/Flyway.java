@@ -30,8 +30,8 @@ import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
-import org.flywaydb.core.internal.database.DatabaseFactory;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.license.VersionPrinter;
@@ -457,11 +457,11 @@ public class Flyway {
 
         );
 
+        final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
         final ParsingContext parsingContext = new ParsingContext();
-        final SqlScriptFactory sqlScriptFactory =
-                DatabaseFactory.createSqlScriptFactory(jdbcConnectionFactory, configuration, parsingContext);
+        final SqlScriptFactory sqlScriptFactory = databaseType.createSqlScriptFactory(configuration, parsingContext);
 
-        final SqlScriptExecutorFactory noCallbackSqlScriptExecutorFactory = DatabaseFactory.createSqlScriptExecutorFactory(
+        final SqlScriptExecutorFactory noCallbackSqlScriptExecutorFactory = databaseType.createSqlScriptExecutorFactory(
                 jdbcConnectionFactory
 
 
@@ -488,7 +488,7 @@ public class Flyway {
 
         Database database = null;
         try {
-            database = DatabaseFactory.createDatabase(configuration, !dbConnectionInfoPrinted, jdbcConnectionFactory
+            database = databaseType.createDatabase(configuration, !dbConnectionInfoPrinted, jdbcConnectionFactory
 
 
 
@@ -517,7 +517,7 @@ public class Flyway {
 
                     ));
 
-            SqlScriptExecutorFactory sqlScriptExecutorFactory = DatabaseFactory.createSqlScriptExecutorFactory(jdbcConnectionFactory
+            SqlScriptExecutorFactory sqlScriptExecutorFactory = databaseType.createSqlScriptExecutorFactory(jdbcConnectionFactory
 
 
 
@@ -681,7 +681,7 @@ public class Flyway {
 
         if (!configuration.isSkipDefaultCallbacks()) {
             SqlScriptExecutorFactory sqlScriptExecutorFactory =
-                    DatabaseFactory.createSqlScriptExecutorFactory(jdbcConnectionFactory
+                    jdbcConnectionFactory.getDatabaseType().createSqlScriptExecutorFactory(jdbcConnectionFactory
 
 
 

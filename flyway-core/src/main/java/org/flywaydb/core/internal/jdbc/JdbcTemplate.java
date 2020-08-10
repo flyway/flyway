@@ -15,14 +15,10 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
-import java.sql.BatchUpdateException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.SQLWarning;
-import java.sql.Statement;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.database.base.DatabaseType;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,7 +44,7 @@ public class JdbcTemplate {
      * @param connection The database connection to use.
      */
     public JdbcTemplate(Connection connection) {
-        this(connection, DatabaseType.fromJdbcConnection(connection));
+        this(connection, DatabaseTypeRegister.getDatabaseTypeForConnection(connection));
     }
 
     /**

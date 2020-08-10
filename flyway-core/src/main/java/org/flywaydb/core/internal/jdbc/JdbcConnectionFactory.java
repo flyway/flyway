@@ -18,6 +18,8 @@ package org.flywaydb.core.internal.jdbc;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 
@@ -53,12 +55,6 @@ public class JdbcConnectionFactory {
 
 
 
-
-
-
-
-
-
     /**
      * Creates a new JDBC connection factory. This automatically opens a first connection which can be obtained via
      * a call to getConnection and which must be closed again to avoid leaking it.
@@ -79,12 +75,11 @@ public class JdbcConnectionFactory {
 
         firstConnection = JdbcUtils.openConnection(dataSource, connectRetries);
 
-        this.databaseType = DatabaseType.fromJdbcConnection(firstConnection);
+        this.databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(firstConnection);
         final DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(firstConnection);
         this.jdbcUrl = getJdbcUrl(databaseMetaData);
         this.driverInfo = getDriverInfo(databaseMetaData);
         this.productName = JdbcUtils.getDatabaseProductName(databaseMetaData);
-
 
 
 
@@ -94,43 +89,6 @@ public class JdbcConnectionFactory {
     public void setConnectionInitializer(ConnectionInitializer connectionInitializer) {
         this.connectionInitializer = connectionInitializer;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

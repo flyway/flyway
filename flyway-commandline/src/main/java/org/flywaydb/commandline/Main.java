@@ -24,8 +24,9 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
-import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.output.ErrorOutput;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -102,7 +103,7 @@ public class Main {
             if (commandLineArguments.isWorkingDirectorySet()) {
                 makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments, config);
             }
-            
+
             config.putAll(envVars);
             config = overrideConfiguration(config, commandLineArguments.getConfiguration());
 
@@ -483,14 +484,16 @@ public class Main {
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a username.
      */
     private static boolean needsUser(String url) {
-        return DriverDataSource.detectUserRequiredByUrl(url);
+        DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
+        return databaseType.detectUserRequiredByUrl(url);
     }
 
     /**
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a password.
      */
     private static boolean needsPassword(String url) {
-        return DriverDataSource.detectPasswordRequiredByUrl(url);
+        DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
+        return databaseType.detectPasswordRequiredByUrl(url);
     }
 
     /**
