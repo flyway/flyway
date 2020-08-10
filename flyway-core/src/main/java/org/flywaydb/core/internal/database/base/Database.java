@@ -210,6 +210,21 @@ public abstract class Database<C extends Connection> implements Closeable {
     }
 
     /**
+     * @return The name of the database, by default as determined by JDBC
+     */
+    public final String getCatalog() {
+        try {
+            return doGetCatalog();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Error retrieving the database name", e);
+        }
+    }
+
+    protected String doGetCatalog() throws SQLException {
+        return getMainConnection().getJdbcConnection().getCatalog();
+    }
+
+    /**
      * @return The current database user.
      */
     public final String getCurrentUser() {

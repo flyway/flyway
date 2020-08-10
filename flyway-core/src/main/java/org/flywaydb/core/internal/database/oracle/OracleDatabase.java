@@ -123,6 +123,12 @@ public class OracleDatabase extends Database<OracleConnection> {
     }
 
     @Override
+    protected String doGetCatalog() throws SQLException {
+        // Oracle's JDBC driver returns a hard-coded NULL from getCatalog()
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT GLOBAL_NAME FROM GLOBAL_NAME");
+    }
+
+    @Override
     protected String doGetCurrentUser() throws SQLException {
         return getMainConnection().getJdbcTemplate().queryForString("SELECT USER FROM DUAL");
     }
