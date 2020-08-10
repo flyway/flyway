@@ -51,6 +51,11 @@ public class MigrationInfoImpl implements MigrationInfo {
      */
     private final boolean outOfOrder;
 
+    /**
+     * Whether this migration was deleted.
+     */
+    private final boolean deleted;
+
 
 
 
@@ -70,7 +75,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
      */
     MigrationInfoImpl(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration,
-                      MigrationInfoContext context, boolean outOfOrder
+                      MigrationInfoContext context, boolean outOfOrder, boolean deleted
 
 
 
@@ -79,6 +84,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         this.appliedMigration = appliedMigration;
         this.context = context;
         this.outOfOrder = outOfOrder;
+        this.deleted = deleted;
 
 
 
@@ -146,6 +152,10 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
+        if (deleted) {
+            return MigrationState.DELETED;
+        }
+
         if (appliedMigration == null) {
             if (resolvedMigration.getVersion() != null) {
                 if (resolvedMigration.getVersion().compareTo(context.baseline) < 0) {
@@ -164,6 +174,10 @@ public class MigrationInfoImpl implements MigrationInfo {
                 }
             }
             return MigrationState.PENDING;
+        }
+
+        if (MigrationType.DELETE == appliedMigration.getType()) {
+            return MigrationState.SUCCESS;
         }
 
         if (MigrationType.BASELINE == appliedMigration.getType()) {
@@ -268,6 +282,11 @@ public class MigrationInfoImpl implements MigrationInfo {
             return null;
         }
 
+        // Ignore deleted migrations
+        if (MigrationState.DELETED.equals(state)) {
+            return null;
+        }
+
         if (state.isFailed() && (!context.future || MigrationState.FUTURE_FAILED != state)) {
             if (getVersion() == null) {
                 return "Detected failed repeatable migration: " + getDescription();
@@ -280,10 +299,13 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
-                && (appliedMigration.getVersion() != null)
                 && (!context.missing || (MigrationState.MISSING_SUCCESS != state && MigrationState.MISSING_FAILED != state))
                 && (!context.future || (MigrationState.FUTURE_SUCCESS != state && MigrationState.FUTURE_FAILED != state))) {
-            return "Detected applied migration not resolved locally: " + getVersion();
+            if (appliedMigration.getVersion() != null) {
+                return "Detected applied migration not resolved locally: " + getVersion();
+            } else {
+                return "Detected applied migration not resolved locally: " + getDescription();
+            }
         }
 
         if (!context.pending && MigrationState.PENDING == state || (!context.ignored && MigrationState.IGNORED == state)) {
@@ -298,6 +320,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (resolvedMigration != null && appliedMigration != null
+                && getType() != MigrationType.DELETE
 
 
 

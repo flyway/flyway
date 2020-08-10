@@ -125,7 +125,12 @@ public enum MigrationState {
     /**
      * This is a repeatable migration that is outdated and has already been superseded by a newer run.
      */
-    SUPERSEDED("Superseded", true, true, false);
+    SUPERSEDED("Superseded", true, true, false),
+
+    /**
+     * This is a migration that has been marked as deleted
+     */
+    DELETED("Deleted", false, true, false);
 
     /**
      * The name suitable for display to the end-user.

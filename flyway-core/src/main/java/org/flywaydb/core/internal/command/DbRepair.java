@@ -98,12 +98,17 @@ public class DbRepair {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            boolean repaired = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(new Callable<Boolean>() {
-                public Boolean call() {
-                    schemaHistory.removeFailedMigrations();
+            CompletedRepairActions repairActions = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(new Callable<CompletedRepairActions>() {
+                public CompletedRepairActions call() {
+                    CompletedRepairActions completedActions = new CompletedRepairActions();
+
+                    completedActions.removedFailedMigrations = schemaHistory.removeFailedMigrations();
                     migrationInfoService.refresh();
 
-                    return alignAppliedMigrationsWithResolvedMigrations();
+                    completedActions.deletedMissingMigrations = deleteMissingMigrations();
+
+                    completedActions.alignedAppliedMigrationChecksums = alignAppliedMigrationsWithResolvedMigrations();
+                    return completedActions;
                 }
             });
 
@@ -111,8 +116,11 @@ public class DbRepair {
 
             LOG.info("Successfully repaired schema history table " + schemaHistory + " (execution time "
                     + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
-            if (repaired && !database.supportsDdlTransactions()) {
-                LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
+            if (repairActions.deletedMissingMigrations) {
+                LOG.info("Please ensure the previous contents of the deleted migrations are removed from the database, or moved into an existing migration.");
+            }
+            if (repairActions.removedFailedMigrations && !database.supportsDdlTransactions()) {
+                LOG.info("Manual cleanup of the remaining effects of the failed migration may still be required.");
             }
         } catch (FlywayException e) {
             callbackExecutor.onEvent(Event.AFTER_REPAIR_ERROR);
@@ -122,6 +130,32 @@ public class DbRepair {
         callbackExecutor.onEvent(Event.AFTER_REPAIR);
     }
 
+    private boolean deleteMissingMigrations() {
+        boolean removed = false;
+        for (MigrationInfo migrationInfo : migrationInfoService.all()) {
+            MigrationInfoImpl migrationInfoImpl = (MigrationInfoImpl) migrationInfo;
+
+            if (migrationInfo.getType().isSynthetic()
+
+
+
+            ) {
+                continue;
+            }
+
+            AppliedMigration applied = migrationInfoImpl.getAppliedMigration();
+
+            MigrationState state = migrationInfoImpl.getState();
+            if (state == MigrationState.MISSING_SUCCESS || state == MigrationState.MISSING_FAILED
+                    || state == MigrationState.FUTURE_SUCCESS || state == MigrationState.FUTURE_FAILED) {
+                schemaHistory.delete(applied);
+                removed = true;
+            }
+        }
+
+        return removed;
+    }
+
     private boolean alignAppliedMigrationsWithResolvedMigrations() {
         boolean repaired = false;
         for (MigrationInfo migrationInfo : migrationInfoService.all()) {
@@ -129,6 +163,8 @@ public class DbRepair {
 
             ResolvedMigration resolved = migrationInfoImpl.getResolvedMigration();
             AppliedMigration applied = migrationInfoImpl.getAppliedMigration();
+
+            // Repair versioned
             if (resolved != null
                     && resolved.getVersion() != null
                     && applied != null
@@ -141,6 +177,7 @@ public class DbRepair {
                 repaired = true;
             }
 
+            // Repair repeatable
             if (resolved != null
                     && resolved.getVersion() == null
                     && applied != null
@@ -173,5 +210,11 @@ public class DbRepair {
 
     private boolean typeUpdateNeeded(ResolvedMigration resolved, AppliedMigration applied) {
         return !Objects.equals(resolved.getType(), applied.getType());
+    }
+
+    static class CompletedRepairActions {
+        public boolean removedFailedMigrations = false;
+        public boolean alignedAppliedMigrationChecksums = false;
+        public boolean deletedMissingMigrations = false;
     }
 }

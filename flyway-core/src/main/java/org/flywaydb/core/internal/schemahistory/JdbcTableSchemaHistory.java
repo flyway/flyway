@@ -229,10 +229,10 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     }
 
     @Override
-    public void removeFailedMigrations() {
+    public boolean removeFailedMigrations() {
         if (!exists()) {
             LOG.info("Repair of failed migration in Schema History table " + table + " not necessary as table doesn't exist.");
-            return;
+            return false;
         }
 
         boolean failed = false;
@@ -244,7 +244,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
         }
         if (!failed) {
             LOG.info("Repair of failed migration in Schema History table " + table + " not necessary. No failed migration detected.");
-            return;
+            return false;
         }
 
         try {
@@ -254,6 +254,8 @@ class JdbcTableSchemaHistory extends SchemaHistory {
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to repair Schema History table " + table, e);
         }
+
+        return true;
     }
 
     @Override
@@ -281,6 +283,32 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                                 + database.quote("checksum") + "=?"
                                 + " WHERE " + database.quote("installed_rank") + "=?",
                         description, type, checksum, appliedMigration.getInstalledRank());
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to repair Schema History table " + table
+                    + " for version " + version, e);
+        }
+    }
+
+    @Override
+    public void delete(AppliedMigration appliedMigration) {
+        connection.restoreOriginalState();
+
+        clearCache();
+
+        MigrationVersion version = appliedMigration.getVersion();
+        String versionStr = version == null ? null : version.toString();
+
+        if (version == null) {
+            LOG.info("Repairing Schema History table for description \"" + appliedMigration.getDescription() + "\" (Marking as DELETED)  ...");
+        } else {
+            LOG.info("Repairing Schema History table for version \"" + version + "\" (Marking as DELETED)  ...");
+        }
+
+        try {
+            jdbcTemplate.update(database.getInsertStatement(table),
+                    calculateInstalledRank(),
+                    versionStr, appliedMigration.getDescription(), "DELETE", appliedMigration.getScript(),
+                    appliedMigration.getChecksum(), database.getInstalledBy(), 0, appliedMigration.isSuccess());
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to repair Schema History table " + table
                     + " for version " + version, e);

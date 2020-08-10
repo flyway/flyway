@@ -30,6 +30,11 @@ public enum MigrationType {
     BASELINE(true, false),
 
     /**
+     * Deleted migration
+     */
+    DELETE(true, false),
+
+    /**
      * SQL migrations.
      */
     SQL(false, false),

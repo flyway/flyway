@@ -108,7 +108,7 @@ public abstract class SchemaHistory {
      * including the ones in the schema history table.
      * </p>
      */
-    public abstract void removeFailedMigrations();
+    public abstract boolean removeFailedMigrations();
 
     /**
      * Indicates in the schema history table that Flyway created these schemas.
@@ -138,6 +138,12 @@ public abstract class SchemaHistory {
      * @param resolvedMigration The resolved migration to source the new values from.
      */
     public abstract void update(AppliedMigration appliedMigration, ResolvedMigration resolvedMigration);
+
+    /**
+     * Update the schema history to mark this migration as DELETED
+     * @param appliedMigration The applied migration to mark as DELETED
+     */
+    public abstract void delete(AppliedMigration appliedMigration);
 
     /**
      * Clears the applied migration cache.
@@ -176,7 +182,7 @@ public abstract class SchemaHistory {
      *
      * @return The installed rank.
      */
-    private int calculateInstalledRank() {
+    protected int calculateInstalledRank() {
         List<AppliedMigration> appliedMigrations = allAppliedMigrations();
         if (appliedMigrations.isEmpty()) {
             return 1;
