@@ -77,10 +77,6 @@ public final class Location implements Comparable<Location> {
         }
 
         if (isClassPath()) {
-            if (rawPath.contains(".")) {
-                LOG.warn("Use of dots (.) as path separators will be deprecated in Flyway 7. Path: " + rawPath);
-            }
-            rawPath = rawPath.replace(".", "/");
             if (rawPath.startsWith("/")) {
                 rawPath = rawPath.substring(1);
             }
