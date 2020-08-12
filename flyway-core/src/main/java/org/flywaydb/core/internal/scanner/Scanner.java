@@ -74,9 +74,8 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     @Override
     public LoadableResource getResource(String name) {
         for (LoadableResource resource : resources) {
-            String absolutePath = resource.getAbsolutePathOnDisk();
             String relativePath = resource.getRelativePath();
-            if (relativePath.equals(name) || absolutePath.equals(name)) {
+            if (relativePath.equals(name) || resource.getAbsolutePathOnDisk().equals(name)) {
                 return resource;
             }
         }
