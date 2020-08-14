@@ -186,7 +186,7 @@
         <version.jre>11.0.2</version.jre>
         <version.jansi>1.18</version.jansi>
         <version.gson>2.8.6</version.gson>
-        <version.clickhouse-jdbc>0.2.3</version.clickhouse-jdbc>
+        <version.clickhouse-jdbc>0.2.4</version.clickhouse-jdbc>
     </properties>
 
     <dependencyManagement>

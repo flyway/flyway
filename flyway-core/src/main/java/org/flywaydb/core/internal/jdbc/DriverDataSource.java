@@ -38,15 +38,13 @@ import java.util.regex.Pattern;
 public class DriverDataSource implements DataSource {
     private static final Log LOG = LogFactory.getLog(DriverDataSource.class);
 
-    //todo !!!!!!!!!!!!!!!!
-    private static final String CLICKHOUSE_JDBC_URL_PREFIX = "jdbc:clickhouse:";
-
     /**
      * The driver types that flyway supports. Contains the jdbc prefix and the driver class name.
      *
      * NOTE: The drivers will be matched in order, from the top of this enum down.
      */
     public enum DriverType {
+        CLICKHOUSE("jdbc:clickhouse:", "ru.yandex.clickhouse.ClickHouseDriver"),
         DB2("jdbc:db2:", "com.ibm.db2.jcc.DB2Driver"),
         DERBY_CLIENT("jdbc:derby://", "org.apache.derby.jdbc.ClientDriver"),
         DERBY_EMBEDDED("jdbc:derby:", "org.apache.derby.jdbc.EmbeddedDriver"),
@@ -397,21 +395,10 @@ public class DriverDataSource implements DataSource {
      * @return The Jdbc driver.
      */
     private String detectDriverForType(DriverType type) {
-        //todo: !!!!!!!
-        if (url.startsWith(CLICKHOUSE_JDBC_URL_PREFIX)) {
-            return "ru.yandex.clickhouse.ClickHouseDriver";
-        }
-
-
         if (DriverType.SQLLITE.equals(type)) {
             if (new FeatureDetector(classLoader).isAndroidAvailable()) {
                 return DriverType.SQLDROID.driverClass;
             }
-        }
-
-        //todo: !!!!!!!!!
-        if (url.startsWith("jdbc:clickhouse:")) {
-            return "ru.yandex.clickhouse.ClickHouseDriver";
         }
 
         return type.driverClass;
