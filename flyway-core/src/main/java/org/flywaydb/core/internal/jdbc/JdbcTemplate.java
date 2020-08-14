@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -245,7 +245,7 @@ public class JdbcTemplate {
             } finally {
                 extractWarnings(results, statement);
             }
-            extractResults(results, statement, hasResults);
+            extractResults(results, statement, sql, hasResults);
         } catch (final SQLException e) {
             extractErrors(results, e);
         } finally {
@@ -257,7 +257,21 @@ public class JdbcTemplate {
     private void extractWarnings(Results results, Statement statement) throws SQLException {
         SQLWarning warning = statement.getWarnings();
         while (warning != null) {
-            results.addWarning(new WarningImpl(warning.getErrorCode(), warning.getSQLState(), warning.getMessage()));
+            int code = warning.getErrorCode();
+            String state = warning.getSQLState();
+            String message = warning.getMessage();
+
+            if (state == null)
+            {
+                state = "";
+            }
+
+            if (message == null)
+            {
+                message = "";
+            }
+
+            results.addWarning(new WarningImpl(code, state, message));
             warning = warning.getNextWarning();
         }
     }
@@ -273,7 +287,7 @@ public class JdbcTemplate {
         results.setException(e);
     }
 
-    private void extractResults(Results results, Statement statement, boolean hasResults) throws SQLException {
+    private void extractResults(Results results, Statement statement, String sql, boolean hasResults) throws SQLException {
         // retrieve all results to ensure all errors are detected
         int updateCount = -1;
         while (hasResults || (updateCount = statement.getUpdateCount()) != -1) {
@@ -298,7 +312,7 @@ public class JdbcTemplate {
                     }
                 }
             }
-            results.addResult(new Result(updateCount, columns, data));
+            results.addResult(new Result(updateCount, columns, data, sql));
             hasResults = statement.getMoreResults();
         }
     }
@@ -373,6 +387,8 @@ public class JdbcTemplate {
 
         return results;
     }
+
+
 
 
 

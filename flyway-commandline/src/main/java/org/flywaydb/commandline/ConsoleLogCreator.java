@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ class ConsoleLogCreator implements LogCreator {
         ConsoleLog log = new ConsoleLog(commandLineArguments.getLogLevel());
         Color color = commandLineArguments.getColor();
 
-        if (Color.NEVER.equals(color)) {
+        if (Color.NEVER.equals(color) || (Color.AUTO.equals(color) && System.console() == null)) {
             return log;
         }
 

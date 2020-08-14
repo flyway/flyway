@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,4 +141,25 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
         return true;
     }
 
+    /**
+     * This exists to fix this issue: https://github.com/flyway/flyway/issues/2638
+     * See https://www.pgpool.net/docs/latest/en/html/runtime-config-load-balancing.html
+     */
+    @Override
+    public String getSelectStatement(Table table) {
+        return "/*NO LOAD BALANCE*/\n"
+                + "SELECT " + quote("installed_rank")
+                + "," + quote("version")
+                + "," + quote("description")
+                + "," + quote("type")
+                + "," + quote("script")
+                + "," + quote("checksum")
+                + "," + quote("installed_on")
+                + "," + quote("installed_by")
+                + "," + quote("execution_time")
+                + "," + quote("success")
+                + " FROM " + table
+                + " WHERE " + quote("installed_rank") + " > ?"
+                + " ORDER BY " + quote("installed_rank");
+    }
 }

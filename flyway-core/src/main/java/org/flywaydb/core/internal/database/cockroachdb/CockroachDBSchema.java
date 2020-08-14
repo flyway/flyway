@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,12 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.SqlCallable;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -27,6 +30,8 @@ import java.util.List;
  * CockroachDB implementation of Schema.
  */
 public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTable> {
+    private static final Log LOG = LogFactory.getLog(CockroachDBSchema.class);
+
     /**
      * Is this CockroachDB 1.x.
      */
@@ -46,11 +51,29 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
 
     @Override
     protected boolean doExists() throws SQLException {
+        return new CockroachDBRetryingStrategy().execute(new SqlCallable<Boolean>() {
+            @Override
+            public Boolean call() throws SQLException {
+                return doExistsOnce();
+            }
+        });
+    }
+
+    private boolean doExistsOnce() throws SQLException {
         return jdbcTemplate.queryForBoolean("SELECT EXISTS ( SELECT 1 FROM pg_database WHERE datname=? )", name);
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
+        return new CockroachDBRetryingStrategy().execute(new SqlCallable<Boolean>() {
+            @Override
+            public Boolean call() throws SQLException {
+                return doEmptyOnce();
+            }
+        });
+    }
+
+    private boolean doEmptyOnce() throws SQLException {
         if (cockroachDB1) {
             return !jdbcTemplate.queryForBoolean("SELECT EXISTS (" +
                     "  SELECT 1" +
@@ -75,16 +98,46 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
 
     @Override
     protected void doCreate() throws SQLException {
+        new CockroachDBRetryingStrategy().execute(new SqlCallable<Integer>() {
+            @Override
+            public Integer call() throws SQLException {
+                doCreateOnce();
+                return null;
+            }
+        });
+    }
+
+    protected void doCreateOnce() throws SQLException {
         jdbcTemplate.execute("CREATE DATABASE " + database.quote(name));
     }
 
     @Override
     protected void doDrop() throws SQLException {
+        new CockroachDBRetryingStrategy().execute(new SqlCallable<Integer>() {
+            @Override
+            public Integer call() throws SQLException {
+                doDropOnce();
+                return null;
+            }
+        });
+    }
+
+    protected void doDropOnce() throws SQLException {
         jdbcTemplate.execute("DROP DATABASE " + database.quote(name));
     }
 
     @Override
     protected void doClean() throws SQLException {
+        new CockroachDBRetryingStrategy().execute(new SqlCallable<Integer>() {
+            @Override
+            public Integer call() throws SQLException {
+                doCleanOnce();
+                return null;
+            }
+        });
+    }
+
+    protected void doCleanOnce() throws SQLException {
         for (String statement : generateDropStatementsForViews()) {
             jdbcTemplate.execute(statement);
         }
@@ -172,4 +225,6 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
     public Table getTable(String tableName) {
         return new CockroachDBTable(jdbcTemplate, database, this, tableName);
     }
+
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,9 +52,9 @@ public class SQLServerParser extends Parser {
     }
 
     @Override
-    protected String readKeyword(PeekingReader reader, Delimiter delimiter) throws IOException {
+    protected String readKeyword(PeekingReader reader, Delimiter delimiter, ParserContext context) throws IOException {
         // #2414: Ignore delimiter as GO (unlike ;) can be part of a regular keyword
-        return "" + (char) reader.read() + reader.readKeywordPart(null);
+        return "" + (char) reader.read() + reader.readKeywordPart(null, context);
     }
 
     @Override

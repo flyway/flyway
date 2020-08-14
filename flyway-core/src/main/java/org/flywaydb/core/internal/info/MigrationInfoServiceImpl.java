@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -240,7 +240,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             ResolvedMigration resolvedMigration = resolvedRepeatable.get(appliedRepeatableMigration.getDescription());
             int latestRank = context.latestRepeatableRuns.get(appliedRepeatableMigration.getDescription());
             if (resolvedMigration != null && appliedRepeatableMigration.getInstalledRank() == latestRank
-                    && Objects.equals(appliedRepeatableMigration.getChecksum(), resolvedMigration.getChecksum())) {
+                    && resolvedMigration.checksumMatches(appliedRepeatableMigration.getChecksum())) {
                 pendingResolvedRepeatable.remove(resolvedMigration);
             }
             migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false

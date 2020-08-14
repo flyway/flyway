@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 
 import java.util.Collection;
 import java.util.List;
@@ -101,7 +101,8 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
         for (final Callback callback : callbacks) {
             if (callback.supports(event, context)) {
                 if (callback.canHandleInTransaction(event, context)) {
-                    new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Void>() {
+                    ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                            database).execute(new Callable<Void>() {
                         @Override
                         public Void call() {
                             DefaultCallbackExecutor.this.execute(connection, callback, event, context);

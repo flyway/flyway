@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,7 @@ class CommandLineArguments {
     private static String CONFIG_FILE_ENCODING = "configFileEncoding";
     private static String CONFIG_FILES = "configFiles";
     private static String COLOR = "color";
+    private static String WORKING_DIRECTORY = "workingDirectory";
 
     private static List<String> VALID_OPERATIONS_AND_FLAGS = Arrays.asList(
             DEBUG_FLAG,
@@ -162,7 +163,8 @@ class CommandLineArguments {
     private static boolean isConfigurationOptionIgnored(String configurationOptionName) {
         return OUTPUT_FILE.equals(configurationOptionName) ||
                 LOG_FILE.equals(configurationOptionName) ||
-                COLOR.equals(configurationOptionName);
+                COLOR.equals(configurationOptionName) ||
+                WORKING_DIRECTORY.equals(configurationOptionName);
     }
 
     private static String getConfigurationOptionNameFromArg(String arg) {
@@ -252,12 +254,20 @@ class CommandLineArguments {
         return getArgumentValue(LOG_FILE, args);
     }
 
+    String getWorkingDirectory() {
+        return getArgumentValue(WORKING_DIRECTORY, args);
+    }
+
     boolean isOutputFileSet() {
         return !getOutputFile().isEmpty();
     }
 
     boolean isLogFilepathSet() {
         return !getLogFilepath().isEmpty();
+    }
+
+    boolean isWorkingDirectorySet() {
+        return !getWorkingDirectory().isEmpty();
     }
 
     String getConfigFileEncoding() {

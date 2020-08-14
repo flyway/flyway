@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
 
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * Default implementation of MigrationInfo.
@@ -195,7 +194,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         if (appliedMigration.getVersion() == null) {
             if (appliedMigration.getInstalledRank() == context.latestRepeatableRuns.get(appliedMigration.getDescription())) {
-                if (Objects.equals(appliedMigration.getChecksum(), resolvedMigration.getChecksum())) {
+                if (resolvedMigration.checksumMatches(appliedMigration.getChecksum())) {
                     return MigrationState.SUCCESS;
                 }
                 return MigrationState.OUTDATED;
@@ -315,7 +314,7 @@ public class MigrationInfoImpl implements MigrationInfo {
                 }
                 if (resolvedMigration.getVersion() != null
                         || (context.pending && MigrationState.OUTDATED != state && MigrationState.SUPERSEDED != state)) {
-                    if (!Objects.equals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
+                    if (!resolvedMigration.checksumMatches(appliedMigration.getChecksum())) {
                         return createMismatchMessage("checksum", migrationIdentifier,
                                 appliedMigration.getChecksum(), resolvedMigration.getChecksum());
                     }

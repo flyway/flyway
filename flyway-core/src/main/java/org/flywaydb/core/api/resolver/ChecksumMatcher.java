@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.clazz;
+package org.flywaydb.core.api.resolver;
 
-import java.util.Collection;
+interface ChecksumMatcher {
+    boolean checksumMatches(Integer checksum);
 
-/**
- * A facility to obtain classes.
- */
-public interface ClassProvider<I> {
-    /**
-     * Retrieve all classes which implement the specified interface.
-     *
-     * @return The non-abstract classes that were found.
-     */
-    Collection<Class<? extends I>> getClasses();
+    boolean checksumMatchesWithoutBeingIdentical(Integer checksum);
 }

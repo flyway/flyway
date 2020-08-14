@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,11 +64,16 @@ public class RedshiftConnection extends Connection<RedshiftDatabase> {
     @Override
     public Schema doGetCurrentSchema() throws SQLException {
         String currentSchema = jdbcTemplate.queryForString("SELECT current_schema()");
-        if (!StringUtils.hasText(currentSchema)) {
+        String searchPath = getCurrentSchemaNameOrSearchPath();
+
+        if (!StringUtils.hasText(currentSchema) && !StringUtils.hasText(searchPath)) {
             throw new FlywayException("Unable to determine current schema as search_path is empty. " +
                     "Set the current schema in currentSchema parameter of the JDBC URL or in Flyway's schemas property.");
         }
-        return getSchema(currentSchema);
+
+        String schema = StringUtils.hasText(currentSchema) ? currentSchema : searchPath;
+
+        return getSchema(schema);
     }
 
     @Override

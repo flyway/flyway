@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,10 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.license.VersionPrinter;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -42,18 +45,23 @@ public class InfoOutputFactory {
 
         MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
         MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
+        String schemaVersion =  schemaVersionToOutput.getVersion();
+        String flywayVersion = VersionPrinter.getVersion();
 
         return new InfoOutput(
-                schemaVersionToOutput.getVersion(),
+                flywayVersion,
                 databaseName,
-                currentSchemaVersion.getVersion(),
+                schemaVersion,
                 join(", ", configuration.getSchemas()),
                 migrationOutputs);
     }
 
     private String getDatabaseName(Configuration configuration) {
         try {
-            return configuration.getDataSource().getConnection().getCatalog();
+            Connection connection = configuration.getDataSource().getConnection();
+            String catalog = connection.getCatalog();
+            connection.close();
+            return catalog;
         } catch (Exception e) {
             return "";
         }
@@ -73,17 +81,17 @@ public class InfoOutputFactory {
     }
 
     private String join(String joiner, String[] strings) {
-        String output = "";
-
         if (strings.length == 1) {
             return strings[0];
         }
 
+        StringBuilder output = new StringBuilder();
+
         for(String s : strings) {
-            output += s + joiner;
+            output.append(s).append(joiner);
         }
 
-        return output;
+        return output.toString();
     }
 
 

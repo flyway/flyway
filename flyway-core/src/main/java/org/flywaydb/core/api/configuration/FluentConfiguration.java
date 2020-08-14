@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,10 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.ClassProvider;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.api.ResourceProvider;
+import org.flywaydb.core.internal.util.ClassUtils;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -289,8 +293,23 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public ResourceProvider getResourceProvider() {
+        return config.getResourceProvider();
+    }
+
+    @Override
+    public ClassProvider<JavaMigration> getJavaMigrationClassProvider() {
+        return config.getJavaMigrationClassProvider();
+    }
+
+    @Override
     public boolean outputQueryResults() {
         return config.outputQueryResults();
+    }
+
+    @Override
+    public boolean getCreateSchemas() {
+        return config.getCreateSchemas();
     }
 
     /**
@@ -1027,6 +1046,26 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * Custom ResourceProvider to be used to look up resources. If not set, the default strategy will be used.
+     *
+     * @param resourceProvider Custom ResourceProvider to be used to look up resources
+     */
+    public FluentConfiguration resourceProvider(ResourceProvider resourceProvider) {
+        config.setResourceProvider(resourceProvider);
+        return this;
+    }
+
+    /**
+     * Custom ClassProvider to be used to look up {@link JavaMigration} classes. If not set, the default strategy will be used.
+     *
+     * @param javaMigrationClassProvider Custom ClassProvider to be used to look up {@link JavaMigration} classes.
+     */
+    public FluentConfiguration javaMigrationClassProvider(ClassProvider<JavaMigration> javaMigrationClassProvider) {
+        config.setJavaMigrationClassProvider(javaMigrationClassProvider);
+        return this;
+    }
+
+    /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
@@ -1049,6 +1088,49 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration configuration(Map<String, String> props) {
         config.configure(props);
+        return this;
+    }
+
+    /**
+     * Load configuration files from the default locations:
+     * $installationDir$/conf/flyway.conf
+     * $user.home$/flyway.conf
+     * $workingDirectory$/flyway.conf
+     *
+     * The configuration files must be encoded with UTF-8.
+     *
+     * @throws FlywayException when the configuration failed.
+     */
+    public FluentConfiguration loadDefaultConfigurationFiles() {
+        return loadDefaultConfigurationFiles("UTF-8");
+    }
+
+    /**
+     * Load configuration files from the default locations:
+     * $installationDir$/conf/flyway.conf
+     * $user.home$/flyway.conf
+     * $workingDirectory$/flyway.conf
+     *
+     * @param encoding the conf file encoding.
+     * @throws FlywayException when the configuration failed.
+     */
+    public FluentConfiguration loadDefaultConfigurationFiles(String encoding) {
+        String installationPath = ClassUtils.getLocationOnDisk(FluentConfiguration.class);
+        File installationDir = new File(installationPath).getParentFile();
+
+        Map<String, String> configMap = ConfigUtils.loadDefaultConfigurationFiles(installationDir, encoding);
+
+        config.configure(configMap);
+        return this;
+    }
+
+    /**
+     * Whether Flyway should attempt to create the schemas specified in the schemas property
+     *
+     * @param createSchemas @{code true} to attempt to create the schemas (default: {@code true})
+     */
+    public FluentConfiguration createSchemas(boolean createSchemas) {
+        config.setShouldCreateSchemas(createSchemas);
         return this;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,21 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
+import org.flywaydb.core.internal.resolver.ChecksumCalculator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
-import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.zip.CRC32;
+import java.io.Reader;
+import java.util.*;
 
 /**
  * Migration resolver for SQL files on the classpath. The SQL files must have names like
@@ -60,6 +59,8 @@ public class SqlMigrationResolver implements MigrationResolver {
      */
     private final Configuration configuration;
 
+    private final ParsingContext parsingContext;
+
     /**
      * Creates a new instance.
      *
@@ -67,14 +68,16 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param sqlScriptExecutorFactory The SQL script executor factory.
      * @param sqlScriptFactory         The SQL script factory.
      * @param configuration            The Flyway configuration.
+     * @param parsingContext           The parsing context.
      */
     public SqlMigrationResolver(ResourceProvider resourceProvider,
                                 SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScriptFactory sqlScriptFactory,
-                                Configuration configuration) {
+                                Configuration configuration, ParsingContext parsingContext) {
         this.sqlScriptExecutorFactory = sqlScriptExecutorFactory;
         this.resourceProvider = resourceProvider;
         this.sqlScriptFactory = sqlScriptFactory;
         this.configuration = configuration;
+        this.parsingContext = parsingContext;
     }
 
     public List<ResolvedMigration> resolveMigrations(Context context) {
@@ -103,6 +106,51 @@ public class SqlMigrationResolver implements MigrationResolver {
         return migrations;
     }
 
+    private LoadableResource[] createPlaceholderReplacingLoadableResources(List<LoadableResource> loadableResources) {
+        List<LoadableResource> list = new ArrayList<>();
+
+        for (final LoadableResource loadableResource : loadableResources) {
+            LoadableResource placeholderReplacingLoadableResource = new LoadableResource() {
+                @Override
+                public Reader read() {
+                    return PlaceholderReplacingReader.create(
+                            configuration,
+                            parsingContext,
+                            loadableResource.read());
+                }
+
+                @Override
+                public String getAbsolutePath() { return loadableResource.getAbsolutePath(); }
+                @Override
+                public String getAbsolutePathOnDisk() { return loadableResource.getAbsolutePathOnDisk(); }
+                @Override
+                public String getFilename() { return loadableResource.getFilename(); }
+                @Override
+                public String getRelativePath() { return loadableResource.getRelativePath(); }
+            };
+
+            list.add(placeholderReplacingLoadableResource);
+        }
+
+        return list.toArray(new LoadableResource[0]);
+    }
+
+    private Integer getChecksumForLoadableResource(boolean repeatable, List<LoadableResource> loadableResources) {
+        if (repeatable && configuration.isPlaceholderReplacement()) {
+            return ChecksumCalculator.calculate(createPlaceholderReplacingLoadableResources(loadableResources));
+        }
+
+        return ChecksumCalculator.calculate(loadableResources.toArray(new LoadableResource[0]));
+    }
+
+    private Integer getEquivalentChecksumForLoadableResource(boolean repeatable, List<LoadableResource> loadableResources) {
+        if (repeatable) {
+            return ChecksumCalculator.calculate(loadableResources.toArray(new LoadableResource[0]));
+        }
+
+        return null;
+    }
+
     private void addMigrations(List<ResolvedMigration> migrations, String prefix,
                                String separator, String[] suffixes, boolean repeatable
 
@@ -114,12 +162,14 @@ public class SqlMigrationResolver implements MigrationResolver {
         for (LoadableResource resource : resourceProvider.getResources(prefix, suffixes)) {
             String filename = resource.getFilename();
             ResourceName result = resourceNameParser.parse(filename);
-            if (!result.isValid() || isSqlCallback(result)) {
+            if (!result.isValid() || isSqlCallback(result) || !prefix.equals(result.getPrefix())) {
                 continue;
             }
 
             SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed(), resourceProvider);
 
+            List<LoadableResource> resources = new ArrayList<>();
+            resources.add(resource);
 
 
 
@@ -128,30 +178,15 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-
-
-
-            int checksum;
-
-
-
-                checksum = resource.checksum();
-
-
-
-
-
-
-
-
-
-
+            Integer checksum = getChecksumForLoadableResource(repeatable, resources);
+            Integer equivalentChecksum = getEquivalentChecksumForLoadableResource(repeatable, resources);
 
             migrations.add(new ResolvedMigrationImpl(
                     result.getVersion(),
                     result.getDescription(),
                     resource.getRelativePath(),
                     checksum,
+                    equivalentChecksum,
 
 
 
@@ -169,22 +204,6 @@ public class SqlMigrationResolver implements MigrationResolver {
             });
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

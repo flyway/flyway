@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,8 @@ public class PostgreSQLParser extends Parser {
     @SuppressWarnings("Duplicates")
     @Override
     protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+        // dollarQuote is required because in Postgres, literals encased in $$ can be given a label, as in:
+        // $label$This is a string literal$label$
         String dollarQuote = (char) reader.read() + reader.readUntilIncluding('$');
         reader.swallowUntilExcluding(dollarQuote);
         reader.swallow(dollarQuote.length());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,12 @@ import java.sql.SQLException;
  */
 public abstract class Table<D extends Database, S extends Schema> extends SchemaObject<D, S> {
     private static final Log LOG = LogFactory.getLog(Table.class);
+
+    /**
+     * Keep track of the locks on a table. Calls to lock the table can be nested, and also if the table doesn't
+     * initially exist then we can't lock (and therefore shouldn't unlock either).
+     */
+    protected int lockDepth = 0;
 
     /**
      * Creates a new table.
@@ -97,15 +103,16 @@ public abstract class Table<D extends Database, S extends Schema> extends Schema
 
     /**
      * Locks this table in this schema using a read/write pessimistic lock until the end of the current transaction.
+     * Note that <code>unlock()</code> still needs to be called even if your database unlocks the table implicitly
+     * (in which case <code>doUnlock()</code> may be a no-op) in order to maintain the lock count correctly.
      */
     public void lock() {
         if (!exists()) {
             return;
         }
         try {
-            LOG.debug("Locking table " + this + "...");
             doLock();
-            LOG.debug("Lock acquired for table " + this);
+            lockDepth++;
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to lock table " + this, e);
         }
@@ -113,8 +120,36 @@ public abstract class Table<D extends Database, S extends Schema> extends Schema
 
     /**
      * Locks this table in this schema using a read/write pessimistic lock until the end of the current transaction.
-     *
+     * Note that <code>unlock()</code> still needs to be called even if your database unlocks the table implicitly
+     * (in which case <code>doUnlock()</code> may be a no-op) in order to maintain the lock count correctly.
      * @throws SQLException when this table in this schema could not be locked.
      */
     protected abstract void doLock() throws SQLException;
+
+    /**
+     * Unlocks this table in this schema. For databases that require an explicit unlocking, not an implicit
+     * end-of-transaction one.
+     */
+    public void unlock() {
+        // lockDepth can be zero if this table didn't exist at the time of the call to lock()
+        if (!exists() || lockDepth == 0) {
+            return;
+        }
+        try {
+            doUnlock();
+            lockDepth--;
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to unlock table " + this, e);
+        }
+    }
+
+    /**
+     * Unlocks this table in this schema. For databases that require an explicit unlocking, not an implicit
+     * end-of-transaction one.
+     *
+     * @throws SQLException when this table in this schema could not be unlocked.
+     */
+    protected void doUnlock() throws SQLException {
+        // Default behaviour is to do nothing.
+    };
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
+import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -33,7 +34,7 @@ import java.util.TreeSet;
  */
 public class FileSystemScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
-    private final Charset encoding;
+    private final Charset defaultEncoding;
 
 
 
@@ -52,7 +53,7 @@ public class FileSystemScanner {
 
 
     ) {
-        this.encoding = encoding;
+        this.defaultEncoding = encoding;
 
 
 
@@ -66,32 +67,50 @@ public class FileSystemScanner {
      * @return The resources that were found.
      */
     public Collection<LoadableResource> scanForResources(Location location) {
-        String path = location.getPath();
+        String path = location.getRootPath();
         LOG.debug("Scanning for filesystem resources at '" + path + "'");
 
         File dir = new File(path);
         if (!dir.exists()) {
-            LOG.warn("Skipping filesystem location:" + path + " (not found)");
+            LOG.warn("Skipping filesystem location:" + path + " (not found). Note this warning will become an error in Flyway 7.");
             return Collections.emptyList();
         }
         if (!dir.canRead()) {
-            LOG.warn("Skipping filesystem location:" + path + " (not readable)");
+            LOG.warn("Skipping filesystem location:" + path + " (not readable). Note this warning will become an error in Flyway 7.");
             return Collections.emptyList();
         }
         if (!dir.isDirectory()) {
-            LOG.warn("Skipping filesystem location:" + path + " (not a directory)");
+            LOG.warn("Skipping filesystem location:" + path + " (not a directory). Note this warning will become an error in Flyway 7.");
             return Collections.emptyList();
         }
 
         Set<LoadableResource> resources = new TreeSet<>();
 
         for (String resourceName : findResourceNamesFromFileSystem(path, new File(path))) {
-            resources.add(new FileSystemResource(location, resourceName, encoding
+            if (location.matchesPath(resourceName)) {
+                Charset encoding = defaultEncoding;
+                String encodingBlurb = "";
+                if (new File(resourceName + ".conf").exists()) {
+                    LoadableResource metadataResource = new FileSystemResource(location, resourceName + ".conf", defaultEncoding
 
 
 
-            ));
-            LOG.debug("Found filesystem resource: " + resourceName);
+                    );
+                    SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource);
+                    if (metadata.encoding() != null) {
+                        encoding = Charset.forName(metadata.encoding());
+                        encodingBlurb = " (with overriding encoding " + encoding + ")";
+                    }
+                }
+                resources.add(new FileSystemResource(location, resourceName, encoding
+
+
+
+                ));
+
+
+                LOG.debug("Found filesystem resource: " + resourceName + encodingBlurb);
+            }
         }
 
         return resources;

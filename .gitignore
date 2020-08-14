@@ -13,6 +13,9 @@ target
 *.h2.db
 .DS_Store
 
-.idea/
-!.idea/runConfigurations
-
+**/.idea/**
+!**/.idea/runConfigurations/
+!**/.idea/runConfigurations/*
+!**/.idea/codeStyles/
+!**/.idea/codeStyles/*
+flyway-core/SPOOLEDCONTENTS.SQL

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -464,4 +464,19 @@ public class FlywayExtension {
      * <p>Also configurable with Gradle or System Property: ${flyway.configFiles}</p>
      */
     public String[] configFiles;
+
+    /**
+     * The working directory to consider when dealing with relative paths for both config files and locations.
+     * (default: basedir, the directory where the POM resides)
+     * <p/>
+     * <p>Also configurable with Gradle or System Property: ${flyway.workingDirectory}</p>
+     */
+    public String workingDirectory;
+
+    /**
+     * Whether Flyway should attempt to create the schemas specified in the schemas property
+     *
+     * <p>Also configurable with Gradle or System Property: ${flyway.createSchemas}</p>
+     */
+    public Boolean createSchemas;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * YAGNI: The simplest DataSource implementation that works for Flyway.
@@ -37,31 +38,54 @@ import java.util.logging.Logger;
 public class DriverDataSource implements DataSource {
     private static final Log LOG = LogFactory.getLog(DriverDataSource.class);
 
+    //todo !!!!!!!!!!!!!!!!
     private static final String CLICKHOUSE_JDBC_URL_PREFIX = "jdbc:clickhouse:";
-    private static final String DB2_JDBC_URL_PREFIX = "jdbc:db2:";
-    private static final String DERBY_CLIENT_JDBC_URL_PREFIX = "jdbc:derby://";
-    private static final String DERBY_EMBEDDED_JDBC_URL_PREFIX = "jdbc:derby:";
-    private static final String FIREBIRD_JDBC_DRIVER = "org.firebirdsql.jdbc.FBDriver";
-    private static final String FIREBIRD_JDBC_URL = "jdbc:firebird:";
-    private static final String FIREBIRDSQL_JDBC_URL = "jdbc:firebirdsql:";
-    private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
-    private static final String MARIADB_JDBC_URL_PREFIX = "jdbc:mariadb:";
-    private static final String MYSQL_JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-    private static final String MYSQL_GOOGLE_JDBC_DRIVER = "com.mysql.jdbc.GoogleDriver";
+
+    /**
+     * The driver types that flyway supports. Contains the jdbc prefix and the driver class name.
+     *
+     * NOTE: The drivers will be matched in order, from the top of this enum down.
+     */
+    public enum DriverType {
+        DB2("jdbc:db2:", "com.ibm.db2.jcc.DB2Driver"),
+        DERBY_CLIENT("jdbc:derby://", "org.apache.derby.jdbc.ClientDriver"),
+        DERBY_EMBEDDED("jdbc:derby:", "org.apache.derby.jdbc.EmbeddedDriver"),
+        FIREBIRD("jdbc:firebird:", "org.firebirdsql.jdbc.FBDriver"),
+        FIREBIRD_SQL("jdbc:firebirdsql:", "org.firebirdsql.jdbc.FBDriver"),
+        H2("jdbc:h2:", "org.h2.Driver"),
+        HSQL("jdbc:hsqldb:", "org.hsqldb.jdbcDriver"),
+        INFORMIX("jdbc:informix-sqli:", "com.informix.jdbc.IfxDriver"),
+        JTDS("jdbc:jtds:", "net.sourceforge.jtds.jdbc.Driver"),
+        MARIADB("jdbc:mariadb:", "org.mariadb.jdbc.Driver"),
+        MYSQL("jdbc:mysql:", "com.mysql.cj.jdbc.Driver"),
+        MYSQL_GOOGLE("jdbc:google:", "com.mysql.jdbc.GoogleDriver"),
+        ORACLE("jdbc:oracle", "oracle.jdbc.OracleDriver"),
+        POSTGRESQL("jdbc:postgresql:", "org.postgresql.Driver"),
+        REDSHIFT("jdbc:redshift:", "com.amazon.redshift.jdbc42.Driver"),
+        SAPHANA("jdbc:sap:", "com.sap.db.jdbc.Driver"),
+        SNOWFLAKE("jdbc:snowflake:", "net.snowflake.client.jdbc.SnowflakeDriver"),
+        SQLDROID("jdbc:sqldroid:", "org.sqldroid.SQLDroidDriver"),
+        SQLLITE("jdbc:sqlite:", "org.sqlite.JDBC"),
+        SQLSERVER("jdbc:sqlserver:", "com.microsoft.sqlserver.jdbc.SQLServerDriver"),
+        SYBASE("jdbc:sybase:", "com.sybase.jdbc4.jdbc.SybDriver"),
+        TEST_CONTAINERS("jdbc:tc:", "org.testcontainers.jdbc.ContainerDatabaseDriver");
+
+        DriverType(String prefix, String driverClass) {
+            this.prefix = prefix;
+            this.driverClass = driverClass;
+        }
+
+        public String prefix;
+        public String driverClass;
+
+        public boolean matches(String url) {
+            return url.startsWith(prefix);
+        }
+    }
+
     private static final String MYSQL_LEGACY_JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql:";
-    private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle:";
-    private static final String POSTGRESQL_JDBC_URL_PREFIX = "jdbc:postgresql:";
-    private static final String REDSHIFT_JDBC_URL_PREFIX = "jdbc:redshift:";
     private static final String REDSHIFT_JDBC4_DRIVER = "com.amazon.redshift.jdbc4.Driver";
     private static final String REDSHIFT_JDBC41_DRIVER = "com.amazon.redshift.jdbc41.Driver";
-    private static final String SAPHANA_JDBC_URL_PREFIX = "jdbc:sap:";
-    private static final String SNOWFLAKE_JDBC_URL_PREFIX = "jdbc:snowflake:";
-    private static final String SQLDROID_DRIVER = "org.sqldroid.SQLDroidDriver";
-    private static final String SQLSERVER_JDBC_URL_PREFIX = "jdbc:sqlserver:";
-    private static final String SYBASE_JDBC_URL_PREFIX = "jdbc:sybase:";
-    private static final String TEST_CONTAINERS_JDBC_DRIVER = "org.testcontainers.jdbc.ContainerDatabaseDriver";
-    private static final String TEST_CONTAINERS_JDBC_URL_PREFIX = "jdbc:tc:";
 
     /**
      * The name of the application that created the connection. This is useful for databases that allow setting this
@@ -78,6 +102,11 @@ public class DriverDataSource implements DataSource {
      * The JDBC URL to use for connecting through the Driver.
      */
     private final String url;
+
+    /**
+     * The detected type of the driver.
+     */
+    private final DriverType type;
 
     /**
      * The JDBC user to use for connecting through the Driver.
@@ -133,21 +162,23 @@ public class DriverDataSource implements DataSource {
                             Properties props) throws FlywayException {
         this.classLoader = classLoader;
         this.url = detectFallbackUrl(url);
+        this.type = detectDriverTypeForUrl(url);
 
         if (!StringUtils.hasLength(driverClass)) {
-            driverClass = detectDriverForUrl(url);
-            if (!StringUtils.hasLength(driverClass)) {
+            if (type == null) {
                 throw new FlywayException("Unable to autodetect JDBC driver for url: " + url);
             }
+
+            driverClass = detectDriverForType(type);
         }
 
         this.defaultProps = new Properties(props);
-        this.defaultProps.putAll(detectPropsForUrl(url));
+        this.defaultProps.putAll(detectPropsForType(type));
 
         try {
             this.driver = ClassUtils.instantiate(driverClass, classLoader);
         } catch (FlywayException e) {
-            String backupDriverClass = detectBackupDriverForUrl(url);
+            String backupDriverClass = detectBackupDriverForType(type);
             if (backupDriverClass == null) {
                 throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass
                         + " => Check whether the jar file is present", e,
@@ -208,6 +239,61 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
+     * Detects whether a user is required from configuration. This may not be the case if the driver supports
+     * other authentication mechanisms, or supports the user being encoded in the URL
+     *
+     * @param url The url to check
+     * @return false if a username needs to be provided
+     */
+    public static boolean detectUserRequiredByUrl(String url) {
+        // Using Snowflake private-key auth instead of password allows user to be passed on URL
+        if (DriverDataSource.DriverType.SNOWFLAKE.matches(url)
+                || DriverDataSource.DriverType.POSTGRESQL.matches(url)) {
+            return !url.contains("user=");
+        }
+        if (DriverDataSource.DriverType.SQLSERVER.matches(url)) {
+            return !url.contains("integratedSecurity=")
+                    && !url.contains("authentication=ActiveDirectoryIntegrated")
+                    && !url.contains("authentication=ActiveDirectoryMSI");
+        }
+        if (DriverDataSource.DriverType.ORACLE.matches(url)) {
+            // Oracle usernames/passwords can be 1-30 chars, can only contain alphanumerics and # _ $
+            Pattern pattern = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/[a-zA-Z0-9#_$]+@//.*");
+            return !pattern.matcher(url).matches();
+        }
+        return true;
+    }
+
+    /**
+     * Detects whether a password is required from configuration. This may not be the case if the driver supports
+     * other authentication mechanisms, or supports the password being encoded in the URL
+     *
+     * @param url The url to check
+     * @return false if a username needs to be provided
+     */
+    public static boolean detectPasswordRequiredByUrl(String url) {
+        // Using Snowflake private-key auth instead of password
+        if (DriverDataSource.DriverType.SNOWFLAKE.matches(url)) {
+            return !url.contains("private_key_file=");
+        }
+        // Postgres supports password in URL
+        if (DriverDataSource.DriverType.POSTGRESQL.matches(url)) {
+            return !url.contains("password=");
+        }
+        if (DriverDataSource.DriverType.SQLSERVER.matches(url)) {
+            return !url.contains("integratedSecurity=")
+                    && !url.contains("authentication=ActiveDirectoryIntegrated")
+                    && ! url.contains("authentication=ActiveDirectoryMSI");
+        }
+        if (DriverDataSource.DriverType.ORACLE.matches(url)) {
+            // Oracle usernames/passwords can be 1-30 chars, can only contain alphanumerics and # _ $
+            Pattern pattern = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/[a-zA-Z0-9#_$]+@//.*");
+            return !pattern.matcher(url).matches();
+        }
+        return true;
+    }
+
+    /**
      * Detects a fallback password in case this one is missing.
      *
      * @param password The password to check.
@@ -225,33 +311,35 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * Detect the default connection properties for this url.
+     * Detect the default connection properties for this driver type.
      *
-     * @param url The Jdbc url.
+     * @param type The driver type.
      * @return The properties.
      */
-    private Properties detectPropsForUrl(String url) {
+    private Properties detectPropsForType(DriverType type) {
         Properties result = new Properties();
 
-        if (url.startsWith(ORACLE_JDBC_URL_PREFIX)) {
+        if (DriverType.ORACLE.equals(type)) {
             String osUser = System.getProperty("user.name");
             result.put("v$session.osuser", osUser.substring(0, Math.min(osUser.length(), 30)));
             result.put("v$session.program", APPLICATION_NAME);
             result.put("oracle.net.keepAlive", "true");
-        } else if (url.startsWith(SQLSERVER_JDBC_URL_PREFIX)) {
+            String oobb = ClassUtils.getStaticFieldValue("oracle.jdbc.OracleConnection", "CONNECTION_PROPERTY_THIN_NET_DISABLE_OUT_OF_BAND_BREAK", classLoader);
+            result.put(oobb, "true");
+        } else if (DriverType.SQLSERVER.equals(type)) {
             result.put("applicationName", APPLICATION_NAME);
-        } else if (url.startsWith(POSTGRESQL_JDBC_URL_PREFIX)) {
+        } else if (DriverType.POSTGRESQL.equals(type)) {
             result.put("ApplicationName", APPLICATION_NAME);
-        } else if (url.startsWith(MYSQL_JDBC_URL_PREFIX) || url.startsWith(MARIADB_JDBC_URL_PREFIX)) {
+        } else if (DriverType.MYSQL.equals(type) || DriverType.MARIADB.equals(type)) {
             result.put("connectionAttributes", "program_name:" + APPLICATION_NAME);
-        } else if (url.startsWith(DB2_JDBC_URL_PREFIX)) {
+        } else if (DriverType.DB2.equals(type)) {
             result.put("clientProgramName", APPLICATION_NAME);
             result.put("retrieveMessagesFromServerOnGetMessage", "true");
-        } else if (url.startsWith(SYBASE_JDBC_URL_PREFIX)) {
+        } else if (DriverType.SYBASE.equals(type)) {
             result.put("APPLICATIONNAME", APPLICATION_NAME);
-        } else if (url.startsWith(SAPHANA_JDBC_URL_PREFIX)) {
+        } else if (DriverType.SAPHANA.equals(type)) {
             result.put("SESSIONVARIABLE:APPLICATION", APPLICATION_NAME);
-        } else if (url.startsWith(FIREBIRDSQL_JDBC_URL) || url.startsWith(FIREBIRD_JDBC_URL)) {
+        } else if (DriverType.FIREBIRD_SQL.equals(type) || DriverType.FIREBIRD.equals(type)) {
             result.put("processName", APPLICATION_NAME);
         }
 
@@ -260,24 +348,39 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * Retrieves a second choice backup driver for a JDBC URL, in case the primary driver is not available.
+     * Detects the driver type for the url by checking the start of the url against the DriverType prefixes
+     * @param url The url to check
+     * @return The detected driver type
+     */
+    private DriverType detectDriverTypeForUrl(String url) {
+        for (DriverType type : DriverType.values()) {
+            if (type.matches(url)) {
+                return type;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Retrieves a second choice backup driver for a given driver type, in case the primary driver is not available.
      *
-     * @param url The JDBC url.
+     * @param type The detected driver type.
      * @return The JDBC driver. {@code null} if none.
      */
-    private String detectBackupDriverForUrl(String url) {
-        if (url.startsWith(MYSQL_JDBC_URL_PREFIX) && ClassUtils.isPresent(MYSQL_LEGACY_JDBC_DRIVER, classLoader)) {
+    private String detectBackupDriverForType(DriverType type) {
+        if (DriverType.MYSQL.equals(type) && ClassUtils.isPresent(MYSQL_LEGACY_JDBC_DRIVER, classLoader)) {
             return MYSQL_LEGACY_JDBC_DRIVER;
         }
 
-        if (url.startsWith(MYSQL_JDBC_URL_PREFIX) && ClassUtils.isPresent(MARIADB_JDBC_DRIVER, classLoader)) {
+        if (DriverType.MYSQL.equals(type) && ClassUtils.isPresent(DriverType.MARIADB.driverClass, classLoader)) {
             LOG.warn("You are attempting to connect to a MySQL database using the MariaDB driver." +
                     " This is known to cause issues." +
                     " An upgrade to Oracle's MySQL JDBC driver is highly recommended.");
-            return MARIADB_JDBC_DRIVER;
+            return DriverType.MARIADB.driverClass;
         }
 
-        if (url.startsWith(REDSHIFT_JDBC_URL_PREFIX)) {
+        if (DriverType.REDSHIFT.equals(type)) {
             if (ClassUtils.isPresent(REDSHIFT_JDBC41_DRIVER, classLoader)) {
                 return REDSHIFT_JDBC41_DRIVER;
             }
@@ -288,108 +391,30 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * Detects the correct Jdbc driver for this Jdbc url.
+     * Detects the correct Jdbc driver for this driver type.
      *
-     * @param url The Jdbc url.
+     * @param type The detected driver type.
      * @return The Jdbc driver.
      */
-    private String detectDriverForUrl(String url) {
-        if (url.startsWith(TEST_CONTAINERS_JDBC_URL_PREFIX)) {
-            return TEST_CONTAINERS_JDBC_DRIVER;
-        }
-
+    private String detectDriverForType(DriverType type) {
+        //todo: !!!!!!!
         if (url.startsWith(CLICKHOUSE_JDBC_URL_PREFIX)) {
             return "ru.yandex.clickhouse.ClickHouseDriver";
         }
 
-        if (url.startsWith(DB2_JDBC_URL_PREFIX)) {
-            return "com.ibm.db2.jcc.DB2Driver";
-        }
 
-        if (url.startsWith(DERBY_CLIENT_JDBC_URL_PREFIX)) {
-            return "org.apache.derby.jdbc.ClientDriver";
-        }
-
-        if (url.startsWith(DERBY_EMBEDDED_JDBC_URL_PREFIX)) {
-            return "org.apache.derby.jdbc.EmbeddedDriver";
-        }
-
-        if (url.startsWith("jdbc:h2:")) {
-            return "org.h2.Driver";
-        }
-
-        if (url.startsWith("jdbc:hsqldb:")) {
-            return "org.hsqldb.jdbcDriver";
-        }
-
-        if (url.startsWith("jdbc:sqlite:")) {
+        if (DriverType.SQLLITE.equals(type)) {
             if (new FeatureDetector(classLoader).isAndroidAvailable()) {
-                return SQLDROID_DRIVER;
+                return DriverType.SQLDROID.driverClass;
             }
-            return "org.sqlite.JDBC";
         }
 
-        if (url.startsWith("jdbc:sqldroid:")) {
-            return SQLDROID_DRIVER;
-        }
-
-        if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
-            return MYSQL_JDBC_DRIVER;
-        }
-
-        if (url.startsWith(MARIADB_JDBC_URL_PREFIX)) {
-            return MARIADB_JDBC_DRIVER;
-        }
-
-        if (url.startsWith("jdbc:google:")) {
-            return MYSQL_GOOGLE_JDBC_DRIVER;
-        }
-
-        if (url.startsWith(ORACLE_JDBC_URL_PREFIX)) {
-            return "oracle.jdbc.OracleDriver";
-        }
-
-        if (url.startsWith(POSTGRESQL_JDBC_URL_PREFIX)) {
-            return "org.postgresql.Driver";
-        }
-
-        if (url.startsWith(REDSHIFT_JDBC_URL_PREFIX)) {
-            return "com.amazon.redshift.jdbc42.Driver";
-        }
-
+        //todo: !!!!!!!!!
         if (url.startsWith("jdbc:clickhouse:")) {
             return "ru.yandex.clickhouse.ClickHouseDriver";
         }
 
-        if (url.startsWith("jdbc:jtds:")) {
-            return "net.sourceforge.jtds.jdbc.Driver";
-        }
-
-        if (url.startsWith(SYBASE_JDBC_URL_PREFIX)) {
-            return "com.sybase.jdbc4.jdbc.SybDriver";
-        }
-
-        if (url.startsWith(SQLSERVER_JDBC_URL_PREFIX)) {
-            return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-        }
-
-        if (url.startsWith(SAPHANA_JDBC_URL_PREFIX)) {
-            return "com.sap.db.jdbc.Driver";
-        }
-
-        if (url.startsWith(SNOWFLAKE_JDBC_URL_PREFIX)) {
-            return "net.snowflake.client.jdbc.SnowflakeDriver";
-        }
-
-        if (url.startsWith("jdbc:informix-sqli:")) {
-            return "com.informix.jdbc.IfxDriver";
-        }
-
-        if (url.startsWith(FIREBIRDSQL_JDBC_URL) || url.startsWith(FIREBIRD_JDBC_URL)) {
-            return FIREBIRD_JDBC_DRIVER;
-        }
-
-        return null;
+        return type.driverClass;
     }
 
     /**
@@ -530,7 +555,7 @@ public class DriverDataSource implements DataSource {
      * Shutdown the database that was opened (only applicable to embedded databases that require this).
      */
     public void shutdownDatabase() {
-        if (url.startsWith(DERBY_EMBEDDED_JDBC_URL_PREFIX) && !url.startsWith(DERBY_CLIENT_JDBC_URL_PREFIX)) {
+        if (DriverType.DERBY_EMBEDDED.equals(type)) {
             try {
                 int i = url.indexOf(";");
                 String shutdownUrl = (i < 0 ? url : url.substring(0, i)) + ";shutdown=true";

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,20 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationInfoService;
-import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
+import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.output.ErrorOutput;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.io.Console;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -83,7 +79,7 @@ public class Main {
     public static void main(String[] args) {
         CommandLineArguments commandLineArguments = new CommandLineArguments(args);
         initLogging(commandLineArguments);
-        
+
         try {
             commandLineArguments.validate(LOG);
 
@@ -100,8 +96,14 @@ public class Main {
             Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
 
             Map<String, String> config = new HashMap<>();
-            initializeDefaults(config);
+            initializeDefaults(config, commandLineArguments);
             loadConfigurationFromConfigFiles(config, commandLineArguments, envVars);
+            config.putAll(readConfigFromInputStream(System.in));
+
+            if (commandLineArguments.isWorkingDirectorySet()) {
+                makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments, config);
+            }
+            
             config.putAll(envVars);
             config = overrideConfiguration(config, commandLineArguments.getConfiguration());
 
@@ -132,11 +134,27 @@ public class Main {
                 if (commandLineArguments.getLogLevel() == Level.DEBUG) {
                     LOG.error("Unexpected error", e);
                 } else {
-                    LOG.error(getMessageFromException(e));
+                    LOG.error(getMessagesFromException(e));
                 }
             }
             System.exit(1);
         }
+    }
+
+    private static void makeRelativeLocationsBasedOnWorkingDirectory(CommandLineArguments commandLineArguments, Map<String, String> config) {
+        String[] locations = config.get(ConfigUtils.LOCATIONS).split(",");
+        for (int i = 0; i < locations.length; i++) {
+            if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
+                String newLocation = locations[i].substring(Location.FILESYSTEM_PREFIX.length());
+                File file = new File(newLocation);
+                if (!file.isAbsolute()) {
+                    file = new File(commandLineArguments.getWorkingDirectory(), newLocation);
+                }
+                locations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
+            }
+        }
+
+        config.put(ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locations));
     }
 
     private static Map<String, String> overrideConfiguration(Map<String, String> existingConfiguration, Map<String, String> newConfiguration) {
@@ -149,12 +167,19 @@ public class Main {
     }
 
 
-    static String getMessageFromException(Exception e) {
-        if (e instanceof FlywayException) {
-            return e.getMessage();
-        } else {
-            return e.toString();
+    static String getMessagesFromException(Throwable e) {
+        String condensedMessages = "";
+        String preamble = "";
+        while (e != null) {
+            if (e instanceof FlywayException) {
+                condensedMessages += preamble + e.getMessage();
+            } else {
+                condensedMessages += preamble + e.toString();
+            }
+            preamble = "\r\nCaused by: ";
+            e = e.getCause();
         }
+        return condensedMessages;
     }
 
 
@@ -224,10 +249,14 @@ public class Main {
      *
      * @param config The config object to initialize.
      */
-    private static void initializeDefaults(Map<String, String> config) {
-        config.put(ConfigUtils.LOCATIONS, "filesystem:" + new File(getInstallationDir(), "sql").getAbsolutePath());
-        config.put(ConfigUtils.JAR_DIRS, new File(getInstallationDir(), "jars").getAbsolutePath());
+    private static void initializeDefaults(Map<String, String> config, CommandLineArguments commandLineArguments) {
+        // To maintain override order, return extension value first if present
+        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : getInstallationDir();
+
+        config.put(ConfigUtils.LOCATIONS, "filesystem:" + new File(workingDirectory, "sql").getAbsolutePath());
+        config.put(ConfigUtils.JAR_DIRS, new File(workingDirectory, "jars").getAbsolutePath());
     }
+
 
     /**
      * Filters there properties to remove the Flyway Commandline-specific ones.
@@ -318,6 +347,7 @@ public class Main {
         LOG.info("configFiles                  : Comma-separated list of config files to use");
         LOG.info("configFileEncoding           : Encoding to use when loading the config files");
         LOG.info("jarDirs                      : Comma-separated list of dirs for Jdbc drivers & Java migrations");
+        LOG.info("createSchemas          : Whether Flyway should attempt to create the schemas specified in the schemas property");
         LOG.info("dryRunOutput                 : [" + "pro] File where to output the SQL statements of a migration dry run");
         LOG.info("errorOverrides               : [" + "pro] Rules to override specific SQL states and errors codes");
         LOG.info("oracle.sqlplus               : [" + "pro] Enable Oracle SQL*Plus command support");
@@ -412,14 +442,50 @@ public class Main {
     /* private -> for testing */
     static void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(commandLineArguments, envVars);
+        File installationDir = new File(getInstallationDir());
 
-        config.putAll(ConfigUtils.loadConfigurationFile(new File(getInstallationDir() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
-        config.putAll(ConfigUtils.loadConfigurationFile(new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
-        config.putAll(ConfigUtils.loadConfigurationFile(new File(ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        config.putAll(ConfigUtils.loadDefaultConfigurationFiles(installationDir, encoding));
 
         for (File configFile : determineConfigFilesFromArgs(commandLineArguments, envVars)) {
             config.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
         }
+    }
+
+    /* private -> for testing */
+    static Map<String, String> readConfigFromInputStream(InputStream inputStream) {
+        Map<String, String> config = new HashMap<>();
+
+        try {
+            // System.in.available() : returns an estimate of the number of bytes that can be read (or skipped over) from this input stream
+            // Used to check if there is any data in the stream
+            if (inputStream != null && inputStream.available() > 0) {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+                LOG.debug("Attempting to load configuration from standard input");
+                int firstCharacter = bufferedReader.read();
+
+                if (bufferedReader.ready() && firstCharacter != -1) {
+                    // Prepend the first character to the rest of the string
+                    // This is a char, represented as an int, so we cast to a char
+                    // which is implicitly converted to an string
+                    String configurationString = (char)firstCharacter + FileCopyUtils.copyToString(bufferedReader);
+                    Map<String, String> configurationFromStandardInput = ConfigUtils.loadConfigurationFromString(configurationString);
+
+                    if (configurationFromStandardInput.isEmpty()) {
+                        LOG.debug("Empty configuration provided from standard input");
+                    } else {
+                        LOG.info("Loaded configuration from standard input");
+                        config.putAll(configurationFromStandardInput);
+                    }
+                } else {
+                    LOG.debug("Could not load configuration from standard input");
+                }
+            }
+        } catch (Exception e) {
+            LOG.debug("Could not load configuration from standard input " + e.getMessage());
+        }
+
+        return config;
     }
 
     /**
@@ -440,14 +506,29 @@ public class Main {
             return;
         }
 
-        if (!config.containsKey(ConfigUtils.USER)) {
+        String url = config.get(ConfigUtils.URL);
+        if (!config.containsKey(ConfigUtils.USER) && needsUser(url)) {
             config.put(ConfigUtils.USER, console.readLine("Database user: "));
         }
 
-        if (!config.containsKey(ConfigUtils.PASSWORD)) {
+        if (!config.containsKey(ConfigUtils.PASSWORD) && needsPassword(url)) {
             char[] password = console.readPassword("Database password: ");
             config.put(ConfigUtils.PASSWORD, password == null ? "" : String.valueOf(password));
         }
+    }
+
+    /**
+     * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a username.
+     */
+    private static boolean needsUser(String url) {
+        return DriverDataSource.detectUserRequiredByUrl(url);
+    }
+
+    /**
+     * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a password.
+     */
+    private static boolean needsPassword(String url) {
+        return DriverDataSource.detectPasswordRequiredByUrl(url);
     }
 
     /**
@@ -460,16 +541,18 @@ public class Main {
     private static List<File> determineConfigFilesFromArgs(CommandLineArguments commandLineArguments, Map<String, String> envVars) {
         List<File> configFiles = new ArrayList<>();
 
+        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : null;
+
         if (envVars.containsKey(ConfigUtils.CONFIG_FILES)) {
             for (String file : StringUtils.tokenizeToStringArray(envVars.get(ConfigUtils.CONFIG_FILES), ",")) {
-                configFiles.add(new File(file));
+                configFiles.add(new File(workingDirectory, file));
             }
             return configFiles;
         }
 
 
         for (String file : commandLineArguments.getConfigFiles()) {
-            configFiles.add(new File(file));
+            configFiles.add(new File(workingDirectory, file));
         }
 
         return configFiles;

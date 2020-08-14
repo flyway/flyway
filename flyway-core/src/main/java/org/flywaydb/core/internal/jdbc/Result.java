@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,13 @@ public class Result {
     private final long updateCount;
     private final List<String> columns;
     private final List<List<String>> data;
+    private final String sql;
 
-    public Result(long updateCount, List<String> columns, List<List<String>> data) {
+    public Result(long updateCount, List<String> columns, List<List<String>> data, String sql) {
         this.updateCount = updateCount;
         this.columns = columns;
         this.data = data;
+        this.sql = sql;
     }
 
     public long getUpdateCount() {
@@ -38,5 +40,9 @@ public class Result {
 
     public List<List<String>> getData() {
         return data;
+    }
+
+    public String getSql() {
+        return sql;
     }
 }

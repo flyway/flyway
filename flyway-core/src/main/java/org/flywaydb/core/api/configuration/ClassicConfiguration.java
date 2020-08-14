@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,11 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.license.Edition;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -195,6 +198,17 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
+    /**
+     * Custom Resource provider to use when looking up resources
+     */
+    private ResourceProvider resourceProvider = null;
+
+
+    /**
+     * Custom ClassProvider for looking up JavaMigration classes
+     */
+    private ClassProvider<JavaMigration> javaMigrationClassProvider = null;
 
     /**
      * The file name prefix for repeatable SQL migrations. (default: R)
@@ -387,6 +401,13 @@ public class ClassicConfiguration implements Configuration {
      * {@code null} for the current database user of the connection. (default: {@code null}).
      */
     private String installedBy;
+
+    /**
+     * Whether Flyway should attempt to create the schemas specified in the schemas property
+     * <p>
+     * {@code true} if flyway should create the schemas. {@code false} if flyway should not. (default: {@code true})
+     */
+    private boolean createSchemas = true;
 
 
 
@@ -721,6 +742,21 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+    }
+
+    @Override
+    public ResourceProvider getResourceProvider() {
+        return resourceProvider;
+    }
+
+    @Override
+    public ClassProvider<JavaMigration> getJavaMigrationClassProvider() {
+        return javaMigrationClassProvider;
+    }
+
+    @Override
+    public boolean getCreateSchemas() {
+        return createSchemas;
     }
 
     /**
@@ -1569,6 +1605,15 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Whether Flyway should attempt to create the schemas specified in the schemas property
+     *
+     * @param createSchemas @{code true} to attempt to create the schemas (default: {@code true})
+     */
+    public void setShouldCreateSchemas(boolean createSchemas) {
+        this.createSchemas = createSchemas;
+    }
+
+    /**
      * Your Flyway license key (FL01...). Not yet a Flyway Pro or Enterprise Edition customer?
      * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
      * to try out Flyway Pro and Enterprise Edition features free for 30 days.
@@ -1579,11 +1624,21 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLicenseKey(String licenseKey) {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("licenseKey");
+         LOG.warn(Edition.PRO + " or " + Edition.ENTERPRISE + " upgrade required: " + licenseKey
+         + " is not supported by " + Edition.COMMUNITY + ".");
 
 
 
 
+
+    }
+
+    public void setResourceProvider(ResourceProvider resourceProvider) {
+        this.resourceProvider = resourceProvider;
+    }
+
+    public void setJavaMigrationClassProvider(ClassProvider<JavaMigration> javaMigrationClassProvider) {
+        this.javaMigrationClassProvider = javaMigrationClassProvider;
     }
 
     /**
@@ -1641,6 +1696,9 @@ public class ClassicConfiguration implements Configuration {
         setTablespace(configuration.getTablespace());
         setTarget(configuration.getTarget());
         setValidateOnMigrate(configuration.isValidateOnMigrate());
+        setResourceProvider(configuration.getResourceProvider());
+        setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
+        setShouldCreateSchemas(configuration.getCreateSchemas());
     }
 
     /**
@@ -1903,6 +1961,11 @@ public class ClassicConfiguration implements Configuration {
         Boolean oracleSqlplusWarnProp = removeBoolean(props, ConfigUtils.ORACLE_SQLPLUS_WARN);
         if (oracleSqlplusWarnProp != null) {
             setOracleSqlplusWarn(oracleSqlplusWarnProp);
+        }
+
+        Boolean createSchemasProp = removeBoolean(props, ConfigUtils.CREATE_SCHEMAS);
+        if (createSchemasProp != null) {
+            setShouldCreateSchemas(createSchemasProp);
         }
 
         String licenseKeyProp = props.remove(ConfigUtils.LICENSE_KEY);

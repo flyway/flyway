@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.database.clickhouse.ClickHouseDatabase;
 import org.flywaydb.core.internal.database.clickhouse.ClickHouseParser;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabase;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBParser;
+import org.flywaydb.core.internal.database.cockroachdb.CockroachDBRetryingStrategy;
 import org.flywaydb.core.internal.database.db2.DB2Database;
 import org.flywaydb.core.internal.database.db2.DB2Parser;
 import org.flywaydb.core.internal.database.derby.DerbyDatabase;
@@ -62,7 +63,7 @@ import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.*;
 
 import java.sql.Connection;
@@ -383,5 +384,19 @@ public class DatabaseFactory {
                 );
             }
         };
+    }
+
+    public static DatabaseExecutionStrategy createExecutionStrategy(Connection connection) {
+        if (connection == null) {
+            return new DefaultExecutionStrategy();
+        }
+
+        DatabaseType databaseType = DatabaseType.fromJdbcConnection(connection);
+        switch (databaseType) {
+            case COCKROACHDB:
+                return new CockroachDBRetryingStrategy();
+            default:
+                return new DefaultExecutionStrategy();
+        }
     }
 }

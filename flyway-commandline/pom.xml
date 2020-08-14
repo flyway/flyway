@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2010-2020 Boxfuse GmbH
+    Copyright 2010-2020 Redgate Software Ltd
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -224,6 +224,10 @@
                     <classifier>macos-x64</classifier>
                     <type>tar.gz</type>
                     <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.oracle.database.jdbc</groupId>
+                    <artifactId>ojdbc8</artifactId>
                 </dependency>
             </dependencies>
             <build>

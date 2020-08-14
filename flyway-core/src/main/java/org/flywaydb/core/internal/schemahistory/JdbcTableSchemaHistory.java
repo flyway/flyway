@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.RowMapper;
-import org.flywaydb.core.internal.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
@@ -103,7 +103,8 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                         LOG.info("Creating Schema History table " + table + (baseline ? " with baseline" : "") + " ...");
                     }
                     try {
-                        new TransactionTemplate(connection.getJdbcConnection(), true).execute(new Callable<Object>() {
+                        ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                                database).execute(new Callable<Object>() {
                             @Override
                             public Object call() {
                                 sqlScriptExecutorFactory.createSqlScriptExecutor(connection.getJdbcConnection()
@@ -143,6 +144,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     protected void doAddAppliedMigration(int installedRank, MigrationVersion version, String description,
                                          MigrationType type, String script, Integer checksum,
                                          int executionTime, boolean success) {
+        boolean tableIsLocked = false;
         connection.restoreOriginalState();
 
         // Lock again for databases with no clean DDL transactions like Oracle
@@ -150,6 +152,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
         // in highly concurrent environments
         if (!database.supportsDdlTransactions()) {
             table.lock();
+            tableIsLocked = true;
         }
 
         try {
@@ -166,6 +169,10 @@ class JdbcTableSchemaHistory extends SchemaHistory {
             LOG.debug("Schema History table " + table + " successfully updated to reflect changes");
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to insert row for version '" + version + "' in Schema History table " + table, e);
+        } finally {
+            if (tableIsLocked) {
+                table.unlock();
+            }
         }
     }
 
@@ -271,12 +278,12 @@ class JdbcTableSchemaHistory extends SchemaHistory {
 
         try {
             jdbcTemplate.update("UPDATE " + table
-                            + " SET "
-                            + database.quote("description") + "=? , "
-                            + database.quote("type") + "=? , "
-                            + database.quote("checksum") + "=?"
-                            + " WHERE " + database.quote("version") + "=?",
-                    description, type, checksum, version);
+                                + " SET "
+                                + database.quote("description") + "=? , "
+                                + database.quote("type") + "=? , "
+                                + database.quote("checksum") + "=?"
+                                + " WHERE " + database.quote("installed_rank") + "=?",
+                        description, type, checksum, appliedMigration.getInstalledRank());
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to repair Schema History table " + table
                     + " for version " + version, e);

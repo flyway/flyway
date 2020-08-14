@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,13 @@ public class RedshiftSchema extends Schema<RedshiftDatabase, RedshiftTable> {
             table.drop();
         }
 
-        for (String statement : generateDropStatementsForRoutines()) {
+        for (String statement : generateDropStatementsForRoutines('a', "FUNCTION", " CASCADE")) {
+            jdbcTemplate.execute(statement);
+        }
+        for (String statement : generateDropStatementsForRoutines('f', "FUNCTION", " CASCADE")) {
+            jdbcTemplate.execute(statement);
+        }
+        for (String statement : generateDropStatementsForRoutines('p', "PROCEDURE", "")) {
             jdbcTemplate.execute(statement);
         }
     }
@@ -81,24 +87,28 @@ public class RedshiftSchema extends Schema<RedshiftDatabase, RedshiftTable> {
     /**
      * Generates the statements for dropping the routines in this schema.
      *
+     * @kind The kind of object: f for functions, a for aggregate functions, p for procedures
+     * @objType The type of object for the DROP statement; FUNCTION or PROCEDURE
+     * @cascade CASCADE if required, blank if not.
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> generateDropStatementsForRoutines() throws SQLException {
+    private List<String> generateDropStatementsForRoutines(char kind, String objType, String cascade) throws SQLException {
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
                 // Search for all functions
                         "SELECT proname, oidvectortypes(proargtypes) AS args "
-                                + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
+                                + "FROM pg_proc_info INNER JOIN pg_namespace ns ON (pg_proc_info.pronamespace = ns.oid) "
                 // that don't depend on an extension
-                        + "LEFT JOIN pg_depend dep ON dep.objid = pg_proc.oid AND dep.deptype = 'e' "
-                        + "WHERE pg_proc.proisagg = false AND ns.nspname = ? AND dep.objid IS NULL",
+                        + "LEFT JOIN pg_depend dep ON dep.objid = pg_proc_info.prooid AND dep.deptype = 'e' "
+                        + "WHERE pg_proc_info.proisagg = false AND pg_proc_info.prokind = '" + kind + "' "
+                        + "AND ns.nspname = ? AND dep.objid IS NULL",
                         name
                 );
 
         List<String> statements = new ArrayList<>();
         for (Map<String, String> row : rows) {
-            statements.add("DROP FUNCTION " + database.quote(name, row.get("proname")) + "(" + row.get("args") + ") CASCADE");
+            statements.add("DROP " + objType + database.quote(name, row.get("proname")) + "(" + row.get("args") + ") " + cascade);
         }
         return statements;
     }

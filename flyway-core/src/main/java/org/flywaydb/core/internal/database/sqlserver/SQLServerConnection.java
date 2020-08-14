@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     private final String originalDatabaseName;
     private final String originalAnsiNulls;
     private final boolean azure;
+    private final SQLServerEngineEdition engineEdition;
 
     SQLServerConnection(SQLServerDatabase database, java.sql.Connection connection) {
         super(database, connection);
@@ -45,6 +46,14 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
         }
         catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine database edition.'", e);
+        }
+
+        try {
+            engineEdition = SQLServerEngineEdition.fromCode(getJdbcTemplate().queryForInt(
+                    "SELECT SERVERPROPERTY('engineedition')"));
+        }
+        catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine database engine edition.'", e);
         }
 
         try {
@@ -88,4 +97,6 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
     }
 
     public Boolean isAzureConnection() { return azure; }
+
+    public SQLServerEngineEdition getEngineEdition() { return engineEdition; }
 }

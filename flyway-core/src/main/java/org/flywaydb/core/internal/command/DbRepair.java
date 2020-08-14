@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@ import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-import org.flywaydb.core.internal.jdbc.TransactionTemplate;
 
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -98,7 +98,7 @@ public class DbRepair {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            boolean repaired = new TransactionTemplate(connection.getJdbcConnection()).execute(new Callable<Boolean>() {
+            boolean repaired = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(new Callable<Boolean>() {
                 public Boolean call() {
                     schemaHistory.removeFailedMigrations();
                     migrationInfoService.refresh();
@@ -140,7 +140,20 @@ public class DbRepair {
                 schemaHistory.update(applied, resolved);
                 repaired = true;
             }
+
+            if (resolved != null
+                    && resolved.getVersion() == null
+                    && applied != null
+                    && !applied.getType().isSynthetic()
+
+
+
+                    && resolved.checksumMatchesWithoutBeingIdentical(applied.getChecksum())) {
+                schemaHistory.update(applied, resolved);
+                repaired = true;
+            }
         }
+
         return repaired;
     }
 
@@ -151,7 +164,7 @@ public class DbRepair {
     }
 
     private boolean checksumUpdateNeeded(ResolvedMigration resolved, AppliedMigration applied) {
-        return !Objects.equals(resolved.getChecksum(), applied.getChecksum());
+        return !resolved.checksumMatches(applied.getChecksum());
     }
 
     private boolean descriptionUpdateNeeded(ResolvedMigration resolved, AppliedMigration applied) {

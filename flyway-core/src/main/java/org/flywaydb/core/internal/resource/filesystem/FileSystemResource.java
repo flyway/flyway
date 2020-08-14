@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,10 +64,7 @@ public class FileSystemResource extends LoadableResource {
 
     ) {
         this.file = new File(new File(fileNameWithPath).getPath());
-        this.relativePath = (location == null || location.getPath().isEmpty()
-                ? file.getPath()
-                : file.getAbsolutePath().substring(new File(location.getPath()).getAbsolutePath().length() + 1))
-                .replace("\\", "/");
+        this.relativePath = location == null ? file.getPath() : location.getPathRelativeToThis(file.getPath()).replace("\\", "/");
         this.encoding = encoding;
 
 

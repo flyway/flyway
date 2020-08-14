@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import java.io.IOException;
 
 public class SybaseASEParser extends Parser {
     public SybaseASEParser(Configuration configuration, ParsingContext parsingContext) {
-        super(configuration, parsingContext, 2);
+        super(configuration, parsingContext, 3);
     }
 
     @Override
@@ -36,14 +36,15 @@ public class SybaseASEParser extends Parser {
 
     @Override
     protected boolean isDelimiter(String peek, ParserContext context, int col) {
-        return peek.length() == 2
+        return peek.length() >= 2
                 && (peek.charAt(0) == 'G' || peek.charAt(0) == 'g')
-                && (peek.charAt(1) == 'O' || peek.charAt(1) == 'o');
+                && (peek.charAt(1) == 'O' || peek.charAt(1) == 'o')
+                && (peek.length() == 2 || Character.isWhitespace(peek.charAt(2)));
     }
 
     @Override
-    protected String readKeyword(PeekingReader reader, Delimiter delimiter) throws IOException {
+    protected String readKeyword(PeekingReader reader, Delimiter delimiter, ParserContext context) throws IOException {
         // #2414: Ignore delimiter as GO (unlike ;) can be part of a regular keyword
-        return "" + (char) reader.read() + reader.readKeywordPart(null);
+        return "" + (char) reader.read() + reader.readKeywordPart(null, context);
     }
 }

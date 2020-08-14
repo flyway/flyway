@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,9 @@
 package org.flywaydb.core.internal.database.sqlite;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.parser.ParserContext;
-import org.flywaydb.core.internal.parser.Token;
+import org.flywaydb.core.internal.parser.*;
 
+import java.io.IOException;
 import java.util.List;
 
 public class SQLiteParser extends Parser {
@@ -43,10 +41,10 @@ public class SQLiteParser extends Parser {
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword) {
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
         String lastKeyword = keyword.getText();
-        if ("BEGIN".equals(lastKeyword)) {
-            context.increaseBlockDepth();
+        if ("BEGIN".equals(lastKeyword) || "CASE".equals(lastKeyword)) {
+            context.increaseBlockDepth(lastKeyword);
         } else if ("END".equals(lastKeyword)) {
             context.decreaseBlockDepth();
         }

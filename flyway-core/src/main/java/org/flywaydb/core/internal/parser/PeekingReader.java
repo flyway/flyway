@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,13 @@ public class PeekingReader extends FilterReader {
     private int[] peekBuffer = new int[256];
     private int peekMax = 0;
     private int peekBufferOffset = 0;
+    private boolean supportsPeekingMultipleLines = true;
 
-    PeekingReader(Reader in) {
+    PeekingReader(Reader in, boolean supportsPeekingMultipleLines) {
         super(in);
+        this.supportsPeekingMultipleLines = supportsPeekingMultipleLines;
     }
-
+    
     @Override
     public int read() throws IOException {
         peekBufferOffset++;
@@ -70,7 +72,7 @@ public class PeekingReader extends FilterReader {
         for (int i = 0; i < peekBuffer.length; i++) {
             int read = super.read();
             peekBuffer[i] = read;
-            if (read == '\n') {
+            if (!supportsPeekingMultipleLines && read == '\n') {
                 peekMax = i;
                 break;
             }
@@ -134,13 +136,13 @@ public class PeekingReader extends FilterReader {
      *
      * @return {@code true} if it is, {@code false} if not.
      */
-    public boolean peekKeywordPart() throws IOException {
+    public boolean peekKeywordPart(ParserContext context) throws IOException {
         int r = peek();
-        return isKeywordPart(r);
+        return isKeywordPart(r, context);
     }
 
-    private boolean isKeywordPart(int r) {
-        return r != -1 && ((char) r == '_' || (char) r == '$' || Character.isLetterOrDigit((char) r));
+    private boolean isKeywordPart(int r, ParserContext context) {
+        return r != -1 && ((char) r == '_' || (char) r == '$' || Character.isLetterOrDigit((char) r) || context.isLetter((char)r));
     }
 
     /**
@@ -160,6 +162,17 @@ public class PeekingReader extends FilterReader {
      * @return The characters.
      */
     public String peek(int numChars) throws IOException {
+        return peek(numChars, false);
+    }
+
+    /**
+     * Peek ahead in the stream to look at this number of characters ahead in the reader.
+     *
+     * @param numChars The number of characters.
+     * @param peekMultipleLines Whether the peek should go across lines or not
+     * @return The characters.
+     */
+    public String peek(int numChars, boolean peekMultipleLines) throws IOException {
         // If we need to peek beyond the physical size of the peek buffer - eg. we have encountered a very
         // long string literal - then expand the buffer to be big enough to contain it.
         if (numChars >= peekBuffer.length) {
@@ -171,17 +184,44 @@ public class PeekingReader extends FilterReader {
         }
 
         StringBuilder result = new StringBuilder();
+        int prevR = -1;
         for (int i = 0; i < numChars; i++) {
             int r = peekBuffer[peekBufferOffset + i];
             if (r == -1) {
                 break;
+            } else if (peekBufferOffset + i > peekMax) {
+                break;
+            } else if (!peekMultipleLines && prevR == '\n') {
+                break;
             }
             result.append((char) r);
+
+            prevR = r;
         }
         if (result.length() == 0) {
             return null;
         }
         return result.toString();
+    }
+
+    /**
+     * Return the next non-whitespace character
+     * @return The character
+     */
+    public char peekNextNonWhitespace() throws IOException {
+        int i = 1;
+        String c = peek(i++, true);
+        String lastc = c;
+        while (c.trim().isEmpty()) {
+            c = peek(i++, true);
+            if (c.equals(lastc)) {
+                // if the peek is the same as the last peek, then dont loop forever, even if its still empty.
+                break;
+            }
+            lastc = c;
+        }
+
+        return c.charAt(c.length()-1);
     }
 
     private void resizePeekBuffer(int newSize) {
@@ -411,10 +451,10 @@ public class PeekingReader extends FilterReader {
      * @param delimiter The current delimiter.
      * @return The string read.
      */
-    public String readKeywordPart(Delimiter delimiter) throws IOException {
+    public String readKeywordPart(Delimiter delimiter, ParserContext context) throws IOException {
         StringBuilder result = new StringBuilder();
         do {
-            if ((delimiter == null || !peek(delimiter.getDelimiter())) && peekKeywordPart()) {
+            if ((delimiter == null || !peek(delimiter.getDelimiter())) && peekKeywordPart(context)) {
                 result.append((char) read());
             } else {
                 break;

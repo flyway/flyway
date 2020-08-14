@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -301,20 +301,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
 
 
 
-            for (String statement : cleanPartitionSchemes()) {
-                jdbcTemplate.execute(statement);
-            }
-
-            for (String statement : cleanPartitionFunctions()) {
-                jdbcTemplate.execute(statement);
-            }
-
-
-
-
-
-
-
             for (String statement : cleanObjects("SEQUENCE", ObjectType.SEQUENCE_OBJECT)) {
                 jdbcTemplate.execute(statement);
             }
@@ -463,11 +449,17 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         for (DBObject table : tables) {
             String tableName = database.quote(name, table.name);
             List<String> indexes = jdbcTemplate.queryForStringList(
-                    "SELECT name FROM sys.indexes" +
-                            " WHERE object_id=OBJECT_ID(N'" + tableName + "')" +
+                    "SELECT i.name FROM sys.indexes i" +
+                            " JOIN sys.index_columns ic on i.index_id = ic.index_id" +
+                            " JOIN sys.columns c ON ic.column_id = c.column_id AND i.object_id = c.object_id" +
+                            " WHERE i.object_id=OBJECT_ID(N'" + tableName + "')" +
                             " AND is_primary_key = 0" +
                             " AND is_unique_constraint = 1" +
-                            " AND name IS NOT NULL");
+                            " AND i.name IS NOT NULL" +
+                            " GROUP BY i.name" +
+                            // We can't delete the unique ROWGUIDCOL constraint from a table which has a FILESTREAM column.
+                            // It will auto-delete when the table is dropped.
+                            " HAVING MAX(CAST(is_rowguidcol AS INT)) = 0 OR MAX(CAST(is_filestream AS INT)) = 0");
             for (String index : indexes) {
                 statements.add("ALTER TABLE " + tableName + " DROP CONSTRAINT " + database.quote(index));
             }
@@ -527,38 +519,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         List<String> statements = new ArrayList<>();
         for (String assemblyName : assemblyNames) {
             statements.add("DROP ASSEMBLY " + database.quote(assemblyName));
-        }
-        return statements;
-    }
-
-    /**
-     * Cleans the Partition Schemes in this database.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanPartitionSchemes() throws SQLException {
-        List<String> partitionSchemeNames =
-                jdbcTemplate.queryForStringList("SELECT name FROM sys.partition_schemes");
-        List<String> statements = new ArrayList<>();
-        for (String partitionSchemeName : partitionSchemeNames) {
-            statements.add("DROP PARTITION SCHEME " + database.quote(partitionSchemeName));
-        }
-        return statements;
-    }
-
-    /**
-     * Cleans the Partition Functions in this database.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanPartitionFunctions() throws SQLException {
-        List<String> partitionFunctionNames =
-                jdbcTemplate.queryForStringList("SELECT name FROM sys.partition_functions");
-        List<String> statements = new ArrayList<>();
-        for (String partitionFunctionName : partitionFunctionNames) {
-            statements.add("DROP PARTITION FUNCTION " + database.quote(partitionFunctionName));
         }
         return statements;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.ClassProvider;
+import org.flywaydb.core.api.ResourceProvider;
 
 import javax.sql.DataSource;
 import java.io.OutputStream;
@@ -515,4 +517,27 @@ public interface Configuration {
      * @return {@code true} to output the results table (default: {@code true})
      */
     boolean outputQueryResults();
+
+    /**
+     * Retrieves the custom ResourceProvider to be used to look up resources. If not set, the default strategy will be used.
+     *
+     * @return The custom ResourceProvider to be used to look up resources
+     * (default: null)
+     */
+    ResourceProvider getResourceProvider();
+
+    /**
+     * Retrieves the custom ClassProvider to be used to look up {@link JavaMigration} classes. If not set, the default strategy will be used.
+     *
+     * @return The custom ClassProvider to be used to look up {@link JavaMigration} classes
+     * (default: null)
+     */
+    ClassProvider<JavaMigration> getJavaMigrationClassProvider();
+
+    /**
+     * Whether Flyway should attempt to create the schemas specified in the schemas property
+     *
+     * @return @{code true} to attempt to create the schemas (default: {@code true})
+     */
+    boolean getCreateSchemas();
 }

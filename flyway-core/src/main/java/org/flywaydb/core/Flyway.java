@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Boxfuse GmbH
+ * Copyright 2010-2020 Redgate Software Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.*;
-import org.flywaydb.core.internal.clazz.ClassProvider;
+import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
@@ -38,9 +38,10 @@ import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.resource.NoopResourceProvider;
-import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.resource.ResourceNameValidator;
+import org.flywaydb.core.internal.scanner.LocationScannerCache;
 import org.flywaydb.core.internal.scanner.ResourceNameCache;
 import org.flywaydb.core.internal.scanner.Scanner;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
@@ -53,21 +54,20 @@ import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
  * <p>
  * It is THE public API from which all important Flyway functions such as clean, validate and migrate can be called.
  * </p>
- * <p>To get started all you need to do is</p>
+ * <p>To get started all you need to do is create a configured Flyway object and then invoke its principal methods.</p>
  * <pre>
  * Flyway flyway = Flyway.configure().dataSource(url, user, password).load();
  * flyway.migrate();
  * </pre>
+ * Note that a configured Flyway object is immutable. If you change the configuration you will end up creating a new Flyway
+ * object.
  * <p>
  */
 public class Flyway {
@@ -142,6 +142,11 @@ public class Flyway {
     private ResourceNameCache resourceNameCache = new ResourceNameCache();
 
     /**
+     * Used to cache LocationScanners between commands
+     */
+    private final LocationScannerCache locationScannerCache = new LocationScannerCache();
+
+    /**
      * <p>Starts the database migration. All pending migrations will be applied in order.
      * Calling migrate on an up-to-date database has no effect.</p>
      * <img src="https://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
@@ -184,7 +189,15 @@ public class Flyway {
                             }
                         }
                     } else {
-                        new DbSchemas(database, schemas, schemaHistory).create(false);
+                        if (configuration.getCreateSchemas()) {
+                            new DbSchemas(database, schemas, schemaHistory).create(false);
+                        } else {
+                            LOG.warn("The configuration option 'createSchemas' is false.\n" +
+                                    "However the schema history table still needs a schema to reside in.\n" +
+                                    "You must manually create a schema for the schema history table to reside in.\n" +
+                                    "See http://flywaydb.org/documentation/migrations#the-createschemas-option-and-the-schema-history-table)");
+                        }
+
                         schemaHistory.create(false);
                     }
                 }
@@ -342,7 +355,15 @@ public class Flyway {
 
 
             ) {
-                new DbSchemas(database, schemas, schemaHistory).create(true);
+                if (configuration.getCreateSchemas()) {
+                    new DbSchemas(database, schemas, schemaHistory).create(true);
+                } else {
+                    LOG.warn("The configuration option 'createSchemas' is false.\n" +
+                            "Even though Flyway is configured not to create any schemas, the schema history table still needs a schema to reside in.\n" +
+                            "You must manually create a schema for the schema history table to reside in.\n" +
+                            "See http://flywaydb.org/documentation/migrations#the-createschemas-option-and-the-schema-history-table");
+                }
+
                 doBaseline(schemaHistory, callbackExecutor);
                 return null;
             }
@@ -379,14 +400,16 @@ public class Flyway {
      * @param resourceProvider The resource provider.
      * @param classProvider    The class provider.
      * @param sqlScriptFactory The SQL statement builder factory.
+     * @param parsingContext   The parsing context.
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(ResourceProvider resourceProvider,
                                                       ClassProvider<JavaMigration> classProvider,
                                                       SqlScriptExecutorFactory sqlScriptExecutorFactory,
-                                                      SqlScriptFactory sqlScriptFactory) {
+                                                      SqlScriptFactory sqlScriptFactory,
+                                                      ParsingContext parsingContext) {
         return new CompositeMigrationResolver(resourceProvider, classProvider, configuration,
-                sqlScriptExecutorFactory, sqlScriptFactory, configuration.getResolvers());
+                sqlScriptExecutorFactory, sqlScriptFactory, parsingContext, configuration.getResolvers());
     }
 
     /**
@@ -418,26 +441,9 @@ public class Flyway {
 
 
 
-        final ResourceProvider resourceProvider;
-        ClassProvider<JavaMigration> classProvider;
-        if (!scannerRequired && configuration.isSkipDefaultResolvers() && configuration.isSkipDefaultCallbacks()) {
-            resourceProvider = NoopResourceProvider.INSTANCE;
-            //noinspection unchecked
-            classProvider = NoopClassProvider.INSTANCE;
-        } else {
-            Scanner<JavaMigration> scanner = new Scanner<>(
-                    JavaMigration.class,
-                    Arrays.asList(configuration.getLocations()),
-                    configuration.getClassLoader(),
-                    configuration.getEncoding()
-
-
-
-                    , resourceNameCache
-            );
-            resourceProvider = scanner;
-            classProvider = scanner;
-        }
+        final Pair<ResourceProvider, ClassProvider<JavaMigration>> resourceProviderClassProviderPair = createResourceAndClassProviders(scannerRequired);
+        final ResourceProvider resourceProvider = resourceProviderClassProviderPair.getLeft();
+        final ClassProvider<JavaMigration> classProvider = resourceProviderClassProviderPair.getRight();
 
         if (configuration.isValidateMigrationNaming()) {
             resourceNameValidator.validateSQLMigrationNaming(resourceProvider, configuration);
@@ -500,7 +506,7 @@ public class Flyway {
 
 
 
-            parsingContext.populate(database);
+            parsingContext.populate(database, configuration);
 
             database.ensureSupported();
 
@@ -519,7 +525,7 @@ public class Flyway {
             );
 
             result = command.execute(
-                    createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory),
+                    createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory, parsingContext),
                     SchemaHistoryFactory.getSchemaHistory(configuration, noCallbackSqlScriptExecutorFactory, sqlScriptFactory,
                             database, defaultSchema
 
@@ -541,6 +547,45 @@ public class Flyway {
             showMemoryUsage();
         }
         return result;
+    }
+
+    private Pair<ResourceProvider, ClassProvider<JavaMigration>> createResourceAndClassProviders(boolean scannerRequired) {
+        ResourceProvider resourceProvider;
+        ClassProvider<JavaMigration> classProvider;
+        if (!scannerRequired && configuration.isSkipDefaultResolvers() && configuration.isSkipDefaultCallbacks()) {
+            resourceProvider = NoopResourceProvider.INSTANCE;
+            //noinspection unchecked
+            classProvider = NoopClassProvider.INSTANCE;
+        } else {
+            if (configuration.getResourceProvider() != null && configuration.getJavaMigrationClassProvider() != null) {
+                // don't create the scanner at all in this case
+                resourceProvider = configuration.getResourceProvider();
+                classProvider = configuration.getJavaMigrationClassProvider();
+            } else {
+                Scanner<JavaMigration> scanner = new Scanner<>(
+                        JavaMigration.class,
+                        Arrays.asList(configuration.getLocations()),
+                        configuration.getClassLoader(),
+                        configuration.getEncoding()
+
+
+
+                        , resourceNameCache
+                        , locationScannerCache
+                );
+                // set the defaults
+                resourceProvider = scanner;
+                classProvider = scanner;
+                if (configuration.getResourceProvider() != null) {
+                    resourceProvider = configuration.getResourceProvider();
+                }
+                if (configuration.getJavaMigrationClassProvider() != null) {
+                    classProvider = configuration.getJavaMigrationClassProvider();
+                }
+            }
+        }
+
+        return Pair.of(resourceProvider, classProvider);
     }
 
     private void showMemoryUsage() {
@@ -576,7 +621,7 @@ public class Flyway {
             schemas.add(currentSchema);
         } else {
             for (String schemaName : schemaNames) {
-                    schemas.add(database.getMainConnection().getSchema(schemaName));
+                schemas.add(database.getMainConnection().getSchema(schemaName));
             }
         }
 
