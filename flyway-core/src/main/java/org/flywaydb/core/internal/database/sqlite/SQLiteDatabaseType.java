@@ -43,10 +43,12 @@ public class SQLiteDatabaseType extends DatabaseType {
         return Types.VARCHAR;
     }
 
-    @Override
-    public boolean supportsReadOnlyTransactions() {
-        return false;
-    }
+
+
+
+
+
+
 
     @Override
     public boolean handlesJDBCUrl(String url) {

@@ -44,11 +44,6 @@ public class SAPHANADatabaseType extends DatabaseType {
     }
 
     @Override
-    public boolean supportsReadOnlyTransactions() {
-        return true;
-    }
-
-    @Override
     public boolean handlesJDBCUrl(String url) {
         return url.startsWith("jdbc:sap:");
     }

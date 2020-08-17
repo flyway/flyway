@@ -70,6 +70,18 @@ public enum MigrationType {
     @Deprecated
     UNDO_SPRING_JDBC(false, true),
 
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Migrations using custom MigrationResolvers.
      */

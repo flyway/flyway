@@ -48,11 +48,6 @@ public class MySQLDatabaseType extends DatabaseType {
     }
 
     @Override
-    public boolean supportsReadOnlyTransactions() {
-        return true;
-    }
-
-    @Override
     public boolean handlesJDBCUrl(String url) {
         return url.startsWith("jdbc:mysql:") || url.startsWith("jdbc:google:");
     }

@@ -69,6 +69,8 @@ public abstract class DatabaseType {
 
 
 
+
+
     /**
      * Check if this database type should handle the given JDBC url
      * @param url The JDBC url.

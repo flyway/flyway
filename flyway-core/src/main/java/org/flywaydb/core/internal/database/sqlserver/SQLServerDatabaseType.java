@@ -44,11 +44,6 @@ public class SQLServerDatabaseType extends DatabaseType {
     }
 
     @Override
-    public boolean supportsReadOnlyTransactions() {
-        return true;
-    }
-
-    @Override
     public boolean handlesJDBCUrl(String url) {
         return url.startsWith("jdbc:sqlserver:") || url.startsWith("jdbc:jtds:");
     }

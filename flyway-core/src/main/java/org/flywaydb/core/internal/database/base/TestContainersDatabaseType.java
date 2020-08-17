@@ -40,10 +40,12 @@ public class TestContainersDatabaseType extends DatabaseType {
         return 0;
     }
 
-    @Override
-    public boolean supportsReadOnlyTransactions() {
-        return false;
-    }
+
+
+
+
+
+
 
     @Override
     public boolean handlesJDBCUrl(String url) {

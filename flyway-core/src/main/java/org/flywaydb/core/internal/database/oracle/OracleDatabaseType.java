@@ -57,11 +57,6 @@ public class OracleDatabaseType extends DatabaseType {
     }
 
     @Override
-    public boolean supportsReadOnlyTransactions() {
-        return true;
-    }
-
-    @Override
     public boolean handlesJDBCUrl(String url) {
         return url.startsWith("jdbc:oracle");
     }
@@ -149,7 +144,12 @@ public class OracleDatabaseType extends DatabaseType {
     }
 
     @Override
-    public SqlScriptExecutorFactory createSqlScriptExecutorFactory(JdbcConnectionFactory jdbcConnectionFactory, final CallbackExecutor callbackExecutor, final DryRunStatementInterceptor dryRunStatementInterceptor) {
+    public SqlScriptExecutorFactory createSqlScriptExecutorFactory(JdbcConnectionFactory jdbcConnectionFactory
+
+
+
+
+    ) {
 
 
 

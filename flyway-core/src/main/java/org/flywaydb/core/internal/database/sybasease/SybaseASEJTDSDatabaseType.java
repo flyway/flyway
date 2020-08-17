@@ -44,11 +44,6 @@ public class SybaseASEJTDSDatabaseType extends DatabaseType {
     }
 
     @Override
-    public boolean supportsReadOnlyTransactions() {
-        return true;
-    }
-
-    @Override
     public boolean handlesJDBCUrl(String url) {
         return url.startsWith("jdbc:sybase:") || url.startsWith("jdbc:jtds:");
     }
