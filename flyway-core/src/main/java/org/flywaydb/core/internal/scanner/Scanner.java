@@ -29,6 +29,7 @@ import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -39,6 +40,10 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
     private final List<LoadableResource> resources = new ArrayList<>();
     private final List<Class<? extends I>> classes = new ArrayList<>();
+
+    // Lookup maps to speed up getResource
+    private final HashMap<String, LoadableResource> relativeResourceMap = new HashMap<>();
+    private HashMap<String, LoadableResource> absoluteResourceMap = null;
 
     /*
      * Constructor. Scans the given locations for resources, and classes implementing the specified interface.
@@ -69,16 +74,38 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
                 classes.addAll(resourceAndClassScanner.scanForClasses());
             }
         }
+
+        for (LoadableResource resource : resources) {
+            relativeResourceMap.put(resource.getRelativePath().toLowerCase(), resource);
+        }
     }
 
     @Override
     public LoadableResource getResource(String name) {
-        for (LoadableResource resource : resources) {
-            String relativePath = resource.getRelativePath();
-            if (relativePath.equalsIgnoreCase(name) || resource.getAbsolutePathOnDisk().equalsIgnoreCase(name)) {
-                return resource;
+        LoadableResource loadedResource = relativeResourceMap.get(name.toLowerCase());
+
+        if (loadedResource != null) {
+            return loadedResource;
+        }
+
+        // Only build the HashMap and resolve the absolute paths if an
+        // absolute path is requested as this is really slow
+        // Should only ever be required for sqlplus @
+        if (Paths.get(name).isAbsolute()) {
+            if (absoluteResourceMap == null) {
+                absoluteResourceMap = new HashMap<>();
+                for (LoadableResource resource : resources) {
+                    absoluteResourceMap.put(resource.getAbsolutePathOnDisk().toLowerCase(), resource);
+                }
+            }
+
+            loadedResource = absoluteResourceMap.get(name.toLowerCase());
+
+            if (loadedResource != null) {
+                return loadedResource;
             }
         }
+
         return null;
     }
 
