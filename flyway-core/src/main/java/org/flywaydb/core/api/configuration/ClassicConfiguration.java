@@ -659,6 +659,21 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
+    public String getUrl() {
+        return url;
+    }
+
+    @Override
+    public String getUser() {
+        return user;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
     public DataSource getDataSource() {
         if (dataSource == null &&
                 (StringUtils.hasLength(driver) || StringUtils.hasLength(user) || StringUtils.hasLength(password))) {
@@ -1373,6 +1388,9 @@ public class ClassicConfiguration implements Configuration {
      * @param password The password of the database.
      */
     public void setDataSource(String url, String user, String password) {
+        this.url = url;
+        this.user = user;
+        this.password = password;
         this.dataSource = new DriverDataSource(classLoader, null, url, user, password);
     }
 
@@ -1699,6 +1717,10 @@ public class ClassicConfiguration implements Configuration {
         setResourceProvider(configuration.getResourceProvider());
         setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
         setShouldCreateSchemas(configuration.getCreateSchemas());
+
+        url = configuration.getUrl();
+        user = configuration.getUser();
+        password = configuration.getPassword();
     }
 
     /**
@@ -1763,7 +1785,7 @@ public class ClassicConfiguration implements Configuration {
         }
         if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) ||
                 StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
-            setDataSource(new DriverDataSource(classLoader, driver, url, user, password));
+            setDataSource(url, user, password);
         }
         Integer connectRetriesProp = removeInteger(props, ConfigUtils.CONNECT_RETRIES);
         if (connectRetriesProp != null) {

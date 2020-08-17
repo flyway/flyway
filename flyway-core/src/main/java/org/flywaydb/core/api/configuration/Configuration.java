@@ -41,6 +41,27 @@ public interface Configuration {
     ClassLoader getClassLoader();
 
     /**
+     * Retrieves the url used to construct the dataSource. May be null if the dataSource was passed in directly.
+     *
+     * @return The url used to construct the dataSource. May be null if the dataSource was passed in directly.
+     */
+    String getUrl();
+
+    /**
+     * Retrieves the user used to construct the dataSource. May be null if the dataSource was passed in directly, or if dataSource did not need a user.
+     *
+     * @return The user used to construct the dataSource. May be null if the dataSource was passed in directly, or if dataSource did not need a user.
+     */
+    String getUser();
+
+    /**
+     * Retrieves the password used to construct the dataSource. May be null if the dataSource was passed in directly, or if dataSource did not need a password.
+     *
+     * @return The password used to construct the dataSource. May be null if the dataSource was passed in directly, or if dataSource did not need a password.
+     */
+    String getPassword();
+
+    /**
      * Retrieves the dataSource to use to access the database. Must have the necessary privileges to execute ddl.
      *
      * @return The dataSource to use to access the database. Must have the necessary privileges to execute ddl.

@@ -223,6 +223,21 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public String getUrl() {
+        return config.getUrl();
+    }
+
+    @Override
+    public String getUser() {
+        return config.getUser();
+    }
+
+    @Override
+    public String getPassword() {
+        return config.getPassword();
+    }
+
+    @Override
     public DataSource getDataSource() {
         return config.getDataSource();
     }
