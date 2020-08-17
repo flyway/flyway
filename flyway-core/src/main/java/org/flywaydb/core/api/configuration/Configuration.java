@@ -561,4 +561,13 @@ public interface Configuration {
      * @return @{code true} to attempt to create the schemas (default: {@code true})
      */
     boolean getCreateSchemas();
+
+    /**
+     * Properties to pass to the JDBC driver object
+     *
+     * <p><i>Flyway Enterprise only</i></p>
+     *
+     * @return Properties that will be passed to the JDBC driver object
+     */
+    Map<String, String> getJdbcProperties();
 }

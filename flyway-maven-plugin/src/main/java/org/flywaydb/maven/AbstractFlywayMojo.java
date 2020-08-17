@@ -394,6 +394,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Map<String, String> placeholders;
 
     /**
+     * A map of &lt;propertyName, propertyValue&gt; to pass to the JDBC driver object
+     * <p/>
+     * <p>Also configurable with Maven or System Properties like ${flyway.jdbcProperties.myProperty} or ${flyway.jdbcProperties.otherProperty}</p>
+     */
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    @Parameter
+    private Map<String, String> jdbcProperties;
+
+    /**
      * The prefix of every placeholder. (default: ${ )<br>
      * <p>Also configurable with Maven or System Property: ${flyway.placeholderPrefix}</p>
      */
@@ -771,6 +780,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 for (String placeholder : placeholders.keySet()) {
                     String value = placeholders.get(placeholder);
                     conf.put(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX + placeholder, value == null ? "" : value);
+                }
+            }
+
+            if (jdbcProperties != null) {
+                for (String property : jdbcProperties.keySet()) {
+                    String value = jdbcProperties.get(property);
+                    conf.put(ConfigUtils.JDBC_PROPERTIES_PREFIX + property, value == null ? "" : value);
                 }
             }
 

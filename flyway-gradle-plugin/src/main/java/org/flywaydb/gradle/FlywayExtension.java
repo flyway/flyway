@@ -191,6 +191,14 @@ public class FlywayExtension {
     public Map<Object, Object> placeholders;
 
     /**
+     * Properties to pass to the JDBC driver object
+     *
+     * <p>Also configurable with Gradle or System Property: ${flyway.jdbcProperties}</p>
+     * <p><i>Flyway Enterprise only</i></p>
+     */
+    public Map<Object, Object> jdbcProperties;
+
+    /**
      * Whether placeholders should be replaced.
      */
     public Boolean placeholderReplacement;

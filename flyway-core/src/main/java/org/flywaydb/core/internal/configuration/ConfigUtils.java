@@ -69,6 +69,7 @@ public class ConfigUtils {
     public static final String PLACEHOLDER_REPLACEMENT = "flyway.placeholderReplacement";
     public static final String PLACEHOLDER_SUFFIX = "flyway.placeholderSuffix";
     public static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
+    public static final String JDBC_PROPERTIES_PREFIX = "flyway.jdbcProperties.";
     public static final String REPEATABLE_SQL_MIGRATION_PREFIX = "flyway.repeatableSqlMigrationPrefix";
     public static final String RESOLVERS = "flyway.resolvers";
     public static final String SCHEMAS = "flyway.schemas";
@@ -87,6 +88,7 @@ public class ConfigUtils {
     public static final String VALIDATE_ON_MIGRATE = "flyway.validateOnMigrate";
     public static final String VALIDATE_MIGRATION_NAMING = "flyway.validateMigrationNaming";
     public static final String CREATE_SCHEMAS = "flyway.createSchemas";
+
 
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
@@ -218,6 +220,11 @@ public class ConfigUtils {
         if (key.matches("FLYWAY_PLACEHOLDERS_.+")) {
             return PLACEHOLDERS_PROPERTY_PREFIX + key.substring("FLYWAY_PLACEHOLDERS_".length()).toLowerCase(Locale.ENGLISH);
         }
+
+        if (key.matches("FLYWAY_JDBC_PROPERTIES.+")) {
+            return JDBC_PROPERTIES_PREFIX + key.substring("FLYWAY_JDBC_PROPERTIES".length()).toLowerCase(Locale.ENGLISH);
+        }
+
         if ("FLYWAY_REPEATABLE_SQL_MIGRATION_PREFIX".equals(key)) {
             return REPEATABLE_SQL_MIGRATION_PREFIX;
         }

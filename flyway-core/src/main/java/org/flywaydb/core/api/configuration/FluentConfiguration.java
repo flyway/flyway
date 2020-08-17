@@ -327,6 +327,11 @@ public class FluentConfiguration implements Configuration {
         return config.getCreateSchemas();
     }
 
+    @Override
+    public Map<String, String> getJdbcProperties() {
+        return config.getJdbcProperties();
+    }
+
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.
@@ -1019,6 +1024,18 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration batch(boolean batch) {
         config.setBatch(batch);
+        return this;
+    }
+
+    /**
+     * Properties to pass to the JDBC driver object
+     *
+     * <p><i>Flyway Enterprise only</i></p>
+     *
+     * @param jdbcProperties The properties to pass to the JDBC driver object
+     */
+    public FluentConfiguration jdbcProperties(Map<String,String> jdbcProperties) {
+        config.setJdbcProperties(jdbcProperties);
         return this;
     }
 

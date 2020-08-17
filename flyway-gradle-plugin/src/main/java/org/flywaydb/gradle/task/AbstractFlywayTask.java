@@ -239,6 +239,14 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * Placeholders to replace in Sql migrations
      */
     public Map<Object, Object> placeholders;
+    
+    /**
+     * Properties to pass to the JDBC driver object
+     *
+     * <p><i>Flyway Enterprise only</i></p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.jdbcProperties}</p>
+     */
+    public Map<Object, Object> jdbcProperties;
 
     /**
      * Whether placeholders should be replaced.
@@ -697,6 +705,18 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             }
         }
 
+        if (jdbcProperties != null) {
+            for (Map.Entry<Object, Object> entry : jdbcProperties.entrySet()) {
+                conf.put(ConfigUtils.JDBC_PROPERTIES_PREFIX + entry.getKey().toString(), entry.getValue().toString());
+            }
+        }
+
+        if (extension.jdbcProperties != null) {
+            for (Map.Entry<Object, Object> entry : extension.jdbcProperties.entrySet()) {
+                conf.put(ConfigUtils.JDBC_PROPERTIES_PREFIX + entry.getKey().toString(), entry.getValue().toString());
+            }
+        }
+        
         addConfigFromProperties(conf, getProject().getProperties());
         addConfigFromProperties(conf, loadConfigurationFromConfigFiles(getWorkingDirectory(), envVars));
         addConfigFromProperties(conf, envVars);

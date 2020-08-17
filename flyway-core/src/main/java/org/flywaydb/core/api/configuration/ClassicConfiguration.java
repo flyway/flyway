@@ -484,6 +484,17 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Creates a new default configuration.
      */
@@ -736,6 +747,26 @@ public class ClassicConfiguration implements Configuration {
     public String getLicenseKey() {
 
         throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("licenseKey");
+
+
+
+
+    }
+
+    /**
+     * Properties to pass to the JDBC driver object
+     *
+     * <p><i>Flyway Enterprise only</i></p>
+     */
+    @Override
+    public Map<String, String> getJdbcProperties() {
+
+        throw new org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException("jdbcProperties");
+
+
+
+
+
 
 
 
@@ -1660,6 +1691,25 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Properties to pass to the JDBC driver object
+     *
+     * <p><i>Flyway Enterprise only</i></p>
+     */
+    public void setJdbcProperties(Map<String, String> jdbcProperties) {
+
+        throw new org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException("jdbcProperties");
+
+
+
+
+
+
+
+
+
+    }
+
+    /**
      * Configure with the same values as this existing configuration.
      *
      * @param configuration The configuration to use.
@@ -1674,6 +1724,11 @@ public class ClassicConfiguration implements Configuration {
         setDataSource(configuration.getDataSource());
         setConnectRetries(configuration.getConnectRetries());
         setInitSql(configuration.getInitSql());
+
+
+
+
+
 
 
 
@@ -1785,7 +1840,13 @@ public class ClassicConfiguration implements Configuration {
         }
         if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) ||
                 StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
-            setDataSource(url, user, password);
+            Map<String, String> jdbcPropertiesFromProps =
+                    getPropertiesUnderNamespace(
+                    props,
+                    getPlaceholders(),
+                    ConfigUtils.JDBC_PROPERTIES_PREFIX);
+
+            setDataSource(new DriverDataSource(classLoader, driver, url, user, password, jdbcPropertiesFromProps));
         }
         Integer connectRetriesProp = removeInteger(props, ConfigUtils.CONNECT_RETRIES);
         if (connectRetriesProp != null) {
@@ -1924,20 +1985,8 @@ public class ClassicConfiguration implements Configuration {
             setSkipDefaultCallbacks(skipDefaultCallbacksProp);
         }
 
-        Map<String, String> placeholdersFromProps = new HashMap<>(getPlaceholders());
-        Iterator<Map.Entry<String, String>> iterator = props.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, String> entry = iterator.next();
-            String propertyName = entry.getKey();
-
-            if (propertyName.startsWith(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX)
-                    && propertyName.length() > ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX.length()) {
-                String placeholderName = propertyName.substring(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX.length());
-                String placeholderValue = entry.getValue();
-                placeholdersFromProps.put(placeholderName, placeholderValue);
-                iterator.remove();
-            }
-        }
+        Map<String, String> placeholdersFromProps = getPropertiesUnderNamespace(props, getPlaceholders(),
+                ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX);
         setPlaceholders(placeholdersFromProps);
 
         Boolean mixedProp = removeBoolean(props, ConfigUtils.MIXED);
@@ -1996,6 +2045,24 @@ public class ClassicConfiguration implements Configuration {
         }
 
         ConfigUtils.checkConfigurationForUnrecognisedProperties(props, "flyway.");
+    }
+
+    private Map<String, String> getPropertiesUnderNamespace(Map<String, String> properties, Map<String, String> current, String namespace) {
+        Map<String, String> placeholdersFromProps = new HashMap<>(current);
+        Iterator<Map.Entry<String, String>> iterator = properties.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            String propertyName = entry.getKey();
+
+            if (propertyName.startsWith(namespace)
+                    && propertyName.length() > namespace.length()) {
+                String placeholderName = propertyName.substring(namespace.length());
+                String placeholderValue = entry.getValue();
+                placeholdersFromProps.put(placeholderName, placeholderValue);
+                iterator.remove();
+            }
+        }
+        return placeholdersFromProps;
     }
 
     /**

@@ -29,6 +29,8 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -43,12 +45,15 @@ public class DriverDataSource implements DataSource {
      */
     private Driver driver;
 
-    private DatabaseType type;
-
     /**
      * The JDBC URL to use for connecting through the Driver.
      */
     private final String url;
+
+    /**
+     * The detected type of the driver.
+     */
+    private final DatabaseType type;
 
     /**
      * The JDBC user to use for connecting through the Driver.
@@ -61,9 +66,14 @@ public class DriverDataSource implements DataSource {
     private final String password;
 
     /**
-     * The properties to be passed to a new connection.
+     * The default properties to be passed to a new connection.
      */
-    private final Properties defaultProps;
+    private final Properties defaultProperties;
+
+    /**
+     * Additional properties to pass to a new connection
+     */
+    private final Map<String, String> additionalProperties;
 
     /**
      * The ClassLoader to use.
@@ -86,7 +96,7 @@ public class DriverDataSource implements DataSource {
      * @throws FlywayException when the datasource could not be created.
      */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password) throws FlywayException {
-        this(classLoader, driverClass, url, user, password, new Properties());
+        this(classLoader, driverClass, url, user, password, new Properties(), new HashMap<>());
     }
 
     /**
@@ -97,25 +107,45 @@ public class DriverDataSource implements DataSource {
      * @param url         The JDBC URL to use for connecting through the Driver. (required)
      * @param user        The JDBC user to use for connecting through the Driver.
      * @param password    The JDBC password to use for connecting through the Driver.
-     * @param props       The properties to pass to the connection.
      * @throws FlywayException when the datasource could not be created.
      */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password,
-                            Properties props) throws FlywayException {
+                            Map<String, String> additionalProperties) throws FlywayException {
+        this(classLoader, driverClass, url, user, password, new Properties(), additionalProperties);
+    }
+
+    /**
+     * Creates a new DriverDataSource.
+     *
+     * @param classLoader           The ClassLoader to use.
+     * @param driverClass           The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
+     * @param url                   The JDBC URL to use for connecting through the Driver. (required)
+     * @param user                  The JDBC user to use for connecting through the Driver.
+     * @param password              The JDBC password to use for connecting through the Driver.
+     * @param defaultProperties     The properties to pass to the connection.
+     * @throws FlywayException      when the datasource could not be created.
+     */
+    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password,
+                            Properties defaultProperties, Map<String, String> additionalProperties) throws FlywayException {
         this.classLoader = classLoader;
         this.url = detectFallbackUrl(url);
-        type = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
+        this.type = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
 
         if (!StringUtils.hasLength(driverClass)) {
             if (type == null) {
                 throw new FlywayException("Unable to autodetect JDBC driver for url: " + url);
             }
 
-            driverClass = type.getDriverClass(url);
+            driverClass =  type.getDriverClass(url);
         }
 
-        this.defaultProps = new Properties(props);
-        type.setDefaultConnectionProps(url, defaultProps);
+        if (additionalProperties != null) {
+            this.additionalProperties = additionalProperties;
+        } else {
+            this.additionalProperties = new HashMap<>();
+        }
+        this.defaultProperties = new Properties(defaultProperties);
+        type.setDefaultConnectionProps(url, defaultProperties);
 
         try {
             this.driver = ClassUtils.instantiate(driverClass, classLoader);
@@ -197,6 +227,7 @@ public class DriverDataSource implements DataSource {
         return password;
     }
 
+
     /**
      * @return the JDBC Driver instance to use.
      */
@@ -223,6 +254,13 @@ public class DriverDataSource implements DataSource {
      */
     public String getPassword() {
         return this.password;
+    }
+
+    /**
+     * @return The additional properties to pass to a JDBC connection
+     */
+    public Map<String, String> getAdditionalProperties() {
+        return this.additionalProperties;
     }
 
     /**
@@ -259,15 +297,17 @@ public class DriverDataSource implements DataSource {
      * @see java.sql.Driver#connect(String, java.util.Properties)
      */
     protected Connection getConnectionFromDriver(String username, String password) throws SQLException {
-        Properties props = new Properties(this.defaultProps);
+        Properties properties = new Properties(this.defaultProperties);
         if (username != null) {
-            props.setProperty("user", username);
+            properties.setProperty("user", username);
         }
         if (password != null) {
-            props.setProperty("password", password);
+            properties.setProperty("password", password);
         }
 
-        Connection connection = driver.connect(url, props);
+        properties.putAll(additionalProperties);
+
+        Connection connection = driver.connect(url, properties);
         if (connection == null) {
             throw new FlywayException("Unable to connect to " + url);
         }
