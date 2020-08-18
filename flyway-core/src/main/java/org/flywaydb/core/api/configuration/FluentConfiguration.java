@@ -18,6 +18,7 @@ package org.flywaydb.core.api.configuration;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
@@ -31,8 +32,7 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Fluent configuration for Flyway. This is the preferred means of configuring the Flyway API.
@@ -107,6 +107,11 @@ public class FluentConfiguration implements Configuration {
     @Override
     public MigrationVersion getTarget() {
         return config.getTarget();
+    }
+
+    @Override
+    public MigrationPattern[] getCherryPick() {
+        return config.getCherryPick();
     }
 
     @Override
@@ -693,6 +698,27 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration target(String target) {
         config.setTargetAsString(target);
+        return this;
+    }
+
+    /**
+     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
+     * Migrations not in this list will be ignored.
+     * <p><i>Flyway Enterprise only</i></p>
+     */
+    public FluentConfiguration cherryPick(MigrationPattern... cherryPick) {
+        config.setCherryPick(cherryPick);
+        return this;
+    }
+
+    /**
+     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
+     * Migrations not in this list will be ignored.
+     * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
+     * <p><i>Flyway Enterprise only</i></p>
+     */
+    public FluentConfiguration cherryPick(String... cherryPickAsString) {
+        config.setCherryPick(cherryPickAsString);
         return this;
     }
 

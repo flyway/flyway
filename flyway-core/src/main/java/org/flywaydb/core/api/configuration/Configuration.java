@@ -18,6 +18,7 @@ package org.flywaydb.core.api.configuration;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
+import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.ClassProvider;
@@ -225,6 +226,14 @@ public interface Configuration {
      * @return The target version up to which Flyway should consider migrations. Defaults to {@code latest}
      */
     MigrationVersion getTarget();
+
+    /**
+     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
+     * Migrations not in this list will be ignored.
+     * <p><i>Flyway Enterprise only</i></p>
+     * @return The migrations that Flyway should consider when migrating or undoing.
+     */
+    MigrationPattern[] getCherryPick();
 
     /**
      * <p>Retrieves the name of the schema history table that will be used by Flyway.</p><p> By default (single-schema

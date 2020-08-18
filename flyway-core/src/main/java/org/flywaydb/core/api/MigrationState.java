@@ -40,7 +40,8 @@ public enum MigrationState {
     BASELINE("Baseline", true, true, false),
 
     /**
-     * <p>This usually indicates a problem.</p>
+     * <p>When using cherryPick, this indicates a migration that was not in the cherry picked list.</p>
+     * <p>When not using cherryPick, this usually indicates a problem.</p>
      * <p>
      * This migration was not applied against this DB, because a migration with a higher version has already been
      * applied. This probably means some checkins happened out of order.

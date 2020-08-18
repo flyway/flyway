@@ -82,6 +82,7 @@ public class ConfigUtils {
     public static final String TABLE = "flyway.table";
     public static final String TABLESPACE = "flyway.tablespace";
     public static final String TARGET = "flyway.target";
+    public static final String CHERRY_PICK = "flyway.cherryPick";
     public static final String UNDO_SQL_MIGRATION_PREFIX = "flyway.undoSqlMigrationPrefix";
     public static final String URL = "flyway.url";
     public static final String USER = "flyway.user";
@@ -260,6 +261,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_TARGET".equals(key)) {
             return TARGET;
+        }
+        if ("FLYWAY_CHERRY_PICK".equals(key)) {
+            return CHERRY_PICK;
         }
         if ("FLYWAY_UNDO_SQL_MIGRATION_PREFIX".equals(key)) {
             return UNDO_SQL_MIGRATION_PREFIX;

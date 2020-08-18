@@ -134,6 +134,7 @@ public class DbValidate {
                         new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration,
                                 configuration.getTarget(),
                                 configuration.isOutOfOrder(),
+                                configuration.getCherryPick(),
                                 pending,
                                 configuration.isIgnoreMissingMigrations(),
                                 configuration.isIgnoreIgnoredMigrations(),

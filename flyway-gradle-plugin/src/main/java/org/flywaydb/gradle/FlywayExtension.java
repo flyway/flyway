@@ -15,6 +15,8 @@
  */
 package org.flywaydb.gradle;
 
+import org.flywaydb.core.api.MigrationVersion;
+
 import java.util.Map;
 
 /**
@@ -224,6 +226,14 @@ public class FlywayExtension {
      * Defaults to {@code latest}.
      */
     public String target;
+
+    /**
+     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
+     * Migrations not in this list will be ignored.
+     * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
+     * <p><i>Flyway Enterprise only</i></p>
+     */
+    public String[] cherryPick;
 
     /**
      * An array of fully qualified FlywayCallback class implementations

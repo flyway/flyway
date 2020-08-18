@@ -15,10 +15,7 @@
  */
 package org.flywaydb.core.api.configuration;
 
-import org.flywaydb.core.api.ErrorCode;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -159,6 +156,15 @@ public class ClassicConfiguration implements Configuration {
      * Defaults to {@code latest}.
      */
     private MigrationVersion target;
+
+
+
+
+
+
+
+
+
 
     /**
      * Whether placeholders should be replaced. (default: true)
@@ -552,6 +558,16 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public MigrationVersion getTarget() {
         return target;
+    }
+
+    @Override
+    public MigrationPattern[] getCherryPick() {
+
+        return null;
+
+
+
+
     }
 
     @Override
@@ -1207,6 +1223,43 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
+     * Migrations not in this list will be ignored.
+     * <p><i>Flyway Enterprise only</i></p>
+     */
+    public void setCherryPick(MigrationPattern... cherryPick) {
+
+        throw new org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException("migrations");
+
+
+
+
+
+
+
+
+    }
+
+    /**
+     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
+     * Migrations not in this list will be ignored.
+     * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
+     * <p><i>Flyway Enterprise only</i></p>
+     */
+    public void setCherryPick(String... cherryPickAsString) {
+
+        throw new org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException("migrations");
+
+
+
+
+
+
+
+
+    }
+
+    /**
      * Sets whether placeholders should be replaced.
      *
      * @param placeholderReplacement Whether placeholders should be replaced. (default: true)
@@ -1768,6 +1821,9 @@ public class ClassicConfiguration implements Configuration {
         setTable(configuration.getTable());
         setTablespace(configuration.getTablespace());
         setTarget(configuration.getTarget());
+
+
+
         setValidateOnMigrate(configuration.isValidateOnMigrate());
         setResourceProvider(configuration.getResourceProvider());
         setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
@@ -1959,6 +2015,10 @@ public class ClassicConfiguration implements Configuration {
         String targetProp = props.remove(ConfigUtils.TARGET);
         if (targetProp != null) {
             setTarget(MigrationVersion.fromVersion(targetProp));
+        }
+        String cherryPickProp = props.remove(ConfigUtils.CHERRY_PICK);
+        if (cherryPickProp != null) {
+            setCherryPick(StringUtils.tokenizeToStringArray(cherryPickProp, ","));
         }
         Boolean outOfOrderProp = removeBoolean(props, ConfigUtils.OUT_OF_ORDER);
         if (outOfOrderProp != null) {

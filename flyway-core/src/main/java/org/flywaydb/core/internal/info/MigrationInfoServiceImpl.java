@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -56,6 +55,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * The target version up to which to retrieve the info.
      */
     private MigrationVersion target;
+
+    /**
+     * The migrations to retrieve info for.
+     */
+    private MigrationPattern[] cherryPick;
 
     /**
      * Allows migrations to be run "out of order".
@@ -98,6 +102,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @param configuration     The current configuration.
      * @param target            The target version up to which to retrieve the info.
      * @param outOfOrder        Allows migrations to be run "out of order".
+     * @param cherryPick        The migrations to consider when migration.
      * @param pending           Whether pending migrations are allowed.
      * @param missing           Whether missing migrations are allowed.
      * @param ignored           Whether ignored migrations are allowed.
@@ -105,7 +110,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver,
                                     SchemaHistory schemaHistory, final Configuration configuration,
-                                    MigrationVersion target, boolean outOfOrder,
+                                    MigrationVersion target, boolean outOfOrder, MigrationPattern[] cherryPick,
                                     boolean pending, boolean missing, boolean ignored, boolean future) {
         this.migrationResolver = migrationResolver;
         this.schemaHistory = schemaHistory;
@@ -116,10 +121,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         };
         this.target = target;
-        this.outOfOrder = outOfOrder;
+        this.outOfOrder = outOfOrder || cherryPick != null;
+        this.cherryPick = cherryPick;
         this.pending = pending;
         this.missing = missing;
-        this.ignored = ignored;
+        this.ignored = ignored || cherryPick != null;
         this.future = future;
     }
 
@@ -137,6 +143,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         context.ignored = ignored;
         context.future = future;
         context.target = target;
+        context.cherryPick = cherryPick;
 
         Map<Pair<MigrationVersion, Boolean>, ResolvedMigration> resolvedVersioned = new TreeMap<>();
         Map<String, ResolvedMigration> resolvedRepeatable = new TreeMap<>();
@@ -159,7 +166,26 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
 
-        // Split applied into version and repeatable, and update state from synthetic migrations
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         // Split applied into version and repeatable, and update state from synthetic migrations
         List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedVersioned = new ArrayList<>();
         List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedRepeatable = new ArrayList<>();
         for (AppliedMigration appliedMigration : appliedMigrations) {

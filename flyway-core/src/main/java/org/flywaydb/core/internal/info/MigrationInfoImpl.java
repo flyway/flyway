@@ -15,10 +15,7 @@
  */
 package org.flywaydb.core.internal.info;
 
-import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationState;
-import org.flywaydb.core.api.MigrationType;
-import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
@@ -144,6 +141,27 @@ public class MigrationInfoImpl implements MigrationInfo {
         return resolvedMigration.getScript();
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @Override
     public MigrationState getState() {
 
@@ -157,7 +175,16 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (appliedMigration == null) {
+
+
+
+
+
+
+
+
             if (resolvedMigration.getVersion() != null) {
+
                 if (resolvedMigration.getVersion().compareTo(context.baseline) < 0) {
                     return MigrationState.BELOW_BASELINE;
                 }
@@ -185,6 +212,14 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (resolvedMigration == null) {
+
+
+
+
+
+
+
+
             if (MigrationType.SCHEMA == appliedMigration.getType()) {
                 return MigrationState.SUCCESS;
             }
@@ -201,6 +236,14 @@ public class MigrationInfoImpl implements MigrationInfo {
                 return MigrationState.FUTURE_FAILED;
             }
         }
+
+
+
+
+
+
+
+
 
         if (!appliedMigration.isSuccess()) {
             return MigrationState.FAILED;
