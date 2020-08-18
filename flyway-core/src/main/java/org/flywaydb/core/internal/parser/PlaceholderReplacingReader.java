@@ -27,7 +27,7 @@ import java.util.Map;
 public class PlaceholderReplacingReader extends FilterReader {
     private final String prefix;
     private final String suffix;
-    private final Map<String, String> placeholders;
+    private final CaseInsensitiveMap placeholders = new CaseInsensitiveMap();
 
     /**
      * The number of chars by which to increase the read-ahead limit to factor in the difference in length between
@@ -44,11 +44,36 @@ public class PlaceholderReplacingReader extends FilterReader {
     private String markReplacement;
     private int markReplacementPos;
 
+    private static class CaseInsensitiveMap extends HashMap<String, String> {
+
+        @Override
+        public void putAll(Map<? extends String, ? extends String> m) {
+            for (Map.Entry<? extends String, ? extends String> e : m.entrySet()) {
+                put(e.getKey(), e.getValue());
+            }
+        }
+
+        @Override
+        public String put(String key, String value) {
+            return super.put(key.toLowerCase(), value);
+        }
+
+        @Override
+        public String get(Object key) {
+            return super.get(key.toString().toLowerCase());
+        }
+
+        @Override
+        public boolean containsKey(Object key) {
+            return super.containsKey(key.toString().toLowerCase());
+        }
+    }
+
     public PlaceholderReplacingReader(String prefix, String suffix, Map<String, String> placeholders, Reader in) {
         super(in);
         this.prefix = prefix;
         this.suffix = suffix;
-        this.placeholders = placeholders;
+        this.placeholders.putAll(placeholders);
 
         int prefixSuffixLength = prefix.length() + suffix.length();
 
