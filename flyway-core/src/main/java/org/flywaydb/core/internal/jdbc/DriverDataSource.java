@@ -163,7 +163,7 @@ public class DriverDataSource implements DataSource {
             } catch (Exception e1) {
                 // Only report original exception about primary driver
                 throw new FlywayException(
-                        "Unable to instantiate JDBC driver: " + driverClass + " => Check whether the jar file is present", e,
+                        "Unable to instantiate JDBC driver: " + driverClass + " or backup driver: " + backupDriverClass + " => Check whether the jar file is present", e,
                         ErrorCode.JDBC_DRIVER);
             }
         }
