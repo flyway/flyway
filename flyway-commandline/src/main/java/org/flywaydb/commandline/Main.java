@@ -107,12 +107,6 @@ public class Main {
             config.putAll(envVars);
             config = overrideConfiguration(config, commandLineArguments.getConfiguration());
 
-            if (!commandLineArguments.shouldSuppressPrompt()) {
-                promptForCredentialsIfMissing(config);
-            }
-
-            ConfigUtils.dumpConfiguration(config);
-
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             List<File> jarFiles = new ArrayList<>();
             jarFiles.addAll(getJdbcDriverJarFiles());
@@ -120,6 +114,15 @@ public class Main {
             if (!jarFiles.isEmpty()) {
                 classLoader = ClassUtils.addJarsOrDirectoriesToClasspath(classLoader, jarFiles);
             }
+
+            DatabaseTypeRegister.registerDatabaseTypes(classLoader);
+
+            if (!commandLineArguments.shouldSuppressPrompt()) {
+                promptForCredentialsIfMissing(config);
+            }
+
+            ConfigUtils.dumpConfiguration(config);
+
             filterProperties(config);
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 

@@ -52,13 +52,11 @@ public class DatabaseTypeRegister {
     private static final List<DatabaseType> registeredDatabaseTypes = new ArrayList<>();
     private static boolean hasRegisteredDatabaseTypes = false;
 
-    public static void registerForDatabaseTypes() {
+    public static void registerDatabaseTypes(ClassLoader classLoader) {
         synchronized (registeredDatabaseTypes) {
             if (hasRegisteredDatabaseTypes) {
                 return;
             }
-
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
             registeredDatabaseTypes.clear();
 
@@ -91,7 +89,7 @@ public class DatabaseTypeRegister {
 
     public static DatabaseType getDatabaseTypeForUrl(String url) {
         if (!hasRegisteredDatabaseTypes) {
-            registerForDatabaseTypes();
+            throw new FlywayException("Databases not yet registered!");
         }
 
         List<DatabaseType> typesAcceptingUrl = new ArrayList<>();
@@ -122,7 +120,7 @@ public class DatabaseTypeRegister {
 
     public static DatabaseType getDatabaseTypeForConnection(Connection connection) {
         if (!hasRegisteredDatabaseTypes) {
-            registerForDatabaseTypes();
+            throw new FlywayException("Databases not yet registered!");
         }
 
         DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);

@@ -129,6 +129,8 @@ public class DriverDataSource implements DataSource {
                             Properties defaultProperties, Map<String, String> additionalProperties) throws FlywayException {
         this.classLoader = classLoader;
         this.url = detectFallbackUrl(url);
+
+        DatabaseTypeRegister.registerDatabaseTypes(classLoader);
         this.type = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
 
         if (!StringUtils.hasLength(driverClass)) {

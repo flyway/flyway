@@ -23,6 +23,7 @@ import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.api.ResourceProvider;
@@ -506,6 +507,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public ClassicConfiguration() {
         // Nothing to do.
+        DatabaseTypeRegister.registerDatabaseTypes(this.classLoader);
     }
 
     /**
@@ -517,6 +519,7 @@ public class ClassicConfiguration implements Configuration {
         if (classLoader != null) {
             this.classLoader = classLoader;
         }
+        DatabaseTypeRegister.registerDatabaseTypes(this.classLoader);
     }
 
     /**
@@ -527,6 +530,7 @@ public class ClassicConfiguration implements Configuration {
     public ClassicConfiguration(Configuration configuration) {
         this(configuration.getClassLoader());
         configure(configuration);
+        DatabaseTypeRegister.registerDatabaseTypes(this.classLoader);
     }
 
     @Override

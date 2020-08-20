@@ -30,6 +30,7 @@ import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.database.base.Schema;
