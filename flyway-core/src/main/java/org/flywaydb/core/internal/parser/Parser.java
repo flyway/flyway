@@ -131,7 +131,7 @@ public abstract class Parser {
         return reader;
     }
 
-    private SqlStatement getNextStatement(Resource resource, PeekingReader reader, Recorder recorder, PositionTracker tracker, ParserContext context) {
+    protected SqlStatement getNextStatement(Resource resource, PeekingReader reader, Recorder recorder, PositionTracker tracker, ParserContext context) {
         resetDelimiter(context);
         context.setStatementType(StatementType.UNKNOWN);
 
