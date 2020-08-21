@@ -231,7 +231,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     /**
      * @return Whether this database supports partitions
      */
-    boolean supportsPartitions() {
+    protected boolean supportsPartitions() {
         return isAzure()
                 || SQLServerEngineEdition.ENTERPRISE.equals(getEngineEdition())
                 || getVersion().isAtLeast("13");
@@ -240,8 +240,43 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     /**
      * @return Whether this database supports sequences
      */
-    boolean supportsSequences() {
+    protected boolean supportsSequences() {
         return getVersion().isAtLeast("11");
+    }
+
+    /**
+     * @return Whether this database supports synonyms
+     */
+    protected boolean supportsSynonyms() {
+        return true;
+    }
+
+    /**
+     * @return Whether this database supports rules
+     */
+    protected boolean supportsRules() {
+        return true;
+    }
+
+    /**
+     * @return Whether this database supports types
+     */
+    protected boolean supportsTypes() {
+        return true;
+    }
+
+    /**
+     * @return Whether this database supports triggers
+     */
+    protected boolean supportsTriggers() {
+        return true;
+    }
+
+    /**
+     * @return Whether this database supports assemblies
+     */
+    protected boolean supportsAssemblies() {
+        return true;
     }
 
     /**

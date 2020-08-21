@@ -43,15 +43,21 @@ public class SQLServerDatabaseType extends DatabaseType {
         return Types.VARCHAR;
     }
 
+    protected boolean supportsJTDS() {
+        return true;
+    }
+
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:sqlserver:") || url.startsWith("jdbc:jtds:");
+        return url.startsWith("jdbc:sqlserver:") || (supportsJTDS() && url.startsWith("jdbc:jtds:"));
     }
 
     @Override
     public String getDriverClass(String url) {
-        if (url.startsWith("jdbc:jtds:")) {
+        if (supportsJTDS() && url.startsWith("jdbc:jtds:")) {
             return "net.sourceforge.jtds.jdbc.Driver";
+        } else if (!supportsJTDS()) {
+            LOG.warn("JTDS does not support this database. Using the Microsoft JDBC driver instead");
         }
 
         return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
