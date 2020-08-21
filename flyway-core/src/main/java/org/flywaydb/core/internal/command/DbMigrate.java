@@ -90,6 +90,11 @@ public class DbMigrate {
     private final Connection connectionUserObjects;
 
     /**
+     * This is used to remember the type of migration between calls to migrateGroup().
+     */
+    private boolean isPreviousVersioned;
+
+    /**
      * Creates a new database migrator.
      *
      * @param database          Database-specific functionality.
@@ -150,6 +155,8 @@ public class DbMigrate {
 
     private int migrateAll() {
         int total = 0;
+        isPreviousVersioned = true;
+
         while (true) {
             final boolean firstRun = total == 0;
             int count = configuration.isGroup()
@@ -168,6 +175,11 @@ public class DbMigrate {
                 break;
             }
         }
+
+        if (isPreviousVersioned) {
+            callbackExecutor.onMigrateOrUndoEvent(Event.AFTER_VERSIONED);
+        }
+
         return total;
     }
 
@@ -352,6 +364,12 @@ public class DbMigrate {
             final String migrationText = toMigrationText(migration, isOutOfOrder);
 
             stopWatch.start();
+
+            if (isPreviousVersioned && migration.getVersion() == null) {
+                callbackExecutor.onMigrateOrUndoEvent(Event.AFTER_VERSIONED);
+                callbackExecutor.onMigrateOrUndoEvent(Event.BEFORE_REPEATABLES);
+                isPreviousVersioned = false;
+            }
 
             LOG.debug("Starting migration of " + migrationText + " ...");
 
