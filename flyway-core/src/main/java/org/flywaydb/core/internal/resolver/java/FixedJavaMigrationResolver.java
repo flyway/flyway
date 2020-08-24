@@ -15,15 +15,14 @@
  */
 package org.flywaydb.core.internal.resolver.java;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Migration resolver for a fixed set of pre-instantiated Java-based migrations.

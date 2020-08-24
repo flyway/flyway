@@ -15,10 +15,14 @@
  */
 package org.flywaydb.core.internal.database.snowflake;
 
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.*;
-
 import java.io.IOException;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.Parser;
+import org.flywaydb.core.internal.parser.ParserContext;
+import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.parser.PeekingReader;
+import org.flywaydb.core.internal.parser.Token;
+import org.flywaydb.core.internal.parser.TokenType;
 
 public class SnowflakeParser extends Parser {
     private final String ALTERNATIVE_QUOTE = "$$";

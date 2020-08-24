@@ -17,6 +17,12 @@ package org.flywaydb.core.internal.scanner.android;
 
 import android.content.Context;
 import dalvik.system.DexFile;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.List;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.android.ContextHolder;
@@ -26,13 +32,6 @@ import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.android.AndroidResource;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.List;
 
 /**
  * Class & resource scanner for Android.

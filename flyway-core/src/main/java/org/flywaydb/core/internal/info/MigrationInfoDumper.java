@@ -15,17 +15,12 @@
  */
 package org.flywaydb.core.internal.info;
 
-import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationState;
-import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.util.AsciiTable;
-import org.flywaydb.core.internal.util.DateUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.internal.util.AsciiTable;
+import org.flywaydb.core.internal.util.DateUtils;
 
 /**
  * Dumps migrations in an ascii-art table in the logs and the console.

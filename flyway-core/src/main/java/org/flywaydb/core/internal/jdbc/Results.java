@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
-import org.flywaydb.core.api.callback.Error;
-import org.flywaydb.core.api.callback.Warning;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.flywaydb.core.api.callback.Error;
+import org.flywaydb.core.api.callback.Warning;
 
 /**
  * Container for all results, warnings, errors and remaining side-effects of a sql statement.

@@ -15,16 +15,15 @@
  */
 package org.flywaydb.core.internal.resource;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class ResourceNameValidator {
     private static final Log LOG = LogFactory.getLog(ResourceNameValidator.class);

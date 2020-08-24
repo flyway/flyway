@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.logging.javautil;
 
-import org.flywaydb.core.api.logging.Log;
-
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import org.flywaydb.core.api.logging.Log;
 
 /**
  * Wrapper for a java.util.Logger.

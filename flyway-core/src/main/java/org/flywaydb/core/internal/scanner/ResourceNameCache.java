@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.scanner;
 
-import org.flywaydb.core.internal.scanner.classpath.ClassPathLocationScanner;
-
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.flywaydb.core.internal.scanner.classpath.ClassPathLocationScanner;
 
 public class ResourceNameCache {
     /**

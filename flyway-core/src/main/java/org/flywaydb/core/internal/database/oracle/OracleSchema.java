@@ -15,13 +15,54 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.util.StringUtils;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.ASSEMBLY;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.CLUSTER;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.CONTEXT;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.CREDENTIAL;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.CUBE;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.CUBE_BUILD_PROCESS;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.CUBE_DIMENSION;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.DATABASE_DESTINATION;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.DATABASE_LINK;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.DIMENSION;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.DOMAIN_INDEX;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.DOMAIN_INDEX_TYPE;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.EVALUATION_CONTEXT;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.FILE_GROUP;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.FILE_WATCHER;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.FUNCTION;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.INDEX;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.JAVA_CLASS;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.JAVA_DATA;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.JAVA_RESOURCE;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.JAVA_SOURCE;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.LIBRARY;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.MATERIALIZED_VIEW;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.MATERIALIZED_VIEW_LOG;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.MEASURE_FOLDER;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.MINING_MODEL;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.OPERATOR;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.PACKAGE;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.PROCEDURE;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.QUEUE_TABLE;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.REWRITE_EQUIVALENCE;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.RULE;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.RULE_SET;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.SCHEDULE;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.SCHEDULER_CHAIN;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.SCHEDULER_GROUP;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.SCHEDULER_JOB;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.SCHEDULER_PROGRAM;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.SEQUENCE;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.SQL_TRANSLATION_PROFILE;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.SYNONYM;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.TABLE;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.TRIGGER;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.TYPE;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.VIEW;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.XML_SCHEMA;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.getObjectTypeNames;
+import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.supportedTypesExist;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -29,8 +70,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType.*;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.StringUtils;
 
 /**
  * Oracle implementation of Schema.

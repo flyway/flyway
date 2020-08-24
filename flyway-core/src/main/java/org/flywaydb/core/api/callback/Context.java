@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.api.callback;
 
+import java.sql.Connection;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
-
-import java.sql.Connection;
 
 /**
  * The context relevant to an event.

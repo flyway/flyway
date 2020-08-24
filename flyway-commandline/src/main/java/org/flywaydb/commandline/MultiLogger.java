@@ -15,9 +15,8 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.core.api.logging.Log;
-
 import java.util.List;
+import org.flywaydb.core.api.logging.Log;
 
 /**
  * Log implementation that forwards method calls to multiple implementations

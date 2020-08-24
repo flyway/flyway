@@ -15,14 +15,6 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.jdbc.Result;
-import org.flywaydb.core.internal.jdbc.Results;
-import org.flywaydb.core.internal.sqlscript.Delimiter;
-import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
-import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
-
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
@@ -30,6 +22,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.Result;
+import org.flywaydb.core.internal.jdbc.Results;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
 
 /**
  * A PostgreSQL COPY FROM STDIN statement.

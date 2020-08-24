@@ -15,18 +15,18 @@
  */
 package org.flywaydb.core.api.configuration;
 
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.callback.Callback;
-import org.flywaydb.core.api.migration.JavaMigration;
-import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.api.ClassProvider;
-import org.flywaydb.core.api.ResourceProvider;
-
-import javax.sql.DataSource;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Map;
+import org.flywaydb.core.api.ClassProvider;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.ResourceProvider;
+import org.flywaydb.core.api.callback.Callback;
+import org.flywaydb.core.api.migration.JavaMigration;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+
+import javax.sql.DataSource;
 
 /**
  * Flyway configuration.

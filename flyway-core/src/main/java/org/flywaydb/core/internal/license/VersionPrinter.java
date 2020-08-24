@@ -15,15 +15,12 @@
  */
 package org.flywaydb.core.internal.license;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.util.DateUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
 
 /**
  * Prints the Flyway version.

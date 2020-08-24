@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
+import java.sql.SQLException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-
-import java.sql.SQLException;
 
 /**
  * SQLite-specific table.

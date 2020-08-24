@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
-import org.flywaydb.core.internal.database.base.Table;
-
 import java.util.concurrent.Callable;
+import org.flywaydb.core.internal.database.base.Table;
 
 public class TableLockingExecutionTemplate implements ExecutionTemplate {
     private final Table table;

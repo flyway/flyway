@@ -15,12 +15,15 @@
  */
 package org.flywaydb.commandline;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.internal.util.StringUtils;
-
-import java.util.*;
 
 class CommandLineArguments {
 

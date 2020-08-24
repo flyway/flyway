@@ -15,22 +15,18 @@
  */
 package org.flywaydb.core.internal.callback;
 
+import java.util.Collection;
+import java.util.concurrent.Callable;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.callback.Context;
-import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Event;
-import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Callable;
 
 /**
  * Executes the callbacks for a specific event.
@@ -102,13 +98,10 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
             if (callback.supports(event, context)) {
                 if (callback.canHandleInTransaction(event, context)) {
                     ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
-                            database).execute(new Callable<Void>() {
-                        @Override
-                        public Void call() {
-                            DefaultCallbackExecutor.this.execute(connection, callback, event, context);
-                            return null;
-                        }
-                    });
+                            database).execute((Callable<Void>)() -> {
+                                DefaultCallbackExecutor.this.execute(connection, callback, event, context);
+                                return null;
+                            });
                 } else {
                     execute(connection, callback, event, context);
                 }

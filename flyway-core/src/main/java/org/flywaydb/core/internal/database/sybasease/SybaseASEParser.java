@@ -15,14 +15,13 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
+import java.io.IOException;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParserContext;
 import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.PeekingReader;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
-
-import java.io.IOException;
 
 public class SybaseASEParser extends Parser {
     public SybaseASEParser(Configuration configuration, ParsingContext parsingContext) {

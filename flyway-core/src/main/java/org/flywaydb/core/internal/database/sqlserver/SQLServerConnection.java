@@ -15,13 +15,12 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
+import java.sql.SQLException;
+import java.util.concurrent.Callable;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-
-import java.sql.SQLException;
-import java.util.concurrent.Callable;
 
 /**
  * SQL Server connection.

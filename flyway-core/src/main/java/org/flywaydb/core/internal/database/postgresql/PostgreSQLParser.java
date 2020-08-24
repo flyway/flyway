@@ -15,14 +15,20 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.*;
-import org.flywaydb.core.internal.sqlscript.Delimiter;
-import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.Parser;
+import org.flywaydb.core.internal.parser.ParserContext;
+import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.parser.PeekingReader;
+import org.flywaydb.core.internal.parser.Recorder;
+import org.flywaydb.core.internal.parser.StatementType;
+import org.flywaydb.core.internal.parser.Token;
+import org.flywaydb.core.internal.parser.TokenType;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
+import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
 
 public class PostgreSQLParser extends Parser {
     private static final Pattern COPY_FROM_STDIN_REGEX = Pattern.compile("^COPY( .*)? FROM STDIN");

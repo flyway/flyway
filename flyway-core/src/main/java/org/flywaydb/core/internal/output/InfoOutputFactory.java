@@ -15,18 +15,16 @@
  */
 package org.flywaydb.core.internal.output;
 
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.license.VersionPrinter;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class InfoOutputFactory {
     public InfoOutput create(Configuration configuration, MigrationInfo[] migrationInfos, MigrationInfo current) {

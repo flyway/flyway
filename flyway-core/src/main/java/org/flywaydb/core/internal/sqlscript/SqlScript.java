@@ -17,8 +17,6 @@ package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.internal.resource.LoadableResource;
 
-import java.util.Collection;
-
 /**
  * SQL script containing a series of statements terminated by a delimiter (eg: ;).
  * Single-line (--) and multi-line (/* * /) comments are stripped and ignored.

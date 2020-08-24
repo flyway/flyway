@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.schemahistory;
 
-import org.flywaydb.core.api.MigrationType;
-import org.flywaydb.core.api.MigrationVersion;
-
 import java.util.Date;
 import java.util.Objects;
+import org.flywaydb.core.api.MigrationType;
+import org.flywaydb.core.api.MigrationVersion;
 
 /**
  * A migration applied to the database (maps to a row in the schema history table).

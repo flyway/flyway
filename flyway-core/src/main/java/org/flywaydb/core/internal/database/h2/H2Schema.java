@@ -15,16 +15,15 @@
  */
 package org.flywaydb.core.internal.database.h2;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.StringUtils;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * H2 implementation of Schema.

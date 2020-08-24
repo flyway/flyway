@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import java.math.BigInteger;
+import java.sql.SQLException;
+import java.util.Random;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -22,10 +25,6 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Results;
 import org.flywaydb.core.internal.util.SqlCallable;
-
-import java.math.BigInteger;
-import java.sql.SQLException;
-import java.util.Random;
 
 /**
  * CockroachDB-specific table.

@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.database;
 
-import org.flywaydb.core.internal.util.SqlCallable;
-
 import java.sql.SQLException;
+import org.flywaydb.core.internal.util.SqlCallable;
 
 /**
  * The default execution strategy for a {@code SQLCallable}, which just performs a single execution.

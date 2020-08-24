@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import java.sql.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-
-import java.sql.Connection;
 
 public class ExecutionTemplateFactory {
     /**

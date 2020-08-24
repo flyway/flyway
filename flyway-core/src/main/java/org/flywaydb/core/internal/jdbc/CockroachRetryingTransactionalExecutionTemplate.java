@@ -15,13 +15,12 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 
 /**
  * Spring-like template for executing transactions. Cockroach always operates with transaction isolation

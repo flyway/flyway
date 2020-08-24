@@ -15,6 +15,14 @@
  */
 package org.flywaydb.core.internal.parser;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.regex.Pattern;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
@@ -27,13 +35,6 @@ import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.sqlscript.SqlStatementIterator;
 import org.flywaydb.core.internal.util.BomStrippingReader;
 import org.flywaydb.core.internal.util.IOUtils;
-import org.flywaydb.core.internal.util.StringUtils;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * The main parser all database-specific parsers derive from.

@@ -15,29 +15,10 @@
  */
 package org.flywaydb.core.api.configuration;
 
-import org.flywaydb.core.api.ErrorCode;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.callback.Callback;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.migration.JavaMigration;
-import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.api.ClassProvider;
-import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.jdbc.DriverDataSource;
-import org.flywaydb.core.internal.license.Edition;
-import org.flywaydb.core.api.ResourceProvider;
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.Locations;
-import org.flywaydb.core.internal.util.StringUtils;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger;
 
-import javax.sql.DataSource;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -48,9 +29,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.flywaydb.core.api.ClassProvider;
+import org.flywaydb.core.api.ErrorCode;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.ResourceProvider;
+import org.flywaydb.core.api.callback.Callback;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.migration.JavaMigration;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.license.Edition;
+import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.Locations;
+import org.flywaydb.core.internal.util.StringUtils;
 
-import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
-import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger;
+import javax.sql.DataSource;
 
 /**
  * JavaBean-style configuration for Flyway. This is primarily meant for compatibility with scenarios where the

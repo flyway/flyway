@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.configuration;
 
+import java.util.Locale;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-
-import java.util.Locale;
 
 public class ConfigurationValidator {
     public void validate(Configuration configuration) {

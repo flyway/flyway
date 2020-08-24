@@ -15,17 +15,14 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
+import java.sql.SQLException;
 import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
 import org.flywaydb.core.internal.database.DatabaseFactory;
-import org.flywaydb.core.internal.database.cockroachdb.CockroachDBRetryingStrategy;
-import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.util.SqlCallable;
-
-import java.sql.SQLException;
 
 /**
  * Database migration based on a sql file.

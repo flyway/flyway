@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.clazz;
 
-import org.flywaydb.core.api.ClassProvider;
-
 import java.util.Collection;
 import java.util.Collections;
+import org.flywaydb.core.api.ClassProvider;
 
 /**
  * ClassProvider that does nothing.

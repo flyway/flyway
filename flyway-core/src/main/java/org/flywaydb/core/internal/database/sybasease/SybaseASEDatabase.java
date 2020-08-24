@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
@@ -24,10 +27,6 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.Results;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Sybase ASE database.

@@ -15,13 +15,12 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import java.sql.SQLException;
+import java.util.concurrent.Callable;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-
-import java.sql.SQLException;
-import java.util.concurrent.Callable;
 
 public class PlainExecutionTemplate implements ExecutionTemplate {
     private static final Log LOG = LogFactory.getLog(PlainExecutionTemplate.class);

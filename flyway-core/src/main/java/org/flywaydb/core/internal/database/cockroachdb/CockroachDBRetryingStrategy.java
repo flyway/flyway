@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import java.sql.SQLException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
 import org.flywaydb.core.internal.util.SqlCallable;
-
-import java.sql.SQLException;
 
 /**
  * CockroachDB recommend the use of retries should we see a SQL error code 40001, which represents a lock wait timeout.

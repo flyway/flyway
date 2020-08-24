@@ -15,9 +15,10 @@
  */
 package org.flywaydb.core.internal.command;
 
+import java.util.Objects;
+import java.util.concurrent.Callable;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -35,9 +36,6 @@ import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-
-import java.util.Objects;
-import java.util.concurrent.Callable;
 
 /**
  * Handles Flyway's repair command.

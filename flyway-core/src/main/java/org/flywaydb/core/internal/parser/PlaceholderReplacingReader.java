@@ -15,14 +15,13 @@
  */
 package org.flywaydb.core.internal.parser;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.configuration.Configuration;
-
 import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 
 public class PlaceholderReplacingReader extends FilterReader {
     private final String prefix;

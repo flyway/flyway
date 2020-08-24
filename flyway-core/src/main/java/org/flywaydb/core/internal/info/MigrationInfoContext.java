@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.info;
 
-import org.flywaydb.core.api.MigrationVersion;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.flywaydb.core.api.MigrationVersion;
 
 /**
  * The current context of the migrations.

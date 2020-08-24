@@ -15,21 +15,7 @@
  */
 package org.flywaydb.gradle.task;
 
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.jdbc.DriverDataSource;
-import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.gradle.FlywayExtension;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.artifacts.ResolvedArtifact;
-import org.gradle.api.artifacts.ResolvedConfiguration;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.SourceSetOutput;
-import org.gradle.api.tasks.TaskAction;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,8 +31,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.gradle.FlywayExtension;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.artifacts.ResolvedArtifact;
+import org.gradle.api.artifacts.ResolvedConfiguration;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetOutput;
+import org.gradle.api.tasks.TaskAction;
 
 /**
  * A base class for all flyway tasks.

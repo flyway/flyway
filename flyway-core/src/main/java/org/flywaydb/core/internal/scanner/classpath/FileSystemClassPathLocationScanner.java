@@ -15,14 +15,13 @@
  */
 package org.flywaydb.core.internal.scanner.classpath;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.util.UrlUtils;
-
 import java.io.File;
 import java.net.URL;
 import java.util.Set;
 import java.util.TreeSet;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.UrlUtils;
 
 /**
  * ClassPathLocationScanner for the file system.

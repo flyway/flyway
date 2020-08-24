@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.resolver;
 
-import org.flywaydb.core.api.resolver.ResolvedMigration;
-
 import java.util.Comparator;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 
 /**
 * Comparator for ResolvedMigration.

@@ -15,11 +15,10 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogCreator;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogCreator;
 
 /**
  * Log creator for a MultiLog

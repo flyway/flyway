@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.resolver.java;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.executor.Context;
@@ -22,12 +24,7 @@ import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
 import org.flywaydb.core.internal.database.DatabaseFactory;
-import org.flywaydb.core.internal.database.cockroachdb.CockroachDBRetryingStrategy;
-import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.util.SqlCallable;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * Adapter for executing migrations implementing JavaMigration.

@@ -15,18 +15,17 @@
  */
 package org.flywaydb.core.internal.resolver.java;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.util.ClassUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Migration resolver for Java-based migrations. The classes must have a name like R__My_description, V1__Description

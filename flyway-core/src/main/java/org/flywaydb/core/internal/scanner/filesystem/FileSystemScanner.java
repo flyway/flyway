@@ -15,19 +15,18 @@
  */
 package org.flywaydb.core.internal.scanner.filesystem;
 
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
-import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
-
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
+import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 
 /**
  * FileSystem scanner.

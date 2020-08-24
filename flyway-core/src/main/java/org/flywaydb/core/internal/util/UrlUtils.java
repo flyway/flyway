@@ -15,8 +15,6 @@
  */
 package org.flywaydb.core.internal.util;
 
-import org.flywaydb.core.api.FlywayException;
-
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;

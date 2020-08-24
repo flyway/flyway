@@ -15,6 +15,17 @@
  */
 package org.flywaydb.maven;
 
+import static org.flywaydb.core.internal.configuration.ConfigUtils.putArrayIfSet;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
@@ -35,18 +46,6 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.flywaydb.core.internal.configuration.ConfigUtils.putArrayIfSet;
-import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
 /**
  * Common base class for all mojos with all common attributes.

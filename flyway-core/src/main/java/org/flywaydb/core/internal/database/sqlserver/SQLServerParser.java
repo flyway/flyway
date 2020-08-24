@@ -15,13 +15,16 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.*;
-import org.flywaydb.core.internal.sqlscript.Delimiter;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.Parser;
+import org.flywaydb.core.internal.parser.ParserContext;
+import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.parser.PeekingReader;
+import org.flywaydb.core.internal.parser.Token;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
 
 public class SQLServerParser extends Parser {
     // #2175, 2298, 2542: Various system sprocs, mostly around replication, cannot be executed within a transaction.

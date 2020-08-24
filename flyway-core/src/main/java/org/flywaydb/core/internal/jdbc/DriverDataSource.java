@@ -15,6 +15,13 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.SQLException;
+import java.util.Properties;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
@@ -24,13 +31,6 @@ import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import javax.sql.DataSource;
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.SQLException;
-import java.util.Properties;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 /**
  * YAGNI: The simplest DataSource implementation that works for Flyway.

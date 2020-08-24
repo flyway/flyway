@@ -15,12 +15,11 @@
  */
 package org.flywaydb.commandline;
 
+import java.io.PrintStream;
 import org.flywaydb.core.api.logging.Log;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
 import org.fusesource.jansi.AnsiConsole;
-
-import java.io.PrintStream;
 
 /**
  * Wrapper which adds color to a Console output.

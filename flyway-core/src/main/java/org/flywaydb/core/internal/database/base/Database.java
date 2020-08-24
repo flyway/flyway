@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.database.base;
 
+import java.io.Closeable;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -32,10 +35,6 @@ import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
-
-import java.io.Closeable;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 
 /**
  * Abstraction for database-specific functionality.

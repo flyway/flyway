@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.database.db2;
 
+import java.sql.SQLException;
 import org.flywaydb.core.internal.database.base.Type;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-
-import java.sql.SQLException;
 
 /**
  * Db2-specific type.

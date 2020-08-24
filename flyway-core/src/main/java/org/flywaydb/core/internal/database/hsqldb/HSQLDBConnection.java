@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.database.hsqldb;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * HSQLDB connection.

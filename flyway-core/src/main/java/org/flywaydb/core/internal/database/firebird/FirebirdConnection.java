@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.database.firebird;
 
+import java.sql.SQLException;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
-
-import java.sql.SQLException;
 
 public class FirebirdConnection extends Connection<FirebirdDatabase> {
 

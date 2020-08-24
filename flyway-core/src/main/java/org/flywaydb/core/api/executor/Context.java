@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.api.executor;
 
-import org.flywaydb.core.api.configuration.Configuration;
-
 import java.sql.Connection;
+import org.flywaydb.core.api.configuration.Configuration;
 
 /**
  * The context relevant to a migration executor.

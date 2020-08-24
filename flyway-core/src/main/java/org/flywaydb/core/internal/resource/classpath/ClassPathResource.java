@@ -15,17 +15,16 @@
  */
 package org.flywaydb.core.internal.resource.classpath;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.util.UrlUtils;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.internal.util.UrlUtils;
 
 /**
  * A resource on the classpath.

@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.info;
 
+import java.util.Date;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
@@ -24,8 +25,6 @@ import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
-
-import java.util.Date;
 
 /**
  * Default implementation of MigrationInfo.

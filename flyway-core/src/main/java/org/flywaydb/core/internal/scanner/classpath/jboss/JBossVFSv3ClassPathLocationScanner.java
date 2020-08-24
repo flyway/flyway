@@ -15,19 +15,18 @@
  */
 package org.flywaydb.core.internal.scanner.classpath.jboss;
 
-import org.flywaydb.core.internal.util.UrlUtils;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.scanner.classpath.ClassPathLocationScanner;
-import org.jboss.vfs.VFS;
-import org.jboss.vfs.VirtualFile;
-import org.jboss.vfs.VirtualFileFilter;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.scanner.classpath.ClassPathLocationScanner;
+import org.flywaydb.core.internal.util.UrlUtils;
+import org.jboss.vfs.VFS;
+import org.jboss.vfs.VirtualFile;
+import org.jboss.vfs.VirtualFileFilter;
 
 /**
  * ClassPathLocationScanner for JBoss VFS v3.

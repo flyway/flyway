@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.api;
 
-import org.flywaydb.core.internal.resource.LoadableResource;
-
 import java.util.Collection;
+import org.flywaydb.core.internal.resource.LoadableResource;
 
 /**
  * A facility to obtain loadable resources.

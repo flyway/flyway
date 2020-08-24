@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.resolver;
 
+import java.util.Objects;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-
-import java.util.Objects;
 
 /**
  * A migration available on the classpath.

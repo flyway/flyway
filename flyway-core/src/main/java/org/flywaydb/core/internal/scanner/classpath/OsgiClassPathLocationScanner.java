@@ -15,16 +15,15 @@
  */
 package org.flywaydb.core.internal.scanner.classpath;
 
-import org.flywaydb.core.api.FlywayException;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
-
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.flywaydb.core.api.FlywayException;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
 /**
  * OSGi specific scanner that performs the migration search in

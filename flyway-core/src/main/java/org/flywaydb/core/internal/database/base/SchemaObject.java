@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.database.base;
 
+import java.sql.SQLException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-
-import java.sql.SQLException;
 
 /**
  * An object within a database schema.

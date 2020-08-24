@@ -15,16 +15,15 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogCreator;
-import org.flywaydb.commandline.ConsoleLog.Level;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import org.flywaydb.commandline.ConsoleLog.Level;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogCreator;
 
 /**
  * Log Creator for logging to a file

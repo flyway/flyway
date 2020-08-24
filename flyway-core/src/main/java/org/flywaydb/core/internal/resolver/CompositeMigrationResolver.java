@@ -15,22 +15,6 @@
  */
 package org.flywaydb.core.internal.resolver;
 
-import org.flywaydb.core.api.ErrorCode;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.migration.JavaMigration;
-import org.flywaydb.core.api.resolver.Context;
-import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.api.ClassProvider;
-import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.core.internal.resolver.java.FixedJavaMigrationResolver;
-import org.flywaydb.core.internal.resolver.java.ScanningJavaMigrationResolver;
-import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
-import org.flywaydb.core.api.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
-import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,6 +22,21 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.flywaydb.core.api.ClassProvider;
+import org.flywaydb.core.api.ErrorCode;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.ResourceProvider;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.migration.JavaMigration;
+import org.flywaydb.core.api.resolver.Context;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.resolver.java.FixedJavaMigrationResolver;
+import org.flywaydb.core.internal.resolver.java.ScanningJavaMigrationResolver;
+import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
+import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
+import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
 /**
  * Facility for retrieving and sorting the available migrations from the classpath through the various migration

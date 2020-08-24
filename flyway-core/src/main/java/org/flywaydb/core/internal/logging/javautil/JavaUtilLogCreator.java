@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.logging.javautil;
 
+import java.util.logging.Logger;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
-
-import java.util.logging.Logger;
 
 /**
  * Log Creator for java.util.logging.

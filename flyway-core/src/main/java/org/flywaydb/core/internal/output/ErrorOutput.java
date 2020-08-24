@@ -15,13 +15,12 @@
  */
 package org.flywaydb.core.internal.output;
 
-import org.flywaydb.core.api.ErrorCode;
-import org.flywaydb.core.api.FlywayException;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import org.flywaydb.core.api.ErrorCode;
+import org.flywaydb.core.api.FlywayException;
 
 public class ErrorOutput {
 

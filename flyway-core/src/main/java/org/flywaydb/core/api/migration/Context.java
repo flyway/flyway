@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.api.migration;
 
-import org.flywaydb.core.api.configuration.Configuration;
-
 import java.sql.Connection;
+import org.flywaydb.core.api.configuration.Configuration;
 
 /**
  * The context relevant to a Java-based migration.

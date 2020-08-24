@@ -15,11 +15,14 @@
  */
 package org.flywaydb.core.internal.database.informix;
 
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.*;
-
 import java.io.IOException;
 import java.util.List;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.Parser;
+import org.flywaydb.core.internal.parser.ParserContext;
+import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.parser.PeekingReader;
+import org.flywaydb.core.internal.parser.Token;
 
 public class InformixParser extends Parser {
     public InformixParser(Configuration configuration, ParsingContext parsingContext) {

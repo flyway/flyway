@@ -15,13 +15,12 @@
  */
 package org.flywaydb.core.internal.util;
 
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 
 /**
  * Encapsulation of a location list.

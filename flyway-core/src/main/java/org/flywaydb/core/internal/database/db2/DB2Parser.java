@@ -15,13 +15,17 @@
  */
 package org.flywaydb.core.internal.database.db2;
 
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.*;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.Parser;
+import org.flywaydb.core.internal.parser.ParserContext;
+import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.parser.PeekingReader;
+import org.flywaydb.core.internal.parser.Token;
+import org.flywaydb.core.internal.parser.TokenType;
 
 public class DB2Parser extends Parser {
     private static final String COMMENT_DIRECTIVE = "--#";

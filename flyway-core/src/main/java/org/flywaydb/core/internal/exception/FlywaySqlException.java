@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.exception;
 
+import java.sql.SQLException;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-
-import java.sql.SQLException;
 
 /**
  * This specific exception thrown when Flyway encounters a problem in SQL statement.

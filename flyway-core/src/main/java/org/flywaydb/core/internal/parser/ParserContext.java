@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.parser;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.sqlscript.Delimiter;
-
 import java.security.InvalidParameterException;
 import java.util.Stack;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
 
 public class ParserContext {
     private int parensDepth = 0;

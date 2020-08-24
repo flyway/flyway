@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.callback;
 
+import java.util.List;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Context;
 import org.flywaydb.core.api.callback.Error;
@@ -22,8 +23,6 @@ import org.flywaydb.core.api.callback.Statement;
 import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
-
-import java.util.List;
 
 public class SimpleContext implements Context {
     private final Configuration configuration;

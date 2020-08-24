@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.command;
 
+import java.util.concurrent.Callable;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.logging.Log;
@@ -28,8 +29,6 @@ import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-
-import java.util.concurrent.Callable;
 
 /**
  * Main workflow for cleaning the database.

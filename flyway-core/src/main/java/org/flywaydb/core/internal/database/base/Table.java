@@ -15,14 +15,13 @@
  */
 package org.flywaydb.core.internal.database.base;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * Represents a database table within a schema.

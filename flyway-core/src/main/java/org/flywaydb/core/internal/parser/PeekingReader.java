@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.parser;
 
-import org.flywaydb.core.internal.sqlscript.Delimiter;
-
 import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
+import org.flywaydb.core.internal.sqlscript.Delimiter;
 
 public class PeekingReader extends FilterReader {
     private int[] peekBuffer = new int[256];

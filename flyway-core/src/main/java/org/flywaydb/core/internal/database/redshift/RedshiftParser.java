@@ -15,12 +15,16 @@
  */
 package org.flywaydb.core.internal.database.redshift;
 
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.parser.*;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.parser.Parser;
+import org.flywaydb.core.internal.parser.ParserContext;
+import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.parser.PeekingReader;
+import org.flywaydb.core.internal.parser.Token;
+import org.flywaydb.core.internal.parser.TokenType;
 
 public class RedshiftParser extends Parser {
     private static final Pattern CREATE_LIBRARY_REGEX = Pattern.compile("^(CREATE|DROP) LIBRARY");

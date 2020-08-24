@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.schemahistory;
 
+import java.util.List;
+import java.util.concurrent.Callable;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
@@ -22,9 +24,6 @@ import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-
-import java.util.List;
-import java.util.concurrent.Callable;
 
 /**
  * The schema history used to track all applied migrations.

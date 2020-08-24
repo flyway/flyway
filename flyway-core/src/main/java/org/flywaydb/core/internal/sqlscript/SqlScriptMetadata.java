@@ -15,16 +15,15 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
+
+import java.util.HashMap;
+import java.util.Map;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.resource.LoadableResource;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
 
 public class SqlScriptMetadata {
     private static final Log LOG = LogFactory.getLog(SqlScriptMetadata.class);

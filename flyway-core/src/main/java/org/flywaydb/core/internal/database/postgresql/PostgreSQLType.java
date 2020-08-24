@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
+import java.sql.SQLException;
 import org.flywaydb.core.internal.database.base.Type;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-
-import java.sql.SQLException;
 
 /**
  * PostgreSQL-specific type.

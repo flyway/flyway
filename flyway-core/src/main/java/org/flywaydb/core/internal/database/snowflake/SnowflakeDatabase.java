@@ -15,20 +15,18 @@
  */
 package org.flywaydb.core.internal.database.snowflake;
 
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
-import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 public class SnowflakeDatabase extends Database<SnowflakeConnection> {
     private static final Log LOG = LogFactory.getLog(SnowflakeDatabase.class);

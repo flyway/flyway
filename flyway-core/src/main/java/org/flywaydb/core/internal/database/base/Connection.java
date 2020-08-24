@@ -15,14 +15,13 @@
  */
 package org.flywaydb.core.internal.database.base;
 
-import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
-
 import java.io.Closeable;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.JdbcUtils;
 
 public abstract class Connection<D extends Database> implements Closeable {
     protected final D database;

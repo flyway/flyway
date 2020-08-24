@@ -32,7 +32,7 @@ public class BomFilter {
      * @param s The string
      * @return The string without a Byte Order Mark at the start
      */
-    public static String FilterBomFromString(String s) {
+    public static String filterBomFromString(String s) {
         if (s.isEmpty()) {
             return s;
         }

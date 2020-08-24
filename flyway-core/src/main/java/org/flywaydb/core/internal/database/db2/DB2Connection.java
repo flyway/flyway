@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.database.db2;
 
+import java.sql.SQLException;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
-
-import java.sql.SQLException;
 
 /**
  * DB2 connection.

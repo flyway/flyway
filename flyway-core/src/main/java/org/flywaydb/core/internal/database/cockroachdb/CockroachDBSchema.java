@@ -15,16 +15,15 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.SqlCallable;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * CockroachDB implementation of Schema.

@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import java.sql.SQLException;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
-
-import java.sql.SQLException;
 
 /**
  * CockroachDB connection.

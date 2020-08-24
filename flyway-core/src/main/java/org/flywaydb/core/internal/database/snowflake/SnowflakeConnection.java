@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.database.snowflake;
 
+import java.sql.SQLException;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
-
-import java.sql.SQLException;
 
 
 

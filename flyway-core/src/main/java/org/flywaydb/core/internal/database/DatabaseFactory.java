@@ -15,11 +15,14 @@
  */
 package org.flywaydb.core.internal.database;
 
+import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.getMetadataResource;
+
+import java.sql.Connection;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabase;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBParser;
@@ -28,7 +31,6 @@ import org.flywaydb.core.internal.database.db2.DB2Database;
 import org.flywaydb.core.internal.database.db2.DB2Parser;
 import org.flywaydb.core.internal.database.derby.DerbyDatabase;
 import org.flywaydb.core.internal.database.derby.DerbyParser;
-
 import org.flywaydb.core.internal.database.firebird.FirebirdDatabase;
 import org.flywaydb.core.internal.database.firebird.FirebirdParser;
 import org.flywaydb.core.internal.database.h2.H2Database;
@@ -59,15 +61,15 @@ import org.flywaydb.core.internal.database.sybasease.SybaseASEParser;
 import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.Parser;
+import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.api.ResourceProvider;
-import org.flywaydb.core.internal.sqlscript.*;
-
-import java.sql.Connection;
-
-import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.getMetadataResource;
+import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
+import org.flywaydb.core.internal.sqlscript.ParserSqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScript;
+import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
+import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
+import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
 /**
  * Factory for obtaining the correct Database instance for the current connection.

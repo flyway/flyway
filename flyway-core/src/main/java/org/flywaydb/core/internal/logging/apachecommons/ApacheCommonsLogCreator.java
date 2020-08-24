@@ -15,9 +15,9 @@
  */
 package org.flywaydb.core.internal.logging.apachecommons;
 
+import org.apache.commons.logging.LogFactory;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Log Creator for Apache Commons Logging.

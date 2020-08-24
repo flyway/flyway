@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.database.h2;
 
+import java.sql.SQLException;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-
-import java.sql.SQLException;
 
 /**
  * H2-specific table.

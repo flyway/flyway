@@ -15,22 +15,25 @@
  */
 package org.flywaydb.core.internal.scanner;
 
+import java.nio.charset.Charset;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.scanner.android.AndroidScanner;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
 import org.flywaydb.core.internal.scanner.filesystem.FileSystemScanner;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
-
-import java.nio.charset.Charset;
-import java.nio.file.Paths;
-import java.util.*;
 
 /**
  * Scanner for Resources and Classes.

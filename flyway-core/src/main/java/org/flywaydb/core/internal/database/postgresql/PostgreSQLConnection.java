@@ -15,15 +15,14 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
+import java.sql.SQLException;
+import java.util.concurrent.Callable;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
-
-import java.sql.SQLException;
-import java.util.concurrent.Callable;
 
 /**
  * PostgreSQL connection.

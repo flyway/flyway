@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.scanner.classpath.jboss;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.scanner.classpath.UrlResolver;
-
 import java.lang.reflect.Method;
 import java.net.URL;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.scanner.classpath.UrlResolver;
 
 /**
  * Resolves JBoss VFS v2 URLs into standard Java URLs.

@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.command;
 
+import java.util.concurrent.Callable;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
@@ -31,8 +32,6 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-
-import java.util.concurrent.Callable;
 
 /**
  * Handles the validate command.
@@ -127,25 +126,22 @@ public class DbValidate {
         stopWatch.start();
 
         Pair<Integer, String> result = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
-                database).execute(new Callable<Pair<Integer, String>>() {
-            @Override
-            public Pair<Integer, String> call() {
-                MigrationInfoServiceImpl migrationInfoService =
-                        new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration,
-                                configuration.getTarget(),
-                                configuration.isOutOfOrder(),
-                                pending,
-                                configuration.isIgnoreMissingMigrations(),
-                                configuration.isIgnoreIgnoredMigrations(),
-                                configuration.isIgnoreFutureMigrations());
+                database).execute(() -> {
+                    MigrationInfoServiceImpl migrationInfoService =
+                            new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration,
+                                    configuration.getTarget(),
+                                    configuration.isOutOfOrder(),
+                                    pending,
+                                    configuration.isIgnoreMissingMigrations(),
+                                    configuration.isIgnoreIgnoredMigrations(),
+                                    configuration.isIgnoreFutureMigrations());
 
-                migrationInfoService.refresh();
+                    migrationInfoService.refresh();
 
-                int count = migrationInfoService.all().length;
-                String validationError = migrationInfoService.validate();
-                return Pair.of(count, validationError);
-            }
-        });
+                    int count = migrationInfoService.all().length;
+                    String validationError = migrationInfoService.validate();
+                    return Pair.of(count, validationError);
+                });
 
         stopWatch.stop();
 
