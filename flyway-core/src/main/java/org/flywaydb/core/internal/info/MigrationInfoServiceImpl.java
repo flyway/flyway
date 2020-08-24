@@ -271,6 +271,21 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             ));
         }
 
+        if (target != null && target != MigrationVersion.CURRENT && target != MigrationVersion.LATEST) {
+            boolean targetFound = false;
+
+            for (MigrationInfoImpl migration : migrationInfos1) {
+                if (target.compareTo(migration.getVersion()) == 0) {
+                    targetFound = true;
+                    break;
+                }
+            }
+
+            if (!targetFound) {
+                throw new FlywayException("No migration with a target version " + target + " could be found. Ensure target is specified correctly and the migration exists.");
+            }
+        }
+
         // Setup the latest repeatable run ranks
         for (Pair<AppliedMigration, AppliedMigrationAttributes> av : appliedRepeatable) {
             if (av.getRight().deleted && av.getLeft().getType() == MigrationType.DELETE) {
