@@ -336,7 +336,7 @@ public class Main {
         LOG.info("target                       : Target version up to which Flyway should use migrations");
         LOG.info("cherryPick                   : [" + "enterprise] Comma separated list of migrations that Flyway should consider when migrating");
         LOG.info("outOfOrder                   : Allows migrations to be run \"out of order\"");
-        LOG.info("callbacks                    : Comma-separated list of FlywayCallback classes");
+        LOG.info("callbacks                    : Comma-separated list of FlywayCallback classes, or locations to scan for FlywayCallback classes");
         LOG.info("skipDefaultCallbacks         : Skips default callbacks (sql)");
         LOG.info("validateOnMigrate            : Validate when running migrate");
         LOG.info("validateMigrationNaming      : Validate file names of SQL migrations (including callbacks)");

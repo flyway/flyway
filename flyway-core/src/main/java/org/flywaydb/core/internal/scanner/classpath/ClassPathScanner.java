@@ -69,6 +69,11 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
     private final ResourceNameCache resourceNameCache;
 
     /**
+     * Whether to show an error if the location was not found. Used to suppress errors when we scan built in Flyway paths.
+     */
+    private final boolean errorOnNotFound;
+
+    /**
      * Creates a new Classpath scanner.
      *
      * @param classLoader The ClassLoader for loading migrations on the classpath.
@@ -76,11 +81,24 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
     public ClassPathScanner(Class<I> implementedInterface, ClassLoader classLoader, Charset encoding, Location location,
                             ResourceNameCache resourceNameCache,
                             LocationScannerCache locationScannerCache) {
+        this(implementedInterface, classLoader, encoding, location, resourceNameCache, locationScannerCache, true);
+    }
+
+    /**
+     * Creates a new Classpath scanner.
+     *
+     * @param classLoader The ClassLoader for loading migrations on the classpath.
+     */
+    public ClassPathScanner(Class<I> implementedInterface, ClassLoader classLoader, Charset encoding, Location location,
+                            ResourceNameCache resourceNameCache,
+                            LocationScannerCache locationScannerCache,
+                            boolean errorOnNotFound) {
         this.implementedInterface = implementedInterface;
         this.classLoader = classLoader;
         this.location = location;
         this.resourceNameCache = resourceNameCache;
         this.locationScannerCache = locationScannerCache;
+        this.errorOnNotFound = errorOnNotFound;
 
         LOG.debug("Scanning for classpath resources at '" + location + "' ...");
         for (String resourceName : findResourceNames()) {
@@ -215,7 +233,11 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         }
 
         if (!locationResolved) {
-            LOG.error("Unable to resolve location " + location + ".");
+            if (errorOnNotFound) {
+                LOG.error("Unable to resolve location " + location + ".");
+            } else {
+                LOG.debug("Unable to resolve location " + location + ".");
+            }
         }
 
         return resourceNames;

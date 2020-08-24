@@ -978,7 +978,7 @@ public class FluentConfiguration implements Configuration {
     /**
      * Set the callbacks for lifecycle notifications.
      *
-     * @param callbacks The fully qualified class names of the callbacks for lifecycle notifications. (default: none)
+     * @param callbacks The fully qualified class names, or full qualified package to scan, of the callbacks for lifecycle notifications. (default: none)
      */
     public FluentConfiguration callbacks(String... callbacks) {
         config.setCallbacksAsClassNames(callbacks);

@@ -128,6 +128,9 @@ public class Flyway {
      */
     public Flyway(Configuration configuration) {
         this.configuration = new ClassicConfiguration(configuration);
+
+        // Load callbacks from default package
+        this.configuration.loadCallbackLocation("db/callback", false);
     }
 
     /**

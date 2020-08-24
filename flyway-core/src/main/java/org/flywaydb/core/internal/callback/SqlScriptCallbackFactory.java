@@ -140,6 +140,11 @@ public class SqlScriptCallbackFactory {
         }
 
         @Override
+        public String getCallbackName() {
+            return description;
+        }
+
+        @Override
         public int compareTo(SqlScriptCallback o) {
             int result = event.compareTo(o.event);
             if (result == 0) {

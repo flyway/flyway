@@ -50,4 +50,10 @@ public interface Callback {
      * @param context The context for this event.
      */
     void handle(Event event, Context context);
+
+    /**
+     * The callback name, Flyway will use this to sort the callbacks alphabetically before executing them
+     * @return The callback name
+     */
+    String getCallbackName();
 }

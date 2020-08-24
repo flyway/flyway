@@ -285,7 +285,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     private String[] cherryPick;
 
     /**
-     * An array of fully qualified FlywayCallback class implementations
+     * An array of fully qualified FlywayCallback class implementations, or packages to scan for FlywayCallback implementations
      */
     public String[] callbacks;
 

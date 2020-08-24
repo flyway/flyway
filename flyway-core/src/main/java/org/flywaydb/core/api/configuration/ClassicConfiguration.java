@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.api.configuration;
 
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.logging.Log;
@@ -27,6 +28,7 @@ import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.api.ResourceProvider;
+import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -502,12 +504,15 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+    private final ClasspathClassScanner classScanner;
+
     /**
      * Creates a new default configuration.
      */
     public ClassicConfiguration() {
         // Nothing to do.
         DatabaseTypeRegister.registerDatabaseTypes(this.classLoader);
+        classScanner = new ClasspathClassScanner(this.classLoader);
     }
 
     /**
@@ -520,6 +525,7 @@ public class ClassicConfiguration implements Configuration {
             this.classLoader = classLoader;
         }
         DatabaseTypeRegister.registerDatabaseTypes(this.classLoader);
+        classScanner = new ClasspathClassScanner(this.classLoader);
     }
 
     /**
@@ -1590,17 +1596,51 @@ public class ClassicConfiguration implements Configuration {
     /**
      * Set the callbacks for lifecycle notifications.
      *
-     * @param callbacks The fully qualified class names of the callbacks for lifecycle notifications. (default: none)
+     * @param callbacks The fully qualified class names, or full qualified package to scan, of the callbacks for lifecycle notifications. (default: none)
      */
     public void setCallbacksAsClassNames(String... callbacks) {
         this.callbacks.clear();
         for (String callback : callbacks) {
-            Object o = ClassUtils.instantiate(callback, classLoader);
+            loadCallbackPath(callback);
+        }
+    }
+
+    /**
+     * Load this callback path as a class if it exists, else scan this location for classes that implement Callback
+     * @param callbackPath The path to load or scan
+     */
+    private void loadCallbackPath(String callbackPath) {
+        // try to load it as a classname
+        Object o = null;
+        try {
+            o = ClassUtils.instantiate(callbackPath, classLoader);
+        } catch (FlywayException ex) {
+            // If the path failed to load, assume it points to a package instead.
+        }
+
+        if (o != null) {
+            // If we have a non-null o, check that it inherits from the right interface
             if (o instanceof Callback) {
                 this.callbacks.add((Callback) o);
             } else {
-                throw new FlywayException("Invalid callback: " + callback + " (must implement org.flywaydb.core.api.callback.Callback)", ErrorCode.CONFIGURATION);
+                throw new FlywayException("Invalid callback: " + callbackPath + " (must implement org.flywaydb.core.api.callback.Callback)", ErrorCode.CONFIGURATION);
             }
+        } else {
+            // else try to scan this location and load all callbacks found within
+            loadCallbackLocation(callbackPath, true);
+        }
+    }
+
+    /**
+     * Scan this location for classes that implement Callback
+     * @param path The path to scan
+     * @param errorOnNotFound Whether to show an error if the location is not found
+     */
+    public void loadCallbackLocation(String path, boolean errorOnNotFound) {
+        List<String> callbackClasses = classScanner.scanForType(path, Callback.class, errorOnNotFound);
+        for (String callback : callbackClasses) {
+            Callback callbackObj = ClassUtils.instantiate(callback, classLoader);
+            this.callbacks.add(callbackObj);
         }
     }
 

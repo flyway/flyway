@@ -29,4 +29,13 @@ public abstract class BaseCallback implements Callback {
     public boolean canHandleInTransaction(Event event, Context context) {
         return true;
     }
+
+    @Override
+    public String getCallbackName() {
+        String name = this.getClass().getSimpleName();
+        if (name.contains("__")) {
+            name = name.split("__")[1];
+        }
+        return name;
+    }
 }
