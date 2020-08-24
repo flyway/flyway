@@ -29,6 +29,7 @@ import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.output.ErrorOutput;
+import org.flywaydb.core.internal.output.InfoOutput;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -214,7 +215,11 @@ public class Main {
             LOG.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));
 
             if (commandLineArguments.shouldOutputJson()) {
-                printJson(commandLineArguments, info.getInfoOutput());
+                InfoOutput output = info.getInfoOutput();
+                if (commandLineArguments.shouldWarnAboutDeprecatedFlag()) {
+                    output.warnings.add("Option -json is deprecated; use -outputType=json instead");
+                }
+                printJson(commandLineArguments, output);
             }
         } else if ("repair".equals(operation)) {
             flyway.repair();
@@ -359,6 +364,7 @@ public class Main {
         LOG.info("licenseKey                   : [" + "pro] Your Flyway license key");
         LOG.info("color                        : Whether to colorize output. Values: always, never, or auto (default)");
         LOG.info("outputFile                   : Send output to the specified file alongside the console");
+        LOG.info("outputType                   : Serialise the output in the given format, Values: json");
         LOG.info("");
         LOG.info("Flags");
         LOG.info("-----");
@@ -367,7 +373,6 @@ public class Main {
         LOG.info("-n          : Suppress prompting for a user and password");
         LOG.info("-v          : Print the Flyway version and exit");
         LOG.info("-?          : Print this usage info and exit");
-        LOG.info("-json       : Print the output in JSON format");
         LOG.info("-community  : Run the Flyway Community Edition (default)");
         LOG.info("-pro        : Run the Flyway Pro Edition");
         LOG.info("-enterprise : Run the Flyway Enterprise Edition");

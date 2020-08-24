@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.output;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class InfoOutput {
@@ -23,6 +24,7 @@ public class InfoOutput {
     public String schemaVersion;
     public String schemaName;
     public List<MigrationOutput> migrations;
+    public List<String> warnings;
 
     public InfoOutput(String flywayVersion,
                       String database,
@@ -34,5 +36,6 @@ public class InfoOutput {
         this.schemaVersion = schemaVersion;
         this.schemaName = schemaName;
         this.migrations = migrations;
+        this.warnings = new LinkedList<>();
     }
 }
