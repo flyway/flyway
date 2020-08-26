@@ -19,6 +19,7 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.ClassProvider;
+import org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.scanner.android.AndroidScanner;
@@ -65,6 +66,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
         FeatureDetector detector =  new FeatureDetector(classLoader);
         boolean android = detector.isAndroidAvailable();
         boolean aws = detector.isAwsAvailable();
+        int awsMigrationCount = 0;
 
         for (Location location : locations) {
             if (location.isFileSystem()) {
@@ -72,7 +74,15 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
             } else if (location.isAwsS3()) {
                 if (aws) {
                     AwsS3Scanner awsS3Scanner = new AwsS3Scanner(encoding);
-                    resources.addAll(awsS3Scanner.scanForResources(location));
+                    Collection<LoadableResource> awsResources = awsS3Scanner.scanForResources(location);
+                    for (LoadableResource r : awsResources) {
+                        if (r.getFilename().endsWith(".sql")) {
+                            awsMigrationCount += awsResources.size();
+                        }
+                    }
+
+                    resources.addAll(awsResources);
+
                 } else {
                     LOG.error("Can't read location " + location + "; AWS SDK not found");
                 }
@@ -88,6 +98,12 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
         for (LoadableResource resource : resources) {
             relativeResourceMap.put(resource.getRelativePath().toLowerCase(), resource);
         }
+
+
+        if (awsMigrationCount > 100) {
+            throw new FlywayEnterpriseUpgradeRequiredException("AWS locations with more than 100 migrations");
+        }
+
     }
 
     @Override
