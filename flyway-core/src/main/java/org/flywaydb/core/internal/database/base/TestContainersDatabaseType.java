@@ -69,11 +69,7 @@ public class TestContainersDatabaseType extends DatabaseType {
     }
 
     @Override
-    public Parser createParser(Configuration configuration
-
-
-
-            , ParsingContext parsingContext) {
+    public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
         throw new IllegalStateException();
     }
 }

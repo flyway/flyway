@@ -195,24 +195,21 @@ public abstract class DatabaseType {
             final CallbackExecutor callbackExecutor,
             final StatementInterceptor statementInterceptor
     ) {
+        boolean supportsBatch = false;
 
 
 
+        final boolean finalSupportsBatch = supportsBatch;
 
         final DatabaseType thisRef = this;
 
         return new SqlScriptExecutorFactory() {
             @Override
-            public SqlScriptExecutor createSqlScriptExecutor(java.sql.Connection connection
-
-
-
-            ) {
-                return new DefaultSqlScriptExecutor(new JdbcTemplate(connection, thisRef)
-
-
-
-                );
+            public SqlScriptExecutor createSqlScriptExecutor(java.sql.Connection connection, boolean undo, boolean batch, boolean outputQueryResults) {
+                return new DefaultSqlScriptExecutor(
+                        new JdbcTemplate(connection, thisRef),
+                        callbackExecutor, undo, finalSupportsBatch && batch,
+                        outputQueryResults, statementInterceptor);
             }
         };
     }

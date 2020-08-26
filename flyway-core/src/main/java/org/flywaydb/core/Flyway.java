@@ -459,11 +459,13 @@ public class Flyway {
                 StringResource resource = new StringResource(configuration.getInitSql());
 
                 SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, true, resourceProvider);
-                noCallbackSqlScriptExecutorFactory.createSqlScriptExecutor(connection
+
+                boolean outputQueryResults = false;
 
 
 
-                ).execute(sqlScript);
+
+                noCallbackSqlScriptExecutorFactory.createSqlScriptExecutor(connection, false, false, outputQueryResults).execute(sqlScript);
             }
         });
 
@@ -487,19 +489,14 @@ public class Flyway {
 
             database.ensureSupported();
 
-            DefaultCallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, defaultSchema,
-                    prepareCallbacks(database, resourceProvider, jdbcConnectionFactory, sqlScriptFactory
+            DefaultCallbackExecutor callbackExecutor =
+                    new DefaultCallbackExecutor(configuration, database, defaultSchema,
+                        prepareCallbacks(
+                                database, resourceProvider, jdbcConnectionFactory, sqlScriptFactory, statementInterceptor, defaultSchema
+                        ));
 
-
-
-                    ));
-
-            SqlScriptExecutorFactory sqlScriptExecutorFactory = databaseType.createSqlScriptExecutorFactory(jdbcConnectionFactory
-
-
-
-
-            );
+            SqlScriptExecutorFactory sqlScriptExecutorFactory =
+                    databaseType.createSqlScriptExecutorFactory(jdbcConnectionFactory, callbackExecutor, statementInterceptor);
 
             result = command.execute(
                     createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory, parsingContext),
@@ -630,11 +627,8 @@ public class Flyway {
     private List<Callback> prepareCallbacks(Database database, ResourceProvider resourceProvider,
                                             JdbcConnectionFactory jdbcConnectionFactory,
                                             SqlScriptFactory sqlScriptFactory,
-                                            StatementInterceptor statementInterceptor
-
-
-
-    ) {
+                                            StatementInterceptor statementInterceptor,
+                                            Schema schema) {
         List<Callback> effectiveCallbacks = new ArrayList<>();
         CallbackExecutor callbackExecutor = NoopCallbackExecutor.INSTANCE;
 

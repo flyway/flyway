@@ -145,11 +145,7 @@ public class OracleDatabaseType extends DatabaseType {
 
         return new SqlScriptExecutorFactory() {
             @Override
-            public SqlScriptExecutor createSqlScriptExecutor(Connection connection
-
-
-
-            ) {
+            public SqlScriptExecutor createSqlScriptExecutor(Connection connection , boolean undo, boolean batch, boolean outputQueryResults) {
 
 
 
