@@ -253,7 +253,11 @@ public class DbMigrate {
         }
 
         if (!group.isEmpty()) {
-            applyMigrations(group);
+            boolean skipExecutingMigrations = false;
+
+
+
+            applyMigrations(group, skipExecutingMigrations);
         }
         return group.size();
     }
@@ -283,7 +287,7 @@ public class DbMigrate {
      *
      * @param group The group of migrations to apply.
      */
-    private void applyMigrations(final LinkedHashMap<MigrationInfoImpl, Boolean> group) {
+    private void applyMigrations(final LinkedHashMap<MigrationInfoImpl, Boolean> group, boolean skipExecutingMigrations) {
         boolean executeGroupInTransaction = isExecuteGroupInTransaction(group);
         final StopWatch stopWatch = new StopWatch();
         try {
@@ -291,12 +295,12 @@ public class DbMigrate {
                 ExecutionTemplateFactory.createExecutionTemplate(connectionUserObjects.getJdbcConnection(), database).execute(new Callable<Object>() {
                     @Override
                     public Object call() {
-                        doMigrateGroup(group, stopWatch);
+                        doMigrateGroup(group, stopWatch, skipExecutingMigrations);
                         return null;
                     }
                 });
             } else {
-                doMigrateGroup(group, stopWatch);
+                doMigrateGroup(group, stopWatch, skipExecutingMigrations);
             }
         } catch (FlywayMigrateException e) {
             MigrationInfoImpl migration = e.getMigration();
@@ -344,7 +348,7 @@ public class DbMigrate {
         return executeGroupInTransaction;
     }
 
-    private void doMigrateGroup(LinkedHashMap<MigrationInfoImpl, Boolean> group, StopWatch stopWatch) {
+    private void doMigrateGroup(LinkedHashMap<MigrationInfoImpl, Boolean> group, StopWatch stopWatch, boolean skipExecutingMigrations) {
         Context context = new Context() {
             @Override
             public Configuration getConfiguration() {
@@ -371,29 +375,33 @@ public class DbMigrate {
                 isPreviousVersioned = false;
             }
 
-            LOG.debug("Starting migration of " + migrationText + " ...");
+            if (skipExecutingMigrations) {
+                LOG.debug("Skipping execution of migration of " + migrationText);
+            } else {
+                LOG.debug("Starting migration of " + migrationText + " ...");
 
-            connectionUserObjects.restoreOriginalState();
-            connectionUserObjects.changeCurrentSchemaTo(schema);
+                connectionUserObjects.restoreOriginalState();
+                connectionUserObjects.changeCurrentSchemaTo(schema);
 
-            try {
-                callbackExecutor.setMigrationInfo(migration);
-                callbackExecutor.onEachMigrateOrUndoEvent(Event.BEFORE_EACH_MIGRATE);
                 try {
-                    LOG.info("Migrating " + migrationText);
-                    migration.getResolvedMigration().getExecutor().execute(context);
-                } catch (FlywayException e) {
-                    callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
-                    throw new FlywayMigrateException(migration, isOutOfOrder, e);
-                } catch (SQLException e) {
-                    callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
-                    throw new FlywayMigrateException(migration, isOutOfOrder, e);
-                }
+                    callbackExecutor.setMigrationInfo(migration);
+                    callbackExecutor.onEachMigrateOrUndoEvent(Event.BEFORE_EACH_MIGRATE);
+                    try {
+                        LOG.info("Migrating " + migrationText);
+                        migration.getResolvedMigration().getExecutor().execute(context);
+                    } catch (FlywayException e) {
+                        callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
+                        throw new FlywayMigrateException(migration, isOutOfOrder, e);
+                    } catch (SQLException e) {
+                        callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
+                        throw new FlywayMigrateException(migration, isOutOfOrder, e);
+                    }
 
-                LOG.debug("Successfully completed migration of " + migrationText);
-                callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE);
-            } finally {
-                callbackExecutor.setMigrationInfo(null);
+                    LOG.debug("Successfully completed migration of " + migrationText);
+                    callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE);
+                } finally {
+                    callbackExecutor.setMigrationInfo(null);
+                }
             }
 
             stopWatch.stop();

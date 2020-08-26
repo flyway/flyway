@@ -366,6 +366,21 @@ public class ClassicConfiguration implements Configuration {
      */
     private boolean outOfOrder;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * This is a list of custom callbacks that fire before and after tasks are executed.  You can
      * add as many custom callbacks as you want. (default: none)
@@ -683,6 +698,16 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isOutOfOrder() {
         return outOfOrder;
+    }
+
+    @Override
+    public boolean isSkipExecutingMigrations() {
+
+        throw new org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException("skipExecutingMigrations");
+
+
+
+
     }
 
     @Override
@@ -1569,6 +1594,26 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * <p>
+     * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
+     * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
+     * just want the schema history table to reflect this.
+     * </p>
+     * <p>
+     * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
+     * </p>
+     * <p><i>Flyway Enterprise only</i></p>
+     */
+    public void setSkipExecutingMigrations(boolean skipExecutingMigrations) {
+
+        throw new org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException("skipExecutingMigrations");
+
+
+
+
+    }
+
+    /**
      * Gets the callbacks for lifecycle notifications.
      *
      * @return The callbacks for lifecycle notifications. An empty array if none. (default: none)
@@ -1849,6 +1894,9 @@ public class ClassicConfiguration implements Configuration {
         setLocations(configuration.getLocations());
         setMixed(configuration.isMixed());
         setOutOfOrder(configuration.isOutOfOrder());
+
+
+
         setPlaceholderPrefix(configuration.getPlaceholderPrefix());
         setPlaceholderReplacement(configuration.isPlaceholderReplacement());
         setPlaceholders(configuration.getPlaceholders());
@@ -2067,6 +2115,10 @@ public class ClassicConfiguration implements Configuration {
         Boolean outOfOrderProp = removeBoolean(props, ConfigUtils.OUT_OF_ORDER);
         if (outOfOrderProp != null) {
             setOutOfOrder(outOfOrderProp);
+        }
+        Boolean skipExecutingMigrationsProp = removeBoolean(props, ConfigUtils.SKIP_EXECUTING_MIGRATIONS);
+        if (skipExecutingMigrationsProp != null) {
+            setSkipExecutingMigrations(skipExecutingMigrationsProp);
         }
         Boolean outputQueryResultsProp = removeBoolean(props, ConfigUtils.OUTPUT_QUERY_RESULTS);
         if (outputQueryResultsProp != null) {

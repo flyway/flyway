@@ -323,6 +323,21 @@ public interface Configuration {
     boolean isBaselineOnMigrate();
 
     /**
+     * <p>
+     * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
+     * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
+     * just want the schema history table to reflect this.
+     * </p>
+     * <p>
+     * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
+     * </p>
+     * <p><i>Flyway Enterprise only</i></p>
+     *
+     * @return {@code true} if executing the migrations should be skipped on migrate, {@code false} if not. (default: {@code false})
+     */
+    boolean isSkipExecutingMigrations();
+
+    /**
      * Allows migrations to be run "out of order".
      * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
      * it will be applied too instead of being ignored.</p>

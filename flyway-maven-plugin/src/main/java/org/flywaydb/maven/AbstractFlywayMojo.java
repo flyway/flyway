@@ -320,6 +320,20 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean outOfOrder;
 
     /**
+     * <p>
+     * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
+     * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
+     * just want the schema history table to reflect this.
+     * </p>
+     * <p>
+     * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
+     * </p>
+     * <p><i>Flyway Enterprise only</i></p>
+     */
+    @Parameter(property = ConfigUtils.SKIP_EXECUTING_MIGRATIONS)
+    private Boolean skipExecutingMigrations;
+
+    /**
      * Whether Flyway should output a table with the results of queries when executing migrations (default: true).
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      * <p>Also configurable with Maven or System Property: ${flyway.outputQueryResults}</p>
@@ -760,6 +774,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError);
             putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled);
             putIfSet(conf, ConfigUtils.OUT_OF_ORDER, outOfOrder);
+            putIfSet(conf, ConfigUtils.SKIP_EXECUTING_MIGRATIONS, skipExecutingMigrations);
             putIfSet(conf, ConfigUtils.OUTPUT_QUERY_RESULTS, outputQueryResults);
             putIfSet(conf, ConfigUtils.TARGET, target);
             putArrayIfSet(conf, ConfigUtils.CHERRY_PICK, cherryPick);
