@@ -25,6 +25,7 @@ import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.jdbc.JdbcNullTypes;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.RowMapper;
 import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
@@ -162,8 +163,11 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                 description = NO_DESCRIPTION_MARKER;
             }
 
+            Object versionObj = versionStr == null ? JdbcNullTypes.StringNull : versionStr;
+            Object checksumObj = checksum == null ? JdbcNullTypes.IntegerNull : checksum;
+
             jdbcTemplate.update(database.getInsertStatement(table),
-                    installedRank, versionStr, description, type.name(), script, checksum, database.getInstalledBy(),
+                    installedRank, versionObj, description, type.name(), script, checksumObj, database.getInstalledBy(),
                     executionTime, success);
 
             LOG.debug("Schema History table " + table + " successfully updated to reflect changes");
@@ -275,6 +279,8 @@ class JdbcTableSchemaHistory extends SchemaHistory {
         LOG.info("Repairing Schema History table for version " + version
                 + " (Description: " + description + ", Type: " + type + ", Checksum: " + checksum + ")  ...");
 
+        Object checksumObj = checksum == null ? JdbcNullTypes.IntegerNull : checksum;
+
         try {
             jdbcTemplate.update("UPDATE " + table
                                 + " SET "
@@ -282,7 +288,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                                 + database.quote("type") + "=? , "
                                 + database.quote("checksum") + "=?"
                                 + " WHERE " + database.quote("installed_rank") + "=?",
-                        description, type, checksum, appliedMigration.getInstalledRank());
+                    description, type.name(), checksumObj, appliedMigration.getInstalledRank());
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to repair Schema History table " + table
                     + " for version " + version, e);
@@ -304,11 +310,14 @@ class JdbcTableSchemaHistory extends SchemaHistory {
             LOG.info("Repairing Schema History table for version \"" + version + "\" (Marking as DELETED)  ...");
         }
 
+        Object versionObj = versionStr == null ? JdbcNullTypes.StringNull : versionStr;
+        Object checksumObj = appliedMigration.getChecksum() == null ? JdbcNullTypes.IntegerNull : appliedMigration.getChecksum();
+
         try {
             jdbcTemplate.update(database.getInsertStatement(table),
                     calculateInstalledRank(),
-                    versionStr, appliedMigration.getDescription(), "DELETE", appliedMigration.getScript(),
-                    appliedMigration.getChecksum(), database.getInstalledBy(), 0, appliedMigration.isSuccess());
+                    versionObj, appliedMigration.getDescription(), "DELETE", appliedMigration.getScript(),
+                    checksumObj, database.getInstalledBy(), 0, appliedMigration.isSuccess());
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to repair Schema History table " + table
                     + " for version " + version, e);

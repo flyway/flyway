@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 
@@ -213,6 +214,7 @@ public class JdbcTemplate {
      * @param params The statement parameters.
      * @throws SQLException when the execution failed.
      */
+
     public void execute(String sql, Object... params) throws SQLException {
         PreparedStatement statement = null;
         try {
@@ -299,6 +301,7 @@ public class JdbcTemplate {
                     }
 
                     data = new ArrayList<>();
+
                     while (resultSet.next()) {
                         List<String> row = new ArrayList<>();
                         for (int i = 1; i <= columnCount; i++) {
@@ -320,6 +323,7 @@ public class JdbcTemplate {
      * @param params The statement parameters.
      * @throws SQLException when the execution failed.
      */
+
     public void update(String sql, Object... params) throws SQLException {
         PreparedStatement statement = null;
         try {
@@ -338,6 +342,7 @@ public class JdbcTemplate {
      * @return The new prepared statement.
      * @throws SQLException when the statement could not be prepared.
      */
+
     private PreparedStatement prepareStatement(String sql, Object[] params) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(sql);
         for (int i = 0; i < params.length; i++) {
@@ -347,8 +352,17 @@ public class JdbcTemplate {
                 statement.setInt(i + 1, (Integer) params[i]);
             } else if (params[i] instanceof Boolean) {
                 statement.setBoolean(i + 1, (Boolean) params[i]);
-            } else {
+            } else if (params[i] instanceof String){
                 statement.setString(i + 1, params[i].toString());
+            } else if (params[i] == JdbcNullTypes.StringNull) {
+                statement.setNull(i + 1, Types.NVARCHAR);
+            } else if (params[i] == JdbcNullTypes.IntegerNull) {
+                statement.setNull(i + 1, Types.INTEGER);
+            } else if (params[i] == JdbcNullTypes.BooleanNull) {
+                statement.setNull(i + 1, Types.BOOLEAN);
+            } else {
+                throw new FlywayException("Unhandled object of type '" + params[i].getClass().getName() + "'. " +
+                        "Please contact support or leave an issue on GitHub.");
             }
         }
         return statement;
@@ -363,6 +377,7 @@ public class JdbcTemplate {
      * @return The list of results.
      * @throws SQLException when the query failed to execute.
      */
+
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... params) throws SQLException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;

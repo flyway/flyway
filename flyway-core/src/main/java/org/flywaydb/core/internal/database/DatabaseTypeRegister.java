@@ -34,6 +34,7 @@ import org.flywaydb.core.internal.database.postgresql.PostgreSQLDatabaseType;
 import org.flywaydb.core.internal.database.redshift.RedshiftDatabaseType;
 import org.flywaydb.core.internal.database.saphana.SAPHANADatabaseType;
 import org.flywaydb.core.internal.database.snowflake.SnowflakeDatabaseType;
+
 import org.flywaydb.core.internal.database.sqlite.SQLiteDatabaseType;
 import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabaseType;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEJConnectDatabaseType;
@@ -60,6 +61,7 @@ public class DatabaseTypeRegister {
             }
 
             registeredDatabaseTypes.clear();
+
 
 
 
