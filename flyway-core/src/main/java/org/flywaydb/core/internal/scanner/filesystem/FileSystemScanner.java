@@ -48,11 +48,7 @@ public class FileSystemScanner {
 
 
      */
-    public FileSystemScanner(Charset encoding
-
-
-
-    ) {
+    public FileSystemScanner(Charset encoding, boolean stream) {
         this.defaultEncoding = encoding;
 
 

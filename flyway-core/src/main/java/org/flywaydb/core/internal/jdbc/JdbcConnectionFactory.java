@@ -22,7 +22,6 @@ import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
-
 import org.flywaydb.core.internal.util.ExceptionUtils;
 
 import javax.sql.DataSource;
@@ -61,15 +60,9 @@ public class JdbcConnectionFactory {
      *
      * @param dataSource                 The dataSource to obtain the connection from.
      * @param connectRetries             The maximum number of retries when attempting to connect to the database.
-
-
-
+     * @param statementInterceptor       The statement interceptor. {@code null} if none.
      */
-    public JdbcConnectionFactory(DataSource dataSource, int connectRetries
-
-
-
-    ) {
+    public JdbcConnectionFactory(DataSource dataSource, int connectRetries, StatementInterceptor statementInterceptor) {
         this.dataSource = dataSource;
         this.connectRetries = connectRetries;
 

@@ -30,11 +30,11 @@ import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
-import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
@@ -161,11 +161,8 @@ public class Flyway {
     public int migrate() throws FlywayException {
         return execute(new Command<Integer>() {
             public Integer execute(MigrationResolver migrationResolver,
-                                   SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor
-
-
-
-            ) {
+                                   SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
+                                   StatementInterceptor statementInterceptor) {
                 if (configuration.isValidateOnMigrate()) {
                     doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
                             true // Always ignore pending migrations when validating before migrating
@@ -241,7 +238,6 @@ public class Flyway {
 
 
 
-
     }
 
     /**
@@ -261,11 +257,8 @@ public class Flyway {
     public void validate() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
-                                Schema[] schemas, CallbackExecutor callbackExecutor
-
-
-
-            ) {
+                                Schema[] schemas, CallbackExecutor callbackExecutor,
+                                StatementInterceptor statementInterceptor) {
                 doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
                         configuration.isIgnorePendingMigrations());
                 return null;
@@ -312,11 +305,8 @@ public class Flyway {
     public void clean() {
         execute(new Command<Void>() {
             public Void execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
-                                Schema[] schemas, CallbackExecutor callbackExecutor
-
-
-
-            ) {
+                                Schema[] schemas, CallbackExecutor callbackExecutor,
+                                StatementInterceptor statementInterceptor) {
                 doClean(database, schemaHistory, schemas, callbackExecutor);
                 return null;
             }
@@ -334,11 +324,8 @@ public class Flyway {
     public MigrationInfoService info() {
         return execute(new Command<MigrationInfoService>() {
             public MigrationInfoService execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                                                final Database database, final Schema[] schemas, CallbackExecutor callbackExecutor
-
-
-
-            ) {
+                                                final Database database, final Schema[] schemas, CallbackExecutor callbackExecutor,
+                                                StatementInterceptor statementInterceptor) {
                 return new DbInfo(migrationResolver, schemaHistory, configuration, callbackExecutor).info();
             }
         }, true);
@@ -354,11 +341,8 @@ public class Flyway {
     public void baseline() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(MigrationResolver migrationResolver,
-                                SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor
-
-
-
-            ) {
+                                SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
+                                StatementInterceptor statementInterceptor) {
                 if (configuration.getCreateSchemas()) {
                     new DbSchemas(database, schemas, schemaHistory).create(true);
                 } else {
@@ -387,11 +371,8 @@ public class Flyway {
     public void repair() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(MigrationResolver migrationResolver,
-                                SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor
-
-
-
-            ) {
+                                SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
+                                StatementInterceptor statementInterceptor) {
                 new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor, configuration).repair();
                 return null;
             }
@@ -434,6 +415,7 @@ public class Flyway {
 
         configurationValidator.validate(configuration);
 
+        StatementInterceptor statementInterceptor = null;
 
 
 
@@ -454,11 +436,8 @@ public class Flyway {
         }
 
         JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(),
-                configuration.getConnectRetries()
-
-
-
-
+                configuration.getConnectRetries(),
+                statementInterceptor
         );
 
         final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
@@ -466,11 +445,9 @@ public class Flyway {
         final SqlScriptFactory sqlScriptFactory = databaseType.createSqlScriptFactory(configuration, parsingContext);
 
         final SqlScriptExecutorFactory noCallbackSqlScriptExecutorFactory = databaseType.createSqlScriptExecutorFactory(
-                jdbcConnectionFactory
-
-
-
-
+                jdbcConnectionFactory,
+                NoopCallbackExecutor.INSTANCE,
+                null
         );
 
         jdbcConnectionFactory.setConnectionInitializer(new JdbcConnectionFactory.ConnectionInitializer() {
@@ -492,11 +469,7 @@ public class Flyway {
 
         Database database = null;
         try {
-            database = databaseType.createDatabase(configuration, !dbConnectionInfoPrinted, jdbcConnectionFactory
-
-
-
-            );
+            database = databaseType.createDatabase(configuration, !dbConnectionInfoPrinted, jdbcConnectionFactory, statementInterceptor);
 
             dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
@@ -531,20 +504,17 @@ public class Flyway {
             result = command.execute(
                     createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory, parsingContext),
                     SchemaHistoryFactory.getSchemaHistory(configuration, noCallbackSqlScriptExecutorFactory, sqlScriptFactory,
-                            database, defaultSchema
-
-
-
+                            database, defaultSchema,
+                            statementInterceptor
                     ),
                     database,
                     schemas.getRight().toArray(new Schema[0]),
-                    callbackExecutor
-
-
-
+                    callbackExecutor, statementInterceptor
             );
         } finally {
             IOUtils.close(database);
+
+
 
 
 
@@ -566,16 +536,19 @@ public class Flyway {
                 resourceProvider = configuration.getResourceProvider();
                 classProvider = configuration.getJavaMigrationClassProvider();
             } else {
+                boolean stream = false;
+
+
+
+
                 Scanner<JavaMigration> scanner = new Scanner<>(
                         JavaMigration.class,
                         Arrays.asList(configuration.getLocations()),
                         configuration.getClassLoader(),
-                        configuration.getEncoding()
-
-
-
-                        , resourceNameCache
-                        , locationScannerCache
+                        configuration.getEncoding(),
+                        stream,
+                        resourceNameCache,
+                        locationScannerCache
                 );
                 // set the defaults
                 resourceProvider = scanner;
@@ -656,14 +629,14 @@ public class Flyway {
 
     private List<Callback> prepareCallbacks(Database database, ResourceProvider resourceProvider,
                                             JdbcConnectionFactory jdbcConnectionFactory,
-                                            SqlScriptFactory sqlScriptFactory
-
+                                            SqlScriptFactory sqlScriptFactory,
+                                            StatementInterceptor statementInterceptor
 
 
 
     ) {
         List<Callback> effectiveCallbacks = new ArrayList<>();
-
+        CallbackExecutor callbackExecutor = NoopCallbackExecutor.INSTANCE;
 
 
 
@@ -685,11 +658,9 @@ public class Flyway {
 
         if (!configuration.isSkipDefaultCallbacks()) {
             SqlScriptExecutorFactory sqlScriptExecutorFactory =
-                    jdbcConnectionFactory.getDatabaseType().createSqlScriptExecutorFactory(jdbcConnectionFactory
-
-
-
-
+                    jdbcConnectionFactory.getDatabaseType().createSqlScriptExecutorFactory(jdbcConnectionFactory,
+                            callbackExecutor,
+                            statementInterceptor
                     );
 
             effectiveCallbacks.addAll(
@@ -725,10 +696,8 @@ public class Flyway {
          * @return The result of the operation.
          */
         T execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                  Database database, Schema[] schemas, CallbackExecutor callbackExecutor
-
-
-
+                  Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
+                  StatementInterceptor statementInterceptor
         );
     }
 }

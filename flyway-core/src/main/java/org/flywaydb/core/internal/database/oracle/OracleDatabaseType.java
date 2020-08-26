@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
@@ -72,26 +73,14 @@ public class OracleDatabaseType extends DatabaseType {
     }
 
     @Override
-    public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
-
-
-
-    ) {
+    public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         OracleDatabase.enableTnsnamesOraSupport();
 
-        return new OracleDatabase(configuration, jdbcConnectionFactory
-
-
-
-        );
+        return new OracleDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
-    public Parser createParser(Configuration configuration
-
-
-
-            , ParsingContext parsingContext) {
+    public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
 
 
 
@@ -144,11 +133,9 @@ public class OracleDatabaseType extends DatabaseType {
     }
 
     @Override
-    public SqlScriptExecutorFactory createSqlScriptExecutorFactory(JdbcConnectionFactory jdbcConnectionFactory
-
-
-
-
+    public SqlScriptExecutorFactory createSqlScriptExecutorFactory(JdbcConnectionFactory jdbcConnectionFactory,
+            final CallbackExecutor callbackExecutor,
+            final StatementInterceptor statementInterceptor
     ) {
 
 
@@ -163,10 +150,14 @@ public class OracleDatabaseType extends DatabaseType {
 
 
             ) {
+
+
+
+
+
+
                 return new OracleSqlScriptExecutor(new JdbcTemplate(connection, thisRef)
-
-
-
+                        , callbackExecutor, undo, batch, outputQueryResults, statementInterceptor
                 );
             }
         };

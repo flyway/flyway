@@ -117,10 +117,8 @@ public abstract class DatabaseType {
      */
     public Database createDatabase(
             Configuration configuration, boolean printInfo,
-            JdbcConnectionFactory jdbcConnectionFactory
-
-
-
+            JdbcConnectionFactory jdbcConnectionFactory,
+            StatementInterceptor statementInterceptor
     ) {
         String databaseProductName = jdbcConnectionFactory.getProductName();
         if (printInfo) {
@@ -128,11 +126,7 @@ public abstract class DatabaseType {
             LOG.debug("Driver  : " + jdbcConnectionFactory.getDriverInfo());
         }
 
-        Database database = createDatabase(configuration, jdbcConnectionFactory
-
-
-
-        );
+        Database database = createDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
 
         String intendedCurrentSchema = configuration.getDefaultSchema();
         if (!database.supportsChangingCurrentSchema() && intendedCurrentSchema != null) {
@@ -152,10 +146,8 @@ public abstract class DatabaseType {
      */
     public abstract Database createDatabase(
             Configuration configuration,
-            JdbcConnectionFactory jdbcConnectionFactory
-
-
-
+            JdbcConnectionFactory jdbcConnectionFactory,
+            StatementInterceptor statementInterceptor
     );
 
     /**
@@ -166,9 +158,7 @@ public abstract class DatabaseType {
      */
     public abstract Parser createParser(
             Configuration configuration
-
-
-
+            , ResourceProvider resourceProvider
             , ParsingContext parsingContext
     );
 
@@ -185,12 +175,11 @@ public abstract class DatabaseType {
         return new SqlScriptFactory() {
             @Override
             public SqlScript createSqlScript(LoadableResource resource, boolean mixed, ResourceProvider resourceProvider) {
-                return new ParserSqlScript(createParser(configuration
-
-
-
-                        , parsingContext
-                ), resource, getMetadataResource(resourceProvider, resource), mixed);
+                return new ParserSqlScript(
+                        createParser(configuration, resourceProvider, parsingContext),
+                        resource,
+                        getMetadataResource(resourceProvider, resource),
+                        mixed);
             }
         };
     }
@@ -202,11 +191,9 @@ public abstract class DatabaseType {
      * @return The SqlScriptExecutorFactory.
      */
     public SqlScriptExecutorFactory createSqlScriptExecutorFactory(
-            final JdbcConnectionFactory jdbcConnectionFactory
-
-
-
-
+            final JdbcConnectionFactory jdbcConnectionFactory,
+            final CallbackExecutor callbackExecutor,
+            final StatementInterceptor statementInterceptor
     ) {
 
 
