@@ -24,8 +24,10 @@ import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.ResolvedConfiguration;
+import org.gradle.api.artifacts.UnknownConfigurationException;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
@@ -52,7 +54,6 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 /**
  * A base class for all flyway tasks.
  */
-@SuppressWarnings("WeakerAccess")
 public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * The default Gradle configurations to use.
@@ -586,24 +587,27 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         }
     }
 
-    private void addClassesAndResourcesDirs(Set<URL> extraURLs) throws IllegalAccessException, InvocationTargetException, MalformedURLException {
+    private void addClassesAndResourcesDirs(Set<URL> extraURLs) throws MalformedURLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         JavaPluginConvention plugin = getProject().getConvention().getPlugin(JavaPluginConvention.class);
 
         for (SourceSet sourceSet : plugin.getSourceSets()) {
             try {
-                @SuppressWarnings("JavaReflectionMemberAccess")
-                Method getClassesDirs = SourceSetOutput.class.getMethod("getClassesDirs");
-
-                // use alternative method available in Gradle 4.0
-                FileCollection classesDirs = (FileCollection) getClassesDirs.invoke(sourceSet.getOutput());
+                FileCollection classesDirs = sourceSet.getOutput().getClassesDirs();
                 for (File directory : classesDirs.getFiles()) {
                     URL classesUrl = directory.toURI().toURL();
                     getLogger().debug("Adding directory to Classpath: " + classesUrl);
                     extraURLs.add(classesUrl);
                 }
-            } catch (NoSuchMethodException e) {
-                // use original method available in Gradle 3.x
-                URL classesUrl = sourceSet.getOutput().getClassesDir().toURI().toURL();
+            } catch (NoSuchMethodError ex) {
+                getLogger().debug("Falling back to legacy getClassesDir method");
+
+                // try legacy gradle 3.0 method instead
+                @SuppressWarnings("JavaReflectionMemberAccess")
+                Method getClassesDir = SourceSetOutput.class.getMethod("getClassesDir");
+
+                File classesDir = (File) getClassesDir.invoke(sourceSet.getOutput());
+                URL classesUrl = classesDir.toURI().toURL();
+
                 getLogger().debug("Adding directory to Classpath: " + classesUrl);
                 extraURLs.add(classesUrl);
             }

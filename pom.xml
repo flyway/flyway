@@ -158,7 +158,7 @@
 
     <properties>
         <version.maven>3.0</version.maven>
-        <version.gradle>3.0</version.gradle>
+        <version.gradle>6.1.1</version.gradle>
         <version.derby>10.15.2.0</version.derby>
         <version.h2>1.4.200</version.h2>
         <version.hsqldb>2.5.0</version.hsqldb>
