@@ -44,6 +44,11 @@ public final class Location implements Comparable<Location> {
     private static final String AWS_S3_PREFIX = "s3:";
 
     /**
+     * The prefix for Google Cloud Storage locations.
+     */
+    private static final String GCS_PREFIX = "gcs:";
+
+    /**
      * The prefix part of the location. Can be either classpath: or filesystem:.
      */
     private final String prefix;
@@ -92,8 +97,8 @@ public final class Location implements Comparable<Location> {
                 // if the original path contained no wildcards, also normalise it
                 rawPath = new File(rawPath).getPath();
             }
-        } else if (!isAwsS3()) {
-            throw new FlywayException("Unknown prefix for location (should be one of filesystem:, classpath:, or s3:): "
+        } else if (!isAwsS3() && !isGCS()) {
+            throw new FlywayException("Unknown prefix for location (should be one of filesystem:, classpath:, gcs:, or s3:): "
                     + normalizedDescriptor);
         }
 
@@ -240,6 +245,15 @@ public final class Location implements Comparable<Location> {
      */
     public boolean isAwsS3() {
         return AWS_S3_PREFIX.equals(prefix);
+    }
+
+    /**
+     * Checks whether this denotes a location in Google cloud storage.
+     *
+     * @return {@code true} if it does, {@code false} if it doesn't;
+     */
+    public boolean isGCS() {
+        return GCS_PREFIX.equals(prefix);
     }
 
     /**

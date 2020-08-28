@@ -53,6 +53,11 @@
             <artifactId>s3</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-storage</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
             <optional>true</optional>

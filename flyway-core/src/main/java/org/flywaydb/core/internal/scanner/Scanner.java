@@ -26,6 +26,7 @@ import org.flywaydb.core.internal.scanner.android.AndroidScanner;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
 import org.flywaydb.core.internal.scanner.filesystem.FileSystemScanner;
+import org.flywaydb.core.internal.scanner.gcs.GCSScanner;
 import org.flywaydb.core.internal.scanner.s3.AwsS3Scanner;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -59,18 +60,33 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
         FeatureDetector detector =  new FeatureDetector(classLoader);
         boolean android = detector.isAndroidAvailable();
         boolean aws = detector.isAwsAvailable();
-        int awsMigrationCount = 0;
+        boolean gcs = detector.isGCSAvailable();
+        int cloudMigrationCount = 0;
 
         for (Location location : locations) {
             if (location.isFileSystem()) {
                 resources.addAll(fileSystemScanner.scanForResources(location));
+            } else if (location.isGCS()) {
+                if (gcs) {
+                    GCSScanner gcsScanner = new GCSScanner(encoding);
+                    Collection<LoadableResource> gcsResources = gcsScanner.scanForResources(location);
+                    for (LoadableResource r : gcsResources) {
+                        if (r.getFilename().endsWith(".sql")) {
+                            cloudMigrationCount += gcsResources.size();
+                        }
+                    }
+
+                    resources.addAll(gcsResources);
+                } else {
+                    LOG.error("Can't read location " + location + "; Google Cloud Storage SDK not found");
+                }
             } else if (location.isAwsS3()) {
                 if (aws) {
                     AwsS3Scanner awsS3Scanner = new AwsS3Scanner(encoding);
                     Collection<LoadableResource> awsResources = awsS3Scanner.scanForResources(location);
                     for (LoadableResource r : awsResources) {
                         if (r.getFilename().endsWith(".sql")) {
-                            awsMigrationCount += awsResources.size();
+                            cloudMigrationCount += awsResources.size();
                         }
                     }
 
@@ -93,8 +109,8 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
         }
 
 
-        if (awsMigrationCount > 100) {
-            throw new FlywayEnterpriseUpgradeRequiredException("AWS locations with more than 100 migrations");
+        if (cloudMigrationCount > 100) {
+            throw new FlywayEnterpriseUpgradeRequiredException("Cloud locations with more than 100 migrations");
         }
 
     }

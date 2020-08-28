@@ -74,6 +74,11 @@ public final class FeatureDetector {
     private Boolean awsAvailable;
 
     /**
+     * Flag indicating availability of the Google Cloud Storage SDK classes.
+     */
+    private Boolean gcsAvailable;
+
+    /**
      * Checks whether Apache Commons Logging is available.
      *
      * @return {@code true} if it is, {@code false if it is not}
@@ -170,5 +175,20 @@ public final class FeatureDetector {
         }
 
         return awsAvailable;
+    }
+
+    /**
+     * Checks if GCS is available.
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public boolean isGCSAvailable() {
+        if (gcsAvailable == null) {
+            ClassLoader classLoader = FeatureDetector.class.getClassLoader();
+            gcsAvailable = ClassUtils.isPresent("com.google.cloud.storage.Storage", classLoader);
+            LOG.debug("Google Cloud Storage available: " + gcsAvailable);
+        }
+
+        return gcsAvailable;
     }
 }

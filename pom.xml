@@ -182,6 +182,7 @@
         <version.jansi>1.18</version.jansi>
         <version.gson>2.8.6</version.gson>
         <version.aws-java-sdk>2.10.56</version.aws-java-sdk>
+        <version.gcs>1.111.2</version.gcs>
         <httpclient.version>4.5.2</httpclient.version>
     </properties>
 
@@ -417,6 +418,12 @@
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>s3</artifactId>
                 <version>${version.aws-java-sdk}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>google-cloud-storage</artifactId>
+                <version>${version.gcs}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
