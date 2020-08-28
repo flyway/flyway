@@ -181,7 +181,7 @@
         <version.jre>11.0.2</version.jre>
         <version.jansi>1.18</version.jansi>
         <version.gson>2.8.6</version.gson>
-        <aws-java-sdk.version>2.10.56</aws-java-sdk.version>
+        <version.aws-java-sdk>2.10.56</version.aws-java-sdk>
         <httpclient.version>4.5.2</httpclient.version>
     </properties>
 
@@ -416,7 +416,7 @@
             <dependency>
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>s3</artifactId>
-                <version>${aws-java-sdk.version}</version>
+                <version>${version.aws-java-sdk}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
