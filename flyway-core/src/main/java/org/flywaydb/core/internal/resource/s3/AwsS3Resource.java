@@ -32,9 +32,9 @@ public class AwsS3Resource extends LoadableResource {
 
     private static final Log LOG = LogFactory.getLog(AwsS3Resource.class);
 
-    private String bucketName;
-    private S3Object s3ObjectSummary;
-    private Charset encoding;
+    private final String bucketName;
+    private final S3Object s3ObjectSummary;
+    private final Charset encoding;
 
     public AwsS3Resource(String bucketName, S3Object s3ObjectSummary, Charset encoding) {
         this.bucketName = bucketName;
