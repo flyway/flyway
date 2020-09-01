@@ -112,6 +112,10 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         return databaseType instanceof MariaDBDatabaseType;
     }
 
+    boolean isTiDB() {
+        return databaseType == DatabaseType.TIDB;
+    }
+
     boolean isPxcStrict() {
         return pxcStrict;
     }
@@ -292,6 +296,6 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     @Override
     public boolean useSingleConnection() {
-        return !pxcStrict;
+        return false;
     }
 }
