@@ -113,7 +113,7 @@ public class DatabaseTypeRegister {
                     builder.append(type.getName());
                 }
 
-                LOG.info("Multiple databases found that handle url '" + url + "'. " + builder);
+                LOG.debug("Multiple databases found that handle url '" + url + "'. " + builder);
             }
 
             return typesAcceptingUrl.get(0);
