@@ -69,9 +69,29 @@ public class Main {
      */
     static void initLogging(CommandLineArguments commandLineArguments) {
         LogCreator logCreator = getLogCreator(commandLineArguments);
+
+
+
+
+
         LogFactory.setFallbackLogCreator(logCreator);
+
+
+
         LOG = LogFactory.getLog(Main.class);
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Main method.
