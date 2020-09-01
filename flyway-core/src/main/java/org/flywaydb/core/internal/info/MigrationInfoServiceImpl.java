@@ -121,7 +121,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         };
         this.target = target;
-        this.outOfOrder = outOfOrder || cherryPick != null;
+        this.outOfOrder = outOfOrder;
         this.cherryPick = cherryPick;
         this.pending = pending;
         this.missing = missing;
