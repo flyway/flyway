@@ -32,12 +32,12 @@ public class JdbcTemplate {
     /**
      * The DB connection to use.
      */
-    private final Connection connection;
+    protected final Connection connection;
 
     /**
      * The type to assign to a null value.
      */
-    private final int nullType;
+    protected final int nullType;
 
     /**
      * Creates a new JdbcTemplate.
@@ -343,8 +343,10 @@ public class JdbcTemplate {
      * @throws SQLException when the statement could not be prepared.
      */
 
-    private PreparedStatement prepareStatement(String sql, Object[] params) throws SQLException {
+    protected PreparedStatement prepareStatement(String sql, Object[] params) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(sql);
+
+        //Spanner requires specific types for null but most others e.g. postgres don't work that way
         for (int i = 0; i < params.length; i++) {
             if (params[i] == null) {
                 statement.setNull(i + 1, nullType);
@@ -355,11 +357,11 @@ public class JdbcTemplate {
             } else if (params[i] instanceof String){
                 statement.setString(i + 1, params[i].toString());
             } else if (params[i] == JdbcNullTypes.StringNull) {
-                statement.setNull(i + 1, Types.NVARCHAR);
+                statement.setNull(i + 1, nullType);
             } else if (params[i] == JdbcNullTypes.IntegerNull) {
-                statement.setNull(i + 1, Types.INTEGER);
+                statement.setNull(i + 1, nullType);
             } else if (params[i] == JdbcNullTypes.BooleanNull) {
-                statement.setNull(i + 1, Types.BOOLEAN);
+                statement.setNull(i + 1, nullType);
             } else {
                 throw new FlywayException("Unhandled object of type '" + params[i].getClass().getName() + "'. " +
                         "Please contact support or leave an issue on GitHub.");
