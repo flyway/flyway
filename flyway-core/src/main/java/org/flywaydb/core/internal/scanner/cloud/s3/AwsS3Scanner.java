@@ -37,7 +37,7 @@ public class AwsS3Scanner extends CloudScanner {
 
     private static final Log LOG = LogFactory.getLog(AwsS3Scanner.class);
 
-    private S3Client client;
+    private final S3Client client;
 
     /**
      * Creates a new AWS S3 scanner.
