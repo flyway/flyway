@@ -37,13 +37,21 @@ public class AwsS3Scanner extends CloudScanner {
 
     private static final Log LOG = LogFactory.getLog(AwsS3Scanner.class);
 
+    private S3Client client;
+
     /**
      * Creates a new AWS S3 scanner.
      *
      * @param encoding The encoding to use.
+     * @param client S3 Client to use. If not provided, default client will be instantiated
      */
-    public AwsS3Scanner(Charset encoding) {
+    public AwsS3Scanner(Charset encoding, S3Client client) {
         super(encoding);
+        if (client != null) {
+            this.client = client;
+        } else {
+            this.client = S3Client.create();
+        }
     }
 
     /**
@@ -55,20 +63,12 @@ public class AwsS3Scanner extends CloudScanner {
      */
     @Override
     public Collection<LoadableResource> scanForResources(final Location location) {
-        if (System.getenv("AWS_REGION") == null ||
-            System.getenv("AWS_ACCESS_KEY_ID") == null ||
-            System.getenv("AWS_SECRET_ACCESS_KEY") == null) {
-            LOG.error("Can't read location " + location + "; AWS_REGION, AWS_ACCESS_KEY_ID or AWS_SECRET_ACCESS_KEY environment variable not set");
-            return Collections.emptyList();
-        }
-
         String bucketName = getBucketName(location);
         String prefix = getPrefix(bucketName, location.getPath());
-        S3Client s3Client = S3Client.create();
         try {
             ListObjectsV2Request.Builder builder = ListObjectsV2Request.builder().bucket(bucketName).prefix(prefix);
             ListObjectsV2Request request = builder.build();
-            ListObjectsV2Response listObjectResult = s3Client.listObjectsV2(request);
+            ListObjectsV2Response listObjectResult = this.client.listObjectsV2(request);
             return getLoadableResources(bucketName, listObjectResult);
         } catch (SdkClientException e) {
             LOG.error("Skipping s3 location:" + bucketName + prefix + " due to error: " + e.getMessage());

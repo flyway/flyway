@@ -30,6 +30,7 @@ import org.flywaydb.core.internal.scanner.cloud.gcs.GCSScanner;
 import org.flywaydb.core.internal.scanner.cloud.s3.AwsS3Scanner;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
+import software.amazon.awssdk.services.s3.S3Client;
 
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
@@ -53,7 +54,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
      */
     public Scanner(Class<I> implementedInterface, Collection<Location> locations, ClassLoader classLoader, Charset encoding,
                    boolean stream,
-                   ResourceNameCache resourceNameCache, LocationScannerCache locationScannerCache
+                   ResourceNameCache resourceNameCache, LocationScannerCache locationScannerCache, S3Client s3Client
     ) {
         FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding, stream);
 
@@ -78,9 +79,9 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
             } else if (location.isAwsS3()) {
                 if (aws) {
-                    Collection<LoadableResource> awsResources = new AwsS3Scanner(encoding).scanForResources(location);
+                    Collection<LoadableResource> awsResources = new AwsS3Scanner(encoding, s3Client).scanForResources(location);
                     resources.addAll(awsResources);
-                    cloudMigrationCount += awsResources.stream().filter(r -> r.getFilename().endsWith(".sql")).count();;
+                    cloudMigrationCount += awsResources.stream().filter(r -> r.getFilename().endsWith(".sql")).count();
                 } else {
                     LOG.error("Can't read location " + location + "; AWS SDK not found");
                 }

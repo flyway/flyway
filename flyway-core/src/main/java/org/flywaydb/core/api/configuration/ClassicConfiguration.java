@@ -32,6 +32,7 @@ import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
+import software.amazon.awssdk.services.s3.S3Client;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -433,6 +434,11 @@ public class ClassicConfiguration implements Configuration {
      */
     private boolean createSchemas = true;
 
+    /**
+     * If set, can be used to override the default S3Client used by the AwsS3Scanner
+     */
+    private S3Client s3Client;
+
 
 
 
@@ -819,6 +825,15 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+    }
+
+    /**
+     * Returns custom S3 client, if configured
+     * @return
+     */
+    @Override
+    public S3Client getS3Client() {
+        return s3Client;
     }
 
     /**
@@ -1921,6 +1936,15 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+    }
+
+    /**
+     * Sets a custom s3 client to be used
+     *
+     * @param client
+     */
+    public void setS3Client(S3Client client) {
+       this.s3Client = client;
     }
 
     /**
