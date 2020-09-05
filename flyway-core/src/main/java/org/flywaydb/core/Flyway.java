@@ -545,7 +545,8 @@ public class Flyway {
                         configuration.getEncoding(),
                         stream,
                         resourceNameCache,
-                        locationScannerCache
+                        locationScannerCache,
+                        configuration.getS3Client()
                 );
                 // set the defaults
                 resourceProvider = scanner;
