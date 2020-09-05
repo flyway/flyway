@@ -1099,7 +1099,7 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * S3 Client to use for pulling files
+     * Set custom S3 Client
      *
      * @param client The client to use for storing
      */
