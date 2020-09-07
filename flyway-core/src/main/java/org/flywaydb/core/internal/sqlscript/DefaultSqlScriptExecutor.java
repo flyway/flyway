@@ -194,7 +194,6 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-
     protected void executeStatement(JdbcTemplate jdbcTemplate, SqlScript sqlScript, SqlStatement sqlStatement) {
         logStatementExecution(sqlStatement);
         String sql = sqlStatement.getSql() + sqlStatement.getDelimiter();
