@@ -183,6 +183,7 @@
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
         <version.android>4.0.1.2</version.android>
         <version.slf4j>1.7.30</version.slf4j>
+        <version.log4j2>2.13.3</version.log4j2>
         <version.jre>11.0.2</version.jre>
         <version.jansi>1.18</version.jansi>
         <version.gson>2.8.6</version.gson>
@@ -218,6 +219,12 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
                 <version>${version.slf4j}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${version.log4j2}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
