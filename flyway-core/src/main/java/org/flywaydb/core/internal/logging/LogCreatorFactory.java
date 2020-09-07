@@ -22,6 +22,7 @@ import org.flywaydb.core.internal.logging.android.AndroidLogCreator;
 import org.flywaydb.core.internal.logging.apachecommons.ApacheCommonsLogCreator;
 import org.flywaydb.core.internal.logging.javautil.JavaUtilLogCreator;
 import org.flywaydb.core.internal.logging.slf4j.Slf4jLogCreator;
+import org.flywaydb.core.internal.logging.log4j2.Log4j2LogCreator;
 
 public class LogCreatorFactory {
     /**
@@ -41,6 +42,9 @@ public class LogCreatorFactory {
         }
         if (featureDetector.isApacheCommonsLoggingAvailable()) {
             return ClassUtils.instantiate(ApacheCommonsLogCreator.class.getName(), classLoader);
+        }
+        if (featureDetector.isLog4j2Available()) {
+            return ClassUtils.instantiate(Log4j2LogCreator.class.getName(), classLoader);
         }
         if (fallbackLogCreator == null) {
             return new JavaUtilLogCreator();

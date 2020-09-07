@@ -49,6 +49,11 @@ public final class FeatureDetector {
     private Boolean slf4jAvailable;
 
     /**
+     * Flag indicating availability of the Log4j2.
+     */
+    private Boolean log4j2Available;
+
+    /**
      * Flag indicating availability of JBoss VFS v2.
      */
     private Boolean jbossVFSv2Available;
@@ -92,6 +97,19 @@ public final class FeatureDetector {
         }
 
         return slf4jAvailable;
+    }
+
+    /**
+     * Checks whether Log4j2 is available.
+     *
+     * @return {@code true} if it is, {@code false} if it is not
+     */
+    public boolean isLog4j2Available() {
+        if (log4j2Available == null) {
+            log4j2Available = ClassUtils.isPresent("org.apache.logging.log4j.Logger", classLoader);
+        }
+
+        return log4j2Available;
     }
 
     /**
