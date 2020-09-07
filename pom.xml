@@ -184,6 +184,7 @@
         <version.aws-java-sdk>2.10.56</version.aws-java-sdk>
         <version.gcs>1.111.2</version.gcs>
         <httpclient.version>4.5.2</httpclient.version>
+        <version.aws-secretsmanager>1.0.5</version.aws-secretsmanager>
     </properties>
 
     <dependencyManagement>
@@ -424,6 +425,12 @@
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-storage</artifactId>
                 <version>${version.gcs}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws.secretsmanager</groupId>
+                <artifactId>aws-secretsmanager-jdbc</artifactId>
+                <version>${version.aws-secretsmanager}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>

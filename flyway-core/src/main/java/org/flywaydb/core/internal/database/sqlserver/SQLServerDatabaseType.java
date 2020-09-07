@@ -50,15 +50,32 @@ public class SQLServerDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
+        if (url.startsWith("jdbc-secretsmanager:sqlserver:")) {
+
+
+
+
+            throw new org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException("jdbc-secretsmanager");
+
+        }
+
         return url.startsWith("jdbc:sqlserver:") || (supportsJTDS() && url.startsWith("jdbc:jtds:"));
     }
 
     @Override
     public String getDriverClass(String url) {
-        if (supportsJTDS() && url.startsWith("jdbc:jtds:")) {
-            return "net.sourceforge.jtds.jdbc.Driver";
-        } else if (!supportsJTDS()) {
-            LOG.warn("JTDS does not support this database. Using the Microsoft JDBC driver instead");
+
+
+
+
+
+
+        if (url.startsWith("jdbc:jtds:")) {
+            if (supportsJTDS()) {
+                return "net.sourceforge.jtds.jdbc.Driver";
+            } else if (!supportsJTDS()) {
+                LOG.warn("JTDS does not support this database. Using the Microsoft JDBC driver instead");
+            }
         }
 
         return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
@@ -93,6 +110,12 @@ public class SQLServerDatabaseType extends DatabaseType {
 
     @Override
     public boolean detectPasswordRequiredByUrl(String url) {
+
+
+
+
+
+
         return !(url.contains("integratedSecurity=")
                 || url.contains("authentication=ActiveDirectoryIntegrated")
                 || url.contains("authentication=ActiveDirectoryMSI"));

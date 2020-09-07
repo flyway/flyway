@@ -46,11 +46,26 @@ public class PostgreSQLDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
+        if (url.startsWith("jdbc-secretsmanager:postgresql:")) {
+
+
+
+
+            throw new org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException("jdbc-secretsmanager");
+
+        }
+
         return url.startsWith("jdbc:postgresql:");
     }
 
     @Override
     public String getDriverClass(String url) {
+
+
+
+
+
+
         return "org.postgresql.Driver";
     }
 
@@ -93,6 +108,11 @@ public class PostgreSQLDatabaseType extends DatabaseType {
 
     @Override
     public boolean detectPasswordRequiredByUrl(String url) {
+
+
+
+
+
 
         // Postgres supports password in URL
         return !url.contains("password=");

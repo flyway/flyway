@@ -46,11 +46,26 @@ public class MariaDBDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
+        if (url.startsWith("jdbc-secretsmanager:mariadb:")) {
+
+
+
+
+            throw new org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException("jdbc-secretsmanager");
+
+        }
+
         return url.startsWith("jdbc:mariadb:");
     }
 
     @Override
     public String getDriverClass(String url) {
+
+
+
+
+
+
         return "org.mariadb.jdbc.Driver";
     }
 
@@ -76,5 +91,16 @@ public class MariaDBDatabaseType extends DatabaseType {
     @Override
     public void setDefaultConnectionProps(String url, Properties props) {
         props.put("connectionAttributes", "program_name:" + APPLICATION_NAME);
+    }
+
+    @Override
+    public boolean detectPasswordRequiredByUrl(String url) {
+
+
+
+
+
+
+        return super.detectPasswordRequiredByUrl(url);
     }
 }

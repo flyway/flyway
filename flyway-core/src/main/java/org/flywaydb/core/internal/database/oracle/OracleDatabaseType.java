@@ -59,11 +59,26 @@ public class OracleDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
+        if (url.startsWith("jdbc-secretsmanager:oracle:")) {
+
+
+
+
+            throw new org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException("jdbc-secretsmanager");
+
+        }
+
         return url.startsWith("jdbc:oracle");
     }
 
     @Override
     public String getDriverClass(String url) {
+
+
+
+
+
+
         return "oracle.jdbc.OracleDriver";
     }
 
@@ -177,6 +192,12 @@ public class OracleDatabaseType extends DatabaseType {
 
     @Override
     public boolean detectPasswordRequiredByUrl(String url) {
+
+
+
+
+
+
         return !usernamePasswordPattern.matcher(url).matches();
     }
 }

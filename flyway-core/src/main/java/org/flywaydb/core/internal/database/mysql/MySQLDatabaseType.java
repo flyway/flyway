@@ -50,11 +50,26 @@ public class MySQLDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
+        if (url.startsWith("jdbc-secretsmanager:mysql:")) {
+
+
+
+
+            throw new org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException("jdbc-secretsmanager");
+
+        }
+
         return url.startsWith("jdbc:mysql:") || url.startsWith("jdbc:google:");
     }
 
     @Override
     public String getDriverClass(String url) {
+
+
+
+
+
+
         if (url.startsWith("jdbc:mysql:")) {
             return "com.mysql.cj.jdbc.Driver";
         } else {
@@ -98,5 +113,16 @@ public class MySQLDatabaseType extends DatabaseType {
     @Override
     public void setDefaultConnectionProps(String url, Properties props) {
         props.put("connectionAttributes", "program_name:" + APPLICATION_NAME);
+    }
+
+    @Override
+    public boolean detectPasswordRequiredByUrl(String url) {
+
+
+
+
+
+
+        return super.detectPasswordRequiredByUrl(url);
     }
 }

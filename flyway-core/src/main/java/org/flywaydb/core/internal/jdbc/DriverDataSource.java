@@ -189,9 +189,6 @@ public class DriverDataSource implements DataSource {
             throw new FlywayException("Missing required JDBC URL. Unable to create DataSource!");
         }
 
-        if (!url.toLowerCase().startsWith("jdbc:")) {
-            throw new FlywayException("Invalid JDBC URL (should start with jdbc:) : " + url);
-        }
         return url;
     }
 
