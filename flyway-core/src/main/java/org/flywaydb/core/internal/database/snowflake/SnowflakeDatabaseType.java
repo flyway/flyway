@@ -29,10 +29,6 @@ import java.sql.Connection;
 import java.sql.Types;
 
 public class SnowflakeDatabaseType extends DatabaseType {
-    public SnowflakeDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "Snowflake";
@@ -56,7 +52,7 @@ public class SnowflakeDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
         return "net.snowflake.client.jdbc.SnowflakeDriver";
     }
 

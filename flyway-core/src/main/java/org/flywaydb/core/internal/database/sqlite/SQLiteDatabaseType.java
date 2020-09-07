@@ -30,10 +30,6 @@ import java.sql.Connection;
 import java.sql.Types;
 
 public class SQLiteDatabaseType extends DatabaseType {
-    public SQLiteDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "SQLite";
@@ -57,7 +53,7 @@ public class SQLiteDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
         if (url.startsWith("jdbc:sqldroid:")) {
             return "org.sqldroid.SQLDroidDriver";
         }

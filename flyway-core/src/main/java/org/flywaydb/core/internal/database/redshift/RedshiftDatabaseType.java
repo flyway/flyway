@@ -33,10 +33,6 @@ public class RedshiftDatabaseType extends DatabaseType {
     private static final String REDSHIFT_JDBC4_DRIVER = "com.amazon.redshift.jdbc4.Driver";
     private static final String REDSHIFT_JDBC41_DRIVER = "com.amazon.redshift.jdbc41.Driver";
 
-    public RedshiftDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "Redshift";
@@ -53,12 +49,12 @@ public class RedshiftDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
         return "com.amazon.redshift.jdbc42.Driver";
     }
 
     @Override
-    public String getBackupDriverClass(String url) {
+    public String getBackupDriverClass(String url, ClassLoader classLoader) {
         if (ClassUtils.isPresent(REDSHIFT_JDBC41_DRIVER, classLoader)) {
             return REDSHIFT_JDBC41_DRIVER;
         }

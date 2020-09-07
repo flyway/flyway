@@ -29,10 +29,6 @@ import java.sql.Connection;
 import java.sql.Types;
 
 public class InformixDatabaseType extends DatabaseType {
-    public InformixDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "Informix";
@@ -49,7 +45,7 @@ public class InformixDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
         return "com.informix.jdbc.IfxDriver";
     }
 

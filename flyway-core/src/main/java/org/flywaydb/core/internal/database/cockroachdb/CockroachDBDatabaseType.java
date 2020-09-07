@@ -33,10 +33,6 @@ import java.sql.Types;
 import java.util.Properties;
 
 public class CockroachDBDatabaseType extends DatabaseType {
-    public CockroachDBDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "CockroachDB";
@@ -60,7 +56,7 @@ public class CockroachDBDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
         return "org.postgresql.Driver";
     }
 
@@ -99,7 +95,7 @@ public class CockroachDBDatabaseType extends DatabaseType {
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props) {
+    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
         props.put("applicationName", APPLICATION_NAME);
     }
 

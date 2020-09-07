@@ -29,10 +29,6 @@ import java.sql.Connection;
 import java.sql.Types;
 
 public class H2DatabaseType extends DatabaseType {
-    public H2DatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "H2";
@@ -49,7 +45,7 @@ public class H2DatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
         return "org.h2.Driver";
     }
 

@@ -30,10 +30,6 @@ import java.sql.Types;
 import java.util.Properties;
 
 public class FirebirdDatabaseType extends DatabaseType {
-    public FirebirdDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "Firebird";
@@ -50,7 +46,7 @@ public class FirebirdDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
         if (url.startsWith("jdbc:firebird:")) {
             return "org.firebirdsql.jdbc.FBDriver";
         } else {
@@ -74,7 +70,7 @@ public class FirebirdDatabaseType extends DatabaseType {
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props) {
+    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
         props.put("processName", APPLICATION_NAME);
     }
 }

@@ -32,10 +32,6 @@ import java.sql.Types;
 import java.util.Properties;
 
 public class DerbyDatabaseType extends DatabaseType {
-    public DerbyDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "Derby";
@@ -52,7 +48,7 @@ public class DerbyDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
         if (url.startsWith("jdbc:derby://")) {
             return "org.apache.derby.jdbc.ClientDriver";
         }

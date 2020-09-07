@@ -43,10 +43,6 @@ public class OracleDatabaseType extends DatabaseType {
     // Oracle usernames/passwords can be 1-30 chars, can only contain alphanumerics and # _ $
     private static Pattern usernamePasswordPattern = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/[a-zA-Z0-9#_$]+@//.*");
 
-    public OracleDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "Oracle";
@@ -72,7 +68,7 @@ public class OracleDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
 
 
 
@@ -175,7 +171,7 @@ public class OracleDatabaseType extends DatabaseType {
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props) {
+    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
         String osUser = System.getProperty("user.name");
         props.put("v$session.osuser", osUser.substring(0, Math.min(osUser.length(), 30)));
         props.put("v$session.program", APPLICATION_NAME);

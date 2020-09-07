@@ -54,7 +54,7 @@ public class DatabaseTypeRegister {
     private static final List<DatabaseType> registeredDatabaseTypes = new ArrayList<>();
     private static boolean hasRegisteredDatabaseTypes = false;
 
-    public static void registerDatabaseTypes(ClassLoader classLoader) {
+    private static void registerDatabaseTypes() {
         synchronized (registeredDatabaseTypes) {
             if (hasRegisteredDatabaseTypes) {
                 return;
@@ -68,24 +68,25 @@ public class DatabaseTypeRegister {
 
 
 
-            registeredDatabaseTypes.add(new CockroachDBDatabaseType(classLoader));
-            registeredDatabaseTypes.add(new DB2DatabaseType(classLoader));
-            registeredDatabaseTypes.add(new DerbyDatabaseType(classLoader));
-            registeredDatabaseTypes.add(new FirebirdDatabaseType(classLoader));
-            registeredDatabaseTypes.add(new H2DatabaseType(classLoader));
-            registeredDatabaseTypes.add(new HSQLDBDatabaseType(classLoader));
-            registeredDatabaseTypes.add(new InformixDatabaseType(classLoader));
-            registeredDatabaseTypes.add(new MariaDBDatabaseType(classLoader));
-            registeredDatabaseTypes.add(new MySQLDatabaseType(classLoader));
-            registeredDatabaseTypes.add(new OracleDatabaseType(classLoader));
-            registeredDatabaseTypes.add(new PostgreSQLDatabaseType(classLoader));
-            registeredDatabaseTypes.add(new RedshiftDatabaseType(classLoader));
-            registeredDatabaseTypes.add(new SAPHANADatabaseType(classLoader));
-            registeredDatabaseTypes.add(new SnowflakeDatabaseType(classLoader));
-            registeredDatabaseTypes.add(new SQLiteDatabaseType(classLoader));
-            registeredDatabaseTypes.add(new SQLServerDatabaseType(classLoader));
-            registeredDatabaseTypes.add(new SybaseASEJTDSDatabaseType(classLoader));
-            registeredDatabaseTypes.add(new SybaseASEJConnectDatabaseType(classLoader));
+            registeredDatabaseTypes.add(new CockroachDBDatabaseType());
+            registeredDatabaseTypes.add(new RedshiftDatabaseType());
+            registeredDatabaseTypes.add(new MariaDBDatabaseType());
+
+            registeredDatabaseTypes.add(new DB2DatabaseType());
+            registeredDatabaseTypes.add(new DerbyDatabaseType());
+            registeredDatabaseTypes.add(new FirebirdDatabaseType());
+            registeredDatabaseTypes.add(new H2DatabaseType());
+            registeredDatabaseTypes.add(new HSQLDBDatabaseType());
+            registeredDatabaseTypes.add(new InformixDatabaseType());
+            registeredDatabaseTypes.add(new MySQLDatabaseType());
+            registeredDatabaseTypes.add(new OracleDatabaseType());
+            registeredDatabaseTypes.add(new PostgreSQLDatabaseType());
+            registeredDatabaseTypes.add(new SAPHANADatabaseType());
+            registeredDatabaseTypes.add(new SnowflakeDatabaseType());
+            registeredDatabaseTypes.add(new SQLiteDatabaseType());
+            registeredDatabaseTypes.add(new SQLServerDatabaseType());
+            registeredDatabaseTypes.add(new SybaseASEJTDSDatabaseType());
+            registeredDatabaseTypes.add(new SybaseASEJConnectDatabaseType());
 
             hasRegisteredDatabaseTypes = true;
         }
@@ -93,7 +94,7 @@ public class DatabaseTypeRegister {
 
     public static DatabaseType getDatabaseTypeForUrl(String url) {
         if (!hasRegisteredDatabaseTypes) {
-            throw new FlywayException("Databases not yet registered!");
+            registerDatabaseTypes();
         }
 
         List<DatabaseType> typesAcceptingUrl = new ArrayList<>();
@@ -124,7 +125,7 @@ public class DatabaseTypeRegister {
 
     public static DatabaseType getDatabaseTypeForConnection(Connection connection) {
         if (!hasRegisteredDatabaseTypes) {
-            throw new FlywayException("Databases not yet registered!");
+            registerDatabaseTypes();
         }
 
         DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);

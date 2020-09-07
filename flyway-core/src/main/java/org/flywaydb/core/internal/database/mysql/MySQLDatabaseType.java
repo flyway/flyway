@@ -34,10 +34,6 @@ public class MySQLDatabaseType extends DatabaseType {
     private static final String MYSQL_LEGACY_JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
 
-    public MySQLDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "MySQL";
@@ -63,7 +59,7 @@ public class MySQLDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
 
 
 
@@ -78,7 +74,7 @@ public class MySQLDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getBackupDriverClass(String url) {
+    public String getBackupDriverClass(String url, ClassLoader classLoader) {
         if (ClassUtils.isPresent(MYSQL_LEGACY_JDBC_DRIVER, classLoader)) {
             return MYSQL_LEGACY_JDBC_DRIVER;
         }
@@ -111,7 +107,7 @@ public class MySQLDatabaseType extends DatabaseType {
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props) {
+    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
         props.put("connectionAttributes", "program_name:" + APPLICATION_NAME);
     }
 

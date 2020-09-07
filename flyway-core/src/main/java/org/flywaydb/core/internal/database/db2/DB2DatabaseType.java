@@ -30,10 +30,6 @@ import java.sql.Types;
 import java.util.Properties;
 
 public class DB2DatabaseType extends DatabaseType {
-    public DB2DatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "DB2";
@@ -50,7 +46,7 @@ public class DB2DatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
         return "com.ibm.db2.jcc.DB2Driver";
     }
 
@@ -70,7 +66,7 @@ public class DB2DatabaseType extends DatabaseType {
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props) {
+    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
         props.put("clientProgramName", APPLICATION_NAME);
         props.put("retrieveMessagesFromServerOnGetMessage", "true");
     }

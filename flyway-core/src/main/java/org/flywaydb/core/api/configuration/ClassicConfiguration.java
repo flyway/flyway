@@ -526,7 +526,6 @@ public class ClassicConfiguration implements Configuration {
      */
     public ClassicConfiguration() {
         // Nothing to do.
-        DatabaseTypeRegister.registerDatabaseTypes(this.classLoader);
         classScanner = new ClasspathClassScanner(this.classLoader);
     }
 
@@ -539,7 +538,6 @@ public class ClassicConfiguration implements Configuration {
         if (classLoader != null) {
             this.classLoader = classLoader;
         }
-        DatabaseTypeRegister.registerDatabaseTypes(this.classLoader);
         classScanner = new ClasspathClassScanner(this.classLoader);
     }
 
@@ -551,7 +549,6 @@ public class ClassicConfiguration implements Configuration {
     public ClassicConfiguration(Configuration configuration) {
         this(configuration.getClassLoader());
         configure(configuration);
-        DatabaseTypeRegister.registerDatabaseTypes(this.classLoader);
     }
 
     @Override

@@ -43,12 +43,6 @@ public abstract class DatabaseType {
      */
     protected static final String APPLICATION_NAME = "Flyway by Redgate";
 
-    protected final ClassLoader classLoader;
-
-    public DatabaseType(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
-
     /**
      * @return The human-readable name for this database.
      */
@@ -82,23 +76,26 @@ public abstract class DatabaseType {
      * Get the driver class used to handle this JDBC url.
      * This will only be called if {@code matchesJDBCUrl} previously returned {@code true}.
      * @param url The JDBC url.
+     * @param classLoader The classLoader to check for driver classes.
      * @return The full driver class name to be instantiated to handle this url.
      */
-    public abstract String getDriverClass(String url);
+    public abstract String getDriverClass(String url, ClassLoader classLoader);
 
     /**
      * Retrieves a second choice backup driver for a JDBC url, in case the one returned by {@code getDriverClass} is not available.
      *
      * @param url The JDBC url.
+     * @param classLoader The classLoader to check for driver classes.
      * @return The JDBC driver. {@code null} if none.
      */
-    public String getBackupDriverClass(String url) {
+    public String getBackupDriverClass(String url, ClassLoader classLoader) {
         return null;
     }
 
     /**
      * Check if this database type handles the connection product name and version.
      * This allows more fine-grained control over which DatabaseType handles which connection.
+     * Flyway will use the first DatabaseType that returns true for this method.
      *
      * @param databaseProductName The product name returned by the database.
      * @param databaseProductVersion The product version returned by the database.
@@ -266,8 +263,9 @@ public abstract class DatabaseType {
      *
      * @param url The JDBC url.
      * @param props The properties to write to.
+     * @param classLoader The classLoader to use.
      */
-    public void setDefaultConnectionProps(String url, Properties props) {
+    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
         return;
     }
 

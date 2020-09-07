@@ -29,10 +29,6 @@ import java.sql.Connection;
 import java.sql.Types;
 
 public class HSQLDBDatabaseType extends DatabaseType {
-    public HSQLDBDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "HSQLDB";
@@ -49,7 +45,7 @@ public class HSQLDBDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
         return "org.hsqldb.jdbcDriver";
     }
 

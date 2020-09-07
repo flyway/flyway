@@ -30,10 +30,6 @@ import java.sql.Types;
 import java.util.Properties;
 
 public class SybaseASEJTDSDatabaseType extends DatabaseType {
-    public SybaseASEJTDSDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "Sybase ASE";
@@ -46,16 +42,12 @@ public class SybaseASEJTDSDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:sybase:") || url.startsWith("jdbc:jtds:");
+        return url.startsWith("jdbc:jtds:");
     }
 
     @Override
-    public String getDriverClass(String url) {
-        if (url.startsWith("jdbc:jtds:")) {
-            return "net.sourceforge.jtds.jdbc.Driver";
-        }
-
-        return "com.sybase.jdbc4.jdbc.SybDriver";
+    public String getDriverClass(String url, ClassLoader classLoader) {
+        return "net.sourceforge.jtds.jdbc.Driver";
     }
 
     @Override
@@ -74,7 +66,7 @@ public class SybaseASEJTDSDatabaseType extends DatabaseType {
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props) {
+    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
         props.put("APPLICATIONNAME", APPLICATION_NAME);
     }
 }

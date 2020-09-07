@@ -30,10 +30,6 @@ import java.sql.Types;
 import java.util.Properties;
 
 public class MariaDBDatabaseType extends DatabaseType {
-    public MariaDBDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "MariaDB";
@@ -59,7 +55,7 @@ public class MariaDBDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
 
 
 
@@ -89,7 +85,7 @@ public class MariaDBDatabaseType extends DatabaseType {
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props) {
+    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
         props.put("connectionAttributes", "program_name:" + APPLICATION_NAME);
     }
 

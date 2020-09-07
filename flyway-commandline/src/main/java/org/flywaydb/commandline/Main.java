@@ -136,8 +136,6 @@ public class Main {
                 classLoader = ClassUtils.addJarsOrDirectoriesToClasspath(classLoader, jarFiles);
             }
 
-            DatabaseTypeRegister.registerDatabaseTypes(classLoader);
-
             if (!commandLineArguments.shouldSuppressPrompt()) {
                 promptForCredentialsIfMissing(config);
             }

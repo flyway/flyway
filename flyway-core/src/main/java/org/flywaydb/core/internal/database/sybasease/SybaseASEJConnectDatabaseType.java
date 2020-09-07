@@ -30,10 +30,6 @@ import java.sql.Types;
 import java.util.Properties;
 
 public class SybaseASEJConnectDatabaseType extends DatabaseType {
-    public SybaseASEJConnectDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "Sybase ASE";
@@ -50,7 +46,7 @@ public class SybaseASEJConnectDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
         return "com.sybase.jdbc4.jdbc.SybDriver";
     }
 
@@ -70,7 +66,7 @@ public class SybaseASEJConnectDatabaseType extends DatabaseType {
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props) {
+    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
         props.put("APPLICATIONNAME", APPLICATION_NAME);
     }
 }

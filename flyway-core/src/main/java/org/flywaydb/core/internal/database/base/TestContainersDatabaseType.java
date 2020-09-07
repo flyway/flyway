@@ -26,11 +26,6 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 import java.sql.Connection;
 
 public class TestContainersDatabaseType extends DatabaseType {
-
-    public TestContainersDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "Test Containers";
@@ -54,7 +49,7 @@ public class TestContainersDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
         return "org.testcontainers.jdbc.ContainerDatabaseDriver";
     }
 

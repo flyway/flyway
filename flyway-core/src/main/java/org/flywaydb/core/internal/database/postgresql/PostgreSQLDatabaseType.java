@@ -30,10 +30,6 @@ import java.sql.Types;
 import java.util.Properties;
 
 public class PostgreSQLDatabaseType extends DatabaseType {
-    public PostgreSQLDatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "PostgreSQL";
@@ -59,7 +55,7 @@ public class PostgreSQLDatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
 
 
 
@@ -71,19 +67,7 @@ public class PostgreSQLDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
-        if (databaseProductName.startsWith("PostgreSQL")) {
-            String selectVersionQueryOutput = getSelectVersionOutput(connection);
-            if (databaseProductName.startsWith("PostgreSQL 8") && selectVersionQueryOutput.contains("Redshift")) {
-                return false;
-            }
-            if (selectVersionQueryOutput.contains("CockroachDB")) {
-                return false;
-            }
-
-            return true;
-        }
-
-        return false;
+        return databaseProductName.startsWith("PostgreSQL");
     }
 
     @Override
@@ -97,7 +81,7 @@ public class PostgreSQLDatabaseType extends DatabaseType {
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props) {
+    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
         props.put("applicationName", APPLICATION_NAME);
     }
 

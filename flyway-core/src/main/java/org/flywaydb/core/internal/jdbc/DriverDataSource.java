@@ -130,7 +130,6 @@ public class DriverDataSource implements DataSource {
         this.classLoader = classLoader;
         this.url = detectFallbackUrl(url);
 
-        DatabaseTypeRegister.registerDatabaseTypes(classLoader);
         this.type = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
 
         if (!StringUtils.hasLength(driverClass)) {
@@ -138,7 +137,7 @@ public class DriverDataSource implements DataSource {
                 throw new FlywayException("Unable to autodetect JDBC driver for url: " + url);
             }
 
-            driverClass =  type.getDriverClass(url);
+            driverClass =  type.getDriverClass(url, classLoader);
         }
 
         if (additionalProperties != null) {
@@ -147,12 +146,12 @@ public class DriverDataSource implements DataSource {
             this.additionalProperties = new HashMap<>();
         }
         this.defaultProperties = new Properties(defaultProperties);
-        type.setDefaultConnectionProps(url, defaultProperties);
+        type.setDefaultConnectionProps(url, defaultProperties, classLoader);
 
         try {
             this.driver = ClassUtils.instantiate(driverClass, classLoader);
         } catch (FlywayException e) {
-            String backupDriverClass = type.getBackupDriverClass(url);
+            String backupDriverClass = type.getBackupDriverClass(url, classLoader);
             if (backupDriverClass == null) {
                 throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass
                         + " => Check whether the jar file is present", e,

@@ -30,10 +30,6 @@ import java.sql.Types;
 import java.util.Properties;
 
 public class SAPHANADatabaseType extends DatabaseType {
-    public SAPHANADatabaseType(ClassLoader classLoader) {
-        super(classLoader);
-    }
-
     @Override
     public String getName() {
         return "SAP HANA";
@@ -50,7 +46,7 @@ public class SAPHANADatabaseType extends DatabaseType {
     }
 
     @Override
-    public String getDriverClass(String url) {
+    public String getDriverClass(String url, ClassLoader classLoader) {
         return "com.sap.db.jdbc.Driver";
     }
 
@@ -70,7 +66,7 @@ public class SAPHANADatabaseType extends DatabaseType {
     }
 
     @Override
-    public void setDefaultConnectionProps(String url, Properties props) {
+    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
         props.put("SESSIONVARIABLE:APPLICATION", APPLICATION_NAME);
     }
 }
