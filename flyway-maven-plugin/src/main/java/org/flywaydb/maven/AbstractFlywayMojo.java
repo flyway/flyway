@@ -619,7 +619,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Also configurable with Maven or System Property: ${flyway.configFiles}</p>
      */
     @Parameter(property = ConfigUtils.CONFIG_FILES)
-    private File[] configFiles;
+    private String[] configFiles;
 
     /**
      * Whether Flyway should attempt to create the schemas specified in the schemas property
@@ -636,7 +636,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Also configurable with Maven or System Property: ${flyway.workingDirectory}</p>
      */
     @Parameter(property = CONFIG_WORKING_DIRECTORY)
-    private File workingDirectory;
+    private String workingDirectory;
 
     /**
      * The id of the server tag in settings.xml (default: flyway-db)<br/>
@@ -720,16 +720,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 classLoader.addURL(new File(classpathElement).toURI().toURL());
             }
 
-            File workDir = workingDirectory == null ? mavenProject.getBasedir() : workingDirectory;
+            File workDir = StringUtils.hasText(workingDirectory) ?
+                    toFile(mavenProject.getBasedir(), workingDirectory) :
+                    mavenProject.getBasedir();
 
             if (locations != null) {
                 for (int i = 0; i < locations.length; i++) {
                     if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
                         String newLocation = locations[i].substring(Location.FILESYSTEM_PREFIX.length());
-                        File file = new File(newLocation);
-                        if (!file.isAbsolute()) {
-                            file = new File(workDir, newLocation);
-                        }
+                        File file = toFile(workDir, newLocation);
                         locations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
                     }
                 }
@@ -857,7 +856,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 configFiles.add(toFile(workDir, file));
             }
         } else if (this.configFiles != null) {
-            configFiles.addAll(Arrays.asList(this.configFiles));
+            for (String configFile : this.configFiles) {
+                configFiles.add(toFile(workDir, configFile));
+            }
         }
         return configFiles;
     }
