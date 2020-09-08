@@ -282,10 +282,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : cleanAssemblies()) {
-            jdbcTemplate.execute(statement);
-        }
-
         for (String statement : cleanSynonyms()) {
             jdbcTemplate.execute(statement);
         }
@@ -505,27 +501,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
 
             for (String typeName : typeNames) {
                 statements.add("DROP TYPE " + database.quote(name, typeName));
-            }
-        }
-
-        return statements;
-    }
-
-    /**
-     * Cleans the CLR assemblies in this schema.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanAssemblies() throws SQLException {
-        List<String> statements = new ArrayList<>();
-
-        if (database.supportsAssemblies()) {
-            List<String> assemblyNames =
-                    jdbcTemplate.queryForStringList("SELECT * FROM sys.assemblies WHERE is_user_defined=1");
-
-            for (String assemblyName : assemblyNames) {
-                statements.add("DROP ASSEMBLY " + database.quote(assemblyName));
             }
         }
 

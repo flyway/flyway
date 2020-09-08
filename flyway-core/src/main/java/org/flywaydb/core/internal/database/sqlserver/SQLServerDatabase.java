@@ -288,6 +288,12 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
                 jdbcTemplate.execute(statement);
             }
         }
+
+        if (supportsAssemblies()) {
+            for (String statement : cleanAssemblies()) {
+                jdbcTemplate.execute(statement);
+            }
+        }
     }
 
     /**
@@ -303,6 +309,25 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         for (String partitionSchemeName : partitionSchemeNames) {
             statements.add("DROP PARTITION SCHEME " + quote(partitionSchemeName));
         }
+        return statements;
+    }
+
+    /**
+     * Cleans the CLR assemblies in this database.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanAssemblies() throws SQLException {
+        List<String> statements = new ArrayList<>();
+
+        List<String> assemblyNames =
+                jdbcTemplate.queryForStringList("SELECT * FROM sys.assemblies WHERE is_user_defined=1");
+
+        for (String assemblyName : assemblyNames) {
+            statements.add("DROP ASSEMBLY " + quote(assemblyName));
+        }
+
         return statements;
     }
 
