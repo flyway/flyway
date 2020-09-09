@@ -169,7 +169,6 @@ public final class FeatureDetector {
      */
     public boolean isAwsAvailable() {
         if (awsAvailable == null) {
-            ClassLoader classLoader = FeatureDetector.class.getClassLoader();
             awsAvailable = ClassUtils.isPresent("software.amazon.awssdk.services.s3.S3Client", classLoader);
             LOG.debug("AWS SDK available: " + awsAvailable);
         }
@@ -184,7 +183,6 @@ public final class FeatureDetector {
      */
     public boolean isGCSAvailable() {
         if (gcsAvailable == null) {
-            ClassLoader classLoader = FeatureDetector.class.getClassLoader();
             gcsAvailable = ClassUtils.isPresent("com.google.cloud.storage.Storage", classLoader);
             LOG.debug("Google Cloud Storage available: " + gcsAvailable);
         }
