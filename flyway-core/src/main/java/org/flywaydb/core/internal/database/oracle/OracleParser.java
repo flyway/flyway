@@ -17,6 +17,9 @@ package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.api.configuration.Configuration;
 
+
+
+
 import org.flywaydb.core.internal.parser.*;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.resource.Resource;
@@ -551,6 +554,17 @@ public class OracleParser extends Parser {
                 return specialChar + "'";
         }
     }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
