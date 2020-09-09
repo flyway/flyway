@@ -499,11 +499,19 @@ public class Main {
         }
 
         String url = config.get(ConfigUtils.URL);
-        if (!config.containsKey(ConfigUtils.USER) && needsUser(url)) {
+        if (!config.containsKey(ConfigUtils.USER)
+
+
+
+                && needsUser(url)) {
             config.put(ConfigUtils.USER, console.readLine("Database user: "));
         }
 
-        if (!config.containsKey(ConfigUtils.PASSWORD) && needsPassword(url)) {
+        if (!config.containsKey(ConfigUtils.PASSWORD)
+
+
+
+                && needsPassword(url)) {
             char[] password = console.readPassword("Database password: ");
             config.put(ConfigUtils.PASSWORD, password == null ? "" : String.valueOf(password));
         }

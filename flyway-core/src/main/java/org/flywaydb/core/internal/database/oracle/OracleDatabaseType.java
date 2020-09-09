@@ -182,6 +182,34 @@ public class OracleDatabaseType extends DatabaseType {
     }
 
     @Override
+    public void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader) {
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Override
     public boolean detectUserRequiredByUrl(String url) {
         return !usernamePasswordPattern.matcher(url).matches();
     }

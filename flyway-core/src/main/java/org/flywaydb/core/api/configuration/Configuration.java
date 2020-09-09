@@ -543,6 +543,10 @@ public interface Configuration {
      */
     boolean isOracleSqlplusWarn();
 
+    String getOracleKerberosConfigFile();  // If provided, enables Kerberos. If not, then normal auth.
+
+    String getOracleKerberosCacheFile();   // Optional
+
     /**
      * Your Flyway license key (FL01...). Not yet a Flyway Pro or Enterprise Edition customer?
      * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>

@@ -1507,7 +1507,7 @@ public class ClassicConfiguration implements Configuration {
         this.url = url;
         this.user = user;
         this.password = password;
-        this.dataSource = new DriverDataSource(classLoader, null, url, user, password);
+        this.dataSource = new DriverDataSource(classLoader, null, url, user, password, this);
     }
 
     /**
@@ -1740,6 +1740,22 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @Override
     public boolean isOracleSqlplus() {
 
@@ -1776,6 +1792,36 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * When Oracle needs to connect to a Kerberos service to authenticate, the location of the Kerberos configuration
+     *
+     * <p><i>Flyway Enterprise only</i></p>
+     */
+    @Override
+    public String getOracleKerberosConfigFile() {
+
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("oracle.kerberosConfigFile");
+
+
+
+
+    }
+
+    /**
+     * When Oracle needs to connect to a Kerberos service to authenticate, the location of the Kerberos cache
+     *
+     * <p><i>Flyway Enterprise only</i></p>
+     */
+    @Override
+    public String getOracleKerberosCacheFile(){
+
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("oracle.kerberosCacheFile");
+
+
+
+
+    }
+
+    /**
      * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
      * it doesn't yet support.
      *
@@ -1791,6 +1837,35 @@ public class ClassicConfiguration implements Configuration {
 
 
     }
+
+    /**
+     * When Oracle needs to connect to a Kerberos service to authenticate, the location of the Kerberos configuration
+     *
+     * <p><i>Flyway Enterprise only</i></p>
+     */
+    public void setOracleKerberosConfigFile(String oracleKerberosConfigFile) {
+
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("oracle.kerberosConfigFile");
+
+
+
+
+    }
+
+    /**
+     * When Oracle needs to connect to a Kerberos service to authenticate, the location of the Kerberos cache
+     *
+     * <p><i>Flyway Enterprise only</i></p>
+     */
+    public void setOracleKerberosCacheFile(String oracleKerberosCacheFile) {
+
+        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("oracle.kerberosCacheFile");
+
+
+
+
+    }
+
 
     /**
      * Whether Flyway should attempt to create the schemas specified in the schemas property
@@ -1863,6 +1938,8 @@ public class ClassicConfiguration implements Configuration {
         setDataSource(configuration.getDataSource());
         setConnectRetries(configuration.getConnectRetries());
         setInitSql(configuration.getInitSql());
+
+
 
 
 
@@ -1982,16 +2059,6 @@ public class ClassicConfiguration implements Configuration {
         if (passwordProp != null) {
             dataSource = null;
             password = passwordProp;
-        }
-        if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) ||
-                StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
-            Map<String, String> jdbcPropertiesFromProps =
-                    getPropertiesUnderNamespace(
-                    props,
-                    getPlaceholders(),
-                    ConfigUtils.JDBC_PROPERTIES_PREFIX);
-
-            setDataSource(new DriverDataSource(classLoader, driver, url, user, password, jdbcPropertiesFromProps));
         }
         Integer connectRetriesProp = removeInteger(props, ConfigUtils.CONNECT_RETRIES);
         if (connectRetriesProp != null) {
@@ -2192,9 +2259,33 @@ public class ClassicConfiguration implements Configuration {
             setShouldCreateSchemas(createSchemasProp);
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
         String licenseKeyProp = props.remove(ConfigUtils.LICENSE_KEY);
         if (licenseKeyProp != null) {
             setLicenseKey(licenseKeyProp);
+        }
+
+        // Must be done last, so that any driver-specific config has been done at this point.
+        if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) ||
+                StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
+            Map<String, String> jdbcPropertiesFromProps =
+                    getPropertiesUnderNamespace(
+                    props,
+                    getPlaceholders(),
+                    ConfigUtils.JDBC_PROPERTIES_PREFIX);
+
+            setDataSource(new DriverDataSource(classLoader, driver, url, user, password, this, jdbcPropertiesFromProps));
         }
 
         ConfigUtils.checkConfigurationForUnrecognisedProperties(props, "flyway.");

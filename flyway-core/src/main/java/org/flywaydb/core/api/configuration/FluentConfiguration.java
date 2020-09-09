@@ -313,6 +313,12 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public String getOracleKerberosConfigFile() { return config.getOracleKerberosConfigFile(); }
+
+    @Override
+    public String getOracleKerberosCacheFile() { return config.getOracleKerberosCacheFile(); }
+
+    @Override
     public String getLicenseKey() {
         return config.getLicenseKey();
     }
@@ -1107,6 +1113,16 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration oracleSqlplusWarn(boolean oracleSqlplusWarn) {
         config.setOracleSqlplusWarn(oracleSqlplusWarn);
+        return this;
+    }
+
+    public FluentConfiguration orackeKerberosConfigFile(String oracleKerberosConfigFile) {
+        config.setOracleKerberosConfigFile(oracleKerberosConfigFile);
+        return this;
+    }
+
+    public FluentConfiguration orackeKerberosCacheFile(String oracleKerberosCacheFile) {
+        config.setOracleKerberosCacheFile(oracleKerberosCacheFile);
         return this;
     }
 

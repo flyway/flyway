@@ -270,6 +270,16 @@ public abstract class DatabaseType {
     }
 
     /**
+     * Do any necessary setup on the connection from
+     *
+     * @param config The Flyway configuration to read properties from
+     * @param props The properties to write to.
+     */
+    public void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader) {
+        return;
+    }
+
+    /**
      * Shutdown the database that was opened (only applicable to embedded databases that require this).
      *
      * @param url The JDBC url used to create the database.

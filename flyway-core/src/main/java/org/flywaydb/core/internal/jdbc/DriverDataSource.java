@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.jdbc;
 
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
@@ -96,7 +97,11 @@ public class DriverDataSource implements DataSource {
      * @throws FlywayException when the datasource could not be created.
      */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password) throws FlywayException {
-        this(classLoader, driverClass, url, user, password, new Properties(), new HashMap<>());
+        this(classLoader, driverClass, url, user, password, null, new Properties(), new HashMap<>());
+    }
+
+    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Configuration configuration) throws FlywayException {
+        this(classLoader, driverClass, url, user, password, configuration, new Properties(), new HashMap<>());
     }
 
     /**
@@ -111,7 +116,12 @@ public class DriverDataSource implements DataSource {
      */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password,
                             Map<String, String> additionalProperties) throws FlywayException {
-        this(classLoader, driverClass, url, user, password, new Properties(), additionalProperties);
+        this(classLoader, driverClass, url, user, password, null, new Properties(), additionalProperties);
+    }
+
+    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Configuration configuration,
+                            Map<String, String> additionalProperties) throws FlywayException {
+        this(classLoader, driverClass, url, user, password, configuration, new Properties(), additionalProperties);
     }
 
     /**
@@ -125,7 +135,7 @@ public class DriverDataSource implements DataSource {
      * @param defaultProperties     The properties to pass to the connection.
      * @throws FlywayException      when the datasource could not be created.
      */
-    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password,
+    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Configuration configuration,
                             Properties defaultProperties, Map<String, String> additionalProperties) throws FlywayException {
         this.classLoader = classLoader;
         this.url = detectFallbackUrl(url);
@@ -147,6 +157,7 @@ public class DriverDataSource implements DataSource {
         }
         this.defaultProperties = new Properties(defaultProperties);
         type.setDefaultConnectionProps(url, defaultProperties, classLoader);
+        type.setConfigConnectionProps(configuration, defaultProperties, classLoader);
 
         try {
             this.driver = ClassUtils.instantiate(driverClass, classLoader);
@@ -224,7 +235,6 @@ public class DriverDataSource implements DataSource {
         }
         return password;
     }
-
 
     /**
      * @return the JDBC Driver instance to use.
