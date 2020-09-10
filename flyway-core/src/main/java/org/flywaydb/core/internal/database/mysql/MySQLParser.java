@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static java.lang.Character.isDigit;
+
 public class MySQLParser extends Parser {
     private static final char ALTERNATIVE_SINGLE_LINE_COMMENT = '#';
     private IfState ifState;
@@ -51,7 +53,7 @@ public class MySQLParser extends Parser {
 
     @Override
     protected Token handleKeyword(PeekingReader reader, ParserContext context, int pos, int line, int col, String keyword) throws IOException {
-        if (keywordIs("DELIMITER", keyword)) {
+        if ("DELIMITER".equalsIgnoreCase(keyword)) {
             String text = reader.readUntilExcluding('\n', '\r').trim();
             return new Token(TokenType.NEW_DELIMITER, pos, line, col, text, text, context.getParensDepth());
         }
