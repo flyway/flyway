@@ -19,7 +19,6 @@ import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 
@@ -51,6 +50,16 @@ public class TestContainersDatabaseType extends DatabaseType {
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
         return "org.testcontainers.jdbc.ContainerDatabaseDriver";
+    }
+
+    @Override
+    public boolean detectUserRequiredByUrl(String url) {
+        return !url.contains("user=");
+    }
+
+    @Override
+    public boolean detectPasswordRequiredByUrl(String url) {
+        return !url.contains("password=");
     }
 
     @Override

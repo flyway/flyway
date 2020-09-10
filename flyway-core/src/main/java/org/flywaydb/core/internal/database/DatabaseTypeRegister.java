@@ -19,6 +19,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.DatabaseType;
+import org.flywaydb.core.internal.database.base.TestContainersDatabaseType;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabaseType;
 import org.flywaydb.core.internal.database.db2.DB2DatabaseType;
 import org.flywaydb.core.internal.database.derby.DerbyDatabaseType;
@@ -87,6 +88,8 @@ public class DatabaseTypeRegister {
             registeredDatabaseTypes.add(new SQLServerDatabaseType());
             registeredDatabaseTypes.add(new SybaseASEJTDSDatabaseType());
             registeredDatabaseTypes.add(new SybaseASEJConnectDatabaseType());
+
+            registeredDatabaseTypes.add(new TestContainersDatabaseType());
 
             hasRegisteredDatabaseTypes = true;
         }

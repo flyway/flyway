@@ -198,6 +198,7 @@
         <version.springjdbc>2.5.6</version.springjdbc>
         <version.sqlite>3.30.1</version.sqlite>
         <version.sybasejconnect>7.07</version.sybasejconnect>
+        <version.testcontainers>1.14.3</version.testcontainers>
     </properties>
 
     <dependencyManagement>
@@ -312,6 +313,36 @@
                 <groupId>net.snowflake</groupId>
                 <artifactId>snowflake-jdbc</artifactId>
                 <version>${version.snowflake}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${version.testcontainers}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>cockroachdb</artifactId>
+                <version>${version.testcontainers}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>db2</artifactId>
+                <version>${version.testcontainers}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mariadb</artifactId>
+                <version>${version.testcontainers}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mysql</artifactId>
+                <version>${version.testcontainers}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -707,6 +738,28 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
