@@ -25,23 +25,9 @@ import java.util.regex.Pattern;
 
 public class MySQLParser extends Parser {
     private static final char ALTERNATIVE_SINGLE_LINE_COMMENT = '#';
-    private IfState ifState;
-    private String previousKeywordText;
-
-    enum IfState {
-        NONE,
-        IF_FUNCTION,
-        IF_NOT,
-        IF_EXISTS,
-        IF,
-        IF_THEN,
-        UNKNOWN
-    }
 
     public MySQLParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 8);
-        ifState = IfState.NONE;
-        previousKeywordText = "";
     }
 
     @Override
@@ -158,64 +144,23 @@ public class MySQLParser extends Parser {
 
         int parensDepth = keyword.getParensDepth();
 
-        if (IfState.IF.equals(ifState)) {
-            ifState = IfState.UNKNOWN;
-
-            if ("EXISTS".equals(keywordText)) {
-                ifState = IfState.IF_EXISTS;
-            }
-
-            if ("NOT".equals(keywordText)) {
-                ifState = IfState.IF_NOT;
-            }
-        }
-
-        if ("THEN".equals(keywordText)) {
-            ifState = IfState.IF_THEN;
-        }
-
-        if ("IF".equals(keywordText) && !"END".equals(previousKeywordText) && !IfState.IF_FUNCTION.equals(ifState)) {
-            if (IfState.IF_EXISTS.equals(ifState) || IfState.IF_NOT.equals(ifState)) {
-                context.decreaseBlockDepth();
-            }
-
-            context.increaseBlockDepth(keywordText);
-            if (reader.peekNextNonWhitespace() == '(') {
-                ifState = IfState.IF_FUNCTION;
-            } else {
-                ifState = IfState.IF;
-            }
-        }
-
-        if ("BEGIN".equals(keywordText) || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !lastTokenIs(tokens, parensDepth, "END"))) {
+        if ("BEGIN".equals(keywordText)) {
+            context.increaseBlockDepth("");
+        } else if (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !lastTokenIs(tokens, parensDepth, "END")) {
             context.increaseBlockDepth(keywordText);
         }
 
-        if ("END".equals(keywordText)) {
-            if (lastTokenIs(tokens, parensDepth, "ROW")) {
-                // in mariadb ROW END is not a block closer. See https://mariadb.com/kb/en/temporal-data-tables/
-            } else {
+        if (context.getBlockDepth() > 0 && lastTokenIs(tokens, parensDepth, "END")) {
+            String initiator = context.getBlockInitiator();
+            if (initiator.equals("") || initiator.equals(keywordText) || "AS".equals(keywordText)) {
                 context.decreaseBlockDepth();
-                if (IfState.IF_THEN.equals(ifState)) {
-                    ifState = IfState.NONE;
-                }
             }
-        }
-
-        if ("AS".equals(keywordText) && IfState.IF_FUNCTION.equals(ifState)) {
-            context.decreaseBlockDepth();
-            ifState = IfState.NONE;
         }
 
         if (";".equals(keywordText) || TokenType.DELIMITER.equals(keyword.getType()) || TokenType.EOF.equals(keyword.getType())) {
-            if (IfState.IF_NOT.equals(ifState) ||  IfState.IF_EXISTS.equals(ifState) || IfState.IF_FUNCTION.equals(ifState)) {
-                context.decreaseBlockDepth();
-                ifState = IfState.NONE;
-            } else if (context.getBlockDepth() > 0 && doesDelimiterEndFunction(tokens, keyword)) {
+            if (context.getBlockDepth() > 0 && doesDelimiterEndFunction(tokens, keyword)) {
                 context.decreaseBlockDepth();
             }
         }
-
-        previousKeywordText = keywordText;
     }
 }

@@ -68,6 +68,10 @@ public class ParserContext {
         return blockDepth;
     }
 
+    public String getBlockInitiator() {
+        return blockInitiators.size() > 0 ? blockInitiators.peek() : "";
+    }
+
     public Delimiter getDelimiter() {
         return delimiter;
     }
