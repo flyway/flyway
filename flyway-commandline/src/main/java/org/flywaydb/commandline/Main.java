@@ -28,10 +28,10 @@ import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.core.internal.output.ErrorOutput;
-import org.flywaydb.core.internal.output.InfoOutput;
+import org.flywaydb.core.api.output.ErrorOutput;
+import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.api.output.OperationResultBase;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.*;
@@ -212,18 +212,20 @@ public class Main {
      * @param operation The operation to execute.
      */
     private static void executeOperation(Flyway flyway, String operation, CommandLineArguments commandLineArguments) {
+        OperationResultBase result = null;
         if ("clean".equals(operation)) {
-            flyway.clean();
+            result = flyway.clean();
         } else if ("baseline".equals(operation)) {
-            flyway.baseline();
+            result = flyway.baseline();
         } else if ("migrate".equals(operation)) {
-            flyway.migrate();
+            result = flyway.migrate();
         } else if ("undo".equals(operation)) {
-            flyway.undo();
+            result = flyway.undo();
         } else if ("validate".equals(operation)) {
-            flyway.validate();
+            result = flyway.validate();
         } else if ("info".equals(operation)) {
             MigrationInfoService info = flyway.info();
+            result = info.getInfoResult();
             MigrationInfo current = info.current();
             MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
 
@@ -231,24 +233,24 @@ public class Main {
             LOG.info("Schema version: " + schemaVersionToOutput);
             LOG.info("");
             LOG.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));
-
-            if (commandLineArguments.shouldOutputJson()) {
-                InfoOutput output = info.getInfoOutput();
-                if (commandLineArguments.shouldWarnAboutDeprecatedFlag()) {
-                    output.warnings.add("Option -json is deprecated; use -outputType=json instead");
-                }
-                printJson(commandLineArguments, output);
-            }
         } else if ("repair".equals(operation)) {
-            flyway.repair();
+            result = flyway.repair();
         } else {
             LOG.error("Invalid operation: " + operation);
             printUsage();
             System.exit(1);
         }
+
+        if (commandLineArguments.shouldOutputJson()) {
+            if (commandLineArguments.shouldWarnAboutDeprecatedFlag()) {
+                // TODO - do we want this here, or in LOG.warn()?
+                result.addWarning("Option -json is deprecated; use -outputType=json instead");
+            }
+            printJson(commandLineArguments, result);
+        }
     }
 
-    private static void printJson(CommandLineArguments commandLineArguments, Object object) {
+    private static void printJson(CommandLineArguments commandLineArguments, OperationResult object) {
         String json = convertObjectToJsonString(object);
 
         if (commandLineArguments.isOutputFileSet()) {

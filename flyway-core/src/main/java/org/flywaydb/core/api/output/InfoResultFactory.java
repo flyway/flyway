@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.output;
+package org.flywaydb.core.api.output;
 
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
@@ -22,14 +22,13 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.license.VersionPrinter;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class InfoOutputFactory {
-    public InfoOutput create(Configuration configuration, MigrationInfo[] migrationInfos, MigrationInfo current) {
+public class InfoResultFactory {
+    public InfoResult create(Configuration configuration, MigrationInfo[] migrationInfos, MigrationInfo current) {
         String databaseName = getDatabaseName(configuration);
 
         Set<MigrationVersion> undoableVersions = getUndoableVersions(migrationInfos);
@@ -48,7 +47,7 @@ public class InfoOutputFactory {
         String schemaVersion =  schemaVersionToOutput.getVersion();
         String flywayVersion = VersionPrinter.getVersion();
 
-        return new InfoOutput(
+        return new InfoResult(
                 flywayVersion,
                 databaseName,
                 schemaVersion,

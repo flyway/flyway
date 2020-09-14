@@ -13,7 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Private API. No compatibility guarantees provided.
- */
-package org.flywaydb.core.internal.output;
+package org.flywaydb.core.api.output;
+
+import org.flywaydb.core.api.output.OperationResult;
+
+import java.util.LinkedList;
+import java.util.List;
+
+public class OperationResultBase implements OperationResult {
+    public List<String> warnings;
+
+    public OperationResultBase() {
+        this.warnings = new LinkedList<>();
+    }
+
+    public void addWarning(String warning) {
+        warnings.add(warning);
+    }
+}

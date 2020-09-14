@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.output;
+package org.flywaydb.core.api.output;
 
-import java.util.LinkedList;
 import java.util.List;
 
-public class InfoOutput {
+public class InfoResult extends OperationResultBase {
     public String flywayVersion;
     public String database;
     public String schemaVersion;
     public String schemaName;
     public List<MigrationOutput> migrations;
-    public List<String> warnings;
 
-    public InfoOutput(String flywayVersion,
+    public InfoResult(String flywayVersion,
                       String database,
                       String schemaVersion,
                       String schemaName,
@@ -36,6 +34,5 @@ public class InfoOutput {
         this.schemaVersion = schemaVersion;
         this.schemaName = schemaName;
         this.migrations = migrations;
-        this.warnings = new LinkedList<>();
     }
 }

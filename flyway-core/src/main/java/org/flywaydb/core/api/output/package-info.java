@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api;
-
-import org.flywaydb.core.api.output.InfoResult;
-
-interface InfoOutputProvider {
-    InfoResult getInfoResult();
-}
+/**
+ * Private API. No compatibility guarantees provided.
+ */
+package org.flywaydb.core.api.output;

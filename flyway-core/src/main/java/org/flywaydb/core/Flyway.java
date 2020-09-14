@@ -24,6 +24,7 @@ import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
+import org.flywaydb.core.api.output.*;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.*;
 import org.flywaydb.core.api.ClassProvider;
@@ -155,12 +156,12 @@ public class Flyway {
      * Calling migrate on an up-to-date database has no effect.</p>
      * <img src="https://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
      *
-     * @return The number of successfully applied migrations.
+     * @return An object summarising the successfully applied migrations.
      * @throws FlywayException when the migration failed.
      */
-    public int migrate() throws FlywayException {
-        return execute(new Command<Integer>() {
-            public Integer execute(MigrationResolver migrationResolver,
+    public MigrateResult migrate() throws FlywayException {
+        return execute(new Command<MigrateResult>() {
+            public MigrateResult execute(MigrationResolver migrationResolver,
                                    SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
                                    StatementInterceptor statementInterceptor) {
                 if (configuration.isValidateOnMigrate()) {
@@ -203,8 +204,11 @@ public class Flyway {
                     }
                 }
 
-                return new DbMigrate(database, schemaHistory, schemas[0], migrationResolver, configuration,
+                int successful = new DbMigrate(database, schemaHistory, schemas[0], migrationResolver, configuration,
                         callbackExecutor).migrate();
+                MigrateResult result = new MigrateResult();
+                result.migrationsExecuted=successful;
+                return result;
             }
         }, true);
     }
@@ -221,12 +225,16 @@ public class Flyway {
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      * <img src="https://flywaydb.org/assets/balsamiq/command-undo.png" alt="undo">
      *
-     * @return The number of successfully undone migrations.
+     * @return An object summarising the successfully undone migrations.
      * @throws FlywayException when the undo failed.
      */
-    public int undo() throws FlywayException {
+    public UndoResult undo() throws FlywayException {
 
         throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("undo");
+
+
+
+
 
 
 
@@ -252,16 +260,17 @@ public class Flyway {
      *
      * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
      *
+     * @returns An object summarising the validation results
      * @throws FlywayException when the validation failed.
      */
-    public void validate() throws FlywayException {
-        execute(new Command<Void>() {
-            public Void execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+    public ValidateResult validate() throws FlywayException {
+        return execute(new Command<ValidateResult>() {
+            public ValidateResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
                                 Schema[] schemas, CallbackExecutor callbackExecutor,
                                 StatementInterceptor statementInterceptor) {
                 doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
                         configuration.isIgnorePendingMigrations());
-                return null;
+                return new ValidateResult();
             }
         }, true);
     }
@@ -300,15 +309,16 @@ public class Flyway {
      * The schemas are cleaned in the order specified by the {@code schemas} property.</p>
      * <img src="https://flywaydb.org/assets/balsamiq/command-clean.png" alt="clean">
      *
+     * @return An object summarising the actions taken
      * @throws FlywayException when the clean fails.
      */
-    public void clean() {
-        execute(new Command<Void>() {
-            public Void execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+    public CleanResult clean() {
+        return execute(new Command<CleanResult>() {
+            public CleanResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
                                 Schema[] schemas, CallbackExecutor callbackExecutor,
                                 StatementInterceptor statementInterceptor) {
                 doClean(database, schemaHistory, schemas, callbackExecutor);
-                return null;
+                return new CleanResult();
             }
         }, false);
     }
@@ -336,11 +346,12 @@ public class Flyway {
      *
      * <img src="https://flywaydb.org/assets/balsamiq/command-baseline.png" alt="baseline">
      *
+     * @return An object summarising the actions taken
      * @throws FlywayException when the schema baselining failed.
      */
-    public void baseline() throws FlywayException {
-        execute(new Command<Void>() {
-            public Void execute(MigrationResolver migrationResolver,
+    public BaselineResult baseline() throws FlywayException {
+        return execute(new Command<BaselineResult>() {
+            public BaselineResult execute(MigrationResolver migrationResolver,
                                 SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
                                 StatementInterceptor statementInterceptor) {
                 if (configuration.getCreateSchemas()) {
@@ -353,7 +364,7 @@ public class Flyway {
                 }
 
                 doBaseline(schemaHistory, callbackExecutor);
-                return null;
+                return new BaselineResult();
             }
         }, false);
     }
@@ -366,15 +377,16 @@ public class Flyway {
      * </ul>
      * <img src="https://flywaydb.org/assets/balsamiq/command-repair.png" alt="repair">
      *
+     * @return An object summarising the actions taken
      * @throws FlywayException when the schema history table repair failed.
      */
-    public void repair() throws FlywayException {
-        execute(new Command<Void>() {
-            public Void execute(MigrationResolver migrationResolver,
-                                SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
-                                StatementInterceptor statementInterceptor) {
+    public RepairResult repair() throws FlywayException {
+        return execute(new Command<RepairResult>() {
+            public RepairResult execute(MigrationResolver migrationResolver,
+                                        SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
+                                        StatementInterceptor statementInterceptor) {
                 new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor, configuration).repair();
-                return null;
+                return new RepairResult();
             }
         }, true);
     }

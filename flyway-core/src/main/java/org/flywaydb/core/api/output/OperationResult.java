@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api;
+package org.flywaydb.core.api.output;
 
-import org.flywaydb.core.api.output.InfoResult;
+// This interface provides little explicit functionality, it serves to mark which classes are outputtable as JSON
+public interface OperationResult {
 
-interface InfoOutputProvider {
-    InfoResult getInfoResult();
 }

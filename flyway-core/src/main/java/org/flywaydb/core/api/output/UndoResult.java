@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api;
+package org.flywaydb.core.api.output;
 
-import org.flywaydb.core.api.output.InfoResult;
+public class UndoResult extends OperationResultBase {
 
-interface InfoOutputProvider {
-    InfoResult getInfoResult();
+    public int migrationsUndone;
 }

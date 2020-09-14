@@ -185,10 +185,6 @@ class CommandLineArguments {
             }
         }
 
-        if (shouldOutputJson() && !hasOperation("info") ) {
-            throw new FlywayException("The -outputType=json option is only supported by the info command.");
-        }
-
         String outputTypeValue = getArgumentValue(OUTPUT_TYPE, args).toLowerCase();
         if (!("json".equals(outputTypeValue) || "".equals(outputTypeValue))) {
             throw new FlywayException("'" + outputTypeValue + "' is an invalid value for the -outputType option. Use 'json'.");
