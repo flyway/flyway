@@ -144,6 +144,12 @@
              <layout>default</layout>
         </repository>
 
+        <repository>
+            <id>exasol</id>
+            <name>exasol</name>
+            <url>https://maven.exasol.com/artifactory/exasol-releases/</url>
+        </repository>
+
     </repositories>
 
     <pluginRepositories>
@@ -186,6 +192,7 @@
         <version.jre>11.0.2</version.jre>
         <version.jansi>1.18</version.jansi>
         <version.gson>2.8.6</version.gson>
+        <exasol.version>6.2.5</exasol.version>
     </properties>
 
     <dependencyManagement>
@@ -343,6 +350,11 @@
                 <artifactId>jdbc</artifactId>
                 <version>4.50.3</version>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.exasol</groupId>
+                <artifactId>exasol-jdbc</artifactId>
+                <version>${exasol.version}</version>
             </dependency>
 
 
