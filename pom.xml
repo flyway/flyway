@@ -143,13 +143,6 @@
             <url>https://maven.oracle.com</url>
              <layout>default</layout>
         </repository>
-
-        <repository>
-            <id>exasol</id>
-            <name>exasol</name>
-            <url>https://maven.exasol.com/artifactory/exasol-releases/</url>
-        </repository>
-
     </repositories>
 
     <pluginRepositories>
