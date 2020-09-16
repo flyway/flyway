@@ -108,7 +108,9 @@ public abstract class Parser {
                                 new PositionTrackingReader(tracker,
                                         replacePlaceholders(
                                                 new BomStrippingReader(
-                                                        new BufferedReader(resource.read(), 4096))))),
+                                                        new UnboundedReadAheadReader(
+                                                                new BufferedReader(
+                                                                        resource.read(), 4096)))))),
                         supportsPeekingMultipleLines());
 
         return new ParserSqlStatementIterator(peekingReader, resource, recorder, tracker, context);
