@@ -45,8 +45,7 @@ public class ExasolConnection extends Connection<ExasolDatabase> {
     @Override
     public void changeCurrentSchemaTo(final Schema schema) {
         try {
-            if (schema.getName().equals(originalSchemaNameOrSearchPath) || originalSchemaNameOrSearchPath.startsWith(
-              schema.getName() + ",") || !schema.exists()) {
+            if (schemaAlreadySet(schema)) {
                 return;
             }
 
@@ -58,6 +57,16 @@ public class ExasolConnection extends Connection<ExasolDatabase> {
         } catch (SQLException e) {
             throw new FlywaySqlException("Error setting current schema to " + schema, e);
         }
+    }
+
+    private boolean schemaAlreadySet(final Schema schema) {
+
+        final String originalSchema
+          = this.originalSchemaNameOrSearchPath == null ? "" : this.originalSchemaNameOrSearchPath;
+
+        return schema.getName().equals(originalSchema)
+          || originalSchema.startsWith(schema.getName() + ",")
+          || !schema.exists();
     }
 
     @Override
