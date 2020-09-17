@@ -85,7 +85,9 @@ public class ExasolSchema extends Schema<ExasolDatabase, ExasolTable> {
           + "S WHERE " + objectType + "_SCHEMA = ?", name);
 
         for (final String object : names) {
-            jdbcTemplate.execute("DROP " + objectType + " " + database.quote(name) + "." + database.quote(object));
+            jdbcTemplate.execute(
+              "DROP " + objectType + " " + database.quote(name) + "." + database.quote(object) + " CASCADE"
+            );
         }
     }
 
