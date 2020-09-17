@@ -71,7 +71,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
 
     @Override
     public String getRawCreateScript(Table table, boolean baseline) {
-        return "CREATE TABLE " + table + " (\n" +
+        return "CREATE TABLE IF NOT EXISTS " + table + " (\n" +
                 "    \"installed_rank\" INT NOT NULL PRIMARY KEY,\n" +
                 "    \"version\" VARCHAR(50),\n" +
                 "    \"description\" VARCHAR(200) NOT NULL,\n" +
@@ -84,7 +84,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
                 "    \"success\" BOOLEAN NOT NULL\n" +
                 ");\n" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "") +
-                "CREATE INDEX \"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
+                "CREATE INDEX IF NOT EXISTS \"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
     }
 
     @Override

@@ -88,10 +88,24 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
                     "   AND    table_name = ?\n" +
                     ")", schema.getName(), name);
         }
-
-        return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
+        /*
+         * The information_schema exists per database and only contains the tables of the database it belongs
+         * to. Or put in other words, there is no global information_schema in CockroachDB which contains all the tables
+         * from all databases. Therefore, we have to consult the information_schema in that belongs to the schema of
+         * this table instance and to avoid any SQLException in case the database/schema does not yet exist we first
+         * check that the database already exists.
+         *
+         * Note, schema and database are kind of synonymous in cockroachdb, whereas schema is always 'public',
+         * see https://www.cockroachlabs.com/docs/stable/sql-name-resolution.html for more details.
+         */
+        final boolean schemaExists = jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
                 "   SELECT 1\n" +
-                "   FROM   information_schema.tables \n" +
+                "   FROM [show databases]\n" +
+                "   WHERE database_name = ?\n" +
+                ")", schema.getName());
+        return schemaExists && jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
+                "   SELECT 1\n" +
+                "   FROM   "+ schema.getName() +".information_schema.tables \n" +
                 "   WHERE  table_catalog = ?\n" +
                 "   AND    table_schema = 'public'\n" +
                 "   AND    table_name = ?\n" +
