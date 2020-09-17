@@ -25,13 +25,17 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
+import java.sql.Statement;
 
 /**
  * CockroachDB database.
  */
 public class CockroachDBDatabase extends Database<CockroachDBConnection> {
+
+    private final MigrationVersion determinedVersion;
+
     /**
      * Creates a new instance.
      *
@@ -39,6 +43,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
      */
     public CockroachDBDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
+        this.determinedVersion = rawDetermineVersion();
     }
 
     @Override
@@ -60,12 +65,12 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("1.1");
-        recommendFlywayUpgradeIfNecessary("20.1");
+        recommendFlywayUpgradeIfNecessary("20.2");
     }
 
     @Override
     public String getRawCreateScript(Table table, boolean baseline) {
-        return "CREATE TABLE " + table + " (\n" +
+        return "CREATE TABLE IF NOT EXISTS " + table + " (\n" +
                 "    \"installed_rank\" INT NOT NULL PRIMARY KEY,\n" +
                 "    \"version\" VARCHAR(50),\n" +
                 "    \"description\" VARCHAR(200) NOT NULL,\n" +
@@ -78,16 +83,29 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
                 "    \"success\" BOOLEAN NOT NULL\n" +
                 ");\n" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "") +
-                "CREATE INDEX \"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
+                "CREATE INDEX IF NOT EXISTS \"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
     }
 
-    @Override
-    protected MigrationVersion determineVersion() {
-        String version;
+    private MigrationVersion rawDetermineVersion() {
+        String version = null;
         try {
-            version = getMainConnection().getJdbcTemplate().queryForString("SELECT value FROM crdb_internal.node_build_info where field='Version'");
-            if (version == null) {
-                version = getMainConnection().getJdbcTemplate().queryForString("SELECT value FROM crdb_internal.node_build_info where field='Tag'");
+            // Use rawMainJdbcConnection to avoid infinite recursion.
+            final Statement s = rawMainJdbcConnection.createStatement();
+            try {
+                ResultSet r = s.executeQuery("SELECT value FROM crdb_internal.node_build_info where field='Version'");
+                if ( r.next() ) {
+                    version = r.getString(1);
+                }
+                r.close();
+                if ( version == null ){
+                    r = s.executeQuery("SELECT value FROM crdb_internal.node_build_info where field='Tag'");
+                    if ( r.next() ) {
+                        version = r.getString(1);
+                    }
+                    r.close();
+                }
+            } finally {
+                s.close();
             }
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine CockroachDB version", e);
@@ -97,6 +115,11 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
         String minorPatch = version.substring(firstDot + 1);
         int minorVersion = Integer.parseInt(minorPatch.substring(0, minorPatch.indexOf(".")));
         return MigrationVersion.fromVersion(majorVersion + "." + minorVersion);
+    }
+
+    @Override
+    protected MigrationVersion determineVersion() {
+        return determinedVersion;
     }
 
     public String getDbName() {

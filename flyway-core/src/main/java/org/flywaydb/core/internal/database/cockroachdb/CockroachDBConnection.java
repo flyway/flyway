@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -30,6 +31,23 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
         super(database, connection);
     }
 
+
+    @Override
+    public Schema doGetCurrentSchema() throws SQLException {
+        if ( database.getVersion().isAtLeast("20.2") ) {
+            String currentSchema = jdbcTemplate.queryForString("SELECT current_schema");
+            if (StringUtils.hasText(currentSchema)) {
+                return getSchema(currentSchema);
+            }
+        }
+        String searchPath = getCurrentSchemaNameOrSearchPath();
+        if (!StringUtils.hasText(searchPath)) {
+            throw new FlywayException("Unable to determine current schema as search_path is empty. " +
+                    "Set the current schema in currentSchema parameter of the JDBC URL or in Flyway's schemas property.");
+        }
+        return getSchema(searchPath);
+    }
+
     @Override
     public Schema getSchema(String name) {
         return new CockroachDBSchema(jdbcTemplate, database, name);
@@ -37,7 +55,11 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
-        return jdbcTemplate.queryForString("SHOW database");
+        if ( database.getVersion().isAtLeast("20.2") ) {
+            return jdbcTemplate.queryForString("SHOW search_path");
+        } else {
+            return jdbcTemplate.queryForString("SHOW database");
+        }
     }
 
     @Override
@@ -49,15 +71,15 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
             }
             doChangeCurrentSchemaOrSearchPathTo(schema.getName());
         } catch (SQLException e) {
-            throw new FlywaySqlException("Error setting current database to " + schema, e);
+            throw new FlywaySqlException("Error setting current schema to " + schema, e);
         }
     }
 
     @Override
     public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
         if (!StringUtils.hasLength(schema)) {
-            schema = "DEFAULT";
+            schema = "public";
         }
-        jdbcTemplate.execute("SET database = " + schema);
+        jdbcTemplate.execute("SET search_path = " + schema);
     }
 }
