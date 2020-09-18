@@ -18,4 +18,8 @@ package org.flywaydb.core.api.output;
 public class MigrateResult extends OperationResultBase {
 
     public int migrationsExecuted;
+
+    public MigrateResult() {
+        operation = "migrate";
+    }
 }

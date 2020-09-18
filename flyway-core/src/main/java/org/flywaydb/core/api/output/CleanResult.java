@@ -16,4 +16,8 @@
 package org.flywaydb.core.api.output;
 
 public class CleanResult extends OperationResultBase {
+
+    public CleanResult() {
+        operation = "clean";
+    }
 }

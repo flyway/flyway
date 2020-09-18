@@ -22,6 +22,7 @@ import java.util.List;
 
 public class OperationResultBase implements OperationResult {
     public List<String> warnings;
+    public String operation;
 
     public OperationResultBase() {
         this.warnings = new LinkedList<>();

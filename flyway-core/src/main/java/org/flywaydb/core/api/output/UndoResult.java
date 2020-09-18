@@ -18,4 +18,8 @@ package org.flywaydb.core.api.output;
 public class UndoResult extends OperationResultBase {
 
     public int migrationsUndone;
+
+    public UndoResult() {
+        operation = "undo";
+    }
 }

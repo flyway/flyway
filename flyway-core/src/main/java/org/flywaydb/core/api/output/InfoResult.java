@@ -29,6 +29,7 @@ public class InfoResult extends OperationResultBase {
                       String schemaVersion,
                       String schemaName,
                       List<MigrationOutput> migrations) {
+        this.operation = "info";
         this.flywayVersion = flywayVersion;
         this.database = database;
         this.schemaVersion = schemaVersion;

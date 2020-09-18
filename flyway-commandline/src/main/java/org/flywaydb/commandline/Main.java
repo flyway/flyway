@@ -23,6 +23,7 @@ import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.DatabaseType;
@@ -145,8 +146,25 @@ public class Main {
             filterProperties(config);
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 
-            for (String operation : commandLineArguments.getOperations()) {
-                executeOperation(flyway, operation, commandLineArguments);
+            OperationResultBase result;
+            if (commandLineArguments.getOperations().size()==1) {
+                    String operation = commandLineArguments.getOperations().get(0);
+                    result = executeOperation(flyway, operation, commandLineArguments);
+                } else {
+                    result = new CompositeResult();
+                    for (String operation : commandLineArguments.getOperations()) {
+                        OperationResultBase individualResult = executeOperation(flyway, operation, commandLineArguments);
+                        ((CompositeResult)result).individualResults.add(individualResult);
+                }
+            }
+
+            if (commandLineArguments.shouldOutputJson()) {
+                if (commandLineArguments.shouldWarnAboutDeprecatedFlag()) {
+                    String message = "Option -json is deprecated; use -outputType=json instead";
+                    LOG.warn(message);
+                    result.addWarning(message);
+                }
+                printJson(commandLineArguments, result);
             }
         } catch (Exception e) {
             if (commandLineArguments.shouldOutputJson()) {
@@ -211,7 +229,7 @@ public class Main {
      * @param flyway    The Flyway instance.
      * @param operation The operation to execute.
      */
-    private static void executeOperation(Flyway flyway, String operation, CommandLineArguments commandLineArguments) {
+    private static OperationResultBase executeOperation(Flyway flyway, String operation, CommandLineArguments commandLineArguments) {
         OperationResultBase result = null;
         if ("clean".equals(operation)) {
             result = flyway.clean();
@@ -241,13 +259,7 @@ public class Main {
             System.exit(1);
         }
 
-        if (commandLineArguments.shouldOutputJson()) {
-            if (commandLineArguments.shouldWarnAboutDeprecatedFlag()) {
-                // TODO - do we want this here, or in LOG.warn()?
-                result.addWarning("Option -json is deprecated; use -outputType=json instead");
-            }
-            printJson(commandLineArguments, result);
-        }
+        return result;
     }
 
     private static void printJson(CommandLineArguments commandLineArguments, OperationResult object) {

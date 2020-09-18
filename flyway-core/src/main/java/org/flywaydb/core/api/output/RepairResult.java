@@ -16,4 +16,8 @@
 package org.flywaydb.core.api.output;
 
 public class RepairResult extends OperationResultBase {
+
+    public RepairResult() {
+        operation = "repair";
+    }
 }

@@ -16,4 +16,8 @@
 package org.flywaydb.core.api.output;
 
 public class BaselineResult extends OperationResultBase {
+
+    public BaselineResult() {
+        operation = "baseline";
+    }
 }

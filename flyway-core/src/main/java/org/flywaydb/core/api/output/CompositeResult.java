@@ -15,10 +15,10 @@
  */
 package org.flywaydb.core.api.output;
 
-public class ValidateResult extends OperationResultBase {
+import java.util.LinkedList;
 
-    public ValidateResult() {
-        operation = "validate";
-    }
+public class CompositeResult extends OperationResultBase {
+
+    public LinkedList<OperationResultBase> individualResults = new LinkedList<>();
 
 }
