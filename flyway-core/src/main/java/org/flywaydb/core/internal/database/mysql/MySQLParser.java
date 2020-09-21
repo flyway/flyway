@@ -108,15 +108,6 @@ public class MySQLParser extends Parser {
         return super.shouldAdjustBlockDepth(context, token);
     }
 
-    // These words increase the block depth - unless preceded by END (in which case the END will decrease the block depth)
-    // See: https://dev.mysql.com/doc/refman/8.0/en/flow-control-statements.html
-    private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("LOOP", "CASE", "REPEAT", "WHILE");
-
-    private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(
-            ".*CREATE\\s([^\\s]+\\s){1,2}IF\\sNOT\\sEXISTS");
-    private static final Pattern DROP_IF_EXISTS = Pattern.compile(
-            ".*DROP\\s([^\\s]+\\s){1,2}IF\\sEXISTS");
-
     private boolean doesDelimiterEndFunction(List<Token> tokens, Token delimiter) {
 
         // if there's not enough tokens, its not the function
@@ -146,8 +137,6 @@ public class MySQLParser extends Parser {
 
         if ("BEGIN".equals(keywordText)) {
             context.increaseBlockDepth("");
-        } else if (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !lastTokenIs(tokens, parensDepth, "END")) {
-            context.increaseBlockDepth(keywordText);
         }
 
         if (context.getBlockDepth() > 0 && lastTokenIs(tokens, parensDepth, "END")) {
