@@ -56,6 +56,8 @@ import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabase;
 import org.flywaydb.core.internal.database.sqlserver.SQLServerParser;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEDatabase;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEParser;
+import org.flywaydb.core.internal.database.vertica.VerticaDatabase;
+import org.flywaydb.core.internal.database.vertica.VerticaParser;
 import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -230,6 +232,10 @@ public class DatabaseFactory {
 
 
                 );
+
+            case VERTICA:
+                return new VerticaDatabase(configuration, jdbcConnectionFactory);
+
             default:
                 throw new FlywayException("Unsupported Database: " + databaseType.name());
         }
@@ -329,6 +335,8 @@ public class DatabaseFactory {
             case SYBASEASE_JCONNECT:
             case SYBASEASE_JTDS:
                 return new SybaseASEParser(configuration, parsingContext);
+            case VERTICA:
+                return new VerticaParser(configuration, parsingContext);
             default:
                 throw new FlywayException("Unsupported Database: " + databaseType.name());
         }

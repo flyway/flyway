@@ -13,7 +13,7 @@ target
 *.h2.db
 .DS_Store
 
-**/.idea/**
+**/.idea/
 !**/.idea/runConfigurations/
 !**/.idea/runConfigurations/*
 !**/.idea/codeStyles/
