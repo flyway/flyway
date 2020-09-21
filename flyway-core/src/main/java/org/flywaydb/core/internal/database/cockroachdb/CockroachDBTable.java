@@ -25,6 +25,7 @@ import org.flywaydb.core.internal.util.SqlCallable;
 
 import java.math.BigInteger;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Random;
 
 /**
@@ -38,9 +39,15 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
     private static final Log LOG = LogFactory.getLog(CockroachDBTable.class);
 
     /**
+     * Expiration timeout is 1 hour
+     */
+    // TO-DO make this timeout configurable
+    private static final int UNLOCK_TIMEOUT = 3600;
+
+    /**
      * A random string, used as an ID of this instance of Flyway.
      */
-    private String tableLockString = RandomStringGenerator.getNextRandomString();
+    private final String tableLockString = RandomStringGenerator.getNextRandomString();
 
     /**
      * Creates a new CockroachDB table.
@@ -123,12 +130,38 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
     }
 
     private boolean insertLockingRow() {
+        doLockExpirationCheck();
         // Insert the locking row - the primary keyness of installed_rank will prevent us having two.
         Results results = jdbcTemplate.executeStatement("INSERT INTO " + this + " VALUES (-100, '" + tableLockString + "', 'flyway-lock', '', '', 0, '', now(), 0, TRUE)");
         // Succeeded if one row updated and no errors.
         return (results.getResults().size() > 0
                 && results.getResults().get(0).getUpdateCount() == 1
                 && results.getErrors().size() == 0);
+    }
+
+    /**
+     * This is protection to clean table out if owner of lock was restarted when lock obtained.
+     * Getting an existing lock time and check if it's expired already.
+     * If table lock was obtained more than current timestamp + @{link UNLOCK_TIMEOUT}, then remove the table lock.
+     * Currently, it may lead to 2 situations:
+     * 1. Long run migration maybe interrupted by other one
+     * 2. Service will not be able to start before @{link UNLOCK_TIMEOUT} is expired.
+     */
+    private void doLockExpirationCheck() {
+        long installedOnTimestamp = 0;
+        try {
+            // Getting installed_on timestamp as referenced one
+            installedOnTimestamp = jdbcTemplate.queryForLong("SELECT installed_on::timestamp FROM " + this + " WHERE DESCRIPTION = 'flyway-lock' AND installed_rank = -100");
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to query for table lock", e);
+        }
+
+        // Check if installedOnTimestamp more than 0 - means lock record exists
+        // and verify that lock is expired, in this case, delete the lock to avoid deadlocks
+        if (installedOnTimestamp > 0 && Instant.now().toEpochMilli() > (installedOnTimestamp + UNLOCK_TIMEOUT)) {
+            jdbcTemplate.executeStatement("DELETE FROM " + this + " WHERE DESCRIPTION = 'flyway-lock' AND installed_rank = -100");
+            LOG.debug("Fond expired lock and deleted.");
+        }
     }
 
     @Override
@@ -151,6 +184,8 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
 
 class RandomStringGenerator {
     static final Random random = new Random();
+
+    private RandomStringGenerator() {}
 
     //get next random string
     public static String getNextRandomString(){
