@@ -165,9 +165,11 @@ public class Flyway {
                                    SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
                                    StatementInterceptor statementInterceptor) {
                 if (configuration.isValidateOnMigrate()) {
-                    doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
-                            true // Always ignore pending migrations when validating before migrating
-                    );
+                    ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
+                            true);
+                    if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
+                        throw new FlywayException("Validate failed: " + validateResult.validationError);
+                    }
                 }
 
                 if (!schemaHistory.exists()) {
@@ -180,7 +182,7 @@ public class Flyway {
 
                     if (!nonEmptySchemas.isEmpty()) {
                         if (configuration.isBaselineOnMigrate()) {
-                            doBaseline(schemaHistory, callbackExecutor);
+                            doBaseline(schemaHistory, callbackExecutor, database);
                         } else {
                             // Second check for MySQL which is sometimes flaky otherwise
                             if (!schemaHistory.exists()) {
@@ -204,18 +206,15 @@ public class Flyway {
                     }
                 }
 
-                int successful = new DbMigrate(database, schemaHistory, schemas[0], migrationResolver, configuration,
+                 return new DbMigrate(database, schemaHistory, schemas[0], migrationResolver, configuration,
                         callbackExecutor).migrate();
-                MigrateResult result = new MigrateResult();
-                result.migrationsExecuted=successful;
-                return result;
             }
         }, true);
     }
 
-    private void doBaseline(SchemaHistory schemaHistory, CallbackExecutor callbackExecutor) {
-        new DbBaseline(schemaHistory, configuration.getBaselineVersion(), configuration.getBaselineDescription(),
-                callbackExecutor).baseline();
+    private BaselineResult doBaseline(SchemaHistory schemaHistory, CallbackExecutor callbackExecutor, Database database) {
+        return new DbBaseline(schemaHistory, configuration.getBaselineVersion(), configuration.getBaselineDescription(),
+                callbackExecutor, database).baseline();
     }
 
     /**
@@ -242,10 +241,37 @@ public class Flyway {
 
 
 
+    }
 
+    /**
+     * <p>Validate applied migrations against resolved ones (on the filesystem or classpath)
+     * to detect accidental changes that may prevent the schema(s) from being recreated exactly.</p>
+     * <p>Validation fails if</p>
+     * <ul>
+     * <li>differences in migration names, types or checksums are found</li>
+     * <li>versions have been applied that aren't resolved locally anymore</li>
+     * <li>versions have been resolved that haven't been applied yet</li>
+     * </ul>
+     *
+     * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
+     *
+     * @throws FlywayException when the validation failed.
+     */
+    public void validate() throws FlywayException {
+        execute(new Command<Void>() {
+            public Void execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+                                Schema[] schemas, CallbackExecutor callbackExecutor,
+                                StatementInterceptor statementInterceptor) {
+                String validationError = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
+                        configuration.isIgnorePendingMigrations()).validationError;
 
+                if (validationError != null && !configuration.isCleanOnValidationError()) {
+                    throw new FlywayException("Validate failed: " + validationError);
+                }
 
-
+                return null;
+            }
+        }, true);
     }
 
     /**
@@ -263,14 +289,13 @@ public class Flyway {
      * @returns An object summarising the validation results
      * @throws FlywayException when the validation failed.
      */
-    public ValidateResult validate() throws FlywayException {
+    public ValidateResult validateWithResult() throws FlywayException {
         return execute(new Command<ValidateResult>() {
             public ValidateResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
-                                Schema[] schemas, CallbackExecutor callbackExecutor,
-                                StatementInterceptor statementInterceptor) {
-                doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
+                                          Schema[] schemas, CallbackExecutor callbackExecutor,
+                                          StatementInterceptor statementInterceptor) {
+                return doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
                         configuration.isIgnorePendingMigrations());
-                return new ValidateResult();
             }
         }, true);
     }
@@ -285,23 +310,20 @@ public class Flyway {
      * @param callbackExecutor  The callback executor.
      * @param ignorePending     Whether to ignore pending migrations.
      */
-    private void doValidate(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
+    private ValidateResult doValidate(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
                             Schema[] schemas, CallbackExecutor callbackExecutor, boolean ignorePending) {
-        String validationError =
-                new DbValidate(database, schemaHistory, schemas[0], migrationResolver,
-                        configuration, ignorePending, callbackExecutor).validate();
+        ValidateResult validateResult = new DbValidate(database, schemaHistory, schemas[0], migrationResolver,
+                configuration, ignorePending, callbackExecutor).validate();
 
-        if (validationError != null) {
-            if (configuration.isCleanOnValidationError()) {
-                doClean(database, schemaHistory, schemas, callbackExecutor);
-            } else {
-                throw new FlywayException("Validate failed: " + validationError);
-            }
+        if (!validateResult.validationSuccessful && configuration.isCleanOnValidationError()) {
+            doClean(database, schemaHistory, schemas, callbackExecutor);
         }
+
+        return validateResult;
     }
 
-    private void doClean(Database database, SchemaHistory schemaHistory, Schema[] schemas, CallbackExecutor callbackExecutor) {
-        new DbClean(database, schemaHistory, schemas, callbackExecutor, configuration.isCleanDisabled()).clean();
+    private CleanResult doClean(Database database, SchemaHistory schemaHistory, Schema[] schemas, CallbackExecutor callbackExecutor) {
+        return new DbClean(database, schemaHistory, schemas, callbackExecutor, configuration.isCleanDisabled()).clean();
     }
 
     /**
@@ -317,8 +339,7 @@ public class Flyway {
             public CleanResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
                                 Schema[] schemas, CallbackExecutor callbackExecutor,
                                 StatementInterceptor statementInterceptor) {
-                doClean(database, schemaHistory, schemas, callbackExecutor);
-                return new CleanResult();
+                return doClean(database, schemaHistory, schemas, callbackExecutor);
             }
         }, false);
     }
@@ -363,8 +384,7 @@ public class Flyway {
                             "See http://flywaydb.org/documentation/migrations#the-createschemas-option-and-the-schema-history-table");
                 }
 
-                doBaseline(schemaHistory, callbackExecutor);
-                return new BaselineResult();
+                return doBaseline(schemaHistory, callbackExecutor, database);
             }
         }, false);
     }
@@ -385,8 +405,7 @@ public class Flyway {
             public RepairResult execute(MigrationResolver migrationResolver,
                                         SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
                                         StatementInterceptor statementInterceptor) {
-                new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor, configuration).repair();
-                return new RepairResult();
+                return new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor, configuration).repair();
             }
         }, true);
     }

@@ -18,22 +18,22 @@ package org.flywaydb.core.api.output;
 import java.util.List;
 
 public class InfoResult extends OperationResultBase {
-    public String flywayVersion;
-    public String database;
+
     public String schemaVersion;
     public String schemaName;
-    public List<MigrationOutput> migrations;
+    public List<InfoOutput> migrations;
 
     public InfoResult(String flywayVersion,
                       String database,
                       String schemaVersion,
                       String schemaName,
-                      List<MigrationOutput> migrations) {
-        this.operation = "info";
+                      List<InfoOutput> migrations) {
         this.flywayVersion = flywayVersion;
         this.database = database;
         this.schemaVersion = schemaVersion;
         this.schemaName = schemaName;
         this.migrations = migrations;
+        this.operation = "info";
     }
+    
 }

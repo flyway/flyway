@@ -15,10 +15,28 @@
  */
 package org.flywaydb.core.api.output;
 
+import java.util.List;
+
 public class ValidateResult extends OperationResultBase {
 
-    public ValidateResult() {
-        operation = "validate";
+    public String validationError;
+    public boolean validationSuccessful;
+    public int validateCount;
+
+    public ValidateResult(
+            String flywayVersion,
+            String database,
+            String validationError,
+            boolean validationSuccessful,
+            int validateCount,
+            List<String> warnings) {
+        this.flywayVersion = flywayVersion;
+        this.database = database;
+        this.validationError = validationError;
+        this.validationSuccessful = validationSuccessful;
+        this.validateCount = validateCount;
+        this.warnings.addAll(warnings);
+        this.operation = "validate";
     }
 
 }

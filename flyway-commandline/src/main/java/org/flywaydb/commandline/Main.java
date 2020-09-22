@@ -240,7 +240,11 @@ public class Main {
         } else if ("undo".equals(operation)) {
             result = flyway.undo();
         } else if ("validate".equals(operation)) {
-            result = flyway.validate();
+            if (commandLineArguments.shouldOutputJson()) {
+                result = flyway.validateWithResult();
+            } else {
+                flyway.validate();
+            }
         } else if ("info".equals(operation)) {
             MigrationInfoService info = flyway.info();
             result = info.getInfoResult();
@@ -280,7 +284,7 @@ public class Main {
     }
 
     private static String convertObjectToJsonString(Object object) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().serializeNulls().create();
         return gson.toJson(object);
     }
 

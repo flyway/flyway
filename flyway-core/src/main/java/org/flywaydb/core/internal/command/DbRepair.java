@@ -23,6 +23,8 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.output.CommandResultFactory;
+import org.flywaydb.core.api.output.RepairResult;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
@@ -71,6 +73,16 @@ public class DbRepair {
     private final Database database;
 
     /**
+     * The POJO containing the repair result
+     */
+    private RepairResult repairResult;
+
+    /**
+     * The factory object which constructs a repair result
+     */
+    private final CommandResultFactory commandResultFactory;
+
+    /**
      * Creates a new DbRepair.
      *
      * @param database          The database-specific support.
@@ -86,23 +98,27 @@ public class DbRepair {
                 MigrationVersion.LATEST, true, null, true, true, true, true);
         this.schemaHistory = schemaHistory;
         this.callbackExecutor = callbackExecutor;
+
+        this.commandResultFactory = new CommandResultFactory();
+        this.repairResult = commandResultFactory.createRepairResult(database.getCatalog());
     }
 
     /**
      * Repairs the schema history table.
      */
-    public void repair() {
+    public RepairResult repair() {
         callbackExecutor.onEvent(Event.BEFORE_REPAIR);
 
+        CompletedRepairActions repairActions;
         try {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            CompletedRepairActions repairActions = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(new Callable<CompletedRepairActions>() {
+            repairActions = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(new Callable<CompletedRepairActions>() {
                 public CompletedRepairActions call() {
                     CompletedRepairActions completedActions = new CompletedRepairActions();
 
-                    completedActions.removedFailedMigrations = schemaHistory.removeFailedMigrations();
+                    completedActions.removedFailedMigrations = schemaHistory.removeFailedMigrations(repairResult);
                     migrationInfoService.refresh();
 
                     completedActions.deletedMissingMigrations = deleteMissingMigrations();
@@ -128,6 +144,9 @@ public class DbRepair {
         }
 
         callbackExecutor.onEvent(Event.AFTER_REPAIR);
+
+        repairResult.setRepairActions(repairActions);
+        return repairResult;
     }
 
     private boolean deleteMissingMigrations() {
@@ -150,6 +169,7 @@ public class DbRepair {
                     || state == MigrationState.FUTURE_SUCCESS || state == MigrationState.FUTURE_FAILED) {
                 schemaHistory.delete(applied);
                 removed = true;
+                repairResult.migrationsDeleted.add(commandResultFactory.createRepairOutput(migrationInfo));
             }
         }
 
@@ -175,6 +195,7 @@ public class DbRepair {
                     && updateNeeded(resolved, applied)) {
                 schemaHistory.update(applied, resolved);
                 repaired = true;
+                repairResult.migrationsAligned.add(commandResultFactory.createRepairOutput(migrationInfo));
             }
 
             // Repair repeatable
@@ -188,6 +209,7 @@ public class DbRepair {
                     && resolved.checksumMatchesWithoutBeingIdentical(applied.getChecksum())) {
                 schemaHistory.update(applied, resolved);
                 repaired = true;
+                repairResult.migrationsAligned.add(commandResultFactory.createRepairOutput(migrationInfo));
             }
         }
 
@@ -212,9 +234,21 @@ public class DbRepair {
         return !Objects.equals(resolved.getType(), applied.getType());
     }
 
-    static class CompletedRepairActions {
+    public static class CompletedRepairActions {
         public boolean removedFailedMigrations = false;
-        public boolean alignedAppliedMigrationChecksums = false;
         public boolean deletedMissingMigrations = false;
+        public boolean alignedAppliedMigrationChecksums = false;
+
+        public String removedMessage() {
+            return "Removed failed migrations";
+        }
+
+        public String deletedMessage() {
+            return "Deleted missing migrations";
+        }
+
+        public String alignedMessage() {
+            return "Aligned applied migration checksums";
+        }
     }
 }

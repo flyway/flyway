@@ -15,12 +15,13 @@
  */
 package org.flywaydb.core.api.output;
 
-import org.flywaydb.core.api.output.OperationResult;
-
 import java.util.LinkedList;
 import java.util.List;
 
-public class OperationResultBase implements OperationResult {
+public abstract class OperationResultBase implements OperationResult {
+
+    public String flywayVersion;
+    public String database;
     public List<String> warnings;
     public String operation;
 
@@ -31,4 +32,5 @@ public class OperationResultBase implements OperationResult {
     public void addWarning(String warning) {
         warnings.add(warning);
     }
+
 }

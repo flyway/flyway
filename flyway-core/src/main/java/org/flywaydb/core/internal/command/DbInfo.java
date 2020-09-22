@@ -42,7 +42,6 @@ public class DbInfo {
     public MigrationInfoService info() {
         callbackExecutor.onEvent(Event.BEFORE_INFO);
 
-
         MigrationInfoServiceImpl migrationInfoService;
         try {
             migrationInfoService =

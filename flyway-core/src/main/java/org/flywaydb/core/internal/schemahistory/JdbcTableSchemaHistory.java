@@ -20,6 +20,8 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.output.RepairOutput;
+import org.flywaydb.core.api.output.RepairResult;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
@@ -230,7 +232,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     }
 
     @Override
-    public boolean removeFailedMigrations() {
+    public boolean removeFailedMigrations(RepairResult repairResult) {
         if (!exists()) {
             LOG.info("Repair of failed migration in Schema History table " + table + " not necessary as table doesn't exist.");
             return false;
@@ -249,6 +251,8 @@ class JdbcTableSchemaHistory extends SchemaHistory {
         }
 
         try {
+            appliedMigrations.stream().filter(am -> !am.isSuccess()).forEach(am ->
+                    repairResult.migrationsRemoved.add(new RepairOutput(am.getVersion().toString(), am.getDescription(), "")));
             clearCache();
             jdbcTemplate.execute("DELETE FROM " + table
                     + " WHERE " + database.quote("success") + " = " + database.getBooleanFalse());

@@ -25,6 +25,8 @@ import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.output.CommandResultFactory;
+import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
@@ -90,6 +92,16 @@ public class DbMigrate {
     private final Connection connectionUserObjects;
 
     /**
+     * The POJO containing the migration result
+     */
+    private MigrateResult migrateResult;
+
+    /**
+     * The factory object which constructs a migration result
+     */
+    private final CommandResultFactory commandResultFactory;
+
+    /**
      * This is used to remember the type of migration between calls to migrateGroup().
      */
     private boolean isPreviousVersioned;
@@ -113,6 +125,8 @@ public class DbMigrate {
         this.migrationResolver = migrationResolver;
         this.configuration = configuration;
         this.callbackExecutor = callbackExecutor;
+
+        this.commandResultFactory = new CommandResultFactory();
     }
 
     /**
@@ -121,8 +135,10 @@ public class DbMigrate {
      * @return The number of successfully applied migrations.
      * @throws FlywayException when migration failed.
      */
-    public int migrate() throws FlywayException {
+    public MigrateResult migrate() throws FlywayException {
         callbackExecutor.onMigrateOrUndoEvent(Event.BEFORE_MIGRATE);
+
+        migrateResult = commandResultFactory.createMigrateResult(database.getCatalog(), configuration);
 
         int count;
         try {
@@ -150,7 +166,22 @@ public class DbMigrate {
         }
 
         callbackExecutor.onMigrateOrUndoEvent(Event.AFTER_MIGRATE);
-        return count;
+
+        if (!migrateResult.migrations.isEmpty()) {
+
+            for (int i = migrateResult.migrations.size() - 1; i >= 0; i--) {
+                String targetVersion = migrateResult.migrations.get(i).version;
+                if (!targetVersion.isEmpty()) {
+                    migrateResult.targetSchemaVersion = targetVersion;
+                    break;
+                }
+            }
+
+        }
+
+        migrateResult.migrationsExecuted = count;
+
+        return migrateResult;
     }
 
     private int migrateAll() {
@@ -201,8 +232,13 @@ public class DbMigrate {
         if (firstRun) {
             LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
 
+            MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
+            migrateResult.initialSchemaVersion = schemaVersionToOutput.getVersion();
+
             if (configuration.isOutOfOrder()) {
-                LOG.warn("outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.");
+                String outOfOrderWarning = "outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.";
+                LOG.warn(outOfOrderWarning);
+                migrateResult.warnings.add(outOfOrderWarning);
             }
         }
 
@@ -389,6 +425,7 @@ public class DbMigrate {
                     try {
                         LOG.info("Migrating " + migrationText);
                         migration.getResolvedMigration().getExecutor().execute(context);
+                        migrateResult.migrations.add(commandResultFactory.createMigrateOutput(migration));
                     } catch (FlywayException e) {
                         callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
                         throw new FlywayMigrateException(migration, isOutOfOrder, e);

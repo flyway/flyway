@@ -19,6 +19,8 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.output.CommandResultFactory;
+import org.flywaydb.core.api.output.ValidateResult;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
@@ -32,6 +34,8 @@ import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -77,6 +81,9 @@ public class DbValidate {
      */
     private final CallbackExecutor callbackExecutor;
 
+    /**
+     * The database-specific support.
+     */
     private final Database database;
 
     /**
@@ -107,7 +114,10 @@ public class DbValidate {
      *
      * @return The validation error, if any.
      */
-    public String validate() {
+    public ValidateResult validate() {
+
+        CommandResultFactory commandResultFactory = new CommandResultFactory();
+
         if (!schema.exists()) {
             if (!migrationResolver.resolveMigrations(new Context() {
                 @Override
@@ -115,9 +125,10 @@ public class DbValidate {
                     return configuration;
                 }
             }).isEmpty() && !pending) {
-                return "Schema " + schema + " doesn't exist yet";
+                String validationError = "Schema " + schema + " doesn't exist yet";
+                return commandResultFactory.createValidateResult(database.getCatalog(), validationError, 0, new ArrayList<>());
             }
-            return null;
+            return commandResultFactory.createValidateResult(database.getCatalog(), null, 0, new ArrayList<>());
         }
 
         callbackExecutor.onEvent(Event.BEFORE_VALIDATE);
@@ -150,9 +161,11 @@ public class DbValidate {
 
         stopWatch.stop();
 
+        List<String> warnings = new ArrayList<>();
         String error = result.getRight();
+        int count = 0;
         if (error == null) {
-            int count = result.getLeft();
+            count = result.getLeft();
             if (count == 1) {
                 LOG.info(String.format("Successfully validated 1 migration (execution time %s)",
                         TimeFormat.format(stopWatch.getTotalTimeMillis())));
@@ -161,7 +174,9 @@ public class DbValidate {
                         count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
 
                 if (count == 0) {
-                    LOG.warn("No migrations found. Are your locations set up correctly?");
+                    String noMigrationsWarning = "No migrations found. Are your locations set up correctly?";
+                    warnings.add(noMigrationsWarning);
+                    LOG.warn(noMigrationsWarning);
                 }
             }
             callbackExecutor.onEvent(Event.AFTER_VALIDATE);
@@ -169,7 +184,6 @@ public class DbValidate {
             callbackExecutor.onEvent(Event.AFTER_VALIDATE_ERROR);
         }
 
-
-        return error;
+        return commandResultFactory.createValidateResult(database.getCatalog(), error, count, warnings);
     }
 }
