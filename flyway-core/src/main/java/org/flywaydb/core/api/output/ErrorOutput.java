@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.output;
+package org.flywaydb.core.api.output;
 
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
@@ -23,7 +23,7 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
-public class ErrorOutput {
+public class ErrorOutput implements OperationResult {
 
     public static class ErrorOutputItem {
         public ErrorCode errorCode;

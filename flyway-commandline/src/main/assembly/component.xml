@@ -76,8 +76,7 @@
                 <include>flyway-community.txt</include>
                 <include>LICENSES-THIRD-PARTY.txt</include>
 
-                <include>flyway-pro.txt</include>
-                <include>flyway-enterprise.txt</include>
+                <include>flyway-teams.txt</include>
 
             </includes>
             <fileMode>644</fileMode>
@@ -92,14 +91,6 @@
             <fileMode>644</fileMode>
         </fileSet>
 
-        <fileSet>
-            <directory>target/editions/pro</directory>
-            <outputDirectory>lib/pro</outputDirectory>
-            <includes>
-                <include>*</include>
-            </includes>
-            <fileMode>644</fileMode>
-        </fileSet>
         <fileSet>
             <directory>target/editions/enterprise</directory>
             <outputDirectory>lib/enterprise</outputDirectory>
@@ -118,6 +109,7 @@
             <includes>
                 <include>org.fusesource.jansi:jansi</include>
                 <include>com.google.code.gson:gson</include>
+                <include>software.amazon.awssdk:s3</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -140,6 +132,7 @@
                 <exclude>org.flywaydb:flyway-*</exclude>
                 <exclude>org.fusesource.jansi:jansi</exclude>
                 <exclude>com.google.code.gson:gson</exclude>
+                <exclude>software.amazon.awssdk:s3</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

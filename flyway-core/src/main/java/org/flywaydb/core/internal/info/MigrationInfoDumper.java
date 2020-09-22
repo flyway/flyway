@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.info;
 
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
+import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.util.AsciiTable;
 import org.flywaydb.core.internal.util.DateUtils;
@@ -93,6 +94,8 @@ public class MigrationInfoDumper {
     private static String getVersionStr(MigrationInfo migrationInfo) {
         return migrationInfo.getVersion() == null ? "" : migrationInfo.getVersion().toString();
     }
+
+
 
 
 

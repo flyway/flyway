@@ -45,6 +45,36 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.gradle</groupId>
+            <artifactId>gradle-core-api</artifactId>
+            <version>${version.gradle}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.gradle</groupId>
+            <artifactId>gradle-logging</artifactId>
+            <version>${version.gradle}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.gradle</groupId>
+            <artifactId>gradle-base-services</artifactId>
+            <version>${version.gradle}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.gradle</groupId>
+            <artifactId>gradle-process-services</artifactId>
+            <version>${version.gradle}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.gradle</groupId>
+            <artifactId>gradle-model-core</artifactId>
+            <version>${version.gradle}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>2.3.9</version>

@@ -27,7 +27,6 @@ import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.sqlscript.SqlStatementIterator;
 import org.flywaydb.core.internal.util.BomStrippingReader;
 import org.flywaydb.core.internal.util.IOUtils;
-import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -133,7 +132,7 @@ public abstract class Parser {
         return reader;
     }
 
-    private SqlStatement getNextStatement(Resource resource, PeekingReader reader, Recorder recorder, PositionTracker tracker, ParserContext context) {
+    protected SqlStatement getNextStatement(Resource resource, PeekingReader reader, Recorder recorder, PositionTracker tracker, ParserContext context) {
         resetDelimiter(context);
         context.setStatementType(StatementType.UNKNOWN);
 
@@ -264,7 +263,7 @@ public abstract class Parser {
                     if (!simplifiedStatement.isEmpty()) {
                         simplifiedStatement += " ";
                     }
-                    simplifiedStatement += keywordToUpperCase(token.getText());
+                    simplifiedStatement += token.getText().toUpperCase(Locale.ENGLISH);
 
                     if (statementType == StatementType.UNKNOWN) {
                         if (keywords.size() > getTransactionalDetectionCutoff()) {
@@ -350,33 +349,6 @@ public abstract class Parser {
             }
         }
         return -1;
-    }
-
-    static String keywordToUpperCase(String text) {
-        if (!containsLowerCase(text)) {
-            return text;
-        }
-
-        StringBuilder result = new StringBuilder(text.length());
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            if (c >= 'a' && c <= 'z') {
-                result.append((char) (c - ('a' - 'A')));
-            } else {
-                result.append(c);
-            }
-        }
-        return result.toString();
-    }
-
-    private static boolean containsLowerCase(String text) {
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            if (c >= 'a' && c <= 'z') {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -524,7 +496,7 @@ public abstract class Parser {
             reader.swallow(2);
             return new Token(TokenType.COMMENT, pos, line, col, null, null, context.getParensDepth());
         }
-        if (isDigit(c)) {
+        if (Character.isDigit(c)) {
             String text = reader.readNumeric();
             return new Token(TokenType.NUMERIC, pos, line, col, text, text, context.getParensDepth());
         }
@@ -604,7 +576,7 @@ public abstract class Parser {
     protected boolean isKeyword(String text) {
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
-            if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_')) {
+            if (!(Character.isLetter(c) || c == '_')) {
                 return false;
             }
         }
@@ -657,7 +629,7 @@ public abstract class Parser {
     }
 
     protected Token handleKeyword(PeekingReader reader, ParserContext context, int pos, int line, int col, String keyword) throws IOException {
-        return new Token(TokenType.KEYWORD, pos, line, col, keywordToUpperCase(keyword), keyword, context.getParensDepth());
+        return new Token(TokenType.KEYWORD, pos, line, col, keyword.toUpperCase(Locale.ENGLISH), keyword, context.getParensDepth());
     }
 
     private static boolean containsAtLeast(String str, char c, int min) {
@@ -675,26 +647,6 @@ public abstract class Parser {
             }
         }
         return false;
-    }
-
-    protected static boolean keywordIs(String expected, String actual) {
-        if (expected.length() != actual.length()) {
-            return false;
-        }
-        for (int i = 0; i < expected.length(); i++) {
-            char ce = expected.charAt(i);
-            char ca = actual.charAt(i);
-
-            if (ce != ca && ce + ('a' - 'A') != ca) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    protected static boolean isDigit(char c) {
-        return c >= '0' && c <= '9';
     }
 
     public class ParserSqlStatementIterator implements SqlStatementIterator {

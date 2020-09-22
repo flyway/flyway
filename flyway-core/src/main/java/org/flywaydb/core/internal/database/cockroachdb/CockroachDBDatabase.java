@@ -21,10 +21,12 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Date;
 
 /**
  * CockroachDB database.
@@ -35,16 +37,8 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
      *
      * @param configuration The Flyway configuration.
      */
-    public CockroachDBDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
-
-
-
-    ) {
-        super(configuration, jdbcConnectionFactory
-
-
-
-        );
+    public CockroachDBDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+        super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override

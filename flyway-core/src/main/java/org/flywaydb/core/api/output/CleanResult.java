@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.license;
+package org.flywaydb.core.api.output;
 
-import org.flywaydb.core.api.FlywayException;
+import java.util.ArrayList;
 
-/**
- * Thrown when an attempt was made to use a Flyway Pro or Flyway Enterprise Edition feature not supported by
- * Flyway Community Edition.
- */
-public class FlywayProUpgradeRequiredException extends FlywayException {
-    public FlywayProUpgradeRequiredException(String feature) {
-        super(Edition.PRO + " or " + Edition.ENTERPRISE + " upgrade required: " + feature
-                + " is not supported by " + Edition.COMMUNITY + ".");
+public class CleanResult extends OperationResultBase {
+
+    public ArrayList<String> schemasCleaned = new ArrayList<>();
+    public ArrayList<String> schemasDropped = new ArrayList<>();
+        
+    public CleanResult(String flywayVersion, String database) {
+        this.flywayVersion = flywayVersion;
+        this.database = database;
+        this.operation = "clean";
     }
+
 }

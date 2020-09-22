@@ -23,23 +23,26 @@ import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 /**
  * Executes the callbacks for a specific event.
  */
 public class DefaultCallbackExecutor implements CallbackExecutor {
+    private static final Log LOG = LogFactory.getLog(DefaultCallbackExecutor.class);
+
     private final Configuration configuration;
     private final Database database;
     private final Schema schema;
-    private final Collection<Callback> callbacks;
+    private final List<Callback> callbacks;
     private MigrationInfo migrationInfo;
 
     /**
@@ -54,7 +57,14 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
         this.configuration = configuration;
         this.database = database;
         this.schema = schema;
-        this.callbacks = callbacks;
+
+        this.callbacks = new ArrayList<>(callbacks);
+        this.callbacks.sort(new Comparator<Callback>() {
+            @Override
+            public int compare(Callback o1, Callback o2) {
+                return o1.getCallbackName().compareTo(o2.getCallbackName());
+            }
+        });
     }
 
     @Override

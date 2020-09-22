@@ -15,6 +15,8 @@
  */
 package org.flywaydb.gradle;
 
+import org.flywaydb.core.api.MigrationVersion;
+
 import java.util.Map;
 
 /**
@@ -150,7 +152,7 @@ public class FlywayExtension {
      * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
      * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to U1.1__My_description.sql</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      * <p>Also configurable with Gradle or System Property: ${flyway.undoSqlMigrationPrefix}</p>
      */
     public String undoSqlMigrationPrefix;
@@ -191,6 +193,14 @@ public class FlywayExtension {
     public Map<Object, Object> placeholders;
 
     /**
+     * Properties to pass to the JDBC driver object
+     *
+     * <p>Also configurable with Gradle or System Property: ${flyway.jdbcProperties}</p>
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public Map<Object, Object> jdbcProperties;
+
+    /**
      * Whether placeholders should be replaced.
      */
     public Boolean placeholderReplacement;
@@ -218,7 +228,15 @@ public class FlywayExtension {
     public String target;
 
     /**
-     * An array of fully qualified FlywayCallback class implementations
+     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
+     * Migrations not in this list will be ignored.
+     * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public String[] cherryPick;
+
+    /**
+     * An array of fully qualified FlywayCallback class implementations, or packages to scan for FlywayCallback implementations
      */
     public String[] callbacks;
 
@@ -234,8 +252,20 @@ public class FlywayExtension {
     public Boolean outOfOrder;
 
     /**
+     * <p>
+     * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
+     * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
+     * just want the schema history table to reflect this.
+     * </p>
+     * <p>
+     * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
+     * </p>
+     */
+    public Boolean skipExecutingMigrations;
+
+    /**
      * Whether Flyway should output a table with the results of queries when executing migrations (default: true).
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      * <p>Also configurable with Gradle or System Property: ${flyway.outputQueryResults}</p>
      */
     public Boolean outputQueryResults;
@@ -391,7 +421,7 @@ public class FlywayExtension {
      * <p>Example 3: to force all errors with SQL error code 123 to be treated as warnings instead,
      * the following errorOverride can be used: {@code *:123:W}</p>
      * <p>Also configurable with Gradle or System Property: ${flyway.errorOverrides}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public String[] errorOverrides;
 
@@ -400,7 +430,7 @@ public class FlywayExtension {
      * directory, Flyway will create all directories and parent directories as needed.
      * <p>{@code null} to execute the SQL statements directly against the database. (default: {@code null})</p>
      * <p>Also configurable with Gradle or System Property: ${flyway.dryRunOutput}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public String dryRunOutput;
 
@@ -410,7 +440,7 @@ public class FlywayExtension {
      * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
      * (default: {@code false}
      * <p>Also configurable with Gradle or System Property: ${flyway.stream}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean stream;
 
@@ -422,7 +452,7 @@ public class FlywayExtension {
      * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
      * (default: {@code false})
      * <p>Also configurable with Gradle or System Property: ${flyway.batch}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean batch;
 
@@ -430,7 +460,7 @@ public class FlywayExtension {
      * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
      * (default: {@code false})
      * <p>Also configurable with Gradle or System Property: ${flyway.oracle.sqlplus}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean oracleSqlplus;
 
@@ -438,16 +468,16 @@ public class FlywayExtension {
      * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
      * it doesn't yet support. (default: {@code false})
      * <p>Also configurable with Gradle or System Property: ${flyway.oracle.sqlplusWarn}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean oracleSqlplusWarn;
 
     /**
-     * Your Flyway license key (FL01...). Not yet a Flyway Pro or Enterprise Edition customer?
+     * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
      * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
-     * to try out Flyway Pro and Enterprise Edition features free for 30 days.
+     * to try out Flyway Teams Edition features free for 30 days.
      * <p>Also configurable with Gradle or System Property: ${flyway.licenseKey}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public String licenseKey;
 

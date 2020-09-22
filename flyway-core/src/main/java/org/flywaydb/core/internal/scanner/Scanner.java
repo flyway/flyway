@@ -19,12 +19,15 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.ClassProvider;
+import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.scanner.android.AndroidScanner;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
 import org.flywaydb.core.internal.scanner.filesystem.FileSystemScanner;
+import org.flywaydb.core.internal.scanner.cloud.gcs.GCSScanner;
+import org.flywaydb.core.internal.scanner.cloud.s3.AwsS3Scanner;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -48,24 +51,39 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     /*
      * Constructor. Scans the given locations for resources, and classes implementing the specified interface.
      */
-    public Scanner(Class<I> implementedInterface, Collection<Location> locations, ClassLoader classLoader, Charset encoding
-
-
-
-            , ResourceNameCache resourceNameCache
-            , LocationScannerCache locationScannerCache
+    public Scanner(Class<I> implementedInterface, Collection<Location> locations, ClassLoader classLoader, Charset encoding,
+                   boolean stream,
+                   ResourceNameCache resourceNameCache, LocationScannerCache locationScannerCache
     ) {
-        FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding
+        FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding, stream);
 
-
-
-        );
-
-        boolean android = new FeatureDetector(classLoader).isAndroidAvailable();
+        FeatureDetector detector =  new FeatureDetector(classLoader);
+        boolean android = detector.isAndroidAvailable();
+        boolean aws = detector.isAwsAvailable();
+        boolean gcs = detector.isGCSAvailable();
+        long cloudMigrationCount = 0;
 
         for (Location location : locations) {
             if (location.isFileSystem()) {
                 resources.addAll(fileSystemScanner.scanForResources(location));
+            } else if (location.isGCS()) {
+
+
+
+
+
+
+
+
+
+            } else if (location.isAwsS3()) {
+                if (aws) {
+                    Collection<LoadableResource> awsResources = new AwsS3Scanner(encoding).scanForResources(location);
+                    resources.addAll(awsResources);
+                    cloudMigrationCount += awsResources.stream().filter(r -> r.getFilename().endsWith(".sql")).count();;
+                } else {
+                    LOG.error("Can't read location " + location + "; AWS SDK not found");
+                }
             } else {
                 ResourceAndClassScanner<I> resourceAndClassScanner = android
                         ? new AndroidScanner<>(implementedInterface, classLoader, encoding, location)
@@ -74,6 +92,12 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
                 classes.addAll(resourceAndClassScanner.scanForClasses());
             }
         }
+
+
+        if (cloudMigrationCount > 100L) {
+            throw new FlywayTeamsUpgradeRequiredException("Cloud locations with more than 100 migrations");
+        }
+
 
         for (LoadableResource resource : resources) {
             relativeResourceMap.put(resource.getRelativePath().toLowerCase(), resource);

@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.api;
 
-import org.flywaydb.core.internal.output.InfoOutput;
+import org.flywaydb.core.api.output.InfoResult;
 
 interface InfoOutputProvider {
-    InfoOutput getInfoOutput();
+    InfoResult getInfoResult();
 }

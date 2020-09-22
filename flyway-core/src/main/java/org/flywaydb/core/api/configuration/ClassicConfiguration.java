@@ -15,10 +15,8 @@
  */
 package org.flywaydb.core.api.configuration;
 
-import org.flywaydb.core.api.ErrorCode;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -26,9 +24,11 @@ import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.api.ResourceProvider;
+import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -159,6 +159,15 @@ public class ClassicConfiguration implements Configuration {
      * Defaults to {@code latest}.
      */
     private MigrationVersion target;
+
+
+
+
+
+
+
+
+
 
     /**
      * Whether placeholders should be replaced. (default: true)
@@ -357,6 +366,21 @@ public class ClassicConfiguration implements Configuration {
      */
     private boolean outOfOrder;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * This is a list of custom callbacks that fire before and after tasks are executed.  You can
      * add as many custom callbacks as you want. (default: none)
@@ -484,11 +508,25 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+    private final ClasspathClassScanner classScanner;
+
     /**
      * Creates a new default configuration.
      */
     public ClassicConfiguration() {
         // Nothing to do.
+        classScanner = new ClasspathClassScanner(this.classLoader);
     }
 
     /**
@@ -500,6 +538,7 @@ public class ClassicConfiguration implements Configuration {
         if (classLoader != null) {
             this.classLoader = classLoader;
         }
+        classScanner = new ClasspathClassScanner(this.classLoader);
     }
 
     /**
@@ -541,6 +580,16 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public MigrationVersion getTarget() {
         return target;
+    }
+
+    @Override
+    public MigrationPattern[] getCherryPick() {
+
+        return null;
+
+
+
+
     }
 
     @Override
@@ -649,6 +698,16 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
+    public boolean isSkipExecutingMigrations() {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("skipExecutingMigrations");
+
+
+
+
+    }
+
+    @Override
     public MigrationResolver[] getResolvers() {
         return resolvers;
     }
@@ -656,6 +715,21 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isSkipDefaultResolvers() {
         return skipDefaultResolvers;
+    }
+
+    @Override
+    public String getUrl() {
+        return url;
+    }
+
+    @Override
+    public String getUser() {
+        return user;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
     }
 
     @Override
@@ -700,7 +774,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String[] getErrorOverrides() {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("errorOverrides");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("errorOverrides");
 
 
 
@@ -710,7 +784,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public OutputStream getDryRunOutput() {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -720,7 +794,27 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getLicenseKey() {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("licenseKey");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("licenseKey");
+
+
+
+
+    }
+
+    /**
+     * Properties to pass to the JDBC driver object
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    @Override
+    public Map<String, String> getJdbcProperties() {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbcProperties");
+
+
+
+
+
 
 
 
@@ -730,14 +824,14 @@ public class ClassicConfiguration implements Configuration {
     /**
      * Whether Flyway should output a table with the results of queries when executing migrations.
      *
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @return {@code true} to output the results table (default: {@code true})
      */
     @Override
     public boolean outputQueryResults() {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("outputQueryResults");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("outputQueryResults");
 
 
 
@@ -762,13 +856,13 @@ public class ClassicConfiguration implements Configuration {
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
      */
     public void setDryRunOutput(OutputStream dryRunOutput) {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -779,13 +873,13 @@ public class ClassicConfiguration implements Configuration {
      * Sets the file where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. If the file specified is in a non-existent directory, Flyway will create all
      * directories and parent directories as needed.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
      */
     public void setDryRunOutputAsFile(File dryRunOutput) {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -835,14 +929,14 @@ public class ClassicConfiguration implements Configuration {
      * Sets the file where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. If the file specified is in a non-existent directory, Flyway will create all
      * directories and parent directories as needed.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param dryRunOutputFileName The name of the output file or {@code null} to execute the SQL statements directly
      *                             against the database.
      */
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("dryRunOutput");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
 
 
 
@@ -873,13 +967,13 @@ public class ClassicConfiguration implements Configuration {
      * code details) instead of warnings, the following errorOverride can be used: {@code S0001:0:I-}</p>
      * <p>Example 3: to force all errors with SQL error code 123 to be treated as warnings instead,
      * the following errorOverride can be used: {@code *:123:W}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param errorOverrides The ErrorOverrides or an empty array if none are defined. (default: none)
      */
     public void setErrorOverrides(String... errorOverrides) {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("errorOverrides");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("errorOverrides");
 
 
 
@@ -1161,6 +1255,43 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
+     * Migrations not in this list will be ignored.
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public void setCherryPick(MigrationPattern... cherryPick) {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("migrations");
+
+
+
+
+
+
+
+
+    }
+
+    /**
+     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
+     * Migrations not in this list will be ignored.
+     * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public void setCherryPick(String... cherryPickAsString) {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("migrations");
+
+
+
+
+
+
+
+
+    }
+
+    /**
      * Sets whether placeholders should be replaced.
      *
      * @param placeholderReplacement Whether placeholders should be replaced. (default: true)
@@ -1216,7 +1347,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getUndoSqlMigrationPrefix() {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("undoSqlMigrationPrefix");
 
 
 
@@ -1228,13 +1359,13 @@ public class ClassicConfiguration implements Configuration {
      * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
      * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to U1.1__My_description.sql</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param undoSqlMigrationPrefix The file name prefix for undo SQL migrations. (default: U)
      */
     public void setUndoSqlMigrationPrefix(String undoSqlMigrationPrefix) {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("undoSqlMigrationPrefix");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("undoSqlMigrationPrefix");
 
 
 
@@ -1259,7 +1390,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isStream() {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("stream");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("stream");
 
 
 
@@ -1270,13 +1401,13 @@ public class ClassicConfiguration implements Configuration {
      * Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at
      * once. Instead each statement is loaded individually. This is particularly useful for very large SQL migrations
      * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param stream {@code true} to stream SQL migrations. {@code false} to fully loaded them in memory instead. (default: {@code false})
      */
     public void setStream(boolean stream) {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("stream");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("stream");
 
 
 
@@ -1286,7 +1417,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isBatch() {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("batch");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("batch");
 
 
 
@@ -1299,13 +1430,13 @@ public class ClassicConfiguration implements Configuration {
      * individually. This is particularly useful for very large SQL migrations composed of multiple MB or even GB of
      * reference data, as this can dramatically reduce the network overhead. This is supported for INSERT, UPDATE,
      * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param batch {@code true} to batch SQL statements. {@code false} to execute them individually instead. (default: {@code false})
      */
     public void setBatch(boolean batch) {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("batch");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("batch");
 
 
 
@@ -1373,7 +1504,10 @@ public class ClassicConfiguration implements Configuration {
      * @param password The password of the database.
      */
     public void setDataSource(String url, String user, String password) {
-        this.dataSource = new DriverDataSource(classLoader, null, url, user, password);
+        this.url = url;
+        this.user = user;
+        this.password = password;
+        this.dataSource = new DriverDataSource(classLoader, null, url, user, password, this);
     }
 
     /**
@@ -1457,6 +1591,26 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * <p>
+     * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
+     * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
+     * just want the schema history table to reflect this.
+     * </p>
+     * <p>
+     * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
+     * </p>
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public void setSkipExecutingMigrations(boolean skipExecutingMigrations) {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("skipExecutingMigrations");
+
+
+
+
+    }
+
+    /**
      * Gets the callbacks for lifecycle notifications.
      *
      * @return The callbacks for lifecycle notifications. An empty array if none. (default: none)
@@ -1484,17 +1638,51 @@ public class ClassicConfiguration implements Configuration {
     /**
      * Set the callbacks for lifecycle notifications.
      *
-     * @param callbacks The fully qualified class names of the callbacks for lifecycle notifications. (default: none)
+     * @param callbacks The fully qualified class names, or full qualified package to scan, of the callbacks for lifecycle notifications. (default: none)
      */
     public void setCallbacksAsClassNames(String... callbacks) {
         this.callbacks.clear();
         for (String callback : callbacks) {
-            Object o = ClassUtils.instantiate(callback, classLoader);
+            loadCallbackPath(callback);
+        }
+    }
+
+    /**
+     * Load this callback path as a class if it exists, else scan this location for classes that implement Callback
+     * @param callbackPath The path to load or scan
+     */
+    private void loadCallbackPath(String callbackPath) {
+        // try to load it as a classname
+        Object o = null;
+        try {
+            o = ClassUtils.instantiate(callbackPath, classLoader);
+        } catch (FlywayException ex) {
+            // If the path failed to load, assume it points to a package instead.
+        }
+
+        if (o != null) {
+            // If we have a non-null o, check that it inherits from the right interface
             if (o instanceof Callback) {
                 this.callbacks.add((Callback) o);
             } else {
-                throw new FlywayException("Invalid callback: " + callback + " (must implement org.flywaydb.core.api.callback.Callback)", ErrorCode.CONFIGURATION);
+                throw new FlywayException("Invalid callback: " + callbackPath + " (must implement org.flywaydb.core.api.callback.Callback)", ErrorCode.CONFIGURATION);
             }
+        } else {
+            // else try to scan this location and load all callbacks found within
+            loadCallbackLocation(callbackPath, true);
+        }
+    }
+
+    /**
+     * Scan this location for classes that implement Callback
+     * @param path The path to scan
+     * @param errorOnNotFound Whether to show an error if the location is not found
+     */
+    public void loadCallbackLocation(String path, boolean errorOnNotFound) {
+        List<String> callbackClasses = classScanner.scanForType(path, Callback.class, errorOnNotFound);
+        for (String callback : callbackClasses) {
+            Callback callbackObj = ClassUtils.instantiate(callback, classLoader);
+            this.callbacks.add(callbackObj);
         }
     }
 
@@ -1552,10 +1740,26 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @Override
     public boolean isOracleSqlplus() {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("oracle.sqlplus");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.sqlplus");
 
 
 
@@ -1564,13 +1768,13 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param oracleSqlplus {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
      */
     public void setOracleSqlplus(boolean oracleSqlplus) {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("oracle.sqlplus");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.sqlplus");
 
 
 
@@ -1580,7 +1784,37 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isOracleSqlplusWarn() {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("oracle.sqlplusWarn");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.sqlplusWarn");
+
+
+
+
+    }
+
+    /**
+     * When Oracle needs to connect to a Kerberos service to authenticate, the location of the Kerberos configuration
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    @Override
+    public String getOracleKerberosConfigFile() {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.kerberosConfigFile");
+
+
+
+
+    }
+
+    /**
+     * When Oracle needs to connect to a Kerberos service to authenticate, the location of the Kerberos cache
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    @Override
+    public String getOracleKerberosCacheFile(){
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.kerberosCacheFile");
 
 
 
@@ -1591,18 +1825,47 @@ public class ClassicConfiguration implements Configuration {
      * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
      * it doesn't yet support.
      *
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param oracleSqlplusWarn  {@code true} to issue a warning. {@code false} to fail fast instead. (default: {@code false})
      */
     public void setOracleSqlplusWarn(boolean oracleSqlplusWarn) {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("oracle.sqlplusWarn");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.sqlplusWarn");
 
 
 
 
     }
+
+    /**
+     * When Oracle needs to connect to a Kerberos service to authenticate, the location of the Kerberos configuration
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public void setOracleKerberosConfigFile(String oracleKerberosConfigFile) {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.kerberosConfigFile");
+
+
+
+
+    }
+
+    /**
+     * When Oracle needs to connect to a Kerberos service to authenticate, the location of the Kerberos cache
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public void setOracleKerberosCacheFile(String oracleKerberosCacheFile) {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.kerberosCacheFile");
+
+
+
+
+    }
+
 
     /**
      * Whether Flyway should attempt to create the schemas specified in the schemas property
@@ -1614,17 +1877,17 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Your Flyway license key (FL01...). Not yet a Flyway Pro or Enterprise Edition customer?
+     * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
      * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
-     * to try out Flyway Pro and Enterprise Edition features free for 30 days.
+     * to try out Flyway Teams Edition features free for 30 days.
      *
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param licenseKey Your Flyway license key.
      */
     public void setLicenseKey(String licenseKey) {
 
-         LOG.warn(Edition.PRO + " or " + Edition.ENTERPRISE + " upgrade required: " + licenseKey
+         LOG.warn(Edition.ENTERPRISE + " upgrade required: " + licenseKey
          + " is not supported by " + Edition.COMMUNITY + ".");
 
 
@@ -1639,6 +1902,25 @@ public class ClassicConfiguration implements Configuration {
 
     public void setJavaMigrationClassProvider(ClassProvider<JavaMigration> javaMigrationClassProvider) {
         this.javaMigrationClassProvider = javaMigrationClassProvider;
+    }
+
+    /**
+     * Properties to pass to the JDBC driver object
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public void setJdbcProperties(Map<String, String> jdbcProperties) {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbcProperties");
+
+
+
+
+
+
+
+
+
     }
 
     /**
@@ -1667,6 +1949,13 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
+
+
+
+
+
+
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
         setValidateMigrationNaming(configuration.isValidateMigrationNaming());
@@ -1679,6 +1968,9 @@ public class ClassicConfiguration implements Configuration {
         setLocations(configuration.getLocations());
         setMixed(configuration.isMixed());
         setOutOfOrder(configuration.isOutOfOrder());
+
+
+
         setPlaceholderPrefix(configuration.getPlaceholderPrefix());
         setPlaceholderReplacement(configuration.isPlaceholderReplacement());
         setPlaceholders(configuration.getPlaceholders());
@@ -1695,22 +1987,29 @@ public class ClassicConfiguration implements Configuration {
         setTable(configuration.getTable());
         setTablespace(configuration.getTablespace());
         setTarget(configuration.getTarget());
+
+
+
         setValidateOnMigrate(configuration.isValidateOnMigrate());
         setResourceProvider(configuration.getResourceProvider());
         setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
         setShouldCreateSchemas(configuration.getCreateSchemas());
+
+        url = configuration.getUrl();
+        user = configuration.getUser();
+        password = configuration.getPassword();
     }
 
     /**
      * Whether Flyway should output a table with the results of queries when executing migrations.
      *
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @return {@code true} to output the results table (default: {@code true})
      */
     private void setOutputQueryResults(boolean outputQueryResults) {
 
-        throw new org.flywaydb.core.internal.license.FlywayProUpgradeRequiredException("outputQueryResults");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("outputQueryResults");
 
 
 
@@ -1760,10 +2059,6 @@ public class ClassicConfiguration implements Configuration {
         if (passwordProp != null) {
             dataSource = null;
             password = passwordProp;
-        }
-        if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) ||
-                StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
-            setDataSource(new DriverDataSource(classLoader, driver, url, user, password));
         }
         Integer connectRetriesProp = removeInteger(props, ConfigUtils.CONNECT_RETRIES);
         if (connectRetriesProp != null) {
@@ -1877,9 +2172,17 @@ public class ClassicConfiguration implements Configuration {
         if (targetProp != null) {
             setTarget(MigrationVersion.fromVersion(targetProp));
         }
+        String cherryPickProp = props.remove(ConfigUtils.CHERRY_PICK);
+        if (cherryPickProp != null) {
+            setCherryPick(StringUtils.tokenizeToStringArray(cherryPickProp, ","));
+        }
         Boolean outOfOrderProp = removeBoolean(props, ConfigUtils.OUT_OF_ORDER);
         if (outOfOrderProp != null) {
             setOutOfOrder(outOfOrderProp);
+        }
+        Boolean skipExecutingMigrationsProp = removeBoolean(props, ConfigUtils.SKIP_EXECUTING_MIGRATIONS);
+        if (skipExecutingMigrationsProp != null) {
+            setSkipExecutingMigrations(skipExecutingMigrationsProp);
         }
         Boolean outputQueryResultsProp = removeBoolean(props, ConfigUtils.OUTPUT_QUERY_RESULTS);
         if (outputQueryResultsProp != null) {
@@ -1902,20 +2205,8 @@ public class ClassicConfiguration implements Configuration {
             setSkipDefaultCallbacks(skipDefaultCallbacksProp);
         }
 
-        Map<String, String> placeholdersFromProps = new HashMap<>(getPlaceholders());
-        Iterator<Map.Entry<String, String>> iterator = props.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, String> entry = iterator.next();
-            String propertyName = entry.getKey();
-
-            if (propertyName.startsWith(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX)
-                    && propertyName.length() > ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX.length()) {
-                String placeholderName = propertyName.substring(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX.length());
-                String placeholderValue = entry.getValue();
-                placeholdersFromProps.put(placeholderName, placeholderValue);
-                iterator.remove();
-            }
-        }
+        Map<String, String> placeholdersFromProps = getPropertiesUnderNamespace(props, getPlaceholders(),
+                ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX);
         setPlaceholders(placeholdersFromProps);
 
         Boolean mixedProp = removeBoolean(props, ConfigUtils.MIXED);
@@ -1968,12 +2259,54 @@ public class ClassicConfiguration implements Configuration {
             setShouldCreateSchemas(createSchemasProp);
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
         String licenseKeyProp = props.remove(ConfigUtils.LICENSE_KEY);
         if (licenseKeyProp != null) {
             setLicenseKey(licenseKeyProp);
         }
 
+        // Must be done last, so that any driver-specific config has been done at this point.
+        if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) ||
+                StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
+            Map<String, String> jdbcPropertiesFromProps =
+                    getPropertiesUnderNamespace(
+                    props,
+                    getPlaceholders(),
+                    ConfigUtils.JDBC_PROPERTIES_PREFIX);
+
+            setDataSource(new DriverDataSource(classLoader, driver, url, user, password, this, jdbcPropertiesFromProps));
+        }
+
         ConfigUtils.checkConfigurationForUnrecognisedProperties(props, "flyway.");
+    }
+
+    private Map<String, String> getPropertiesUnderNamespace(Map<String, String> properties, Map<String, String> current, String namespace) {
+        Map<String, String> placeholdersFromProps = new HashMap<>(current);
+        Iterator<Map.Entry<String, String>> iterator = properties.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            String propertyName = entry.getKey();
+
+            if (propertyName.startsWith(namespace)
+                    && propertyName.length() > namespace.length()) {
+                String placeholderName = propertyName.substring(namespace.length());
+                String placeholderValue = entry.getValue();
+                placeholdersFromProps.put(placeholderName, placeholderValue);
+                iterator.remove();
+            }
+        }
+        return placeholdersFromProps;
     }
 
     /**

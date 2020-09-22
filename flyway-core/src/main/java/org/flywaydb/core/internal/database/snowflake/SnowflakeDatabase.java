@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -42,16 +43,8 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
     /**
      * Creates a new instance.
      */
-    public SnowflakeDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
-
-
-
-    ) {
-        super(configuration, jdbcConnectionFactory
-
-
-
-        );
+    public SnowflakeDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+        super(configuration, jdbcConnectionFactory, statementInterceptor);
 
         quotedIdentifiersIgnoreCase = getQuotedIdentifiersIgnoreCase(jdbcTemplate);
         if (quotedIdentifiersIgnoreCase) {
