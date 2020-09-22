@@ -275,20 +275,6 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>org.flywaydb.pro</groupId>
-                                            <artifactId>flyway-commandline</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/pro</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.flywaydb.pro</groupId>
-                                            <artifactId>flyway-core</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/pro</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
                                             <groupId>org.flywaydb.enterprise</groupId>
                                             <artifactId>flyway-commandline</artifactId>
                                             <version>${project.version}</version>

@@ -51,7 +51,7 @@ public class MySQLDatabaseType extends DatabaseType {
 
 
 
-            throw new org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException("jdbc-secretsmanager");
+            throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbc-secretsmanager");
 
         }
 

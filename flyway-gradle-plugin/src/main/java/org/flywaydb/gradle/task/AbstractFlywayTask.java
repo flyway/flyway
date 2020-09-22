@@ -202,7 +202,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
      * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to U1.1__My_description.sql</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      * <p>Also configurable with Gradle or System Property: ${flyway.undoSqlMigrationPrefix}</p>
      */
     public String undoSqlMigrationPrefix;
@@ -245,7 +245,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * Properties to pass to the JDBC driver object
      *
-     * <p><i>Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      * <p>Also configurable with Gradle or System Property: ${flyway.jdbcProperties}</p>
      */
     public Map<Object, Object> jdbcProperties;
@@ -281,7 +281,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
      * Migrations not in this list will be ignored.
      * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
-     * <p><i>Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     private String[] cherryPick;
 
@@ -310,13 +310,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * <p>
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
      * </p>
-     * <p><i>Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean skipExecutingMigrations;
 
     /**
      * Whether Flyway should output a table with the results of queries when executing migrations (default: true).
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      * <p>Also configurable with Gradle or System Property: ${flyway.outputQueryResults}</p>
      */
     public Boolean outputQueryResults;
@@ -471,7 +471,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * <p>Example 3: to force all errors with SQL error code 123 to be treated as warnings instead,
      * the following errorOverride can be used: {@code *:123:W}</p>
      * <p>Also configurable with Gradle or System Property: ${flyway.errorOverrides}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public String[] errorOverrides;
 
@@ -480,7 +480,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * directory, Flyway will create all directories and parent directories as needed.
      * <p>{@code null} to execute the SQL statements directly against the database. (default: {@code null})</p>
      * <p>Also configurable with Gradle or System Property: ${flyway.dryRunOutput}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public String dryRunOutput;
 
@@ -490,7 +490,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
      * (default: {@code false}
      * <p>Also configurable with Gradle or System Property: ${flyway.stream}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean stream;
 
@@ -502,7 +502,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
      * (default: {@code false})
      * <p>Also configurable with Gradle or System Property: ${flyway.batch}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean batch;
 
@@ -510,7 +510,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
      * (default: {@code false})
      * <p>Also configurable with Gradle or System Property: ${flyway.oracle.sqlplus}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean oracleSqlplus;
 
@@ -518,16 +518,16 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
      * it doesn't yet support. (default: {@code false})
      * <p>Also configurable with Gradle or System Property: ${flyway.oracle.sqlplusWarn}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean oracleSqlplusWarn;
 
     /**
-     * Your Flyway license key (FL01...). Not yet a Flyway Pro or Enterprise Edition customer?
+     * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
      * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
-     * to try out Flyway Pro and Enterprise Edition features free for 30 days.
+     * to try out Flyway Teams Edition features free for 30 days.
      * <p>Also configurable with Gradle or System Property: ${flyway.licenseKey}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public String licenseKey;
 

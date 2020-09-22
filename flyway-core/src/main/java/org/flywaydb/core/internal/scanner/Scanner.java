@@ -19,13 +19,12 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.ClassProvider;
-import org.flywaydb.core.internal.license.FlywayEnterpriseUpgradeRequiredException;
+import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.scanner.android.AndroidScanner;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
-import org.flywaydb.core.internal.scanner.cloud.CloudScanner;
 import org.flywaydb.core.internal.scanner.filesystem.FileSystemScanner;
 import org.flywaydb.core.internal.scanner.cloud.gcs.GCSScanner;
 import org.flywaydb.core.internal.scanner.cloud.s3.AwsS3Scanner;
@@ -96,7 +95,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
 
         if (cloudMigrationCount > 100L) {
-            throw new FlywayEnterpriseUpgradeRequiredException("Cloud locations with more than 100 migrations");
+            throw new FlywayTeamsUpgradeRequiredException("Cloud locations with more than 100 migrations");
         }
 
 

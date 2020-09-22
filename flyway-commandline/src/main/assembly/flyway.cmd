@@ -46,10 +46,14 @@ IF NOT [%1]==[] (
         GOTO :loop-end
     )
     IF [%1]==[-pro] (
-        SET FLYWAY_EDITION=pro
+        SET FLYWAY_EDITION=enterprise
         GOTO :loop-end
     )
     IF [%1]==[-enterprise] (
+        SET FLYWAY_EDITION=enterprise
+        GOTO :loop-end
+    )
+    IF [%1]==[-teams] (
         SET FLYWAY_EDITION=enterprise
         GOTO :loop-end
     )

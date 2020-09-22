@@ -48,9 +48,12 @@ while [[ $# -gt 0 ]]; do
     FLYWAY_EDITION=community
     ;;
     -pro)
-    FLYWAY_EDITION=pro
+    FLYWAY_EDITION=enterprise
     ;;
     -enterprise)
+    FLYWAY_EDITION=enterprise
+    ;;
+    -teams)
     FLYWAY_EDITION=enterprise
     ;;
   esac

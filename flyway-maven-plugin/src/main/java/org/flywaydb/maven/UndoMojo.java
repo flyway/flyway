@@ -22,7 +22,7 @@ import org.flywaydb.core.api.MigrationInfo;
 
 /**
  * Undoes the most recently applied versioned migration.
- * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+ * <p><i>Flyway Teams only</i></p>
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 @Mojo(name = "undo",

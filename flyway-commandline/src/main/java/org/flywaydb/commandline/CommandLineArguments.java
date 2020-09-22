@@ -62,8 +62,9 @@ class CommandLineArguments {
     private static String JSON_FLAG = "-json";
     private static String PRINT_USAGE_FLAG = "-?";
     private static String COMMUNITY_FLAG = "-community";
-    private static String PRO_FLAG = "-pro";
     private static String ENTERPRISE_FLAG = "-enterprise";
+    private static String PRO_FLAG = "-pro";
+    private static String TEAMS_FLAG = "-teams";
 
     // Command line specific configuration options
     private static String OUTPUT_FILE = "outputFile";
@@ -81,8 +82,9 @@ class CommandLineArguments {
             JSON_FLAG,
             PRINT_USAGE_FLAG,
             COMMUNITY_FLAG,
-            PRO_FLAG,
             ENTERPRISE_FLAG,
+            PRO_FLAG,
+            TEAMS_FLAG,
             "help",
             "migrate",
             "clean",

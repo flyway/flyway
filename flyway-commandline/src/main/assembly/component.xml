@@ -76,8 +76,7 @@
                 <include>flyway-community.txt</include>
                 <include>LICENSES-THIRD-PARTY.txt</include>
 
-                <include>flyway-pro.txt</include>
-                <include>flyway-enterprise.txt</include>
+                <include>flyway-teams.txt</include>
 
             </includes>
             <fileMode>644</fileMode>
@@ -92,14 +91,6 @@
             <fileMode>644</fileMode>
         </fileSet>
 
-        <fileSet>
-            <directory>target/editions/pro</directory>
-            <outputDirectory>lib/pro</outputDirectory>
-            <includes>
-                <include>*</include>
-            </includes>
-            <fileMode>644</fileMode>
-        </fileSet>
         <fileSet>
             <directory>target/editions/enterprise</directory>
             <outputDirectory>lib/enterprise</outputDirectory>
