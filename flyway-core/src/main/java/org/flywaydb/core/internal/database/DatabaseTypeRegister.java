@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabaseType;
 import org.flywaydb.core.internal.database.db2.DB2DatabaseType;
 import org.flywaydb.core.internal.database.derby.DerbyDatabaseType;
 
+import org.flywaydb.core.internal.database.exasol.ExasolDatabaseType;
 import org.flywaydb.core.internal.database.firebird.FirebirdDatabaseType;
 import org.flywaydb.core.internal.database.h2.H2DatabaseType;
 import org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabaseType;
@@ -88,6 +89,7 @@ public class DatabaseTypeRegister {
             registeredDatabaseTypes.add(new SQLServerDatabaseType());
             registeredDatabaseTypes.add(new SybaseASEJTDSDatabaseType());
             registeredDatabaseTypes.add(new SybaseASEJConnectDatabaseType());
+            registeredDatabaseTypes.add(new ExasolDatabaseType());
 
             registeredDatabaseTypes.add(new TestContainersDatabaseType());
 

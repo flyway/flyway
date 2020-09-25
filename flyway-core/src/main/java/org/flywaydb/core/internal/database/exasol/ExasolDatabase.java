@@ -21,6 +21,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.util.StringUtils;
 
 /**
@@ -35,10 +36,12 @@ public class ExasolDatabase extends Database<ExasolConnection> {
      *
      * @param configuration         The Flyway configuration.
      * @param jdbcConnectionFactory
+     * @param statementInterceptor
      */
     public ExasolDatabase(final Configuration configuration,
-                          final JdbcConnectionFactory jdbcConnectionFactory) {
-        super(configuration, jdbcConnectionFactory);
+                          final JdbcConnectionFactory jdbcConnectionFactory,
+                          final StatementInterceptor statementInterceptor) {
+        super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
