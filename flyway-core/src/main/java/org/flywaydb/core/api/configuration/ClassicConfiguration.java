@@ -41,13 +41,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger;
@@ -1262,6 +1256,26 @@ public class ClassicConfiguration implements Configuration {
     public void setCherryPick(MigrationPattern... cherryPick) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("migrations");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
