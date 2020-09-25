@@ -283,6 +283,9 @@ public class ConfigUtils {
         if ("FLYWAY_VALIDATE_ON_MIGRATE".equals(key)) {
             return VALIDATE_ON_MIGRATE;
         }
+        if ("FLYWAY_VALIDATE_MIGRATION_NAMING".equals(key)) {
+            return VALIDATE_MIGRATION_NAMING;
+        }
         if ("FLYWAY_CREATE_SCHEMAS".equals(key)) {
             return CREATE_SCHEMAS;
         }
