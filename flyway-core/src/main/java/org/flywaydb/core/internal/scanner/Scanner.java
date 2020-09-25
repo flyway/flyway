@@ -68,6 +68,9 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
                 resources.addAll(fileSystemScanner.scanForResources(location));
             } else if (location.isGCS()) {
 
+                 throw new FlywayTeamsUpgradeRequiredException("Google Cloud Storage");
+
+
 
 
 
