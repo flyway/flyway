@@ -184,7 +184,7 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     @Override
     public boolean checksumMatches(Integer checksum) {
         return Objects.equals(checksum, this.checksum) ||
-                Objects.equals(checksum, this.equivalentChecksum);
+                (Objects.equals(checksum, this.equivalentChecksum) && this.equivalentChecksum != null);
     }
 
     @Override

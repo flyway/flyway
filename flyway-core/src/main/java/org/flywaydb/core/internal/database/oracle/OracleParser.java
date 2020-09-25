@@ -17,10 +17,15 @@ package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.api.configuration.Configuration;
 
+
+
+
 import org.flywaydb.core.internal.parser.*;
 import org.flywaydb.core.api.ResourceProvider;
+import org.flywaydb.core.internal.resource.Resource;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
+import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.IOException;
@@ -549,4 +554,33 @@ public class OracleParser extends Parser {
                 return specialChar + "'";
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -18,13 +18,16 @@ package org.flywaydb.gradle.task;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.ResolvedConfiguration;
+import org.gradle.api.artifacts.UnknownConfigurationException;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
@@ -51,7 +54,6 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 /**
  * A base class for all flyway tasks.
  */
-@SuppressWarnings("WeakerAccess")
 public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * The default Gradle configurations to use.
@@ -200,7 +202,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
      * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to U1.1__My_description.sql</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      * <p>Also configurable with Gradle or System Property: ${flyway.undoSqlMigrationPrefix}</p>
      */
     public String undoSqlMigrationPrefix;
@@ -239,6 +241,14 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * Placeholders to replace in Sql migrations
      */
     public Map<Object, Object> placeholders;
+    
+    /**
+     * Properties to pass to the JDBC driver object
+     *
+     * <p><i>Flyway Teams only</i></p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.jdbcProperties}</p>
+     */
+    public Map<Object, Object> jdbcProperties;
 
     /**
      * Whether placeholders should be replaced.
@@ -268,7 +278,15 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String target;
 
     /**
-     * An array of fully qualified FlywayCallback class implementations
+     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
+     * Migrations not in this list will be ignored.
+     * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String[] cherryPick;
+
+    /**
+     * An array of fully qualified FlywayCallback class implementations, or packages to scan for FlywayCallback implementations
      */
     public String[] callbacks;
 
@@ -284,8 +302,21 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean outOfOrder;
 
     /**
+     * <p>
+     * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
+     * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
+     * just want the schema history table to reflect this.
+     * </p>
+     * <p>
+     * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
+     * </p>
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public Boolean skipExecutingMigrations;
+
+    /**
      * Whether Flyway should output a table with the results of queries when executing migrations (default: true).
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      * <p>Also configurable with Gradle or System Property: ${flyway.outputQueryResults}</p>
      */
     public Boolean outputQueryResults;
@@ -440,7 +471,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * <p>Example 3: to force all errors with SQL error code 123 to be treated as warnings instead,
      * the following errorOverride can be used: {@code *:123:W}</p>
      * <p>Also configurable with Gradle or System Property: ${flyway.errorOverrides}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public String[] errorOverrides;
 
@@ -449,7 +480,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * directory, Flyway will create all directories and parent directories as needed.
      * <p>{@code null} to execute the SQL statements directly against the database. (default: {@code null})</p>
      * <p>Also configurable with Gradle or System Property: ${flyway.dryRunOutput}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public String dryRunOutput;
 
@@ -459,7 +490,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
      * (default: {@code false}
      * <p>Also configurable with Gradle or System Property: ${flyway.stream}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean stream;
 
@@ -471,7 +502,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
      * (default: {@code false})
      * <p>Also configurable with Gradle or System Property: ${flyway.batch}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean batch;
 
@@ -479,7 +510,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
      * (default: {@code false})
      * <p>Also configurable with Gradle or System Property: ${flyway.oracle.sqlplus}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean oracleSqlplus;
 
@@ -487,16 +518,16 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
      * it doesn't yet support. (default: {@code false})
      * <p>Also configurable with Gradle or System Property: ${flyway.oracle.sqlplusWarn}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean oracleSqlplusWarn;
 
     /**
-     * Your Flyway license key (FL01...). Not yet a Flyway Pro or Enterprise Edition customer?
+     * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
      * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
-     * to try out Flyway Pro and Enterprise Edition features free for 30 days.
+     * to try out Flyway Teams Edition features free for 30 days.
      * <p>Also configurable with Gradle or System Property: ${flyway.licenseKey}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      */
     public String licenseKey;
 
@@ -556,24 +587,27 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         }
     }
 
-    private void addClassesAndResourcesDirs(Set<URL> extraURLs) throws IllegalAccessException, InvocationTargetException, MalformedURLException {
+    private void addClassesAndResourcesDirs(Set<URL> extraURLs) throws MalformedURLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         JavaPluginConvention plugin = getProject().getConvention().getPlugin(JavaPluginConvention.class);
 
         for (SourceSet sourceSet : plugin.getSourceSets()) {
             try {
-                @SuppressWarnings("JavaReflectionMemberAccess")
-                Method getClassesDirs = SourceSetOutput.class.getMethod("getClassesDirs");
-
-                // use alternative method available in Gradle 4.0
-                FileCollection classesDirs = (FileCollection) getClassesDirs.invoke(sourceSet.getOutput());
+                FileCollection classesDirs = sourceSet.getOutput().getClassesDirs();
                 for (File directory : classesDirs.getFiles()) {
                     URL classesUrl = directory.toURI().toURL();
                     getLogger().debug("Adding directory to Classpath: " + classesUrl);
                     extraURLs.add(classesUrl);
                 }
-            } catch (NoSuchMethodException e) {
-                // use original method available in Gradle 3.x
-                URL classesUrl = sourceSet.getOutput().getClassesDir().toURI().toURL();
+            } catch (NoSuchMethodError ex) {
+                getLogger().debug("Falling back to legacy getClassesDir method");
+
+                // try legacy gradle 3.0 method instead
+                @SuppressWarnings("JavaReflectionMemberAccess")
+                Method getClassesDir = SourceSetOutput.class.getMethod("getClassesDir");
+
+                File classesDir = (File) getClassesDir.invoke(sourceSet.getOutput());
+                URL classesUrl = classesDir.toURI().toURL();
+
                 getLogger().debug("Adding directory to Classpath: " + classesUrl);
                 extraURLs.add(classesUrl);
             }
@@ -656,7 +690,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix, extension.placeholderPrefix);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_SUFFIX, placeholderSuffix, extension.placeholderSuffix);
         putIfSet(conf, ConfigUtils.TARGET, target, extension.target);
+        putIfSet(conf, ConfigUtils.CHERRY_PICK, StringUtils.arrayToCommaDelimitedString(cherryPick), StringUtils.arrayToCommaDelimitedString(extension.cherryPick));
         putIfSet(conf, ConfigUtils.OUT_OF_ORDER, outOfOrder, extension.outOfOrder);
+        putIfSet(conf, ConfigUtils.SKIP_EXECUTING_MIGRATIONS, skipExecutingMigrations, extension.skipExecutingMigrations);
         putIfSet(conf, ConfigUtils.OUTPUT_QUERY_RESULTS, outputQueryResults, extension.outputQueryResults);
         putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate, extension.validateOnMigrate);
         putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError, extension.cleanOnValidationError);
@@ -697,6 +733,18 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             }
         }
 
+        if (jdbcProperties != null) {
+            for (Map.Entry<Object, Object> entry : jdbcProperties.entrySet()) {
+                conf.put(ConfigUtils.JDBC_PROPERTIES_PREFIX + entry.getKey().toString(), entry.getValue().toString());
+            }
+        }
+
+        if (extension.jdbcProperties != null) {
+            for (Map.Entry<Object, Object> entry : extension.jdbcProperties.entrySet()) {
+                conf.put(ConfigUtils.JDBC_PROPERTIES_PREFIX + entry.getKey().toString(), entry.getValue().toString());
+            }
+        }
+        
         addConfigFromProperties(conf, getProject().getProperties());
         addConfigFromProperties(conf, loadConfigurationFromConfigFiles(getWorkingDirectory(), envVars));
         addConfigFromProperties(conf, envVars);

@@ -42,12 +42,11 @@ public class DbInfo {
     public MigrationInfoService info() {
         callbackExecutor.onEvent(Event.BEFORE_INFO);
 
-
         MigrationInfoServiceImpl migrationInfoService;
         try {
             migrationInfoService =
                     new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration,
-                            configuration.getTarget(), configuration.isOutOfOrder(),
+                            configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
                             true, true, true, true);
             migrationInfoService.refresh();
         } catch (FlywayException e) {

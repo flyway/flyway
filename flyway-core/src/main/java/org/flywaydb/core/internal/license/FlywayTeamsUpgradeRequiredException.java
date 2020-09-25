@@ -18,12 +18,12 @@ package org.flywaydb.core.internal.license;
 import org.flywaydb.core.api.FlywayException;
 
 /**
- * Thrown when an attempt was made to use a Flyway Enterprise Edition feature not supported by
- * Flyway Community Edition or Flyway Pro Edition.
+ * Thrown when an attempt was made to use a Flyway Teams Edition feature not supported by
+ * Flyway Community Edition.
  */
-public class FlywayEnterpriseUpgradeRequiredException extends FlywayException {
-    public FlywayEnterpriseUpgradeRequiredException(String feature) {
+public class FlywayTeamsUpgradeRequiredException extends FlywayException {
+    public FlywayTeamsUpgradeRequiredException(String feature) {
         super(Edition.ENTERPRISE + " upgrade required: " + feature
-                + " is not supported by " + Edition.COMMUNITY + " or " + Edition.PRO + ".");
+                + " is not supported by " + Edition.COMMUNITY + ".");
     }
 }

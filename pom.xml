@@ -74,6 +74,7 @@
 
 
 
+
     </modules>
 
     <distributionManagement>
@@ -125,13 +126,6 @@
 
 
 
-
-
-
-
-
-
-
         <repository>
             <id>maven.oracle.com</id>
             <releases>
@@ -143,6 +137,7 @@
             <url>https://maven.oracle.com</url>
              <layout>default</layout>
         </repository>
+
     </repositories>
 
     <pluginRepositories>
@@ -162,29 +157,48 @@
     </pluginRepositories>
 
     <properties>
-        <version.maven>3.0</version.maven>
-        <version.gradle>3.0</version.gradle>
+        <version.android>4.0.1.2</version.android>
+        <version.ant>1.9.14</version.ant>
+        <version.aws-java-sdk>2.10.56</version.aws-java-sdk>
+        <version.aws-secretsmanager>1.0.5</version.aws-secretsmanager>
+        <version.commonslogging>1.2</version.commonslogging>
+        <version.db2>11.5.0.0</version.db2>
         <version.derby>10.15.2.0</version.derby>
-        <version.h2>1.4.200</version.h2>
-        <version.hsqldb>2.5.0</version.hsqldb>
-        <version.jaybird>3.0.8</version.jaybird>
-        <version.jna>4.5.2</version.jna>
-        <version.jtds>1.3.1</version.jtds>
-        <version.mariadb>2.6.0</version.mariadb>
-        <version.mysql>8.0.17</version.mysql>
-        <version.mssql-jdbc>7.2.0.jre8</version.mssql-jdbc>
-        <version.oracle>19.6.0.0</version.oracle>
-        <version.postgresql>42.2.12.jre6</version.postgresql>
-        <version.snowflake>3.11.1</version.snowflake>
-        <version.sqlite>3.30.1</version.sqlite>
-        <version.osgi>4.3.1</version.osgi>
         <version.equinox>3.15.200</version.equinox>
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
-        <version.android>4.0.1.2</version.android>
-        <version.slf4j>1.7.30</version.slf4j>
-        <version.jre>11.0.2</version.jre>
-        <version.jansi>1.18</version.jansi>
+        <version.gcs>1.111.2</version.gcs>
+        <version.gradle>6.1.1</version.gradle>
         <version.gson>2.8.6</version.gson>
+        <version.h2>1.4.200</version.h2>
+        <version.hsqldb>2.5.0</version.hsqldb>
+        <version.httpclient>4.5.2</version.httpclient>
+        <version.informix>4.50.3</version.informix>
+        <version.jansi>1.18</version.jansi>
+        <version.jaxb>2.3.1</version.jaxb>
+        <version.jaybird>3.0.8</version.jaybird>
+        <version.jboss>3.2.15.Final</version.jboss>
+        <version.jna>4.5.2</version.jna>
+        <version.jre>11.0.2</version.jre>
+        <version.jtds>1.3.1</version.jtds>
+        <version.junit>4.13</version.junit>
+        <version.logback>1.2.3</version.logback>
+        <version.mariadb>2.6.0</version.mariadb>
+        <version.maven>3.0</version.maven>
+        <version.mockito>1.10.19</version.mockito>
+        <version.mssql-jdbc>7.2.0.jre8</version.mssql-jdbc>
+        <version.mysql>8.0.17</version.mysql>
+        <version.oracle>19.6.0.0</version.oracle>
+        <version.osgi>4.3.1</version.osgi>
+        <version.postgresql>42.2.14</version.postgresql>
+        <version.redshift>1.2.10.1009</version.redshift>
+        <version.sap>2.2.3</version.sap>
+        <version.slf4j>1.7.30</version.slf4j>
+        <version.snowflake>3.11.1</version.snowflake>
+        <version.spanner>1.16.0</version.spanner>
+        <version.springjdbc>2.5.6</version.springjdbc>
+        <version.sqlite>3.30.1</version.sqlite>
+        <version.sybasejconnect>7.07</version.sybasejconnect>
+        <version.testcontainers>1.14.3</version.testcontainers>
         <exasol.version>6.2.5</exasol.version>
     </properties>
 
@@ -193,7 +207,7 @@
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
-                <version>1.2</version>
+                <version>${version.commonslogging}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -223,7 +237,7 @@
             <dependency>
                 <groupId>org.jboss</groupId>
                 <artifactId>jboss-vfs</artifactId>
-                <version>3.2.15.Final</version>
+                <version>${version.jboss}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -291,9 +305,45 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>google-cloud-spanner-jdbc</artifactId>
+                <version>${version.spanner}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
                 <groupId>net.snowflake</groupId>
                 <artifactId>snowflake-jdbc</artifactId>
                 <version>${version.snowflake}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${version.testcontainers}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>cockroachdb</artifactId>
+                <version>${version.testcontainers}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>db2</artifactId>
+                <version>${version.testcontainers}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mariadb</artifactId>
+                <version>${version.testcontainers}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mysql</artifactId>
+                <version>${version.testcontainers}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -341,7 +391,7 @@
             <dependency>
                 <groupId>com.ibm.informix</groupId>
                 <artifactId>jdbc</artifactId>
-                <version>4.50.3</version>
+                <version>${version.informix}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -407,12 +457,36 @@
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
-                <version>2.3.1</version>
+                <version>${version.jaxb}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.android</groupId>
                 <artifactId>android</artifactId>
                 <version>${version.android}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3</artifactId>
+                <version>${version.aws-java-sdk}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>google-cloud-storage</artifactId>
+                <version>${version.gcs}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws.secretsmanager</groupId>
+                <artifactId>aws-secretsmanager-jdbc</artifactId>
+                <version>${version.aws-secretsmanager}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${version.httpclient}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -449,7 +523,7 @@
             <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
-                <version>1.9.14</version>
+                <version>${version.ant}</version>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.jansi</groupId>
@@ -670,6 +744,29 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

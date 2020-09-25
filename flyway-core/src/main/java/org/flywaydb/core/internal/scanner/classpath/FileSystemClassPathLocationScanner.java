@@ -65,7 +65,12 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
         for (File file : files) {
             if (file.canRead()) {
                 if (file.isDirectory()) {
-                    resourceNames.addAll(findResourceNamesFromFileSystem(classPathRootOnDisk, scanRootLocation, file));
+                    if (file.isHidden()) {
+                        // #1807: Skip hidden directories to avoid issues with Kubernetes
+                        LOG.debug("Skipping hidden directory: " + file.getAbsolutePath());
+                    } else {
+                        resourceNames.addAll(findResourceNamesFromFileSystem(classPathRootOnDisk, scanRootLocation, file));
+                    }
                 } else {
                     resourceNames.add(toResourceNameOnClasspath(classPathRootOnDisk, file));
                 }

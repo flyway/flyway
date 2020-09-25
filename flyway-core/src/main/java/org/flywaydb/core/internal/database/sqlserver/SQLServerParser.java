@@ -84,6 +84,34 @@ public class SQLServerParser extends Parser {
     }
 
     @Override
+    protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+        TokenType tokenType = token.getType();
+        if (TokenType.DELIMITER.equals(tokenType) || ";".equals(token.getText())) {
+            return true;
+        } else if (TokenType.EOF.equals(tokenType)) {
+            return true;
+        }
+
+        return super.shouldAdjustBlockDepth(context, token);
+    }
+
+    @Override
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
+        String keywordText = keyword.getText();
+
+        if ("BEGIN".equals(keywordText)) {
+            context.increaseBlockDepth("");
+        }
+
+        if (context.getBlockDepth() > 0 && ("END".equals(keywordText) ||
+                "TRANSACTION".equals(keywordText) && lastTokenIs(tokens, keyword.getParensDepth(), "BEGIN"))) {
+            context.decreaseBlockDepth();
+        }
+
+        super.adjustBlockDepth(context, tokens, keyword, reader);
+    }
+
+    @Override
     protected int getTransactionalDetectionCutoff() {
         return Integer.MAX_VALUE;
     }

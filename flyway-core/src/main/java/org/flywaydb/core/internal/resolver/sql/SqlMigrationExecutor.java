@@ -18,9 +18,8 @@ package org.flywaydb.core.internal.resolver.sql;
 import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
-import org.flywaydb.core.internal.database.DatabaseFactory;
-import org.flywaydb.core.internal.database.cockroachdb.CockroachDBRetryingStrategy;
-import org.flywaydb.core.internal.jdbc.DatabaseType;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.util.SqlCallable;
@@ -38,39 +37,33 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      */
     private final SqlScript sqlScript;
 
+    /**
+     * Whether this is part of an undo migration or a regular one.
+     */
+    private final boolean undo;
 
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Whether to batch SQL statements.
+     */
+    private final boolean batch;
 
     /**
      * Creates a new sql script migration based on this sql script.
      *
      * @param sqlScript The SQL script that will be executed.
      */
-    SqlMigrationExecutor(SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScript sqlScript
-
-
-
-    ) {
+    SqlMigrationExecutor(SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScript sqlScript, boolean undo, boolean batch) {
         this.sqlScriptExecutorFactory = sqlScriptExecutorFactory;
         this.sqlScript = sqlScript;
-
-
-
-
+        this.undo = undo;
+        this.batch = batch;
     }
 
     @Override
     public void execute(final Context context) throws SQLException {
-        DatabaseExecutionStrategy strategy = DatabaseFactory.createExecutionStrategy(context.getConnection());
+        DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(context.getConnection());
+
+        DatabaseExecutionStrategy strategy = databaseType.createExecutionStrategy(context.getConnection());
         strategy.execute(new SqlCallable<Boolean>() {
                 @Override
                 public Boolean call() throws SQLException {
@@ -81,11 +74,12 @@ public class SqlMigrationExecutor implements MigrationExecutor {
     }
 
     private void executeOnce(Context context) {
-        sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection()
+        boolean outputQueryResults = false;
 
 
 
-        ).execute(sqlScript);
+
+        sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection() , undo, batch, outputQueryResults).execute(sqlScript);
     }
 
     @Override
