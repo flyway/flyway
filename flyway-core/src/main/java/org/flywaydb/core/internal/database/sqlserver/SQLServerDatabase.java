@@ -20,6 +20,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -37,16 +38,8 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
      *
      * @param configuration The Flyway configuration.
      */
-    public SQLServerDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
-
-
-
-    ) {
-        super(configuration, jdbcConnectionFactory
-
-
-
-        );
+    public SQLServerDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+        super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
@@ -231,7 +224,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     /**
      * @return Whether this database supports partitions
      */
-    boolean supportsPartitions() {
+    protected boolean supportsPartitions() {
         return isAzure()
                 || SQLServerEngineEdition.ENTERPRISE.equals(getEngineEdition())
                 || getVersion().isAtLeast("13");
@@ -240,8 +233,43 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     /**
      * @return Whether this database supports sequences
      */
-    boolean supportsSequences() {
+    protected boolean supportsSequences() {
         return getVersion().isAtLeast("11");
+    }
+
+    /**
+     * @return Whether this database supports synonyms
+     */
+    protected boolean supportsSynonyms() {
+        return true;
+    }
+
+    /**
+     * @return Whether this database supports rules
+     */
+    protected boolean supportsRules() {
+        return true;
+    }
+
+    /**
+     * @return Whether this database supports types
+     */
+    protected boolean supportsTypes() {
+        return true;
+    }
+
+    /**
+     * @return Whether this database supports triggers
+     */
+    protected boolean supportsTriggers() {
+        return true;
+    }
+
+    /**
+     * @return Whether this database supports assemblies
+     */
+    protected boolean supportsAssemblies() {
+        return true;
     }
 
     /**
@@ -260,6 +288,12 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
                 jdbcTemplate.execute(statement);
             }
         }
+
+        if (supportsAssemblies()) {
+            for (String statement : cleanAssemblies()) {
+                jdbcTemplate.execute(statement);
+            }
+        }
     }
 
     /**
@@ -275,6 +309,25 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         for (String partitionSchemeName : partitionSchemeNames) {
             statements.add("DROP PARTITION SCHEME " + quote(partitionSchemeName));
         }
+        return statements;
+    }
+
+    /**
+     * Cleans the CLR assemblies in this database.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanAssemblies() throws SQLException {
+        List<String> statements = new ArrayList<>();
+
+        List<String> assemblyNames =
+                jdbcTemplate.queryForStringList("SELECT * FROM sys.assemblies WHERE is_user_defined=1");
+
+        for (String assemblyName : assemblyNames) {
+            statements.add("DROP ASSEMBLY " + quote(assemblyName));
+        }
+
         return statements;
     }
 

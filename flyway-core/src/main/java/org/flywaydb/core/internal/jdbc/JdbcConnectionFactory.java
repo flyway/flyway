@@ -18,8 +18,9 @@ package org.flywaydb.core.internal.jdbc;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-
 
 import org.flywaydb.core.internal.util.ExceptionUtils;
 
@@ -53,38 +54,25 @@ public class JdbcConnectionFactory {
 
 
 
-
-
-
-
-
-
     /**
      * Creates a new JDBC connection factory. This automatically opens a first connection which can be obtained via
      * a call to getConnection and which must be closed again to avoid leaking it.
      *
      * @param dataSource                 The dataSource to obtain the connection from.
      * @param connectRetries             The maximum number of retries when attempting to connect to the database.
-
-
-
+     * @param statementInterceptor       The statement interceptor. {@code null} if none.
      */
-    public JdbcConnectionFactory(DataSource dataSource, int connectRetries
-
-
-
-    ) {
+    public JdbcConnectionFactory(DataSource dataSource, int connectRetries, StatementInterceptor statementInterceptor) {
         this.dataSource = dataSource;
         this.connectRetries = connectRetries;
 
         firstConnection = JdbcUtils.openConnection(dataSource, connectRetries);
 
-        this.databaseType = DatabaseType.fromJdbcConnection(firstConnection);
+        this.databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(firstConnection);
         final DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(firstConnection);
         this.jdbcUrl = getJdbcUrl(databaseMetaData);
         this.driverInfo = getDriverInfo(databaseMetaData);
         this.productName = JdbcUtils.getDatabaseProductName(databaseMetaData);
-
 
 
 
@@ -94,43 +82,6 @@ public class JdbcConnectionFactory {
     public void setConnectionInitializer(ConnectionInitializer connectionInitializer) {
         this.connectionInitializer = connectionInitializer;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -22,9 +22,9 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.resource.StringResource;
@@ -75,9 +75,7 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     protected final JdbcConnectionFactory jdbcConnectionFactory;
 
-
-
-
+    protected final StatementInterceptor statementInterceptor;
 
     /**
      * The major.minor version of the database.
@@ -96,11 +94,7 @@ public abstract class Database<C extends Connection> implements Closeable {
      *
      * @param configuration The Flyway configuration.
      */
-    public Database(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
-
-
-
-    ) {
+    public Database(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         this.databaseType = jdbcConnectionFactory.getDatabaseType();
         this.configuration = configuration;
         this.rawMainJdbcConnection = jdbcConnectionFactory.openConnection();
@@ -111,9 +105,7 @@ public abstract class Database<C extends Connection> implements Closeable {
         }
         this.jdbcTemplate = new JdbcTemplate(rawMainJdbcConnection, databaseType);
         this.jdbcConnectionFactory = jdbcConnectionFactory;
-
-
-
+        this.statementInterceptor = statementInterceptor;
     }
 
     /**
@@ -208,6 +200,21 @@ public abstract class Database<C extends Connection> implements Closeable {
      */
     public Delimiter getDefaultDelimiter() {
         return Delimiter.SEMICOLON;
+    }
+
+    /**
+     * @return The name of the database, by default as determined by JDBC
+     */
+    public final String getCatalog() {
+        try {
+            return doGetCatalog();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Error retrieving the database name", e);
+        }
+    }
+
+    protected String doGetCatalog() throws SQLException {
+        return getMainConnection().getJdbcConnection().getCatalog();
     }
 
     /**

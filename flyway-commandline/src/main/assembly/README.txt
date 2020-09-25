@@ -19,7 +19,6 @@ Copyright (C) 2010-2020 Boxfuse GmbH
 
 Flyway Community Edition    : https://flywaydb.org/licenses/flyway-community
 Flyway 30 day limited trial : https://flywaydb.org/licenses/flyway-trial
-Flyway Pro Edition          : https://flywaydb.org/licenses/flyway-pro
-Flyway Enterprise Edition   : https://flywaydb.org/licenses/flyway-enterprise
+Flyway Teams Edition   : https://flywaydb.org/licenses/flyway-teams
 
 Flyway is a registered trademark of Boxfuse GmbH.

@@ -35,7 +35,7 @@ public class SQLServerTable extends Table<SQLServerDatabase, SQLServerSchema> {
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    SQLServerTable(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, SQLServerSchema schema, String name) {
+    public SQLServerTable(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, SQLServerSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
         this.databaseName = databaseName;
     }

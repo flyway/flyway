@@ -15,7 +15,9 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.database.base.Table;
 
 import java.sql.Connection;
@@ -28,7 +30,7 @@ public class ExecutionTemplateFactory {
      * @param connection The connection for execution.
      */
     public static ExecutionTemplate createExecutionTemplate(Connection connection) {
-        return createTransactionalExecutionTemplate(connection, true);
+        return createTransactionalExecutionTemplate(connection, true, DatabaseTypeRegister.getDatabaseTypeForConnection(connection));
     }
 
     /**
@@ -40,7 +42,7 @@ public class ExecutionTemplateFactory {
      */
     public static ExecutionTemplate createExecutionTemplate(Connection connection, Database database) {
         if (database.supportsMultiStatementTransactions()) {
-            return createTransactionalExecutionTemplate(connection, true);
+            return createTransactionalExecutionTemplate(connection, true, database.getDatabaseType());
         }
 
         return new PlainExecutionTemplate();
@@ -54,7 +56,7 @@ public class ExecutionTemplateFactory {
      */
     public static ExecutionTemplate createTableExclusiveExecutionTemplate(Connection connection, Table table, Database database) {
         if (database.supportsMultiStatementTransactions()) {
-            return new TableLockingExecutionTemplate(table, createTransactionalExecutionTemplate(connection, database.supportsDdlTransactions()));
+            return new TableLockingExecutionTemplate(table, createTransactionalExecutionTemplate(connection, database.supportsDdlTransactions(), database.getDatabaseType()));
         }
 
         return new TableLockingExecutionTemplate(table, new PlainExecutionTemplate());
@@ -66,13 +68,7 @@ public class ExecutionTemplateFactory {
      * @param connection          The connection for execution.
      * @param rollbackOnException Whether to attempt to roll back when an exception is thrown.
      */
-    private static ExecutionTemplate createTransactionalExecutionTemplate(Connection connection, boolean rollbackOnException) {
-        DatabaseType databaseType = DatabaseType.fromJdbcConnection(connection);
-
-        if (DatabaseType.COCKROACHDB.equals(databaseType)) {
-            return new CockroachRetryingTransactionalExecutionTemplate(connection, rollbackOnException);
-        }
-
-        return new TransactionalExecutionTemplate(connection, rollbackOnException);
+    private static ExecutionTemplate createTransactionalExecutionTemplate(Connection connection, boolean rollbackOnException, DatabaseType databaseType) {
+        return databaseType.createTransactionalExecutionTemplate(connection, rollbackOnException);
     }
 }

@@ -43,8 +43,6 @@ class FileLogCreator implements LogCreator {
 
         if (commandLineArguments.isOutputFileSet()) {
             outputFilepath = commandLineArguments.getOutputFile();
-        } else if (commandLineArguments.isLogFilepathSet()) {
-            outputFilepath = commandLineArguments.getLogFilepath();
         }
 
         this.level = commandLineArguments.getLogLevel();

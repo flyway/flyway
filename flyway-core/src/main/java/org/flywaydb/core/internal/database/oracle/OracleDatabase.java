@@ -20,6 +20,7 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.RowMapper;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -54,16 +55,8 @@ public class OracleDatabase extends Database<OracleConnection> {
      *
      * @param configuration The Flyway configuration.
      */
-    public OracleDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
-
-
-
-    ) {
-        super(configuration, jdbcConnectionFactory
-
-
-
-        );
+    public OracleDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+        super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
@@ -120,6 +113,12 @@ public class OracleDatabase extends Database<OracleConnection> {
     public boolean supportsEmptyMigrationDescription() {
         // Oracle will convert the empty string to NULL implicitly, and throw an exception as the column is NOT NULL
         return false;
+    }
+
+    @Override
+    protected String doGetCatalog() throws SQLException {
+        // Oracle's JDBC driver returns a hard-coded NULL from getCatalog()
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT GLOBAL_NAME FROM GLOBAL_NAME");
     }
 
     @Override

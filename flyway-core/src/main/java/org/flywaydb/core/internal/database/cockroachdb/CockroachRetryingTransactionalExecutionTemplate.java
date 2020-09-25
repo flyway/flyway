@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.jdbc;
+package org.flywaydb.core.internal.database.cockroachdb;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.jdbc.TransactionalExecutionTemplate;
 
 import java.sql.Connection;
 import java.sql.SQLException;

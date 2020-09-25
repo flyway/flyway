@@ -27,12 +27,12 @@ import java.util.concurrent.Callable;
  * SQL Server connection.
  */
 public class SQLServerConnection extends Connection<SQLServerDatabase> {
-    private final String originalDatabaseName;
+    protected final String originalDatabaseName;
     private final String originalAnsiNulls;
     private final boolean azure;
     private final SQLServerEngineEdition engineEdition;
 
-    SQLServerConnection(SQLServerDatabase database, java.sql.Connection connection) {
+    protected SQLServerConnection(SQLServerDatabase database, java.sql.Connection connection) {
         super(database, connection);
         try {
             originalDatabaseName = jdbcTemplate.queryForString("SELECT DB_NAME()");

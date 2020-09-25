@@ -20,7 +20,7 @@ import org.flywaydb.core.Flyway;
 public class FlywayUndoTask extends AbstractFlywayTask {
     public FlywayUndoTask() {
         super();
-        setDescription("Undoes the most recently applied versioned migration. Flyway Pro and Flyway Enterprise only.");
+        setDescription("Undoes the most recently applied versioned migration. Flyway Teams only.");
     }
 
     @Override

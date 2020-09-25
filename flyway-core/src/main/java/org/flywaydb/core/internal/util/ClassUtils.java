@@ -197,7 +197,6 @@ public class ClassUtils {
         return new URLClassLoader(urls.toArray(new URL[0]), classLoader);
     }
 
-
     /**
      * Gets the String value of a static field.
      *
