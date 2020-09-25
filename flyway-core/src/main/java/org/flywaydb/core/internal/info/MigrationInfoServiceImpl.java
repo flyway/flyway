@@ -23,18 +23,12 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.api.output.InfoResult;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Default implementation of MigrationInfoService.
@@ -96,6 +90,16 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     private List<MigrationInfoImpl> migrationInfos;
 
     /**
+     * The list of schemas managed by Flyway.
+     */
+    private Schema[] schemas;
+
+    /**
+     * Whether all of the specified schemas are empty or not.
+     */
+    private boolean allSchemasEmpty = true;
+
+    /**
      * Creates a new MigrationInfoServiceImpl.
      *
      * @param migrationResolver The migration resolver for available migrations.
@@ -110,7 +114,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
      * @param future            Whether future migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver,
-                                    SchemaHistory schemaHistory, final Configuration configuration,
+                                    SchemaHistory schemaHistory, Schema[] schemas, final Configuration configuration,
                                     MigrationVersion target, boolean outOfOrder, MigrationPattern[] cherryPick,
                                     boolean pending, boolean missing, boolean ignored, boolean future) {
         this.migrationResolver = migrationResolver;
@@ -128,6 +132,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         this.missing = missing;
         this.ignored = ignored || cherryPick != null;
         this.future = future;
+        this.schemas = schemas;
     }
 
     /**
@@ -344,6 +349,9 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
             ));
         }
+
+        // Update whether all managed schemas are empty or not
+        allSchemasEmpty = Arrays.stream(schemas).allMatch(Schema::empty);
 
         // Set output
         Collections.sort(migrationInfos1);
@@ -597,6 +605,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     @Override
     public InfoResult getInfoResult() {
         CommandResultFactory commandResultFactory = new CommandResultFactory();
-        return commandResultFactory.createInfoResult(this.context.getConfiguration(), this.all(), this.current());
+        return commandResultFactory.createInfoResult(this.context.getConfiguration(), this.all(), this.current(), this.allSchemasEmpty);
     }
 }

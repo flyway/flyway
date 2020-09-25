@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 public class CommandResultFactory {
-    public InfoResult createInfoResult(Configuration configuration, MigrationInfo[] migrationInfos, MigrationInfo current) {
+    public InfoResult createInfoResult(Configuration configuration, MigrationInfo[] migrationInfos, MigrationInfo current, boolean allSchemasEmpty) {
         String flywayVersion = VersionPrinter.getVersion();
         String databaseName = getDatabaseName(configuration);
 
@@ -53,7 +53,8 @@ public class CommandResultFactory {
                 databaseName,
                 schemaVersion,
                 String.join(", ", configuration.getSchemas()),
-                infoOutputs);
+                infoOutputs,
+                allSchemasEmpty);
     }
 
     public MigrateResult createMigrateResult(String databaseName, Configuration configuration) {
