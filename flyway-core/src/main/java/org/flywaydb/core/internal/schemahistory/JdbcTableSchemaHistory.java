@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.schemahistory;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
@@ -36,9 +37,7 @@ import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 /**
@@ -232,35 +231,56 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     }
 
     @Override
-    public boolean removeFailedMigrations(RepairResult repairResult) {
+    public boolean removeFailedMigrations(RepairResult repairResult, MigrationPattern[] migrationPatternFilter) {
         if (!exists()) {
             LOG.info("Repair of failed migration in Schema History table " + table + " not necessary as table doesn't exist.");
             return false;
         }
 
-        boolean failed = false;
-        List<AppliedMigration> appliedMigrations = allAppliedMigrations();
-        for (AppliedMigration appliedMigration : appliedMigrations) {
-            if (!appliedMigration.isSuccess()) {
-                failed = true;
-            }
-        }
+        List<AppliedMigration> appliedMigrations = filterMigrations(allAppliedMigrations(), migrationPatternFilter);
+
+        boolean failed = appliedMigrations.stream().anyMatch(am -> !am.isSuccess());
         if (!failed) {
             LOG.info("Repair of failed migration in Schema History table " + table + " not necessary. No failed migration detected.");
             return false;
         }
 
         try {
-            appliedMigrations.stream().filter(am -> !am.isSuccess()).forEach(am ->
-                    repairResult.migrationsRemoved.add(new RepairOutput(am.getVersion().toString(), am.getDescription(), "")));
+            appliedMigrations.stream()
+                    .filter(am -> !am.isSuccess())
+                    .forEach(am -> repairResult.migrationsRemoved.add(new RepairOutput(
+                            am.getVersion().toString(), am.getDescription(), "")));
+
+            for (AppliedMigration appliedMigration : appliedMigrations) {
+                jdbcTemplate.execute("DELETE FROM " + table +
+                        " WHERE " + database.quote("success") + " = " + database.getBooleanFalse() + " AND " +
+                        (appliedMigration.getVersion() != null ?
+                        database.quote("version") + " = '" + appliedMigration.getVersion().getVersion() + "'" :
+                        database.quote("description") + " = '" + appliedMigration.getDescription() + "'"));
+            }
+
             clearCache();
-            jdbcTemplate.execute("DELETE FROM " + table
-                    + " WHERE " + database.quote("success") + " = " + database.getBooleanFalse());
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to repair Schema History table " + table, e);
         }
 
         return true;
+    }
+
+    private List<AppliedMigration> filterMigrations(List<AppliedMigration> appliedMigrations, MigrationPattern[] migrationPatternFilter) {
+        if (migrationPatternFilter == null) return appliedMigrations;
+
+        Set<AppliedMigration> filteredList = new HashSet<>();
+
+        for (AppliedMigration appliedMigration : appliedMigrations) {
+            for (MigrationPattern migrationPattern : migrationPatternFilter) {
+                if (migrationPattern.matches(appliedMigration.getVersion(), appliedMigration.getDescription())) {
+                    filteredList.add(appliedMigration);
+                }
+            }
+        }
+
+        return new ArrayList<>(filteredList);
     }
 
     @Override

@@ -36,4 +36,5 @@ public interface StatementInterceptor {
     void interceptStatement(String sql);
     void interceptPreparedStatement(String sql, Map<Integer, Object> params);
     void interceptCallableStatement(String sql);
+    void schemaHistoryTableDeleteFailed(Table table, AppliedMigration appliedMigration);
 }

@@ -186,6 +186,14 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
 
 
+
+
+
+
+
+
+
+
          // Split applied into version and repeatable, and update state from synthetic migrations
         List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedVersioned = new ArrayList<>();
         List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedRepeatable = new ArrayList<>();

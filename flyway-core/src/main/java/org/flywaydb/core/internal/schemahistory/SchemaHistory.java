@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.schemahistory;
 
+import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.output.RepairResult;
@@ -109,9 +110,10 @@ public abstract class SchemaHistory {
      * including the ones in the schema history table.
      * </p>
      *
-     * @param repairResult The result object containing which failed migrations were removed.
+     * @param repairResult           The result object containing which failed migrations were removed.
+     * @param migrationPatternFilter The migration patterns to filter by.
      */
-    public abstract boolean removeFailedMigrations(RepairResult repairResult);
+    public abstract boolean removeFailedMigrations(RepairResult repairResult, MigrationPattern[] migrationPatternFilter);
 
     /**
      * Indicates in the schema history table that Flyway created these schemas.

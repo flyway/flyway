@@ -73,14 +73,19 @@ public class DbRepair {
     private final Database database;
 
     /**
-     * The POJO containing the repair result
+     * The POJO containing the repair result.
      */
     private RepairResult repairResult;
 
     /**
-     * The factory object which constructs a repair result
+     * The factory object which constructs a repair result.
      */
     private final CommandResultFactory commandResultFactory;
+
+    /**
+     * The Flyway configuration.
+     */
+    private final Configuration configuration;
 
     /**
      * Creates a new DbRepair.
@@ -94,10 +99,12 @@ public class DbRepair {
                     CallbackExecutor callbackExecutor, Configuration configuration) {
         this.database = database;
         this.connection = database.getMainConnection();
-        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration,
-                MigrationVersion.LATEST, true, null, true, true, true, true);
         this.schemaHistory = schemaHistory;
         this.callbackExecutor = callbackExecutor;
+        this.configuration = configuration;
+
+        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration,
+                MigrationVersion.LATEST, true, configuration.getCherryPick(), true, true, true, true);
 
         this.commandResultFactory = new CommandResultFactory();
         this.repairResult = commandResultFactory.createRepairResult(database.getCatalog());
@@ -118,7 +125,7 @@ public class DbRepair {
                 public CompletedRepairActions call() {
                     CompletedRepairActions completedActions = new CompletedRepairActions();
 
-                    completedActions.removedFailedMigrations = schemaHistory.removeFailedMigrations(repairResult);
+                    completedActions.removedFailedMigrations = schemaHistory.removeFailedMigrations(repairResult, configuration.getCherryPick());
                     migrationInfoService.refresh();
 
                     completedActions.deletedMissingMigrations = deleteMissingMigrations();
@@ -192,6 +199,7 @@ public class DbRepair {
 
 
 
+                    && migrationInfoImpl.getState() != MigrationState.IGNORED
                     && updateNeeded(resolved, applied)) {
                 schemaHistory.update(applied, resolved);
                 repaired = true;
@@ -206,6 +214,7 @@ public class DbRepair {
 
 
 
+                    && migrationInfoImpl.getState() != MigrationState.IGNORED
                     && resolved.checksumMatchesWithoutBeingIdentical(applied.getChecksum())) {
                 schemaHistory.update(applied, resolved);
                 repaired = true;
