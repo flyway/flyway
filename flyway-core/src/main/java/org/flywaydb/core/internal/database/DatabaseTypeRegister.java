@@ -40,7 +40,7 @@ import org.flywaydb.core.internal.database.sqlite.SQLiteDatabaseType;
 import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabaseType;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEJConnectDatabaseType;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEJTDSDatabaseType;
-
+import org.flywaydb.core.internal.database.sqlserver.synapse.SynapseDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 
 import java.sql.Connection;
@@ -68,6 +68,7 @@ public class DatabaseTypeRegister {
 
 
 
+            registeredDatabaseTypes.add(new SynapseDatabaseType());
 
             registeredDatabaseTypes.add(new CockroachDBDatabaseType());
             registeredDatabaseTypes.add(new RedshiftDatabaseType());
