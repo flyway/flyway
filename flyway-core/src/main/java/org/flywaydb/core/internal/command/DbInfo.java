@@ -21,33 +21,37 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
+
+import java.util.Arrays;
 
 public class DbInfo {
     private final MigrationResolver migrationResolver;
     private final SchemaHistory schemaHistory;
     private final Configuration configuration;
     private final CallbackExecutor callbackExecutor;
+    private final Schema[] schemas;
 
     public DbInfo(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                  Configuration configuration, CallbackExecutor callbackExecutor) {
+                  Configuration configuration, CallbackExecutor callbackExecutor, Schema[] schemas) {
 
         this.migrationResolver = migrationResolver;
         this.schemaHistory = schemaHistory;
         this.configuration = configuration;
         this.callbackExecutor = callbackExecutor;
+        this.schemas = schemas;
     }
 
     public MigrationInfoService info() {
         callbackExecutor.onEvent(Event.BEFORE_INFO);
 
-
         MigrationInfoServiceImpl migrationInfoService;
         try {
             migrationInfoService =
-                    new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration,
-                            configuration.getTarget(), configuration.isOutOfOrder(),
+                    new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, configuration,
+                            configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
                             true, true, true, true);
             migrationInfoService.refresh();
         } catch (FlywayException e) {

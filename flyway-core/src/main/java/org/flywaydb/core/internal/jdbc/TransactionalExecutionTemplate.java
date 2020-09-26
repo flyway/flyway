@@ -46,7 +46,7 @@ public class TransactionalExecutionTemplate implements ExecutionTemplate {
      * @param connection          The connection for the transaction.
      * @param rollbackOnException Whether to roll back the transaction when an exception is thrown.
      */
-    TransactionalExecutionTemplate(Connection connection, boolean rollbackOnException) {
+    public TransactionalExecutionTemplate(Connection connection, boolean rollbackOnException) {
         this.connection = connection;
         this.rollbackOnException = rollbackOnException;
     }

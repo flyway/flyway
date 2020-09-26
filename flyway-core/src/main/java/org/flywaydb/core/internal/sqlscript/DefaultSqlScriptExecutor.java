@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Result;
 import org.flywaydb.core.internal.jdbc.Results;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.util.AsciiTable;
 
 import java.sql.Statement;
@@ -68,11 +69,9 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-    public DefaultSqlScriptExecutor(JdbcTemplate jdbcTemplate
-
-
-
-
+    public DefaultSqlScriptExecutor(JdbcTemplate jdbcTemplate,
+            CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
+            StatementInterceptor statementInterceptor
     ) {
         this.jdbcTemplate = jdbcTemplate;
 

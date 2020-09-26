@@ -17,7 +17,6 @@ package org.flywaydb.commandline;
 
 import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.*;
@@ -59,15 +58,17 @@ class CommandLineArguments {
     private static String QUIET_FLAG = "-q";
     private static String SUPPRESS_PROMPT_FLAG = "-n";
     private static String PRINT_VERSION_AND_EXIT_FLAG = "-v";
+    // The JSON_FLAG is deprecated and should be removed in v8
     private static String JSON_FLAG = "-json";
     private static String PRINT_USAGE_FLAG = "-?";
     private static String COMMUNITY_FLAG = "-community";
-    private static String PRO_FLAG = "-pro";
     private static String ENTERPRISE_FLAG = "-enterprise";
+    private static String PRO_FLAG = "-pro";
+    private static String TEAMS_FLAG = "-teams";
 
     // Command line specific configuration options
     private static String OUTPUT_FILE = "outputFile";
-    private static String LOG_FILE = "logFile";
+    private static String OUTPUT_TYPE = "outputType";
     private static String CONFIG_FILE_ENCODING = "configFileEncoding";
     private static String CONFIG_FILES = "configFiles";
     private static String COLOR = "color";
@@ -81,8 +82,9 @@ class CommandLineArguments {
             JSON_FLAG,
             PRINT_USAGE_FLAG,
             COMMUNITY_FLAG,
-            PRO_FLAG,
             ENTERPRISE_FLAG,
+            PRO_FLAG,
+            TEAMS_FLAG,
             "help",
             "migrate",
             "clean",
@@ -162,7 +164,7 @@ class CommandLineArguments {
 
     private static boolean isConfigurationOptionIgnored(String configurationOptionName) {
         return OUTPUT_FILE.equals(configurationOptionName) ||
-                LOG_FILE.equals(configurationOptionName) ||
+                OUTPUT_TYPE.equals(configurationOptionName) ||
                 COLOR.equals(configurationOptionName) ||
                 WORKING_DIRECTORY.equals(configurationOptionName);
     }
@@ -177,27 +179,16 @@ class CommandLineArguments {
         return arg.startsWith("-") && arg.contains("=");
     }
 
-    void validate(Log log) {
+    void validate() {
         for (String arg : args) {
             if (!isConfigurationArg(arg) && !CommandLineArguments.VALID_OPERATIONS_AND_FLAGS.contains(arg)) {
                 throw new FlywayException("Invalid argument: " + arg);
             }
         }
 
-        if (isLogFilepathSet()) {
-            if (isOutputFileSet()) {
-                throw new FlywayException("-logFile and -outputFile are incompatible. -logFile is deprecated. Instead use -outputFile.");
-            }
-
-            if (shouldOutputJson()) {
-                throw new FlywayException("-logFile and -json are incompatible. -logFile is deprecated. Instead use -outputFile to print JSON to a file.");
-            }
-
-            log.warn("-logFile is deprecated. Instead use -outputFile.");
-        }
-
-        if (shouldOutputJson() && !hasOperation("info") ) {
-            throw new FlywayException("The -json flag is only supported by the info command.");
+        String outputTypeValue = getArgumentValue(OUTPUT_TYPE, args).toLowerCase();
+        if (!("json".equals(outputTypeValue) || "".equals(outputTypeValue))) {
+            throw new FlywayException("'" + outputTypeValue + "' is an invalid value for the -outputType option. Use 'json'.");
         }
 
         String colorArgumentValue = getArgumentValue(COLOR, args);
@@ -215,6 +206,12 @@ class CommandLineArguments {
     }
 
     boolean shouldOutputJson() {
+        // The JSON_FLAG is deprecated and should be removed in v8
+        // Not easy to warn about it as that needs to be injected into JSON
+        return (isFlagSet(args, JSON_FLAG) || "json".equalsIgnoreCase(getArgumentValue(OUTPUT_TYPE, args)));
+    }
+
+    boolean shouldWarnAboutDeprecatedFlag() {
         return isFlagSet(args, JSON_FLAG);
     }
 
@@ -250,20 +247,12 @@ class CommandLineArguments {
         return getArgumentValue(OUTPUT_FILE, args);
     }
 
-    String getLogFilepath() {
-        return getArgumentValue(LOG_FILE, args);
-    }
-
     String getWorkingDirectory() {
         return getArgumentValue(WORKING_DIRECTORY, args);
     }
 
     boolean isOutputFileSet() {
         return !getOutputFile().isEmpty();
-    }
-
-    boolean isLogFilepathSet() {
-        return !getLogFilepath().isEmpty();
     }
 
     boolean isWorkingDirectorySet() {

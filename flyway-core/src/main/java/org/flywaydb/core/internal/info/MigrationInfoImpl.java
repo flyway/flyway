@@ -15,10 +15,7 @@
  */
 package org.flywaydb.core.internal.info;
 
-import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationState;
-import org.flywaydb.core.api.MigrationType;
-import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
@@ -51,6 +48,11 @@ public class MigrationInfoImpl implements MigrationInfo {
      */
     private final boolean outOfOrder;
 
+    /**
+     * Whether this migration was deleted.
+     */
+    private final boolean deleted;
+
 
 
 
@@ -70,7 +72,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
      */
     MigrationInfoImpl(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration,
-                      MigrationInfoContext context, boolean outOfOrder
+                      MigrationInfoContext context, boolean outOfOrder, boolean deleted
 
 
 
@@ -79,6 +81,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         this.appliedMigration = appliedMigration;
         this.context = context;
         this.outOfOrder = outOfOrder;
+        this.deleted = deleted;
 
 
 
@@ -138,6 +141,27 @@ public class MigrationInfoImpl implements MigrationInfo {
         return resolvedMigration.getScript();
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @Override
     public MigrationState getState() {
 
@@ -146,8 +170,21 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
+        if (deleted) {
+            return MigrationState.DELETED;
+        }
+
         if (appliedMigration == null) {
+
+
+
+
+
+
+
+
             if (resolvedMigration.getVersion() != null) {
+
                 if (resolvedMigration.getVersion().compareTo(context.baseline) < 0) {
                     return MigrationState.BELOW_BASELINE;
                 }
@@ -166,11 +203,23 @@ public class MigrationInfoImpl implements MigrationInfo {
             return MigrationState.PENDING;
         }
 
+        if (MigrationType.DELETE == appliedMigration.getType()) {
+            return MigrationState.SUCCESS;
+        }
+
         if (MigrationType.BASELINE == appliedMigration.getType()) {
             return MigrationState.BASELINE;
         }
 
         if (resolvedMigration == null) {
+
+
+
+
+
+
+
+
             if (MigrationType.SCHEMA == appliedMigration.getType()) {
                 return MigrationState.SUCCESS;
             }
@@ -187,6 +236,14 @@ public class MigrationInfoImpl implements MigrationInfo {
                 return MigrationState.FUTURE_FAILED;
             }
         }
+
+
+
+
+
+
+
+
 
         if (!appliedMigration.isSuccess()) {
             return MigrationState.FAILED;
@@ -268,11 +325,16 @@ public class MigrationInfoImpl implements MigrationInfo {
             return null;
         }
 
+        // Ignore deleted migrations
+        if (MigrationState.DELETED.equals(state)) {
+            return null;
+        }
+
         if (state.isFailed() && (!context.future || MigrationState.FUTURE_FAILED != state)) {
             if (getVersion() == null) {
-                return "Detected failed repeatable migration: " + getDescription();
+                return "Detected failed repeatable migration: " + getDescription() + ". Please remove any half-completed changes then run repair to fix the schema history.";
             }
-            return "Detected failed migration to version " + getVersion() + " (" + getDescription() + ")";
+            return "Detected failed migration to version " + getVersion() + " (" + getDescription() + ")" + ". Please remove any half-completed changes then run repair to fix the schema history.";
         }
 
         if ((resolvedMigration == null)
@@ -280,24 +342,35 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
-                && (appliedMigration.getVersion() != null)
                 && (!context.missing || (MigrationState.MISSING_SUCCESS != state && MigrationState.MISSING_FAILED != state))
                 && (!context.future || (MigrationState.FUTURE_SUCCESS != state && MigrationState.FUTURE_FAILED != state))) {
-            return "Detected applied migration not resolved locally: " + getVersion();
+            if (appliedMigration.getVersion() != null) {
+                return "Detected applied migration not resolved locally: " + getVersion() + ". If you removed this migration intentionally, run repair to mark the migration as deleted.";
+            } else {
+                return "Detected applied migration not resolved locally: " + getDescription() + ". If you removed this migration intentionally, run repair to mark the migration as deleted.";
+            }
         }
 
-        if (!context.pending && MigrationState.PENDING == state || (!context.ignored && MigrationState.IGNORED == state)) {
+        if (!context.ignored && MigrationState.IGNORED == state) {
             if (getVersion() != null) {
-                return "Detected resolved migration not applied to database: " + getVersion();
+                return "Detected resolved migration not applied to database: " + getVersion() + ". To ignore this migration, set ignoreIgnoredMigrations to true. To allow executing this migration, set outOfOrder to true.";
             }
-            return "Detected resolved repeatable migration not applied to database: " + getDescription();
+            return "Detected resolved repeatable migration not applied to database: " + getDescription() + ". To ignore this migration, set ignoreIgnoredMigrations to true.";
+        }
+
+        if (!context.pending && MigrationState.PENDING == state) {
+            if (getVersion() != null) {
+                return "Detected resolved migration not applied to database: " + getVersion() + ". To fix this error, either run migrate, or set ignorePendingMigrations to true.";
+            }
+            return "Detected resolved repeatable migration not applied to database: " + getDescription() + ". To fix this error, either run migrate, or set ignorePendingMigrations to true.";
         }
 
         if (!context.pending && MigrationState.OUTDATED == state) {
-            return "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription();
+            return "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription() + ". Run migrate to execute this migration.";
         }
 
         if (resolvedMigration != null && appliedMigration != null
+                && getType() != MigrationType.DELETE
 
 
 
@@ -358,7 +431,8 @@ public class MigrationInfoImpl implements MigrationInfo {
     private String createMismatchMessage(String mismatch, String migrationIdentifier, Object applied, Object resolved) {
         return String.format("Migration " + mismatch + " mismatch for migration %s\n" +
                         "-> Applied to database : %s\n" +
-                        "-> Resolved locally    : %s",
+                        "-> Resolved locally    : %s" +
+                ". Either revert the changes to the migration, or run repair to update the schema history.",
                 migrationIdentifier, applied, resolved);
     }
 

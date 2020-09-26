@@ -13,26 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.output;
+package org.flywaydb.core.api.output;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class InfoOutput {
-    public String flywayVersion;
-    public String database;
-    public String schemaVersion;
-    public String schemaName;
-    public List<MigrationOutput> migrations;
+public class MigrateResult extends OperationResultBase {
 
-    public InfoOutput(String flywayVersion,
-                      String database,
-                      String schemaVersion,
-                      String schemaName,
-                      List<MigrationOutput> migrations) {
+    public String initialSchemaVersion;
+    public String targetSchemaVersion;
+    public String schemaName;
+    public List<MigrateOutput> migrations;
+    public int migrationsExecuted;
+
+    public MigrateResult(String flywayVersion,
+                         String database,
+                         String schemaName) {
         this.flywayVersion = flywayVersion;
         this.database = database;
-        this.schemaVersion = schemaVersion;
         this.schemaName = schemaName;
-        this.migrations = migrations;
+        this.migrations = new ArrayList<>();
+        this.operation = "migrate";
     }
+
 }

@@ -20,8 +20,8 @@ package org.flywaydb.core.internal.license;
  */
 public enum Edition {
     COMMUNITY("Community"),
-    PRO("Pro"),
-    ENTERPRISE("Enterprise")
+    PRO("Teams"),
+    ENTERPRISE("Teams")
 
 
 

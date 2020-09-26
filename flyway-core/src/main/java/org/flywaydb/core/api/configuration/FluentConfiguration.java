@@ -18,6 +18,7 @@ package org.flywaydb.core.api.configuration;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
@@ -31,8 +32,7 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Fluent configuration for Flyway. This is the preferred means of configuring the Flyway API.
@@ -107,6 +107,11 @@ public class FluentConfiguration implements Configuration {
     @Override
     public MigrationVersion getTarget() {
         return config.getTarget();
+    }
+
+    @Override
+    public MigrationPattern[] getCherryPick() {
+        return config.getCherryPick();
     }
 
     @Override
@@ -213,6 +218,11 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public boolean isSkipExecutingMigrations() {
+        return config.isSkipExecutingMigrations();
+    }
+
+    @Override
     public MigrationResolver[] getResolvers() {
         return config.getResolvers();
     }
@@ -220,6 +230,21 @@ public class FluentConfiguration implements Configuration {
     @Override
     public boolean isSkipDefaultResolvers() {
         return config.isSkipDefaultResolvers();
+    }
+
+    @Override
+    public String getUrl() {
+        return config.getUrl();
+    }
+
+    @Override
+    public String getUser() {
+        return config.getUser();
+    }
+
+    @Override
+    public String getPassword() {
+        return config.getPassword();
     }
 
     @Override
@@ -288,6 +313,12 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public String getOracleKerberosConfigFile() { return config.getOracleKerberosConfigFile(); }
+
+    @Override
+    public String getOracleKerberosCacheFile() { return config.getOracleKerberosCacheFile(); }
+
+    @Override
     public String getLicenseKey() {
         return config.getLicenseKey();
     }
@@ -312,10 +343,15 @@ public class FluentConfiguration implements Configuration {
         return config.getCreateSchemas();
     }
 
+    @Override
+    public Map<String, String> getJdbcProperties() {
+        return config.getJdbcProperties();
+    }
+
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
      */
@@ -328,7 +364,7 @@ public class FluentConfiguration implements Configuration {
      * Sets the file where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. If the file specified is in a non-existent directory, Flyway will create all
      * directories and parent directories as needed.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
      */
@@ -341,7 +377,7 @@ public class FluentConfiguration implements Configuration {
      * Sets the file where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. If the file specified is in a non-existent directory, Flyway will create all
      * directories and parent directories as needed.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param dryRunOutputFileName The name of the output file or {@code null} to execute the SQL statements directly
      *                             against the database.
@@ -375,7 +411,7 @@ public class FluentConfiguration implements Configuration {
      * code details) instead of warnings, the following errorOverride can be used: {@code S0001:0:I-}</p>
      * <p>Example 3: to force all errors with SQL error code 123 to be treated as warnings instead,
      * the following errorOverride can be used: {@code *:123:W}</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param errorOverrides The ErrorOverrides or an empty array if none are defined. (default: none)
      */
@@ -677,6 +713,27 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
+     * Migrations not in this list will be ignored.
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public FluentConfiguration cherryPick(MigrationPattern... cherryPick) {
+        config.setCherryPick(cherryPick);
+        return this;
+    }
+
+    /**
+     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
+     * Migrations not in this list will be ignored.
+     * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public FluentConfiguration cherryPick(String... cherryPickAsString) {
+        config.setCherryPick(cherryPickAsString);
+        return this;
+    }
+
+    /**
      * Sets whether placeholders should be replaced.
      *
      * @param placeholderReplacement Whether placeholders should be replaced. (default: true)
@@ -738,7 +795,7 @@ public class FluentConfiguration implements Configuration {
      * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
      * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to U1.1__My_description.sql</p>
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param undoSqlMigrationPrefix The file name prefix for undo SQL migrations. (default: U)
      */
@@ -905,6 +962,22 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * <p>
+     * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
+     * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
+     * just want the schema history table to reflect this.
+     * </p>
+     * <p>
+     * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
+     * </p>
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public FluentConfiguration skipExecutingMigrations(boolean skipExecutingMigrations) {
+        config.setSkipExecutingMigrations(skipExecutingMigrations);
+        return this;
+    }
+
+    /**
      * Gets the callbacks for lifecycle notifications.
      *
      * @return The callbacks for lifecycle notifications. An empty array if none. (default: none)
@@ -932,7 +1005,7 @@ public class FluentConfiguration implements Configuration {
     /**
      * Set the callbacks for lifecycle notifications.
      *
-     * @param callbacks The fully qualified class names of the callbacks for lifecycle notifications. (default: none)
+     * @param callbacks The fully qualified class names, or full qualified package to scan, of the callbacks for lifecycle notifications. (default: none)
      */
     public FluentConfiguration callbacks(String... callbacks) {
         config.setCallbacksAsClassNames(callbacks);
@@ -983,7 +1056,7 @@ public class FluentConfiguration implements Configuration {
      * Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at
      * once. Instead each statement is loaded individually. This is particularly useful for very large SQL migrations
      * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param stream {@code true} to stream SQL migrations. {@code false} to fully loaded them in memory instead. (default: {@code false})
      */
@@ -998,7 +1071,7 @@ public class FluentConfiguration implements Configuration {
      * individually. This is particularly useful for very large SQL migrations composed of multiple MB or even GB of
      * reference data, as this can dramatically reduce the network overhead. This is supported for INSERT, UPDATE,
      * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param batch {@code true} to batch SQL statements. {@code false} to execute them individually instead. (default: {@code false})
      */
@@ -1008,8 +1081,20 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * Properties to pass to the JDBC driver object
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @param jdbcProperties The properties to pass to the JDBC driver object
+     */
+    public FluentConfiguration jdbcProperties(Map<String,String> jdbcProperties) {
+        config.setJdbcProperties(jdbcProperties);
+        return this;
+    }
+
+    /**
      * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param oracleSqlplus {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
      */
@@ -1022,7 +1107,7 @@ public class FluentConfiguration implements Configuration {
      * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
      * it doesn't yet support.
      *
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param oracleSqlplusWarn {@code true} to issue a warning. {@code false} to fail fast instead. (default: {@code false})
      */
@@ -1031,12 +1116,22 @@ public class FluentConfiguration implements Configuration {
         return this;
     }
 
+    public FluentConfiguration orackeKerberosConfigFile(String oracleKerberosConfigFile) {
+        config.setOracleKerberosConfigFile(oracleKerberosConfigFile);
+        return this;
+    }
+
+    public FluentConfiguration orackeKerberosCacheFile(String oracleKerberosCacheFile) {
+        config.setOracleKerberosCacheFile(oracleKerberosCacheFile);
+        return this;
+    }
+
     /**
-     * Your Flyway license key (FL01...). Not yet a Flyway Pro or Enterprise Edition customer?
+     * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
      * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
-     * to try out Flyway Pro and Enterprise Edition features free for 30 days.
+     * to try out Flyway Teams Edition features free for 30 days.
      *
-     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     * <p><i>Flyway Teams only</i></p>
      *
      * @param licenseKey Your Flyway license key.
      */

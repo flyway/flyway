@@ -38,4 +38,9 @@ public enum NoopCallback implements Callback {
     @Override
     public void handle(Event event, Context context) {
     }
+
+    @Override
+    public String getCallbackName() {
+        return "NOOP";
+    }
 }

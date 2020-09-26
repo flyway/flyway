@@ -15,17 +15,12 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.InsertRowLock;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.jdbc.Results;
 import org.flywaydb.core.internal.util.SqlCallable;
 
-import java.math.BigInteger;
 import java.sql.SQLException;
-import java.util.Random;
 
 /**
  * CockroachDB-specific table.
@@ -35,12 +30,7 @@ import java.util.Random;
  * carrying out a migration.
  */
 public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSchema> {
-    private static final Log LOG = LogFactory.getLog(CockroachDBTable.class);
-
-    /**
-     * A random string, used as an ID of this instance of Flyway.
-     */
-    private String tableLockString = RandomStringGenerator.getNextRandomString();
+    private final InsertRowLock insertRowLock = new InsertRowLock();
 
     /**
      * Creates a new CockroachDB table.
@@ -105,30 +95,7 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
             return;
         }
 
-        int retryCount = 0;
-        do {
-            try {
-                if (insertLockingRow()) {
-                    return;
-                }
-                retryCount++;
-                LOG.debug("Waiting for lock on " + this);
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                // Ignore - if interrupted, we still need to wait for lock to become available
-            }
-        } while (retryCount < 50);
-
-        throw new FlywayException("Unable to obtain table lock - another Flyway instance may be running");
-    }
-
-    private boolean insertLockingRow() {
-        // Insert the locking row - the primary keyness of installed_rank will prevent us having two.
-        Results results = jdbcTemplate.executeStatement("INSERT INTO " + this + " VALUES (-100, '" + tableLockString + "', 'flyway-lock', '', '', 0, '', now(), 0, TRUE)");
-        // Succeeded if one row updated and no errors.
-        return (results.getResults().size() > 0
-                && results.getResults().get(0).getUpdateCount() == 1
-                && results.getErrors().size() == 0);
+        insertRowLock.doLock(jdbcTemplate, database.getInsertStatement(this), database.getBooleanTrue());
     }
 
     @Override
@@ -138,23 +105,17 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
             return;
         }
 
-        // Check that there are no other locks in place. This should not happen!
-        int competingLocksTaken = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + this + " WHERE version != '" + tableLockString + "' AND DESCRIPTION = 'flyway-lock'");
-        if (competingLocksTaken > 0) {
-            throw new FlywayException("Internal error: on unlocking, a competing lock was found");
-        }
+        String selectLockTemplate = getSelectLockTemplate();
+        String deleteLockTemplate = getDeleteLockTemplate();
 
-        // Remove the locking row
-        jdbcTemplate.executeStatement("DELETE FROM " + this + " WHERE version = '" + tableLockString + "' AND DESCRIPTION = 'flyway-lock'");
+        insertRowLock.doUnlock(jdbcTemplate, selectLockTemplate, deleteLockTemplate);
     }
-}
 
-class RandomStringGenerator {
-    static final Random random = new Random();
+    private String getSelectLockTemplate() {
+        return "SELECT COUNT(*) FROM " + this.toString() + " WHERE version != '?' AND DESCRIPTION = 'flyway-lock'";
+    }
 
-    //get next random string
-    public static String getNextRandomString(){
-        BigInteger bInt = new BigInteger(128, random);
-        return bInt.toString(16);
+    private String getDeleteLockTemplate() {
+        return "DELETE FROM " + this.toString() + " WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
     }
 }

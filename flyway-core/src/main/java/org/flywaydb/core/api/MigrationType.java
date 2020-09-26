@@ -30,6 +30,11 @@ public enum MigrationType {
     BASELINE(true, false),
 
     /**
+     * Deleted migration
+     */
+    DELETE(true, false),
+
+    /**
      * SQL migrations.
      */
     SQL(false, false),
@@ -64,6 +69,18 @@ public enum MigrationType {
      */
     @Deprecated
     UNDO_SPRING_JDBC(false, true),
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Migrations using custom MigrationResolvers.

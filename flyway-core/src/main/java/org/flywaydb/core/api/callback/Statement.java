@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  * The statement relevant to an event.
- * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+ * <p><i>Flyway Teams only</i></p>
  */
 public interface Statement {
     /**

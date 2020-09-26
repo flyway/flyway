@@ -80,11 +80,13 @@ public class SqlScriptCallbackFactory {
                 }
                 SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed(), resourceProvider);
                 callbacksFound.put(name, sqlScript);
-                callbacks.add(new SqlScriptCallback(event, parsedName.getDescription(), sqlScriptExecutorFactory, sqlScript
+
+                boolean batch = false;
 
 
 
-                ));
+
+                callbacks.add(new SqlScriptCallback(event, parsedName.getDescription(), sqlScriptExecutorFactory, sqlScript, batch));
             }
         }
         Collections.sort(callbacks);
@@ -99,22 +101,14 @@ public class SqlScriptCallbackFactory {
         private final String description;
         private final SqlScriptExecutorFactory sqlScriptExecutorFactory;
         private final SqlScript sqlScript;
+        private final boolean batch;
 
-
-
-
-        private SqlScriptCallback(Event event, String description, SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScript sqlScript
-
-
-
-        ) {
+        private SqlScriptCallback(Event event, String description, SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScript sqlScript, boolean batch) {
             this.event = event;
             this.description = description;
             this.sqlScriptExecutorFactory = sqlScriptExecutorFactory;
             this.sqlScript = sqlScript;
-
-
-
+            this.batch = batch;
         }
 
         @Override
@@ -132,11 +126,18 @@ public class SqlScriptCallbackFactory {
             LOG.info("Executing SQL callback: " + event.getId()
                     + (description == null ? "" : " - " + description)
                     + (sqlScript.executeInTransaction() ? "" : " [non-transactional]"));
-            sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection()
+
+            boolean outputQueryResults = false;
 
 
 
-            ).execute(sqlScript);
+
+            sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection(), false, batch, outputQueryResults).execute(sqlScript);
+        }
+
+        @Override
+        public String getCallbackName() {
+            return description;
         }
 
         @Override

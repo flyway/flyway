@@ -27,13 +27,7 @@ import java.util.Map;
 public class PlaceholderReplacingReader extends FilterReader {
     private final String prefix;
     private final String suffix;
-    private final Map<String, String> placeholders;
-
-    /**
-     * The number of chars by which to increase the read-ahead limit to factor in the difference in length between
-     * placeholders (with prefix and suffix) and their replacements.
-     */
-    private final int readAheadLimitAdjustment;
+    private final CaseInsensitiveMap placeholders = new CaseInsensitiveMap();
 
     private final StringBuilder buffer = new StringBuilder();
     private String markBuffer;
@@ -44,26 +38,36 @@ public class PlaceholderReplacingReader extends FilterReader {
     private String markReplacement;
     private int markReplacementPos;
 
+    private static class CaseInsensitiveMap extends HashMap<String, String> {
+
+        @Override
+        public void putAll(Map<? extends String, ? extends String> m) {
+            for (Map.Entry<? extends String, ? extends String> e : m.entrySet()) {
+                put(e.getKey(), e.getValue());
+            }
+        }
+
+        @Override
+        public String put(String key, String value) {
+            return super.put(key.toLowerCase(), value);
+        }
+
+        @Override
+        public String get(Object key) {
+            return super.get(key.toString().toLowerCase());
+        }
+
+        @Override
+        public boolean containsKey(Object key) {
+            return super.containsKey(key.toString().toLowerCase());
+        }
+    }
+
     public PlaceholderReplacingReader(String prefix, String suffix, Map<String, String> placeholders, Reader in) {
         super(in);
         this.prefix = prefix;
         this.suffix = suffix;
-        this.placeholders = placeholders;
-
-        int prefixSuffixLength = prefix.length() + suffix.length();
-
-        // As the readers using this will read until they get the necessary characters, this reader needs to assume the
-        // worst case scenario (all the placeholders being sequential) when taking into account how much further ahead
-        // it needs to be adjust the mark
-        int placeholderSizeDifferenceTotal = 0;
-
-        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-            int placeholderLength = prefixSuffixLength + entry.getKey().length();
-            int replacementLength = (entry.getValue() != null) ? entry.getValue().length() : 0;
-
-            placeholderSizeDifferenceTotal += Math.max(0, placeholderLength - replacementLength);
-        }
-        readAheadLimitAdjustment = placeholderSizeDifferenceTotal;
+        this.placeholders.putAll(placeholders);
     }
 
     public static PlaceholderReplacingReader create(Configuration configuration, ParsingContext parsingContext, Reader reader) {
@@ -186,7 +190,7 @@ public class PlaceholderReplacingReader extends FilterReader {
         markBuffer = buffer.toString();
         markReplacement = replacement;
         markReplacementPos = replacementPos;
-        super.mark(readAheadLimit + readAheadLimitAdjustment);
+        super.mark(readAheadLimit);
     }
 
     @Override

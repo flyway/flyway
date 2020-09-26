@@ -17,7 +17,7 @@ package org.flywaydb.core.api.callback;
 
 /**
  * A warning that occurred while executing a statement.
- * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+ * <p><i>Flyway Teams only</i></p>
  */
 public interface Warning {
     /**

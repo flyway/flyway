@@ -63,12 +63,14 @@ public class ConfigUtils {
     public static final String LOCATIONS = "flyway.locations";
     public static final String MIXED = "flyway.mixed";
     public static final String OUT_OF_ORDER = "flyway.outOfOrder";
+    public static final String SKIP_EXECUTING_MIGRATIONS = "flyway.skipExecutingMigrations";
     public static final String OUTPUT_QUERY_RESULTS = "flyway.outputQueryResults";
     public static final String PASSWORD = "flyway.password";
     public static final String PLACEHOLDER_PREFIX = "flyway.placeholderPrefix";
     public static final String PLACEHOLDER_REPLACEMENT = "flyway.placeholderReplacement";
     public static final String PLACEHOLDER_SUFFIX = "flyway.placeholderSuffix";
     public static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
+    public static final String JDBC_PROPERTIES_PREFIX = "flyway.jdbcProperties.";
     public static final String REPEATABLE_SQL_MIGRATION_PREFIX = "flyway.repeatableSqlMigrationPrefix";
     public static final String RESOLVERS = "flyway.resolvers";
     public static final String SCHEMAS = "flyway.schemas";
@@ -81,6 +83,7 @@ public class ConfigUtils {
     public static final String TABLE = "flyway.table";
     public static final String TABLESPACE = "flyway.tablespace";
     public static final String TARGET = "flyway.target";
+    public static final String CHERRY_PICK = "flyway.cherryPick";
     public static final String UNDO_SQL_MIGRATION_PREFIX = "flyway.undoSqlMigrationPrefix";
     public static final String URL = "flyway.url";
     public static final String USER = "flyway.user";
@@ -88,9 +91,12 @@ public class ConfigUtils {
     public static final String VALIDATE_MIGRATION_NAMING = "flyway.validateMigrationNaming";
     public static final String CREATE_SCHEMAS = "flyway.createSchemas";
 
+
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
     public static final String ORACLE_SQLPLUS_WARN = "flyway.oracle.sqlplusWarn";
+    public static final String ORACLE_KERBEROS_CONFIG_FILE = "flyway.oracle.kerberosConfigFile";
+    public static final String ORACLE_KERBEROS_CACHE_FILE = "flyway.oracle.kerberosCacheFile";
 
     // Command-line specific
     public static final String JAR_DIRS = "flyway.jarDirs";
@@ -200,6 +206,9 @@ public class ConfigUtils {
         if ("FLYWAY_OUT_OF_ORDER".equals(key)) {
             return OUT_OF_ORDER;
         }
+        if ("FLYWAY_SKIP_EXECUTING_MIGRATIONS".equals(key)) {
+            return SKIP_EXECUTING_MIGRATIONS;
+        }
         if ("FLYWAY_OUTPUT_QUERY_RESULTS".equals(key)) {
             return OUTPUT_QUERY_RESULTS;
         }
@@ -218,6 +227,11 @@ public class ConfigUtils {
         if (key.matches("FLYWAY_PLACEHOLDERS_.+")) {
             return PLACEHOLDERS_PROPERTY_PREFIX + key.substring("FLYWAY_PLACEHOLDERS_".length()).toLowerCase(Locale.ENGLISH);
         }
+
+        if (key.matches("FLYWAY_JDBC_PROPERTIES.+")) {
+            return JDBC_PROPERTIES_PREFIX + key.substring("FLYWAY_JDBC_PROPERTIES".length()).toLowerCase(Locale.ENGLISH);
+        }
+
         if ("FLYWAY_REPEATABLE_SQL_MIGRATION_PREFIX".equals(key)) {
             return REPEATABLE_SQL_MIGRATION_PREFIX;
         }
@@ -254,6 +268,9 @@ public class ConfigUtils {
         if ("FLYWAY_TARGET".equals(key)) {
             return TARGET;
         }
+        if ("FLYWAY_CHERRY_PICK".equals(key)) {
+            return CHERRY_PICK;
+        }
         if ("FLYWAY_UNDO_SQL_MIGRATION_PREFIX".equals(key)) {
             return UNDO_SQL_MIGRATION_PREFIX;
         }
@@ -266,6 +283,9 @@ public class ConfigUtils {
         if ("FLYWAY_VALIDATE_ON_MIGRATE".equals(key)) {
             return VALIDATE_ON_MIGRATE;
         }
+        if ("FLYWAY_VALIDATE_MIGRATION_NAMING".equals(key)) {
+            return VALIDATE_MIGRATION_NAMING;
+        }
         if ("FLYWAY_CREATE_SCHEMAS".equals(key)) {
             return CREATE_SCHEMAS;
         }
@@ -276,6 +296,12 @@ public class ConfigUtils {
         }
         if ("FLYWAY_ORACLE_SQLPLUS_WARN".equals(key)) {
             return ORACLE_SQLPLUS_WARN;
+        }
+        if ("FLYWAY_ORACLE_KERBEROS_CONFIG_FILE".equals(key)) {
+            return ORACLE_KERBEROS_CONFIG_FILE;
+        }
+        if ("FLYWAY_ORACLE_KERBEROS_CACHE_FILE".equals(key)) {
+            return ORACLE_KERBEROS_CACHE_FILE;
         }
 
         // Command-line specific
@@ -321,7 +347,9 @@ public class ConfigUtils {
     public static Map<String, String> loadConfigurationFile(File configFile, String encoding, boolean failIfMissing) throws FlywayException {
         String errorMessage = "Unable to load config file: " + configFile.getAbsolutePath();
 
-        if (!configFile.isFile() || !configFile.canRead()) {
+        if ("-".equals(configFile.getName())) {
+            return loadConfigurationFromInputStream(System.in);
+        } else if (!configFile.isFile() || !configFile.canRead()) {
             if (!failIfMissing) {
                 LOG.debug(errorMessage);
                 return new HashMap<>();
@@ -336,6 +364,42 @@ public class ConfigUtils {
         } catch (IOException | FlywayException e) {
             throw new FlywayException(errorMessage, e);
         }
+    }
+
+    public static Map<String, String> loadConfigurationFromInputStream(InputStream inputStream) {
+        Map<String, String> config = new HashMap<>();
+
+        try {
+            // System.in.available() : returns an estimate of the number of bytes that can be read (or skipped over) from this input stream
+            // Used to check if there is any data in the stream
+            if (inputStream != null && inputStream.available() > 0) {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+                LOG.debug("Attempting to load configuration from standard input");
+                int firstCharacter = bufferedReader.read();
+
+                if (bufferedReader.ready() && firstCharacter != -1) {
+                    // Prepend the first character to the rest of the string
+                    // This is a char, represented as an int, so we cast to a char
+                    // which is implicitly converted to an string
+                    String configurationString = (char)firstCharacter + FileCopyUtils.copyToString(bufferedReader);
+                    Map<String, String> configurationFromStandardInput = loadConfigurationFromString(configurationString);
+
+                    if (configurationFromStandardInput.isEmpty()) {
+                        LOG.debug("Empty configuration provided from standard input");
+                    } else {
+                        LOG.info("Loaded configuration from standard input");
+                        config.putAll(configurationFromStandardInput);
+                    }
+                } else {
+                    LOG.debug("Could not load configuration from standard input");
+                }
+            }
+        } catch (Exception e) {
+            LOG.debug("Could not load configuration from standard input " + e.getMessage());
+        }
+
+        return config;
     }
 
     /**

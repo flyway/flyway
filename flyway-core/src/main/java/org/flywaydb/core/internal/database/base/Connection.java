@@ -26,7 +26,7 @@ import java.util.concurrent.Callable;
 
 public abstract class Connection<D extends Database> implements Closeable {
     protected final D database;
-    protected final JdbcTemplate jdbcTemplate;
+    protected JdbcTemplate jdbcTemplate;
     private final java.sql.Connection jdbcConnection;
 
     /**

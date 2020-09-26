@@ -15,8 +15,10 @@
  */
 package org.flywaydb.core.internal.schemahistory;
 
+import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.output.RepairResult;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
@@ -107,8 +109,11 @@ public abstract class SchemaHistory {
      * On databases with DDL transaction support, a migration failure automatically triggers a rollback of all changes,
      * including the ones in the schema history table.
      * </p>
+     *
+     * @param repairResult           The result object containing which failed migrations were removed.
+     * @param migrationPatternFilter The migration patterns to filter by.
      */
-    public abstract void removeFailedMigrations();
+    public abstract boolean removeFailedMigrations(RepairResult repairResult, MigrationPattern[] migrationPatternFilter);
 
     /**
      * Indicates in the schema history table that Flyway created these schemas.
@@ -138,6 +143,12 @@ public abstract class SchemaHistory {
      * @param resolvedMigration The resolved migration to source the new values from.
      */
     public abstract void update(AppliedMigration appliedMigration, ResolvedMigration resolvedMigration);
+
+    /**
+     * Update the schema history to mark this migration as DELETED
+     * @param appliedMigration The applied migration to mark as DELETED
+     */
+    public abstract void delete(AppliedMigration appliedMigration);
 
     /**
      * Clears the applied migration cache.
@@ -176,7 +187,7 @@ public abstract class SchemaHistory {
      *
      * @return The installed rank.
      */
-    private int calculateInstalledRank() {
+    protected int calculateInstalledRank() {
         List<AppliedMigration> appliedMigrations = allAppliedMigrations();
         if (appliedMigrations.isEmpty()) {
             return 1;

@@ -24,6 +24,7 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.parser.ParsingContext;
+
 import org.flywaydb.core.internal.resolver.java.FixedJavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.java.ScanningJavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
@@ -77,6 +78,10 @@ public class CompositeMigrationResolver implements MigrationResolver {
             migrationResolvers.add(new SqlMigrationResolver(resourceProvider, sqlScriptExecutorFactory, sqlScriptFactory,
                     configuration, parsingContext));
             migrationResolvers.add(new ScanningJavaMigrationResolver(classProvider, configuration));
+
+
+
+
         }
         migrationResolvers.add(new FixedJavaMigrationResolver(configuration.getJavaMigrations()));
 

@@ -21,9 +21,8 @@ import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
-import org.flywaydb.core.internal.database.DatabaseFactory;
-import org.flywaydb.core.internal.database.cockroachdb.CockroachDBRetryingStrategy;
-import org.flywaydb.core.internal.jdbc.DatabaseType;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.util.SqlCallable;
 
 import java.sql.Connection;
@@ -49,7 +48,9 @@ public class JavaMigrationExecutor implements MigrationExecutor {
 
     @Override
     public void execute(final Context context) throws SQLException {
-        DatabaseExecutionStrategy strategy = DatabaseFactory.createExecutionStrategy(context.getConnection());
+        DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(context.getConnection());
+
+        DatabaseExecutionStrategy strategy = databaseType.createExecutionStrategy(context.getConnection());
         strategy.execute(new SqlCallable<Boolean>() {
                 @Override
                 public Boolean call() throws SQLException {
