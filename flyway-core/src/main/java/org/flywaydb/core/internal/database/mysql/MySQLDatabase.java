@@ -177,7 +177,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
      * necessarily ON as well.
      */
     private boolean isCreateTableAsSelectAllowed() {
-        return !pxcStrict && !gtidConsistencyEnforced;
+        return !pxcStrict && !gtidConsistencyEnforced && !isTiDB();
     }
 
     @Override

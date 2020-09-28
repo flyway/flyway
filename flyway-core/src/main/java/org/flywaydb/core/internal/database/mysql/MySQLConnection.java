@@ -38,12 +38,14 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
     private static final String USER_VARIABLES_TABLE_MYSQL = "performance_schema.user_variables_by_thread";
     private static final String FOREIGN_KEY_CHECKS = "foreign_key_checks";
     private static final String SQL_SAFE_UPDATES = "sql_safe_updates";
+    private static final String TIDB_TXN_MODE = "tidb_txn_mode";
 
     private final String userVariablesQuery;
     private final boolean canResetUserVariables;
 
     private final int originalForeignKeyChecks;
     private final int originalSqlSafeUpdates;
+    private final String originalTidbTxnMode;
 
     MySQLConnection(MySQLDatabase database, java.sql.Connection connection) {
         super(database, connection);
@@ -62,6 +64,7 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
             originalForeignKeyChecks = getIntVariableValue(FOREIGN_KEY_CHECKS);
             originalSqlSafeUpdates = getIntVariableValue(SQL_SAFE_UPDATES);
         }
+        originalTidbTxnMode = getStringVariableValue(TIDB_TXN_MODE);
     }
 
     private int getIntVariableValue(String varName) {
@@ -77,6 +80,14 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
             return jdbcTemplate.queryForString("SELECT @@" + varName);
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine value for '" + varName + "' variable", e);
+        }
+    }
+
+    private void setTidbTxnMode() {
+        try {
+            jdbcTemplate.execute("SET " + TIDB_TXN_MODE + "=pessimistic");
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to set value for 'tidb_txn_mode' variable", e);
         }
     }
 
@@ -98,6 +109,7 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
         resetUserVariables();
         jdbcTemplate.execute("SET " + FOREIGN_KEY_CHECKS + "=?, " + SQL_SAFE_UPDATES + "=?",
                 originalForeignKeyChecks, originalSqlSafeUpdates);
+        jdbcTemplate.execute("SET " + TIDB_TXN_MODE + "=?", originalTidbTxnMode);
     }
 
     // #2197: prevent user-defined variables from leaking beyond the scope of a migration
@@ -158,6 +170,10 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
     @Override
     public <T> T lock(Table table, Callable<T> callable) {
         if (database.isPxcStrict()) {
+            return super.lock(table, callable);
+        }
+        if (database.isTiDB()) {
+            setTidbTxnMode();
             return super.lock(table, callable);
         }
         return new MySQLNamedLockTemplate(jdbcTemplate, table.toString().hashCode()).execute(callable);
