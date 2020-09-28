@@ -53,8 +53,15 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
                 + " WHERE variable_value IS NOT NULL";
         canResetUserVariables = hasUserVariableResetCapability();
 
-        originalForeignKeyChecks = getIntVariableValue(FOREIGN_KEY_CHECKS);
-        originalSqlSafeUpdates = getIntVariableValue(SQL_SAFE_UPDATES);
+        if (database.isTiDB()) {
+            String foreignKeyChecksStr = getStringVariableValue(FOREIGN_KEY_CHECKS);
+            originalForeignKeyChecks = "ON".equals(foreignKeyChecksStr) ? 1 : 0;
+            String sqlSafeUpdateStr = getStringVariableValue(SQL_SAFE_UPDATES);
+            originalSqlSafeUpdates = "ON".equals(sqlSafeUpdateStr) ? 1 : 0;
+        } else {
+            originalForeignKeyChecks = getIntVariableValue(FOREIGN_KEY_CHECKS);
+            originalSqlSafeUpdates = getIntVariableValue(SQL_SAFE_UPDATES);
+        }
     }
 
     private int getIntVariableValue(String varName) {
@@ -65,21 +72,16 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
         }
     }
 
+    private String getStringVariableValue(String varName) {
+        try {
+            return jdbcTemplate.queryForString("SELECT @@" + varName);
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine value for '" + varName + "' variable", e);
+        }
+    }
+
     // #2215: ensure the database is recent enough and the current user has the necessary SELECT grant
     private boolean hasUserVariableResetCapability() {
-
-
-
-
-
-
-
-
-
-
-
-
-
         try {
             jdbcTemplate.queryForStringList(userVariablesQuery);
             return true;

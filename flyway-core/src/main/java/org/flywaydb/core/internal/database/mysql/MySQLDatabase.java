@@ -27,7 +27,6 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 
 import java.sql.Connection;
@@ -44,21 +43,18 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     private static final Pattern MARIADB_WITH_MAXSCALE_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+(-\\d+)* (\\d+\\.\\d+)\\.\\d+(-\\d+)*-maxscale(-\\w+)*");
     private static final Pattern MYSQL_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+\\w*");
     private static final Log LOG = LogFactory.getLog(MySQLDatabase.class);
-
-    /**
-     * Whether this is a Percona XtraDB Cluster in strict mode.
-     */
-    private final boolean pxcStrict;
-
-    /**
-     * Whether this database is enforcing GTID consistency.
-     */
-    private final boolean gtidConsistencyEnforced;
-
     /**
      * Whether the event scheduler table is queryable.
      */
     final boolean eventSchedulerQueryable;
+    /**
+     * Whether this is a Percona XtraDB Cluster in strict mode.
+     */
+    private final boolean pxcStrict;
+    /**
+     * Whether this database is enforcing GTID consistency.
+     */
+    private final boolean gtidConsistencyEnforced;
 
     /**
      * Creates a new instance.
@@ -101,7 +97,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         return false;
     }
 
-   static boolean isRunningInGTIDConsistencyMode(JdbcTemplate jdbcTemplate) {
+    static boolean isRunningInGTIDConsistencyMode(JdbcTemplate jdbcTemplate) {
         try {
             String gtidConsistency = jdbcTemplate.queryForString("SELECT @@GLOBAL.ENFORCE_GTID_CONSISTENCY");
             if ("ON".equals(gtidConsistency)) {
@@ -115,8 +111,55 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         return false;
     }
 
+    /*
+     * Azure Database for MySQL reports version numbers incorrectly - it claims to be 5.6 (the gateway
+     * version) while the db itself is 5.7 or greater, visible from SELECT VERSION(). We work around this specific
+     * case. This code should be simplified as soon as Azure is fixed.
+     * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
+     * A similar issue applies to Percona, except there the metadata claims to be 5.5.
+     */
+    static MigrationVersion correctForMySQLWithBadMetadata(MigrationVersion jdbcMetadataVersion, String selectVersionOutput) {
+        if (selectVersionOutput.compareTo("5.7") >= 0 && jdbcMetadataVersion.toString().compareTo("5.7") < 0) {
+            LOG.debug("MySQL-based database - reporting v" + jdbcMetadataVersion.toString() + " in JDBC metadata but database actually v" + selectVersionOutput);
+            return extractVersionFromString(selectVersionOutput, MYSQL_VERSION_PATTERN);
+        }
+        return jdbcMetadataVersion;
+    }
+
+    /*
+     * Azure Database for MariaDB also reports version numbers incorrectly - it claims to be MySQL 5.6 (the gateway
+     * version) while the db itself is something like 10.3.6-MariaDB-suffix, visible from SELECT VERSION().
+     * This code should be simplified as soon as Azure is fixed.
+     * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
+     * https://mariadb.com/kb/en/server-system-variables/#version
+     */
+    static MigrationVersion correctForAzureMariaDB(String jdbcMetadataVersion, String selectVersionOutput) {
+        if (jdbcMetadataVersion.startsWith("5.6")) {
+            LOG.debug("Azure MariaDB database - reporting v5.6 in JDBC metadata but database actually v" + selectVersionOutput);
+            return extractVersionFromString(selectVersionOutput, MARIADB_VERSION_PATTERN, MARIADB_WITH_MAXSCALE_VERSION_PATTERN);
+        }
+        return extractVersionFromString(jdbcMetadataVersion, MARIADB_VERSION_PATTERN, MARIADB_WITH_MAXSCALE_VERSION_PATTERN);
+    }
+
+    /*
+     * Given a version string that may contain unwanted text, extract out the version part.
+     */
+    private static MigrationVersion extractVersionFromString(String versionString, Pattern... patterns) {
+        for (Pattern pattern : patterns) {
+            Matcher matcher = pattern.matcher(versionString);
+            if (matcher.find()) {
+                return MigrationVersion.fromVersion(matcher.group(1));
+            }
+        }
+        throw new FlywayException("Unable to determine version from '" + versionString + "'");
+    }
+
     boolean isMySQL() {
         return databaseType instanceof MySQLDatabaseType;
+    }
+
+    boolean isTiDB() {
+        return databaseType instanceof TiDBDatabaseType;
     }
 
     boolean isMariaDB() {
@@ -142,8 +185,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         String tablespace =
 
 
-
-                        configuration.getTablespace() == null
+                configuration.getTablespace() == null
                         ? ""
                         : " TABLESPACE \"" + configuration.getTablespace() + "\"";
 
@@ -206,69 +248,6 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         MigrationVersion jdbcMetadataVersion = super.determineVersion();
         return correctForMySQLWithBadMetadata(jdbcMetadataVersion, selectVersionOutput);
     }
-
-    /*
-     * Azure Database for MySQL reports version numbers incorrectly - it claims to be 5.6 (the gateway
-     * version) while the db itself is 5.7 or greater, visible from SELECT VERSION(). We work around this specific
-     * case. This code should be simplified as soon as Azure is fixed.
-     * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
-     * A similar issue applies to Percona, except there the metadata claims to be 5.5.
-     */
-    static MigrationVersion correctForMySQLWithBadMetadata(MigrationVersion jdbcMetadataVersion, String selectVersionOutput) {
-        if (selectVersionOutput.compareTo("5.7") >= 0 && jdbcMetadataVersion.toString().compareTo("5.7") < 0) {
-            LOG.debug("MySQL-based database - reporting v" + jdbcMetadataVersion.toString() +" in JDBC metadata but database actually v" + selectVersionOutput);
-            return extractVersionFromString(selectVersionOutput, MYSQL_VERSION_PATTERN);
-        }
-        return jdbcMetadataVersion;
-    }
-
-    /*
-     * Azure Database for MariaDB also reports version numbers incorrectly - it claims to be MySQL 5.6 (the gateway
-     * version) while the db itself is something like 10.3.6-MariaDB-suffix, visible from SELECT VERSION().
-     * This code should be simplified as soon as Azure is fixed.
-     * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
-     * https://mariadb.com/kb/en/server-system-variables/#version
-     */
-    static MigrationVersion correctForAzureMariaDB(String jdbcMetadataVersion, String selectVersionOutput) {
-        if (jdbcMetadataVersion.startsWith("5.6")) {
-            LOG.debug("Azure MariaDB database - reporting v5.6 in JDBC metadata but database actually v" + selectVersionOutput);
-            return extractVersionFromString(selectVersionOutput, MARIADB_VERSION_PATTERN, MARIADB_WITH_MAXSCALE_VERSION_PATTERN);
-        }
-        return extractVersionFromString(jdbcMetadataVersion, MARIADB_VERSION_PATTERN, MARIADB_WITH_MAXSCALE_VERSION_PATTERN);
-    }
-
-    /*
-     * Given a version string that may contain unwanted text, extract out the version part.
-     */
-    private static MigrationVersion extractVersionFromString(String versionString, Pattern... patterns) {
-        for (Pattern pattern : patterns) {
-            Matcher matcher = pattern.matcher(versionString);
-            if (matcher.find()) {
-                return MigrationVersion.fromVersion(matcher.group(1));
-            }
-        }
-        throw new FlywayException("Unable to determine version from '" + versionString + "'");
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     @Override
     public final void ensureSupported() {

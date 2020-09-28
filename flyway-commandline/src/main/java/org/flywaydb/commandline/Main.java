@@ -19,28 +19,40 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.*;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationInfoService;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.CompositeResult;
+import org.flywaydb.core.api.output.ErrorOutput;
+import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.api.output.OperationResultBase;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.core.api.output.ErrorOutput;
-import org.flywaydb.core.api.output.OperationResult;
-import org.flywaydb.core.api.output.OperationResultBase;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.io.*;
+import java.io.Console;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Main class and central entry point of the Flyway command-line tool.
@@ -72,27 +84,11 @@ public class Main {
         LogCreator logCreator = getLogCreator(commandLineArguments);
 
 
-
-
-
         LogFactory.setFallbackLogCreator(logCreator);
-
 
 
         LOG = LogFactory.getLog(Main.class);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Main method.
@@ -147,14 +143,14 @@ public class Main {
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 
             OperationResultBase result;
-            if (commandLineArguments.getOperations().size()==1) {
-                    String operation = commandLineArguments.getOperations().get(0);
-                    result = executeOperation(flyway, operation, commandLineArguments);
-                } else {
-                    result = new CompositeResult();
-                    for (String operation : commandLineArguments.getOperations()) {
-                        OperationResultBase individualResult = executeOperation(flyway, operation, commandLineArguments);
-                        ((CompositeResult)result).individualResults.add(individualResult);
+            if (commandLineArguments.getOperations().size() == 1) {
+                String operation = commandLineArguments.getOperations().get(0);
+                result = executeOperation(flyway, operation, commandLineArguments);
+            } else {
+                result = new CompositeResult();
+                for (String operation : commandLineArguments.getOperations()) {
+                    OperationResultBase individualResult = executeOperation(flyway, operation, commandLineArguments);
+                    ((CompositeResult) result).individualResults.add(individualResult);
                 }
             }
 
@@ -481,9 +477,9 @@ public class Main {
     /**
      * Loads the configuration from the various possible locations.
      *
-     * @param config  The properties object to load to configuration into.
-     * @param commandLineArguments    The command-line arguments passed in.
-     * @param envVars The environment variables, converted into properties.
+     * @param config               The properties object to load to configuration into.
+     * @param commandLineArguments The command-line arguments passed in.
+     * @param envVars              The environment variables, converted into properties.
      */
     /* private -> for testing */
     static void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {
@@ -519,13 +515,11 @@ public class Main {
         if (!config.containsKey(ConfigUtils.USER)
 
 
-
                 && needsUser(url)) {
             config.put(ConfigUtils.USER, console.readLine("Database user: "));
         }
 
         if (!config.containsKey(ConfigUtils.PASSWORD)
-
 
 
                 && needsPassword(url)) {
@@ -553,8 +547,8 @@ public class Main {
     /**
      * Determines the files to use for loading the configuration.
      *
-     * @param commandLineArguments    The command-line arguments passed in.
-     * @param envVars The environment variables converted to Flyway properties.
+     * @param commandLineArguments The command-line arguments passed in.
+     * @param envVars              The environment variables converted to Flyway properties.
      * @return The configuration files.
      */
     private static List<File> determineConfigFilesFromArgs(CommandLineArguments commandLineArguments, Map<String, String> envVars) {
@@ -593,8 +587,8 @@ public class Main {
     /**
      * Determines the encoding to use for loading the configuration.
      *
-     * @param commandLineArguments    The command-line arguments passed in.
-     * @param envVars The environment variables converted to Flyway properties.
+     * @param commandLineArguments The command-line arguments passed in.
+     * @param envVars              The environment variables converted to Flyway properties.
      * @return The encoding. (default: UTF-8)
      */
     private static String determineConfigurationFileEncoding(CommandLineArguments commandLineArguments, Map<String, String> envVars) {

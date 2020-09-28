@@ -23,24 +23,23 @@ import org.flywaydb.core.internal.database.base.TestContainersDatabaseType;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabaseType;
 import org.flywaydb.core.internal.database.db2.DB2DatabaseType;
 import org.flywaydb.core.internal.database.derby.DerbyDatabaseType;
-
 import org.flywaydb.core.internal.database.firebird.FirebirdDatabaseType;
 import org.flywaydb.core.internal.database.h2.H2DatabaseType;
 import org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabaseType;
 import org.flywaydb.core.internal.database.informix.InformixDatabaseType;
 import org.flywaydb.core.internal.database.mysql.MariaDBDatabaseType;
 import org.flywaydb.core.internal.database.mysql.MySQLDatabaseType;
+import org.flywaydb.core.internal.database.mysql.TiDBDatabaseType;
 import org.flywaydb.core.internal.database.oracle.OracleDatabaseType;
 import org.flywaydb.core.internal.database.postgresql.PostgreSQLDatabaseType;
 import org.flywaydb.core.internal.database.redshift.RedshiftDatabaseType;
 import org.flywaydb.core.internal.database.saphana.SAPHANADatabaseType;
 import org.flywaydb.core.internal.database.snowflake.SnowflakeDatabaseType;
-
 import org.flywaydb.core.internal.database.sqlite.SQLiteDatabaseType;
 import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabaseType;
+import org.flywaydb.core.internal.database.sqlserver.synapse.SynapseDatabaseType;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEJConnectDatabaseType;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEJTDSDatabaseType;
-import org.flywaydb.core.internal.database.sqlserver.synapse.SynapseDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 
 import java.sql.Connection;
@@ -64,15 +63,12 @@ public class DatabaseTypeRegister {
             registeredDatabaseTypes.clear();
 
 
-
-
-
-
             registeredDatabaseTypes.add(new SynapseDatabaseType());
 
             registeredDatabaseTypes.add(new CockroachDBDatabaseType());
             registeredDatabaseTypes.add(new RedshiftDatabaseType());
             registeredDatabaseTypes.add(new MariaDBDatabaseType());
+            registeredDatabaseTypes.add(new TiDBDatabaseType());
 
             registeredDatabaseTypes.add(new DB2DatabaseType());
             registeredDatabaseTypes.add(new DerbyDatabaseType());
