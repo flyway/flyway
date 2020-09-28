@@ -75,6 +75,7 @@ public class ExasolSchema extends Schema<ExasolDatabase, ExasolTable> {
         dropObjects("VIEW");
         dropObjects("FUNCTION");
         dropObjects("TABLE");
+        
     }
 
     private void dropObjects(final String objectType) throws SQLException {
