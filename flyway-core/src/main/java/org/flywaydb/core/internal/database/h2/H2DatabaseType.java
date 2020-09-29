@@ -63,4 +63,14 @@ public class H2DatabaseType extends DatabaseType {
     public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
         return new H2Parser(configuration, parsingContext);
     }
+
+    @Override
+    public boolean detectUserRequiredByUrl(String url) {
+        return !(url.toLowerCase().contains(":mem:"));
+    }
+
+    @Override
+    public boolean detectPasswordRequiredByUrl(String url) {
+        return !(url.toLowerCase().contains(":mem:"));
+    }
 }
