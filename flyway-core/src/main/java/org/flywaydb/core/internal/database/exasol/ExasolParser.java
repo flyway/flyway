@@ -35,7 +35,7 @@ public class ExasolParser extends Parser {
 
     public static final StatementType SCRIPT = new StatementType();
     public static final String CREATE_SCRIPT_REGEXP
-      = "create\\s+(or\\s+replace\\s+)*(python|python3|lua|java|r|script).*";
+      = "create\\s+(or\\s+replace\\s+)*(python|python3|lua|java|r|script)\\s+.*";
     public static final String SCRIPT_DELIMITER = "/";
 
     public ExasolParser(final Configuration configuration, final ParsingContext parsingContext) {
