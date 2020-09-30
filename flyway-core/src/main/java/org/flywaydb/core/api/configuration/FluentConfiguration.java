@@ -1161,6 +1161,18 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * Whether Flyway should output a table with the results of queries when executing migrations.
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @param outputQueryResults {@code true} to output a table with the results of queries when executing migrations. (default: {@code true})
+     */
+    public FluentConfiguration outputQueryResults(boolean outputQueryResults) {
+        config.setOutputQueryResults(outputQueryResults);
+        return this;
+    }
+
+    /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>

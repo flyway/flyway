@@ -2021,7 +2021,7 @@ public class ClassicConfiguration implements Configuration {
      *
      * @return {@code true} to output the results table (default: {@code true})
      */
-    private void setOutputQueryResults(boolean outputQueryResults) {
+    public void setOutputQueryResults(boolean outputQueryResults) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("outputQueryResults");
 
