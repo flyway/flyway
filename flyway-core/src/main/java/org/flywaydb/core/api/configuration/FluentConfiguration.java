@@ -15,24 +15,26 @@
  */
 package org.flywaydb.core.api.configuration;
 
+import java.io.File;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.util.ClassUtils;
-
-import javax.sql.DataSource;
-import java.io.File;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.util.*;
 
 /**
  * Fluent configuration for Flyway. This is the preferred means of configuring the Flyway API.
@@ -1157,6 +1159,18 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration javaMigrationClassProvider(ClassProvider<JavaMigration> javaMigrationClassProvider) {
         config.setJavaMigrationClassProvider(javaMigrationClassProvider);
+        return this;
+    }
+
+    /**
+     * Whether Flyway should output a table with the results of queries when executing migrations.
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @param outputQueryResults {@code true} to output a table with the results of queries when executing migrations. (default: {@code true})
+     */
+    public FluentConfiguration outputQueryResults(boolean outputQueryResults) {
+        config.setOutputQueryResults(outputQueryResults);
         return this;
     }
 

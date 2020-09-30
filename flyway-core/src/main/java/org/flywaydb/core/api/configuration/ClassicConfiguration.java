@@ -15,33 +15,39 @@
  */
 package org.flywaydb.core.api.configuration;
 
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.*;
+import java.io.File;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
+import org.flywaydb.core.api.ClassProvider;
+import org.flywaydb.core.api.ErrorCode;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.MigrationPattern;
+import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.Edition;
-import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
-
-import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger;
@@ -2021,7 +2027,7 @@ public class ClassicConfiguration implements Configuration {
      *
      * @return {@code true} to output the results table (default: {@code true})
      */
-    private void setOutputQueryResults(boolean outputQueryResults) {
+    public void setOutputQueryResults(boolean outputQueryResults) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("outputQueryResults");
 
