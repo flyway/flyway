@@ -20,6 +20,7 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.license.VersionPrinter;
 
 import java.sql.Connection;
@@ -29,10 +30,9 @@ import java.util.List;
 import java.util.Set;
 
 public class CommandResultFactory {
-    public InfoResult createInfoResult(Configuration configuration, MigrationInfo[] migrationInfos, MigrationInfo current, boolean allSchemasEmpty) {
+    public InfoResult createInfoResult(Configuration configuration, Database database, MigrationInfo[] migrationInfos, MigrationInfo current, boolean allSchemasEmpty) {
         String flywayVersion = VersionPrinter.getVersion();
-        String databaseName = getDatabaseName(configuration);
-
+        String databaseName = getDatabaseName(configuration, database);
         Set<MigrationVersion> undoableVersions = getUndoableVersions(migrationInfos);
 
 
@@ -97,12 +97,12 @@ public class CommandResultFactory {
         return new RepairResult(flywayVersion, databaseName);
     }
 
-    private String getDatabaseName(Configuration configuration) {
+    private String getDatabaseName(Configuration configuration, Database database) {
         try {
             Connection connection = configuration.getDataSource().getConnection();
             String catalog = connection.getCatalog();
             connection.close();
-            return catalog;
+            return catalog != null ? catalog : database.getCatalog();
         } catch (Exception e) {
             return "";
         }

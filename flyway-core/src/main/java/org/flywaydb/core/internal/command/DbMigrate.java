@@ -229,7 +229,7 @@ public class DbMigrate {
      */
     private Integer migrateGroup(boolean firstRun) {
         MigrationInfoServiceImpl infoService =
-                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, configuration,
+                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, database, configuration,
                         configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
                         true, true, true, true);
         infoService.refresh();

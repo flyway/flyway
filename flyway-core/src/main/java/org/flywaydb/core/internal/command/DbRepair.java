@@ -105,7 +105,7 @@ public class DbRepair {
         this.callbackExecutor = callbackExecutor;
         this.configuration = configuration;
 
-        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, configuration,
+        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, database, configuration,
                 MigrationVersion.LATEST, true, configuration.getCherryPick(), true, true, true, true);
 
         this.commandResultFactory = new CommandResultFactory();

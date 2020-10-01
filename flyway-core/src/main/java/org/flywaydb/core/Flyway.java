@@ -357,7 +357,7 @@ public class Flyway {
             public MigrationInfoService execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
                                                 final Database database, final Schema[] schemas, CallbackExecutor callbackExecutor,
                                                 StatementInterceptor statementInterceptor) {
-                return new DbInfo(migrationResolver, schemaHistory, configuration, callbackExecutor, schemas).info();
+                return new DbInfo(migrationResolver, schemaHistory, configuration, database, callbackExecutor, schemas).info();
             }
         }, true);
     }

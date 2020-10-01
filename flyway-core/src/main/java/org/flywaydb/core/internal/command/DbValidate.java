@@ -148,7 +148,7 @@ public class DbValidate {
             @Override
             public Pair<Integer, String> call() {
                 MigrationInfoServiceImpl migrationInfoService =
-                        new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, configuration,
+                        new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, database, configuration,
                                 configuration.getTarget(),
                                 configuration.isOutOfOrder(),
                                 configuration.getCherryPick(),
