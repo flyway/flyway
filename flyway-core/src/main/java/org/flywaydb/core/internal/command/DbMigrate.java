@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -229,7 +229,7 @@ public class DbMigrate {
      */
     private Integer migrateGroup(boolean firstRun) {
         MigrationInfoServiceImpl infoService =
-                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, configuration,
+                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, database, configuration,
                         configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
                         true, true, true, true);
         infoService.refresh();
@@ -277,7 +277,7 @@ public class DbMigrate {
                 LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
             } else {
                 if (failed[0].getVersion() == null) {
-                    throw new FlywayException("Schema " + schema + " contains a failed repeatable migration (" + failed[0].getDescription() + ") !");
+                    throw new FlywayException("Schema " + schema + " contains a failed repeatable migration (" + doQuote(failed[0].getDescription()) + ") !");
                 }
                 throw new FlywayException("Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " !");
             }
@@ -379,9 +379,9 @@ public class DbMigrate {
             if (!configuration.isMixed() && executeGroupInTransaction != inTransaction) {
                 throw new FlywayException(
                         "Detected both transactional and non-transactional migrations within the same migration group"
-                                + " (even though mixed is false). First offending migration:"
-                                + (resolvedMigration.getVersion() == null ? "" : " " + resolvedMigration.getVersion())
-                                + (StringUtils.hasLength(resolvedMigration.getDescription()) ? " " + resolvedMigration.getDescription() : "")
+                                + " (even though mixed is false). First offending migration: "
+                                + doQuote((resolvedMigration.getVersion() == null ? "" : resolvedMigration.getVersion())
+                                + (StringUtils.hasLength(resolvedMigration.getDescription()) ? " " + resolvedMigration.getDescription() : ""))
                                 + (inTransaction ? "" : " [non-transactional]"));
             }
 
@@ -460,15 +460,19 @@ public class DbMigrate {
         final MigrationExecutor migrationExecutor = migration.getResolvedMigration().getExecutor();
         final String migrationText;
         if (migration.getVersion() != null) {
-            migrationText = "schema " + schema + " to version " + migration.getVersion()
-                    + (StringUtils.hasLength(migration.getDescription()) ? " - " + migration.getDescription() : "")
+            migrationText = "schema " + schema + " to version " + doQuote(migration.getVersion()
+                    + (StringUtils.hasLength(migration.getDescription()) ? " - " + migration.getDescription() : ""))
                     + (isOutOfOrder ? " [out of order]" : "")
                     + (migrationExecutor.canExecuteInTransaction() ? "" : " [non-transactional]");
         } else {
-            migrationText = "schema " + schema + " with repeatable migration " + migration.getDescription()
+            migrationText = "schema " + schema + " with repeatable migration " + doQuote(migration.getDescription())
                     + (migrationExecutor.canExecuteInTransaction() ? "" : " [non-transactional]");
         }
         return migrationText;
+    }
+
+    private String doQuote(String text) {
+        return "\"" + text + "\"";
     }
 
     public static class FlywayMigrateException extends FlywayException {

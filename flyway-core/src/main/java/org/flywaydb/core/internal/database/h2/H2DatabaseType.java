@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,5 +62,15 @@ public class H2DatabaseType extends DatabaseType {
     @Override
     public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
         return new H2Parser(configuration, parsingContext);
+    }
+
+    @Override
+    public boolean detectUserRequiredByUrl(String url) {
+        return !(url.toLowerCase().contains(":mem:"));
+    }
+
+    @Override
+    public boolean detectPasswordRequiredByUrl(String url) {
+        return !(url.toLowerCase().contains(":mem:"));
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1157,6 +1157,18 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration javaMigrationClassProvider(ClassProvider<JavaMigration> javaMigrationClassProvider) {
         config.setJavaMigrationClassProvider(javaMigrationClassProvider);
+        return this;
+    }
+
+    /**
+     * Whether Flyway should output a table with the results of queries when executing migrations.
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @param outputQueryResults {@code true} to output a table with the results of queries when executing migrations. (default: {@code true})
+     */
+    public FluentConfiguration outputQueryResults(boolean outputQueryResults) {
+        config.setOutputQueryResults(outputQueryResults);
         return this;
     }
 

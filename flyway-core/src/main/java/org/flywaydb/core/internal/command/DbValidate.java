@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,7 +148,7 @@ public class DbValidate {
             @Override
             public Pair<Integer, String> call() {
                 MigrationInfoServiceImpl migrationInfoService =
-                        new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, configuration,
+                        new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, database, configuration,
                                 configuration.getTarget(),
                                 configuration.isOutOfOrder(),
                                 configuration.getCherryPick(),

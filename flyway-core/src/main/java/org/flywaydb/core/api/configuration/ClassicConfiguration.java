@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2021,7 +2021,7 @@ public class ClassicConfiguration implements Configuration {
      *
      * @return {@code true} to output the results table (default: {@code true})
      */
-    private void setOutputQueryResults(boolean outputQueryResults) {
+    public void setOutputQueryResults(boolean outputQueryResults) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("outputQueryResults");
 

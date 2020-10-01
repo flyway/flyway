@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.api.output.InfoResult;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
@@ -38,6 +39,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
      * The migration resolver for available migrations.
      */
     private final MigrationResolver migrationResolver;
+
+    /**
+     * Database-specific functionality.
+     */
+    private final Database database;
 
     private final Context context;
 
@@ -114,7 +120,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
      * @param future            Whether future migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver,
-                                    SchemaHistory schemaHistory, Schema[] schemas, final Configuration configuration,
+                                    SchemaHistory schemaHistory, Schema[] schemas, Database database, final Configuration configuration,
                                     MigrationVersion target, boolean outOfOrder, MigrationPattern[] cherryPick,
                                     boolean pending, boolean missing, boolean ignored, boolean future) {
         this.migrationResolver = migrationResolver;
@@ -125,6 +131,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 return configuration;
             }
         };
+        this.database = database;
         this.target = target;
         this.outOfOrder = outOfOrder;
         this.cherryPick = cherryPick;
@@ -605,6 +612,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     @Override
     public InfoResult getInfoResult() {
         CommandResultFactory commandResultFactory = new CommandResultFactory();
-        return commandResultFactory.createInfoResult(this.context.getConfiguration(), this.all(), this.current(), this.allSchemasEmpty);
+        return commandResultFactory.createInfoResult(this.context.getConfiguration(), this.database, this.all(), this.current(), this.allSchemasEmpty);
     }
 }

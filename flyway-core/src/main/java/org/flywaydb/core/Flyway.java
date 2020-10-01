@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -357,7 +357,7 @@ public class Flyway {
             public MigrationInfoService execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
                                                 final Database database, final Schema[] schemas, CallbackExecutor callbackExecutor,
                                                 StatementInterceptor statementInterceptor) {
-                return new DbInfo(migrationResolver, schemaHistory, configuration, callbackExecutor, schemas).info();
+                return new DbInfo(migrationResolver, schemaHistory, configuration, database, callbackExecutor, schemas).info();
             }
         }, true);
     }
