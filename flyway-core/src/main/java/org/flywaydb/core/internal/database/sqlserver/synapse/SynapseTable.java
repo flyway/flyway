@@ -44,32 +44,19 @@ public class SynapseTable extends SQLServerTable {
 
     @Override
     protected void doLock() throws SQLException {
-        if (lockDepth > 0) {
-            // Lock has already been taken - so the relevant row in the table already exists
-            return;
+        if (lockDepth == 0) {
+            insertRowLock.doLock(jdbcTemplate, database.getInsertStatement(this), database.getBooleanTrue());
         }
-
-        insertRowLock.doLock(jdbcTemplate, database.getInsertStatement(this), database.getBooleanTrue());
     }
 
     @Override
     protected void doUnlock() throws SQLException {
-        // Leave the locking row alone until we get to the final level of unlocking
-        if (lockDepth > 1) {
-            return;
+        if (lockDepth == 1) {
+            insertRowLock.doUnlock(jdbcTemplate, getDeleteLockTemplate());
         }
-
-        String selectLockTemplate = getSelectLockTemplate();
-        String deleteLockTemplate = getDeleteLockTemplate();
-
-        insertRowLock.doUnlock(jdbcTemplate, selectLockTemplate, deleteLockTemplate);
-    }
-
-    private String getSelectLockTemplate() {
-        return "SELECT COUNT(*) FROM " + this.toString() + " WHERE version != '?' AND DESCRIPTION = 'flyway-lock'";
     }
 
     private String getDeleteLockTemplate() {
-        return "DELETE FROM " + this.toString() + " WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
+        return "DELETE FROM " + this + " WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
     }
 }

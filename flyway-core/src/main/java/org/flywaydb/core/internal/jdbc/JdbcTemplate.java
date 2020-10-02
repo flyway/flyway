@@ -237,13 +237,10 @@ public class JdbcTemplate {
         try {
             statement = connection.createStatement();
             statement.setEscapeProcessing(false);
-            boolean hasResults;
-            try {
-                hasResults = statement.execute(sql);
-            } finally {
-                extractWarnings(results, statement);
-            }
+
+            boolean hasResults = statement.execute(sql);
             extractResults(results, statement, sql, hasResults);
+            extractWarnings(results, statement);
         } catch (final SQLException e) {
             extractErrors(results, e);
         } finally {

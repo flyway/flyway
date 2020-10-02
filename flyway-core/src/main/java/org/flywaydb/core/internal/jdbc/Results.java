@@ -31,7 +31,7 @@ public class Results {
     private final List<Result> results = new ArrayList<>();
     private final List<Warning> warnings = new ArrayList<>();
     private final List<Error> errors = new ArrayList<>();
-    private SQLException exception;
+    private SQLException exception = null;
 
     public void addResult(Result result) {
         results.add(result);

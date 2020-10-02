@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.database;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -35,22 +34,22 @@ public class InsertRowLock {
     private final String tableLockString = getNextRandomString();
 
     public void doLock(JdbcTemplate jdbcTemplate, String insertStatementTemplate, String booleanTrue) throws SQLException {
-
         int retryCount = 0;
-        do {
+        while (true) {
             try {
-                if (insertLockingRow(jdbcTemplate, insertStatementTemplate, booleanTrue)) {
-                    return;
+                if (insertLockingRow(jdbcTemplate, insertStatementTemplate, booleanTrue)) return;
+                if (retryCount < 50) {
+                    retryCount++;
+                    LOG.debug("Waiting for lock on " + this);
+                } else {
+                    LOG.error("Waiting for lock on " + this + ". Application may be deadlocked. Lock row may require manual removal " +
+                            "from the schema history table.");
                 }
-                retryCount++;
-                LOG.debug("Waiting for lock on " + this);
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
                 // Ignore - if interrupted, we still need to wait for lock to become available
             }
-        } while (retryCount < 50);
-
-        throw new FlywayException("Unable to obtain table lock - another Flyway instance may be running");
+        }
     }
 
     private boolean insertLockingRow(JdbcTemplate jdbcTemplate, String insertStatementTemplate, String booleanTrue) {
@@ -68,32 +67,20 @@ public class InsertRowLock {
 
         // Insert the locking row - the primary keyness of installed_rank will prevent us having two.
         Results results = jdbcTemplate.executeStatement(insertStatement);
-        // Succeeded if one row updated and no errors.
-        return (results.getResults().size() > 0
-                && results.getResults().get(0).getUpdateCount() == 1
-                && results.getErrors().size() == 0);
+
+        // Succeeded if no errors.
+        return results.getException() == null;
     }
 
-    public void doUnlock(JdbcTemplate jdbcTemplate, String selectLockTemplate, String deleteLockTemplate) throws SQLException {
-
-        String selectLock = String.format(selectLockTemplate.replace("?", "%s"), tableLockString);
-
-        // Check that there are no other locks in place. This should not happen!
-        int competingLocksTaken = jdbcTemplate.queryForInt(selectLock);
-        if (competingLocksTaken > 0) {
-            throw new FlywayException("Internal error: on unlocking, a competing lock was found");
-        }
-
+    public void doUnlock(JdbcTemplate jdbcTemplate, String deleteLockTemplate) throws SQLException {
         String deleteLock = String.format(deleteLockTemplate.replace("?", "%s"), tableLockString);
 
         // Remove the locking row
         jdbcTemplate.executeStatement(deleteLock);
     }
 
-    //get next random string
-    private static String getNextRandomString(){
+    private String getNextRandomString(){
         BigInteger bInt = new BigInteger(128, random);
         return bInt.toString(16);
     }
-
 }
