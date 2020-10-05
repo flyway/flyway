@@ -19,6 +19,7 @@ import java.io.Reader;
 import java.nio.channels.Channels;
 import java.nio.charset.Charset;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.S3ClientFactory;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.resource.LoadableResource;
@@ -44,7 +45,7 @@ public class AwsS3Resource extends LoadableResource {
 
     @Override
     public Reader read() {
-        S3Client s3 = S3Client.create();
+        S3Client s3 = S3ClientFactory.getClient();
         try {
             GetObjectRequest.Builder builder = GetObjectRequest.builder().bucket(bucketName).key(s3ObjectSummary.key());
             GetObjectRequest request = builder.build();

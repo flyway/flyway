@@ -109,7 +109,6 @@
             <includes>
                 <include>org.fusesource.jansi:jansi</include>
                 <include>com.google.code.gson:gson</include>
-                <include>software.amazon.awssdk:s3</include>
             </includes>
         </dependencySet>
         <dependencySet>

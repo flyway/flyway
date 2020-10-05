@@ -23,6 +23,7 @@ import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.ResourceProvider;
+import software.amazon.awssdk.services.s3.S3Client;
 
 import javax.sql.DataSource;
 import java.io.OutputStream;
@@ -598,4 +599,9 @@ public interface Configuration {
      * @return Properties that will be passed to the JDBC driver object
      */
     Map<String, String> getJdbcProperties();
+
+    /**
+     * Returns custom S3 client, if configured
+     */
+    S3Client getS3Client();
 }

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.configuration.S3ClientFactory;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.resource.LoadableResource;
@@ -55,16 +56,9 @@ public class AwsS3Scanner extends CloudScanner {
      */
     @Override
     public Collection<LoadableResource> scanForResources(final Location location) {
-        if (System.getenv("AWS_REGION") == null ||
-            System.getenv("AWS_ACCESS_KEY_ID") == null ||
-            System.getenv("AWS_SECRET_ACCESS_KEY") == null) {
-            LOG.error("Can't read location " + location + "; AWS_REGION, AWS_ACCESS_KEY_ID or AWS_SECRET_ACCESS_KEY environment variable not set");
-            return Collections.emptyList();
-        }
-
         String bucketName = getBucketName(location);
         String prefix = getPrefix(bucketName, location.getPath());
-        S3Client s3Client = S3Client.create();
+        S3Client s3Client = S3ClientFactory.getClient();
         try {
             ListObjectsV2Request.Builder builder = ListObjectsV2Request.builder().bucket(bucketName).prefix(prefix);
             ListObjectsV2Request request = builder.build();
