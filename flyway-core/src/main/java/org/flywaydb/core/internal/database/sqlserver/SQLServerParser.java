@@ -22,6 +22,7 @@ import org.flywaydb.core.internal.sqlscript.Delimiter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class SQLServerParser extends Parser {
     // #2175, 2298, 2542: Various system sprocs, mostly around replication, cannot be executed within a transaction.
@@ -33,6 +34,8 @@ public class SQLServerParser extends Parser {
             "SP_ADDLINKEDSERVER", "SP_DROPLINKEDSERVER",
             "SP_ADDLINKEDSRVLOGIN", "SP_DROPLINKEDSRVLOGIN",
             "SP_SERVEROPTION", "SP_REPLICATIONDBOPTION");
+
+    private static final Pattern TRANSACTION_REGEX = Pattern.compile("TRAN(SACTION)?");
 
     public SQLServerParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
@@ -104,7 +107,7 @@ public class SQLServerParser extends Parser {
         }
 
         if (context.getBlockDepth() > 0 && ("END".equals(keywordText) ||
-                "TRANSACTION".equals(keywordText) && lastTokenIs(tokens, keyword.getParensDepth(), "BEGIN"))) {
+                TRANSACTION_REGEX.matcher(keywordText).matches() && lastTokenIs(tokens, keyword.getParensDepth(), "BEGIN"))) {
             context.decreaseBlockDepth();
         }
 
