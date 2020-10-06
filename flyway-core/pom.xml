@@ -27,6 +27,7 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <dependencies>
+        <!-- Optional loggers -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -37,6 +38,12 @@
             <artifactId>commons-logging</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <!-- Others -->
         <dependency>
             <groupId>org.jboss</groupId>
             <artifactId>jboss-vfs</artifactId>

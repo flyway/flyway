@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.logging;
 
 import org.flywaydb.core.api.logging.LogCreator;
+import org.flywaydb.core.internal.logging.log4j2.Log4j2LogCreator;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.logging.android.AndroidLogCreator;
@@ -38,6 +39,9 @@ public class LogCreatorFactory {
         }
         if (featureDetector.isSlf4jAvailable()) {
             return ClassUtils.instantiate(Slf4jLogCreator.class.getName(), classLoader);
+        }
+        if (featureDetector.isLog4J2Available()) {
+            return ClassUtils.instantiate(Log4j2LogCreator.class.getName(), classLoader);
         }
         if (featureDetector.isApacheCommonsLoggingAvailable()) {
             return ClassUtils.instantiate(ApacheCommonsLogCreator.class.getName(), classLoader);

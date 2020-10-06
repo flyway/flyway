@@ -44,6 +44,11 @@ public final class FeatureDetector {
     private Boolean apacheCommonsLoggingAvailable;
 
     /**
+     * Flag indicating the availability of Log4J v2
+     */
+    private Boolean log4J2Available;
+
+    /**
      * Flag indicating availability of the Slf4j.
      */
     private Boolean slf4jAvailable;
@@ -90,6 +95,20 @@ public final class FeatureDetector {
 
         return apacheCommonsLoggingAvailable;
     }
+
+    /**
+     * Checks whether Log4J 2 is available (without a SJF4J - Log4J2 bridge).
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public boolean isLog4J2Available() {
+        if (log4J2Available == null) {
+            log4J2Available = ClassUtils.isPresent("org.apache.logging.log4j.Logger", classLoader);
+        }
+
+        return log4J2Available;
+    }
+
 
     /**
      * Checks whether Slf4j is available.
