@@ -73,7 +73,7 @@ public class ChecksumCalculator {
 
                 do {
                     //noinspection Since15
-                    crc32.update(StringUtils.trimLineBreak(line).getBytes(StandardCharsets.UTF_8));
+                    crc32.update(line.getBytes(StandardCharsets.UTF_8));
                 } while ((line = bufferedReader.readLine()) != null);
             }
         } catch (IOException e) {
