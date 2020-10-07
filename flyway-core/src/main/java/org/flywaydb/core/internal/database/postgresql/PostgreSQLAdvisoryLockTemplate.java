@@ -66,13 +66,13 @@ public class PostgreSQLAdvisoryLockTemplate {
      * @return The result of the callable code.
      */
     public <T> T execute(Callable<T> callable) {
+        RuntimeException rethrow = null;
         try {
             lock();
             return callable.call();
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to acquire PostgreSQL advisory lock", e);
         } catch (Exception e) {
-            RuntimeException rethrow;
             if (e instanceof RuntimeException) {
                 rethrow = (RuntimeException) e;
             } else {
@@ -83,7 +83,11 @@ public class PostgreSQLAdvisoryLockTemplate {
             try {
                 jdbcTemplate.execute("SELECT pg_advisory_unlock(" + lockNum + ")");
             } catch (SQLException e) {
-                throw new FlywayException("Unable to release PostgreSQL advisory lock", e);
+                if (rethrow == null) {
+                    throw new FlywaySqlException("Unable to release PostgreSQL advisory lock", e);
+                } else {
+                    LOG.error("Unable to release PostgreSQL advisory lock", e);
+                }
             }
         }
     }
