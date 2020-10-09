@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.database;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.database.base.TestContainersDatabaseType;
 import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabaseType;
@@ -118,12 +119,12 @@ public class DatabaseTypeRegister {
                     builder.append(type.getName());
                 }
 
-                LOG.debug("Multiple databases found that handle url '" + url + "'. " + builder);
+                LOG.debug("Multiple databases found that handle url '" + ConfigUtils.maskPasswordInUrl(url) + "'. " + builder);
             }
 
             return typesAcceptingUrl.get(0);
         } else {
-            throw new FlywayException("No database found to handle " + url);
+            throw new FlywayException("No database found to handle " + ConfigUtils.maskPasswordInUrl(url));
         }
     }
 
