@@ -27,7 +27,6 @@ import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.util.ClassUtils;
-import software.amazon.awssdk.services.s3.S3Client;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -347,11 +346,6 @@ public class FluentConfiguration implements Configuration {
     @Override
     public Map<String, String> getJdbcProperties() {
         return config.getJdbcProperties();
-    }
-
-    @Override
-    public S3Client getS3Client() {
-        return config.getS3Client();
     }
 
     /**
@@ -1095,16 +1089,6 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration jdbcProperties(Map<String,String> jdbcProperties) {
         config.setJdbcProperties(jdbcProperties);
-        return this;
-    }
-
-    /**
-     * A custom S3 Client
-     *
-     * @param client The client to use for storing
-     */
-    public FluentConfiguration s3Client(S3Client client) {
-        config.setS3Client(client);
         return this;
     }
 
