@@ -563,6 +563,12 @@
                 <classifier>macos-x64</classifier>
                 <type>tar.gz</type>
             </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${version.junit}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
