@@ -587,11 +587,19 @@ public class ConfigUtils {
                     case ConfigUtils.LICENSE_KEY:
                         value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
                         break;
+                    // Mask the password part in the flyway url
+                    case ConfigUtils.URL:
+                        value = maskPasswordInUrl(value);
+                        break;
                 }
 
                 LOG.debug(entry.getKey() + " -> " + value);
             }
         }
+    }
+
+    public static String maskPasswordInUrl(String value) {
+        return value.replaceAll("password=[^&]*", "password=*****");
     }
 
     /**

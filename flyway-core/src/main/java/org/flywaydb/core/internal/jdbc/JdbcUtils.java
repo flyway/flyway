@@ -18,15 +18,12 @@ package org.flywaydb.core.internal.jdbc;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 /**
  * Utility class for dealing with jdbc connections.
@@ -85,7 +82,7 @@ public class JdbcUtils {
             return "";
         }
         DriverDataSource driverDataSource = (DriverDataSource) dataSource;
-        return " (" + driverDataSource.getUrl() + ") for user '" + driverDataSource.getUser() + "'";
+        return " (" + ConfigUtils.maskPasswordInUrl(driverDataSource.getUrl()) + ") for user '" + driverDataSource.getUser() + "'";
     }
 
     /**
