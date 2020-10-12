@@ -31,11 +31,15 @@ import org.flywaydb.core.internal.sqlscript.*;
 import java.sql.Connection;
 import java.sql.*;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.getMetadataResource;
 
 public abstract class DatabaseType {
     protected static final Log LOG = LogFactory.getLog(DatabaseType.class);
+
+    // Don't grab semicolons and ampersands - they have special meaning in URLs
+    private static final Pattern defaultJdbcCredentialsPattern = Pattern.compile("password=([^;&]*).*", Pattern.CASE_INSENSITIVE);
 
     /**
      * The name of the application that created the connection. This is useful for databases that allow setting this
@@ -71,6 +75,24 @@ public abstract class DatabaseType {
      * @return {@code true} if this handles the JDBC url, {@code false} if not.
      */
     public abstract boolean handlesJDBCUrl(String url);
+
+    /**
+     * A regex that identifies credentials in the JDBC URL, where they conform to a pattern specific to this database.
+     * The first captured group should represent the password text, so that it can be redacted if necessary.
+     * @return The URL regex.
+     */
+    public Pattern getJDBCCredentialsPattern() {
+        return defaultJdbcCredentialsPattern;
+    }
+
+    /**
+     * A regex that identifies credentials in the JDBC URL, where they conform to the default URL pattern.
+     * The first captured group should represent the password text, so that it can be redacted if necessary.
+     * @return The URL regex.
+     */
+    public static Pattern getDefaultJDBCCredentialsPattern() {
+        return defaultJdbcCredentialsPattern;
+    }
 
     /**
      * Get the driver class used to handle this JDBC url.

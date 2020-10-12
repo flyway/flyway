@@ -144,7 +144,7 @@ public class DriverDataSource implements DataSource {
 
         if (!StringUtils.hasLength(driverClass)) {
             if (type == null) {
-                throw new FlywayException("Unable to autodetect JDBC driver for url: " + url);
+                throw new FlywayException("Unable to autodetect JDBC driver for url: " + DatabaseTypeRegister.redactJdbcUrl(url));
             }
 
             driverClass =  type.getDriverClass(url, classLoader);
@@ -317,7 +317,7 @@ public class DriverDataSource implements DataSource {
 
         Connection connection = driver.connect(url, properties);
         if (connection == null) {
-            throw new FlywayException("Unable to connect to " + url);
+            throw new FlywayException("Unable to connect to " + DatabaseTypeRegister.redactJdbcUrl(url));
         }
         connection.setAutoCommit(autoCommit);
         return connection;

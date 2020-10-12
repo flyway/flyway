@@ -42,11 +42,14 @@ import org.flywaydb.core.internal.database.sybasease.SybaseASEJConnectDatabaseTy
 import org.flywaydb.core.internal.database.sybasease.SybaseASEJTDSDatabaseType;
 import org.flywaydb.core.internal.database.sqlserver.synapse.SynapseDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DatabaseTypeRegister {
 
@@ -97,6 +100,26 @@ public class DatabaseTypeRegister {
     }
 
     public static DatabaseType getDatabaseTypeForUrl(String url) {
+        List<DatabaseType> typesAcceptingUrl = getDatabaseTypesForUrl(url);
+
+        if (typesAcceptingUrl.size() > 0) {
+            if (typesAcceptingUrl.size() > 1) {
+                StringBuilder builder = new StringBuilder();
+                for (DatabaseType type : typesAcceptingUrl) {
+                    if (builder.length() > 0) builder.append(", ");
+                    builder.append(type.getName());
+                }
+
+                LOG.debug("Multiple databases found that handle url '" + redactJdbcUrl(url) + "'. " + builder);
+            }
+
+            return typesAcceptingUrl.get(0);
+        } else {
+            throw new FlywayException("No database found to handle " + redactJdbcUrl(url));
+        }
+    }
+
+    private static List<DatabaseType> getDatabaseTypesForUrl(String url) {
         if (!hasRegisteredDatabaseTypes) {
             registerDatabaseTypes();
         }
@@ -110,22 +133,33 @@ public class DatabaseTypeRegister {
             }
         }
 
-        if (typesAcceptingUrl.size() > 0) {
-            if (typesAcceptingUrl.size() > 1) {
-                StringBuilder builder = new StringBuilder();
-                for (DatabaseType type : typesAcceptingUrl) {
-                    if (builder.length() > 0) builder.append(", ");
-                    builder.append(type.getName());
-                }
-
-                LOG.debug("Multiple databases found that handle url '" + url + "'. " + builder);
-            }
-
-            return typesAcceptingUrl.get(0);
-        } else {
-            throw new FlywayException("No database found to handle " + url);
-        }
+        return typesAcceptingUrl;
     }
+
+    public static String redactJdbcUrl(String url) {
+        List<DatabaseType> types = getDatabaseTypesForUrl(url);
+        if (types.isEmpty()) {
+            url = redactJdbcUrl(url, DatabaseType.getDefaultJDBCCredentialsPattern());
+        } else {
+            for (DatabaseType type : types) {
+                Pattern dbPattern = type.getJDBCCredentialsPattern();
+                if (dbPattern != null) {
+                    url = redactJdbcUrl(url, dbPattern);
+                }
+            }
+        }
+        return url;
+    }
+
+    private static String redactJdbcUrl(String url, Pattern pattern) {
+        Matcher matcher = pattern.matcher(url);
+        if (matcher.find()) {
+            String password = matcher.group(1);
+            return url.replace(password, StringUtils.trimOrPad("", password.length(), '*'));
+        }
+        return url;
+    }
+
 
     public static DatabaseType getDatabaseTypeForConnection(Connection connection) {
         if (!hasRegisteredDatabaseTypes) {

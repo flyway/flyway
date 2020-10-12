@@ -41,7 +41,8 @@ import java.util.regex.Pattern;
 
 public class OracleDatabaseType extends DatabaseType {
     // Oracle usernames/passwords can be 1-30 chars, can only contain alphanumerics and # _ $
-    private static Pattern usernamePasswordPattern = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/[a-zA-Z0-9#_$]+@//.*");
+    // The first (and only) capture group represents the password
+    private static final Pattern usernamePasswordPattern = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/([a-zA-Z0-9#_$]+)@.*");
 
     @Override
     public String getName() {
@@ -65,6 +66,11 @@ public class OracleDatabaseType extends DatabaseType {
         }
 
         return url.startsWith("jdbc:oracle");
+    }
+
+    @Override
+    public Pattern getJDBCCredentialsPattern() {
+        return usernamePasswordPattern;
     }
 
     @Override

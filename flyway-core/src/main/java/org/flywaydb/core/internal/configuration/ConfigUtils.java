@@ -19,6 +19,7 @@ import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -586,6 +587,10 @@ public class ConfigUtils {
                     // Mask the licence key, leaving a few characters to confirm which key is in use
                     case ConfigUtils.LICENSE_KEY:
                         value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
+                        break;
+                    // Mask any password in the URL
+                    case ConfigUtils.URL:
+                        value = DatabaseTypeRegister.redactJdbcUrl(value);
                         break;
                 }
 

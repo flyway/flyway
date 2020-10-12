@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.jdbc;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 
@@ -85,7 +86,7 @@ public class JdbcUtils {
             return "";
         }
         DriverDataSource driverDataSource = (DriverDataSource) dataSource;
-        return " (" + driverDataSource.getUrl() + ") for user '" + driverDataSource.getUser() + "'";
+        return " (" + DatabaseTypeRegister.redactJdbcUrl(driverDataSource.getUrl()) + ") for user '" + driverDataSource.getUser() + "'";
     }
 
     /**
