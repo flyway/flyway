@@ -157,7 +157,7 @@
     </pluginRepositories>
 
     <properties>
-        <version.android>4.0.1.2</version.android>
+        <version.android>4.1.1.4</version.android>
         <version.ant>1.9.14</version.ant>
         <version.aws-java-sdk>2.10.56</version.aws-java-sdk>
         <version.aws-secretsmanager>1.0.5</version.aws-secretsmanager>
@@ -184,10 +184,10 @@
         <version.log4net2>2.11.2</version.log4net2>
         <version.logback>1.2.3</version.logback>
         <version.mariadb>2.6.0</version.mariadb>
-        <version.maven>3.0</version.maven>
+        <version.maven>3.6.3</version.maven>
         <version.mockito>1.10.19</version.mockito>
         <version.mssql-jdbc>7.2.0.jre8</version.mssql-jdbc>
-        <version.mysql>8.0.17</version.mysql>
+        <version.mysql>8.0.20</version.mysql>
         <version.oracle>19.6.0.0</version.oracle>
         <version.osgi>4.3.1</version.osgi>
         <version.postgresql>42.2.14</version.postgresql>
@@ -196,7 +196,7 @@
         <version.slf4j>1.7.30</version.slf4j>
         <version.snowflake>3.11.1</version.snowflake>
         <version.spanner>1.16.0</version.spanner>
-        <version.springjdbc>2.5.6</version.springjdbc>
+        <version.springjdbc>4.3.29.RELEASE</version.springjdbc>
         <version.sqlite>3.30.1</version.sqlite>
         <version.sybasejconnect>7.07</version.sybasejconnect>
         <version.testcontainers>1.14.3</version.testcontainers>
