@@ -1255,7 +1255,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setCherryPick(MigrationPattern... cherryPick) {
 
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("migrations");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("cherryPick");
 
 
 
@@ -1294,7 +1294,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setCherryPick(String... cherryPickAsString) {
 
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("migrations");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("cherryPick");
 
 
 
