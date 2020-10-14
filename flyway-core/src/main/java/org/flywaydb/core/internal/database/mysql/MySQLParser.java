@@ -28,6 +28,10 @@ import static java.lang.Character.isDigit;
 public class MySQLParser extends Parser {
     private static final char ALTERNATIVE_SINGLE_LINE_COMMENT = '#';
 
+    private static final Pattern STORED_PROGRAM_REGEX = Pattern.compile(
+            "^CREATE\\s(((DEFINER\\s@\\s)?(PROCEDURE|FUNCTION|EVENT))|TRIGGER)");
+    private static final StatementType STORED_PROGRAM_STATEMENT = new StatementType();
+
     public MySQLParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 8);
     }
@@ -99,6 +103,15 @@ public class MySQLParser extends Parser {
     }
 
     @Override
+    protected StatementType detectStatementType(String simplifiedStatement) {
+        if (STORED_PROGRAM_REGEX.matcher(simplifiedStatement).matches()) {
+            return STORED_PROGRAM_STATEMENT;
+        }
+
+        return super.detectStatementType(simplifiedStatement);
+    }
+
+    @Override
     protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
         TokenType tokenType = token.getType();
         if (TokenType.DELIMITER.equals(tokenType) || ";".equals(token.getText())) {
@@ -137,7 +150,7 @@ public class MySQLParser extends Parser {
 
         int parensDepth = keyword.getParensDepth();
 
-        if ("BEGIN".equals(keywordText)) {
+        if ("BEGIN".equals(keywordText) && context.getStatementType() == STORED_PROGRAM_STATEMENT) {
             context.increaseBlockDepth("");
         }
 
