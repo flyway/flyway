@@ -45,7 +45,7 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
     private final int originalForeignKeyChecks;
     private final int originalSqlSafeUpdates;
-    private final String originalTidbTxnMode;
+    private String originalTidbTxnMode;
 
     MySQLConnection(MySQLDatabase database, java.sql.Connection connection) {
         super(database, connection);
@@ -60,11 +60,11 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
             originalForeignKeyChecks = "ON".equals(foreignKeyChecksStr) ? 1 : 0;
             String sqlSafeUpdateStr = getStringVariableValue(SQL_SAFE_UPDATES);
             originalSqlSafeUpdates = "ON".equals(sqlSafeUpdateStr) ? 1 : 0;
+            originalTidbTxnMode = getStringVariableValue(TIDB_TXN_MODE);
         } else {
             originalForeignKeyChecks = getIntVariableValue(FOREIGN_KEY_CHECKS);
             originalSqlSafeUpdates = getIntVariableValue(SQL_SAFE_UPDATES);
         }
-        originalTidbTxnMode = getStringVariableValue(TIDB_TXN_MODE);
     }
 
     private int getIntVariableValue(String varName) {
@@ -109,7 +109,9 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
         resetUserVariables();
         jdbcTemplate.execute("SET " + FOREIGN_KEY_CHECKS + "=?, " + SQL_SAFE_UPDATES + "=?",
                 originalForeignKeyChecks, originalSqlSafeUpdates);
-        jdbcTemplate.execute("SET " + TIDB_TXN_MODE + "=?", originalTidbTxnMode);
+        if (database.isTiDB()) {
+            jdbcTemplate.execute("SET " + TIDB_TXN_MODE + "=?", originalTidbTxnMode);
+        }
     }
 
     // #2197: prevent user-defined variables from leaking beyond the scope of a migration
