@@ -316,7 +316,7 @@ public abstract class DatabaseType {
      * other authentication mechanisms, or supports the user being encoded in the URL
      *
      * @param url The url to check
-     * @return false if a username needs to be provided
+     * @return true if a username needs to be provided
      */
     public boolean detectUserRequiredByUrl(String url) {
         return true;
@@ -327,7 +327,7 @@ public abstract class DatabaseType {
      * other authentication mechanisms, or supports the password being encoded in the URL
      *
      * @param url The url to check
-     * @return false if a username needs to be provided
+     * @return true if a password needs to be provided
      */
     public boolean detectPasswordRequiredByUrl(String url) {
         return true;
