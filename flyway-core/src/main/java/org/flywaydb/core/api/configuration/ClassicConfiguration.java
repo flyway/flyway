@@ -1781,7 +1781,7 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
+     * Whether Flyway's support for Oracle SQL*Plus commands should be activated.
      * <p><i>Flyway Teams only</i></p>
      *
      * @param oracleSqlplus {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
