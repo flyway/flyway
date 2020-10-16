@@ -32,7 +32,6 @@ import java.util.Date;
 public class VersionPrinter {
     private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
     private static final String version = readVersion();
-    private static boolean printed;
 
     public static final Edition EDITION =
 
@@ -68,11 +67,6 @@ public class VersionPrinter {
 
 
     ) {
-        if (printed) {
-            return;
-        }
-        printed = true;
-
 
         printVersionOnly();
 
