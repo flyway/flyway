@@ -103,23 +103,15 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
 
     @Override
     protected void doLock() throws SQLException {
-        if ( database.getVersion().isAtLeast("20.1") ) {
-            jdbcTemplate.execute("SELECT * FROM " + this + " FOR UPDATE");
-        } else {
-            if (lockDepth == 0) {
-                insertRowLock.doLock(jdbcTemplate, database.getInsertStatement(this), database.getBooleanTrue());
-            }
+        if (lockDepth == 0) {
+            insertRowLock.doLock(jdbcTemplate, database.getInsertStatement(this), database.getBooleanTrue());
         }
     }
 
     @Override
     protected void doUnlock() throws SQLException {
-        if ( database.getVersion().isAtLeast("20.1") ) {
-            super.doUnlock();
-        } else {
-            if (lockDepth == 1) {
-                insertRowLock.doUnlock(jdbcTemplate, getDeleteLockTemplate());
-            }
+        if (lockDepth == 1) {
+            insertRowLock.doUnlock(jdbcTemplate, getDeleteLockTemplate());
         }
     }
 
