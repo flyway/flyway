@@ -150,7 +150,7 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * The target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
      * <li>{@code current}: designates the current version of the schema</li>
@@ -348,6 +348,14 @@ public class ClassicConfiguration implements Configuration {
      * </p>
      */
     private boolean baselineOnMigrate;
+
+    private boolean replicated;
+
+    private String clusterName;
+
+    private String replica;
+
+    private String zookeeperTable;
 
     /**
      * Allows migrations to be run "out of order".
@@ -641,6 +649,26 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isBaselineOnMigrate() {
         return baselineOnMigrate;
+    }
+
+    @Override
+    public boolean isReplicated() {
+        return replicated;
+    }
+
+    @Override
+    public String getClusterName() {
+        return clusterName;
+    }
+
+    @Override
+    public String getReplica() {
+        return replica;
+    }
+
+    @Override
+    public String getZookeeperTable() {
+        return zookeeperTable;
     }
 
     @Override
@@ -1134,7 +1162,7 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
      * <li>{@code current}: designates the current version of the schema</li>
@@ -1148,7 +1176,7 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
      * <li>{@code current}: designates the current version of the schema</li>
@@ -1445,6 +1473,22 @@ public class ClassicConfiguration implements Configuration {
         this.baselineOnMigrate = baselineOnMigrate;
     }
 
+    public void setReplicated(boolean replicated) {
+        this.replicated = replicated;
+    }
+
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
+    }
+
+    public void setReplica(String replica) {
+        this.replica = replica;
+    }
+
+    public void setZookeeperTable(String zookeeperTable) {
+        this.zookeeperTable = zookeeperTable;
+    }
+
     /**
      * Allows migrations to be run "out of order".
      * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
@@ -1649,6 +1693,10 @@ public class ClassicConfiguration implements Configuration {
     public void configure(Configuration configuration) {
         setBaselineDescription(configuration.getBaselineDescription());
         setBaselineOnMigrate(configuration.isBaselineOnMigrate());
+        setReplicated(configuration.isReplicated());
+        setClusterName(configuration.getClusterName());
+        setReplica(configuration.getReplica());
+        setZookeeperTable(configuration.getZookeeperTable());
         setBaselineVersion(configuration.getBaselineVersion());
         setCallbacks(configuration.getCallbacks());
         setCleanDisabled(configuration.isCleanDisabled());
@@ -1853,6 +1901,27 @@ public class ClassicConfiguration implements Configuration {
         if (baselineOnMigrateProp != null) {
             setBaselineOnMigrate(baselineOnMigrateProp);
         }
+
+        Boolean replicatedProp = removeBoolean(props, ConfigUtils.REPLICATED);
+        if (replicatedProp != null) {
+            setReplicated(replicatedProp);
+        }
+
+        String clusterNameProp = props.remove(ConfigUtils.CLUSTER_NAME);
+        if (clusterNameProp != null) {
+            setClusterName(clusterNameProp);
+        }
+
+        String replicaProp = props.remove(ConfigUtils.REPLICA);
+        if (replicaProp != null) {
+            setReplica(replicaProp);
+        }
+
+        String zookeeperTableProp = props.remove(ConfigUtils.ZOOKEEPER_TABLE);
+        if (zookeeperTableProp != null) {
+            setZookeeperTable(zookeeperTableProp);
+        }
+
         Boolean ignoreMissingMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_MISSING_MIGRATIONS);
         if (ignoreMissingMigrationsProp != null) {
             setIgnoreMissingMigrations(ignoreMissingMigrationsProp);
