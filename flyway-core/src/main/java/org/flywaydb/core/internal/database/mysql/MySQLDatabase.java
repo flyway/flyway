@@ -113,7 +113,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     boolean isTiDB() {
-        return databaseType == DatabaseType.TIDB;
+        return databaseType instanceof TiDBDatabaseType;
     }
 
     boolean isPxcStrict() {
@@ -121,13 +121,14 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     /*
-     * CREATE TABLE ... AS SELECT ... cannot be used in two scenarios:
+     * CREATE TABLE ... AS SELECT ... cannot be used in three scenarios:
      * - Percona XtraDB Cluster in strict mode doesn't support it
+     * - TiDB doesn't support it
      * - When GTID consistency is being enforced. Note that if GTID_MODE is ON, then ENFORCE_GTID_CONSISTENCY is
      * necessarily ON as well.
      */
     private boolean isCreateTableAsSelectAllowed() {
-        return !pxcStrict && !gtidConsistencyEnforced;
+        return !pxcStrict && !gtidConsistencyEnforced && !isTiDB();
     }
 
     @Override
@@ -296,6 +297,6 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     @Override
     public boolean useSingleConnection() {
-        return false;
+        return !isPxcStrict() && !isTiDB();
     }
 }

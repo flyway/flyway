@@ -42,7 +42,6 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
     private final int originalForeignKeyChecks;
     private final int originalSqlSafeUpdates;
-    private final String originalTidbTxnMode;
 
     MySQLConnection(MySQLDatabase database, java.sql.Connection connection) {
         super(database, connection);
@@ -54,7 +53,6 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
         originalForeignKeyChecks = getIntVariableValue(FOREIGN_KEY_CHECKS);
         originalSqlSafeUpdates = getIntVariableValue(SQL_SAFE_UPDATES);
-        originalTidbTxnMode = getStringVariableValue(TIDB_TXN_MODE);
     }
 
     private int getIntVariableValue(String varName) {
@@ -65,16 +63,9 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
         }
     }
 
-    private String getStringVariableValue(String varName) {
-        try {
-            return jdbcTemplate.queryForString("SELECT @@" + varName);
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to determine value for '" + varName + "' variable", e);
-        }
-    }
-
     private void setTidbTxnMode() {
         try {
+            // Since we use a separate connection for the lock, it is not required to restore the transaction mode.
             jdbcTemplate.execute("SET " + TIDB_TXN_MODE + "=pessimistic");
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to set value for 'tidb_txn_mode' variable", e);
@@ -110,7 +101,6 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
         resetUserVariables();
         jdbcTemplate.execute("SET " + FOREIGN_KEY_CHECKS + "=?, " + SQL_SAFE_UPDATES + "=?",
                 originalForeignKeyChecks, originalSqlSafeUpdates);
-        jdbcTemplate.execute("SET " + TIDB_TXN_MODE + "=?", originalTidbTxnMode);
     }
 
     // #2197: prevent user-defined variables from leaking beyond the scope of a migration
