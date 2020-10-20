@@ -293,24 +293,9 @@ public interface Configuration {
     boolean isBaselineOnMigrate();
 
     /**
-     * For usage with more then one replic into the Clickhouse DB
-     */
-    boolean isReplicated();
-
-    /**
      * Cluster name for replicated Clickhouse DB
      */
-    String getClusterName();
-
-    /**
-     * Replica name for replicated Clickhouse DB
-     */
-    String getReplica();
-
-    /**
-     * Zookeeper table name for replicated Clickhouse DB
-     */
-    String getZookeeperTable();
+    String getClickhouseClusterName();
 
     /**
      * Allows migrations to be run "out of order".

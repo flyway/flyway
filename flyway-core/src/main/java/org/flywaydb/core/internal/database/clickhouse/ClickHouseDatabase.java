@@ -48,9 +48,9 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection> {
 
     @Override
     public String getRawCreateScript(Table table, boolean baseline) {
-        if (configuration.isReplicated()) {
+        if (configuration.getClickhouseClusterName() != null && !configuration.getClickhouseClusterName().equals("")) {
             return "CREATE TABLE " + table + " ON CLUSTER " +
-                    configuration.getClusterName() +
+                    configuration.getClickhouseClusterName() +
                     " (installed_rank Int32," +
                     "    version Nullable(String)," +
                     "    description String," +

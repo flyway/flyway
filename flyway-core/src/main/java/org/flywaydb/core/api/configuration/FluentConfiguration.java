@@ -208,23 +208,8 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public boolean isReplicated() {
-        return config.isReplicated();
-    }
-
-    @Override
-    public String getClusterName() {
-        return config.getClusterName();
-    }
-
-    @Override
-    public String getReplica() {
-        return config.getReplica();
-    }
-
-    @Override
-    public String getZookeeperTable() {
-        return config.getZookeeperTable();
+    public String getClickhouseClusterName() {
+        return config.getClickhouseClusterName();
     }
 
     @Override

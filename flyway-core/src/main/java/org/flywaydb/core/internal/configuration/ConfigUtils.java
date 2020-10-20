@@ -89,11 +89,7 @@ public class ConfigUtils {
     public static final String CREATE_SCHEMAS = "flyway.createSchemas";
 
     // Clickhouse-specific
-    public static final String REPLICATED = "flyway.clickhouse.replicated";
-    public static final String CLUSTER_NAME = "flyway.clickhouse.clusterName";
-    public static final String REPLICA = "flyway.clickhouse.replica";
-    public static final String ZOOKEEPER_TABLE = "flyway.clickhouse.zookeeperTable";
-
+    public static final String CLICKHOUSE_CLUSTER_NAME = "flyway.clickhouse.clusterName";
 
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
@@ -277,21 +273,8 @@ public class ConfigUtils {
             return CREATE_SCHEMAS;
         }
 
-        // Clickhouse-specific
-        if ("FLYWAY_CLICKHOUSE_REPLICATED".equals(key)) {
-            return REPLICATED;
-        }
-
         if ("FLYWAY_CLICKHOUSE_CLUSTER_NAME".equals(key)) {
-            return CLUSTER_NAME;
-        }
-
-        if ("FLYWAY_CLICKHOUSE_REPLICA".equals(key)) {
-            return REPLICA;
-        }
-
-        if ("FLYWAY_ZOOKEEPER_TABLE".equals(key)) {
-            return ZOOKEEPER_TABLE;
+            return CLICKHOUSE_CLUSTER_NAME;
         }
 
         // Oracle-specific
