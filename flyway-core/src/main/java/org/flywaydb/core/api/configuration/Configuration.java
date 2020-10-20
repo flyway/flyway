@@ -293,6 +293,11 @@ public interface Configuration {
     boolean isBaselineOnMigrate();
 
     /**
+     * Cluster name for replicated Clickhouse DB
+     */
+    String getClickhouseClusterName();
+
+    /**
      * Allows migrations to be run "out of order".
      * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
      * it will be applied too instead of being ignored.</p>

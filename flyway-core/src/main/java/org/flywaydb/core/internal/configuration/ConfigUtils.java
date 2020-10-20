@@ -88,6 +88,9 @@ public class ConfigUtils {
     public static final String VALIDATE_MIGRATION_NAMING = "flyway.validateMigrationNaming";
     public static final String CREATE_SCHEMAS = "flyway.createSchemas";
 
+    // Clickhouse-specific
+    public static final String CLICKHOUSE_CLUSTER_NAME = "flyway.clickhouse.clusterName";
+
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
     public static final String ORACLE_SQLPLUS_WARN = "flyway.oracle.sqlplusWarn";
@@ -268,6 +271,10 @@ public class ConfigUtils {
         }
         if ("FLYWAY_CREATE_SCHEMAS".equals(key)) {
             return CREATE_SCHEMAS;
+        }
+
+        if ("FLYWAY_CLICKHOUSE_CLUSTER_NAME".equals(key)) {
+            return CLICKHOUSE_CLUSTER_NAME;
         }
 
         // Oracle-specific

@@ -208,6 +208,11 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public String getClickhouseClusterName() {
+        return config.getClickhouseClusterName();
+    }
+
+    @Override
     public boolean isOutOfOrder() {
         return config.isOutOfOrder();
     }

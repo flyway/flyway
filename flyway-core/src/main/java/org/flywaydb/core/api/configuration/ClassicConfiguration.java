@@ -150,7 +150,7 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * The target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
      * <li>{@code current}: designates the current version of the schema</li>
@@ -348,6 +348,11 @@ public class ClassicConfiguration implements Configuration {
      * </p>
      */
     private boolean baselineOnMigrate;
+
+    /**
+     * For usage with more then one replic into the Clickhouse DB
+     */
+    private String clickhouseClusterName;
 
     /**
      * Allows migrations to be run "out of order".
@@ -641,6 +646,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isBaselineOnMigrate() {
         return baselineOnMigrate;
+    }
+
+    @Override
+    public String getClickhouseClusterName() {
+        return clickhouseClusterName;
     }
 
     @Override
@@ -1134,7 +1144,7 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
      * <li>{@code current}: designates the current version of the schema</li>
@@ -1148,7 +1158,7 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
      * <li>{@code current}: designates the current version of the schema</li>
@@ -1446,6 +1456,13 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * For usage with more then one replic into the Clickhouse DB
+     */
+    public void setClickhouseClusterName(String clickhouseClusterName) {
+        this.clickhouseClusterName = clickhouseClusterName;
+    }
+
+    /**
      * Allows migrations to be run "out of order".
      * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
      * it will be applied too instead of being ignored.</p>
@@ -1649,6 +1666,7 @@ public class ClassicConfiguration implements Configuration {
     public void configure(Configuration configuration) {
         setBaselineDescription(configuration.getBaselineDescription());
         setBaselineOnMigrate(configuration.isBaselineOnMigrate());
+        setClickhouseClusterName(configuration.getClickhouseClusterName());
         setBaselineVersion(configuration.getBaselineVersion());
         setCallbacks(configuration.getCallbacks());
         setCleanDisabled(configuration.isCleanDisabled());
@@ -1853,6 +1871,12 @@ public class ClassicConfiguration implements Configuration {
         if (baselineOnMigrateProp != null) {
             setBaselineOnMigrate(baselineOnMigrateProp);
         }
+
+        String clickhouseClusterNameProp = props.remove(ConfigUtils.CLICKHOUSE_CLUSTER_NAME);
+        if (clickhouseClusterNameProp != null) {
+            setClickhouseClusterName(clickhouseClusterNameProp);
+        }
+
         Boolean ignoreMissingMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_MISSING_MIGRATIONS);
         if (ignoreMissingMigrationsProp != null) {
             setIgnoreMissingMigrations(ignoreMissingMigrationsProp);

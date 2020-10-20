@@ -19,6 +19,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -48,20 +49,45 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection> {
 
     @Override
     public String getRawCreateScript(Table table, boolean baseline) {
-        return "CREATE TABLE " + table + "(" +
-                "    installed_rank Int32," +
-                "    version Nullable(String)," +
-                "    description String," +
-                "    type String," +
-                "    script String," +
-                "    checksum Nullable(Int32)," +
-                "    installed_by String," +
-                "    installed_on DateTime DEFAULT now()," +
-                "    execution_time Int32," +
-                "    success UInt8," +
-                "    CONSTRAINT success CHECK success in (0,1)" +
-                ") ENGINE = TinyLog;" +
-                (baseline ? getBaselineStatement(table) + ";" : "");
+        String clusterName = configuration.getClickhouseClusterName();
+        if (StringUtils.hasText(clusterName)) {
+            return "CREATE TABLE " + table + " ON CLUSTER " + clusterName + "(" +
+                    "    installed_rank Int32," +
+                    "    version Nullable(String)," +
+                    "    description String," +
+                    "    type String," +
+                    "    script String," +
+                    "    checksum Nullable(Int32)," +
+                    "    installed_by String," +
+                    "    installed_on DateTime DEFAULT now()," +
+                    "    execution_time Int32," +
+                    "    success UInt8," +
+                    "    CONSTRAINT success CHECK success in (0,1)" +
+                    ")" +
+                    " ENGINE = ReplicatedMergeTree(" +
+                    "   '/clickhouse/tables/{shard${namespace}}/" + table + "'," +
+                    "   '{replica${namespace}}'" +
+                    " )" +
+                    " PARTITION BY tuple()" +
+                    " ORDER BY (version, checksum);" +
+                    (baseline ? getBaselineStatement(table) + ";" : "");
+        } else {
+            return "CREATE TABLE " + table + "(" +
+                    "    installed_rank Int32," +
+                    "    version Nullable(String)," +
+                    "    description String," +
+                    "    type String," +
+                    "    script String," +
+                    "    checksum Nullable(Int32)," +
+                    "    installed_by String," +
+                    "    installed_on DateTime DEFAULT now()," +
+                    "    execution_time Int32," +
+                    "    success UInt8," +
+                    "    CONSTRAINT success CHECK success in (0,1)" +
+                    ")" +
+                    " ENGINE = TinyLog;" +
+                    (baseline ? getBaselineStatement(table) + ";" : "");
+        }
     }
 
     /**
