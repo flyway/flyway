@@ -150,7 +150,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
 
     protected void doDropOnce() throws SQLException {
         if ( hasSchemaSupport ) {
-            jdbcTemplate.execute("DROP SCHEMA IF EXISTS " + database.quote(name));
+            jdbcTemplate.execute("DROP SCHEMA IF EXISTS " + database.quote(name) + " CASCADE");
         } else {
             jdbcTemplate.execute("DROP DATABASE IF EXISTS " + database.quote(name));
         }
