@@ -69,7 +69,7 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection> {
                     "   '{replica${namespace}}'" +
                     " )" +
                     " PARTITION BY tuple()" +
-                    " ORDER BY (version, checksum);" +
+                    " ORDER BY (installed_rank);" +
                     (baseline ? getBaselineStatement(table) + ";" : "");
         } else {
             return "CREATE TABLE " + table + "(" +
