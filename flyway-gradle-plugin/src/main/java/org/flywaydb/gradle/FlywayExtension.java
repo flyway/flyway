@@ -188,6 +188,12 @@ public class FlywayExtension {
     public String encoding;
 
     /**
+     * The maximum number of retries when trying to obtain a lock.
+     * (default: 50)
+     */
+    public Integer lockRetryCount;
+
+    /**
      * Placeholders to replace in Sql migrations
      */
     public Map<Object, Object> placeholders;

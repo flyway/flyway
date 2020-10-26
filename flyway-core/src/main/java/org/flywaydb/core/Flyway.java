@@ -31,6 +31,7 @@ import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
+import org.flywaydb.core.internal.strategy.RetryStrategy;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.database.base.Schema;
@@ -473,6 +474,7 @@ public class Flyway {
         final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
         final ParsingContext parsingContext = new ParsingContext();
         final SqlScriptFactory sqlScriptFactory = databaseType.createSqlScriptFactory(configuration, parsingContext);
+        RetryStrategy.setNumberOfRetries(configuration.getLockRetryCount());
 
         final SqlScriptExecutorFactory noCallbackSqlScriptExecutorFactory = databaseType.createSqlScriptExecutorFactory(
                 jdbcConnectionFactory,

@@ -216,6 +216,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String encoding;
 
     /**
+     * The maximum number of retries when trying to obtain a lock. (default: 50)<br>
+     * <p>Also configurable with Maven or System Property: ${flyway.lockRetryCount}</p>
+     */
+    @Parameter(property = ConfigUtils.LOCK_RETRY_COUNT)
+    private Integer lockRetryCount;
+
+    /**
      * The file name prefix for versioned SQL migrations (default: V)
      * <p>
      * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
@@ -762,6 +769,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putArrayIfSet(conf, ConfigUtils.CALLBACKS, callbacks);
             putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks);
             putIfSet(conf, ConfigUtils.ENCODING, encoding);
+            putIfSet(conf, ConfigUtils.LOCK_RETRY_COUNT, lockRetryCount);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix);

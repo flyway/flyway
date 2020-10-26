@@ -71,6 +71,7 @@ public class ConfigUtils {
     public static final String PLACEHOLDER_REPLACEMENT = "flyway.placeholderReplacement";
     public static final String PLACEHOLDER_SUFFIX = "flyway.placeholderSuffix";
     public static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
+    public static final String LOCK_RETRY_COUNT = "flyway.lockRetryCount";
     public static final String JDBC_PROPERTIES_PREFIX = "flyway.jdbcProperties.";
     public static final String REPEATABLE_SQL_MIGRATION_PREFIX = "flyway.repeatableSqlMigrationPrefix";
     public static final String RESOLVERS = "flyway.resolvers";
@@ -215,6 +216,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_PASSWORD".equals(key)) {
             return PASSWORD;
+        }
+        if ("FLYWAY_LOCK_RETRY_COUNT".equals(key)) {
+            return LOCK_RETRY_COUNT;
         }
         if ("FLYWAY_PLACEHOLDER_PREFIX".equals(key)) {
             return PLACEHOLDER_PREFIX;

@@ -532,6 +532,12 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String licenseKey;
 
     /**
+     * The maximum number of retries when trying to obtain a lock.
+     * (default: 50)
+     */
+    public Integer lockRetryCount;
+
+    /**
      * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).
      * <p>Also configurable with Gradle or System Property: ${flyway.configFileEncoding}</p>
      */
@@ -686,6 +692,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.GROUP, group, extension.group);
         putIfSet(conf, ConfigUtils.INSTALLED_BY, installedBy, extension.installedBy);
         putIfSet(conf, ConfigUtils.ENCODING, encoding, extension.encoding);
+        putIfSet(conf, ConfigUtils.LOCK_RETRY_COUNT, lockRetryCount, extension.lockRetryCount);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement, extension.placeholderReplacement);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix, extension.placeholderPrefix);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_SUFFIX, placeholderSuffix, extension.placeholderSuffix);

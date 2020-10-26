@@ -591,6 +591,11 @@ public interface Configuration {
     boolean getCreateSchemas();
 
     /**
+     * The maximum number of retries when trying to obtain a lock. -1 indicates attempting to repeat indefinitely.
+     */
+    int getLockRetryCount();
+
+    /**
      * Properties to pass to the JDBC driver object
      *
      * <p><i>Flyway Teams only</i></p>

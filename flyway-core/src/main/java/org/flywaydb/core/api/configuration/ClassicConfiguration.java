@@ -502,6 +502,13 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+    /**
+     * The maximum number of retries when trying to obtain a lock.
+     * (default: {@code 50})
+     *
+     */
+    private int lockRetryCount = 50;
+
 
 
 
@@ -793,6 +800,11 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+    }
+
+    @Override
+    public int getLockRetryCount() {
+        return lockRetryCount;
     }
 
     /**
@@ -1918,6 +1930,10 @@ public class ClassicConfiguration implements Configuration {
         this.javaMigrationClassProvider = javaMigrationClassProvider;
     }
 
+    public void setLockRetryCount(int lockRetryCount) {
+        this.lockRetryCount = lockRetryCount;
+    }
+
     /**
      * Properties to pass to the JDBC driver object
      *
@@ -2008,6 +2024,7 @@ public class ClassicConfiguration implements Configuration {
         setResourceProvider(configuration.getResourceProvider());
         setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
         setShouldCreateSchemas(configuration.getCreateSchemas());
+        setLockRetryCount(configuration.getLockRetryCount());
 
         url = configuration.getUrl();
         user = configuration.getUser();
@@ -2189,6 +2206,10 @@ public class ClassicConfiguration implements Configuration {
         String cherryPickProp = props.remove(ConfigUtils.CHERRY_PICK);
         if (cherryPickProp != null) {
             setCherryPick(StringUtils.tokenizeToStringArray(cherryPickProp, ","));
+        }
+        Integer lockRetryCount = removeInteger(props, ConfigUtils.LOCK_RETRY_COUNT);
+        if (lockRetryCount != null) {
+            setLockRetryCount(lockRetryCount);
         }
         Boolean outOfOrderProp = removeBoolean(props, ConfigUtils.OUT_OF_ORDER);
         if (outOfOrderProp != null) {

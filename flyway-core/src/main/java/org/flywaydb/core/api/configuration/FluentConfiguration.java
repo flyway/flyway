@@ -344,6 +344,11 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public int getLockRetryCount() {
+        return config.getLockRetryCount();
+    }
+
+    @Override
     public Map<String, String> getJdbcProperties() {
         return config.getJdbcProperties();
     }
@@ -1077,6 +1082,11 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration batch(boolean batch) {
         config.setBatch(batch);
+        return this;
+    }
+
+    public FluentConfiguration lockRetryCount(int lockRetryCount) {
+        config.setLockRetryCount(lockRetryCount);
         return this;
     }
 

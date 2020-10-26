@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database.postgresql;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.strategy.RetryStrategy;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.api.logging.Log;
@@ -93,18 +94,10 @@ public class PostgreSQLAdvisoryLockTemplate {
     }
 
     private void lock() throws SQLException {
-        int retries = 0;
-        while (!tryLock()) {
-            try {
-                Thread.sleep(100L);
-            } catch (InterruptedException e) {
-                throw new FlywayException("Interrupted while attempting to acquire PostgreSQL advisory lock", e);
-            }
-
-            if (++retries >= 50) {
-                throw new FlywayException("Number of retries exceeded while attempting to acquire PostgreSQL advisory lock");
-            }
-        }
+        RetryStrategy strategy = new RetryStrategy();
+        strategy.doWithRetries(() -> tryLock(),
+                "Interrupted while attempting to acquire PostgreSQL advisory lock",
+                "Number of retries exceeded while attempting to acquire PostgreSQL advisory lock");
     }
 
     private boolean tryLock() throws SQLException {
