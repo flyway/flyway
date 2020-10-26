@@ -373,15 +373,12 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
      */
     private void markRepeatableAsDeleted(String description, List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedRepeatable) {
         for (int i = appliedRepeatable.size() - 1; i >= 0; i--) {
-            Pair<AppliedMigration, AppliedMigrationAttributes> av = appliedRepeatable.get(i);
-            if (!av.getLeft().getType().isSynthetic() && description.equals(av.getLeft().getDescription())) {
-                if (av.getRight().deleted) {
-                    throw new FlywayException("Corrupted schema history: multiple delete entries for description " + description,
-                            ErrorCode.DUPLICATE_DELETED_MIGRATION);
-                } else {
-                    av.getRight().deleted = true;
-                    return;
+            Pair<AppliedMigration, AppliedMigrationAttributes> ar = appliedRepeatable.get(i);
+            if (!ar.getLeft().getType().isSynthetic() && description.equals(ar.getLeft().getDescription())) {
+                if (!ar.getRight().deleted) {
+                    ar.getRight().deleted = true;
                 }
+                return;
             }
         }
     }

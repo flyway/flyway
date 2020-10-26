@@ -211,7 +211,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             return MigrationState.BASELINE;
         }
 
-        if (resolvedMigration == null) {
+        if (resolvedMigration == null && isRepeatableLatest()) {
 
 
 
@@ -251,7 +251,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         if (appliedMigration.getVersion() == null) {
             if (appliedMigration.getInstalledRank() == context.latestRepeatableRuns.get(appliedMigration.getDescription())) {
-                if (resolvedMigration.checksumMatches(appliedMigration.getChecksum())) {
+                if (resolvedMigration != null && resolvedMigration.checksumMatches(appliedMigration.getChecksum())) {
                     return MigrationState.SUCCESS;
                 }
                 return MigrationState.OUTDATED;
@@ -263,6 +263,16 @@ public class MigrationInfoImpl implements MigrationInfo {
             return MigrationState.OUT_OF_ORDER;
         }
         return MigrationState.SUCCESS;
+    }
+
+    private boolean isRepeatableLatest() {
+        // succeed if this isn't a repeatable
+        if (appliedMigration.getVersion() != null) {
+            return true;
+        }
+
+        Integer latestRepeatableRank = context.latestRepeatableRuns.get(appliedMigration.getDescription());
+        return latestRepeatableRank == null || appliedMigration.getInstalledRank() == latestRepeatableRank;
     }
 
     @Override
