@@ -363,16 +363,16 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         if (!context.ignored && MigrationState.IGNORED == state) {
             if (getVersion() != null) {
-                return "Detected resolved migration not applied to database: " + getVersion() + ". To ignore this migration, set ignoreIgnoredMigrations to true. To allow executing this migration, set outOfOrder to true.";
+                return "Detected resolved migration not applied to database: " + getVersion() + ". To ignore this migration, set -ignoreIgnoredMigrations=true. To allow executing this migration, set -outOfOrder=true.";
             }
-            return "Detected resolved repeatable migration not applied to database: " + getDescription() + ". To ignore this migration, set ignoreIgnoredMigrations to true.";
+            return "Detected resolved repeatable migration not applied to database: " + getDescription() + ". To ignore this migration, set -ignoreIgnoredMigrations=true.";
         }
 
         if (!context.pending && MigrationState.PENDING == state) {
             if (getVersion() != null) {
-                return "Detected resolved migration not applied to database: " + getVersion() + ". To fix this error, either run migrate, or set ignorePendingMigrations to true.";
+                return "Detected resolved migration not applied to database: " + getVersion() + ". To fix this error, either run migrate, or set -ignorePendingMigrations=true.";
             }
-            return "Detected resolved repeatable migration not applied to database: " + getDescription() + ". To fix this error, either run migrate, or set ignorePendingMigrations to true.";
+            return "Detected resolved repeatable migration not applied to database: " + getDescription() + ". To fix this error, either run migrate, or set -ignorePendingMigrations=true.";
         }
 
         if (!context.pending && MigrationState.OUTDATED == state) {
