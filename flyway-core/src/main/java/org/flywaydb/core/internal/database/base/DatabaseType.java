@@ -332,4 +332,16 @@ public abstract class DatabaseType {
     public boolean detectPasswordRequiredByUrl(String url) {
         return true;
     }
+
+
+
+
+
+
+
+
+
+
+
+
 }

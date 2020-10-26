@@ -528,7 +528,7 @@ public class Main {
 
 
 
-                && needsPassword(url)) {
+                && needsPassword(url, config.get(ConfigUtils.USER))) {
             char[] password = console.readPassword("Database password: ");
             config.put(ConfigUtils.PASSWORD, password == null ? "" : String.valueOf(password));
         }
@@ -545,9 +545,13 @@ public class Main {
     /**
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a password.
      */
-    private static boolean needsPassword(String url) {
+    private static boolean needsPassword(String url, String username) {
         DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
-        return databaseType.detectPasswordRequiredByUrl(url);
+        return databaseType.detectPasswordRequiredByUrl(url)
+
+
+
+                ;
     }
 
     /**

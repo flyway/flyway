@@ -21,10 +21,11 @@ import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
 import org.flywaydb.core.internal.database.DefaultExecutionStrategy;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
+
+
 import org.flywaydb.core.internal.jdbc.ExecutionTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 
@@ -106,8 +107,14 @@ public class CockroachDBDatabaseType extends DatabaseType {
 
     @Override
     public boolean detectPasswordRequiredByUrl(String url) {
-
         // Postgres supports password in URL
         return !url.contains("password=");
     }
+
+
+
+
+
+
+
 }

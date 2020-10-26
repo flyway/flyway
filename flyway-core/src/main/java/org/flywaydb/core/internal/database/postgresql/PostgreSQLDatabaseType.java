@@ -19,9 +19,10 @@ import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
+
+
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 
@@ -101,4 +102,11 @@ public class PostgreSQLDatabaseType extends DatabaseType {
         // Postgres supports password in URL
         return !url.contains("password=");
     }
+
+
+
+
+
+
+
 }
