@@ -56,7 +56,7 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
     }
 
     protected void doDropOnce() throws SQLException {
-        jdbcTemplate.execute("DROP TABLE " + database.quote(schema.getName(), name) + " CASCADE");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS " + database.quote(schema.getName(), name) + " CASCADE");
     }
 
     @Override
@@ -77,15 +77,26 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
                     "   WHERE  table_schema = ?\n" +
                     "   AND    table_name = ?\n" +
                     ")", schema.getName(), name);
+        } else if (!schema.hasSchemaSupport) {
+            return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
+                    "   SELECT 1\n" +
+                    "   FROM   information_schema.tables \n" +
+                    "   WHERE  table_catalog = ?\n" +
+                    "   AND    table_schema = 'public'\n" +
+                    "   AND    table_name = ?\n" +
+                    ")", schema.getName(), name);
+        } else {
+            // There is a bug in CockroachDB v20.2.0-beta.* which causes the string equality operator to not work as
+            // expected, therefore we apply a workaround using the like operator.
+            // https://github.com/cockroachdb/cockroach/issues/55437
+            String sql = "SELECT EXISTS (\n" +
+                    "   SELECT 1\n" +
+                    "   FROM   information_schema.tables \n" +
+                    "   WHERE  table_schema = ?\n" +
+                    "   AND    table_name like '%"+name+"%' and length(table_name) = length(?)\n" +
+                    ")";
+            return jdbcTemplate.queryForBoolean(sql, schema.getName(), name);
         }
-
-        return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
-                "   SELECT 1\n" +
-                "   FROM   information_schema.tables \n" +
-                "   WHERE  table_catalog = ?\n" +
-                "   AND    table_schema = 'public'\n" +
-                "   AND    table_name = ?\n" +
-                ")", schema.getName(), name);
     }
 
     @Override
