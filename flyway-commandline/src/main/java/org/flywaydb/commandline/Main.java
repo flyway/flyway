@@ -303,7 +303,7 @@ public class Main {
 
 
     /**
-     * Filters there properties to remove the Flyway Commandline-specific ones.
+     * Filters the properties to remove the Flyway Commandline-specific ones.
      *
      * @param config The properties to filter.
      */

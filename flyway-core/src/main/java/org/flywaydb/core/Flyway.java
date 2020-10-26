@@ -39,10 +39,9 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
-import org.flywaydb.core.internal.resource.NoopResourceProvider;
+
+import org.flywaydb.core.internal.resource.*;
 import org.flywaydb.core.api.ResourceProvider;
-import org.flywaydb.core.internal.resource.StringResource;
-import org.flywaydb.core.internal.resource.ResourceNameValidator;
 import org.flywaydb.core.internal.scanner.LocationScannerCache;
 import org.flywaydb.core.internal.scanner.ResourceNameCache;
 import org.flywaydb.core.internal.scanner.Scanner;
@@ -523,7 +522,7 @@ public class Flyway {
             DefaultCallbackExecutor callbackExecutor =
                     new DefaultCallbackExecutor(configuration, database, defaultSchema,
                         prepareCallbacks(
-                                database, resourceProvider, jdbcConnectionFactory, sqlScriptFactory, statementInterceptor, defaultSchema
+                                database, resourceProvider, jdbcConnectionFactory, sqlScriptFactory, statementInterceptor, defaultSchema, parsingContext
                         ));
 
             SqlScriptExecutorFactory sqlScriptExecutorFactory =
@@ -659,7 +658,8 @@ public class Flyway {
                                             JdbcConnectionFactory jdbcConnectionFactory,
                                             SqlScriptFactory sqlScriptFactory,
                                             StatementInterceptor statementInterceptor,
-                                            Schema schema) {
+                                            Schema schema,
+                                            ParsingContext parsingContext) {
         List<Callback> effectiveCallbacks = new ArrayList<>();
         CallbackExecutor callbackExecutor = NoopCallbackExecutor.INSTANCE;
 
@@ -680,6 +680,13 @@ public class Flyway {
 
 
         effectiveCallbacks.addAll(Arrays.asList(configuration.getCallbacks()));
+
+
+
+
+
+
+
 
         if (!configuration.isSkipDefaultCallbacks()) {
             SqlScriptExecutorFactory sqlScriptExecutorFactory =
