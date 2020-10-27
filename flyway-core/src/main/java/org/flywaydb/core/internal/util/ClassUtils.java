@@ -28,6 +28,7 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 /**
  * Utility methods for dealing with classes.
@@ -109,6 +110,25 @@ public class ClassUtils {
         try {
             classLoader.loadClass(className);
             return true;
+        } catch (Throwable ex) {
+            // Class or one of its dependencies is not present...
+            return false;
+        }
+    }
+
+    /**
+     * Determine whether a class implementing the service identified by the supplied name is present
+     * and can be loaded. Will return {@code false} if either no class is found, or the class or
+     * one of its dependencies is not present or cannot be loaded.
+     *
+     * @param serviceName The name of the service to check.
+     * @param classLoader The ClassLoader to use.
+     * @return whether an implementation of the specified service is present
+     */
+    public static boolean isImplementationPresent(String serviceName, ClassLoader classLoader) {
+        try {
+            Class service = classLoader.loadClass(serviceName);
+            return ServiceLoader.load(service).iterator().hasNext();
         } catch (Throwable ex) {
             // Class or one of its dependencies is not present...
             return false;
