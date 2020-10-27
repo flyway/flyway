@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.info;
 
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.output.ValidateOutput;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
@@ -587,23 +588,19 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     /**
      * Validate all migrations for consistency.
      *
-     * @return The error message, or {@code null} if everything is fine.
+     * @return The list of migrations that failed validation, which is empty if everything is fine.
      */
-    public String validate() {
-        StringBuilder builder = new StringBuilder();
-        boolean hasFailures = false;
+    public List<ValidateOutput> validate() {
+        List<ValidateOutput> invalidMigrations = new ArrayList<>();
+        CommandResultFactory commandResultFactory = new CommandResultFactory();
 
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
-            String message = migrationInfo.validate();
-            if (message != null) {
-                if (!hasFailures)
-                    builder.append("\n");
-
-                builder.append(message + "\n");
-                hasFailures = true;
+            ErrorDetails validateError = migrationInfo.validate();
+            if (validateError != null) {
+                invalidMigrations.add(commandResultFactory.createValidateOutput(migrationInfo, validateError));
             }
         }
-        return (hasFailures) ? builder.toString() : null;
+        return invalidMigrations;
     }
 
     @Override

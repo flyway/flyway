@@ -21,6 +21,7 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
+import org.flywaydb.core.api.exception.FlywayValidateException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
@@ -168,7 +169,7 @@ public class Flyway {
                     ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
                             true);
                     if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
-                        throw new FlywayException("Validate failed: " + validateResult.validationError);
+                        throw new FlywayValidateException(validateResult.errorDetails);
                     }
                 }
 
@@ -262,11 +263,11 @@ public class Flyway {
             public Void execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
                                 Schema[] schemas, CallbackExecutor callbackExecutor,
                                 StatementInterceptor statementInterceptor) {
-                String validationError = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
-                        configuration.isIgnorePendingMigrations()).validationError;
+                ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
+                        configuration.isIgnorePendingMigrations());
 
-                if (validationError != null && !configuration.isCleanOnValidationError()) {
-                    throw new FlywayException("Validate failed: " + validationError);
+                if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
+                    throw new FlywayValidateException(validateResult.errorDetails);
                 }
 
                 return null;

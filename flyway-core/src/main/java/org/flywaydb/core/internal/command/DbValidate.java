@@ -15,11 +15,14 @@
  */
 package org.flywaydb.core.internal.command;
 
+import org.flywaydb.core.api.ErrorCode;
+import org.flywaydb.core.api.ErrorDetails;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.CommandResultFactory;
+import org.flywaydb.core.api.output.ValidateOutput;
 import org.flywaydb.core.api.output.ValidateResult;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
@@ -131,10 +134,11 @@ public class DbValidate {
                     return configuration;
                 }
             }).isEmpty() && !pending) {
-                String validationError = "Schema " + schema + " doesn't exist yet";
-                return commandResultFactory.createValidateResult(database.getCatalog(), validationError, 0, new ArrayList<>());
+                String validationErrorMessage = "Schema " + schema + " doesn't exist yet";
+                ErrorDetails validationError = new ErrorDetails(ErrorCode.SCHEMA_DOES_NOT_EXIST, validationErrorMessage);
+                return commandResultFactory.createValidateResult(database.getCatalog(), validationError, 0, null, new ArrayList<>());
             }
-            return commandResultFactory.createValidateResult(database.getCatalog(), null, 0, new ArrayList<>());
+            return commandResultFactory.createValidateResult(database.getCatalog(), null, 0, null, new ArrayList<>());
         }
 
         callbackExecutor.onEvent(Event.BEFORE_VALIDATE);
@@ -143,10 +147,10 @@ public class DbValidate {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        Pair<Integer, String> result = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
-                database).execute(new Callable<Pair<Integer, String>>() {
+        Pair<Integer, List<ValidateOutput>> result = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
+                database).execute(new Callable<Pair<Integer, List<ValidateOutput>>>() {
             @Override
-            public Pair<Integer, String> call() {
+            public Pair<Integer, List<ValidateOutput>> call() {
                 MigrationInfoServiceImpl migrationInfoService =
                         new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, database, configuration,
                                 configuration.getTarget(),
@@ -160,17 +164,18 @@ public class DbValidate {
                 migrationInfoService.refresh();
 
                 int count = migrationInfoService.all().length;
-                String validationError = migrationInfoService.validate();
-                return Pair.of(count, validationError);
+                List<ValidateOutput> invalidMigrations = migrationInfoService.validate();
+                return Pair.of(count, invalidMigrations);
             }
         });
 
         stopWatch.stop();
 
         List<String> warnings = new ArrayList<>();
-        String error = result.getRight();
+        List<ValidateOutput> invalidMigrations = result.getRight();
+        ErrorDetails validationError = null;
         int count = 0;
-        if (error == null) {
+        if (invalidMigrations.isEmpty()) {
             count = result.getLeft();
             if (count == 1) {
                 LOG.info(String.format("Successfully validated 1 migration (execution time %s)",
@@ -187,9 +192,11 @@ public class DbValidate {
             }
             callbackExecutor.onEvent(Event.AFTER_VALIDATE);
         } else {
+            validationError = new ErrorDetails(ErrorCode.VALIDATE_ERROR, "Migrations have failed validation");
             callbackExecutor.onEvent(Event.AFTER_VALIDATE_ERROR);
         }
 
-        return commandResultFactory.createValidateResult(database.getCatalog(), error, count, warnings);
+        ValidateResult validateResult = commandResultFactory.createValidateResult(database.getCatalog(), validationError, count, invalidMigrations, warnings);
+        return validateResult;
     }
 }

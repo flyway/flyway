@@ -26,7 +26,6 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.gcs.GCSResource;
 import org.flywaydb.core.internal.scanner.cloud.CloudScanner;
-import software.amazon.awssdk.core.exception.SdkClientException;
 
 import java.nio.charset.Charset;
 import java.util.*;

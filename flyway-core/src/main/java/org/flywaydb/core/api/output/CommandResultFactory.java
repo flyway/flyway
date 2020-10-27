@@ -15,9 +15,7 @@
  */
 package org.flywaydb.core.api.output;
 
-import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationState;
-import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.base.Database;
@@ -84,11 +82,12 @@ public class CommandResultFactory {
         return new BaselineResult(flywayVersion, databaseName);
     }
 
-    public ValidateResult createValidateResult(String databaseName, String validationError, int validationCount, List<String> warnings) {
+    public ValidateResult createValidateResult(String databaseName, ErrorDetails validationError, int validationCount, List<ValidateOutput> invalidMigrations, List<String> warnings) {
         String flywayVersion = VersionPrinter.getVersion();
         boolean validationSuccessful = validationError == null;
+        String errorMessage = validationError == null ? null : validationError.errorMessage;
 
-        return new ValidateResult(flywayVersion, databaseName, validationError, validationSuccessful, validationCount, warnings);
+        return new ValidateResult(flywayVersion, databaseName, validationError, validationSuccessful, validationCount, invalidMigrations, warnings, errorMessage);
     }
 
     public RepairResult createRepairResult(String databaseName) {
@@ -130,18 +129,26 @@ public class CommandResultFactory {
                 migrationInfo.getExecutionTime() != null ? migrationInfo.getExecutionTime() : 0);
     }
 
-    public UndoOutput createUndoOutput(ResolvedMigration undoMigrationInfo) {
+    public UndoOutput createUndoOutput(ResolvedMigration migrationInfo) {
         return new UndoOutput(
-                undoMigrationInfo.getVersion().getVersion(),
-                undoMigrationInfo.getDescription(),
-                undoMigrationInfo.getPhysicalLocation() != null ? undoMigrationInfo.getPhysicalLocation() : "");
+                migrationInfo.getVersion().getVersion(),
+                migrationInfo.getDescription(),
+                migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "");
     }
 
-    public RepairOutput createRepairOutput(MigrationInfo RepairMigrationInfo) {
+    public ValidateOutput createValidateOutput(MigrationInfo migrationInfo, ErrorDetails validateError) {
+        return new ValidateOutput(
+                migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
+                migrationInfo.getDescription(),
+                migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
+                validateError);
+    }
+
+    public RepairOutput createRepairOutput(MigrationInfo migrationInfo) {
         return new RepairOutput(
-                RepairMigrationInfo.getVersion() != null ? RepairMigrationInfo.getVersion().getVersion() : "",
-                RepairMigrationInfo.getDescription(),
-                RepairMigrationInfo.getPhysicalLocation() != null ? RepairMigrationInfo.getPhysicalLocation() : "");
+                migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
+                migrationInfo.getDescription(),
+                migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "");
     }
 
     private static String getUndoableStatus(MigrationInfo migrationInfo, Set<MigrationVersion> undoableVersions) {
