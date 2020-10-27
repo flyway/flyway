@@ -20,18 +20,17 @@ import com.google.gson.GsonBuilder;
 import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
+
+
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.output.CompositeResult;
+import org.flywaydb.core.api.output.*;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.core.api.output.ErrorOutput;
-import org.flywaydb.core.api.output.OperationResult;
-import org.flywaydb.core.api.output.OperationResultBase;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -247,14 +246,24 @@ public class Main {
             }
         } else if ("info".equals(operation)) {
             MigrationInfoService info = flyway.info();
-            result = info.getInfoResult();
             MigrationInfo current = info.current();
             MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
 
             MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
             LOG.info("Schema version: " + schemaVersionToOutput);
             LOG.info("");
-            LOG.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));
+
+
+
+
+
+
+
+             result = info.getInfoResult();
+             MigrationInfo[] infos = info.all();
+
+
+            LOG.info(MigrationInfoDumper.dumpToAsciiTable(infos));
         } else if ("repair".equals(operation)) {
             result = flyway.repair();
         } else {
@@ -265,6 +274,16 @@ public class Main {
 
         return result;
     }
+
+
+
+
+
+
+
+
+
+
 
     private static void printJson(CommandLineArguments commandLineArguments, OperationResult object) {
         String json = convertObjectToJsonString(object);

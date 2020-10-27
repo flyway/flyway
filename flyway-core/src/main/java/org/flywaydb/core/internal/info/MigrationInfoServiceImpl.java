@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.info;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.ValidateOutput;
+
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
@@ -434,6 +435,18 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         return migrationInfos.toArray(new MigrationInfo[0]);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
     @Override
     public MigrationInfo current() {
         MigrationInfo current = null;
@@ -605,7 +618,18 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
     @Override
     public InfoResult getInfoResult() {
-        CommandResultFactory commandResultFactory = new CommandResultFactory();
-        return commandResultFactory.createInfoResult(this.context.getConfiguration(), this.database, this.all(), this.current(), this.allSchemasEmpty);
+        return getInfoResult(this.all());
     }
+
+    public InfoResult getInfoResult(MigrationInfo[] infos) {
+        CommandResultFactory commandResultFactory = new CommandResultFactory();
+        return commandResultFactory.createInfoResult(this.context.getConfiguration(), this.database, infos, this.current(), this.allSchemasEmpty);
+    }
+
+
+
+
+
+
+
 }

@@ -17,8 +17,11 @@ package org.flywaydb.commandline;
 
 import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 class CommandLineArguments {
@@ -73,6 +76,12 @@ class CommandLineArguments {
     private static String CONFIG_FILES = "configFiles";
     private static String COLOR = "color";
     private static String WORKING_DIRECTORY = "workingDirectory";
+    private static String INFO_SINCE_DATE = "infoSinceDate";
+    private static String INFO_UNTIL_DATE = "infoUntilDate";
+    private static String INFO_SINCE_VERSION = "infoSinceVersion";
+    private static String INFO_UNTIL_VERSION = "infoUntilVersion";
+
+    private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     private static List<String> VALID_OPERATIONS_AND_FLAGS = Arrays.asList(
             DEBUG_FLAG,
@@ -166,7 +175,11 @@ class CommandLineArguments {
         return OUTPUT_FILE.equals(configurationOptionName) ||
                 OUTPUT_TYPE.equals(configurationOptionName) ||
                 COLOR.equals(configurationOptionName) ||
-                WORKING_DIRECTORY.equals(configurationOptionName);
+                WORKING_DIRECTORY.equals(configurationOptionName) ||
+                INFO_SINCE_DATE.equals(configurationOptionName) ||
+                INFO_UNTIL_DATE.equals(configurationOptionName) ||
+                INFO_SINCE_VERSION.equals(configurationOptionName) ||
+                INFO_UNTIL_VERSION.equals(configurationOptionName);
     }
 
     private static String getConfigurationOptionNameFromArg(String arg) {
@@ -249,6 +262,48 @@ class CommandLineArguments {
 
     String getWorkingDirectory() {
         return getArgumentValue(WORKING_DIRECTORY, args);
+    }
+
+    Date getInfoSinceDate() {
+        return parseDate(INFO_SINCE_DATE);
+    }
+
+    Date getInfoUntilDate() {
+        return parseDate(INFO_UNTIL_DATE);
+    }
+
+    MigrationVersion getInfoSinceVersion() {
+        return parseVersion(INFO_SINCE_VERSION);
+    }
+
+    MigrationVersion getInfoUntilVersion() {
+        return parseVersion(INFO_UNTIL_VERSION);
+    }
+
+    private MigrationVersion parseVersion(String argument) {
+        String versionStr = getArgumentValue(argument, args);
+
+        if (versionStr.isEmpty()) {
+            return null;
+        }
+
+        return MigrationVersion.fromVersion(versionStr);
+    }
+
+    private Date parseDate(String argument) {
+        String dateStr = getArgumentValue(argument, args);
+
+        if (dateStr.isEmpty()) {
+            return null;
+        }
+
+        try {
+            return DATE_FORMAT.parse(dateStr);
+        } catch (ParseException e) {
+            throw new FlywayException("'" + dateStr + "' is an invalid value for the " + argument + " option. " +
+                    "The expected format is 'dd/mm/yyyy hh:mm', like '13/10/2020 16:30'. " +
+                    "See the Flyway documentation for help: https://flywaydb.org/documentation/usage/commandline/info#filtering-output");
+        }
     }
 
     boolean isOutputFileSet() {
