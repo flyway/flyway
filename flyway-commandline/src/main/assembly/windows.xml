@@ -32,5 +32,12 @@
             <outputDirectory>jre</outputDirectory>
             <fileMode>644</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>native</outputDirectory>
+            <includes>
+                <include>sqljdbc_auth.dll</include>
+            </includes>
+        </fileSet>
     </fileSets>
 </assembly>
