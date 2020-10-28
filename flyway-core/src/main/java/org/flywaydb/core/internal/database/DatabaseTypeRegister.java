@@ -28,7 +28,7 @@ import org.flywaydb.core.internal.database.firebird.FirebirdDatabaseType;
 import org.flywaydb.core.internal.database.h2.H2DatabaseType;
 import org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabaseType;
 import org.flywaydb.core.internal.database.informix.InformixDatabaseType;
-import org.flywaydb.core.internal.database.mysql.MariaDBDatabaseType;
+import org.flywaydb.core.internal.database.mysql.mariadb.MariaDBDatabaseType;
 import org.flywaydb.core.internal.database.mysql.MySQLDatabaseType;
 import org.flywaydb.core.internal.database.oracle.OracleDatabaseType;
 import org.flywaydb.core.internal.database.postgresql.PostgreSQLDatabaseType;

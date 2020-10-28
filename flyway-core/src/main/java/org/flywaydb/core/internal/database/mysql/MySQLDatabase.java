@@ -24,10 +24,10 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.database.mysql.mariadb.MariaDBDatabaseType;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 
 import java.sql.Connection;
@@ -179,11 +179,15 @@ public class MySQLDatabase extends Database<MySQLConnection> {
                 "    `installed_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
                 "    `execution_time` INT NOT NULL,\n" +
                 "    `success` BOOL NOT NULL,\n" +
-                "    CONSTRAINT `" + table.getName() + "_pk` PRIMARY KEY (`installed_rank`)\n" +
+                "    CONSTRAINT " + getConstraintName(table.getName()) + " PRIMARY KEY (`installed_rank`)\n" +
                 ")" + tablespace + " ENGINE=InnoDB" +
                 baselineMarker +
                 ";\n" +
                 "CREATE INDEX `" + table.getName() + "_s_idx` ON " + table + " (`success`);";
+    }
+
+    protected String getConstraintName(String tableName) {
+        return "`" + tableName + "_pk`";
     }
 
     @Override
