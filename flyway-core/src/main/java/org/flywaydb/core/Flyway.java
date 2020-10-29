@@ -181,7 +181,11 @@ public class Flyway {
                         }
                     }
 
-                    if (!nonEmptySchemas.isEmpty() && !configuration.isSkipExecutingMigrations()) {
+                    if (!nonEmptySchemas.isEmpty()
+
+
+
+                    ) {
                         if (configuration.isBaselineOnMigrate()) {
                             doBaseline(schemaHistory, callbackExecutor, database);
                         } else {
