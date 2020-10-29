@@ -154,14 +154,12 @@ public class ClassicConfiguration implements Configuration {
      */
     private MigrationVersion target;
 
-
-
-
-
-
-
-
-
+    /**
+     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
+     * Migrations not in this list will be ignored.
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private MigrationPattern[] cherryPick;
 
     /**
      * Whether placeholders should be replaced. (default: true)
@@ -191,16 +189,14 @@ public class ClassicConfiguration implements Configuration {
      */
     private String sqlMigrationPrefix = "V";
 
-
-
-
-
-
-
-
-
-
-
+    /**
+     * The file name prefix for undo SQL migrations. (default: U)
+     * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
+     * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to U1.1__My_description.sql</p>
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String undoSqlMigrationPrefix = "U";
 
     /**
      * Custom Resource provider to use when looking up resources
@@ -360,20 +356,18 @@ public class ClassicConfiguration implements Configuration {
      */
     private boolean outOfOrder;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * <p>
+     * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
+     * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
+     * just want the schema history table to reflect this.
+     * </p>
+     * <p>
+     * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
+     * </p>
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private boolean skipExecutingMigrations;
 
     /**
      * This is a list of custom callbacks that fire before and after tasks are executed.  You can
@@ -427,80 +421,78 @@ public class ClassicConfiguration implements Configuration {
      */
     private boolean createSchemas = true;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Rules for the built-in error handler that let you override specific SQL states and errors codes in order to force
+     * specific errors or warnings to be treated as debug messages, info messages, warnings or errors.
+     * <p>Each error override has the following format: {@code STATE:12345:W}.
+     * It is a 5 character SQL state (or * to match all SQL states), a colon,
+     * the SQL error code (or * to match all SQL error codes), a colon and finally
+     * the desired behavior that should override the initial one.</p>
+     * <p>The following behaviors are accepted:</p>
+     * <ul>
+     * <li>{@code D} to force a debug message</li>
+     * <li>{@code D-} to force a debug message, but do not show the original sql state and error code</li>
+     * <li>{@code I} to force an info message</li>
+     * <li>{@code I-} to force an info message, but do not show the original sql state and error code</li>
+     * <li>{@code W} to force a warning</li>
+     * <li>{@code W-} to force a warning, but do not show the original sql state and error code</li>
+     * <li>{@code E} to force an error</li>
+     * <li>{@code E-} to force an error, but do not show the original sql state and error code</li>
+     * </ul>
+     * <p>Example 1: to force Oracle stored procedure compilation issues to produce
+     * errors instead of warnings, the following errorOverride can be used: {@code 99999:17110:E}</p>
+     * <p>Example 2: to force SQL Server PRINT messages to be displayed as info messages (without SQL state and error
+     * code details) instead of warnings, the following errorOverride can be used: {@code S0001:0:I-}</p>
+     * <p>Example 3: to force all errors with SQL error code 123 to be treated as warnings instead,
+     * the following errorOverride can be used: {@code *:123:W}</p>
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String[] errorOverrides = new String[0];
+
+    /**
+     * The output stream to write the SQL statements of a migration dry run to. {@code null} if the SQL statements
+     * are executed against the database directly. (default: {@code null}).
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private OutputStream dryRunOutput;
+
+    /**
+     * Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at
+     * once. Instead each statement is loaded individually. This is particularly useful for very large SQL migrations
+     * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
+     * (default: {@code false}
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private boolean stream;
+
+    /**
+     * Whether to batch SQL statements when executing them. Batching can save up to 99 percent of network roundtrips by
+     * sending up to 100 statements at once over the network to the database, instead of sending each statement
+     * individually. This is particularly useful for very large SQL migrations composed of multiple MB or even GB of
+     * reference data, as this can dramatically reduce the network overhead. This is supported for INSERT, UPDATE,
+     * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
+     * (default: {@code false})
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private boolean batch;
+
+    /**
+     * Whether Flyway should output a table with the results of queries when executing migrations.
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @return {@code true} to output the results table (default: {@code true})
+     */
+    private boolean outputQueryResults = true;
+
+    /**
+     * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
+     * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
+     * to try out Flyway Teams Edition features free for 30 days.
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String licenseKey;
 
     /**
      * The maximum number of retries when trying to obtain a lock.
@@ -509,16 +501,12 @@ public class ClassicConfiguration implements Configuration {
      */
     private int lockRetryCount = 50;
 
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Properties to pass to the JDBC driver object
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private Map<String, String> jdbcProperties;
 
     private final ClasspathClassScanner classScanner;
 
@@ -585,12 +573,7 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public MigrationPattern[] getCherryPick() {
-
-        return null;
-
-
-
-
+        return cherryPick;
     }
 
     @Override
@@ -700,12 +683,7 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public boolean isSkipExecutingMigrations() {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("skipExecutingMigrations");
-
-
-
-
+        return skipExecutingMigrations;
     }
 
     @Override
@@ -774,32 +752,17 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public String[] getErrorOverrides() {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("errorOverrides");
-
-
-
-
+        return errorOverrides;
     }
 
     @Override
     public OutputStream getDryRunOutput() {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
-
-
-
-
+        return dryRunOutput;
     }
 
     @Override
     public String getLicenseKey() {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("licenseKey");
-
-
-
-
+        return licenseKey;
     }
 
     @Override
@@ -814,17 +777,7 @@ public class ClassicConfiguration implements Configuration {
      */
     @Override
     public Map<String, String> getJdbcProperties() {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbcProperties");
-
-
-
-
-
-
-
-
-
+        return jdbcProperties;
     }
 
     /**
@@ -836,12 +789,7 @@ public class ClassicConfiguration implements Configuration {
      */
     @Override
     public boolean outputQueryResults() {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("outputQueryResults");
-
-
-
-
+        return outputQueryResults;
     }
 
     @Override
@@ -1372,12 +1320,7 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public String getUndoSqlMigrationPrefix() {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("undoSqlMigrationPrefix");
-
-
-
-
+        return undoSqlMigrationPrefix;
     }
 
     /**
@@ -1415,12 +1358,7 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public boolean isStream() {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("stream");
-
-
-
-
+        return stream;
     }
 
     /**
@@ -1442,12 +1380,7 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public boolean isBatch() {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("batch");
-
-
-
-
+        return batch;
     }
 
     /**
@@ -1749,47 +1682,38 @@ public class ClassicConfiguration implements Configuration {
         this.skipDefaultResolvers = skipDefaultResolvers;
     }
 
+    /**
+     * Whether Flyway's support for Oracle SQL*Plus commands should be activated.
+     * (default: {@code false})
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private boolean oracleSqlplus;
 
+    /**
+     * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
+     * it doesn't yet support. (default: {@code false})
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private boolean oracleSqlplusWarn;
 
+    /**
+     * When Oracle needs to connect to a Kerberos service to authenticate, the location of the Kerberos configuration
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String oracleKerberosConfigFile = "";   // Normally found at /etc/krb5.conf
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * When Oracle needs to connect to a Kerberos service to authenticate, the location of the Kerberos cache (optional)
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String oracleKerberosCacheFile = "";
 
     @Override
     public boolean isOracleSqlplus() {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.sqlplus");
-
-
-
-
+        return oracleSqlplus;
     }
 
     /**
@@ -1809,12 +1733,7 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public boolean isOracleSqlplusWarn() {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.sqlplusWarn");
-
-
-
-
+        return oracleSqlplusWarn;
     }
 
     /**
@@ -1824,12 +1743,7 @@ public class ClassicConfiguration implements Configuration {
      */
     @Override
     public String getOracleKerberosConfigFile() {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.kerberosConfigFile");
-
-
-
-
+        return oracleKerberosConfigFile;
     }
 
     /**
@@ -1839,12 +1753,7 @@ public class ClassicConfiguration implements Configuration {
      */
     @Override
     public String getOracleKerberosCacheFile(){
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.kerberosCacheFile");
-
-
-
-
+        return oracleKerberosCacheFile;
     }
 
     /**
@@ -1942,11 +1851,6 @@ public class ClassicConfiguration implements Configuration {
     public void setJdbcProperties(Map<String, String> jdbcProperties) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbcProperties");
-
-
-
-
-
 
 
 
