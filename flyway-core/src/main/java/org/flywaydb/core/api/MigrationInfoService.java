@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.api;
 
+
+
 /**
  * Info about all migrations, including applied, current and pending with details and status.
  */
@@ -25,6 +27,16 @@ public interface MigrationInfoService extends InfoOutputProvider {
      * @return The full set of infos. An empty array if none.
      */
     MigrationInfo[] all();
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Retrieves the information of the current applied migration, if any.

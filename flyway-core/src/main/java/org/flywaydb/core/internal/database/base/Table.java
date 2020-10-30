@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package org.flywaydb.core.internal.database.base;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,8 +26,6 @@ import java.sql.SQLException;
  * Represents a database table within a schema.
  */
 public abstract class Table<D extends Database, S extends Schema> extends SchemaObject<D, S> {
-    private static final Log LOG = LogFactory.getLog(Table.class);
-
     /**
      * Keep track of the locks on a table. Calls to lock the table can be nested, and also if the table doesn't
      * initially exist then we can't lock (and therefore shouldn't unlock either).
@@ -151,5 +147,5 @@ public abstract class Table<D extends Database, S extends Schema> extends Schema
      */
     protected void doUnlock() throws SQLException {
         // Default behaviour is to do nothing.
-    };
+    }
 }

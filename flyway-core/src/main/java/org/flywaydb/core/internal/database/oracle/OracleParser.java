@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,15 @@ package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.api.configuration.Configuration;
 
+
+
+
 import org.flywaydb.core.internal.parser.*;
-import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.api.ResourceProvider;
+import org.flywaydb.core.internal.resource.Resource;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
+import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.IOException;
@@ -61,10 +66,16 @@ public class OracleParser extends Parser {
 
     private static final Pattern PLSQL_PACKAGE_BODY_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\sBODY\\s([^\\s]*\\s)?(IS|AS)");
+    // separate regex for wrapped case as it is only used for determining the statement type
+    private static final Pattern PLSQL_PACKAGE_BODY_WRAPPED_REGEX = Pattern.compile(
+            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\sBODY\\sWRAPPED(\\s[^\\s]*)*");
     private static final StatementType PLSQL_PACKAGE_BODY_STATEMENT = new StatementType();
 
     private static final Pattern PLSQL_PACKAGE_DEFINITION_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\s([^\\s]*\\s)?(AUTHID\\s[^\\s]*\\s)?(IS|AS)");
+    // separate regex for wrapped case as it is only used for determining the statement type
+    private static final Pattern PLSQL_PACKAGE_DEFINITION_WRAPPED_REGEX = Pattern.compile(
+            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\sWRAPPED(\\s[^\\s]*)*");
 
     private static final Pattern PLSQL_VIEW_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sVIEW\\s([^\\s]*\\s)?AS\\sWITH\\s(PROCEDURE|FUNCTION)");
@@ -72,6 +83,9 @@ public class OracleParser extends Parser {
 
     private static final Pattern PLSQL_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\s(FUNCTION|PROCEDURE|TYPE|TRIGGER)");
+    // separate regex for wrapped case as it is only used for determining the statement type
+    private static final Pattern PLSQL_WRAPPED_REGEX = Pattern.compile(
+            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\s(FUNCTION|PROCEDURE|TYPE)\\sWRAPPED(\\s[^\\s]*)*");
     private static final Pattern DECLARE_BEGIN_REGEX = Pattern.compile("^DECLARE|BEGIN|WITH");
     private static final StatementType PLSQL_STATEMENT = new StatementType();
 
@@ -225,6 +239,11 @@ public class OracleParser extends Parser {
 
 
 
+
+
+
+
+
     @Override
     protected ParsedSqlStatement createStatement(PeekingReader reader, Recorder recorder,
                                                  int statementPos, int statementLine, int statementCol,
@@ -306,12 +325,15 @@ public class OracleParser extends Parser {
 
     @Override
     protected StatementType detectStatementType(String simplifiedStatement) {
-        if (PLSQL_PACKAGE_BODY_REGEX.matcher(simplifiedStatement).matches()) {
+        if (PLSQL_PACKAGE_BODY_REGEX.matcher(simplifiedStatement).matches() ||
+                PLSQL_PACKAGE_BODY_WRAPPED_REGEX.matcher(simplifiedStatement).matches()) {
             return PLSQL_PACKAGE_BODY_STATEMENT;
         }
 
         if (PLSQL_REGEX.matcher(simplifiedStatement).matches()
+                || PLSQL_WRAPPED_REGEX.matcher(simplifiedStatement).matches()
                 || PLSQL_PACKAGE_DEFINITION_REGEX.matcher(simplifiedStatement).matches()
+                || PLSQL_PACKAGE_DEFINITION_WRAPPED_REGEX.matcher(simplifiedStatement).matches()
                 || DECLARE_BEGIN_REGEX.matcher(simplifiedStatement).matches()) {
             return PLSQL_STATEMENT;
         }
@@ -431,7 +453,7 @@ public class OracleParser extends Parser {
         // We ignore normal SQL keywords as Java code can contain arbitrary identifiers.
         if (context.getStatementType() == PLSQL_JAVA_STATEMENT) {
             if ("{".equals(keywordText)) {
-                context.increaseBlockDepth();
+                context.increaseBlockDepth("PLSQL_JAVA_STATEMENT");
             } else if ("}".equals(keywordText)) {
                 context.decreaseBlockDepth();
             }
@@ -441,14 +463,14 @@ public class OracleParser extends Parser {
         int parensDepth = keyword.getParensDepth();
 
         if ("BEGIN".equals(keywordText)
-                || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !lastTokenIs(tokens, parensDepth, "END"))
+                || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !precedingEndAttachesToThisKeyword(tokens, parensDepth, context, keywordText))
                 || ("TRIGGER".equals(keywordText) && lastTokenIs(tokens, parensDepth, "COMPOUND"))
                 || doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_BODY_REGEX)
                 || doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_DEFINITION_REGEX)
                 || doTokensMatchPattern(tokens, keyword, PLSQL_TYPE_BODY_REGEX)
         ) {
-            context.increaseBlockDepth();
-        } else if ("END".equals(keywordText)) {
+            context.increaseBlockDepth(keywordText);
+        } else if ("END".equals(keywordText) ) {
             context.decreaseBlockDepth();
         }
 
@@ -459,6 +481,17 @@ public class OracleParser extends Parser {
             context.decreaseBlockDepth();
             return;
         }
+    }
+
+    private boolean precedingEndAttachesToThisKeyword(List<Token> tokens, int parensDepth, ParserContext context, String keywordText) {
+        // Normally IF, LOOP and CASE all pair up with END IF, END LOOP, END CASE
+        // However, CASE ... END is valid in expressions, so in code such as
+        //      FOR i IN 1 .. CASE WHEN foo THEN 5 ELSE 6 END
+        //      LOOP
+        //        ...
+        //      END LOOP
+        // the first END does *not* attach to the subsequent LOOP. The same is possible with $IF ... $END constructions
+        return lastTokenIs(tokens, parensDepth, "END") && keywordText.equals(context.getLastClosedBlockInitiator());
     }
 
     @Override
@@ -533,4 +566,33 @@ public class OracleParser extends Parser {
                 return specialChar + "'";
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

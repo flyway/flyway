@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.license;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+
 import org.flywaydb.core.internal.util.DateUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
@@ -31,7 +32,6 @@ import java.util.Date;
 public class VersionPrinter {
     private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
     private static final String version = readVersion();
-    private static boolean printed;
 
     public static final Edition EDITION =
 
@@ -67,11 +67,6 @@ public class VersionPrinter {
 
 
     ) {
-        if (printed) {
-            return;
-        }
-        printed = true;
-
 
         printVersionOnly();
 
@@ -91,8 +86,6 @@ public class VersionPrinter {
     public static void printVersionOnly() {
         LOG.info(EDITION + " " + version + " by Redgate");
     }
-
-
 
 
 

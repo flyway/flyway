@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,7 @@ import java.util.Map;
 public class PlaceholderReplacingReader extends FilterReader {
     private final String prefix;
     private final String suffix;
-    private final Map<String, String> placeholders;
-
-    /**
-     * The number of chars by which to increase the read-ahead limit to factor in the difference in length between
-     * placeholders (with prefix and suffix) and their replacements.
-     */
-    private final int readAheadLimitAdjustment;
+    private final CaseInsensitiveMap placeholders = new CaseInsensitiveMap();
 
     private final StringBuilder buffer = new StringBuilder();
     private String markBuffer;
@@ -44,21 +38,36 @@ public class PlaceholderReplacingReader extends FilterReader {
     private String markReplacement;
     private int markReplacementPos;
 
+    private static class CaseInsensitiveMap extends HashMap<String, String> {
+
+        @Override
+        public void putAll(Map<? extends String, ? extends String> m) {
+            for (Map.Entry<? extends String, ? extends String> e : m.entrySet()) {
+                put(e.getKey(), e.getValue());
+            }
+        }
+
+        @Override
+        public String put(String key, String value) {
+            return super.put(key.toLowerCase(), value);
+        }
+
+        @Override
+        public String get(Object key) {
+            return super.get(key.toString().toLowerCase());
+        }
+
+        @Override
+        public boolean containsKey(Object key) {
+            return super.containsKey(key.toString().toLowerCase());
+        }
+    }
+
     public PlaceholderReplacingReader(String prefix, String suffix, Map<String, String> placeholders, Reader in) {
         super(in);
         this.prefix = prefix;
         this.suffix = suffix;
-        this.placeholders = placeholders;
-
-        int prefixSuffixLength = prefix.length() + suffix.length();
-        int maxPlaceholderLength = prefixSuffixLength;
-        int minReplacementLength = Integer.MAX_VALUE;
-        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-            maxPlaceholderLength = Math.max(maxPlaceholderLength, prefixSuffixLength + entry.getKey().length());
-            int valueLength = (entry.getValue() != null) ? entry.getValue().length() : 0;
-            minReplacementLength = Math.min(minReplacementLength, valueLength);
-        }
-        readAheadLimitAdjustment = Math.max(maxPlaceholderLength - minReplacementLength, 0);
+        this.placeholders.putAll(placeholders);
     }
 
     public static PlaceholderReplacingReader create(Configuration configuration, ParsingContext parsingContext, Reader reader) {
@@ -79,12 +88,15 @@ public class PlaceholderReplacingReader extends FilterReader {
     @Override
     public int read() throws IOException {
         if (replacement == null) {
+
+            // if we have a previous read, then consume it
             if (buffer.length() > 0) {
                 char c = buffer.charAt(0);
                 buffer.deleteCharAt(0);
                 return c;
             }
 
+            // else read ahead by the prefix length
             int r;
             do {
                 r = super.read();
@@ -94,30 +106,38 @@ public class PlaceholderReplacingReader extends FilterReader {
 
                 buffer.append((char) r);
             } while (buffer.length() < prefix.length() && endsWith(buffer, prefix.substring(0, buffer.length())));
+
+            // if the buffer does not contain the prefix
             if (!endsWith(buffer, prefix)) {
+                // if it contain data, return the first character of it
                 if (buffer.length() > 0) {
                     char c = buffer.charAt(0);
                     buffer.deleteCharAt(0);
                     return c;
                 }
+                // else return -1
                 return -1;
             }
+            // if the buffer contained the prefix, wipe the buffer
             buffer.delete(0, buffer.length());
 
+            // begin reading ahead until we get to the suffix
             StringBuilder placeholderBuilder = new StringBuilder();
             do {
-                int r1 = in.read();
+                int r1 = super.read();
                 if (r1 == -1) {
                     break;
                 } else {
                     placeholderBuilder.append((char) r1);
                 }
             } while (!endsWith(placeholderBuilder, suffix));
+
+            // delete the suffix from the builder
             for (int i = 0; i < suffix.length(); i++) {
                 placeholderBuilder.deleteCharAt(placeholderBuilder.length() - 1);
             }
 
-
+            // look up the placeholder string
             String placeholder = placeholderBuilder.toString();
             if (!placeholders.containsKey(placeholder)) {
                 String canonicalPlaceholder = prefix + placeholder + suffix;
@@ -132,6 +152,7 @@ public class PlaceholderReplacingReader extends FilterReader {
                         + ".  Check your configuration!");
             }
 
+            // set the current placeholder replacement
             replacement = placeholders.get(placeholder);
 
             // Empty placeholder value -> move to the next character
@@ -169,7 +190,7 @@ public class PlaceholderReplacingReader extends FilterReader {
         markBuffer = buffer.toString();
         markReplacement = replacement;
         markReplacementPos = replacementPos;
-        super.mark(readAheadLimit + readAheadLimitAdjustment);
+        super.mark(readAheadLimit);
     }
 
     @Override

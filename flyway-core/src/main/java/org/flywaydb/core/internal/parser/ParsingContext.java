@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class ParsingContext {
         String[] schemaNames = configuration.getSchemas();
 
         Schema currentSchema = getCurrentSchema(database);
-        String catalog = getCatalog(database);
+        String catalog = database.getCatalog();
         String currentUser = getCurrentUser(database);
 
         // cf. Flyway.prepareSchemas()
@@ -71,15 +71,6 @@ public class ParsingContext {
 
         placeholders.put(USER_PLACEHOLDER, currentUser);
         placeholders.put(TIMESTAMP_PLACEHOLDER, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-    }
-
-    private String getCatalog(Database database) {
-        try {
-            return database.getMainConnection().getJdbcConnection().getCatalog();
-        } catch (SQLException e) {
-            LOG.debug("Could not get database name for " + DATABASE_PLACEHOLDER + " placeholder.");
-            return null;
-        }
     }
 
     private Schema getCurrentSchema(Database database) {

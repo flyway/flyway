@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.info;
 
+import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.MigrationVersion;
 
 import java.util.HashMap;
@@ -53,6 +54,11 @@ public class MigrationInfoContext {
      * The migration target.
      */
     public MigrationVersion target;
+
+    /**
+     * The migrations to consider.
+     */
+    public MigrationPattern[] cherryPick;
 
     /**
      * The SCHEMA migration version that was applied.
@@ -98,6 +104,7 @@ public class MigrationInfoContext {
         if (baseline != null ? !baseline.equals(that.baseline) : that.baseline != null) return false;
         if (lastResolved != null ? !lastResolved.equals(that.lastResolved) : that.lastResolved != null) return false;
         if (lastApplied != null ? !lastApplied.equals(that.lastApplied) : that.lastApplied != null) return false;
+        if (cherryPick != null ? !cherryPick.equals(that.cherryPick) : that.cherryPick != null) return false;
         return latestRepeatableRuns.equals(that.latestRepeatableRuns);
 
     }
@@ -114,6 +121,7 @@ public class MigrationInfoContext {
         result = 31 * result + (baseline != null ? baseline.hashCode() : 0);
         result = 31 * result + (lastResolved != null ? lastResolved.hashCode() : 0);
         result = 31 * result + (lastApplied != null ? lastApplied.hashCode() : 0);
+        result = 31 * result + (cherryPick != null ? cherryPick.hashCode() : 0);
         result = 31 * result + latestRepeatableRuns.hashCode();
         return result;
     }

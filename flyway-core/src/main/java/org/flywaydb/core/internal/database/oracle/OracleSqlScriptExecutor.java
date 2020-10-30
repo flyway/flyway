@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,9 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 
+
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.jdbc.Result;
-import org.flywaydb.core.internal.jdbc.Results;
+import org.flywaydb.core.internal.jdbc.*;
 import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
@@ -34,6 +32,7 @@ import org.flywaydb.core.internal.util.DateUtils;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.io.IOException;
 import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
@@ -41,6 +40,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @SuppressWarnings("SqlResolve")
 public class OracleSqlScriptExecutor extends DefaultSqlScriptExecutor {
@@ -63,18 +63,38 @@ public class OracleSqlScriptExecutor extends DefaultSqlScriptExecutor {
 
 
 
-    public OracleSqlScriptExecutor(JdbcTemplate jdbcTemplate
 
-
-
-
+    public OracleSqlScriptExecutor(JdbcTemplate jdbcTemplate,
+            CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
+            StatementInterceptor statementInterceptor
     ) {
-        super(jdbcTemplate
-
-
-
+        super(jdbcTemplate, callbackExecutor, undo, batch, outputQueryResults, statementInterceptor
         );
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

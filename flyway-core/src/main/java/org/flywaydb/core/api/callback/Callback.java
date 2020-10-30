@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,4 +50,10 @@ public interface Callback {
      * @param context The context for this event.
      */
     void handle(Event event, Context context);
+
+    /**
+     * The callback name, Flyway will use this to sort the callbacks alphabetically before executing them
+     * @return The callback name
+     */
+    String getCallbackName();
 }

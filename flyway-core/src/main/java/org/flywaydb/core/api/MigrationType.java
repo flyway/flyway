@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,11 @@ public enum MigrationType {
      * Baseline migration.
      */
     BASELINE(true, false, false),
+
+    /**
+     * Deleted migration
+     */
+    DELETE(true, false, false),
 
     /**
      * SQL migrations.
@@ -74,6 +79,18 @@ public enum MigrationType {
      */
     @Deprecated
     UNDO_SPRING_JDBC(false, true, false),
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Migrations using custom MigrationResolvers.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,7 @@ import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -58,7 +55,7 @@ public class JarFileClassPathLocationScanner implements ClassPathLocationScanner
 
         try {
             // For Tomcat and non-expanded WARs.
-            String prefix = jarFile.getName().toLowerCase().endsWith(".war") ? "WEB-INF/classes/" : "";
+            String prefix = jarFile.getName().toLowerCase(Locale.ENGLISH).endsWith(".war") ? "WEB-INF/classes/" : "";
             return findResourceNamesFromJarFile(jarFile, prefix, location);
         } finally {
             try {

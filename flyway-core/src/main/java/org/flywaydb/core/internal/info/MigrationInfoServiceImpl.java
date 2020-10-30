@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,17 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.output.InfoOutput;
-import org.flywaydb.core.internal.output.InfoOutputFactory;
 import org.flywaydb.core.internal.scanner.Scanner;
+import org.flywaydb.core.api.output.ValidateOutput;
+
+import org.flywaydb.core.api.resolver.Context;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.api.output.InfoResult;
+import org.flywaydb.core.api.output.CommandResultFactory;
+import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
@@ -39,15 +47,21 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Default implementation of MigrationInfoService.
  */
-public class MigrationInfoServiceImpl implements MigrationInfoService {
+public class MigrationInfoServiceImpl implements MigrationInfoService, OperationResult {
     /**
      * The migration resolver for available migrations.
      */
     private final MigrationResolver migrationResolver;
+
+    /**
+     * Database-specific functionality.
+     */
+    private final Database database;
 
     private final Context context;
 
@@ -60,6 +74,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * The target version up to which to retrieve the info.
      */
     private MigrationVersion target;
+
+    /**
+     * The migrations to retrieve info for.
+     */
+    private MigrationPattern[] cherryPick;
 
     /**
      * Allows migrations to be run "out of order".
@@ -95,6 +114,16 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     private List<MigrationInfoImpl> migrationInfos;
 
     /**
+     * The list of schemas managed by Flyway.
+     */
+    private Schema[] schemas;
+
+    /**
+     * Whether all of the specified schemas are empty or not.
+     */
+    private boolean allSchemasEmpty = true;
+
+    /**
      * Creates a new MigrationInfoServiceImpl.
      *
      * @param migrationResolver The migration resolver for available migrations.
@@ -102,14 +131,15 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @param configuration     The current configuration.
      * @param target            The target version up to which to retrieve the info.
      * @param outOfOrder        Allows migrations to be run "out of order".
+     * @param cherryPick        The migrations to consider when migration.
      * @param pending           Whether pending migrations are allowed.
      * @param missing           Whether missing migrations are allowed.
      * @param ignored           Whether ignored migrations are allowed.
      * @param future            Whether future migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver,
-                                    SchemaHistory schemaHistory, final Configuration configuration,
-                                    MigrationVersion target, boolean outOfOrder,
+                                    SchemaHistory schemaHistory, Schema[] schemas, Database database, final Configuration configuration,
+                                    MigrationVersion target, boolean outOfOrder, MigrationPattern[] cherryPick,
                                     boolean pending, boolean missing, boolean ignored, boolean future) {
         this.migrationResolver = migrationResolver;
         this.schemaHistory = schemaHistory;
@@ -119,12 +149,15 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
                 return configuration;
             }
         };
+        this.database = database;
         this.target = target;
         this.outOfOrder = outOfOrder;
+        this.cherryPick = cherryPick;
         this.pending = pending;
         this.missing = missing;
-        this.ignored = ignored;
+        this.ignored = ignored || cherryPick != null;
         this.future = future;
+        this.schemas = schemas;
     }
 
     /**
@@ -141,14 +174,20 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         context.ignored = ignored;
         context.future = future;
         context.target = target;
+        context.cherryPick = cherryPick;
 
         boolean isIntermediateMigrationApplied = false;
+        // Split applied into version and repeatable, and update state from synthetic migrations
         List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedVersioned = new ArrayList<>();
-        List<AppliedMigration> appliedRepeatable = new ArrayList<>();
+        List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedRepeatable = new ArrayList<>();
         for (AppliedMigration appliedMigration : appliedMigrations) {
             MigrationVersion version = appliedMigration.getVersion();
             if (version == null) {
-                appliedRepeatable.add(appliedMigration);
+                appliedRepeatable.add(Pair.of(appliedMigration, new AppliedMigrationAttributes()));
+
+                if (appliedMigration.getType().equals(MigrationType.DELETE) && appliedMigration.isSuccess()) {
+                    markRepeatableAsDeleted(appliedMigration.getDescription(), appliedRepeatable);
+                }
                 continue;
             }
             if (appliedMigration.getType() == MigrationType.SCHEMA) {
@@ -161,6 +200,9 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
                 context.baseline = version;
                 isIntermediateMigrationApplied = true;
             }
+            if (appliedMigration.getType().equals(MigrationType.DELETE) && appliedMigration.isSuccess()) {
+                markAsDeleted(version, appliedVersioned);
+            }
 
 
 
@@ -169,23 +211,25 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             appliedVersioned.add(Pair.of(appliedMigration, new AppliedMigrationAttributes()));
         }
 
+        // Update last applied and out of order states
         for (Pair<AppliedMigration, AppliedMigrationAttributes> av : appliedVersioned) {
             MigrationVersion version = av.getLeft().getVersion();
             if (version != null) {
                 if (version.compareTo(context.lastApplied) > 0) {
+                    if (av.getLeft().getType() != MigrationType.DELETE && !av.getRight().deleted
 
 
 
+                    ) {
                         context.lastApplied = version;
-
-
-
+                    }
                 } else {
                     av.getRight().outOfOrder = true;
                 }
             }
         }
 
+        // Set target
         if (MigrationVersion.CURRENT == target) {
             context.target = context.lastApplied;
         }
@@ -194,6 +238,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         Map<String, ResolvedMigration> resolvedRepeatable = new TreeMap<>();
         ResolvedMigration pendingIntermediateBaselineMigration = null;
 
+        // Separate resolved migrations into versioned and repeatable
         for (ResolvedMigration resolvedMigration : resolvedMigrations) {
             MigrationVersion version = resolvedMigration.getVersion();
             if (version != null) {
@@ -201,50 +246,85 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
                     context.lastResolved = version;
                 }
                 if (resolvedMigration.getType().isIntermediateBaseline()) {
-                	if (!isIntermediateMigrationApplied
-                			&& context.lastApplied == MigrationVersion.EMPTY
-                			&& version.compareTo(context.pendingIntermediateBaseline) > 0)  {
-	                	context.pendingIntermediateBaseline = version;
-	                	pendingIntermediateBaselineMigration = resolvedMigration;
+                    if (!isIntermediateMigrationApplied
+                            && context.lastApplied == MigrationVersion.EMPTY
+                            && version.compareTo(context.pendingIntermediateBaseline) > 0)  {
+                        context.pendingIntermediateBaseline = version;
+                        pendingIntermediateBaselineMigration = resolvedMigration;
                 	}
                 } else {
-	                //noinspection RedundantConditionalExpression
-	                resolvedVersioned.put(Pair.of(version,
-	
-	
-	
-	                                false), resolvedMigration);
+                    //noinspection RedundantConditionalExpression
+                    resolvedVersioned.put(Pair.of(version,
+
+
+
+                                    false), resolvedMigration);
                 }
             } else {
                 resolvedRepeatable.put(resolvedMigration.getDescription(), resolvedMigration);
             }
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // Identify pending versioned migrations and build output migration info list
         List<MigrationInfoImpl> migrationInfos1 = new ArrayList<>();
         Set<ResolvedMigration> pendingResolvedVersioned = new HashSet<>(resolvedVersioned.values());
 
         for (Pair<AppliedMigration, AppliedMigrationAttributes> av : appliedVersioned) {
             ResolvedMigration resolvedMigration = resolvedVersioned.get(Pair.of(av.getLeft().getVersion(), av.getLeft().getType().isUndo()));
+
+            // Remove pending migrations
             if (resolvedMigration != null
+                    && !av.getRight().deleted && av.getLeft().getType() != MigrationType.DELETE
 
 
 
             ) {
                 pendingResolvedVersioned.remove(resolvedMigration);
             }
-            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, av.getLeft(), context, av.getRight().outOfOrder
+
+            // Build final migration info
+            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, av.getLeft(), context, av.getRight().outOfOrder, av.getRight().deleted
 
 
 
             ));
         }
 
-        boolean intermediateBaselineExists = MigrationVersion.EMPTY != context.pendingIntermediateBaseline; 
+        boolean intermediateBaselineExists = MigrationVersion.EMPTY != context.pendingIntermediateBaseline;
+        // Add all pending migrations to output list
         for (ResolvedMigration prv : pendingResolvedVersioned) {
         	if (intermediateBaselineExists 
         			&& prv.getVersion().compareTo(context.pendingIntermediateBaseline) <= 0) continue;
 
-            migrationInfos1.add(new MigrationInfoImpl(prv, null, context, false
+            migrationInfos1.add(new MigrationInfoImpl(prv, null, context, false, false
 
 
 
@@ -252,46 +332,123 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         }
 
         if (intermediateBaselineExists) {
-            migrationInfos1.add(new MigrationInfoImpl(pendingIntermediateBaselineMigration, null, context, false
+            migrationInfos1.add(new MigrationInfoImpl(pendingIntermediateBaselineMigration, null, context, false, false
 
 
 
             ));
         }
 
+        if (target != null && target != MigrationVersion.CURRENT && target != MigrationVersion.LATEST) {
+            boolean targetFound = false;
 
-        for (AppliedMigration appliedRepeatableMigration : appliedRepeatable) {
-            if (!context.latestRepeatableRuns.containsKey(appliedRepeatableMigration.getDescription())
-                    || (appliedRepeatableMigration.getInstalledRank() > context.latestRepeatableRuns.get(appliedRepeatableMigration.getDescription()))) {
-                context.latestRepeatableRuns.put(appliedRepeatableMigration.getDescription(), appliedRepeatableMigration.getInstalledRank());
+            for (MigrationInfoImpl migration : migrationInfos1) {
+                if (target.compareTo(migration.getVersion()) == 0) {
+                    targetFound = true;
+                    break;
+                }
+            }
+
+            if (!targetFound) {
+                throw new FlywayException("No migration with a target version " + target + " could be found. Ensure target is specified correctly and the migration exists.");
             }
         }
 
+        // Setup the latest repeatable run ranks
+        for (Pair<AppliedMigration, AppliedMigrationAttributes> av : appliedRepeatable) {
+            if (av.getRight().deleted && av.getLeft().getType() == MigrationType.DELETE) {
+                continue;
+            }
+            AppliedMigration appliedRepeatableMigration = av.getLeft();
+
+            String desc = appliedRepeatableMigration.getDescription();
+            int rank = appliedRepeatableMigration.getInstalledRank();
+            Map<String, Integer> latestRepeatableRuns = context.latestRepeatableRuns;
+
+            if (!latestRepeatableRuns.containsKey(desc) || (rank > latestRepeatableRuns.get(desc))) {
+                latestRepeatableRuns.put(desc, rank);
+            }
+        }
+
+        // Using latest repeatable runs, discover pending repeatables and build output list
         Set<ResolvedMigration> pendingResolvedRepeatable = new HashSet<>(resolvedRepeatable.values());
-        for (AppliedMigration appliedRepeatableMigration : appliedRepeatable) {
-            ResolvedMigration resolvedMigration = resolvedRepeatable.get(appliedRepeatableMigration.getDescription());
-            int latestRank = context.latestRepeatableRuns.get(appliedRepeatableMigration.getDescription());
-            if (resolvedMigration != null && appliedRepeatableMigration.getInstalledRank() == latestRank
-                    && resolvedMigration.checksumMatches(appliedRepeatableMigration.getChecksum())) {
+        for (Pair<AppliedMigration, AppliedMigrationAttributes> av : appliedRepeatable) {
+            AppliedMigration appliedRepeatableMigration = av.getLeft();
+
+            String desc = appliedRepeatableMigration.getDescription();
+            int rank = appliedRepeatableMigration.getInstalledRank();
+
+            ResolvedMigration resolvedMigration = resolvedRepeatable.get(desc);
+            int latestRank = context.latestRepeatableRuns.get(desc);
+
+            // If latest run is the same rank, its not pending
+            if (!av.getRight().deleted && av.getLeft().getType() != MigrationType.DELETE
+                   && resolvedMigration != null && rank == latestRank && resolvedMigration.checksumMatches(appliedRepeatableMigration.getChecksum())) {
                 pendingResolvedRepeatable.remove(resolvedMigration);
             }
-            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false
+
+            // Add to output list
+            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false, av.getRight().deleted
 
 
 
             ));
         }
 
+        // Add pending repeatables to output list
         for (ResolvedMigration prr : pendingResolvedRepeatable) {
-            migrationInfos1.add(new MigrationInfoImpl(prr, null, context, false
+            migrationInfos1.add(new MigrationInfoImpl(prr, null, context, false, false
 
 
 
             ));
         }
 
+        // Update whether all managed schemas are empty or not
+        allSchemasEmpty = Arrays.stream(schemas).allMatch(Schema::empty);
+
+        // Set output
         Collections.sort(migrationInfos1);
         migrationInfos = migrationInfos1;
+    }
+
+    /**
+     * Marks the latest applied migration with this description as deleted.
+     *
+     * @param description The description to match
+     * @param appliedRepeatable The discovered applied migrations
+     */
+    private void markRepeatableAsDeleted(String description, List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedRepeatable) {
+        for (int i = appliedRepeatable.size() - 1; i >= 0; i--) {
+            Pair<AppliedMigration, AppliedMigrationAttributes> ar = appliedRepeatable.get(i);
+            if (!ar.getLeft().getType().isSynthetic() && description.equals(ar.getLeft().getDescription())) {
+                if (!ar.getRight().deleted) {
+                    ar.getRight().deleted = true;
+                }
+                return;
+            }
+        }
+    }
+
+    /**
+     * Marks the latest applied migration with this version as deleted.
+     *
+     * @param version          The version.
+     * @param appliedVersioned The applied migrations.
+     */
+    private void markAsDeleted(MigrationVersion version, List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedVersioned) {
+        for (int i = appliedVersioned.size() - 1; i >= 0; i--) {
+            Pair<AppliedMigration, AppliedMigrationAttributes> av = appliedVersioned.get(i);
+            if (!av.getLeft().getType().isSynthetic() && version.equals(av.getLeft().getVersion())) {
+                if (av.getRight().deleted) {
+                    throw new FlywayException("Corrupted schema history: multiple delete entries for version " + version,
+                            ErrorCode.DUPLICATE_DELETED_MIGRATION);
+                } else {
+                    av.getRight().deleted = true;
+                    return;
+                }
+            }
+        }
     }
 
 
@@ -323,11 +480,25 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         return migrationInfos.toArray(new MigrationInfo[0]);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
     @Override
     public MigrationInfo current() {
         MigrationInfo current = null;
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
             if (migrationInfo.getState().isApplied()
+                    && !MigrationState.DELETED.equals(migrationInfo.getState())
+                    && !migrationInfo.getType().equals(MigrationType.DELETE)
 
 
 
@@ -345,6 +516,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         for (int i = migrationInfos.size() - 1; i >= 0; i--) {
             MigrationInfoImpl migrationInfo = migrationInfos.get(i);
             if (migrationInfo.getState().isApplied()
+                    && !MigrationState.DELETED.equals(migrationInfo.getState())
+                    && !migrationInfo.getType().equals(MigrationType.DELETE)
 
 
 
@@ -473,28 +646,35 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     /**
      * Validate all migrations for consistency.
      *
-     * @return The error message, or {@code null} if everything is fine.
+     * @return The list of migrations that failed validation, which is empty if everything is fine.
      */
-    public String validate() {
-        StringBuilder builder = new StringBuilder();
-        boolean hasFailures = false;
+    public List<ValidateOutput> validate() {
+        List<ValidateOutput> invalidMigrations = new ArrayList<>();
+        CommandResultFactory commandResultFactory = new CommandResultFactory();
 
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
-            String message = migrationInfo.validate();
-            if (message != null) {
-                if (!hasFailures)
-                    builder.append("\n");
-
-                builder.append(message + "\n");
-                hasFailures = true;
+            ErrorDetails validateError = migrationInfo.validate();
+            if (validateError != null) {
+                invalidMigrations.add(commandResultFactory.createValidateOutput(migrationInfo, validateError));
             }
         }
-        return (hasFailures) ? builder.toString() : null;
+        return invalidMigrations;
     }
 
     @Override
-    public InfoOutput getInfoOutput() {
-        InfoOutputFactory infoOutputFactory = new InfoOutputFactory();
-        return infoOutputFactory.create(this.context.getConfiguration(), this.all(), this.current());
+    public InfoResult getInfoResult() {
+        return getInfoResult(this.all());
     }
+
+    public InfoResult getInfoResult(MigrationInfo[] infos) {
+        CommandResultFactory commandResultFactory = new CommandResultFactory();
+        return commandResultFactory.createInfoResult(this.context.getConfiguration(), this.database, infos, this.current(), this.allSchemasEmpty);
+    }
+
+
+
+
+
+
+
 }

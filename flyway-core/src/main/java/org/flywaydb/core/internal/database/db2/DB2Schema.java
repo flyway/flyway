@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,6 +133,11 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
             jdbcTemplate.execute(dropStatement);
         }
 
+        // modules
+        for (String dropStatement : generateDropStatementsForModules()) {
+            jdbcTemplate.execute(dropStatement);
+        }
+
         for (Function function : allFunctions()) {
             function.drop();
         }
@@ -150,7 +155,7 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
      */
     private List<String> generateDropStatementsForProcedures() throws SQLException {
         String dropProcGenQuery =
-                "select SPECIFICNAME from SYSCAT.ROUTINES where ROUTINETYPE='P' and ROUTINESCHEMA = '" + name + "'";
+                "select SPECIFICNAME from SYSCAT.ROUTINES where ROUTINETYPE='P' and ROUTINESCHEMA = '" + name + "'" + " and ROUTINEMODULENAME IS NULL";
         return buildDropStatements("DROP SPECIFIC PROCEDURE", dropProcGenQuery);
     }
 
@@ -198,6 +203,16 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
                 ;
 
         return buildDropStatements("DROP VIEW", dropSeqGenQuery);
+    }
+
+    private List<String> generateDropStatementsForModules() throws SQLException {
+        String dropSeqGenQuery =
+                "select MODULENAME from syscat.modules where MODULESCHEMA = '"
+                + name
+                + "' and OWNERTYPE='U'";
+
+
+        return buildDropStatements("DROP MODULE", dropSeqGenQuery);
     }
 
     /**

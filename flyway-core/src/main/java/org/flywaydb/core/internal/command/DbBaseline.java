@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,10 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.output.BaselineResult;
+import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 
@@ -51,31 +54,42 @@ public class DbBaseline {
     private final CallbackExecutor callbackExecutor;
 
     /**
+     * The POJO containing the baseline result
+     */
+    private final BaselineResult baselineResult;
+
+    /**
      * Creates a new DbBaseline.
      *
      * @param schemaHistory       The database schema history table.
      * @param baselineVersion     The version to tag an existing schema with when executing baseline.
      * @param baselineDescription The description to tag an existing schema with when executing baseline.
      * @param callbackExecutor    The callback executor.
+     * @param database            Database-specific functionality.
      */
-    public DbBaseline(SchemaHistory schemaHistory, MigrationVersion baselineVersion,
-                      String baselineDescription, CallbackExecutor callbackExecutor) {
+    public DbBaseline(SchemaHistory schemaHistory, MigrationVersion baselineVersion, String baselineDescription,
+                      CallbackExecutor callbackExecutor, Database database) {
         this.schemaHistory = schemaHistory;
         this.baselineVersion = baselineVersion;
         this.baselineDescription = baselineDescription;
         this.callbackExecutor = callbackExecutor;
+
+        CommandResultFactory commandResultFactory = new CommandResultFactory();
+        baselineResult = commandResultFactory.createBaselineResult(database.getCatalog());
     }
 
     /**
      * Baselines the database.
      */
-    public void baseline() {
+    public BaselineResult baseline() {
         callbackExecutor.onEvent(Event.BEFORE_BASELINE);
 
         try {
             if (!schemaHistory.exists()) {
                 schemaHistory.create(true);
                 LOG.info("Successfully baselined schema with version: " + baselineVersion);
+                baselineResult.successfullyBaselined = true;
+                baselineResult.baselineVersion = baselineVersion.toString();
             } else {
                 AppliedMigration baselineMarker = schemaHistory.getBaselineMarker();
                 if (baselineMarker != null) {
@@ -83,6 +97,8 @@ public class DbBaseline {
                             && baselineDescription.equals(baselineMarker.getDescription())) {
                         LOG.info("Schema history table " + schemaHistory + " already initialized with ("
                                 + baselineVersion + "," + baselineDescription + "). Skipping.");
+                        baselineResult.successfullyBaselined = true;
+                        baselineResult.baselineVersion = baselineVersion.toString();
                     } else {
                         throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " with ("
                                 + baselineVersion + "," + baselineDescription
@@ -109,9 +125,12 @@ public class DbBaseline {
             }
         } catch (FlywayException e) {
             callbackExecutor.onEvent(Event.AFTER_BASELINE_ERROR);
+            baselineResult.successfullyBaselined = false;
             throw e;
         }
 
         callbackExecutor.onEvent(Event.AFTER_BASELINE);
+
+        return baselineResult;
     }
 }

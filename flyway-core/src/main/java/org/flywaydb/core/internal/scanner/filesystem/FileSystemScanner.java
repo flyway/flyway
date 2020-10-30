@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
+import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -33,7 +34,7 @@ import java.util.TreeSet;
  */
 public class FileSystemScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
-    private final Charset encoding;
+    private final Charset defaultEncoding;
 
 
 
@@ -47,12 +48,8 @@ public class FileSystemScanner {
 
 
      */
-    public FileSystemScanner(Charset encoding
-
-
-
-    ) {
-        this.encoding = encoding;
+    public FileSystemScanner(Charset encoding, boolean stream) {
+        this.defaultEncoding = encoding;
 
 
 
@@ -71,29 +68,44 @@ public class FileSystemScanner {
 
         File dir = new File(path);
         if (!dir.exists()) {
-            LOG.warn("Skipping filesystem location:" + path + " (not found). Note this warning will become an error in Flyway 7.");
+            LOG.error("Skipping filesystem location:" + path + " (not found).");
             return Collections.emptyList();
         }
         if (!dir.canRead()) {
-            LOG.warn("Skipping filesystem location:" + path + " (not readable). Note this warning will become an error in Flyway 7.");
+            LOG.error("Skipping filesystem location:" + path + " (not readable).");
             return Collections.emptyList();
         }
         if (!dir.isDirectory()) {
-            LOG.warn("Skipping filesystem location:" + path + " (not a directory). Note this warning will become an error in Flyway 7.");
+            LOG.error("Skipping filesystem location:" + path + " (not a directory).");
             return Collections.emptyList();
         }
 
         Set<LoadableResource> resources = new TreeSet<>();
 
         for (String resourceName : findResourceNamesFromFileSystem(path, new File(path))) {
-
             if (location.matchesPath(resourceName)) {
+                Charset encoding = defaultEncoding;
+                String encodingBlurb = "";
+                if (new File(resourceName + ".conf").exists()) {
+                    LoadableResource metadataResource = new FileSystemResource(location, resourceName + ".conf", defaultEncoding
+
+
+
+                    );
+                    SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource);
+                    if (metadata.encoding() != null) {
+                        encoding = Charset.forName(metadata.encoding());
+                        encodingBlurb = " (with overriding encoding " + encoding + ")";
+                    }
+                }
                 resources.add(new FileSystemResource(location, resourceName, encoding
 
 
 
                 ));
-                LOG.debug("Found filesystem resource: " + resourceName);
+
+
+                LOG.debug("Found filesystem resource: " + resourceName + encodingBlurb);
             }
         }
 

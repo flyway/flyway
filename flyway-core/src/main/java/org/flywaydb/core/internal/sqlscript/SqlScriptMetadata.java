@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,12 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-import org.flywaydb.core.api.ErrorCode;
-import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.ResourceProvider;
-import org.flywaydb.core.internal.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,13 +29,17 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean
 public class SqlScriptMetadata {
     private static final Log LOG = LogFactory.getLog(SqlScriptMetadata.class);
     private static final String EXECUTE_IN_TRANSACTION = "executeInTransaction";
+    private static final String ENCODING = "encoding";
 
     private final Boolean executeInTransaction;
+    private final String encoding;
+
 
     private SqlScriptMetadata(Map<String, String> metadata) {
         // Make copy to prevent removing elements from the original
         metadata = new HashMap<>(metadata);
         this.executeInTransaction = removeBoolean(metadata, EXECUTE_IN_TRANSACTION);
+        this.encoding = metadata.remove(ENCODING);
 
         ConfigUtils.checkConfigurationForUnrecognisedProperties(metadata, null);
     }
@@ -48,10 +48,12 @@ public class SqlScriptMetadata {
         return executeInTransaction;
     }
 
+    public String encoding() { return encoding; }
+
     public static SqlScriptMetadata fromResource(LoadableResource resource) {
         if (resource != null) {
             LOG.debug("Found script configuration: " + resource.getFilename());
-            return new SqlScriptMetadata(ConfigUtils.readConfiguration(resource.read()));
+            return new SqlScriptMetadata(ConfigUtils.loadConfigurationFromReader(resource.read()));
         }
         return new SqlScriptMetadata(new HashMap<>());
     }

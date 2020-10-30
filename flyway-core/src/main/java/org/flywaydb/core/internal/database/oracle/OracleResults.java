@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.database.oracle;
 
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Warning;
+
 import org.flywaydb.core.internal.jdbc.Result;
 import org.flywaydb.core.internal.jdbc.Results;
 
@@ -24,6 +25,15 @@ import org.flywaydb.core.internal.jdbc.Results;
  * Oracle-specific results and side-effects.
  */
 public class OracleResults extends Results {
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class InformixParser extends Parser {
 
             // CREATE( DBA)? (FUNCTION|PROCEDURE)
             if ("CREATE".equals(previous) || "DBA".equals(previous)) {
-                context.increaseBlockDepth();
+                context.increaseBlockDepth(previous);
             } else if ("END".equals(previous)) {
                 context.decreaseBlockDepth();
             }

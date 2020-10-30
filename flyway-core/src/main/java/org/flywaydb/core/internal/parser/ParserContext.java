@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,12 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 
 import java.security.InvalidParameterException;
+import java.util.Stack;
 
 public class ParserContext {
     private int parensDepth = 0;
+    private Stack<String> blockInitiators = new Stack<>();
+    private String lastClosedBlockInitiator = null;
     private int blockDepth = 0;
     private Delimiter delimiter;
     private StatementType statementType;
@@ -42,7 +45,14 @@ public class ParserContext {
         return parensDepth;
     }
 
-    public void increaseBlockDepth() {
+    // When a block is closed, retain the token that opened it, so that we can determine what the
+    // context of a given END is.
+    public String getLastClosedBlockInitiator() {
+        return lastClosedBlockInitiator;
+    }
+
+    public void increaseBlockDepth(String blockInitiator) {
+        blockInitiators.push(blockInitiator);
         blockDepth++;
     }
 
@@ -51,10 +61,15 @@ public class ParserContext {
             throw new FlywayException("Flyway parsing bug: unable to decrease block depth below 0");
         }
         blockDepth--;
+        lastClosedBlockInitiator = blockInitiators.pop();
     }
 
     public int getBlockDepth() {
         return blockDepth;
+    }
+
+    public String getBlockInitiator() {
+        return blockInitiators.size() > 0 ? blockInitiators.peek() : "";
     }
 
     public Delimiter getDelimiter() {

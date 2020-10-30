@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,11 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
-import java.sql.BatchUpdateException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.SQLWarning;
-import java.sql.Statement;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.database.base.DatabaseType;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,12 +32,12 @@ public class JdbcTemplate {
     /**
      * The DB connection to use.
      */
-    private final Connection connection;
+    protected final Connection connection;
 
     /**
      * The type to assign to a null value.
      */
-    private final int nullType;
+    protected final int nullType;
 
     /**
      * Creates a new JdbcTemplate.
@@ -48,7 +45,7 @@ public class JdbcTemplate {
      * @param connection The database connection to use.
      */
     public JdbcTemplate(Connection connection) {
-        this(connection, DatabaseType.fromJdbcConnection(connection));
+        this(connection, DatabaseTypeRegister.getDatabaseTypeForConnection(connection));
     }
 
     /**
@@ -217,6 +214,7 @@ public class JdbcTemplate {
      * @param params The statement parameters.
      * @throws SQLException when the execution failed.
      */
+
     public void execute(String sql, Object... params) throws SQLException {
         PreparedStatement statement = null;
         try {
@@ -239,13 +237,10 @@ public class JdbcTemplate {
         try {
             statement = connection.createStatement();
             statement.setEscapeProcessing(false);
-            boolean hasResults;
-            try {
-                hasResults = statement.execute(sql);
-            } finally {
-                extractWarnings(results, statement);
-            }
+
+            boolean hasResults = statement.execute(sql);
             extractResults(results, statement, sql, hasResults);
+            extractWarnings(results, statement);
         } catch (final SQLException e) {
             extractErrors(results, e);
         } finally {
@@ -303,6 +298,7 @@ public class JdbcTemplate {
                     }
 
                     data = new ArrayList<>();
+
                     while (resultSet.next()) {
                         List<String> row = new ArrayList<>();
                         for (int i = 1; i <= columnCount; i++) {
@@ -324,6 +320,7 @@ public class JdbcTemplate {
      * @param params The statement parameters.
      * @throws SQLException when the execution failed.
      */
+
     public void update(String sql, Object... params) throws SQLException {
         PreparedStatement statement = null;
         try {
@@ -342,8 +339,11 @@ public class JdbcTemplate {
      * @return The new prepared statement.
      * @throws SQLException when the statement could not be prepared.
      */
-    private PreparedStatement prepareStatement(String sql, Object[] params) throws SQLException {
+
+    protected PreparedStatement prepareStatement(String sql, Object[] params) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(sql);
+
+        //Spanner requires specific types for null but most others e.g. postgres don't work that way
         for (int i = 0; i < params.length; i++) {
             if (params[i] == null) {
                 statement.setNull(i + 1, nullType);
@@ -351,8 +351,17 @@ public class JdbcTemplate {
                 statement.setInt(i + 1, (Integer) params[i]);
             } else if (params[i] instanceof Boolean) {
                 statement.setBoolean(i + 1, (Boolean) params[i]);
-            } else {
+            } else if (params[i] instanceof String){
                 statement.setString(i + 1, params[i].toString());
+            } else if (params[i] == JdbcNullTypes.StringNull) {
+                statement.setNull(i + 1, nullType);
+            } else if (params[i] == JdbcNullTypes.IntegerNull) {
+                statement.setNull(i + 1, nullType);
+            } else if (params[i] == JdbcNullTypes.BooleanNull) {
+                statement.setNull(i + 1, nullType);
+            } else {
+                throw new FlywayException("Unhandled object of type '" + params[i].getClass().getName() + "'. " +
+                        "Please contact support or leave an issue on GitHub.");
             }
         }
         return statement;
@@ -367,6 +376,7 @@ public class JdbcTemplate {
      * @return The list of results.
      * @throws SQLException when the query failed to execute.
      */
+
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... params) throws SQLException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;

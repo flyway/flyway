@@ -1,5 +1,5 @@
 @REM
-@REM Copyright 2010-2020 Redgate Software Ltd
+@REM Copyright © Red Gate Software Ltd 2010-2020
 @REM
 @REM Licensed under the Apache License, Version 2.0 (the "License");
 @REM you may not use this file except in compliance with the License.
@@ -46,10 +46,14 @@ IF NOT [%1]==[] (
         GOTO :loop-end
     )
     IF [%1]==[-pro] (
-        SET FLYWAY_EDITION=pro
+        SET FLYWAY_EDITION=enterprise
         GOTO :loop-end
     )
     IF [%1]==[-enterprise] (
+        SET FLYWAY_EDITION=enterprise
+        GOTO :loop-end
+    )
+    IF [%1]==[-teams] (
         SET FLYWAY_EDITION=enterprise
         GOTO :loop-end
     )
@@ -61,7 +65,7 @@ if "%FLYWAY_EDITION%"=="" (
   set FLYWAY_EDITION=community
 )
 
-%JAVA_CMD% %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\%FLYWAY_EDITION%\*;%INSTALLDIR%\drivers\*" org.flywaydb.commandline.Main %*
+%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\%FLYWAY_EDITION%\*;%INSTALLDIR%\drivers\*" org.flywaydb.commandline.Main %*
 
 @REM Exit using the same code returned from Java
 EXIT /B %ERRORLEVEL%

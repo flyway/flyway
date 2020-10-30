@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -27,6 +28,7 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 /**
  * Utility methods for dealing with classes.
@@ -115,6 +117,25 @@ public class ClassUtils {
     }
 
     /**
+     * Determine whether a class implementing the service identified by the supplied name is present
+     * and can be loaded. Will return {@code false} if either no class is found, or the class or
+     * one of its dependencies is not present or cannot be loaded.
+     *
+     * @param serviceName The name of the service to check.
+     * @param classLoader The ClassLoader to use.
+     * @return whether an implementation of the specified service is present
+     */
+    public static boolean isImplementationPresent(String serviceName, ClassLoader classLoader) {
+        try {
+            Class service = classLoader.loadClass(serviceName);
+            return ServiceLoader.load(service).iterator().hasNext();
+        } catch (Throwable ex) {
+            // Class or one of its dependencies is not present...
+            return false;
+        }
+    }
+
+    /**
      * Loads the class with this name using the class loader.
      *
      * @param implementedInterface The interface the class is expected to implement.
@@ -194,5 +215,24 @@ public class ClassUtils {
             }
         }
         return new URLClassLoader(urls.toArray(new URL[0]), classLoader);
+    }
+
+    /**
+     * Gets the String value of a static field.
+     *
+     * @param className   The fully qualified name of the class to instantiate.
+     * @param classLoader The ClassLoader to use.
+     * @param fieldName   The field name
+     * @return The value of the field.
+     * @throws FlywayException Thrown when the instantiation failed.
+     */
+    public static String getStaticFieldValue(String className, String fieldName, ClassLoader classLoader) {
+        try {
+            Class clazz = Class.forName(className, true, classLoader);
+            Field field = clazz.getField(fieldName);
+            return (String)field.get(null);
+        } catch (Exception e) {
+            throw new FlywayException("Unable to obtain field value " + className + "." + fieldName + " : " + e.getMessage(), e);
+        }
     }
 }

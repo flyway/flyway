@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,5 +28,14 @@ public abstract class BaseCallback implements Callback {
     @Override
     public boolean canHandleInTransaction(Event event, Context context) {
         return true;
+    }
+
+    @Override
+    public String getCallbackName() {
+        String name = this.getClass().getSimpleName();
+        if (name.contains("__")) {
+            name = name.split("__")[1];
+        }
+        return name;
     }
 }

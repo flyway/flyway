@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class SQLServerTable extends Table<SQLServerDatabase, SQLServerSchema> {
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    SQLServerTable(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, SQLServerSchema schema, String name) {
+    public SQLServerTable(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, SQLServerSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
         this.databaseName = databaseName;
     }

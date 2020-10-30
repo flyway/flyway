@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -33,16 +34,8 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
      *
      * @param configuration The Flyway configuration.
      */
-    public PostgreSQLDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
-
-
-
-    ) {
-        super(configuration, jdbcConnectionFactory
-
-
-
-        );
+    public PostgreSQLDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+        super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
@@ -65,13 +58,14 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
 
 
+
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("9.0");
 
-        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("9.4", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("9.5", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessaryForMajorVersion("12");
+        recommendFlywayUpgradeIfNecessaryForMajorVersion("13");
     }
 
     @Override

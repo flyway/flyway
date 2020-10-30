@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  * The statement relevant to an event.
- * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+ * <p><i>Flyway Teams only</i></p>
  */
 public interface Statement {
     /**

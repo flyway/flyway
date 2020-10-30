@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,19 +44,19 @@ public enum Event {
     /**
      * Fired before each individual statement in a migration is executed. This event will be fired within the same transaction (if any)
      * as the migration and can be used for things like asserting a statement complies with policy (for example: no grant statements allowed).
-     * <p><i>Flyway Pro and Enterprise Edition only</i></p>
+     * <p><i>Flyway Teams Edition only</i></p>
      */
     BEFORE_EACH_MIGRATE_STATEMENT("beforeEachMigrateStatement"),
     /**
      * Fired after each individual statement in a migration that succeeded. This event will be fired within the same transaction (if any)
      * as the migration.
-     * <p><i>Flyway Pro and Enterprise Edition only</i></p>
+     * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_EACH_MIGRATE_STATEMENT("afterEachMigrateStatement"),
     /**
      * Fired after each individual statement in a migration that failed. This event will be fired within the same transaction (if any)
      * as the migration.
-     * <p><i>Flyway Pro and Enterprise Edition only</i></p>
+     * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_EACH_MIGRATE_STATEMENT_ERROR("afterEachMigrateStatementError"),
     /**
@@ -70,6 +70,14 @@ public enum Event {
      */
     AFTER_EACH_MIGRATE_ERROR("afterEachMigrateError"),
     /**
+     * Fired before any repeatable migrations are applied. This event will be fired in a separate transaction from the actual migrate operation.
+     */
+    BEFORE_REPEATABLES("beforeRepeatables"),
+    /**
+     * Fired after all versioned migrations are applied. This event will be fired in a separate transaction from the actual migrate operation.
+     */
+    AFTER_VERSIONED("afterVersioned"),
+    /**
      * Fired after migrate has succeeded. This event will be fired in a separate transaction from the actual migrate operation.
      */
     AFTER_MIGRATE("afterMigrate"),
@@ -80,53 +88,53 @@ public enum Event {
 
     /**
      * Fired before undo is executed. This event will be fired in a separate transaction from the actual undo operation.
-     * <p><i>Flyway Pro and Enterprise Edition only</i></p>
+     * <p><i>Flyway Teams Edition only</i></p>
      */
     BEFORE_UNDO("beforeUndo"),
     /**
      * Fired before each individual undo is executed. This event will be fired within the same transaction (if any)
      * as the undo and can be used for things like setting up connection parameters that are required by undo.
-     * <p><i>Flyway Pro and Enterprise Edition only</i></p>
+     * <p><i>Flyway Teams Edition only</i></p>
      */
     BEFORE_EACH_UNDO("beforeEachUndo"),
     /**
      * Fired before each individual statement in an undo migration is executed. This event will be fired within the same transaction (if any)
      * as the migration and can be used for things like asserting a statement complies with policy (for example: no grant statements allowed).
-     * <p><i>Flyway Pro and Enterprise Edition only</i></p>
+     * <p><i>Flyway Teams Edition only</i></p>
      */
     BEFORE_EACH_UNDO_STATEMENT("beforeEachUndoStatement"),
     /**
      * Fired after each individual statement in an undo migration that succeeded. This event will be fired within the same transaction (if any)
      * as the migration.
-     * <p><i>Flyway Pro and Enterprise Edition only</i></p>
+     * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_EACH_UNDO_STATEMENT("afterEachUndoStatement"),
     /**
      * Fired after each individual statement in an undo migration that failed. This event will be fired within the same transaction (if any)
      * as the migration.
-     * <p><i>Flyway Pro and Enterprise Edition only</i></p>
+     * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_EACH_UNDO_STATEMENT_ERROR("afterEachUndoStatementError"),
     /**
      * Fired after each individual undo that succeeded. This event will be fired within the same transaction (if any)
      * as the undo.
-     * <p><i>Flyway Pro and Enterprise Edition only</i></p>
+     * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_EACH_UNDO("afterEachUndo"),
     /**
      * Fired after each individual undo that failed. This event will be fired within the same transaction (if any)
      * as the undo.
-     * <p><i>Flyway Pro and Enterprise Edition only</i></p>
+     * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_EACH_UNDO_ERROR("afterEachUndoError"),
     /**
      * Fired after undo has succeeded. This event will be fired in a separate transaction from the actual undo operation.
-     * <p><i>Flyway Pro and Enterprise Edition only</i></p>
+     * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_UNDO("afterUndo"),
     /**
      * Fired after undo has failed. This event will be fired in a separate transaction from the actual undo operation.
-     * <p><i>Flyway Pro and Enterprise Edition only</i></p>
+     * <p><i>Flyway Teams Edition only</i></p>
      */
     AFTER_UNDO_ERROR("afterUndoError"),
 

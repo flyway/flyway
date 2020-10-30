@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,12 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.InsertRowLock;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.jdbc.Results;
 import org.flywaydb.core.internal.util.SqlCallable;
 
-import java.math.BigInteger;
 import java.sql.SQLException;
-import java.util.Random;
 
 /**
  * CockroachDB-specific table.
@@ -35,12 +30,7 @@ import java.util.Random;
  * carrying out a migration.
  */
 public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSchema> {
-    private static final Log LOG = LogFactory.getLog(CockroachDBTable.class);
-
-    /**
-     * A random string, used as an ID of this instance of Flyway.
-     */
-    private String tableLockString = RandomStringGenerator.getNextRandomString();
+    private final InsertRowLock insertRowLock = new InsertRowLock();
 
     /**
      * Creates a new CockroachDB table.
@@ -66,7 +56,7 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
     }
 
     protected void doDropOnce() throws SQLException {
-        jdbcTemplate.execute("DROP TABLE " + database.quote(schema.getName(), name) + " CASCADE");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS " + database.quote(schema.getName(), name) + " CASCADE");
     }
 
     @Override
@@ -87,74 +77,43 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
                     "   WHERE  table_schema = ?\n" +
                     "   AND    table_name = ?\n" +
                     ")", schema.getName(), name);
+        } else if (!schema.hasSchemaSupport) {
+            return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
+                    "   SELECT 1\n" +
+                    "   FROM   information_schema.tables \n" +
+                    "   WHERE  table_catalog = ?\n" +
+                    "   AND    table_schema = 'public'\n" +
+                    "   AND    table_name = ?\n" +
+                    ")", schema.getName(), name);
+        } else {
+            // There is a bug in CockroachDB v20.2.0-beta.* which causes the string equality operator to not work as
+            // expected, therefore we apply a workaround using the like operator.
+            // https://github.com/cockroachdb/cockroach/issues/55437
+            String sql = "SELECT EXISTS (\n" +
+                    "   SELECT 1\n" +
+                    "   FROM   information_schema.tables \n" +
+                    "   WHERE  table_schema = ?\n" +
+                    "   AND    table_name like '%"+name+"%' and length(table_name) = length(?)\n" +
+                    ")";
+            return jdbcTemplate.queryForBoolean(sql, schema.getName(), name);
         }
-
-        return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
-                "   SELECT 1\n" +
-                "   FROM   information_schema.tables \n" +
-                "   WHERE  table_catalog = ?\n" +
-                "   AND    table_schema = 'public'\n" +
-                "   AND    table_name = ?\n" +
-                ")", schema.getName(), name);
     }
 
     @Override
     protected void doLock() throws SQLException {
-        if (lockDepth > 0) {
-            // Lock has already been taken - so the relevant row in the table already exists
-            return;
+        if (lockDepth == 0) {
+            insertRowLock.doLock(jdbcTemplate, database.getInsertStatement(this), database.getBooleanTrue());
         }
-
-        int retryCount = 0;
-        do {
-            try {
-                if (insertLockingRow()) {
-                    return;
-                }
-                retryCount++;
-                LOG.debug("Waiting for lock on " + this);
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                // Ignore - if interrupted, we still need to wait for lock to become available
-            }
-        } while (retryCount < 50);
-
-        throw new FlywayException("Unable to obtain table lock - another Flyway instance may be running");
-    }
-
-    private boolean insertLockingRow() {
-        // Insert the locking row - the primary keyness of installed_rank will prevent us having two.
-        Results results = jdbcTemplate.executeStatement("INSERT INTO " + this + " VALUES (-100, '" + tableLockString + "', 'flyway-lock', '', '', 0, '', now(), 0, TRUE)");
-        // Succeeded if one row updated and no errors.
-        return (results.getResults().size() > 0
-                && results.getResults().get(0).getUpdateCount() == 1
-                && results.getErrors().size() == 0);
     }
 
     @Override
     protected void doUnlock() throws SQLException {
-        // Leave the locking row alone until we get to the final level of unlocking
-        if (lockDepth > 1) {
-            return;
+        if (lockDepth == 1) {
+            insertRowLock.doUnlock(jdbcTemplate, getDeleteLockTemplate());
         }
-
-        // Check that there are no other locks in place. This should not happen!
-        int competingLocksTaken = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + this + " WHERE version != '" + tableLockString + "' AND DESCRIPTION = 'flyway-lock'");
-        if (competingLocksTaken > 0) {
-            throw new FlywayException("Internal error: on unlocking, a competing lock was found");
-        }
-
-        // Remove the locking row
-        jdbcTemplate.executeStatement("DELETE FROM " + this + " WHERE version = '" + tableLockString + "' AND DESCRIPTION = 'flyway-lock'");
     }
-}
 
-class RandomStringGenerator {
-    static final Random random = new Random();
-
-    //get next random string
-    public static String getNextRandomString(){
-        BigInteger bInt = new BigInteger(128, random);
-        return bInt.toString(16);
+    private String getDeleteLockTemplate() {
+        return "DELETE FROM " + this + " WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
     }
 }

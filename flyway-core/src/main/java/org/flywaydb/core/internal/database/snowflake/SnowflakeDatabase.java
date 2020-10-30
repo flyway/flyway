@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,12 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class SnowflakeDatabase extends Database<SnowflakeConnection> {
@@ -41,16 +43,8 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
     /**
      * Creates a new instance.
      */
-    public SnowflakeDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
-
-
-
-    ) {
-        super(configuration, jdbcConnectionFactory
-
-
-
-        );
+    public SnowflakeDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+        super(configuration, jdbcConnectionFactory, statementInterceptor);
 
         quotedIdentifiersIgnoreCase = getQuotedIdentifiersIgnoreCase(jdbcTemplate);
         if (quotedIdentifiersIgnoreCase) {
@@ -63,7 +57,7 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
             // Attempt query
             List<Map<String, String>> result = jdbcTemplate.queryForList("SHOW PARAMETERS LIKE 'QUOTED_IDENTIFIERS_IGNORE_CASE'");
             Map<String, String> row = result.get(0);
-            return "TRUE".equals(row.get("value").toUpperCase());
+            return "TRUE".equals(row.get("value").toUpperCase(Locale.ENGLISH));
         } catch (SQLException e) {
             LOG.warn("Could not query for parameter QUOTED_IDENTIFIERS_IGNORE_CASE.");
             return false;

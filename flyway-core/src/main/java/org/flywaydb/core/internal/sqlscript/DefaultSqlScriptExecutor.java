@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Result;
 import org.flywaydb.core.internal.jdbc.Results;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.util.AsciiTable;
 
 import java.sql.Statement;
@@ -68,11 +69,9 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-    public DefaultSqlScriptExecutor(JdbcTemplate jdbcTemplate
-
-
-
-
+    public DefaultSqlScriptExecutor(JdbcTemplate jdbcTemplate,
+            CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
+            StatementInterceptor statementInterceptor
     ) {
         this.jdbcTemplate = jdbcTemplate;
 
@@ -148,7 +147,6 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
                     + "SQL: " + sqlStatement.getSql());
         }
     }
-
 
 
 

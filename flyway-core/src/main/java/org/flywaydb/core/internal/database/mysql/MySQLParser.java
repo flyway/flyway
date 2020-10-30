@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,25 +23,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static java.lang.Character.isDigit;
+
 public class MySQLParser extends Parser {
     private static final char ALTERNATIVE_SINGLE_LINE_COMMENT = '#';
-    private IfState ifState;
-    private String previousKeywordText;
 
-    enum IfState {
-        NONE,
-        IF_FUNCTION,
-        IF_NOT,
-        IF_EXISTS,
-        IF,
-        IF_THEN,
-        UNKNOWN
-    }
+    private static final Pattern STORED_PROGRAM_REGEX = Pattern.compile(
+            "^CREATE\\s(((DEFINER\\s@\\s)?(PROCEDURE|FUNCTION|EVENT))|TRIGGER)");
+    private static final StatementType STORED_PROGRAM_STATEMENT = new StatementType();
 
     public MySQLParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 8);
-        ifState = IfState.NONE;
-        previousKeywordText = "";
     }
 
     @Override
@@ -51,7 +43,7 @@ public class MySQLParser extends Parser {
 
     @Override
     protected Token handleKeyword(PeekingReader reader, ParserContext context, int pos, int line, int col, String keyword) throws IOException {
-        if (keywordIs("DELIMITER", keyword)) {
+        if ("DELIMITER".equalsIgnoreCase(keyword)) {
             String text = reader.readUntilExcluding('\n', '\r').trim();
             return new Token(TokenType.NEW_DELIMITER, pos, line, col, text, text, context.getParensDepth());
         }
@@ -111,23 +103,25 @@ public class MySQLParser extends Parser {
     }
 
     @Override
+    protected StatementType detectStatementType(String simplifiedStatement) {
+        if (STORED_PROGRAM_REGEX.matcher(simplifiedStatement).matches()) {
+            return STORED_PROGRAM_STATEMENT;
+        }
+
+        return super.detectStatementType(simplifiedStatement);
+    }
+
+    @Override
     protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
         TokenType tokenType = token.getType();
-        if (TokenType.DELIMITER == tokenType || ";".equals(token.getText())) {
+        if (TokenType.DELIMITER.equals(tokenType) || ";".equals(token.getText())) {
+            return true;
+        } else if (TokenType.EOF.equals(tokenType)) {
             return true;
         }
 
         return super.shouldAdjustBlockDepth(context, token);
     }
-
-    // These words increase the block depth - unless preceded by END (in which case the END will decrease the block depth)
-    // See: https://dev.mysql.com/doc/refman/8.0/en/flow-control-statements.html
-    private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("LOOP", "CASE", "REPEAT", "WHILE");
-
-    private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(
-            ".*CREATE\\s([^\\s]+\\s){1,2}IF\\sNOT\\sEXISTS");
-    private static final Pattern DROP_IF_EXISTS = Pattern.compile(
-            ".*DROP\\s([^\\s]+\\s){1,2}IF\\sEXISTS");
 
     private boolean doesDelimiterEndFunction(List<Token> tokens, Token delimiter) {
 
@@ -156,55 +150,21 @@ public class MySQLParser extends Parser {
 
         int parensDepth = keyword.getParensDepth();
 
-        if (IfState.IF.equals(ifState)) {
-            ifState = IfState.UNKNOWN;
-
-            if (keywordText.equals("EXISTS")) {
-                ifState = IfState.IF_EXISTS;
-            }
-
-            if (keywordText.equals("NOT")) {
-                ifState = IfState.IF_NOT;
-            }
+        if ("BEGIN".equals(keywordText) && context.getStatementType() == STORED_PROGRAM_STATEMENT) {
+            context.increaseBlockDepth("");
         }
 
-        if (keywordText.equals("THEN")) {
-            ifState = IfState.IF_THEN;
-        }
-
-        if (keywordText.equals("IF") && !previousKeywordText.equals("END") && !IfState.IF_FUNCTION.equals(ifState)) {
-            if (IfState.IF_EXISTS.equals(ifState) || IfState.IF_NOT.equals(ifState)) {
-                context.decreaseBlockDepth();
-            }
-
-            context.increaseBlockDepth();
-            if (reader.peekNextNonWhitespace() == '(') {
-                ifState = IfState.IF_FUNCTION;
-            } else {
-                ifState = IfState.IF;
-            }
-        }
-
-        if ("BEGIN".equals(keywordText) || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !lastTokenIs(tokens, parensDepth, "END"))) {
-            context.increaseBlockDepth();
-        }
-
-        if ("END".equals(keywordText)) {
-            context.decreaseBlockDepth();
-            if (IfState.IF_THEN.equals(ifState)) {
-                ifState = IfState.NONE;
-            }
-        }
-
-        if (";".equals(keywordText) || TokenType.DELIMITER.equals(keyword.getType())) {
-            if (IfState.IF_NOT.equals(ifState) ||  IfState.IF_EXISTS.equals(ifState) || IfState.IF_FUNCTION.equals(ifState)) {
-                context.decreaseBlockDepth();
-                ifState = IfState.NONE;
-            } else if (context.getBlockDepth() > 0 && doesDelimiterEndFunction(tokens, keyword)) {
+        if (context.getBlockDepth() > 0 && lastTokenIs(tokens, parensDepth, "END")) {
+            String initiator = context.getBlockInitiator();
+            if (initiator.equals("") || initiator.equals(keywordText) || "AS".equals(keywordText)) {
                 context.decreaseBlockDepth();
             }
         }
 
-        previousKeywordText = keywordText;
+        if (";".equals(keywordText) || TokenType.DELIMITER.equals(keyword.getType()) || TokenType.EOF.equals(keyword.getType())) {
+            if (context.getBlockDepth() > 0 && doesDelimiterEndFunction(tokens, keyword)) {
+                context.decreaseBlockDepth();
+            }
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,12 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
         for (File file : files) {
             if (file.canRead()) {
                 if (file.isDirectory()) {
-                    resourceNames.addAll(findResourceNamesFromFileSystem(classPathRootOnDisk, scanRootLocation, file));
+                    if (file.isHidden()) {
+                        // #1807: Skip hidden directories to avoid issues with Kubernetes
+                        LOG.debug("Skipping hidden directory: " + file.getAbsolutePath());
+                    } else {
+                        resourceNames.addAll(findResourceNamesFromFileSystem(classPathRootOnDisk, scanRootLocation, file));
+                    }
                 } else {
                     resourceNames.add(toResourceNameOnClasspath(classPathRootOnDisk, file));
                 }

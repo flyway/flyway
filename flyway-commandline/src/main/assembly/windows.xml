@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2010-2020 Redgate Software Ltd
+    Copyright © Red Gate Software Ltd 2010-2020
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -31,6 +31,13 @@
             <directory>target/dependency/jre-windows-x64-zip/jdk-${version.jre}+9-jre</directory>
             <outputDirectory>jre</outputDirectory>
             <fileMode>644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>native</outputDirectory>
+            <includes>
+                <include>sqljdbc_auth.dll</include>
+            </includes>
         </fileSet>
     </fileSets>
 </assembly>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import java.util.List;
 public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     private static final Log LOG = LogFactory.getLog(SQLServerSchema.class);
 
-    private final String databaseName;
+    protected final String databaseName;
 
     /**
      * SQL server object types for which we support automatic clean-up. Those types can be used in conjunction with the
@@ -41,7 +41,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
      * <a href="https://msdn.microsoft.com/en-us/library/ms190324.aspx">MSDN documentation</a> (see the {@code type}
      * column description.
      */
-    private enum ObjectType {
+    protected enum ObjectType {
         /**
          * Aggregate function (CLR).
          */
@@ -119,7 +119,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
          */
         SEQUENCE_OBJECT("SO");
 
-        final String code;
+        public final String code;
 
         ObjectType(String code) {
             assert code != null;
@@ -130,17 +130,17 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     /**
      * SQL server object meta-data.
      */
-    private class DBObject {
+    public static class DBObject {
         /**
          * The object name.
          */
-        final String name;
+        public final String name;
         /**
          * The object id.
          */
-        final long objectId;
+        public final long objectId;
 
-        DBObject(long objectId, String name) {
+        public DBObject(long objectId, String name) {
             assert name != null;
             this.objectId = objectId;
             this.name = name;
@@ -155,7 +155,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
      * @param databaseName The database name.
      * @param name         The name of the schema.
      */
-    SQLServerSchema(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, String name) {
+    public SQLServerSchema(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, String name) {
         super(jdbcTemplate, database, name);
         this.databaseName = databaseName;
     }
@@ -282,15 +282,11 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : cleanAssemblies()) {
+        for (String statement : cleanSynonyms()) {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : cleanObjects("SYNONYM", ObjectType.SYNONYM)) {
-            jdbcTemplate.execute(statement);
-        }
-
-        for (String statement : cleanObjects("RULE", ObjectType.RULE)) {
+        for (String statement : cleanRules()) {
             jdbcTemplate.execute(statement);
         }
 
@@ -316,7 +312,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
      * @return the found objects
      * @throws SQLException when the retrieval failed
      */
-    private List<DBObject> queryDBObjects(ObjectType... types) throws SQLException {
+    protected List<DBObject> queryDBObjects(ObjectType... types) throws SQLException {
         return queryDBObjectsWithParent(null, types);
     }
 
@@ -493,33 +489,21 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanTypes() throws SQLException {
-        List<String> typeNames =
-                jdbcTemplate.queryForStringList(
-                        "SELECT t.name FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id" +
-                                " WHERE t.is_user_defined = 1 AND s.name = ?",
-                        name
-                );
-
         List<String> statements = new ArrayList<>();
-        for (String typeName : typeNames) {
-            statements.add("DROP TYPE " + database.quote(name, typeName));
-        }
-        return statements;
-    }
 
-    /**
-     * Cleans the CLR assemblies in this schema.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanAssemblies() throws SQLException {
-        List<String> assemblyNames =
-                jdbcTemplate.queryForStringList("SELECT * FROM sys.assemblies WHERE is_user_defined=1");
-        List<String> statements = new ArrayList<>();
-        for (String assemblyName : assemblyNames) {
-            statements.add("DROP ASSEMBLY " + database.quote(assemblyName));
+        if (database.supportsTypes()) {
+            List<String> typeNames =
+                    jdbcTemplate.queryForStringList(
+                            "SELECT t.name FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id" +
+                                    " WHERE t.is_user_defined = 1 AND s.name = ?",
+                            name
+                    );
+
+            for (String typeName : typeNames) {
+                statements.add("DROP TYPE " + database.quote(name, typeName));
+            }
         }
+
         return statements;
     }
 
@@ -529,13 +513,46 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> cleanTriggers() throws SQLException {
-        List<String> triggerNames =
-                jdbcTemplate.queryForStringList("SELECT * FROM sys.triggers" +
-                        " WHERE is_ms_shipped=0 AND parent_id=0 AND parent_class_desc='DATABASE'");
+    protected List<String> cleanTriggers() throws SQLException {
         List<String> statements = new ArrayList<>();
-        for (String triggerName : triggerNames) {
-            statements.add("DROP TRIGGER " + database.quote(triggerName) + " ON DATABASE");
+
+        if (database.supportsTriggers()) {
+            List<String> triggerNames =
+                    jdbcTemplate.queryForStringList("SELECT * FROM sys.triggers" +
+                            " WHERE is_ms_shipped=0 AND parent_id=0 AND parent_class_desc='DATABASE'");
+
+            for (String triggerName : triggerNames) {
+                statements.add("DROP TRIGGER " + database.quote(triggerName) + " ON DATABASE");
+            }
+        }
+
+        return statements;
+    }
+
+    /**
+     * Cleans the synonyms in this schema.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    protected List<String> cleanSynonyms() throws SQLException {
+        List<String> statements = new ArrayList<>();
+        if (database.supportsSynonyms()) {
+            statements.addAll(cleanObjects("SYNONYM", ObjectType.SYNONYM));
+        }
+        return statements;
+    }
+
+    /**
+     * Cleans the rules in this schema.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    protected List<String> cleanRules() throws SQLException {
+        List<String> statements = new ArrayList<>();
+        if (database.supportsRules()) {
+            statements.addAll(cleanObjects("RULE", ObjectType.RULE));
         }
         return statements;
     }
@@ -548,7 +565,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> cleanObjects(String dropQualifier, ObjectType... objectTypes) throws SQLException {
+    protected List<String> cleanObjects(String dropQualifier, ObjectType... objectTypes) throws SQLException {
         List<String> statements = new ArrayList<>();
         List<DBObject> dbObjects = queryDBObjects(objectTypes);
         for (DBObject dbObject : dbObjects) {

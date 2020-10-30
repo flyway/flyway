@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,13 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.database.mysql.mariadb.MariaDBDatabaseType;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.jdbc.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -64,16 +65,8 @@ public class MySQLDatabase extends Database<MySQLConnection> {
      *
      * @param configuration The Flyway configuration.
      */
-    public MySQLDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory
-
-
-
-    ) {
-        super(configuration, jdbcConnectionFactory
-
-
-
-        );
+    public MySQLDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
+        super(configuration, jdbcConnectionFactory, statementInterceptor);
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(rawMainJdbcConnection, databaseType);
         pxcStrict = isMySQL() && isRunningInPerconaXtraDBClusterWithStrictMode(jdbcTemplate);
@@ -94,9 +87,10 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     static boolean isRunningInPerconaXtraDBClusterWithStrictMode(JdbcTemplate jdbcTemplate) {
         try {
-            if ("ENFORCING".equals(jdbcTemplate.queryForString(
+            String pcx_strict_mode = jdbcTemplate.queryForString(
                     "select VARIABLE_VALUE from performance_schema.global_variables"
-                            + " where variable_name = 'pxc_strict_mode'"))) {
+                            + " where variable_name = 'pxc_strict_mode'");
+            if ("ENFORCING".equals(pcx_strict_mode) || "MASTER".equals(pcx_strict_mode)) {
                 LOG.debug("Detected Percona XtraDB Cluster in strict mode");
                 return true;
             }
@@ -122,11 +116,11 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     boolean isMySQL() {
-        return databaseType == DatabaseType.MYSQL;
+        return databaseType instanceof MySQLDatabaseType;
     }
 
     boolean isMariaDB() {
-        return databaseType == DatabaseType.MARIADB;
+        return databaseType instanceof MariaDBDatabaseType;
     }
 
     boolean isPxcStrict() {
@@ -185,11 +179,15 @@ public class MySQLDatabase extends Database<MySQLConnection> {
                 "    `installed_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
                 "    `execution_time` INT NOT NULL,\n" +
                 "    `success` BOOL NOT NULL,\n" +
-                "    CONSTRAINT `" + table.getName() + "_pk` PRIMARY KEY (`installed_rank`)\n" +
+                "    CONSTRAINT " + getConstraintName(table.getName()) + " PRIMARY KEY (`installed_rank`)\n" +
                 ")" + tablespace + " ENGINE=InnoDB" +
                 baselineMarker +
                 ";\n" +
                 "CREATE INDEX `" + table.getName() + "_s_idx` ON " + table + " (`success`);";
+    }
+
+    protected String getConstraintName(String tableName) {
+        return "`" + tableName + "_pk`";
     }
 
     @Override
@@ -200,7 +198,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     @Override
     protected MigrationVersion determineVersion() {
         String selectVersionOutput = DatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
-        if (databaseType == DatabaseType.MARIADB) {
+        if (databaseType instanceof MariaDBDatabaseType) {
             try {
                 String productVersion = jdbcMetaData.getDatabaseProductVersion();
                 return correctForAzureMariaDB(productVersion, selectVersionOutput);
@@ -279,7 +277,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("5.1");
-        if (databaseType == DatabaseType.MARIADB) {
+        if (databaseType instanceof MariaDBDatabaseType) {
 
             ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.1", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
@@ -290,17 +288,6 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         } else {
 
             ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("5.7", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
-
-
-
-
-                if (JdbcUtils.getDriverName(jdbcMetaData).contains("MariaDB")) {
-                    LOG.warn("You are connected to a MySQL " + getVersion() + " database using the MariaDB driver." +
-                            " This is known to cause issues." +
-                            " An upgrade to Oracle's MySQL JDBC driver is highly recommended.");
-                }
-
-
 
             recommendFlywayUpgradeIfNecessary("8.0");
         }

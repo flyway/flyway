@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -465,33 +465,6 @@ public class StringUtils {
     }
 
     /**
-     * Trim the trailing linebreak (if any) from this string.
-     *
-     * @param str The string.
-     * @return The string without trailing linebreak.
-     */
-    public static String trimLineBreak(String str) {
-        if (!hasLength(str)) {
-            return str;
-        }
-        StringBuilder buf = new StringBuilder(str);
-        while (buf.length() > 0 && isLineBreakCharacter(buf.charAt(buf.length() - 1))) {
-            buf.deleteCharAt(buf.length() - 1);
-        }
-        return buf.toString();
-    }
-
-    /**
-     * Checks whether this character is a linebreak character.
-     *
-     * @param ch The character
-     * @return {@code true} if it is, {@code false} if not.
-     */
-    private static boolean isLineBreakCharacter(char ch) {
-        return '\n' == ch || '\r' == ch;
-    }
-
-    /**
      * Wrap this string every lineSize characters.
      *
      * @param str      The string to wrap.
@@ -562,5 +535,17 @@ public class StringUtils {
             }
         }
         return false;
+    }
+
+    public static String getFileExtension(String path) {
+        String[] foldersSplit = path.split("[\\|/]");
+        String fileNameAndExtension = foldersSplit[foldersSplit.length-1];
+
+        String[] nameExtensionSplit = fileNameAndExtension.split("\\.");
+        if (nameExtensionSplit.length < 2) {
+            return "";
+        }
+
+        return nameExtensionSplit[nameExtensionSplit.length-1];
     }
 }

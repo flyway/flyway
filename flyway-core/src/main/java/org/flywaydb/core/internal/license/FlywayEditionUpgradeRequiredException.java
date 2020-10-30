@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 package org.flywaydb.core.internal.license;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.jdbc.DatabaseType;
+import org.flywaydb.core.internal.database.base.DatabaseType;
 
 /**
  * Thrown when an attempt was made to migrate an older database version no longer supported by this Flyway edition.
  */
 public class FlywayEditionUpgradeRequiredException extends FlywayException {
     public FlywayEditionUpgradeRequiredException(Edition edition, DatabaseType databaseType, String version) {
-        super(edition + " or " + databaseType + " upgrade required: " + databaseType + " " + version
+        super(edition + " or " + databaseType.getName() + " upgrade required: " + databaseType.getName() + " " + version
                 + " is no longer supported by " + VersionPrinter.EDITION + ","
                 + " but still supported by " + edition + ".");
     }

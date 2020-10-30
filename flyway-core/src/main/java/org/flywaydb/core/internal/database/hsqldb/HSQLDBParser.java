@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ public class HSQLDBParser extends Parser {
                 || "FOR".equals(keywordText)
                 || "CASE".equals(keywordText))
                 && previousKeyword != null && !"END".equals(previousKeywordText))) {
-            context.increaseBlockDepth();
+            context.increaseBlockDepth(keywordText);
         } else if (("EACH".equals(keywordText) || "SQLEXCEPTION".equals(keywordText))
                 && previousKeyword != null
                 && "FOR".equals(previousKeywordText)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,9 +66,9 @@ public class SAPHANAParser extends Parser {
         if ("BEGIN".equals(keyword.getText()) || "CASE".equals(keyword.getText()) || "DO".equals(keyword.getText()) || "IF".equals(keyword.getText())
                 // But not END IF
                 && !lastTokenIs(tokens, parensDepth, "END")) {
-            context.increaseBlockDepth();
+            context.increaseBlockDepth(keyword.getText());
         } else if (doTokensMatchPattern(tokens, keyword, FUNCTION_OR_PROCEDURE_REGEX)) {
-            context.increaseBlockDepth();
+            context.increaseBlockDepth("FUNCTION_OR_PROCEDURE_REGEX");
         } else if ("END".equals(keyword.getText())) {
             context.decreaseBlockDepth();
         }

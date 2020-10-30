@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,10 @@ public class FirebirdParser extends Parser {
 
     @Override
     protected Token handleKeyword(PeekingReader reader, ParserContext context, int pos, int line, int col, String keyword) throws IOException {
-        if (keywordIs("SET", keyword)) {
+        if ("SET".equalsIgnoreCase(keyword)) {
             // Try to detect if this is set SET TERM <new terminator><old terminator>
             String possiblyTerm = reader.peek(TERM_WITH_SPACES.length());
-            if (keywordIs(TERM_WITH_SPACES, possiblyTerm)) {
+            if (TERM_WITH_SPACES.equalsIgnoreCase(possiblyTerm)) {
                 reader.swallow(TERM_WITH_SPACES.length());
                 String newDelimiter = reader.readUntilExcluding(context.getDelimiter().getDelimiter());
                 reader.swallow(context.getDelimiter().getDelimiter().length());

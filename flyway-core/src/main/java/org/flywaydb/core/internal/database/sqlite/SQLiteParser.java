@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class SQLiteParser extends Parser {
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
         String lastKeyword = keyword.getText();
         if ("BEGIN".equals(lastKeyword) || "CASE".equals(lastKeyword)) {
-            context.increaseBlockDepth();
+            context.increaseBlockDepth(lastKeyword);
         } else if ("END".equals(lastKeyword)) {
             context.decreaseBlockDepth();
         }

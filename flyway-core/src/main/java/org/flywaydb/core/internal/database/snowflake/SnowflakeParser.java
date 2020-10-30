@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import org.flywaydb.core.internal.parser.*;
 import java.io.IOException;
 
 public class SnowflakeParser extends Parser {
+    private final String ALTERNATIVE_QUOTE = "$$";
+
     public SnowflakeParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 2);
     }
@@ -36,9 +38,15 @@ public class SnowflakeParser extends Parser {
 
     @Override
     protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
-        String doubleDollarQuote = (char) reader.read() + reader.readUntilIncluding("$$");
-        reader.swallowUntilExcluding(doubleDollarQuote);
-        reader.swallow(doubleDollarQuote.length());
+        reader.swallow(ALTERNATIVE_QUOTE.length());
+        reader.swallowUntilExcluding(ALTERNATIVE_QUOTE);
+        reader.swallow(ALTERNATIVE_QUOTE.length());
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
+
+    @Override
+    protected boolean isSingleLineComment(String peek, ParserContext context, int col) {
+        return peek.startsWith("--") || peek.startsWith("//");
+    }
+
 }

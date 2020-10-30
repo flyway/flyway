@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.jdbc;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 
@@ -57,7 +58,7 @@ public class JdbcUtils {
             } catch (SQLException e) {
                 if ("08S01".equals(e.getSQLState()) && e.getMessage().contains("This driver is not configured for integrated authentication")) {
                     throw new FlywaySqlException("Unable to obtain connection from database"
-                            + getDataSourceInfo(dataSource) + ": " + e.getMessage() + "\nTo setup integrated authentication see https://flywaydb.org/documentation/database/sqlserver#windows-authentication--azure-active-directory", e);
+                            + getDataSourceInfo(dataSource) + ": " + e.getMessage() + "\nTo setup integrated authentication see https://flywaydb.org/documentation/database/sqlserver#windows-authentication", e);
                 }
 
                 if (++retries > connectRetries) {
@@ -85,7 +86,7 @@ public class JdbcUtils {
             return "";
         }
         DriverDataSource driverDataSource = (DriverDataSource) dataSource;
-        return " (" + driverDataSource.getUrl() + ") for user '" + driverDataSource.getUser() + "'";
+        return " (" + DatabaseTypeRegister.redactJdbcUrl(driverDataSource.getUrl()) + ") for user '" + driverDataSource.getUser() + "'";
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,6 +120,43 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable
         for (String statement : generateDropStatementsForBaseTypes(false)) {
             jdbcTemplate.execute(statement);
         }
+
+        for (String statement : generateDropStatementsForExtensions()) {
+            jdbcTemplate.execute(statement);
+        }
+    }
+
+    /**
+     * Generates the statements for dropping the extensions in this schema.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> generateDropStatementsForExtensions() throws SQLException {
+        List<String> statements = new ArrayList<>();
+
+        if (extensionsTableExists()) {
+            List<String> extensionNames =
+                    jdbcTemplate.queryForStringList(
+                            "SELECT e.extname AS \"Name\" \n" +
+                                  "FROM pg_extension e \n" +
+                                  "LEFT JOIN pg_namespace n ON n.oid = e.extnamespace\n" +
+                                  "WHERE n.nspname=?", name);
+
+            for (String extensionName : extensionNames) {
+                statements.add("DROP EXTENSION IF EXISTS " + database.quote(extensionName) + " CASCADE");
+            }
+        }
+
+        return statements;
+    }
+
+    private boolean extensionsTableExists() throws SQLException {
+        return jdbcTemplate.queryForBoolean(
+                        "SELECT EXISTS ( \n" +
+                              "SELECT 1 \n" +
+                              "FROM pg_tables \n" +
+                              "WHERE tablename = 'pg_extension');");
     }
 
     /**

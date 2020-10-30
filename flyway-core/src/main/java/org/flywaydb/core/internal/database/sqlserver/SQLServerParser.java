@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.flywaydb.core.internal.sqlscript.Delimiter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class SQLServerParser extends Parser {
     // #2175, 2298, 2542: Various system sprocs, mostly around replication, cannot be executed within a transaction.
@@ -33,6 +34,8 @@ public class SQLServerParser extends Parser {
             "SP_ADDLINKEDSERVER", "SP_DROPLINKEDSERVER",
             "SP_ADDLINKEDSRVLOGIN", "SP_DROPLINKEDSRVLOGIN",
             "SP_SERVEROPTION", "SP_REPLICATIONDBOPTION");
+
+    private static final Pattern TRANSACTION_REGEX = Pattern.compile("TRAN(SACTION)?");
 
     public SQLServerParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
@@ -81,6 +84,34 @@ public class SQLServerParser extends Parser {
         }
 
         return null;
+    }
+
+    @Override
+    protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+        TokenType tokenType = token.getType();
+        if (TokenType.DELIMITER.equals(tokenType) || ";".equals(token.getText())) {
+            return true;
+        } else if (TokenType.EOF.equals(tokenType)) {
+            return true;
+        }
+
+        return super.shouldAdjustBlockDepth(context, token);
+    }
+
+    @Override
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
+        String keywordText = keyword.getText();
+
+        if ("BEGIN".equals(keywordText)) {
+            context.increaseBlockDepth("");
+        }
+
+        if (context.getBlockDepth() > 0 && ("END".equals(keywordText) ||
+                TRANSACTION_REGEX.matcher(keywordText).matches() && lastTokenIs(tokens, keyword.getParensDepth(), "BEGIN"))) {
+            context.decreaseBlockDepth();
+        }
+
+        super.adjustBlockDepth(context, tokens, keyword, reader);
     }
 
     @Override

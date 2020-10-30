@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database.postgresql;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.strategy.RetryStrategy;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.api.logging.Log;
@@ -66,13 +67,13 @@ public class PostgreSQLAdvisoryLockTemplate {
      * @return The result of the callable code.
      */
     public <T> T execute(Callable<T> callable) {
+        RuntimeException rethrow = null;
         try {
             lock();
             return callable.call();
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to acquire PostgreSQL advisory lock", e);
         } catch (Exception e) {
-            RuntimeException rethrow;
             if (e instanceof RuntimeException) {
                 rethrow = (RuntimeException) e;
             } else {
@@ -83,24 +84,20 @@ public class PostgreSQLAdvisoryLockTemplate {
             try {
                 jdbcTemplate.execute("SELECT pg_advisory_unlock(" + lockNum + ")");
             } catch (SQLException e) {
-                throw new FlywayException("Unable to release PostgreSQL advisory lock", e);
+                if (rethrow == null) {
+                    throw new FlywaySqlException("Unable to release PostgreSQL advisory lock", e);
+                } else {
+                    LOG.error("Unable to release PostgreSQL advisory lock", e);
+                }
             }
         }
     }
 
     private void lock() throws SQLException {
-        int retries = 0;
-        while (!tryLock()) {
-            try {
-                Thread.sleep(100L);
-            } catch (InterruptedException e) {
-                throw new FlywayException("Interrupted while attempting to acquire PostgreSQL advisory lock", e);
-            }
-
-            if (++retries >= 50) {
-                throw new FlywayException("Number of retries exceeded while attempting to acquire PostgreSQL advisory lock");
-            }
-        }
+        RetryStrategy strategy = new RetryStrategy();
+        strategy.doWithRetries(() -> tryLock(),
+                "Interrupted while attempting to acquire PostgreSQL advisory lock",
+                "Number of retries exceeded while attempting to acquire PostgreSQL advisory lock");
     }
 
     private boolean tryLock() throws SQLException {

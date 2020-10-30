@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,16 @@ public final class Location implements Comparable<Location> {
     public static final String FILESYSTEM_PREFIX = "filesystem:";
 
     /**
+     * The prefix for AWS S3 locations.
+     */
+    private static final String AWS_S3_PREFIX = "s3:";
+
+    /**
+     * The prefix for Google Cloud Storage locations.
+     */
+    private static final String GCS_PREFIX = "gcs:";
+
+    /**
      * The prefix part of the location. Can be either classpath: or filesystem:.
      */
     private final String prefix;
@@ -72,10 +82,6 @@ public final class Location implements Comparable<Location> {
         }
 
         if (isClassPath()) {
-            if (rawPath.contains(".")) {
-                LOG.warn("Use of dots (.) as path separators will be deprecated in Flyway 7. Path: " + rawPath);
-            }
-            rawPath = rawPath.replace(".", "/");
             if (rawPath.startsWith("/")) {
                 rawPath = rawPath.substring(1);
             }
@@ -91,8 +97,8 @@ public final class Location implements Comparable<Location> {
                 // if the original path contained no wildcards, also normalise it
                 rawPath = new File(rawPath).getPath();
             }
-        } else {
-            throw new FlywayException("Unknown prefix for location (should be either filesystem: or classpath:): "
+        } else if (!isAwsS3() && !isGCS()) {
+            throw new FlywayException("Unknown prefix for location (should be one of filesystem:, classpath:, gcs:, or s3:): "
                     + normalizedDescriptor);
         }
 
@@ -230,6 +236,24 @@ public final class Location implements Comparable<Location> {
      */
     public boolean isFileSystem() {
         return FILESYSTEM_PREFIX.equals(prefix);
+    }
+
+    /**
+     * Checks whether this denotes a location in AWS S3.
+     *
+     * @return {@code true} if it does, {@code false} if it doesn't;
+     */
+    public boolean isAwsS3() {
+        return AWS_S3_PREFIX.equals(prefix);
+    }
+
+    /**
+     * Checks whether this denotes a location in Google cloud storage.
+     *
+     * @return {@code true} if it does, {@code false} if it doesn't;
+     */
+    public boolean isGCS() {
+        return GCS_PREFIX.equals(prefix);
     }
 
     /**

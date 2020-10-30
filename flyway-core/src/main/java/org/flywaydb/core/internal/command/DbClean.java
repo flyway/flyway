@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.output.CleanResult;
+import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
@@ -92,11 +94,14 @@ public class DbClean {
      *
      * @throws FlywayException when clean failed.
      */
-    public void clean() throws FlywayException {
+    public CleanResult clean() throws FlywayException {
         if (cleanDisabled) {
             throw new FlywayException("Unable to execute clean as it has been disabled with the \"flyway.cleanDisabled\" property.");
         }
         callbackExecutor.onEvent(Event.BEFORE_CLEAN);
+
+        CommandResultFactory commandResultFactory = new CommandResultFactory();
+        CleanResult cleanResult = commandResultFactory.createCleanResult(database.getCatalog());
 
         try {
             connection.changeCurrentSchemaTo(schemas[0]);
@@ -111,15 +116,20 @@ public class DbClean {
 
             for (Schema schema : schemas) {
                 if (!schema.exists()) {
-                    LOG.warn("Unable to clean unknown schema: " + schema);
+                    String unknownSchemaWarning = "Unable to clean unknown schema: " + schema;
+                    cleanResult.addWarning(unknownSchemaWarning);
+                    LOG.warn(unknownSchemaWarning);
                     continue;
                 }
 
                 if (dropSchemas) {
                     dropSchema(schema);
+                    cleanResult.schemasDropped.add(schema.getName());
                 } else {
                     cleanSchema(schema);
+                    cleanResult.schemasCleaned.add(schema.getName());
                 }
+
             }
 
             dropDatabaseObjectsPostSchemas();
@@ -131,6 +141,8 @@ public class DbClean {
 
         callbackExecutor.onEvent(Event.AFTER_CLEAN);
         schemaHistory.clearCache();
+
+        return cleanResult;
     }
 
     /**

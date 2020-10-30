@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2010-2020 Redgate Software Ltd
+    Copyright © Red Gate Software Ltd 2010-2020
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
-            <version>1.5.15</version>
+            <version>3.0.24</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -136,6 +136,9 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+
 
 
 

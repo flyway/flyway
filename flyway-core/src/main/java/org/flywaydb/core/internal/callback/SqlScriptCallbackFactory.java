@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
-import org.flywaydb.core.internal.resource.ResourceProvider;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
@@ -80,11 +80,13 @@ public class SqlScriptCallbackFactory {
                 }
                 SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed(), resourceProvider);
                 callbacksFound.put(name, sqlScript);
-                callbacks.add(new SqlScriptCallback(event, parsedName.getDescription(), sqlScriptExecutorFactory, sqlScript
+
+                boolean batch = false;
 
 
 
-                ));
+
+                callbacks.add(new SqlScriptCallback(event, parsedName.getDescription(), sqlScriptExecutorFactory, sqlScript, batch));
             }
         }
         Collections.sort(callbacks);
@@ -99,22 +101,14 @@ public class SqlScriptCallbackFactory {
         private final String description;
         private final SqlScriptExecutorFactory sqlScriptExecutorFactory;
         private final SqlScript sqlScript;
+        private final boolean batch;
 
-
-
-
-        private SqlScriptCallback(Event event, String description, SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScript sqlScript
-
-
-
-        ) {
+        private SqlScriptCallback(Event event, String description, SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScript sqlScript, boolean batch) {
             this.event = event;
             this.description = description;
             this.sqlScriptExecutorFactory = sqlScriptExecutorFactory;
             this.sqlScript = sqlScript;
-
-
-
+            this.batch = batch;
         }
 
         @Override
@@ -132,11 +126,18 @@ public class SqlScriptCallbackFactory {
             LOG.info("Executing SQL callback: " + event.getId()
                     + (description == null ? "" : " - " + description)
                     + (sqlScript.executeInTransaction() ? "" : " [non-transactional]"));
-            sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection()
+
+            boolean outputQueryResults = false;
 
 
 
-            ).execute(sqlScript);
+
+            sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection(), false, batch, outputQueryResults).execute(sqlScript);
+        }
+
+        @Override
+        public String getCallbackName() {
+            return description;
         }
 
         @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,8 @@ public enum MigrationState {
     BASELINE("Baseline", true, true, false),
 
     /**
-     * <p>This usually indicates a problem.</p>
+     * <p>When using cherryPick, this indicates a migration that was not in the cherry picked list.</p>
+     * <p>When not using cherryPick, this usually indicates a problem.</p>
      * <p>
      * This migration was not applied against this DB, because a migration with a higher version has already been
      * applied. This probably means some checkins happened out of order.
@@ -125,7 +126,12 @@ public enum MigrationState {
     /**
      * This is a repeatable migration that is outdated and has already been superseded by a newer run.
      */
-    SUPERSEDED("Superseded", true, true, false);
+    SUPERSEDED("Superseded", true, true, false),
+
+    /**
+     * This is a migration that has been marked as deleted
+     */
+    DELETED("Deleted", false, true, false);
 
     /**
      * The name suitable for display to the end-user.

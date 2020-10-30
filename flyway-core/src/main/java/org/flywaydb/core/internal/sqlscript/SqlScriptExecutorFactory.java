@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,5 @@ public interface SqlScriptExecutorFactory {
      *
      * @return A new SQL script executor.
      */
-    SqlScriptExecutor createSqlScriptExecutor(Connection connection
-
-
-
-    );
+    SqlScriptExecutor createSqlScriptExecutor(Connection connection, boolean undo, boolean batch, boolean outputQueryResults);
 }

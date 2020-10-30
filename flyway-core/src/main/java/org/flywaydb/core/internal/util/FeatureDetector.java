@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,11 @@ public final class FeatureDetector {
     private Boolean apacheCommonsLoggingAvailable;
 
     /**
+     * Flag indicating the availability of Log4J v2
+     */
+    private Boolean log4J2Available;
+
+    /**
      * Flag indicating availability of the Slf4j.
      */
     private Boolean slf4jAvailable;
@@ -69,6 +74,16 @@ public final class FeatureDetector {
     private Boolean androidAvailable;
 
     /**
+     * Flag indicating availability of the AWS SDK classes.
+     */
+    private Boolean awsAvailable;
+
+    /**
+     * Flag indicating availability of the Google Cloud Storage SDK classes.
+     */
+    private Boolean gcsAvailable;
+
+    /**
      * Checks whether Apache Commons Logging is available.
      *
      * @return {@code true} if it is, {@code false if it is not}
@@ -82,13 +97,33 @@ public final class FeatureDetector {
     }
 
     /**
+     * Checks whether Log4J 2 is available (without a SJF4J - Log4J2 bridge).
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public boolean isLog4J2Available() {
+        if (log4J2Available == null) {
+            log4J2Available = ClassUtils.isPresent("org.apache.logging.log4j.Logger", classLoader);
+        }
+
+        return log4J2Available;
+    }
+
+
+    /**
      * Checks whether Slf4j is available.
      *
      * @return {@code true} if it is, {@code false if it is not}
      */
     public boolean isSlf4jAvailable() {
         if (slf4jAvailable == null) {
-            slf4jAvailable = ClassUtils.isPresent("org.slf4j.Logger", classLoader);
+            // We need to ensure there's an actual implementation; AWS SDK pulls in the Logger interface but doesn't
+            // provide any implementation, causing SLF4J to drop what we want to be console output on the floor.
+            // Versions up to 1.7 have a StaticLoggerBinder
+            slf4jAvailable = ClassUtils.isPresent("org.slf4j.Logger", classLoader)
+                    && ClassUtils.isPresent("org.slf4j.impl.StaticLoggerBinder", classLoader);
+            // Versions 1.8 and later use a ServiceLocator to bind to the implementation
+            slf4jAvailable |= ClassUtils.isImplementationPresent("org.slf4j.spi.SLF4JServiceProvider", classLoader);
         }
 
         return slf4jAvailable;
@@ -149,5 +184,33 @@ public final class FeatureDetector {
         }
 
         return androidAvailable;
+    }
+
+    /**
+     * Checks if AWS is available.
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public boolean isAwsAvailable() {
+        if (awsAvailable == null) {
+            awsAvailable = ClassUtils.isPresent("software.amazon.awssdk.services.s3.S3Client", classLoader);
+            LOG.debug("AWS SDK available: " + awsAvailable);
+        }
+
+        return awsAvailable;
+    }
+
+    /**
+     * Checks if GCS is available.
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public boolean isGCSAvailable() {
+        if (gcsAvailable == null) {
+            gcsAvailable = ClassUtils.isPresent("com.google.cloud.storage.Storage", classLoader);
+            LOG.debug("Google Cloud Storage available: " + gcsAvailable);
+        }
+
+        return gcsAvailable;
     }
 }
