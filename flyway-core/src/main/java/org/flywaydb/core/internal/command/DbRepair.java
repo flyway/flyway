@@ -30,7 +30,6 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
@@ -94,10 +93,9 @@ public class DbRepair {
      * @param database          The database-specific support.
      * @param migrationResolver The migration resolver.
      * @param schemaHistory     The schema history table.
-     * @param schemas           The list of schemas managed by Flyway.
      * @param callbackExecutor  The callback executor.
      */
-    public DbRepair(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory, Schema[] schemas,
+    public DbRepair(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
                     CallbackExecutor callbackExecutor, Configuration configuration) {
         this.database = database;
         this.connection = database.getMainConnection();
@@ -105,7 +103,7 @@ public class DbRepair {
         this.callbackExecutor = callbackExecutor;
         this.configuration = configuration;
 
-        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, database, configuration,
+        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
                 MigrationVersion.LATEST, true, configuration.getCherryPick(), true, true, true, true);
 
         this.commandResultFactory = new CommandResultFactory();

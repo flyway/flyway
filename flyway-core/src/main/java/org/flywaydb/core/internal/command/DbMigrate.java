@@ -72,11 +72,6 @@ public class DbMigrate {
     private final Schema schema;
 
     /**
-     * The list of schemas managed by Flyway.
-     */
-    private final Schema[] schemas;
-
-    /**
      * The migration resolver.
      */
     private final MigrationResolver migrationResolver;
@@ -116,19 +111,18 @@ public class DbMigrate {
      *
      * @param database          Database-specific functionality.
      * @param schemaHistory     The database schema history table.
-     * @param schemas           The list of schemas managed by Flyway.
+     * @param schema            The schema containing the schema history table.
      * @param migrationResolver The migration resolver.
      * @param configuration     The Flyway configuration.
      * @param callbackExecutor  The callbacks executor.
      */
     public DbMigrate(Database database,
-                     SchemaHistory schemaHistory, Schema[] schemas, MigrationResolver migrationResolver,
+                     SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
                      Configuration configuration, CallbackExecutor callbackExecutor) {
         this.database = database;
         this.connectionUserObjects = database.getMigrationConnection();
         this.schemaHistory = schemaHistory;
-        this.schema = schemas[0];
-        this.schemas = schemas;
+        this.schema = schema;
         this.migrationResolver = migrationResolver;
         this.configuration = configuration;
         this.callbackExecutor = callbackExecutor;
@@ -229,7 +223,7 @@ public class DbMigrate {
      */
     private Integer migrateGroup(boolean firstRun) {
         MigrationInfoServiceImpl infoService =
-                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, database, configuration,
+                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
                         configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
                         true, true, true, true);
         infoService.refresh();

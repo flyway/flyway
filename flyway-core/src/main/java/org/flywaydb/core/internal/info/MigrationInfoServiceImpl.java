@@ -98,14 +98,9 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     private List<MigrationInfoImpl> migrationInfos;
 
     /**
-     * The list of schemas managed by Flyway.
-     */
-    private Schema[] schemas;
-
-    /**
      * Whether all of the specified schemas are empty or not.
      */
-    private boolean allSchemasEmpty = true;
+    private Boolean allSchemasEmpty;
 
     /**
      * Creates a new MigrationInfoServiceImpl.
@@ -122,7 +117,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
      * @param future            Whether future migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver,
-                                    SchemaHistory schemaHistory, Schema[] schemas, Database database, final Configuration configuration,
+                                    SchemaHistory schemaHistory, Database database, final Configuration configuration,
                                     MigrationVersion target, boolean outOfOrder, MigrationPattern[] cherryPick,
                                     boolean pending, boolean missing, boolean ignored, boolean future) {
         this.migrationResolver = migrationResolver;
@@ -141,7 +136,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         this.missing = missing;
         this.ignored = ignored || cherryPick != null;
         this.future = future;
-        this.schemas = schemas;
     }
 
     /**
@@ -358,9 +352,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
             ));
         }
-
-        // Update whether all managed schemas are empty or not
-        allSchemasEmpty = Arrays.stream(schemas).allMatch(Schema::empty);
 
         // Set output
         Collections.sort(migrationInfos1);
@@ -614,6 +605,10 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             }
         }
         return invalidMigrations;
+    }
+
+    public void setAllSchemasEmpty(Schema[] schemas) {
+        allSchemasEmpty = Arrays.stream(schemas).allMatch(Schema::empty);
     }
 
     @Override

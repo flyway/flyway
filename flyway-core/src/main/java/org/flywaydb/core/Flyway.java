@@ -211,7 +211,7 @@ public class Flyway {
                     }
                 }
 
-                 return new DbMigrate(database, schemaHistory, schemas, migrationResolver, configuration,
+                 return new DbMigrate(database, schemaHistory, schemas[0], migrationResolver, configuration,
                         callbackExecutor).migrate();
             }
         }, true);
@@ -317,7 +317,7 @@ public class Flyway {
      */
     private ValidateResult doValidate(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
                             Schema[] schemas, CallbackExecutor callbackExecutor, boolean ignorePending) {
-        ValidateResult validateResult = new DbValidate(database, schemaHistory, schemas, migrationResolver,
+        ValidateResult validateResult = new DbValidate(database, schemaHistory, schemas[0], migrationResolver,
                 configuration, ignorePending, callbackExecutor).validate();
 
         if (!validateResult.validationSuccessful && configuration.isCleanOnValidationError()) {
@@ -410,7 +410,7 @@ public class Flyway {
             public RepairResult execute(MigrationResolver migrationResolver,
                                         SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
                                         StatementInterceptor statementInterceptor) {
-                return new DbRepair(database, migrationResolver, schemaHistory, schemas, callbackExecutor, configuration).repair();
+                return new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor, configuration).repair();
             }
         }, true);
     }

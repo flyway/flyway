@@ -26,6 +26,8 @@ import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 
+import java.util.Arrays;
+
 public class DbInfo {
     private final MigrationResolver migrationResolver;
     private final SchemaHistory schemaHistory;
@@ -51,10 +53,11 @@ public class DbInfo {
         MigrationInfoServiceImpl migrationInfoService;
         try {
             migrationInfoService =
-                    new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, database, configuration,
+                    new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
                             configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
                             true, true, true, true);
             migrationInfoService.refresh();
+            migrationInfoService.setAllSchemasEmpty(schemas);
         } catch (FlywayException e) {
             callbackExecutor.onEvent(Event.AFTER_INFO_ERROR);
             throw e;

@@ -60,11 +60,6 @@ public class DbValidate {
     private final Schema schema;
 
     /**
-     * The list of schemas managed by Flyway.
-     */
-    private final Schema[] schemas;
-
-    /**
      * The migration resolver.
      */
     private final MigrationResolver migrationResolver;
@@ -99,19 +94,18 @@ public class DbValidate {
      *
      * @param database          The DB support for the connection.
      * @param schemaHistory     The database schema history table.
-     * @param schemas           The list of schemas managed by Flyway.
+     * @param schema            The schema containing the schema history table.
      * @param migrationResolver The migration resolver.
      * @param configuration     The current configuration.
      * @param pending           Whether pending migrations are allowed.
      * @param callbackExecutor  The callback executor.
      */
-    public DbValidate(Database database, SchemaHistory schemaHistory, Schema[] schemas, MigrationResolver migrationResolver,
+    public DbValidate(Database database, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
                       Configuration configuration, boolean pending, CallbackExecutor callbackExecutor) {
         this.database = database;
         this.connection = database.getMainConnection();
         this.schemaHistory = schemaHistory;
-        this.schema = schemas[0];
-        this.schemas = schemas;
+        this.schema = schema;
         this.migrationResolver = migrationResolver;
         this.configuration = configuration;
         this.pending = pending;
@@ -152,7 +146,7 @@ public class DbValidate {
             @Override
             public Pair<Integer, List<ValidateOutput>> call() {
                 MigrationInfoServiceImpl migrationInfoService =
-                        new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, database, configuration,
+                        new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
                                 configuration.getTarget(),
                                 configuration.isOutOfOrder(),
                                 configuration.getCherryPick(),
