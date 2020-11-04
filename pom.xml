@@ -528,6 +528,14 @@
                 <version>${version.maven}</version>
             </dependency>
             <dependency>
+                <!-- NOTE: This is a transitive dependency of maven-core. It ONLY appears here to force us to use the
+                particular version 3.3.3, as the default one for maven-core:3.6.3 is a vulnerable one (maven-shared-utils:3.2.1)
+                Remove when maven-core is updated.-->
+                <groupId>org.apache.maven.shared</groupId>
+                <artifactId>maven-shared-utils</artifactId>
+                <version>3.3.3</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
                 <version>${version.ant}</version>
