@@ -34,8 +34,12 @@ public class ResourceNameParser {
     }
 
     public ResourceName parse(String resourceName) {
+        return parse(resourceName, configuration.getSqlMigrationSuffixes());
+    }
+
+    public ResourceName parse(String resourceName, String[] suffixes) {
         // Strip off suffixes
-        Pair<String, String> suffixResult = stripSuffix(resourceName, configuration.getSqlMigrationSuffixes());
+        Pair<String, String> suffixResult = stripSuffix(resourceName, suffixes);
 
         // Find the appropriate prefix
         Pair<String, ResourceType> prefix = findPrefix(suffixResult.getLeft(), prefixes);
