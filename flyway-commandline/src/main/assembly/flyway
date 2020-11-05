@@ -63,6 +63,14 @@ set -- "${POSITIONAL[@]}"
 if [ -z "$FLYWAY_EDITION" ]; then
   FLYWAY_EDITION=community
 fi
+if [ "$FLYWAY_EDITION" == "teams" ]; then
+  FLYWAY_EDITION=enterprise
+fi
+
+if ! [[ "$FLYWAY_EDITION" =~ ^(community|pro|enterprise|teams|\[edition\])$ ]]; then
+    echo invalid edition \"$FLYWAY_EDITION\"
+    exit 1
+fi
 
 CP="$INSTALLDIR/lib/*:$INSTALLDIR/lib/$FLYWAY_EDITION/*:$INSTALLDIR/drivers/*"
 
