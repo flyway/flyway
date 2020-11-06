@@ -86,8 +86,9 @@ public class CommandResultFactory {
         String flywayVersion = VersionPrinter.getVersion();
         boolean validationSuccessful = validationError == null;
         String errorMessage = validationError == null ? null : validationError.errorMessage;
+        List<ValidateOutput> invalidMigrationsList = invalidMigrations == null ? new ArrayList<>() : invalidMigrations;
 
-        return new ValidateResult(flywayVersion, databaseName, validationError, validationSuccessful, validationCount, invalidMigrations, warnings, errorMessage);
+        return new ValidateResult(flywayVersion, databaseName, validationError, validationSuccessful, validationCount, invalidMigrationsList, warnings, errorMessage);
     }
 
     public RepairResult createRepairResult(String databaseName) {

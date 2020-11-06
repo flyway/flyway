@@ -169,7 +169,7 @@ public class Flyway {
                     ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
                             true);
                     if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
-                        throw new FlywayValidateException(validateResult.errorDetails);
+                        throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
                     }
                 }
 
@@ -271,7 +271,7 @@ public class Flyway {
                         configuration.isIgnorePendingMigrations());
 
                 if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
-                    throw new FlywayValidateException(validateResult.errorDetails);
+                    throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
                 }
 
                 return null;
