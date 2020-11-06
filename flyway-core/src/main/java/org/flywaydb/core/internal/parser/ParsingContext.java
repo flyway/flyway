@@ -21,6 +21,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.resource.ResourceName;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -37,8 +38,9 @@ public class ParsingContext {
     private static final String USER_PLACEHOLDER = "flyway:user";
     private static final String DATABASE_PLACEHOLDER = "flyway:database";
     private static final String TIMESTAMP_PLACEHOLDER = "flyway:timestamp";
+    private static final String FILENAME_PLACEHOLDER = "flyway:filename";
 
-    private Map<String, String> placeholders = new HashMap<>();
+    private final Map<String, String> placeholders = new HashMap<>();
 
     public Map<String, String> getPlaceholders() {
         return placeholders;
@@ -71,6 +73,14 @@ public class ParsingContext {
 
         placeholders.put(USER_PLACEHOLDER, currentUser);
         placeholders.put(TIMESTAMP_PLACEHOLDER, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+    }
+
+    public void updateFilenamePlaceholder(ResourceName resourceName) {
+        if (resourceName.isValid()) {
+            placeholders.put(FILENAME_PLACEHOLDER, resourceName.getDescription());
+        } else {
+            placeholders.remove(FILENAME_PLACEHOLDER);
+        }
     }
 
     private Schema getCurrentSchema(Database database) {

@@ -21,6 +21,8 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.Resource;
+import org.flywaydb.core.internal.resource.ResourceName;
+import org.flywaydb.core.internal.resource.ResourceNameParser;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
@@ -100,7 +102,13 @@ public abstract class Parser {
         Recorder recorder = new Recorder();
         ParserContext context = new ParserContext(getDefaultDelimiter());
 
-        LOG.debug("Parsing " + resource.getFilename() + " ...");
+        String filename = resource.getFilename();
+        LOG.debug("Parsing " + filename + " ...");
+
+        ResourceName result = new ResourceNameParser(configuration).parse(filename);
+
+        parsingContext.updateFilenamePlaceholder(result);
+
         PeekingReader peekingReader =
                 new PeekingReader(
                         new RecordingReader(recorder,
