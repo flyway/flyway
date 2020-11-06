@@ -285,6 +285,7 @@ public class Main {
 
 
 
+
     private static void printJson(CommandLineArguments commandLineArguments, OperationResult object) {
         String json = convertObjectToJsonString(object);
 
