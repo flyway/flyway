@@ -19,6 +19,8 @@ import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
+
+
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.parser.Parser;
@@ -32,6 +34,10 @@ import java.util.Properties;
 public class MySQLDatabaseType extends DatabaseType {
     private static final String MYSQL_LEGACY_JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
+
+
+
+
 
     @Override
     public String getName() {
@@ -120,4 +126,14 @@ public class MySQLDatabaseType extends DatabaseType {
 
         return super.detectPasswordRequiredByUrl(url);
     }
+
+
+
+
+
+
+
+
+
+
 }
