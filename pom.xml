@@ -159,14 +159,14 @@
     <properties>
         <version.android>4.1.1.4</version.android>
         <version.ant>1.9.14</version.ant>
-        <version.aws-java-sdk>2.10.56</version.aws-java-sdk>
+        <version.aws-java-sdk>2.15.24</version.aws-java-sdk>
         <version.aws-secretsmanager>1.0.5</version.aws-secretsmanager>
         <version.commonslogging>1.2</version.commonslogging>
         <version.db2>11.5.0.0</version.db2>
         <version.derby>10.15.2.0</version.derby>
         <version.equinox>3.15.200</version.equinox>
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
-        <version.gcs>1.111.2</version.gcs>
+        <version.gcs>1.113.2</version.gcs>
         <version.gradle>6.1.1</version.gradle>
         <version.gson>2.8.6</version.gson>
         <version.h2>1.4.200</version.h2>
