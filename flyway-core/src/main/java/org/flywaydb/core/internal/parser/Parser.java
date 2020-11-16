@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
  * The main parser all database-specific parsers derive from.
  */
 public abstract class Parser {
-    private static final Log LOG = LogFactory.getLog(Parser.class);
+    protected static final Log LOG = LogFactory.getLog(Parser.class);
 
 
 
@@ -55,7 +55,7 @@ public abstract class Parser {
     private final char alternativeIdentifierQuote;
     private final char alternativeStringLiteralQuote;
     private final Set<String> validKeywords;
-    private final ParsingContext parsingContext;
+    protected final ParsingContext parsingContext;
 
     protected Parser(Configuration configuration, ParsingContext parsingContext, int peekDepth) {
         this.configuration = configuration;
