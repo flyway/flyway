@@ -1126,12 +1126,26 @@ public class FluentConfiguration implements Configuration {
         return this;
     }
 
-    public FluentConfiguration orackeKerberosConfigFile(String oracleKerberosConfigFile) {
+    /**
+     * When authenticating to Oracle via Kerberos, the location of the Kerberos <code>krb5.conf</code> file
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @param oracleKerberosConfigFile The Kerberos config file path.
+     */
+    public FluentConfiguration oracleKerberosConfigFile(String oracleKerberosConfigFile) {
         config.setOracleKerberosConfigFile(oracleKerberosConfigFile);
         return this;
     }
 
-    public FluentConfiguration orackeKerberosCacheFile(String oracleKerberosCacheFile) {
+    /**
+     * When authenticating to Oracle via Kerberos, the location of the local Kerberos config cache (optional).
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @param oracleKerberosCacheFile The Kerberos cache file path.
+     */
+    public FluentConfiguration oracleKerberosCacheFile(String oracleKerberosCacheFile) {
         config.setOracleKerberosCacheFile(oracleKerberosCacheFile);
         return this;
     }
