@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
 
 import java.util.Date;
+import java.util.stream.IntStream;
 
 /**
  * Default implementation of MigrationInfo.
@@ -459,8 +460,25 @@ public class MigrationInfoImpl implements MigrationInfo {
                 migrationIdentifier, applied, resolved);
     }
 
+
+
+
+
+
+
+
+
     @Override
     public int compareTo(MigrationInfo o) {
+
+
+
+
+
+
+
+
+
         if ((getInstalledRank() != null) && (o.getInstalledRank() != null)) {
             return getInstalledRank() - o.getInstalledRank();
         }
