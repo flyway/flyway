@@ -31,8 +31,8 @@ THIS="$0"
 # Detect the installation directory
 INSTALLDIR=`dirname "$THIS"`
 
-if [ -x "${INSTALLDIR}/jre/bin/java" ]; then
- JAVA_CMD=${INSTALLDIR}/jre/bin/java
+if [ -x "${INSTALLDIR}jre/bin/java" ]; then
+ JAVA_CMD=${INSTALLDIR}jre/bin/java
 else
  # Use JAVA_HOME if it is set
  if [ -z "$JAVA_HOME" ]; then JAVA_CMD=java; else JAVA_CMD=$JAVA_HOME/bin/java; fi
