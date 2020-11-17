@@ -25,20 +25,22 @@ import org.flywaydb.core.api.MigrationVersion;
  * Repeatable migrations and callbacks are named in the form prefixSeparatorDESCRIPTIONsuffix
  */
 public class ResourceName {
-    private String prefix;
-    private String version;
-    private String separator;
-    private String description;
-    private String suffix;
-    private boolean isValid;
-    private String validityMessage;
+    private final String prefix;
+    private final String version;
+    private final String separator;
+    private final String description;
+    private final String rawDescription;
+    private final String suffix;
+    private final boolean isValid;
+    private final String validityMessage;
 
-    public ResourceName(String prefix, String version, String separator, String description, String suffix,
+    public ResourceName(String prefix, String version, String separator, String description, String rawDescription, String suffix,
                         boolean isValid, String validityMessage){
         this.prefix = prefix;
         this.version = version;
         this.separator = separator;
         this.description = description;
+        this.rawDescription = rawDescription;
         this.suffix = suffix;
         this.isValid = isValid;
         this.validityMessage = validityMessage;
@@ -51,7 +53,7 @@ public class ResourceName {
      * @return The fully populated parsing result.
      */
     public static ResourceName invalid(String message) {
-        return new ResourceName(null, null, null, null,
+        return new ResourceName(null, null, null, null, null,
                 null, false, message);
     }
 
@@ -113,6 +115,21 @@ public class ResourceName {
             return prefix + version;
         } else {
             return prefix + version + separator + description;
+        }
+    }
+
+    /**
+     * The filename of the resource as it appears on disk
+     */
+    public String getFilename() {
+        if (!isValid) {
+            throw new FlywayException("Cannot access name of invalid ResourceNameParseResult\r\n" + validityMessage);
+        }
+
+        if ("".equals(description)) {
+            return prefix + version + suffix;
+        } else {
+            return prefix + version + separator + rawDescription + suffix;
         }
     }
 

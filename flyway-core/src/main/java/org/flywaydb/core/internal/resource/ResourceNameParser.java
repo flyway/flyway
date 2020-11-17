@@ -83,7 +83,7 @@ public class ResourceNameParser {
 
             String description = splitName.getRight().replace("_", " ");
             return new ResourceName(prefixResult.getLeft(), splitName.getLeft(),
-                    configuration.getSqlMigrationSeparator(), description, suffixResult.getRight(),
+                    configuration.getSqlMigrationSeparator(), description, splitName.getRight(), suffixResult.getRight(),
                     isValid, validationMessage);
         }
 

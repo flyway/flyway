@@ -88,7 +88,7 @@ public class ParsingContext {
 
     public void updateFilenamePlaceholder(ResourceName resourceName) {
         if (resourceName.isValid()) {
-            placeholders.put(FILENAME_PLACEHOLDER, resourceName.getDescription());
+            placeholders.put(FILENAME_PLACEHOLDER, resourceName.getFilename());
         } else {
             placeholders.remove(FILENAME_PLACEHOLDER);
         }
