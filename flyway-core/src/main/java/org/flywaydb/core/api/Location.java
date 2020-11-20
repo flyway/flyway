@@ -118,8 +118,8 @@ public final class Location implements Comparable<Location> {
         if (rawPath.contains("*") || rawPath.contains("?")) {
             // we need to figure out the root, and create the regex
 
-            String seperator = isFileSystem() ? File.separator : "/";
-            String escapedSeperator = seperator.replace("\\", "\\\\").replace("/", "\\/");
+            String separator = isFileSystem() ? File.separator : "/";
+            String escapedSeparator = separator.replace("\\", "\\\\").replace("/", "\\/");
 
             // split on either of the path seperators
             String[] pathSplit = rawPath.split("[\\\\/]");
@@ -161,7 +161,7 @@ public final class Location implements Comparable<Location> {
 
                     patternPart.append(regex);
                 } else {
-                    rootPart.append(seperator).append(pathPart);
+                    rootPart.append(separator).append(pathPart);
                 }
             }
 
@@ -172,16 +172,16 @@ public final class Location implements Comparable<Location> {
             String pattern = patternPart.toString().substring(1);
 
             // Replace the temporary / with the actual escaped seperator
-            pattern = pattern.replace("/", escapedSeperator);
+            pattern = pattern.replace("/", escapedSeparator);
 
             // Append the rootpath if it is non-empty
             if (rootPart.length() > 0) {
-                pattern = rootPath.replace(seperator, escapedSeperator) + escapedSeperator + pattern;
+                pattern = rootPath.replace(separator, escapedSeparator) + escapedSeparator + pattern;
             }
 
             // if the path did not end in a file, then append the file match pattern
             if (!endsInFile) {
-                pattern = pattern + escapedSeperator + "(?<relpath>.*)";
+                pattern = pattern + escapedSeparator + "(?<relpath>.*)";
             }
 
             pathRegex = Pattern.compile(pattern);

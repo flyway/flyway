@@ -382,6 +382,8 @@ public class FluentConfiguration implements Configuration {
      * Sets the file where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. If the file specified is in a non-existent directory, Flyway will create all
      * directories and parent directories as needed.
+     * Paths starting with s3: point to a bucket in AWS S3, which must exist. They are in the format s3:<bucket>(/optionalfolder/subfolder)/filename.sql
+     * Paths starting with gcs: point to a bucket in Google Cloud Storage, which must exist. They are in the format gcs:<bucket>(/optionalfolder/subfolder)/filename.sql
      * <p><i>Flyway Teams only</i></p>
      *
      * @param dryRunOutputFileName The name of the output file or {@code null} to execute the SQL statements directly

@@ -26,6 +26,10 @@ import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
+
+
+
+
 import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
@@ -809,7 +813,7 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
-     * directly against the database. The stream when be closing when Flyway finishes writing the output.
+     * directly against the database. The stream will be closed when Flyway finishes writing the output.
      * <p><i>Flyway Teams only</i></p>
      *
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
@@ -883,6 +887,8 @@ public class ClassicConfiguration implements Configuration {
      * Sets the file where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. If the file specified is in a non-existent directory, Flyway will create all
      * directories and parent directories as needed.
+     * Paths starting with s3: point to a bucket in AWS S3, which must exist. They are in the format s3:<bucket>(/optionalfolder/subfolder)/filename.sql
+     * Paths starting with gcs: point to a bucket in Google Cloud Storage, which must exist. They are in the format gcs:<bucket>(/optionalfolder/subfolder)/filename.sql
      * <p><i>Flyway Teams only</i></p>
      *
      * @param dryRunOutputFileName The name of the output file or {@code null} to execute the SQL statements directly
@@ -891,6 +897,12 @@ public class ClassicConfiguration implements Configuration {
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
+
+
+
+
+
+
 
 
 

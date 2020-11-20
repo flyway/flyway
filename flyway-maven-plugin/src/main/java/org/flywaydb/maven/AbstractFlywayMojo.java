@@ -550,6 +550,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * The file where to output the SQL statements of a migration dry run. If the file specified is in a non-existent
      * directory, Flyway will create all directories and parent directories as needed.
+     * Paths starting with s3: point to a bucket in AWS S3, which must exist. They are in the format s3:<bucket>(/optionalfolder/subfolder)/filename.sql
+     * Paths starting with gcs: point to a bucket in Google Cloud Storage, which must exist. They are in the format gcs:<bucket>(/optionalfolder/subfolder)/filename.sql
      * <p>{@code null} to execute the SQL statements directly against the database. (default: {@code null})</p>
      * <p>Also configurable with Maven or System Property: ${flyway.dryRunOutput}</p>
      * <p><i>Flyway Teams only</i></p>

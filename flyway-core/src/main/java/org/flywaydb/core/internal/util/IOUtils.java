@@ -19,6 +19,7 @@ package org.flywaydb.core.internal.util;
  * General IO-related utilities.
  */
 public class IOUtils {
+
     private IOUtils() {
     }
 
