@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.scanner.classpath;
 
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.Resource;
 
 import java.util.Collection;
 
@@ -28,7 +28,7 @@ public interface ResourceAndClassScanner<I> {
      *
      * @return The resources that were found.
      */
-    Collection<LoadableResource> scanForResources();
+    Collection<Resource> scanForResources();
 
     /**
      * Scans the classpath for concrete classes under the specified package implementing the specified interface.

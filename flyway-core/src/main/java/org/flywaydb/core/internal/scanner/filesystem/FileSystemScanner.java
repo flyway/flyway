@@ -16,9 +16,9 @@
 package org.flywaydb.core.internal.scanner.filesystem;
 
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 
@@ -62,7 +62,7 @@ public class FileSystemScanner {
      * @param location The location in the filesystem to start searching. Subdirectories are also searched.
      * @return The resources that were found.
      */
-    public Collection<LoadableResource> scanForResources(Location location) {
+    public Collection<Resource> scanForResources( Location location) {
         String path = location.getRootPath();
         LOG.debug("Scanning for filesystem resources at '" + path + "'");
 
@@ -80,14 +80,14 @@ public class FileSystemScanner {
             return Collections.emptyList();
         }
 
-        Set<LoadableResource> resources = new TreeSet<>();
+        Set<Resource> resources = new TreeSet<>();
 
         for (String resourceName : findResourceNamesFromFileSystem(path, new File(path))) {
             if (location.matchesPath(resourceName)) {
                 Charset encoding = defaultEncoding;
                 String encodingBlurb = "";
                 if (new File(resourceName + ".conf").exists()) {
-                    LoadableResource metadataResource = new FileSystemResource(location, resourceName + ".conf", defaultEncoding
+                    Resource metadataResource = new FileSystemResource(location, resourceName + ".conf", defaultEncoding
 
 
 

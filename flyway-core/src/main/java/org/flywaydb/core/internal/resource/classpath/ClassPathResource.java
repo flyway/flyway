@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.resource.classpath;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.util.UrlUtils;
 
 import java.io.File;
@@ -30,7 +30,7 @@ import java.nio.charset.Charset;
 /**
  * A resource on the classpath.
  */
-public class ClassPathResource extends LoadableResource {
+public class ClassPathResource implements Resource {
     /**
      * The fileNameWithAbsolutePath of the resource on the classpath.
      */

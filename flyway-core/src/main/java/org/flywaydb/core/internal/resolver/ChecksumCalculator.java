@@ -16,14 +16,12 @@
 package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.util.BomFilter;
 import org.flywaydb.core.internal.util.IOUtils;
-import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
 
@@ -37,13 +35,13 @@ public class ChecksumCalculator {
      *
      * @return The crc-32 checksum of the bytes.
      */
-    public static int calculate(LoadableResource... loadableResources) {
+    public static int calculate( Resource... resources) {
         int checksum;
 
 
 
 
-            checksum = calculateChecksumForResource(loadableResources[0]);
+            checksum = calculateChecksumForResource(resources[0]);
 
 
 
@@ -59,7 +57,7 @@ public class ChecksumCalculator {
         return checksum;
     }
 
-    private static int calculateChecksumForResource(LoadableResource resource) {
+    private static int calculateChecksumForResource(Resource resource) {
         final CRC32 crc32 = new CRC32();
 
         BufferedReader bufferedReader = null;

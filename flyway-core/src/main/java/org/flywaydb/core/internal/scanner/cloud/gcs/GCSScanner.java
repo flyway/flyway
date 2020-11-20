@@ -21,9 +21,9 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.gcs.GCSResource;
 import org.flywaydb.core.internal.scanner.cloud.CloudScanner;
 
@@ -44,7 +44,7 @@ public class GCSScanner extends CloudScanner {
     }
 
     @Override
-    public Collection<LoadableResource> scanForResources(final Location location) {
+    public Collection<Resource> scanForResources( final Location location) {
         if (System.getenv("GOOGLE_APPLICATION_CREDENTIALS") == null) {
             LOG.error("Can't read location " + location + "; GOOGLE_APPLICATION_CREDENTIALS environment variable not set");
             return Collections.emptyList();
@@ -58,8 +58,8 @@ public class GCSScanner extends CloudScanner {
         return getLoadableResources(bucketName, bucket.list());
     }
 
-    private Collection<LoadableResource> getLoadableResources(String bucketName, Page<Blob> listObjectResult) {
-        Set<LoadableResource> resources = new TreeSet<>();
+    private Collection<Resource> getLoadableResources( String bucketName, Page<Blob> listObjectResult) {
+        Set<Resource> resources = new TreeSet<>();
         for (Blob blob : listObjectResult.iterateAll()) {
             LOG.debug("Found GCS resource: " + bucketName.concat("/").concat(blob.getName()));
             resources.add(new GCSResource(blob, encoding));

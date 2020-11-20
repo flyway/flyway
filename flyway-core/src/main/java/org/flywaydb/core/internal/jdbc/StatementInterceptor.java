@@ -15,9 +15,9 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
 
@@ -29,7 +29,7 @@ public interface StatementInterceptor {
     void schemaHistoryTableCreate(boolean baseline);
     void schemaHistoryTableInsert(AppliedMigration appliedMigration);
     void close();
-    void sqlScript(LoadableResource resource);
+    void sqlScript( Resource resource);
     void sqlStatement(SqlStatement statement);
 
     void interceptCommand(String command);

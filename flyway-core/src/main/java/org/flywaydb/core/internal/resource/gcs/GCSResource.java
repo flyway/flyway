@@ -17,15 +17,15 @@ package org.flywaydb.core.internal.resource.gcs;
 
 import com.google.cloud.storage.Blob;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
 
 import java.io.Reader;
 import java.nio.channels.Channels;
 import java.nio.charset.Charset;
 
-public class GCSResource extends LoadableResource {
+public class GCSResource implements Resource {
 
     private static final Log LOG = LogFactory.getLog(GCSResource.class);
 

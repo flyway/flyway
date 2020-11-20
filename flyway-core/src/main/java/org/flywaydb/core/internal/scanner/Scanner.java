@@ -15,19 +15,18 @@
  */
 package org.flywaydb.core.internal.scanner;
 
+import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.resource.Resource;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.scanner.android.AndroidScanner;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
-import org.flywaydb.core.internal.scanner.filesystem.FileSystemScanner;
-import org.flywaydb.core.internal.scanner.cloud.gcs.GCSScanner;
 import org.flywaydb.core.internal.scanner.cloud.s3.AwsS3Scanner;
+import org.flywaydb.core.internal.scanner.filesystem.FileSystemScanner;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -41,12 +40,12 @@ import java.util.*;
 public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     private static final Log LOG = LogFactory.getLog(Scanner.class);
 
-    private final List<LoadableResource> resources = new ArrayList<>();
-    private final List<Class<? extends I>> classes = new ArrayList<>();
+    private final List<Resource>           resources = new ArrayList<>();
+    private final List<Class<? extends I>> classes   = new ArrayList<>();
 
     // Lookup maps to speed up getResource
-    private final HashMap<String, LoadableResource> relativeResourceMap = new HashMap<>();
-    private HashMap<String, LoadableResource> absoluteResourceMap = null;
+    private final HashMap<String, Resource> relativeResourceMap = new HashMap<>();
+    private HashMap<String, Resource>       absoluteResourceMap = null;
 
     /*
      * Constructor. Scans the given locations for resources, and classes implementing the specified interface.
@@ -81,7 +80,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
             } else if (location.isAwsS3()) {
                 if (aws) {
-                    Collection<LoadableResource> awsResources = new AwsS3Scanner(encoding).scanForResources(location);
+                    Collection<Resource> awsResources = new AwsS3Scanner(encoding).scanForResources(location);
                     resources.addAll(awsResources);
                     cloudMigrationCount += awsResources.stream().filter(r -> r.getFilename().endsWith(".sql")).count();;
                 } else {
@@ -102,14 +101,14 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
         }
 
 
-        for (LoadableResource resource : resources) {
+        for ( Resource resource : resources) {
             relativeResourceMap.put(resource.getRelativePath().toLowerCase(), resource);
         }
     }
 
     @Override
-    public LoadableResource getResource(String name) {
-        LoadableResource loadedResource = relativeResourceMap.get(name.toLowerCase());
+    public Resource getResource( String name) {
+        Resource loadedResource = relativeResourceMap.get(name.toLowerCase());
 
         if (loadedResource != null) {
             return loadedResource;
@@ -121,7 +120,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
         if (Paths.get(name).isAbsolute()) {
             if (absoluteResourceMap == null) {
                 absoluteResourceMap = new HashMap<>();
-                for (LoadableResource resource : resources) {
+                for ( Resource resource : resources) {
                     absoluteResourceMap.put(resource.getAbsolutePathOnDisk().toLowerCase(), resource);
                 }
             }
@@ -143,9 +142,9 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
      * @param suffixes The suffixes of the resource names to match.
      * @return The resources that were found.
      */
-    public Collection<LoadableResource> getResources(String prefix, String... suffixes) {
-        List<LoadableResource> result = new ArrayList<>();
-        for (LoadableResource resource : resources) {
+    public Collection<Resource> getResources( String prefix, String... suffixes) {
+        List<Resource> result = new ArrayList<>();
+        for (Resource resource : resources) {
             String fileName = resource.getFilename();
             if (StringUtils.startsAndEndsWith(fileName, prefix, suffixes)) {
                 result.add(resource);

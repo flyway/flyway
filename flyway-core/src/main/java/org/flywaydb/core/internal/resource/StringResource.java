@@ -15,10 +15,13 @@
  */
 package org.flywaydb.core.internal.resource;
 
+import org.flywaydb.core.api.resource.Resource;
+
 import java.io.Reader;
 import java.io.StringReader;
 
-public class StringResource extends LoadableResource {
+public class StringResource implements Resource
+{
     private final String str;
 
     public StringResource(String str) {

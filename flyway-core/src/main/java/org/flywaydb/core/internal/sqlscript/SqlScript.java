@@ -15,9 +15,7 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-import org.flywaydb.core.internal.resource.LoadableResource;
-
-import java.util.Collection;
+import org.flywaydb.core.api.resource.Resource;
 
 /**
  * SQL script containing a series of statements terminated by a delimiter (eg: ;).
@@ -45,7 +43,7 @@ public interface SqlScript extends Comparable<SqlScript> {
     /**
      * @return The resource containing the statements.
      */
-    LoadableResource getResource();
+    Resource getResource();
 
     /**
      * Whether the execution should take place inside a transaction. This is useful for databases

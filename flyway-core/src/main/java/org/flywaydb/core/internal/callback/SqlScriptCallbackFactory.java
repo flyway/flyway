@@ -16,16 +16,16 @@
 package org.flywaydb.core.internal.callback;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.resource.Resource;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.callback.Context;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
-import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
@@ -59,10 +59,10 @@ public class SqlScriptCallbackFactory {
         Map<String, SqlScript> callbacksFound = new HashMap<>();
 
         LOG.debug("Scanning for SQL callbacks ...");
-        Collection<LoadableResource> resources = resourceProvider.getResources("", configuration.getSqlMigrationSuffixes());
-        ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
+        Collection<Resource> resources          = resourceProvider.getResources("", configuration.getSqlMigrationSuffixes());
+        ResourceNameParser   resourceNameParser = new ResourceNameParser(configuration);
 
-        for (LoadableResource resource : resources) {
+        for (Resource resource : resources) {
             ResourceName parsedName = resourceNameParser.parse(resource.getFilename());
             if (!parsedName.isValid()) {
                 continue;

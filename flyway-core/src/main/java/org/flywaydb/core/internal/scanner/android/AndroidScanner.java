@@ -19,10 +19,10 @@ import android.content.Context;
 import dalvik.system.DexFile;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.api.android.ContextHolder;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.android.AndroidResource;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -60,8 +60,8 @@ public class AndroidScanner<I> implements ResourceAndClassScanner<I> {
     }
 
     @Override
-    public Collection<LoadableResource> scanForResources() {
-        List<LoadableResource> resources = new ArrayList<>();
+    public Collection<Resource> scanForResources() {
+        List<Resource> resources = new ArrayList<>();
 
         String path = location.getRootPath();
         try {

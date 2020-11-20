@@ -21,15 +21,11 @@ import org.flywaydb.core.api.configuration.Configuration;
 
 
 import org.flywaydb.core.internal.parser.*;
-import org.flywaydb.core.api.ResourceProvider;
-import org.flywaydb.core.internal.resource.Resource;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
-import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;

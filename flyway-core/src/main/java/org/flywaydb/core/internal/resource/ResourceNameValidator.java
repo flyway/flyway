@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.resource;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
@@ -39,7 +40,7 @@ public class ResourceNameValidator {
         List<String> errorsFound = new ArrayList<>();
         ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
 
-        for (Resource resource : getAllSqlResources(provider, configuration)) {
+        for ( Resource resource : getAllSqlResources(provider, configuration)) {
             LOG.debug("Validating " + resource.getFilename());
 
             ResourceName result = resourceNameParser.parse(resource.getFilename());
@@ -53,7 +54,7 @@ public class ResourceNameValidator {
         }
     }
 
-    private Collection<LoadableResource> getAllSqlResources(ResourceProvider provider, Configuration configuration) {
+    private Collection<Resource> getAllSqlResources(ResourceProvider provider, Configuration configuration) {
         return provider.getResources("", configuration.getSqlMigrationSuffixes());
     }
 }

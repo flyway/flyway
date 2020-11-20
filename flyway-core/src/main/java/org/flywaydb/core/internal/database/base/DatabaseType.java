@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.base;
 
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
@@ -25,7 +26,6 @@ import org.flywaydb.core.internal.database.DefaultExecutionStrategy;
 import org.flywaydb.core.internal.jdbc.*;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.sqlscript.*;
 
 import java.sql.Connection;
@@ -193,7 +193,7 @@ public abstract class DatabaseType {
 
         return new SqlScriptFactory() {
             @Override
-            public SqlScript createSqlScript(LoadableResource resource, boolean mixed, ResourceProvider resourceProvider) {
+            public SqlScript createSqlScript( Resource resource, boolean mixed, ResourceProvider resourceProvider) {
                 return new ParserSqlScript(
                         createParser(configuration, resourceProvider, parsingContext),
                         resource,

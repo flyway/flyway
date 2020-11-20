@@ -16,9 +16,9 @@
 package org.flywaydb.core.internal.scanner.classpath;
 
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
 import org.flywaydb.core.internal.scanner.LocationScannerCache;
 import org.flywaydb.core.internal.scanner.ResourceNameCache;
@@ -51,7 +51,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
     private final ClassLoader classLoader;
     private final Location location;
 
-    private final Set<LoadableResource> resources = new TreeSet<>();
+    private final Set<Resource> resources = new TreeSet<>();
 
     /**
      * Cache location lookups.
@@ -108,7 +108,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
     }
 
     @Override
-    public Collection<LoadableResource> scanForResources() {
+    public Collection<Resource> scanForResources() {
         return resources;
     }
 
@@ -118,7 +118,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
 
         List<Class<? extends I>> classes = new ArrayList<>();
 
-        for (LoadableResource resource : resources) {
+        for ( Resource resource : resources) {
             if (resource.getAbsolutePath().endsWith(".class")) {
                 Class<? extends I> clazz = ClassUtils.loadClass(
                         implementedInterface,

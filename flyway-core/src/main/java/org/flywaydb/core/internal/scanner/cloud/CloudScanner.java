@@ -16,11 +16,10 @@
 package org.flywaydb.core.internal.scanner.cloud;
 
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.Resource;
 
 import java.nio.charset.Charset;
 import java.util.Collection;
-import java.util.TreeSet;
 
 public abstract class CloudScanner {
 
@@ -30,7 +29,7 @@ public abstract class CloudScanner {
         this.encoding = encoding;
     }
 
-    public abstract Collection<LoadableResource> scanForResources(final Location location);
+    public abstract Collection<Resource> scanForResources( final Location location);
 
     protected String getPrefix(String bucketName, String path) {
         String relativePathToBucket = path.substring(bucketName.length());

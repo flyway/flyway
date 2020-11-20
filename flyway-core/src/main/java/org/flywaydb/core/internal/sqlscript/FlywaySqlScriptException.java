@@ -16,7 +16,7 @@
 package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.resource.Resource;
+import org.flywaydb.core.api.resource.Resource;
 
 import java.sql.SQLException;
 

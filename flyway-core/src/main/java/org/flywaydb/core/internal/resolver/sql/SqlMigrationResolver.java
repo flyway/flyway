@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.resolver.sql;
 
 import org.flywaydb.core.api.MigrationType;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.Context;
@@ -26,7 +27,6 @@ import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
 import org.flywaydb.core.internal.resolver.ChecksumCalculator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
-import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
 import org.flywaydb.core.api.ResourceProvider;
@@ -106,11 +106,11 @@ public class SqlMigrationResolver implements MigrationResolver {
         return migrations;
     }
 
-    private LoadableResource[] createPlaceholderReplacingLoadableResources(List<LoadableResource> loadableResources) {
-        List<LoadableResource> list = new ArrayList<>();
+    private Resource[] createPlaceholderReplacingResources(List<Resource> resources) {
+        List<Resource> list = new ArrayList<>();
 
-        for (final LoadableResource loadableResource : loadableResources) {
-            LoadableResource placeholderReplacingLoadableResource = new LoadableResource() {
+        for (final Resource loadableResource : resources) {
+            Resource placeholderReplacingLoadableResource = new Resource() {
                 @Override
                 public Reader read() {
                     return PlaceholderReplacingReader.create(
@@ -132,20 +132,20 @@ public class SqlMigrationResolver implements MigrationResolver {
             list.add(placeholderReplacingLoadableResource);
         }
 
-        return list.toArray(new LoadableResource[0]);
+        return list.toArray(new Resource[0]);
     }
 
-    private Integer getChecksumForLoadableResource(boolean repeatable, List<LoadableResource> loadableResources) {
+    private Integer getChecksumForResource(boolean repeatable, List<Resource> resources) {
         if (repeatable && configuration.isPlaceholderReplacement()) {
-            return ChecksumCalculator.calculate(createPlaceholderReplacingLoadableResources(loadableResources));
+            return ChecksumCalculator.calculate(createPlaceholderReplacingResources(resources));
         }
 
-        return ChecksumCalculator.calculate(loadableResources.toArray(new LoadableResource[0]));
+        return ChecksumCalculator.calculate(resources.toArray(new Resource[0]));
     }
 
-    private Integer getEquivalentChecksumForLoadableResource(boolean repeatable, List<LoadableResource> loadableResources) {
+    private Integer getEquivalentChecksumForLoadableResource(boolean repeatable, List<Resource> loadableResources) {
         if (repeatable) {
-            return ChecksumCalculator.calculate(loadableResources.toArray(new LoadableResource[0]));
+            return ChecksumCalculator.calculate(loadableResources.toArray(new Resource[0]));
         }
 
         return null;
@@ -159,7 +159,7 @@ public class SqlMigrationResolver implements MigrationResolver {
     ){
         ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
 
-        for (LoadableResource resource : resourceProvider.getResources(prefix, suffixes)) {
+        for (Resource resource : resourceProvider.getResources(prefix, suffixes)) {
             String filename = resource.getFilename();
             ResourceName result = resourceNameParser.parse(filename);
             if (!result.isValid() || isSqlCallback(result) || !prefix.equals(result.getPrefix())) {
@@ -168,7 +168,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
             SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed(), resourceProvider);
 
-            List<LoadableResource> resources = new ArrayList<>();
+            List<Resource> resources = new ArrayList<>();
             resources.add(resource);
 
 
@@ -178,7 +178,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-            Integer checksum = getChecksumForLoadableResource(repeatable, resources);
+            Integer checksum = getChecksumForResource(repeatable, resources);
             Integer equivalentChecksum = getEquivalentChecksumForLoadableResource(repeatable, resources);
 
             migrations.add(new ResolvedMigrationImpl(

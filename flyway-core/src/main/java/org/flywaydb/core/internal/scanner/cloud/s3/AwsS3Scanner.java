@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.api.configuration.S3ClientFactory;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.s3.AwsS3Resource;
 import org.flywaydb.core.internal.scanner.cloud.CloudScanner;
 import software.amazon.awssdk.core.exception.SdkClientException;
@@ -55,7 +55,7 @@ public class AwsS3Scanner extends CloudScanner {
      * @return The resources that were found.
      */
     @Override
-    public Collection<LoadableResource> scanForResources(final Location location) {
+    public Collection<Resource> scanForResources( final Location location) {
         String bucketName = getBucketName(location);
         String prefix = getPrefix(bucketName, location.getPath());
         S3Client s3Client = S3ClientFactory.getClient();
@@ -70,9 +70,9 @@ public class AwsS3Scanner extends CloudScanner {
         }
     }
 
-    private Collection<LoadableResource> getLoadableResources(String bucketName, final ListObjectsV2Response listObjectResult) {
+    private Collection<Resource> getLoadableResources( String bucketName, final ListObjectsV2Response listObjectResult) {
         List<S3Object> objectSummaries = listObjectResult.contents();
-        Set<LoadableResource> resources = new TreeSet<>();
+        Set<Resource>  resources       = new TreeSet<>();
         for (S3Object objectSummary : objectSummaries) {
             LOG.debug("Found Amazon S3 resource: " + bucketName.concat("/").concat(objectSummary.key()));
             resources.add(new AwsS3Resource(bucketName, objectSummary, encoding));

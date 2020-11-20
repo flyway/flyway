@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.resource;
+package org.flywaydb.core.api.resource;
+
+import java.io.Reader;
 
 /**
  * A resource (such as a .sql file) used by Flyway.
  */
-public interface Resource {
+public interface Resource extends Comparable<Resource> {
     /**
      * @return The absolute path and filename of the resource on the classpath or filesystem (path and filename).
      */
@@ -40,4 +42,17 @@ public interface Resource {
      * loaded from.
      */
     String getRelativePath();
+
+    /**
+     * Reads the contents of this resource.
+     *
+     * @return The reader with the contents of the resource.
+     */
+    Reader read();
+
+    @Override
+    default int compareTo( Resource o )
+    {
+        return getRelativePath().compareTo( o.getRelativePath() );
+    }
 }

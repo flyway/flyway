@@ -15,11 +15,11 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.internal.resource.LoadableResource;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +50,7 @@ public class SqlScriptMetadata {
 
     public String encoding() { return encoding; }
 
-    public static SqlScriptMetadata fromResource(LoadableResource resource) {
+    public static SqlScriptMetadata fromResource(Resource resource) {
         if (resource != null) {
             LOG.debug("Found script configuration: " + resource.getFilename());
             return new SqlScriptMetadata(ConfigUtils.loadConfigurationFromReader(resource.read()));
@@ -58,7 +58,7 @@ public class SqlScriptMetadata {
         return new SqlScriptMetadata(new HashMap<>());
     }
 
-    public static LoadableResource getMetadataResource(ResourceProvider resourceProvider, LoadableResource resource) {
+    public static Resource getMetadataResource(ResourceProvider resourceProvider, Resource resource) {
         if (resourceProvider == null) {
             return null;
         }

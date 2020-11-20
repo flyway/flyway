@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.api;
 
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.Resource;
 
 import java.util.Collection;
 
@@ -29,7 +29,7 @@ public interface ResourceProvider {
      * @param name The name of the resource.
      * @return The resource or {@code null} if not found.
      */
-    LoadableResource getResource(String name);
+    Resource getResource( String name);
 
     /**
      * Retrieve all resources whose name begins with this prefix and ends with any of these suffixes.
@@ -38,5 +38,5 @@ public interface ResourceProvider {
      * @param suffixes The suffixes.
      * @return The matching resources.
      */
-    Collection<LoadableResource> getResources(String prefix, String[] suffixes);
+    Collection<Resource> getResources(String prefix, String[] suffixes);
 }

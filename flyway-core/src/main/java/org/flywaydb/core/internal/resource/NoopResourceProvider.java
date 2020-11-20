@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.resource;
 
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.api.ResourceProvider;
 
 import java.util.Collection;
@@ -27,7 +28,7 @@ public enum NoopResourceProvider implements ResourceProvider {
     INSTANCE;
 
     @Override
-    public LoadableResource getResource(String name) {
+    public Resource getResource( String name) {
         return null;
     }
 
@@ -38,7 +39,7 @@ public enum NoopResourceProvider implements ResourceProvider {
      * @param suffixes The suffixes.
      * @return The matching resources.
      */
-    public Collection<LoadableResource> getResources(String prefix, String[] suffixes) {
+    public Collection<Resource> getResources(String prefix, String[] suffixes) {
         return Collections.emptyList();
     }
 }

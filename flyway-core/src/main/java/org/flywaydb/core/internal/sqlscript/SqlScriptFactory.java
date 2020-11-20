@@ -15,12 +15,12 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.api.ResourceProvider;
 
 public interface SqlScriptFactory {
     /**
      * @return A new SQL script.
      */
-    SqlScript createSqlScript(LoadableResource resource, boolean mixed, ResourceProvider resourceProvider);
+    SqlScript createSqlScript( Resource resource, boolean mixed, ResourceProvider resourceProvider);
 }

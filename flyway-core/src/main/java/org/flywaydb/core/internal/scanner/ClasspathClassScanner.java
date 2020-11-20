@@ -16,7 +16,7 @@
 package org.flywaydb.core.internal.scanner;
 
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 
 import java.nio.charset.Charset;
@@ -39,7 +39,7 @@ public class ClasspathClassScanner {
                 resourceNameCache, locationScannerCache, errorOnNotFound);
 
         List<String> discoveredTypes = new ArrayList<>();
-        for (LoadableResource resource : s.scanForResources()) {
+        for ( Resource resource : s.scanForResources()) {
             if (resource.getAbsolutePath().endsWith(".class")) {
 
                 discoveredTypes.add(toClassName(resource.getAbsolutePath()));

@@ -16,17 +16,14 @@
 package org.flywaydb.core.internal.sqlscript;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.resource.LoadableResource;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class ParserSqlScript implements SqlScript {
     private static final Log LOG = LogFactory.getLog(ParserSqlScript.class);
@@ -46,7 +43,7 @@ public class ParserSqlScript implements SqlScript {
     /**
      * The resource containing the statements.
      */
-    protected final LoadableResource resource;
+    protected final Resource resource;
 
     private final SqlScriptMetadata metadata;
     protected final Parser parser;
@@ -65,7 +62,7 @@ public class ParserSqlScript implements SqlScript {
      * @param metadataResource The sql script metadata resource.
      * @param mixed            Whether to allow mixing transactional and non-transactional statements within the same migration.
      */
-    public ParserSqlScript(Parser parser, LoadableResource resource, LoadableResource metadataResource, boolean mixed) {
+    public ParserSqlScript( Parser parser, Resource resource, Resource metadataResource, boolean mixed) {
         this.resource = resource;
         this.metadata = SqlScriptMetadata.fromResource(metadataResource);
         this.parser = parser;
@@ -181,7 +178,7 @@ public class ParserSqlScript implements SqlScript {
 
 
     @Override
-    public final LoadableResource getResource() {
+    public final Resource getResource() {
         return resource;
     }
 

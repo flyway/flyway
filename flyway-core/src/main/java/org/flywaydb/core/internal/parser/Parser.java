@@ -16,11 +16,10 @@
 package org.flywaydb.core.internal.parser;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.Resource;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
@@ -97,7 +96,7 @@ public abstract class Parser {
      * @param resource The resource to parse.
      * @return The statements.
      */
-    public final SqlStatementIterator parse(final LoadableResource resource) {
+    public final SqlStatementIterator parse(final Resource resource) {
         PositionTracker tracker = new PositionTracker();
         Recorder recorder = new Recorder();
         ParserContext context = new ParserContext(getDefaultDelimiter());
@@ -659,12 +658,12 @@ public abstract class Parser {
 
     public class ParserSqlStatementIterator implements SqlStatementIterator {
         private final PeekingReader peekingReader;
-        private final LoadableResource resource;
+        private final Resource resource;
         private final Recorder recorder;
         private final PositionTracker tracker;
         private final ParserContext context;
 
-        public ParserSqlStatementIterator(PeekingReader peekingReader, LoadableResource resource, Recorder recorder, PositionTracker tracker, ParserContext context) {
+        public ParserSqlStatementIterator(PeekingReader peekingReader, Resource resource, Recorder recorder, PositionTracker tracker, ParserContext context) {
             this.peekingReader = peekingReader;
             this.resource = resource;
             this.recorder = recorder;
