@@ -22,7 +22,6 @@ import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
-import org.flywaydb.core.internal.util.SqlCallable;
 
 import java.sql.SQLException;
 
@@ -64,13 +63,10 @@ public class SqlMigrationExecutor implements MigrationExecutor {
         DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(context.getConnection());
 
         DatabaseExecutionStrategy strategy = databaseType.createExecutionStrategy(context.getConnection());
-        strategy.execute(new SqlCallable<Boolean>() {
-                @Override
-                public Boolean call() throws SQLException {
-                    executeOnce(context);
-                    return true;
-                }
-            });
+        strategy.execute(() -> {
+            executeOnce(context);
+            return true;
+        });
     }
 
     private void executeOnce(Context context) {
@@ -85,5 +81,10 @@ public class SqlMigrationExecutor implements MigrationExecutor {
     @Override
     public boolean canExecuteInTransaction() {
         return sqlScript.executeInTransaction();
+    }
+
+    @Override
+    public boolean shouldExecute() {
+        return sqlScript.shouldExecute();
     }
 }

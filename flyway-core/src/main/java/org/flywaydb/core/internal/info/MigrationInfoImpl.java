@@ -184,6 +184,11 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
+            // ignore a resolved and not applied migration which shouldn't be executed
+            if (shouldNotExecuteMigration()) {
+                return MigrationState.IGNORED;
+            }
+
             if (resolvedMigration.getVersion() != null) {
 
                 if (resolvedMigration.getVersion().compareTo(context.baseline) < 0) {
@@ -368,6 +373,9 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (!context.ignored && MigrationState.IGNORED == state) {
+            if (shouldNotExecuteMigration()) {
+                return null;
+            }
             if (getVersion() != null) {
                 String errorMessage = "Detected resolved migration not applied to database: " + getVersion() + ". To ignore this migration, set -ignoreIgnoredMigrations=true. To allow executing this migration, set -outOfOrder=true.";
                 return new ErrorDetails(ErrorCode.RESOLVED_VERSIONED_MIGRATION_NOT_APPLIED, errorMessage);
@@ -431,6 +439,10 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         return null;
+    }
+
+    private boolean shouldNotExecuteMigration() {
+        return resolvedMigration != null && resolvedMigration.getExecutor() != null && !resolvedMigration.getExecutor().shouldExecute();
     }
 
     private boolean descriptionMismatch(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration) {

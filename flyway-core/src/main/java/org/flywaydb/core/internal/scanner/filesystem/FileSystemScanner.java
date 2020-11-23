@@ -92,7 +92,7 @@ public class FileSystemScanner {
 
 
                     );
-                    SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource);
+                    SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource, null);
                     if (metadata.encoding() != null) {
                         encoding = Charset.forName(metadata.encoding());
                         encodingBlurb = " (with overriding encoding " + encoding + ")";

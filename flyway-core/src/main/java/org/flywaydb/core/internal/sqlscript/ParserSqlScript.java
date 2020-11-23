@@ -67,7 +67,7 @@ public class ParserSqlScript implements SqlScript {
      */
     public ParserSqlScript(Parser parser, LoadableResource resource, LoadableResource metadataResource, boolean mixed) {
         this.resource = resource;
-        this.metadata = SqlScriptMetadata.fromResource(metadataResource);
+        this.metadata = SqlScriptMetadata.fromResource(metadataResource, parser);
         this.parser = parser;
 
 
@@ -196,6 +196,13 @@ public class ParserSqlScript implements SqlScript {
         validate();
 
         return !nonTransactionalStatementFound;
+    }
+
+    @Override
+    public boolean shouldExecute() {
+        boolean shouldExecute = metadata.shouldExecute();
+        LOG.debug("Using shouldExecute=" + shouldExecute + " from script configuration");
+        return shouldExecute;
     }
 
     @Override

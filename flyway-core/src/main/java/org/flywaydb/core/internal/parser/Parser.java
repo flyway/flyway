@@ -49,13 +49,13 @@ public abstract class Parser {
 
 
 
-    private final Configuration configuration;
+    public final Configuration configuration;
     private final int peekDepth;
     private final char identifierQuote;
     private final char alternativeIdentifierQuote;
     private final char alternativeStringLiteralQuote;
     private final Set<String> validKeywords;
-    protected final ParsingContext parsingContext;
+    public final ParsingContext parsingContext;
 
     protected Parser(Configuration configuration, ParsingContext parsingContext, int peekDepth) {
         this.configuration = configuration;

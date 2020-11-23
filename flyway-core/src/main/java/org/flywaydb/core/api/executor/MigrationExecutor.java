@@ -37,4 +37,11 @@ public interface MigrationExecutor {
      * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
      */
     boolean canExecuteInTransaction();
+
+    /**
+     * Whether the migration associated with this executor should be executed or not.
+     *
+     * @return {@code true} if the migration should be executed, or {@code false} if not.
+     */
+    boolean shouldExecute();
 }
