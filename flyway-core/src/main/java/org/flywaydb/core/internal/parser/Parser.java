@@ -495,14 +495,14 @@ public abstract class Parser {
             return handleCommentDirective(reader, context, pos, line, col);
         }
         if (isSingleLineComment(peek, context, col)) {
-            reader.swallowUntilExcluding('\n', '\r');
-            return new Token(TokenType.COMMENT, pos, line, col, null, null, context.getParensDepth());
+            String text = reader.readUntilExcluding('\n', '\r');
+            return new Token(TokenType.COMMENT, pos, line, col, text, text, context.getParensDepth());
         }
         if (peek.startsWith("/*")) {
             reader.swallow(2);
-            reader.swallowUntilExcluding("*/");
+            String text = reader.readUntilExcluding("*/");
             reader.swallow(2);
-            return new Token(TokenType.COMMENT, pos, line, col, null, null, context.getParensDepth());
+            return new Token(TokenType.COMMENT, pos, line, col, text, text, context.getParensDepth());
         }
         if (Character.isDigit(c)) {
             String text = reader.readNumeric();
