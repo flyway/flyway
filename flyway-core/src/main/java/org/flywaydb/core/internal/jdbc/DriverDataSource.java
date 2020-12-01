@@ -107,11 +107,12 @@ public class DriverDataSource implements DataSource {
     /**
      * Creates a new DriverDataSource.
      *
-     * @param classLoader The ClassLoader to use.
-     * @param driverClass The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
-     * @param url         The JDBC URL to use for connecting through the Driver. (required)
-     * @param user        The JDBC user to use for connecting through the Driver.
-     * @param password    The JDBC password to use for connecting through the Driver.
+     * @param classLoader           The ClassLoader to use.
+     * @param driverClass           The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
+     * @param url                   The JDBC URL to use for connecting through the Driver. (required)
+     * @param user                  The JDBC user to use for connecting through the Driver.
+     * @param password              The JDBC password to use for connecting through the Driver.
+     * @param additionalProperties  The properties to pass to the connection.
      * @throws FlywayException when the datasource could not be created.
      */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password,
@@ -132,7 +133,9 @@ public class DriverDataSource implements DataSource {
      * @param url                   The JDBC URL to use for connecting through the Driver. (required)
      * @param user                  The JDBC user to use for connecting through the Driver.
      * @param password              The JDBC password to use for connecting through the Driver.
-     * @param defaultProperties     The properties to pass to the connection.
+     * @param configuration         The Flyway configuration
+     * @param defaultProperties     Default values of properties to pass to the connection (can be overridden by {@code additionalProperties})
+     * @param additionalProperties  The properties to pass to the connection.
      * @throws FlywayException      when the datasource could not be created.
      */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Configuration configuration,
@@ -158,6 +161,7 @@ public class DriverDataSource implements DataSource {
         this.defaultProperties = new Properties(defaultProperties);
         type.setDefaultConnectionProps(url, defaultProperties, classLoader);
         type.setConfigConnectionProps(configuration, defaultProperties, classLoader);
+        type.setOverridingConnectionProps(this.additionalProperties);
 
         try {
             this.driver = ClassUtils.instantiate(driverClass, classLoader);
@@ -309,6 +313,7 @@ public class DriverDataSource implements DataSource {
      */
     protected Connection getConnectionFromDriver(String username, String password) throws SQLException {
         Properties properties = new Properties(this.defaultProperties);
+
         if (username != null) {
             properties.setProperty("user", username);
         }

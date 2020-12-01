@@ -30,6 +30,7 @@ import org.flywaydb.core.internal.sqlscript.*;
 
 import java.sql.Connection;
 import java.sql.*;
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -281,7 +282,8 @@ public abstract class DatabaseType {
     }
 
     /**
-     * Detect the default connection properties for this database.
+     * Set the default connection properties for this database. These can be overridden by {@code setConfigConnectionProps}
+     * and {@code setOverridingConnectionProps}
      *
      * @param url The JDBC url.
      * @param props The properties to write to.
@@ -292,14 +294,23 @@ public abstract class DatabaseType {
     }
 
     /**
-     * Do any necessary setup on the connection from
+     * Set any necessary connection properties based on Flyway's configuration. These can be overridden by {@code setOverridingConnectionProps}
      *
      * @param config The Flyway configuration to read properties from
      * @param props The properties to write to.
+     * @param classLoader The classLoader to use.
      */
     public void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader) {
         return;
     }
+
+    /**
+     * Set any overriding connection properties. These will override anything set by {@code setDefaultConnectionProps}
+     * and {@code setConfigConnectionProps} and should only be used if neither of those can satisfy your requirement.
+     *
+     * @param props The properties to write to.
+     */
+    public void setOverridingConnectionProps(Map<String, String> props) { return; }
 
     /**
      * Shutdown the database that was opened (only applicable to embedded databases that require this).
