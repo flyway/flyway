@@ -20,6 +20,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -150,6 +151,10 @@ public class CommandResultFactory {
                 migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
                 migrationInfo.getDescription(),
                 migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "");
+    }
+
+    public RepairOutput createRepairOutput(AppliedMigration am) {
+        return new RepairOutput(am.getVersion() != null ? am.getVersion().getVersion(): "", am.getDescription(), "");
     }
 
     private static String getUndoableStatus(MigrationInfo migrationInfo, Set<MigrationVersion> undoableVersions) {
