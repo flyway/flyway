@@ -19,10 +19,11 @@ import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
-
+import org.flywaydb.core.internal.authentication.postgres.PgpassFileReader;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.license.FlywayTeamsUpgradeMessage;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 
@@ -103,10 +104,19 @@ public class PostgreSQLDatabaseType extends DatabaseType {
         return !url.contains("password=");
     }
 
+    @Override
+    public Properties getExternalAuthProperties(String url, String username) {
+        PgpassFileReader pgpassFileReader = new PgpassFileReader();
+
+        if (pgpassFileReader.getPgpassFilePath() != null) {
+            LOG.info(FlywayTeamsUpgradeMessage.generate(
+                    "pgpass file '" + pgpassFileReader.getPgpassFilePath() + "'",
+                    "use this for database authentication"));
+        }
+        return super.getExternalAuthProperties(url, username);
 
 
 
 
-
-
+    }
 }

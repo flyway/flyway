@@ -19,10 +19,11 @@ import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
-
+import org.flywaydb.core.internal.authentication.mysql.MySQLOptionFileReader;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.license.FlywayTeamsUpgradeMessage;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -127,6 +128,15 @@ public class MySQLDatabaseType extends DatabaseType {
         return super.detectPasswordRequiredByUrl(url);
     }
 
+    @Override
+    public Properties getExternalAuthProperties(String url, String username) {
+        MySQLOptionFileReader mySQLOptionFileReader = new MySQLOptionFileReader();
+
+        mySQLOptionFileReader.populateOptionFiles();
+        if (!mySQLOptionFileReader.optionFiles.isEmpty()) {
+            LOG.info(FlywayTeamsUpgradeMessage.generate("a MySQL option file", "use this for database authentication"));
+        }
+        return super.getExternalAuthProperties(url, username);
 
 
 
@@ -134,6 +144,5 @@ public class MySQLDatabaseType extends DatabaseType {
 
 
 
-
-
+    }
 }

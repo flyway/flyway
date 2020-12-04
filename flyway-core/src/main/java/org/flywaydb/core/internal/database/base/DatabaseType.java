@@ -344,15 +344,13 @@ public abstract class DatabaseType {
         return true;
     }
 
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     *
+     * @param url      The JDBC url.
+     * @param username The username for the connection.
+     * @return         Authentication properties from database specific locations (e.g. pgpass)
+     */
+    public Properties getExternalAuthProperties(String url, String username) {
+        return new Properties();
+    }
 }
