@@ -192,7 +192,7 @@
         <version.osgi>4.3.1</version.osgi>
         <version.postgresql>42.2.14</version.postgresql>
         <version.redshift>1.2.10.1009</version.redshift>
-        <version.sap>2.2.3</version.sap>
+        <version.sap>2.6.30</version.sap>
         <version.slf4j>1.7.30</version.slf4j>
         <version.snowflake>3.12.0</version.snowflake>
         <version.spanner>1.16.0</version.spanner>
