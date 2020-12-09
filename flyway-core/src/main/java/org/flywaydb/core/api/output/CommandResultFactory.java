@@ -122,13 +122,13 @@ public class CommandResultFactory {
                 migrationInfo.getExecutionTime() != null ? migrationInfo.getExecutionTime() : 0);
     }
 
-    public MigrateOutput createMigrateOutput(MigrationInfo migrationInfo) {
+    public MigrateOutput createMigrateOutput(MigrationInfo migrationInfo, int executionTime) {
         return new MigrateOutput(getCategory(migrationInfo),
                 migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
                 migrationInfo.getDescription(),
                 migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
                 migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
-                migrationInfo.getExecutionTime() != null ? migrationInfo.getExecutionTime() : 0);
+                executionTime);
     }
 
     public UndoOutput createUndoOutput(ResolvedMigration migrationInfo) {

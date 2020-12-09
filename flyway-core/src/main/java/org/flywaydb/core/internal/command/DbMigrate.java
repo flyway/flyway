@@ -426,7 +426,6 @@ public class DbMigrate {
                     try {
                         LOG.info("Migrating " + migrationText);
                         migration.getResolvedMigration().getExecutor().execute(context);
-                        migrateResult.migrations.add(commandResultFactory.createMigrateOutput(migration));
                     } catch (FlywayException e) {
                         callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
                         throw new FlywayMigrateException(migration, isOutOfOrder, e);
@@ -444,6 +443,8 @@ public class DbMigrate {
 
             stopWatch.stop();
             int executionTime = (int) stopWatch.getTotalTimeMillis();
+
+            migrateResult.migrations.add(commandResultFactory.createMigrateOutput(migration, executionTime));
 
             schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(), migration.getType(),
                     migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
