@@ -54,6 +54,11 @@ public class MigrationInfoImpl implements MigrationInfo {
      */
     private final boolean deleted;
 
+    /**
+     * Whether this migration should not be executed.
+     */
+    private final boolean shouldNotExecuteMigration;
+
 
 
 
@@ -83,6 +88,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         this.context = context;
         this.outOfOrder = outOfOrder;
         this.deleted = deleted;
+        this.shouldNotExecuteMigration = shouldNotExecuteMigration(resolvedMigration);
 
 
 
@@ -185,7 +191,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
             // ignore a resolved and not applied migration which shouldn't be executed
-            if (shouldNotExecuteMigration()) {
+            if (shouldNotExecuteMigration) {
                 return MigrationState.IGNORED;
             }
 
@@ -373,7 +379,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (!context.ignored && MigrationState.IGNORED == state) {
-            if (shouldNotExecuteMigration()) {
+            if (shouldNotExecuteMigration) {
                 return null;
             }
             if (getVersion() != null) {
@@ -441,7 +447,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         return null;
     }
 
-    private boolean shouldNotExecuteMigration() {
+    private boolean shouldNotExecuteMigration(ResolvedMigration resolvedMigration) {
         return resolvedMigration != null && resolvedMigration.getExecutor() != null && !resolvedMigration.getExecutor().shouldExecute();
     }
 

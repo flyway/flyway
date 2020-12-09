@@ -200,9 +200,7 @@ public class ParserSqlScript implements SqlScript {
 
     @Override
     public boolean shouldExecute() {
-        boolean shouldExecute = metadata.shouldExecute();
-        LOG.debug("Using shouldExecute=" + shouldExecute + " from script configuration");
-        return shouldExecute;
+        return metadata.shouldExecute();
     }
 
     @Override
