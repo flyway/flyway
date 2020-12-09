@@ -118,9 +118,6 @@ public class DbValidate {
      * @return The validation error, if any.
      */
     public ValidateResult validate() {
-
-        CommandResultFactory commandResultFactory = new CommandResultFactory();
-
         if (!schema.exists()) {
             if (!migrationResolver.resolveMigrations(new Context() {
                 @Override
@@ -130,9 +127,9 @@ public class DbValidate {
             }).isEmpty() && !pending) {
                 String validationErrorMessage = "Schema " + schema + " doesn't exist yet";
                 ErrorDetails validationError = new ErrorDetails(ErrorCode.SCHEMA_DOES_NOT_EXIST, validationErrorMessage);
-                return commandResultFactory.createValidateResult(database.getCatalog(), validationError, 0, null, new ArrayList<>());
+                return CommandResultFactory.createValidateResult(database.getCatalog(), validationError, 0, null, new ArrayList<>());
             }
-            return commandResultFactory.createValidateResult(database.getCatalog(), null, 0, null, new ArrayList<>());
+            return CommandResultFactory.createValidateResult(database.getCatalog(), null, 0, null, new ArrayList<>());
         }
 
         callbackExecutor.onEvent(Event.BEFORE_VALIDATE);
@@ -190,7 +187,6 @@ public class DbValidate {
             callbackExecutor.onEvent(Event.AFTER_VALIDATE_ERROR);
         }
 
-        ValidateResult validateResult = commandResultFactory.createValidateResult(database.getCatalog(), validationError, count, invalidMigrations, warnings);
-        return validateResult;
+        return CommandResultFactory.createValidateResult(database.getCatalog(), validationError, count, invalidMigrations, warnings);
     }
 }

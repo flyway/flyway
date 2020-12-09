@@ -97,11 +97,6 @@ public class DbMigrate {
     private MigrateResult migrateResult;
 
     /**
-     * The factory object which constructs a migration result
-     */
-    private final CommandResultFactory commandResultFactory;
-
-    /**
      * This is used to remember the type of migration between calls to migrateGroup().
      */
     private boolean isPreviousVersioned;
@@ -126,8 +121,6 @@ public class DbMigrate {
         this.migrationResolver = migrationResolver;
         this.configuration = configuration;
         this.callbackExecutor = callbackExecutor;
-
-        this.commandResultFactory = new CommandResultFactory();
     }
 
     /**
@@ -139,7 +132,7 @@ public class DbMigrate {
     public MigrateResult migrate() throws FlywayException {
         callbackExecutor.onMigrateOrUndoEvent(Event.BEFORE_MIGRATE);
 
-        migrateResult = commandResultFactory.createMigrateResult(database.getCatalog(), configuration);
+        migrateResult = CommandResultFactory.createMigrateResult(database.getCatalog(), configuration);
 
         int count;
         try {
@@ -444,7 +437,7 @@ public class DbMigrate {
             stopWatch.stop();
             int executionTime = (int) stopWatch.getTotalTimeMillis();
 
-            migrateResult.migrations.add(commandResultFactory.createMigrateOutput(migration, executionTime));
+            migrateResult.migrations.add(CommandResultFactory.createMigrateOutput(migration, executionTime));
 
             schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(), migration.getType(),
                     migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);

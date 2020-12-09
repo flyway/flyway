@@ -249,7 +249,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
         try {
             appliedMigrations.stream()
                     .filter(am -> !am.isSuccess())
-                    .forEach(am -> repairResult.migrationsRemoved.add(new CommandResultFactory().createRepairOutput(am)));
+                    .forEach(am -> repairResult.migrationsRemoved.add(CommandResultFactory.createRepairOutput(am)));
 
             for (AppliedMigration appliedMigration : appliedMigrations) {
                 jdbcTemplate.execute("DELETE FROM " + table +

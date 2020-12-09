@@ -596,12 +596,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
      */
     public List<ValidateOutput> validate() {
         List<ValidateOutput> invalidMigrations = new ArrayList<>();
-        CommandResultFactory commandResultFactory = new CommandResultFactory();
 
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
             ErrorDetails validateError = migrationInfo.validate();
             if (validateError != null) {
-                invalidMigrations.add(commandResultFactory.createValidateOutput(migrationInfo, validateError));
+                invalidMigrations.add(CommandResultFactory.createValidateOutput(migrationInfo, validateError));
             }
         }
         return invalidMigrations;
@@ -617,8 +616,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     }
 
     public InfoResult getInfoResult(MigrationInfo[] infos) {
-        CommandResultFactory commandResultFactory = new CommandResultFactory();
-        return commandResultFactory.createInfoResult(this.context.getConfiguration(), this.database, infos, this.current(), this.allSchemasEmpty);
+        return CommandResultFactory.createInfoResult(this.context.getConfiguration(), this.database, infos, this.current(), this.allSchemasEmpty);
     }
 
 

@@ -78,11 +78,6 @@ public class DbRepair {
     private RepairResult repairResult;
 
     /**
-     * The factory object which constructs a repair result.
-     */
-    private final CommandResultFactory commandResultFactory;
-
-    /**
      * The Flyway configuration.
      */
     private final Configuration configuration;
@@ -106,8 +101,7 @@ public class DbRepair {
         this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
                 MigrationVersion.LATEST, true, configuration.getCherryPick(), true, true, true, true);
 
-        this.commandResultFactory = new CommandResultFactory();
-        this.repairResult = commandResultFactory.createRepairResult(database.getCatalog());
+        this.repairResult = CommandResultFactory.createRepairResult(database.getCatalog());
     }
 
     /**
@@ -176,7 +170,7 @@ public class DbRepair {
                     || state == MigrationState.FUTURE_SUCCESS || state == MigrationState.FUTURE_FAILED) {
                 schemaHistory.delete(applied);
                 removed = true;
-                repairResult.migrationsDeleted.add(commandResultFactory.createRepairOutput(migrationInfo));
+                repairResult.migrationsDeleted.add(CommandResultFactory.createRepairOutput(migrationInfo));
             }
         }
 
@@ -203,7 +197,7 @@ public class DbRepair {
                     && updateNeeded(resolved, applied)) {
                 schemaHistory.update(applied, resolved);
                 repaired = true;
-                repairResult.migrationsAligned.add(commandResultFactory.createRepairOutput(migrationInfo));
+                repairResult.migrationsAligned.add(CommandResultFactory.createRepairOutput(migrationInfo));
             }
 
             // Repair repeatable
@@ -218,7 +212,7 @@ public class DbRepair {
                     && resolved.checksumMatchesWithoutBeingIdentical(applied.getChecksum())) {
                 schemaHistory.update(applied, resolved);
                 repaired = true;
-                repairResult.migrationsAligned.add(commandResultFactory.createRepairOutput(migrationInfo));
+                repairResult.migrationsAligned.add(CommandResultFactory.createRepairOutput(migrationInfo));
             }
         }
 
