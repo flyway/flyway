@@ -361,6 +361,13 @@ public class MigrationInfoImpl implements MigrationInfo {
             return new ErrorDetails(ErrorCode.FAILED_VERSIONED_MIGRATION, errorMessage);
         }
 
+
+
+
+
+
+
+
         if ((resolvedMigration == null)
                 && !appliedMigration.getType().isSynthetic()
 
