@@ -25,6 +25,7 @@ import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
@@ -84,7 +85,7 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
 
     @Override
     public void onEachMigrateOrUndoEvent(Event event) {
-        final Context context = new SimpleContext(configuration, database.getMigrationConnection(), migrationInfo);
+        final Context context = new SimpleContext(configuration, database.getMigrationConnection(), migrationInfo, null);
         for (Callback callback : callbacks) {
             if (callback.supports(event, context)) {
                 callback.handle(event, context);
@@ -105,8 +106,17 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
 
 
 
+    public void onOperationFinishEvent(Event event, OperationResult operationResult) {
+        final Context context = new SimpleContext(configuration, database.getMigrationConnection(), migrationInfo, operationResult);
+        for (Callback callback : callbacks) {
+            if (callback.supports(event, context)) {
+                callback.handle(event, context);
+            }
+        }
+    }
+
     private void execute(final Event event, final Connection connection) {
-        final Context context = new SimpleContext(configuration, connection, null);
+        final Context context = new SimpleContext(configuration, connection, null, null);
 
         for (final Callback callback : callbacks) {
             if (callback.supports(event, context)) {

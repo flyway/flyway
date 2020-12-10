@@ -16,7 +16,6 @@
 package org.flywaydb.core.api.output;
 
 public class MigrateOutput {
-
     public String category;
     public String version;
     public String description;

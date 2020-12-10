@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ValidateResult extends OperationResultBase {
-
     /**
      * @deprecated
      * Will be removed in Flyway V8. Use {@link #errorDetails} instead
@@ -71,5 +70,4 @@ public class ValidateResult extends OperationResultBase {
     public String getAllErrorMessages() {
         return invalidMigrations.stream().map(m -> m.errorDetails.errorMessage).collect(Collectors.joining("\n"));
     }
-
 }

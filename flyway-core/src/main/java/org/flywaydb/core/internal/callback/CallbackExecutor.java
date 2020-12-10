@@ -19,6 +19,7 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.callback.Error;
+import org.flywaydb.core.api.output.OperationResult;
 
 import java.util.List;
 
@@ -65,4 +66,11 @@ public interface CallbackExecutor {
 
 
 
+
+    /**
+     * Executes the callbacks for an operation finish event.
+     * @param event             The event to handle.
+     * @param operationResult   The operation result.
+     */
+    void onOperationFinishEvent(Event event, OperationResult operationResult);
 }

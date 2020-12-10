@@ -18,7 +18,6 @@ package org.flywaydb.core.api.output;
 import java.util.List;
 
 public class InfoResult extends OperationResultBase {
-
     public String schemaVersion;
     public String schemaName;
     public List<InfoOutput> migrations;
@@ -38,5 +37,4 @@ public class InfoResult extends OperationResultBase {
         this.operation = "info";
         this.allSchemasEmpty = allSchemasEmpty;
     }
-    
 }

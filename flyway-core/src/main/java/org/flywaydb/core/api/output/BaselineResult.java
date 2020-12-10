@@ -16,7 +16,6 @@
 package org.flywaydb.core.api.output;
 
 public class BaselineResult extends OperationResultBase {
-
     public boolean successfullyBaselined;
     public String baselineVersion = null;
 
@@ -25,5 +24,4 @@ public class BaselineResult extends OperationResultBase {
         this.database = database;
         this.operation = "baseline";
     }
-
 }

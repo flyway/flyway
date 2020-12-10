@@ -19,6 +19,7 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.callback.Warning;
+import org.flywaydb.core.api.output.OperationResult;
 
 import java.util.List;
 
@@ -42,6 +43,10 @@ public enum NoopCallbackExecutor implements CallbackExecutor {
 
     @Override
     public void onEachMigrateOrUndoEvent(Event event) {
+    }
+
+    @Override
+    public void onOperationFinishEvent(Event event, OperationResult operationResult) {
     }
 
 

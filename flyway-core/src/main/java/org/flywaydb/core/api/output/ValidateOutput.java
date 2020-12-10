@@ -18,7 +18,6 @@ package org.flywaydb.core.api.output;
 import org.flywaydb.core.api.ErrorDetails;
 
 public class ValidateOutput {
-
     public final String version;
     public final String description;
     public final String filepath;
@@ -30,5 +29,4 @@ public class ValidateOutput {
         this.filepath = filepath;
         this.errorDetails = errorDetails;
     }
-
 }

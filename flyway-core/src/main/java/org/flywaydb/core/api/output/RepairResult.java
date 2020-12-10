@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RepairResult extends OperationResultBase {
-
     public List<String> repairActions;
     public List<RepairOutput> migrationsRemoved;
     public List<RepairOutput> migrationsDeleted;
@@ -42,5 +41,4 @@ public class RepairResult extends OperationResultBase {
         if (completedRepairActions.deletedMissingMigrations) repairActions.add(completedRepairActions.deletedMessage());
         if (completedRepairActions.alignedAppliedMigrationChecksums) repairActions.add(completedRepairActions.alignedMessage());
     }
-
 }

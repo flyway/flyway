@@ -67,19 +67,16 @@ public class CommandResultFactory {
 
     public static CleanResult createCleanResult(String databaseName) {
         String flywayVersion = VersionPrinter.getVersion();
-
         return new CleanResult(flywayVersion, databaseName);
     }
 
     public static UndoResult createUndoResult(String databaseName, Configuration configuration) {
         String flywayVersion = VersionPrinter.getVersion();
-
         return new UndoResult(flywayVersion, databaseName, String.join(", ", configuration.getSchemas()));
     }
 
     public static BaselineResult createBaselineResult(String databaseName) {
         String flywayVersion = VersionPrinter.getVersion();
-
         return new BaselineResult(flywayVersion, databaseName);
     }
 
@@ -94,7 +91,6 @@ public class CommandResultFactory {
 
     public static RepairResult createRepairResult(String databaseName) {
         String flywayVersion = VersionPrinter.getVersion();
-
         return new RepairResult(flywayVersion, databaseName);
     }
 
@@ -131,11 +127,12 @@ public class CommandResultFactory {
                 executionTime);
     }
 
-    public static UndoOutput createUndoOutput(ResolvedMigration migrationInfo) {
+    public static UndoOutput createUndoOutput(ResolvedMigration migrationInfo, int executionTime) {
         return new UndoOutput(
                 migrationInfo.getVersion().getVersion(),
                 migrationInfo.getDescription(),
-                migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "");
+                migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
+                executionTime);
     }
 
     public static ValidateOutput createValidateOutput(MigrationInfo migrationInfo, ErrorDetails validateError) {
