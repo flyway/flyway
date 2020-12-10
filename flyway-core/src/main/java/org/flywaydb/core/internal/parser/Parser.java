@@ -394,6 +394,18 @@ public abstract class Parser {
     }
 
     /**
+     * Returns true if the previous token is on the given line
+     */
+    protected static boolean lastTokenIsOnLine(List<Token> tokens, int parensDepth, int line) {
+        Token previousToken = getPreviousToken(tokens, parensDepth);
+        if (previousToken == null) {
+            return false;
+        }
+
+        return previousToken.getLine() == line;
+    }
+
+    /**
      * Check if the previous tokens in the statement at the same depth as the current token match the provided regex
      */
     protected static boolean doTokensMatchPattern(List<Token> previousTokens, Token current, Pattern regex) {

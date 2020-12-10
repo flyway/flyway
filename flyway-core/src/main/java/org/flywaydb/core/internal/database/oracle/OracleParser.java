@@ -463,7 +463,7 @@ public class OracleParser extends Parser {
         int parensDepth = keyword.getParensDepth();
 
         if ("BEGIN".equals(keywordText)
-                || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !precedingEndAttachesToThisKeyword(tokens, parensDepth, context, keywordText))
+                || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !precedingEndAttachesToThisKeyword(tokens, parensDepth, context, keyword))
                 || ("TRIGGER".equals(keywordText) && lastTokenIs(tokens, parensDepth, "COMPOUND"))
                 || doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_BODY_REGEX)
                 || doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_DEFINITION_REGEX)
@@ -479,11 +479,10 @@ public class OracleParser extends Parser {
         TokenType tokenType = keyword.getType();
         if (context.getStatementType() == PLSQL_PACKAGE_BODY_STATEMENT && (TokenType.EOF == tokenType || TokenType.DELIMITER == tokenType) && context.getBlockDepth() == 1) {
             context.decreaseBlockDepth();
-            return;
         }
     }
 
-    private boolean precedingEndAttachesToThisKeyword(List<Token> tokens, int parensDepth, ParserContext context, String keywordText) {
+    private boolean precedingEndAttachesToThisKeyword(List<Token> tokens, int parensDepth, ParserContext context, Token keyword) {
         // Normally IF, LOOP and CASE all pair up with END IF, END LOOP, END CASE
         // However, CASE ... END is valid in expressions, so in code such as
         //      FOR i IN 1 .. CASE WHEN foo THEN 5 ELSE 6 END
@@ -491,7 +490,9 @@ public class OracleParser extends Parser {
         //        ...
         //      END LOOP
         // the first END does *not* attach to the subsequent LOOP. The same is possible with $IF ... $END constructions
-        return lastTokenIs(tokens, parensDepth, "END") && keywordText.equals(context.getLastClosedBlockInitiator());
+        return lastTokenIs(tokens, parensDepth, "END") &&
+               lastTokenIsOnLine(tokens, parensDepth, keyword.getLine()) &&
+               keyword.getText().equals(context.getLastClosedBlockInitiator());
     }
 
     @Override
