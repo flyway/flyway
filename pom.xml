@@ -188,7 +188,8 @@
         <version.mariadb>2.6.0</version.mariadb>
         <version.maven>3.6.3</version.maven>
         <version.mockito>1.10.19</version.mockito>
-        <version.mssql-jdbc>8.4.1.jre8</version.mssql-jdbc>
+        <version.mssql>8.4.1</version.mssql>
+        <version.mssql-jdbc>${version.mssql}.jre8</version.mssql-jdbc>
         <version.mysql>8.0.20</version.mysql>
         <version.oracle>19.6.0.0</version.oracle>
         <version.osgi>4.3.1</version.osgi>
