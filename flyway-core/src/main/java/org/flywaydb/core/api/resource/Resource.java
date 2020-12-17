@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.resource;
+package org.flywaydb.core.api.resource;
 
 /**
  * A resource (such as a .sql file) used by Flyway.

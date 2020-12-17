@@ -15,17 +15,11 @@
  */
 package org.flywaydb.core.internal.scanner.cloud.s3;
 
-import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.S3ClientFactory;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.s3.AwsS3Resource;
 import org.flywaydb.core.internal.scanner.cloud.CloudScanner;
 import software.amazon.awssdk.core.exception.SdkClientException;
@@ -34,8 +28,10 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
-public class AwsS3Scanner extends CloudScanner {
+import java.nio.charset.Charset;
+import java.util.*;
 
+public class AwsS3Scanner extends CloudScanner {
     private static final Log LOG = LogFactory.getLog(AwsS3Scanner.class);
 
     /**
@@ -79,4 +75,4 @@ public class AwsS3Scanner extends CloudScanner {
         }
         return resources;
     }
-} 
+}

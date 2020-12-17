@@ -16,14 +16,12 @@
 package org.flywaydb.core.internal.scanner.cloud;
 
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.LoadableResource;
 
 import java.nio.charset.Charset;
 import java.util.Collection;
-import java.util.TreeSet;
 
 public abstract class CloudScanner {
-
     protected Charset encoding;
 
     public CloudScanner(Charset encoding) {

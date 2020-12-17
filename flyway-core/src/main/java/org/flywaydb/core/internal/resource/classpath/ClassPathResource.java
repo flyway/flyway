@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.resource.classpath;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.util.UrlUtils;
 
 import java.io.File;

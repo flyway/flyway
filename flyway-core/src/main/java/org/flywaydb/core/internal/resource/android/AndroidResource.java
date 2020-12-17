@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.resource.android;
 import android.content.res.AssetManager;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.LoadableResource;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

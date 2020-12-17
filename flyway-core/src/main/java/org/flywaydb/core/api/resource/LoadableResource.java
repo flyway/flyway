@@ -13,42 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.resource;
-
-import org.flywaydb.core.api.resource.LoadableResource;
+package org.flywaydb.core.api.resource;
 
 import java.io.Reader;
-import java.io.StringReader;
 
-public class StringResource extends LoadableResource {
-    private final String str;
+/**
+ * A loadable resource.
+ */
+public abstract class LoadableResource implements Resource, Comparable<LoadableResource> {
+    /**
+     * Reads the contents of this resource.
+     *
+     * @return The reader with the contents of the resource.
+     */
+    public abstract Reader read();
 
-    public StringResource(String str) {
-        this.str = str;
-    }
 
-    @Override
-    public Reader read() {
-        return new StringReader(str);
-    }
 
-    @Override
-    public String getAbsolutePath() {
-        return "";
-    }
 
-    @Override
-    public String getAbsolutePathOnDisk() {
-        return "";
-    }
+
+
+
+
+
 
     @Override
-    public String getFilename() {
-        return "";
-    }
-
-    @Override
-    public String getRelativePath() {
-        return "";
+    public int compareTo(LoadableResource o) {
+        return getRelativePath().compareTo(o.getRelativePath());
     }
 }

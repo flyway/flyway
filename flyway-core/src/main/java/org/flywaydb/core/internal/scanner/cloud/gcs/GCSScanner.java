@@ -23,15 +23,17 @@ import com.google.cloud.storage.StorageOptions;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.gcs.GCSResource;
 import org.flywaydb.core.internal.scanner.cloud.CloudScanner;
 
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class GCSScanner extends CloudScanner {
-
     private static final Log LOG = LogFactory.getLog(GCSScanner.class);
 
     /**
@@ -66,4 +68,4 @@ public class GCSScanner extends CloudScanner {
         }
         return resources;
     }
-} 
+}

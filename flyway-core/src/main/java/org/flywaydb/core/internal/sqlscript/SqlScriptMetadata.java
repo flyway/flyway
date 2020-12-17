@@ -18,10 +18,10 @@ package org.flywaydb.core.internal.sqlscript;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
-import org.flywaydb.core.internal.resource.LoadableResource;
 
 import java.util.HashMap;
 import java.util.Map;

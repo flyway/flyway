@@ -15,22 +15,22 @@
  */
 package org.flywaydb.core.internal.resource.s3;
 
-import java.io.Reader;
-import java.nio.channels.Channels;
-import java.nio.charset.Charset;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.S3ClientFactory;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.LoadableResource;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
-public class AwsS3Resource extends LoadableResource {
+import java.io.Reader;
+import java.nio.channels.Channels;
+import java.nio.charset.Charset;
 
+public class AwsS3Resource extends LoadableResource {
     private static final Log LOG = LogFactory.getLog(AwsS3Resource.class);
 
     private final String bucketName;
@@ -79,4 +79,4 @@ public class AwsS3Resource extends LoadableResource {
     public String getRelativePath() {
         return getAbsolutePath();
     }
-} 
+}

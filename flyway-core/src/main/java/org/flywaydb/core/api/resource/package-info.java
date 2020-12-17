@@ -13,37 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.resource;
-
-import java.io.Reader;
-
 /**
- * A loadable resource.
+ * Classes for resources.
  */
-public abstract class LoadableResource implements Resource, Comparable<LoadableResource> {
-
-    private Integer checksum;
-
-    /**
-     * Reads the contents of this resource.
-     *
-     * @return The reader with the contents of the resource.
-     */
-    public abstract Reader read();
-
-
-
-
-
-
-
-
-
-
-
-
-    @Override
-    public int compareTo(LoadableResource o) {
-        return getRelativePath().compareTo(o.getRelativePath());
-    }
-}
+package org.flywaydb.core.api.resource;

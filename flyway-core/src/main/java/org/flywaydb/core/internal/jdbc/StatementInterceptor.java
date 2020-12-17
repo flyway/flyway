@@ -15,16 +15,15 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
 
 import java.util.Map;
 
 public interface StatementInterceptor {
-
     void init(Database database, Table table);
     void schemaHistoryTableCreate(boolean baseline);
     void schemaHistoryTableInsert(AppliedMigration appliedMigration);

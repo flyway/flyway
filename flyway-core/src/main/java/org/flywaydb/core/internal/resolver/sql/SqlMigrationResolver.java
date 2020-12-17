@@ -16,26 +16,29 @@
 package org.flywaydb.core.internal.resolver.sql;
 
 import org.flywaydb.core.api.MigrationType;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
 import org.flywaydb.core.internal.resolver.ChecksumCalculator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
-import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
-import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
 import java.io.Reader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Migration resolver for SQL files on the classpath. The SQL files must have names like
@@ -51,14 +54,12 @@ public class SqlMigrationResolver implements MigrationResolver {
      * The resource provider to use.
      */
     private final ResourceProvider resourceProvider;
-
     private final SqlScriptFactory sqlScriptFactory;
 
     /**
      * The Flyway configuration.
      */
     private final Configuration configuration;
-
     private final ParsingContext parsingContext;
 
     /**
@@ -102,7 +103,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
         );
 
-        Collections.sort(migrations, new ResolvedMigrationComparator());
+        migrations.sort(new ResolvedMigrationComparator());
         return migrations;
     }
 
@@ -208,8 +209,6 @@ public class SqlMigrationResolver implements MigrationResolver {
         }
     }
 
-
-
     /**
      * Checks whether this filename is actually a sql-based callback instead of a regular migration.
      *
@@ -218,9 +217,6 @@ public class SqlMigrationResolver implements MigrationResolver {
      */
     /* private -> testing */
     static boolean isSqlCallback(ResourceName result) {
-        if (Event.fromId(result.getPrefix()) != null) {
-            return true;
-        }
-        return false;
+        return Event.fromId(result.getPrefix()) != null;
     }
 }
