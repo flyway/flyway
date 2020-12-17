@@ -277,7 +277,7 @@ public abstract class Parser {
                         if (keywords.size() > getTransactionalDetectionCutoff()) {
                             statementType = StatementType.GENERIC;
                         } else {
-                            statementType = detectStatementType(simplifiedStatement);
+                            statementType = detectStatementType(simplifiedStatement, context);
                             context.setStatementType(statementType);
                         }
                         adjustDelimiter(context, statementType);
@@ -451,7 +451,7 @@ public abstract class Parser {
         );
     }
 
-    protected StatementType detectStatementType(String simplifiedStatement) {
+    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context) {
         return StatementType.UNKNOWN;
     }
 

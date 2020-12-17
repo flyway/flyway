@@ -102,12 +102,12 @@ public class MySQLParser extends Parser {
     }
 
     @Override
-    protected StatementType detectStatementType(String simplifiedStatement) {
+    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context) {
         if (STORED_PROGRAM_REGEX.matcher(simplifiedStatement).matches()) {
             return STORED_PROGRAM_STATEMENT;
         }
 
-        return super.detectStatementType(simplifiedStatement);
+        return super.detectStatementType(simplifiedStatement, context);
     }
 
     @Override
