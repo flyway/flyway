@@ -2,7 +2,7 @@
 
 ### Database Migrations Made Easy.
 
-![Flyway](https://flywaydb.org/assets/logo/flyway-logo-tm.png "Flyway")
+![Flyway](https://flywaydb.org/assets/logo/flyway-logo.png "Flyway")
 
 #### Evolve your database schema easily and reliably across all your instances.
 Simple, focused and powerful.
