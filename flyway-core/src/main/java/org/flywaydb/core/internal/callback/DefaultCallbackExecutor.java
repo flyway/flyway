@@ -17,11 +17,8 @@ package org.flywaydb.core.internal.callback;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.callback.Callback;
-import org.flywaydb.core.api.callback.Context;
 import org.flywaydb.core.api.callback.Error;
-import org.flywaydb.core.api.callback.Event;
-import org.flywaydb.core.api.callback.Warning;
+import org.flywaydb.core.api.callback.*;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -31,7 +28,10 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -60,12 +60,7 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
         this.schema = schema;
 
         this.callbacks = new ArrayList<>(callbacks);
-        this.callbacks.sort(new Comparator<Callback>() {
-            @Override
-            public int compare(Callback o1, Callback o2) {
-                return o1.getCallbackName().compareTo(o2.getCallbackName());
-            }
-        });
+        this.callbacks.sort(Comparator.comparing(Callback::getCallbackName));
     }
 
     @Override
@@ -105,7 +100,6 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
 
 
 
-
     public void onOperationFinishEvent(Event event, OperationResult operationResult) {
         final Context context = new SimpleContext(configuration, database.getMigrationConnection(), migrationInfo, operationResult);
         for (Callback callback : callbacks) {
@@ -117,18 +111,14 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
 
     private void execute(final Event event, final Connection connection) {
         final Context context = new SimpleContext(configuration, connection, null, null);
-
         for (final Callback callback : callbacks) {
             if (callback.supports(event, context)) {
                 if (callback.canHandleInTransaction(event, context)) {
-                    ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
-                            database).execute(new Callable<Void>() {
-                        @Override
-                        public Void call() {
-                            DefaultCallbackExecutor.this.execute(connection, callback, event, context);
-                            return null;
-                        }
-                    });
+                    ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(
+                            (Callable<Void>) () -> {
+                                DefaultCallbackExecutor.this.execute(connection, callback, event, context);
+                                return null;
+                            });
                 } else {
                     execute(connection, callback, event, context);
                 }

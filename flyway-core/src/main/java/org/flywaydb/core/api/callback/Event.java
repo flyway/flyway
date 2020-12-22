@@ -216,7 +216,11 @@ public enum Event {
     /**
      * Fired after a validate operation has finished.
      */
-    AFTER_BASELINE_OPERATION_FINISH("afterInfoOperationFinish");
+    AFTER_BASELINE_OPERATION_FINISH("afterInfoOperationFinish"),
+    /**
+     * Fired before any non-existent schemas are created.
+     */
+    CREATE_SCHEMA("createSchema");
 
     private final String id;
 

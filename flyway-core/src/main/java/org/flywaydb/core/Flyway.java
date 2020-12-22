@@ -200,7 +200,7 @@ public class Flyway {
                         }
                     } else {
                         if (configuration.getCreateSchemas()) {
-                            new DbSchemas(database, schemas, schemaHistory).create(false);
+                            new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(false);
                         } else {
                             LOG.warn("The configuration option 'createSchemas' is false.\n" +
                                     "However the schema history table still needs a schema to reside in.\n" +
@@ -405,7 +405,7 @@ public class Flyway {
                                 SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
                                 StatementInterceptor statementInterceptor) {
                 if (configuration.getCreateSchemas()) {
-                    new DbSchemas(database, schemas, schemaHistory).create(true);
+                    new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(true);
                 } else {
                     LOG.warn("The configuration option 'createSchemas' is false.\n" +
                             "Even though Flyway is configured not to create any schemas, the schema history table still needs a schema to reside in.\n" +
