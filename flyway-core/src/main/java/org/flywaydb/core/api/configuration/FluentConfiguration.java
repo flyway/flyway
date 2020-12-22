@@ -353,6 +353,31 @@ public class FluentConfiguration implements Configuration {
         return config.getJdbcProperties();
     }
 
+    @Override
+    public String getConjurUrl() {
+        return config.getConjurUrl();
+    }
+
+    @Override
+    public String getConjurToken() {
+        return config.getConjurToken();
+    }
+
+    @Override
+    public String getVaultUrl() {
+        return config.getVaultUrl();
+    }
+
+    @Override
+    public String getVaultToken() {
+        return config.getVaultToken();
+    }
+
+    @Override
+    public String getVaultSecret() {
+        return config.getVaultSecret();
+    }
+
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.
@@ -1264,6 +1289,71 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration createSchemas(boolean createSchemas) {
         config.setShouldCreateSchemas(createSchemas);
+        return this;
+    }
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The REST API URL pointing to your secret in Conjur
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @param conjurUrl The REST API URL pointing to your secret in Conjur
+     */
+    public FluentConfiguration conjurUrl(String conjurUrl) {
+        config.setConjurUrl(conjurUrl);
+        return this;
+    }
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The Conjur authorization token required to access your secret
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @param conjurToken The Conjur authorization token required to access your secret
+     */
+    public FluentConfiguration conjurToken(String conjurToken) {
+        config.setConjurToken(conjurToken);
+        return this;
+    }
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The REST API URL pointing the location of your secret in Vault
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @param vaultUrl The REST API URL pointing the location of your secret in Vault
+     */
+    public FluentConfiguration vaultUrl(String vaultUrl) {
+        config.setVaultUrl(vaultUrl);
+        return this;
+    }
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The Vault token required to access your secret
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @param vaultToken The Vault token required to access your secret
+     */
+    public FluentConfiguration vaultToken(String vaultToken) {
+        config.setVaultToken(vaultToken);
+        return this;
+    }
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The name of your secret in Vault
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @param vaultSecret The name of your secret in Vault
+     */
+    public FluentConfiguration vaultSecret(String vaultSecret) {
+        config.setVaultSecret(vaultSecret);
         return this;
     }
 

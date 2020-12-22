@@ -517,4 +517,41 @@ public class FlywayExtension {
      * <p>Also configurable with Gradle or System Property: ${flyway.createSchemas}</p>
      */
     public Boolean createSchemas;
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The REST API URL pointing to your secret in Conjur
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public String conjurUrl;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The Conjur authorization token required to access your secret
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public String conjurToken;
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The REST API URL pointing the location of your secret in Vault
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public String vaultUrl;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The Vault token required to access your secret
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public String vaultToken;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The name of your secret in Vault
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public String vaultSecret;
 }

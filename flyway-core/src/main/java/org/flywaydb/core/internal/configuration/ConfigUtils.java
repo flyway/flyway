@@ -23,6 +23,8 @@ import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
+
+
 import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -32,7 +34,7 @@ import java.util.regex.Pattern;
  * Configuration-related utilities.
  */
 public class ConfigUtils {
-    private static Log LOG = LogFactory.getLog(ConfigUtils.class);
+    private static final Log LOG = LogFactory.getLog(ConfigUtils.class);
 
     /**
      * The default configuration file name.
@@ -93,6 +95,13 @@ public class ConfigUtils {
     public static final String VALIDATE_MIGRATION_NAMING = "flyway.validateMigrationNaming";
     public static final String CREATE_SCHEMAS = "flyway.createSchemas";
 
+    // Secrets-manager specific
+    public static final String CONJUR_URL = "flyway.conjur.url";
+    public static final String CONJUR_TOKEN = "flyway.conjur.token";
+
+    public static final String VAULT_URL = "flyway.vault.url";
+    public static final String VAULT_TOKEN = "flyway.vault.token";
+    public static final String VAULT_SECRET = "flyway.vault.secret";
 
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
@@ -309,6 +318,23 @@ public class ConfigUtils {
             return ORACLE_KERBEROS_CACHE_FILE;
         }
 
+        // Secrets-manager specific
+        if ("FLYWAY_CONJUR_URL".equals(key)) {
+            return CONJUR_URL;
+        }
+        if ("FLYWAY_CONJUR_TOKEN".equals(key)) {
+            return CONJUR_TOKEN;
+        }
+        if ("FLYWAY_VAULT_URL".equals(key)) {
+            return VAULT_URL;
+        }
+        if ("FLYWAY_VAULT_TOKEN".equals(key)) {
+            return VAULT_TOKEN;
+        }
+        if ("FLYWAY_VAULT_SECRET".equals(key)) {
+            return VAULT_SECRET;
+        }
+
         // Command-line specific
         if ("FLYWAY_JAR_DIRS".equals(key)) {
             return JAR_DIRS;
@@ -467,6 +493,32 @@ public class ConfigUtils {
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     static String expandEnvironmentVariables(String value, Map<String, String> environmentVariables) {
         Pattern pattern = Pattern.compile("\\$\\{([A-Za-z0-9_]+)}");
         Matcher matcher = pattern.matcher(value);
@@ -474,9 +526,7 @@ public class ConfigUtils {
 
         while (matcher.find()) {
             String variableName = matcher.group(1);
-            String variableValue = environmentVariables.containsKey(variableName)
-                    ? environmentVariables.get(variableName)
-                    : "";
+            String variableValue = environmentVariables.getOrDefault(variableName, "");
 
             LOG.debug("Expanding environment variable in config: " + variableName + " -> " + variableValue);
             expandedValue = expandedValue.replaceAll(Pattern.quote(matcher.group(0)), Matcher.quoteReplacement(variableValue));

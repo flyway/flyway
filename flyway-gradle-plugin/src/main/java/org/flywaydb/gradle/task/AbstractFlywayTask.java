@@ -561,6 +561,43 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     public String workingDirectory;
 
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The REST API URL pointing to your secret in Conjur
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public String conjurUrl;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The Conjur authorization token required to access your secret
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public String conjurToken;
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The REST API URL pointing the location of your secret in Vault
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public String vaultUrl;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The Vault token required to access your secret
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public String vaultToken;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The name of your secret in Vault
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    public String vaultSecret;
+
     public AbstractFlywayTask() {
         super();
         setGroup("Flyway");
@@ -729,6 +766,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus, extension.oracleSqlplus);
         putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS_WARN, oracleSqlplusWarn, extension.oracleSqlplusWarn);
 
+        putIfSet(conf, ConfigUtils.CONJUR_URL, conjurUrl, extension.conjurUrl);
+        putIfSet(conf, ConfigUtils.CONJUR_TOKEN, conjurToken, extension.conjurToken);
+
+        putIfSet(conf, ConfigUtils.VAULT_URL, vaultUrl, extension.vaultUrl);
+        putIfSet(conf, ConfigUtils.VAULT_TOKEN, vaultToken, extension.vaultToken);
+        putIfSet(conf, ConfigUtils.VAULT_SECRET, vaultSecret, extension.vaultSecret);
+
         putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey, extension.licenseKey);
 
         if (placeholders != null) {
@@ -759,6 +803,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         addConfigFromProperties(conf, envVars);
         addConfigFromProperties(conf, System.getProperties());
         removeGradlePluginSpecificPropertiesToAvoidWarnings(conf);
+
+
+
+
 
         return conf;
     }

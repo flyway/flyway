@@ -512,6 +512,43 @@ public class ClassicConfiguration implements Configuration {
      */
     private Map<String, String> jdbcProperties;
 
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The REST API URL pointing to your secret in Conjur
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String conjurUrl;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The Conjur authorization token required to access your secret
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String conjurToken;
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The REST API URL pointing the location of your secret in Vault
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String vaultUrl;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The Vault token required to access your secret
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String vaultToken;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The name of your secret in Vault
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String vaultSecret;
+
     private final ClasspathClassScanner classScanner;
 
     /**
@@ -782,6 +819,31 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public Map<String, String> getJdbcProperties() {
         return jdbcProperties;
+    }
+
+    @Override
+    public String getConjurUrl() {
+        return conjurUrl;
+    }
+
+    @Override
+    public String getConjurToken() {
+        return conjurToken;
+    }
+
+    @Override
+    public String getVaultUrl() {
+        return vaultUrl;
+    }
+
+    @Override
+    public String getVaultToken() {
+        return vaultToken;
+    }
+
+    @Override
+    public String getVaultSecret() {
+        return vaultSecret;
     }
 
     /**
@@ -1869,6 +1931,26 @@ public class ClassicConfiguration implements Configuration {
 
     }
 
+    public void setConjurUrl(String conjurUrl) {
+        this.conjurUrl = conjurUrl;
+    }
+
+    public void setConjurToken(String conjurToken) {
+        this.conjurToken = conjurToken;
+    }
+
+    public void setVaultUrl(String vaultUrl) {
+        this.vaultUrl = vaultUrl;
+    }
+
+    public void setVaultToken(String vaultToken) {
+        this.vaultToken = vaultToken;
+    }
+
+    public void setVaultSecret(String vaultSecret) {
+        this.vaultSecret = vaultSecret;
+    }
+
     /**
      * Configure with the same values as this existing configuration.
      *
@@ -1933,6 +2015,11 @@ public class ClassicConfiguration implements Configuration {
         setTable(configuration.getTable());
         setTablespace(configuration.getTablespace());
         setTarget(configuration.getTarget());
+
+
+
+
+
 
 
 
@@ -2209,6 +2296,31 @@ public class ClassicConfiguration implements Configuration {
         if (createSchemasProp != null) {
             setShouldCreateSchemas(createSchemasProp);
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
