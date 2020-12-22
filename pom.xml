@@ -193,6 +193,7 @@
         <version.mysql>8.0.20</version.mysql>
         <version.oracle>19.6.0.0</version.oracle>
         <version.osgi>4.3.1</version.osgi>
+        <version.p6spy>3.9.1</version.p6spy>
         <version.postgresql>42.2.14</version.postgresql>
         <version.redshift>1.2.10.1009</version.redshift>
         <version.sap>2.6.30</version.sap>
@@ -360,6 +361,11 @@
                 <artifactId>mysql</artifactId>
                 <version>${version.testcontainers}</version>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>p6spy</groupId>
+                <artifactId>p6spy</artifactId>
+                <version>${version.p6spy}</version>
             </dependency>
             <dependency>
                 <groupId>org.xerial</groupId>

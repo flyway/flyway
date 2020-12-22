@@ -43,15 +43,17 @@ public class DerbyDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:derby:");
+        return url.startsWith("jdbc:derby:") || url.startsWith("jdbc:p6spy:derby:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
+        if (url.startsWith("jdbc:p6spy:derby:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         if (url.startsWith("jdbc:derby://")) {
             return "org.apache.derby.jdbc.ClientDriver";
         }
-
         return "org.apache.derby.jdbc.EmbeddedDriver";
     }
 

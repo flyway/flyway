@@ -21,7 +21,6 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 
@@ -42,11 +41,14 @@ public class SAPHANADatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:sap:");
+        return url.startsWith("jdbc:sap:") || url.startsWith("jdbc:p6spy:sap:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
+        if (url.startsWith("jdbc:p6spy:sap:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         return "com.sap.db.jdbc.Driver";
     }
 

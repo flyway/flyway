@@ -45,11 +45,14 @@ public class RedshiftDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:redshift:");
+        return url.startsWith("jdbc:redshift:") || url.startsWith("jdbc:p6spy:redshift:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
+        if (url.startsWith("jdbc:p6spy:redshift:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         return "com.amazon.redshift.jdbc42.Driver";
     }
 

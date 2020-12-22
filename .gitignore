@@ -18,5 +18,6 @@ target
 !**/.idea/runConfigurations/*
 !**/.idea/codeStyles/
 !**/.idea/codeStyles/*
+
 flyway-core/SPOOLEDCONTENTS.SQL
 flyway-cli-sample/jars/

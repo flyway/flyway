@@ -63,5 +63,4 @@ public class SynapseDatabaseType extends SQLServerDatabaseType {
     public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         return new SynapseDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
-
 }

@@ -54,11 +54,14 @@ public class CockroachDBDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:postgresql:");
+        return url.startsWith("jdbc:postgresql:") || url.startsWith("jdbc:p6spy:postgresql:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
+        if (url.startsWith("jdbc:p6spy:postgresql:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         return "org.postgresql.Driver";
     }
 

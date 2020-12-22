@@ -19,7 +19,6 @@ import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
-import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
 import org.flywaydb.core.internal.database.mysql.MySQLParser;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
@@ -43,7 +42,7 @@ public class MariaDBDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        if (url.startsWith("jdbc-secretsmanager:mariadb:")) {
+        if (url.startsWith("jdbc-secretsmanager:mariadb:") ) {
 
 
 
@@ -51,8 +50,7 @@ public class MariaDBDatabaseType extends DatabaseType {
             throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbc-secretsmanager");
 
         }
-
-        return url.startsWith("jdbc:mariadb:");
+        return url.startsWith("jdbc:mariadb:") || url.startsWith("jdbc:p6spy:mariadb:");
     }
 
     @Override
@@ -62,7 +60,9 @@ public class MariaDBDatabaseType extends DatabaseType {
 
 
 
-
+        if (url.startsWith("jdbc:p6spy:mariadb:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         return "org.mariadb.jdbc.Driver";
     }
 

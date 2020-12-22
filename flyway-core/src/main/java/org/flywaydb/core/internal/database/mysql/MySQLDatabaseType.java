@@ -60,8 +60,8 @@ public class MySQLDatabaseType extends DatabaseType {
             throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbc-secretsmanager");
 
         }
-
-        return url.startsWith("jdbc:mysql:") || url.startsWith("jdbc:google:");
+        return url.startsWith("jdbc:mysql:") || url.startsWith("jdbc:google:") ||
+               url.startsWith("jdbc:p6spy:mysql:") || url.startsWith("jdbc:p6spy:google:");
     }
 
     @Override
@@ -71,7 +71,9 @@ public class MySQLDatabaseType extends DatabaseType {
 
 
 
-
+        if (url.startsWith("jdbc:p6spy:mysql:") || url.startsWith("jdbc:p6spy:google:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         if (url.startsWith("jdbc:mysql:")) {
             return "com.mysql.cj.jdbc.Driver";
         } else {
