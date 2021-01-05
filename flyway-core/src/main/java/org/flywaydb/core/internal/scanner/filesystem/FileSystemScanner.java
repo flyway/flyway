@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.scanner.filesystem;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 
@@ -92,7 +92,7 @@ public class FileSystemScanner {
 
 
                     );
-                    SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource);
+                    SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource, null);
                     if (metadata.encoding() != null) {
                         encoding = Charset.forName(metadata.encoding());
                         encodingBlurb = " (with overriding encoding " + encoding + ")";
@@ -103,7 +103,6 @@ public class FileSystemScanner {
 
 
                 ));
-
 
                 LOG.debug("Found filesystem resource: " + resourceName + encodingBlurb);
             }
@@ -119,7 +118,6 @@ public class FileSystemScanner {
      * @param folder           The folder to look for resources under on disk.
      * @return The resource names;
      */
-    @SuppressWarnings("ConstantConditions")
     private Set<String> findResourceNamesFromFileSystem(String scanRootLocation, File folder) {
         LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
 

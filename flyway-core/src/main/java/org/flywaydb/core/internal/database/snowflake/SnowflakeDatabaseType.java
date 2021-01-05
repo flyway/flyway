@@ -21,7 +21,6 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 
@@ -48,11 +47,14 @@ public class SnowflakeDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:snowflake:");
+        return url.startsWith("jdbc:snowflake:") || url.startsWith("jdbc:p6spy:snowflake:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
+        if (url.startsWith("jdbc:p6spy:snowflake:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         return "net.snowflake.client.jdbc.SnowflakeDriver";
     }
 
@@ -73,14 +75,12 @@ public class SnowflakeDatabaseType extends DatabaseType {
 
     @Override
     public boolean detectUserRequiredByUrl(String url) {
-
         // Using Snowflake private-key auth instead of password allows user to be passed on URL
         return !url.contains("user=");
     }
 
     @Override
     public boolean detectPasswordRequiredByUrl(String url) {
-
         // Using Snowflake private-key auth instead of password
         return !url.contains("private_key_file=");
     }

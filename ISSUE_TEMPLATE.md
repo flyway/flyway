@@ -2,8 +2,7 @@
 
 
 
-###### If this is not the latest version, can you reproduce the issue with the latest one as well?
-(Many bugs are fixed in newer releases and upgrading will often resolve the issue)
+###### If this is not the latest version, can you reproduce the issue with the latest one as well? (Many bugs are fixed in newer releases and upgrading will often resolve the issue)
 
 
 
@@ -11,7 +10,7 @@
 
 
 
-###### Which database are you using (type & version)?
+###### Which database are you using? (Type & version)
 
 
 
@@ -19,8 +18,7 @@
 
 
 
-###### What did you do?
-(Please include the content causing the issue, any relevant configuration settings, the SQL statement that failed (if relevant) and the command you ran.)
+###### What did you do? (Please include the content causing the issue, any relevant configuration settings, the SQL statement(s) that failed (if any), and the command you ran)
 
 
 
@@ -29,3 +27,6 @@
 
 
 ###### What did you see instead?
+
+
+

@@ -550,6 +550,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * The file where to output the SQL statements of a migration dry run. If the file specified is in a non-existent
      * directory, Flyway will create all directories and parent directories as needed.
+     * Paths starting with s3: point to a bucket in AWS S3, which must exist. They are in the format s3:<bucket>(/optionalfolder/subfolder)/filename.sql
+     * Paths starting with gcs: point to a bucket in Google Cloud Storage, which must exist. They are in the format gcs:<bucket>(/optionalfolder/subfolder)/filename.sql
      * <p>{@code null} to execute the SQL statements directly against the database. (default: {@code null})</p>
      * <p>Also configurable with Maven or System Property: ${flyway.dryRunOutput}</p>
      * <p><i>Flyway Teams only</i></p>
@@ -644,6 +646,48 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     @Parameter(property = CONFIG_WORKING_DIRECTORY)
     private String workingDirectory;
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The REST API URL pointing to your secret in Conjur
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    @Parameter(property = ConfigUtils.CONJUR_URL)
+    public String conjurUrl;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The Conjur authorization token required to access your secret
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    @Parameter(property = ConfigUtils.CONJUR_TOKEN)
+    public String conjurToken;
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The REST API URL pointing the location of your secret in Vault
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    @Parameter(property = ConfigUtils.VAULT_URL)
+    public String vaultUrl;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The Vault token required to access your secret
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    @Parameter(property = ConfigUtils.VAULT_TOKEN)
+    public String vaultToken;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The name of your secret in Vault
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    @Parameter(property = ConfigUtils.VAULT_SECRET)
+    public String vaultSecret;
 
     /**
      * The id of the server tag in settings.xml (default: flyway-db)<br/>
@@ -806,6 +850,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus);
             putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS_WARN, oracleSqlplusWarn);
 
+            putIfSet(conf, ConfigUtils.CONJUR_URL, conjurUrl);
+            putIfSet(conf, ConfigUtils.CONJUR_TOKEN, conjurToken);
+
+            putIfSet(conf, ConfigUtils.VAULT_URL, vaultUrl);
+            putIfSet(conf, ConfigUtils.VAULT_TOKEN, vaultToken);
+            putIfSet(conf, ConfigUtils.VAULT_SECRET, vaultSecret);
+
             putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey);
 
             if (placeholders != null) {
@@ -827,6 +878,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             conf.putAll(envVars);
             conf.putAll(ConfigUtils.propertiesToMap(System.getProperties()));
             removeMavenPluginSpecificPropertiesToAvoidWarnings(conf);
+
+
+
+
 
             Flyway flyway = Flyway.configure(classLoader).configuration(conf).load();
             doExecute(flyway);

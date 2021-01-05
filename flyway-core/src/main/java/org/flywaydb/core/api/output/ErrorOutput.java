@@ -24,7 +24,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 public class ErrorOutput implements OperationResult {
-
     public static class ErrorOutputItem {
         public ErrorCode errorCode;
         public String message;

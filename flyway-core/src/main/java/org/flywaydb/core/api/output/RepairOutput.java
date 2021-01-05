@@ -16,7 +16,6 @@
 package org.flywaydb.core.api.output;
 
 public class RepairOutput {
-
     public String version;
     public String description;
     public String filepath;
@@ -26,5 +25,4 @@ public class RepairOutput {
         this.description = description;
         this.filepath = filepath;
     }
-
 }

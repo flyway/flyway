@@ -19,8 +19,10 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.internal.resource.Resource;
+import org.flywaydb.core.api.resource.LoadableResource;
+import org.flywaydb.core.api.resource.Resource;
+import org.flywaydb.core.internal.resource.ResourceName;
+import org.flywaydb.core.internal.resource.ResourceNameParser;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
@@ -38,7 +40,7 @@ import java.util.regex.Pattern;
  * The main parser all database-specific parsers derive from.
  */
 public abstract class Parser {
-    private static final Log LOG = LogFactory.getLog(Parser.class);
+    protected static final Log LOG = LogFactory.getLog(Parser.class);
 
 
 
@@ -47,13 +49,13 @@ public abstract class Parser {
 
 
 
-    private final Configuration configuration;
+    public final Configuration configuration;
     private final int peekDepth;
     private final char identifierQuote;
     private final char alternativeIdentifierQuote;
     private final char alternativeStringLiteralQuote;
     private final Set<String> validKeywords;
-    private final ParsingContext parsingContext;
+    public final ParsingContext parsingContext;
 
     protected Parser(Configuration configuration, ParsingContext parsingContext, int peekDepth) {
         this.configuration = configuration;
@@ -100,7 +102,13 @@ public abstract class Parser {
         Recorder recorder = new Recorder();
         ParserContext context = new ParserContext(getDefaultDelimiter());
 
-        LOG.debug("Parsing " + resource.getFilename() + " ...");
+        String filename = resource.getFilename();
+        LOG.debug("Parsing " + filename + " ...");
+
+        ResourceName result = new ResourceNameParser(configuration).parse(filename);
+
+        parsingContext.updateFilenamePlaceholder(result);
+
         PeekingReader peekingReader =
                 new PeekingReader(
                         new RecordingReader(recorder,
@@ -269,7 +277,7 @@ public abstract class Parser {
                         if (keywords.size() > getTransactionalDetectionCutoff()) {
                             statementType = StatementType.GENERIC;
                         } else {
-                            statementType = detectStatementType(simplifiedStatement);
+                            statementType = detectStatementType(simplifiedStatement, context);
                             context.setStatementType(statementType);
                         }
                         adjustDelimiter(context, statementType);
@@ -386,6 +394,18 @@ public abstract class Parser {
     }
 
     /**
+     * Returns true if the previous token is on the given line
+     */
+    protected static boolean lastTokenIsOnLine(List<Token> tokens, int parensDepth, int line) {
+        Token previousToken = getPreviousToken(tokens, parensDepth);
+        if (previousToken == null) {
+            return false;
+        }
+
+        return previousToken.getLine() == line;
+    }
+
+    /**
      * Check if the previous tokens in the statement at the same depth as the current token match the provided regex
      */
     protected static boolean doTokensMatchPattern(List<Token> previousTokens, Token current, Pattern regex) {
@@ -431,7 +451,7 @@ public abstract class Parser {
         );
     }
 
-    protected StatementType detectStatementType(String simplifiedStatement) {
+    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context) {
         return StatementType.UNKNOWN;
     }
 
@@ -487,14 +507,14 @@ public abstract class Parser {
             return handleCommentDirective(reader, context, pos, line, col);
         }
         if (isSingleLineComment(peek, context, col)) {
-            reader.swallowUntilExcluding('\n', '\r');
-            return new Token(TokenType.COMMENT, pos, line, col, null, null, context.getParensDepth());
+            String text = reader.readUntilExcluding('\n', '\r');
+            return new Token(TokenType.COMMENT, pos, line, col, text, text, context.getParensDepth());
         }
         if (peek.startsWith("/*")) {
             reader.swallow(2);
-            reader.swallowUntilExcluding("*/");
+            String text = reader.readUntilExcluding("*/");
             reader.swallow(2);
-            return new Token(TokenType.COMMENT, pos, line, col, null, null, context.getParensDepth());
+            return new Token(TokenType.COMMENT, pos, line, col, text, text, context.getParensDepth());
         }
         if (Character.isDigit(c)) {
             String text = reader.readNumeric();

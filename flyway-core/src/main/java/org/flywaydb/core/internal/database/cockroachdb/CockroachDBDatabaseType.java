@@ -21,19 +21,25 @@ import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
 import org.flywaydb.core.internal.database.DefaultExecutionStrategy;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
-
+import org.flywaydb.core.internal.authentication.postgres.PgpassFileReader;
 
 import org.flywaydb.core.internal.jdbc.ExecutionTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.license.FlywayTeamsUpgradeMessage;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.Types;
 import java.util.Properties;
 
 public class CockroachDBDatabaseType extends DatabaseType {
+
+
+
+
     @Override
     public String getName() {
         return "CockroachDB";
@@ -53,11 +59,14 @@ public class CockroachDBDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:postgresql:");
+        return url.startsWith("jdbc:postgresql:") || url.startsWith("jdbc:p6spy:postgresql:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
+        if (url.startsWith("jdbc:p6spy:postgresql:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         return "org.postgresql.Driver";
     }
 
@@ -111,10 +120,32 @@ public class CockroachDBDatabaseType extends DatabaseType {
         return !url.contains("password=");
     }
 
+    @Override
+    public boolean externalAuthPropertiesRequired(String url, String username, String password) {
+
+        return super.externalAuthPropertiesRequired(url, username, password);
+
+
+
+
+    }
+
+    @Override
+    public Properties getExternalAuthProperties(String url, String username) {
+        PgpassFileReader pgpassFileReader = new PgpassFileReader();
+
+        if (pgpassFileReader.getPgpassFilePath() != null) {
+            LOG.info(FlywayTeamsUpgradeMessage.generate(
+                    "pgpass file '" + pgpassFileReader.getPgpassFilePath() + "'",
+                    "use this for database authentication"));
+        }
+        return super.getExternalAuthProperties(url, username);
 
 
 
 
 
 
+
+    }
 }

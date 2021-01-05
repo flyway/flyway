@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
 
 import java.util.Date;
+import java.util.stream.IntStream;
 
 /**
  * Default implementation of MigrationInfo.
@@ -53,6 +54,11 @@ public class MigrationInfoImpl implements MigrationInfo {
      */
     private final boolean deleted;
 
+    /**
+     * Whether this migration should not be executed.
+     */
+    private final boolean shouldNotExecuteMigration;
+
 
 
 
@@ -82,6 +88,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         this.context = context;
         this.outOfOrder = outOfOrder;
         this.deleted = deleted;
+        this.shouldNotExecuteMigration = shouldNotExecuteMigration(resolvedMigration);
 
 
 
@@ -182,6 +189,11 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
+
+            // ignore a resolved and not applied migration which shouldn't be executed
+            if (shouldNotExecuteMigration) {
+                return MigrationState.IGNORED;
+            }
 
             if (resolvedMigration.getVersion() != null) {
 
@@ -354,11 +366,19 @@ public class MigrationInfoImpl implements MigrationInfo {
             return new ErrorDetails(ErrorCode.FAILED_VERSIONED_MIGRATION, errorMessage);
         }
 
+
+
+
+
+
+
+
         if ((resolvedMigration == null)
                 && !appliedMigration.getType().isSynthetic()
 
 
 
+                && (MigrationState.SUPERSEDED != state)
                 && (!context.missing || (MigrationState.MISSING_SUCCESS != state && MigrationState.MISSING_FAILED != state))
                 && (!context.future || (MigrationState.FUTURE_SUCCESS != state && MigrationState.FUTURE_FAILED != state))) {
             if (appliedMigration.getVersion() != null) {
@@ -371,6 +391,9 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (!context.ignored && MigrationState.IGNORED == state) {
+            if (shouldNotExecuteMigration) {
+                return null;
+            }
             if (getVersion() != null) {
                 String errorMessage = "Detected resolved migration not applied to database: " + getVersion() + ". To ignore this migration, set -ignoreIgnoredMigrations=true. To allow executing this migration, set -outOfOrder=true.";
                 return new ErrorDetails(ErrorCode.RESOLVED_VERSIONED_MIGRATION_NOT_APPLIED, errorMessage);
@@ -436,6 +459,10 @@ public class MigrationInfoImpl implements MigrationInfo {
         return null;
     }
 
+    private boolean shouldNotExecuteMigration(ResolvedMigration resolvedMigration) {
+        return resolvedMigration != null && resolvedMigration.getExecutor() != null && !resolvedMigration.getExecutor().shouldExecute();
+    }
+
     private boolean descriptionMismatch(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration) {
         // For some databases, we can't put an empty description into the history table
         if (SchemaHistory.NO_DESCRIPTION_MARKER.equals(appliedMigration.getDescription())) {
@@ -463,8 +490,25 @@ public class MigrationInfoImpl implements MigrationInfo {
                 migrationIdentifier, applied, resolved);
     }
 
+
+
+
+
+
+
+
+
     @Override
     public int compareTo(MigrationInfo o) {
+
+
+
+
+
+
+
+
+
         if ((getInstalledRank() != null) && (o.getInstalledRank() != null)) {
             return getInstalledRank() - o.getInstalledRank();
         }

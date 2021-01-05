@@ -141,8 +141,12 @@ public class Main {
             }
 
             ConfigUtils.dumpConfiguration(config);
-
             filterProperties(config);
+
+
+
+
+
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 
             OperationResultBase result;
@@ -205,7 +209,6 @@ public class Main {
         return combinedConfiguration;
     }
 
-
     static String getMessagesFromException(Throwable e) {
         String condensedMessages = "";
         String preamble = "";
@@ -220,7 +223,6 @@ public class Main {
         }
         return condensedMessages;
     }
-
 
     /**
      * Executes this operation on this Flyway instance.
@@ -285,6 +287,7 @@ public class Main {
 
 
 
+
     private static void printJson(CommandLineArguments commandLineArguments, OperationResult object) {
         String json = convertObjectToJsonString(object);
 
@@ -319,7 +322,6 @@ public class Main {
         config.put(ConfigUtils.LOCATIONS, "filesystem:" + new File(workingDirectory, "sql").getAbsolutePath());
         config.put(ConfigUtils.JAR_DIRS, new File(workingDirectory, "jars").getAbsolutePath());
     }
-
 
     /**
      * Filters the properties to remove the Flyway Commandline-specific ones.
@@ -540,7 +542,7 @@ public class Main {
 
 
 
-                && needsUser(url)) {
+                && needsUser(url, config.getOrDefault(ConfigUtils.PASSWORD, null))) {
             config.put(ConfigUtils.USER, console.readLine("Database user: "));
         }
 
@@ -557,9 +559,13 @@ public class Main {
     /**
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a username.
      */
-    private static boolean needsUser(String url) {
+    private static boolean needsUser(String url, String password) {
         DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
-        return databaseType.detectUserRequiredByUrl(url);
+        return databaseType.detectUserRequiredByUrl(url)
+
+
+
+                ;
     }
 
     /**

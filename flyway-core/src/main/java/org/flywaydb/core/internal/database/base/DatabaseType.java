@@ -19,17 +19,18 @@ import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
 import org.flywaydb.core.internal.database.DefaultExecutionStrategy;
 import org.flywaydb.core.internal.jdbc.*;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.core.internal.resource.LoadableResource;
 import org.flywaydb.core.internal.sqlscript.*;
 
 import java.sql.Connection;
 import java.sql.*;
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -56,7 +57,6 @@ public abstract class DatabaseType {
      * @return The JDBC type used to represent {@code null} in prepared statements.
      */
     public abstract int getNullType();
-
 
 
 
@@ -134,11 +134,7 @@ public abstract class DatabaseType {
      * @param printInfo     Where the DB info should be printed in the logs.
      * @return The appropriate Database class.
      */
-    public Database createDatabase(
-            Configuration configuration, boolean printInfo,
-            JdbcConnectionFactory jdbcConnectionFactory,
-            StatementInterceptor statementInterceptor
-    ) {
+    public Database createDatabase(Configuration configuration, boolean printInfo, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         String databaseProductName = jdbcConnectionFactory.getProductName();
         if (printInfo) {
             LOG.info("Database: " + jdbcConnectionFactory.getJdbcUrl() + " (" + databaseProductName + ")");
@@ -163,11 +159,7 @@ public abstract class DatabaseType {
      * @param jdbcConnectionFactory The current connection factory.
      * @return The Database.
      */
-    public abstract Database createDatabase(
-            Configuration configuration,
-            JdbcConnectionFactory jdbcConnectionFactory,
-            StatementInterceptor statementInterceptor
-    );
+    public abstract Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor);
 
     /**
      * Initializes the Parser used by this Database Type.
@@ -175,11 +167,7 @@ public abstract class DatabaseType {
      * @param configuration The Flyway configuration.
      * @return The Parser.
      */
-    public abstract Parser createParser(
-            Configuration configuration
-            , ResourceProvider resourceProvider
-            , ParsingContext parsingContext
-    );
+    public abstract Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext);
 
     /**
      * Initializes the SqlScriptFactory used by this Database Type.
@@ -187,10 +175,7 @@ public abstract class DatabaseType {
      * @param configuration The Flyway configuration.
      * @return The SqlScriptFactory.
      */
-    public SqlScriptFactory createSqlScriptFactory(
-            final Configuration configuration,
-            final ParsingContext parsingContext) {
-
+    public SqlScriptFactory createSqlScriptFactory(final Configuration configuration, final ParsingContext parsingContext) {
         return new SqlScriptFactory() {
             @Override
             public SqlScript createSqlScript(LoadableResource resource, boolean mixed, ResourceProvider resourceProvider) {
@@ -209,11 +194,7 @@ public abstract class DatabaseType {
      * @param jdbcConnectionFactory The current connection factory.
      * @return The SqlScriptExecutorFactory.
      */
-    public SqlScriptExecutorFactory createSqlScriptExecutorFactory(
-            final JdbcConnectionFactory jdbcConnectionFactory,
-            final CallbackExecutor callbackExecutor,
-            final StatementInterceptor statementInterceptor
-    ) {
+    public SqlScriptExecutorFactory createSqlScriptExecutorFactory(final JdbcConnectionFactory jdbcConnectionFactory, final CallbackExecutor callbackExecutor, final StatementInterceptor statementInterceptor) {
         boolean supportsBatch = false;
 
 
@@ -281,7 +262,8 @@ public abstract class DatabaseType {
     }
 
     /**
-     * Detect the default connection properties for this database.
+     * Set the default connection properties for this database. These can be overridden by {@code setConfigConnectionProps}
+     * and {@code setOverridingConnectionProps}
      *
      * @param url The JDBC url.
      * @param props The properties to write to.
@@ -292,14 +274,23 @@ public abstract class DatabaseType {
     }
 
     /**
-     * Do any necessary setup on the connection from
+     * Set any necessary connection properties based on Flyway's configuration. These can be overridden by {@code setOverridingConnectionProps}
      *
      * @param config The Flyway configuration to read properties from
      * @param props The properties to write to.
+     * @param classLoader The classLoader to use.
      */
     public void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader) {
         return;
     }
+
+    /**
+     * Set any overriding connection properties. These will override anything set by {@code setDefaultConnectionProps}
+     * and {@code setConfigConnectionProps} and should only be used if neither of those can satisfy your requirement.
+     *
+     * @param props The properties to write to.
+     */
+    public void setOverridingConnectionProps(Map<String, String> props) { return; }
 
     /**
      * Shutdown the database that was opened (only applicable to embedded databases that require this).
@@ -333,15 +324,22 @@ public abstract class DatabaseType {
         return true;
     }
 
+    /**
+     * Detects whether or not external authentication is required.
+     *
+     * @return true if external authentication is required, else false.
+     */
+    public boolean externalAuthPropertiesRequired(String url, String username, String password) {
+        return false;
+    }
 
-
-
-
-
-
-
-
-
-
-
+    /**
+     *
+     * @param url      The JDBC url.
+     * @param username The username for the connection.
+     * @return         Authentication properties from database specific locations (e.g. pgpass)
+     */
+    public Properties getExternalAuthProperties(String url, String username) {
+        return new Properties();
+    }
 }

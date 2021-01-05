@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.resource;
 
 import org.flywaydb.core.api.ResourceProvider;
+import org.flywaydb.core.api.resource.LoadableResource;
 
 import java.util.Collection;
 import java.util.Collections;

@@ -20,6 +20,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 public class CommandResultFactory {
-    public InfoResult createInfoResult(Configuration configuration, Database database, MigrationInfo[] migrationInfos, MigrationInfo current, boolean allSchemasEmpty) {
+    public static InfoResult createInfoResult(Configuration configuration, Database database, MigrationInfo[] migrationInfos, MigrationInfo current, boolean allSchemasEmpty) {
         String flywayVersion = VersionPrinter.getVersion();
         String databaseName = getDatabaseName(configuration, database);
         Set<MigrationVersion> undoableVersions = getUndoableVersions(migrationInfos);
@@ -55,7 +56,7 @@ public class CommandResultFactory {
                 allSchemasEmpty);
     }
 
-    public MigrateResult createMigrateResult(String databaseName, Configuration configuration) {
+    public static MigrateResult createMigrateResult(String databaseName, Configuration configuration) {
         String flywayVersion = VersionPrinter.getVersion();
 
         return new MigrateResult(
@@ -64,39 +65,36 @@ public class CommandResultFactory {
                 String.join(", ", configuration.getSchemas()));
     }
 
-    public CleanResult createCleanResult(String databaseName) {
+    public static CleanResult createCleanResult(String databaseName) {
         String flywayVersion = VersionPrinter.getVersion();
-
         return new CleanResult(flywayVersion, databaseName);
     }
 
-    public UndoResult createUndoResult(String databaseName, Configuration configuration) {
+    public static UndoResult createUndoResult(String databaseName, Configuration configuration) {
         String flywayVersion = VersionPrinter.getVersion();
-
         return new UndoResult(flywayVersion, databaseName, String.join(", ", configuration.getSchemas()));
     }
 
-    public BaselineResult createBaselineResult(String databaseName) {
+    public static BaselineResult createBaselineResult(String databaseName) {
         String flywayVersion = VersionPrinter.getVersion();
-
         return new BaselineResult(flywayVersion, databaseName);
     }
 
-    public ValidateResult createValidateResult(String databaseName, ErrorDetails validationError, int validationCount, List<ValidateOutput> invalidMigrations, List<String> warnings) {
+    public static ValidateResult createValidateResult(String databaseName, ErrorDetails validationError, int validationCount, List<ValidateOutput> invalidMigrations, List<String> warnings) {
         String flywayVersion = VersionPrinter.getVersion();
         boolean validationSuccessful = validationError == null;
         String errorMessage = validationError == null ? null : validationError.errorMessage;
+        List<ValidateOutput> invalidMigrationsList = invalidMigrations == null ? new ArrayList<>() : invalidMigrations;
 
-        return new ValidateResult(flywayVersion, databaseName, validationError, validationSuccessful, validationCount, invalidMigrations, warnings, errorMessage);
+        return new ValidateResult(flywayVersion, databaseName, validationError, validationSuccessful, validationCount, invalidMigrationsList, warnings, errorMessage);
     }
 
-    public RepairResult createRepairResult(String databaseName) {
+    public static RepairResult createRepairResult(String databaseName) {
         String flywayVersion = VersionPrinter.getVersion();
-
         return new RepairResult(flywayVersion, databaseName);
     }
 
-    private String getDatabaseName(Configuration configuration, Database database) {
+    private static String getDatabaseName(Configuration configuration, Database database) {
         try {
             Connection connection = configuration.getDataSource().getConnection();
             String catalog = connection.getCatalog();
@@ -107,7 +105,7 @@ public class CommandResultFactory {
         }
     }
 
-    public InfoOutput createInfoOutput(Set<MigrationVersion> undoableVersions, MigrationInfo migrationInfo) {
+    public static InfoOutput createInfoOutput(Set<MigrationVersion> undoableVersions, MigrationInfo migrationInfo) {
         return new InfoOutput(getCategory(migrationInfo),
                 migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
                 migrationInfo.getDescription(),
@@ -120,23 +118,24 @@ public class CommandResultFactory {
                 migrationInfo.getExecutionTime() != null ? migrationInfo.getExecutionTime() : 0);
     }
 
-    public MigrateOutput createMigrateOutput(MigrationInfo migrationInfo) {
+    public static MigrateOutput createMigrateOutput(MigrationInfo migrationInfo, int executionTime) {
         return new MigrateOutput(getCategory(migrationInfo),
                 migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
                 migrationInfo.getDescription(),
                 migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
                 migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
-                migrationInfo.getExecutionTime() != null ? migrationInfo.getExecutionTime() : 0);
+                executionTime);
     }
 
-    public UndoOutput createUndoOutput(ResolvedMigration migrationInfo) {
+    public static UndoOutput createUndoOutput(ResolvedMigration migrationInfo, int executionTime) {
         return new UndoOutput(
                 migrationInfo.getVersion().getVersion(),
                 migrationInfo.getDescription(),
-                migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "");
+                migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
+                executionTime);
     }
 
-    public ValidateOutput createValidateOutput(MigrationInfo migrationInfo, ErrorDetails validateError) {
+    public static ValidateOutput createValidateOutput(MigrationInfo migrationInfo, ErrorDetails validateError) {
         return new ValidateOutput(
                 migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
                 migrationInfo.getDescription(),
@@ -144,11 +143,15 @@ public class CommandResultFactory {
                 validateError);
     }
 
-    public RepairOutput createRepairOutput(MigrationInfo migrationInfo) {
+    public static RepairOutput createRepairOutput(MigrationInfo migrationInfo) {
         return new RepairOutput(
                 migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
                 migrationInfo.getDescription(),
                 migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "");
+    }
+
+    public static RepairOutput createRepairOutput(AppliedMigration am) {
+        return new RepairOutput(am.getVersion() != null ? am.getVersion().getVersion(): "", am.getDescription(), "");
     }
 
     private static String getUndoableStatus(MigrationInfo migrationInfo, Set<MigrationVersion> undoableVersions) {
@@ -189,7 +192,7 @@ public class CommandResultFactory {
         return result.toArray(new MigrationInfo[0]);
     }
 
-    private String getCategory(MigrationInfo migrationInfo) {
+    private static String getCategory(MigrationInfo migrationInfo) {
         if (migrationInfo.getType().isSynthetic()) return "";
         if (migrationInfo.getVersion() == null) return "Repeatable";
 

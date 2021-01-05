@@ -20,6 +20,8 @@ import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.resource.LoadableResource;
+import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.ArrayList;

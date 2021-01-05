@@ -29,7 +29,7 @@ public class HSQLDBParser extends Parser {
      * List of objects which can be dropped with IF EXISTS
      */
     private static final List<String> CONDITIONALLY_CREATABLE_OBJECTS = Arrays.asList(
-            "CONSTRAINT", "TABLE", "COLUMN", "INDEX", "SEQUENCE", "VIEW", "SCHEMA"
+            "COLUMN", "CONSTRAINT", "INDEX", "PROCEDURE", "SCHEMA", "SEQUENCE", "TABLE", "VIEW"
     );
 
     public HSQLDBParser(Configuration configuration, ParsingContext parsingContext) {
@@ -49,8 +49,7 @@ public class HSQLDBParser extends Parser {
                 "HANDLER", "HAVING", "HOLD", "HOUR",
                 "IDENTITY", "IF", "IN", "INDEX", "INDICATOR", "INNER", "INOUT", "INSENSITIVE", "INSERT", "INT", "INTEGER", "INTERSECT", "INTERSECTION", "INTERVAL", "INTO", "IS", "ITERATE",
                 "JOIN",
-                "LAG",
-                "LANGUAGE", "LARGE", "LAST_VALUE", "LATERAL", "LEAD", "LEADING", "LEAVE", "LEFT", "LIKE", "LIKE_REGEX", "LN", "LOCAL", "LOCALTIME", "LOCALTIMESTAMP", "LOOP", "LOWER",
+                "LAG", "LANGUAGE", "LARGE", "LAST_VALUE", "LATERAL", "LEAD", "LEADING", "LEAVE", "LEFT", "LIKE", "LIKE_REGEX", "LN", "LOCAL", "LOCALTIME", "LOCALTIMESTAMP", "LOOP", "LOWER",
                 "MATCH", "MAX", "MAX_CARDINALITY", "MEMBER", "MERGE", "METHOD", "MIN", "MINUTE", "MOD", "MODIFIES", "MODULE", "MONTH", "MULTISET",
                 "NATIONAL", "NATURAL", "NCHAR", "NCLOB", "NEW", "NO", "NONE", "NORMALIZE", "NOT", "NTH_VALUE", "NTILE", "NULL", "NULLIF", "NUMERIC",
                 "OCCURRENCES_REGEX", "OCTET_LENGTH", "OF", "OFFSET", "OLD", "ON", "ONLY", "OPEN", "OR", "ORDER", "OUT", "OUTER", "OVER", "OVERLAPS", "OVERLAY",

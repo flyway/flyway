@@ -21,6 +21,7 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.RepairOutput;
 import org.flywaydb.core.api.output.RepairResult;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
@@ -248,8 +249,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
         try {
             appliedMigrations.stream()
                     .filter(am -> !am.isSuccess())
-                    .forEach(am -> repairResult.migrationsRemoved.add(new RepairOutput(
-                            am.getVersion().toString(), am.getDescription(), "")));
+                    .forEach(am -> repairResult.migrationsRemoved.add(CommandResultFactory.createRepairOutput(am)));
 
             for (AppliedMigration appliedMigration : appliedMigrations) {
                 jdbcTemplate.execute("DELETE FROM " + table +

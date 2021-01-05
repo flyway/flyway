@@ -22,7 +22,7 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.android.ContextHolder;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.android.AndroidResource;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
 import org.flywaydb.core.internal.util.ClassUtils;

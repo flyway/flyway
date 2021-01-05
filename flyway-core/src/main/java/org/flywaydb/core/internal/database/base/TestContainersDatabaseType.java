@@ -44,11 +44,14 @@ public class TestContainersDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:tc:");
+        return url.startsWith("jdbc:tc:") || url.startsWith("jdbc:p6spy:tc:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
+        if (url.startsWith("jdbc:p6spy:tc:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         return "org.testcontainers.jdbc.ContainerDatabaseDriver";
     }
 

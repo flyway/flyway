@@ -20,6 +20,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.strategy.BackoffStrategy;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 
 import javax.sql.DataSource;
@@ -51,6 +52,7 @@ public class JdbcUtils {
      * @throws FlywayException when the connection could not be opened.
      */
     public static Connection openConnection(DataSource dataSource, int connectRetries) throws FlywayException {
+        BackoffStrategy backoffStrategy = new BackoffStrategy(1, 2);
         int retries = 0;
         while (true) {
             try {
@@ -70,9 +72,9 @@ public class JdbcUtils {
                 if (rootCause != null && rootCause != e && rootCause.getMessage() != null) {
                     msg += " (Caused by " + rootCause.getMessage() + ")";
                 }
-                LOG.warn(msg + " Retrying in 1 sec...");
+                LOG.warn(msg + " Retrying in " + backoffStrategy.peek() + " sec...");
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(backoffStrategy.next() * 1000);
                 } catch (InterruptedException e1) {
                     throw new FlywaySqlException("Unable to obtain connection from database"
                             + getDataSourceInfo(dataSource) + ": " + e.getMessage(), e);

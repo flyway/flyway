@@ -16,14 +16,12 @@
 package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.util.BomFilter;
 import org.flywaydb.core.internal.util.IOUtils;
-import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
 
@@ -65,12 +63,10 @@ public class ChecksumCalculator {
         BufferedReader bufferedReader = null;
         try {
             bufferedReader = new BufferedReader(resource.read(), 4096);
-
             String line = bufferedReader.readLine();
 
             if (line != null) {
                 line = BomFilter.FilterBomFromString(line);
-
                 do {
                     //noinspection Since15
                     crc32.update(line.getBytes(StandardCharsets.UTF_8));

@@ -22,7 +22,10 @@ import org.flywaydb.core.internal.jdbc.Results;
 
 import java.math.BigInteger;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class InsertRowLock {
     private static final Log LOG = LogFactory.getLog(InsertRowLock.class);
@@ -32,17 +35,29 @@ public class InsertRowLock {
      * A random string, used as an ID of this instance of Flyway.
      */
     private final String tableLockString = getNextRandomString();
+    private final JdbcTemplate jdbcTemplate;
+    public final int lockTimeoutMins;
+    private Timer timer;
 
-    public void doLock(JdbcTemplate jdbcTemplate, String insertStatementTemplate, String booleanTrue) throws SQLException {
+    public InsertRowLock(JdbcTemplate jdbcTemplate, int lockTimeoutMins) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.lockTimeoutMins = lockTimeoutMins;
+    }
+
+    public void doLock(String insertStatementTemplate, String updateLockStatement, String deleteExpiredLockStatement, String booleanTrue) throws SQLException {
         int retryCount = 0;
         while (true) {
             try {
-                if (insertLockingRow(jdbcTemplate, insertStatementTemplate, booleanTrue)) return;
+                jdbcTemplate.execute(deleteExpiredLockStatement);
+                if (insertLockingRow(insertStatementTemplate, booleanTrue)) {
+                    startLockWatchingThread(String.format(updateLockStatement.replace("?", "%s"), tableLockString));
+                    return;
+                }
                 if (retryCount < 50) {
                     retryCount++;
-                    LOG.debug("Waiting for lock on " + this);
+                    LOG.debug("Waiting for lock on Flyway schema history table");
                 } else {
-                    LOG.error("Waiting for lock on " + this + ". Application may be deadlocked. Lock row may require manual removal " +
+                    LOG.error("Waiting for lock on Flyway schema history table. Application may be deadlocked. Lock row may require manual removal " +
                             "from the schema history table.");
                 }
                 Thread.sleep(1000);
@@ -52,7 +67,7 @@ public class InsertRowLock {
         }
     }
 
-    private boolean insertLockingRow(JdbcTemplate jdbcTemplate, String insertStatementTemplate, String booleanTrue) {
+    private boolean insertLockingRow(String insertStatementTemplate, String booleanTrue) {
         String insertStatement = String.format(insertStatementTemplate.replace("?", "%s"),
                 -100,
                 "'" + tableLockString + "'",
@@ -72,15 +87,33 @@ public class InsertRowLock {
         return results.getException() == null;
     }
 
-    public void doUnlock(JdbcTemplate jdbcTemplate, String deleteLockTemplate) throws SQLException {
+    public void doUnlock(String deleteLockTemplate) throws SQLException {
+        stopLockWatchingThread();
         String deleteLock = String.format(deleteLockTemplate.replace("?", "%s"), tableLockString);
 
         // Remove the locking row
-        jdbcTemplate.executeStatement(deleteLock);
+        jdbcTemplate.execute(deleteLock);
     }
 
     private String getNextRandomString(){
         BigInteger bInt = new BigInteger(128, random);
         return bInt.toString(16);
+    }
+
+    private void startLockWatchingThread(String updateLockStatement) {
+        TimerTask lockWatcherTask = new TimerTask() {
+            @Override
+            public void run() {
+                // update the locking row
+                LOG.debug("Updating lock in Flyway schema history table");
+                jdbcTemplate.executeStatement(updateLockStatement);
+            }
+        };
+        timer = new Timer();
+        timer.schedule(lockWatcherTask, 0, Duration.ofMinutes(lockTimeoutMins / 2).toMillis());
+    }
+
+    private void stopLockWatchingThread() {
+        timer.cancel();
     }
 }

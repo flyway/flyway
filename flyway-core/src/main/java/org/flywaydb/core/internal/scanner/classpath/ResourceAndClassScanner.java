@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.scanner.classpath;
 
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.LoadableResource;
 
 import java.util.Collection;
 

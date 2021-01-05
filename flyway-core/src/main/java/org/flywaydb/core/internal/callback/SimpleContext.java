@@ -21,6 +21,7 @@ import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Statement;
 import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.internal.database.base.Connection;
 
 import java.util.List;
@@ -30,11 +31,13 @@ public class SimpleContext implements Context {
     private final Connection connection;
     private final MigrationInfo migrationInfo;
     private final Statement statement;
+    private final OperationResult operationResult;
 
-    SimpleContext(Configuration configuration, Connection connection, MigrationInfo migrationInfo) {
+    SimpleContext(Configuration configuration, Connection connection, MigrationInfo migrationInfo, OperationResult operationResult) {
         this.configuration = configuration;
         this.connection = connection;
         this.migrationInfo = migrationInfo;
+        this.operationResult = operationResult;
         this.statement = null;
     }
 
@@ -43,6 +46,7 @@ public class SimpleContext implements Context {
         this.configuration = configuration;
         this.connection = connection;
         this.migrationInfo = migrationInfo;
+        this.operationResult = null;
         this.statement = new SimpleStatement(sql, warnings, errors);
     }
 
@@ -66,6 +70,10 @@ public class SimpleContext implements Context {
         return statement;
     }
 
+    @Override
+    public OperationResult getOperationResult() {
+        return operationResult;
+    }
 
     private static class SimpleStatement implements Statement {
         private final String sql;

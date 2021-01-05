@@ -18,6 +18,7 @@ package org.flywaydb.core;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.callback.Callback;
+import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
@@ -169,7 +170,7 @@ public class Flyway {
                     ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
                             true);
                     if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
-                        throw new FlywayValidateException(validateResult.errorDetails);
+                        throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
                     }
                 }
 
@@ -199,7 +200,7 @@ public class Flyway {
                         }
                     } else {
                         if (configuration.getCreateSchemas()) {
-                            new DbSchemas(database, schemas, schemaHistory).create(false);
+                            new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(false);
                         } else {
                             LOG.warn("The configuration option 'createSchemas' is false.\n" +
                                     "However the schema history table still needs a schema to reside in.\n" +
@@ -211,8 +212,12 @@ public class Flyway {
                     }
                 }
 
-                 return new DbMigrate(database, schemaHistory, schemas, migrationResolver, configuration,
-                        callbackExecutor).migrate();
+                 MigrateResult result = new DbMigrate(database, schemaHistory, schemas[0], migrationResolver, configuration,
+                         callbackExecutor).migrate();
+
+                callbackExecutor.onOperationFinishEvent(Event.AFTER_MIGRATE_OPERATION_FINISH, result);
+
+                return result;
             }
         }, true);
     }
@@ -235,6 +240,10 @@ public class Flyway {
     public UndoResult undo() throws FlywayException {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("undo");
+
+
+
+
 
 
 
@@ -271,8 +280,10 @@ public class Flyway {
                         configuration.isIgnorePendingMigrations());
 
                 if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
-                    throw new FlywayValidateException(validateResult.errorDetails);
+                    throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
                 }
+
+                callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
 
                 return null;
             }
@@ -299,8 +310,12 @@ public class Flyway {
             public ValidateResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
                                           Schema[] schemas, CallbackExecutor callbackExecutor,
                                           StatementInterceptor statementInterceptor) {
-                return doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
+                ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
                         configuration.isIgnorePendingMigrations());
+
+                callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
+
+                return validateResult;
             }
         }, true);
     }
@@ -317,7 +332,7 @@ public class Flyway {
      */
     private ValidateResult doValidate(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
                             Schema[] schemas, CallbackExecutor callbackExecutor, boolean ignorePending) {
-        ValidateResult validateResult = new DbValidate(database, schemaHistory, schemas, migrationResolver,
+        ValidateResult validateResult = new DbValidate(database, schemaHistory, schemas[0], migrationResolver,
                 configuration, ignorePending, callbackExecutor).validate();
 
         if (!validateResult.validationSuccessful && configuration.isCleanOnValidationError()) {
@@ -344,7 +359,11 @@ public class Flyway {
             public CleanResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
                                 Schema[] schemas, CallbackExecutor callbackExecutor,
                                 StatementInterceptor statementInterceptor) {
-                return doClean(database, schemaHistory, schemas, callbackExecutor);
+                CleanResult cleanResult = doClean(database, schemaHistory, schemas, callbackExecutor);
+
+                callbackExecutor.onOperationFinishEvent(Event.AFTER_CLEAN_OPERATION_FINISH, cleanResult);
+
+                return cleanResult;
             }
         }, false);
     }
@@ -362,7 +381,12 @@ public class Flyway {
             public MigrationInfoService execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
                                                 final Database database, final Schema[] schemas, CallbackExecutor callbackExecutor,
                                                 StatementInterceptor statementInterceptor) {
-                return new DbInfo(migrationResolver, schemaHistory, configuration, database, callbackExecutor, schemas).info();
+                MigrationInfoService migrationInfoService = new DbInfo(migrationResolver, schemaHistory, configuration, database,
+                        callbackExecutor, schemas).info();
+
+                callbackExecutor.onOperationFinishEvent(Event.AFTER_INFO_OPERATION_FINISH, migrationInfoService.getInfoResult());
+
+                return migrationInfoService;
             }
         }, true);
     }
@@ -381,7 +405,7 @@ public class Flyway {
                                 SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
                                 StatementInterceptor statementInterceptor) {
                 if (configuration.getCreateSchemas()) {
-                    new DbSchemas(database, schemas, schemaHistory).create(true);
+                    new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(true);
                 } else {
                     LOG.warn("The configuration option 'createSchemas' is false.\n" +
                             "Even though Flyway is configured not to create any schemas, the schema history table still needs a schema to reside in.\n" +
@@ -389,7 +413,11 @@ public class Flyway {
                             "See http://flywaydb.org/documentation/migrations#the-createschemas-option-and-the-schema-history-table");
                 }
 
-                return doBaseline(schemaHistory, callbackExecutor, database);
+                BaselineResult baselineResult = doBaseline(schemaHistory, callbackExecutor, database);
+
+                callbackExecutor.onOperationFinishEvent(Event.AFTER_BASELINE_OPERATION_FINISH, baselineResult);
+
+                return baselineResult;
             }
         }, false);
     }
@@ -410,7 +438,11 @@ public class Flyway {
             public RepairResult execute(MigrationResolver migrationResolver,
                                         SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
                                         StatementInterceptor statementInterceptor) {
-                return new DbRepair(database, migrationResolver, schemaHistory, schemas, callbackExecutor, configuration).repair();
+                RepairResult repairResult = new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor, configuration).repair();
+
+                callbackExecutor.onOperationFinishEvent(Event.AFTER_REPAIR_OPERATION_FINISH, repairResult);
+
+                return repairResult;
             }
         }, true);
     }

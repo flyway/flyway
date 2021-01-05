@@ -100,8 +100,7 @@ public class DbClean {
         }
         callbackExecutor.onEvent(Event.BEFORE_CLEAN);
 
-        CommandResultFactory commandResultFactory = new CommandResultFactory();
-        CleanResult cleanResult = commandResultFactory.createCleanResult(database.getCatalog());
+        CleanResult cleanResult = CommandResultFactory.createCleanResult(database.getCatalog());
 
         try {
             connection.changeCurrentSchemaTo(schemas[0]);

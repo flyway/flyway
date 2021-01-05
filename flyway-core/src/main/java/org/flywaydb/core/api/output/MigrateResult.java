@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MigrateResult extends OperationResultBase {
-
     public String initialSchemaVersion;
     public String targetSchemaVersion;
     public String schemaName;
@@ -35,5 +34,4 @@ public class MigrateResult extends OperationResultBase {
         this.migrations = new ArrayList<>();
         this.operation = "migrate";
     }
-
 }

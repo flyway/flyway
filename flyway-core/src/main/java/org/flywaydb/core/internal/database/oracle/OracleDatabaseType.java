@@ -60,8 +60,7 @@ public class OracleDatabaseType extends DatabaseType {
             throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbc-secretsmanager");
 
         }
-
-        return url.startsWith("jdbc:oracle");
+        return url.startsWith("jdbc:oracle") || url.startsWith("jdbc:p6spy:oracle");
     }
 
     @Override
@@ -76,7 +75,9 @@ public class OracleDatabaseType extends DatabaseType {
 
 
 
-
+        if (url.startsWith("jdbc:p6spy:oracle:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         return "oracle.jdbc.OracleDriver";
     }
 

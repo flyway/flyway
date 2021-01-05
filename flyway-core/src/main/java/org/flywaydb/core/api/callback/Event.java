@@ -188,7 +188,39 @@ public enum Event {
     /**
      * Fired after info has failed. This event will be fired in a separate transaction from the actual info operation.
      */
-    AFTER_INFO_ERROR("afterInfoError");
+    AFTER_INFO_ERROR("afterInfoError"),
+    /**
+     * Fired after a migrate operation has finished.
+     */
+    AFTER_MIGRATE_OPERATION_FINISH("afterMigrateOperationFinish"),
+    /**
+     * Fired after an info operation has finished.
+     */
+    AFTER_INFO_OPERATION_FINISH("afterInfoOperationFinish"),
+    /**
+     * Fired after a clean operation has finished.
+     */
+    AFTER_CLEAN_OPERATION_FINISH("afterInfoOperationFinish"),
+    /**
+     * Fired after a validate operation has finished.
+     */
+    AFTER_VALIDATE_OPERATION_FINISH("afterInfoOperationFinish"),
+    /**
+     * Fired after a validate operation has finished.
+     */
+    AFTER_UNDO_OPERATION_FINISH("afterInfoOperationFinish"),
+    /**
+     * Fired after a validate operation has finished.
+     */
+    AFTER_REPAIR_OPERATION_FINISH("afterInfoOperationFinish"),
+    /**
+     * Fired after a validate operation has finished.
+     */
+    AFTER_BASELINE_OPERATION_FINISH("afterInfoOperationFinish"),
+    /**
+     * Fired before any non-existent schemas are created.
+     */
+    CREATE_SCHEMA("createSchema");
 
     private final String id;
 

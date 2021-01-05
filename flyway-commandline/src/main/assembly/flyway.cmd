@@ -64,6 +64,23 @@ IF NOT [%1]==[] (
 if "%FLYWAY_EDITION%"=="" (
   set FLYWAY_EDITION=community
 )
+if "%FLYWAY_EDITION%"=="teams" (
+  set FLYWAY_EDITION=enterprise
+)
+
+@REM Validate the Flyway edition
+set editionValid=false
+for %%E in ("community" "pro" "enterprise" "teams" "community") do (
+  if "%FLYWAY_EDITION%"==%%E (
+    set editionValid=true
+  )
+)
+if %editionValid%==false (
+  @Echo on
+  echo invalid edition "%FLYWAY_EDITION%"
+  @Echo off
+  EXIT /B 1
+)
 
 %JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\%FLYWAY_EDITION%\*;%INSTALLDIR%\drivers\*" org.flywaydb.commandline.Main %*
 

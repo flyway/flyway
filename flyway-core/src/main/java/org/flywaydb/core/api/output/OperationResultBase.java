@@ -19,7 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class OperationResultBase implements OperationResult {
-
     public String flywayVersion;
     public String database;
     public List<String> warnings;
@@ -32,5 +31,4 @@ public abstract class OperationResultBase implements OperationResult {
     public void addWarning(String warning) {
         warnings.add(warning);
     }
-
 }

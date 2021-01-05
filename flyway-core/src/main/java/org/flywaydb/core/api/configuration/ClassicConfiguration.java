@@ -26,6 +26,10 @@ import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
+
+
+
+
 import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
@@ -517,6 +521,43 @@ public class ClassicConfiguration implements Configuration {
      */
     private Map<String, String> jdbcProperties;
 
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The REST API URL pointing to your secret in Conjur
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String conjurUrl;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The Conjur authorization token required to access your secret
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String conjurToken;
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The REST API URL pointing the location of your secret in Vault
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String vaultUrl;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The Vault token required to access your secret
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String vaultToken;
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The name of your secret in Vault
+     *
+     * <p><i>Flyway Teams only</i></p>
+     */
+    private String vaultSecret;
+
     private final ClasspathClassScanner classScanner;
 
     /**
@@ -794,6 +835,31 @@ public class ClassicConfiguration implements Configuration {
         return jdbcProperties;
     }
 
+    @Override
+    public String getConjurUrl() {
+        return conjurUrl;
+    }
+
+    @Override
+    public String getConjurToken() {
+        return conjurToken;
+    }
+
+    @Override
+    public String getVaultUrl() {
+        return vaultUrl;
+    }
+
+    @Override
+    public String getVaultToken() {
+        return vaultToken;
+    }
+
+    @Override
+    public String getVaultSecret() {
+        return vaultSecret;
+    }
+
     /**
      * Whether Flyway should output a table with the results of queries when executing migrations.
      *
@@ -823,7 +889,7 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
-     * directly against the database. The stream when be closing when Flyway finishes writing the output.
+     * directly against the database. The stream will be closed when Flyway finishes writing the output.
      * <p><i>Flyway Teams only</i></p>
      *
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
@@ -897,6 +963,8 @@ public class ClassicConfiguration implements Configuration {
      * Sets the file where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. If the file specified is in a non-existent directory, Flyway will create all
      * directories and parent directories as needed.
+     * Paths starting with s3: point to a bucket in AWS S3, which must exist. They are in the format s3:<bucket>(/optionalfolder/subfolder)/filename.sql
+     * Paths starting with gcs: point to a bucket in Google Cloud Storage, which must exist. They are in the format gcs:<bucket>(/optionalfolder/subfolder)/filename.sql
      * <p><i>Flyway Teams only</i></p>
      *
      * @param dryRunOutputFileName The name of the output file or {@code null} to execute the SQL statements directly
@@ -905,6 +973,12 @@ public class ClassicConfiguration implements Configuration {
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
+
+
+
+
+
+
 
 
 
@@ -1871,6 +1945,26 @@ public class ClassicConfiguration implements Configuration {
 
     }
 
+    public void setConjurUrl(String conjurUrl) {
+        this.conjurUrl = conjurUrl;
+    }
+
+    public void setConjurToken(String conjurToken) {
+        this.conjurToken = conjurToken;
+    }
+
+    public void setVaultUrl(String vaultUrl) {
+        this.vaultUrl = vaultUrl;
+    }
+
+    public void setVaultToken(String vaultToken) {
+        this.vaultToken = vaultToken;
+    }
+
+    public void setVaultSecret(String vaultSecret) {
+        this.vaultSecret = vaultSecret;
+    }
+
     /**
      * Configure with the same values as this existing configuration.
      *
@@ -1935,6 +2029,11 @@ public class ClassicConfiguration implements Configuration {
         setTable(configuration.getTable());
         setTablespace(configuration.getTablespace());
         setTarget(configuration.getTarget());
+
+
+
+
+
 
 
 
@@ -2211,6 +2310,31 @@ public class ClassicConfiguration implements Configuration {
         if (createSchemasProp != null) {
             setShouldCreateSchemas(createSchemasProp);
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

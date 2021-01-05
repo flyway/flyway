@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.resource;
 
+import org.flywaydb.core.api.resource.LoadableResource;
+
 import java.io.Reader;
 import java.io.StringReader;
 

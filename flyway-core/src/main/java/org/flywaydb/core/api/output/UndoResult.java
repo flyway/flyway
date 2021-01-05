@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UndoResult extends OperationResultBase {
-
     public String initialSchemaVersion;
     public String targetSchemaVersion;
     public String schemaName;
@@ -33,5 +32,4 @@ public class UndoResult extends OperationResultBase {
         this.undoneMigrations = new ArrayList<>();
         this.operation = "undo";
     }
-    
 }

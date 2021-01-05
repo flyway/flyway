@@ -74,8 +74,7 @@ public class DbBaseline {
         this.baselineDescription = baselineDescription;
         this.callbackExecutor = callbackExecutor;
 
-        CommandResultFactory commandResultFactory = new CommandResultFactory();
-        baselineResult = commandResultFactory.createBaselineResult(database.getCatalog());
+        baselineResult = CommandResultFactory.createBaselineResult(database.getCatalog());
     }
 
     /**

@@ -614,4 +614,54 @@ public interface Configuration {
      * @return Properties that will be passed to the JDBC driver object
      */
     Map<String, String> getJdbcProperties();
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The REST API URL pointing to your secret in Conjur
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @return The REST API URL pointing to your secret in Conjur
+     */
+    String getConjurUrl();
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The Conjur authorization token required to access your secret
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @return The Conjur authorization token required to access your secret
+     */
+    String getConjurToken();
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The REST API URL pointing the location of your secret in Vault
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @return The REST API URL pointing the location of your secret in Vault
+     */
+    String getVaultUrl();
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The Vault token required to access your secret
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @return The Vault token required to access your secret
+     */
+    String getVaultToken();
+
+    /**
+     * NOTE: EXPERIMENTAL - Not recommended for production use
+     * The name of your secret in Vault
+     *
+     * <p><i>Flyway Teams only</i></p>
+     *
+     * @return The name of your secret in Vault
+     */
+    String getVaultSecret();
 }

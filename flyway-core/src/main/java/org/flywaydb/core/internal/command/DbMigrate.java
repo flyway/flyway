@@ -72,11 +72,6 @@ public class DbMigrate {
     private final Schema schema;
 
     /**
-     * The list of schemas managed by Flyway.
-     */
-    private final Schema[] schemas;
-
-    /**
      * The migration resolver.
      */
     private final MigrationResolver migrationResolver;
@@ -102,11 +97,6 @@ public class DbMigrate {
     private MigrateResult migrateResult;
 
     /**
-     * The factory object which constructs a migration result
-     */
-    private final CommandResultFactory commandResultFactory;
-
-    /**
      * This is used to remember the type of migration between calls to migrateGroup().
      */
     private boolean isPreviousVersioned;
@@ -116,24 +106,21 @@ public class DbMigrate {
      *
      * @param database          Database-specific functionality.
      * @param schemaHistory     The database schema history table.
-     * @param schemas           The list of schemas managed by Flyway.
+     * @param schema            The schema containing the schema history table.
      * @param migrationResolver The migration resolver.
      * @param configuration     The Flyway configuration.
      * @param callbackExecutor  The callbacks executor.
      */
     public DbMigrate(Database database,
-                     SchemaHistory schemaHistory, Schema[] schemas, MigrationResolver migrationResolver,
+                     SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
                      Configuration configuration, CallbackExecutor callbackExecutor) {
         this.database = database;
         this.connectionUserObjects = database.getMigrationConnection();
         this.schemaHistory = schemaHistory;
-        this.schema = schemas[0];
-        this.schemas = schemas;
+        this.schema = schema;
         this.migrationResolver = migrationResolver;
         this.configuration = configuration;
         this.callbackExecutor = callbackExecutor;
-
-        this.commandResultFactory = new CommandResultFactory();
     }
 
     /**
@@ -145,7 +132,7 @@ public class DbMigrate {
     public MigrateResult migrate() throws FlywayException {
         callbackExecutor.onMigrateOrUndoEvent(Event.BEFORE_MIGRATE);
 
-        migrateResult = commandResultFactory.createMigrateResult(database.getCatalog(), configuration);
+        migrateResult = CommandResultFactory.createMigrateResult(database.getCatalog(), configuration);
 
         int count;
         try {
@@ -229,7 +216,7 @@ public class DbMigrate {
      */
     private Integer migrateGroup(boolean firstRun) {
         MigrationInfoServiceImpl infoService =
-                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, schemas, database, configuration,
+                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
                         configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
                         true, true, true, true);
         infoService.refresh();
@@ -432,7 +419,6 @@ public class DbMigrate {
                     try {
                         LOG.info("Migrating " + migrationText);
                         migration.getResolvedMigration().getExecutor().execute(context);
-                        migrateResult.migrations.add(commandResultFactory.createMigrateOutput(migration));
                     } catch (FlywayException e) {
                         callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
                         throw new FlywayMigrateException(migration, isOutOfOrder, e);
@@ -450,6 +436,8 @@ public class DbMigrate {
 
             stopWatch.stop();
             int executionTime = (int) stopWatch.getTotalTimeMillis();
+
+            migrateResult.migrations.add(CommandResultFactory.createMigrateOutput(migration, executionTime));
 
             schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(), migration.getType(),
                     migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);

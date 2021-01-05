@@ -34,8 +34,12 @@ public class ResourceNameParser {
     }
 
     public ResourceName parse(String resourceName) {
+        return parse(resourceName, configuration.getSqlMigrationSuffixes());
+    }
+
+    public ResourceName parse(String resourceName, String[] suffixes) {
         // Strip off suffixes
-        Pair<String, String> suffixResult = stripSuffix(resourceName, configuration.getSqlMigrationSuffixes());
+        Pair<String, String> suffixResult = stripSuffix(resourceName, suffixes);
 
         // Find the appropriate prefix
         Pair<String, ResourceType> prefix = findPrefix(suffixResult.getLeft(), prefixes);
@@ -79,7 +83,7 @@ public class ResourceNameParser {
 
             String description = splitName.getRight().replace("_", " ");
             return new ResourceName(prefixResult.getLeft(), splitName.getLeft(),
-                    configuration.getSqlMigrationSeparator(), description, suffixResult.getRight(),
+                    configuration.getSqlMigrationSeparator(), description, splitName.getRight(), suffixResult.getRight(),
                     isValid, validationMessage);
         }
 

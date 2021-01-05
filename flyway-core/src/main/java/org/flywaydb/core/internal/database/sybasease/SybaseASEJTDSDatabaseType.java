@@ -21,7 +21,6 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 
@@ -42,11 +41,14 @@ public class SybaseASEJTDSDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:jtds:");
+        return url.startsWith("jdbc:jtds:") || url.startsWith("jdbc:p6spy:jtds:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
+        if (url.startsWith("jdbc:p6spy:jtds:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         return "net.sourceforge.jtds.jdbc.Driver";
     }
 

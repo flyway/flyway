@@ -138,10 +138,11 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable
         if (extensionsTableExists()) {
             List<String> extensionNames =
                     jdbcTemplate.queryForStringList(
-                            "SELECT e.extname AS \"Name\" \n" +
-                                  "FROM pg_extension e \n" +
-                                  "LEFT JOIN pg_namespace n ON n.oid = e.extnamespace\n" +
-                                  "WHERE n.nspname=?", name);
+                            "SELECT e.extname " +
+                                  "FROM pg_extension e " +
+                                  "LEFT JOIN pg_namespace n ON n.oid = e.extnamespace " +
+                                  "LEFT JOIN pg_roles r ON r.oid = e.extowner " +
+                                  "WHERE n.nspname=? AND r.rolname=?", name, database.doGetCurrentUser());
 
             for (String extensionName : extensionNames) {
                 statements.add("DROP EXTENSION IF EXISTS " + database.quote(extensionName) + " CASCADE");

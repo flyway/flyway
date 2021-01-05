@@ -17,6 +17,7 @@ package org.flywaydb.commandline;
 
 import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -80,6 +81,7 @@ class CommandLineArguments {
     private static String INFO_UNTIL_DATE = "infoUntilDate";
     private static String INFO_SINCE_VERSION = "infoSinceVersion";
     private static String INFO_UNTIL_VERSION = "infoUntilVersion";
+    private static String INFO_OF_STATE = "infoOfState";
 
     private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
@@ -179,7 +181,8 @@ class CommandLineArguments {
                 INFO_SINCE_DATE.equals(configurationOptionName) ||
                 INFO_UNTIL_DATE.equals(configurationOptionName) ||
                 INFO_SINCE_VERSION.equals(configurationOptionName) ||
-                INFO_UNTIL_VERSION.equals(configurationOptionName);
+                INFO_UNTIL_VERSION.equals(configurationOptionName) ||
+                INFO_OF_STATE.equals(configurationOptionName);
     }
 
     private static String getConfigurationOptionNameFromArg(String arg) {
@@ -278,6 +281,16 @@ class CommandLineArguments {
 
     MigrationVersion getInfoUntilVersion() {
         return parseVersion(INFO_UNTIL_VERSION);
+    }
+
+    MigrationState getInfoOfState() {
+        String stateStr = getArgumentValue(INFO_OF_STATE, args);
+
+        if (!StringUtils.hasText(stateStr)) {
+            return null;
+        }
+
+        return MigrationState.valueOf(stateStr.toUpperCase(Locale.ENGLISH));
     }
 
     private MigrationVersion parseVersion(String argument) {

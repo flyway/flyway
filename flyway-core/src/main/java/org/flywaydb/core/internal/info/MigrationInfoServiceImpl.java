@@ -114,14 +114,9 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     private List<MigrationInfoImpl> migrationInfos;
 
     /**
-     * The list of schemas managed by Flyway.
-     */
-    private Schema[] schemas;
-
-    /**
      * Whether all of the specified schemas are empty or not.
      */
-    private boolean allSchemasEmpty = true;
+    private Boolean allSchemasEmpty;
 
     /**
      * Creates a new MigrationInfoServiceImpl.
@@ -138,7 +133,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
      * @param future            Whether future migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver,
-                                    SchemaHistory schemaHistory, Schema[] schemas, Database database, final Configuration configuration,
+                                    SchemaHistory schemaHistory, Database database, final Configuration configuration,
                                     MigrationVersion target, boolean outOfOrder, MigrationPattern[] cherryPick,
                                     boolean pending, boolean missing, boolean ignored, boolean future) {
         this.migrationResolver = migrationResolver;
@@ -157,7 +152,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         this.missing = missing;
         this.ignored = ignored || cherryPick != null;
         this.future = future;
-        this.schemas = schemas;
     }
 
     /**
@@ -404,9 +398,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             ));
         }
 
-        // Update whether all managed schemas are empty or not
-        allSchemasEmpty = Arrays.stream(schemas).allMatch(Schema::empty);
-
         // Set output
         Collections.sort(migrationInfos1);
         migrationInfos = migrationInfos1;
@@ -650,15 +641,18 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
      */
     public List<ValidateOutput> validate() {
         List<ValidateOutput> invalidMigrations = new ArrayList<>();
-        CommandResultFactory commandResultFactory = new CommandResultFactory();
 
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
             ErrorDetails validateError = migrationInfo.validate();
             if (validateError != null) {
-                invalidMigrations.add(commandResultFactory.createValidateOutput(migrationInfo, validateError));
+                invalidMigrations.add(CommandResultFactory.createValidateOutput(migrationInfo, validateError));
             }
         }
         return invalidMigrations;
+    }
+
+    public void setAllSchemasEmpty(Schema[] schemas) {
+        allSchemasEmpty = Arrays.stream(schemas).allMatch(Schema::empty);
     }
 
     @Override
@@ -667,8 +661,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     }
 
     public InfoResult getInfoResult(MigrationInfo[] infos) {
-        CommandResultFactory commandResultFactory = new CommandResultFactory();
-        return commandResultFactory.createInfoResult(this.context.getConfiguration(), this.database, infos, this.current(), this.allSchemasEmpty);
+        return CommandResultFactory.createInfoResult(this.context.getConfiguration(), this.database, infos, this.current(), this.allSchemasEmpty);
     }
 
 
