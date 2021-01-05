@@ -21,12 +21,15 @@ import org.flywaydb.core.internal.authentication.ExternalAuthFileReader;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class MySQLOptionFileReader implements ExternalAuthFileReader {
     private static final Log LOG = LogFactory.getLog(MySQLOptionFileReader.class);
@@ -42,6 +45,8 @@ public class MySQLOptionFileReader implements ExternalAuthFileReader {
     @Override
     public List<String> getAllContents() {
         List<String> fileContents = new ArrayList<>();
+
+
 
 
 

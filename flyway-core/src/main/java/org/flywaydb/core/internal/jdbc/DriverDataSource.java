@@ -115,8 +115,7 @@ public class DriverDataSource implements DataSource {
      * @param additionalProperties  The properties to pass to the connection.
      * @throws FlywayException when the datasource could not be created.
      */
-    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password,
-                            Map<String, String> additionalProperties) throws FlywayException {
+    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Map<String, String> additionalProperties) throws FlywayException {
         this(classLoader, driverClass, url, user, password, null, new Properties(), additionalProperties);
     }
 
@@ -138,8 +137,8 @@ public class DriverDataSource implements DataSource {
      * @param additionalProperties  The properties to pass to the connection.
      * @throws FlywayException      when the datasource could not be created.
      */
-    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Configuration configuration,
-                            Properties defaultProperties, Map<String, String> additionalProperties) throws FlywayException {
+    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Configuration configuration, Properties defaultProperties,
+                            Map<String, String> additionalProperties) throws FlywayException {
         this.classLoader = classLoader;
         this.url = detectFallbackUrl(url);
 
@@ -184,7 +183,10 @@ public class DriverDataSource implements DataSource {
 
         this.user = detectFallbackUser(user);
         this.password = detectFallbackPassword(password);
-        defaultProperties.putAll(type.getExternalAuthProperties(url, user));
+
+        if (type.externalAuthPropertiesRequired(url, user, password)) {
+            defaultProperties.putAll(type.getExternalAuthProperties(url, user));
+        }
     }
 
     /**
@@ -297,7 +299,6 @@ public class DriverDataSource implements DataSource {
     public Connection getConnection(String username, String password) throws SQLException {
         return getConnectionFromDriver(username, password);
     }
-
 
     /**
      * Build properties for the Driver, including the given user and password (if any),

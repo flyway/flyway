@@ -26,12 +26,17 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.license.FlywayTeamsUpgradeMessage;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.Types;
 import java.util.Properties;
 
 public class PostgreSQLDatabaseType extends DatabaseType {
+
+
+
+
     @Override
     public String getName() {
         return "PostgreSQL";
@@ -106,6 +111,16 @@ public class PostgreSQLDatabaseType extends DatabaseType {
     }
 
     @Override
+    public boolean externalAuthPropertiesRequired(String url, String username, String password) {
+
+        return super.externalAuthPropertiesRequired(url, username, password);
+
+
+
+
+    }
+
+    @Override
     public Properties getExternalAuthProperties(String url, String username) {
         PgpassFileReader pgpassFileReader = new PgpassFileReader();
 
@@ -115,6 +130,9 @@ public class PostgreSQLDatabaseType extends DatabaseType {
                     "use this for database authentication"));
         }
         return super.getExternalAuthProperties(url, username);
+
+
+
 
 
 

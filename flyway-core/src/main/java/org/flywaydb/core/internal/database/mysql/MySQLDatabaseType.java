@@ -27,6 +27,7 @@ import org.flywaydb.core.internal.license.FlywayTeamsUpgradeMessage;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.Types;
@@ -128,6 +129,16 @@ public class MySQLDatabaseType extends DatabaseType {
 
 
         return super.detectPasswordRequiredByUrl(url);
+    }
+
+    @Override
+    public boolean externalAuthPropertiesRequired(String url, String username, String password) {
+
+        return super.externalAuthPropertiesRequired(url, username, password);
+
+
+
+
     }
 
     @Override

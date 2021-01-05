@@ -542,7 +542,7 @@ public class Main {
 
 
 
-                && needsUser(url)) {
+                && needsUser(url, config.getOrDefault(ConfigUtils.PASSWORD, null))) {
             config.put(ConfigUtils.USER, console.readLine("Database user: "));
         }
 
@@ -559,9 +559,13 @@ public class Main {
     /**
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a username.
      */
-    private static boolean needsUser(String url) {
+    private static boolean needsUser(String url, String password) {
         DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
-        return databaseType.detectUserRequiredByUrl(url);
+        return databaseType.detectUserRequiredByUrl(url)
+
+
+
+                ;
     }
 
     /**

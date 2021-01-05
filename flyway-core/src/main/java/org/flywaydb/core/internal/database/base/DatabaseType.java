@@ -69,7 +69,6 @@ public abstract class DatabaseType {
 
 
 
-
     /**
      * Check if this database type should handle the given JDBC url
      * @param url The JDBC url.
@@ -135,11 +134,7 @@ public abstract class DatabaseType {
      * @param printInfo     Where the DB info should be printed in the logs.
      * @return The appropriate Database class.
      */
-    public Database createDatabase(
-            Configuration configuration, boolean printInfo,
-            JdbcConnectionFactory jdbcConnectionFactory,
-            StatementInterceptor statementInterceptor
-    ) {
+    public Database createDatabase(Configuration configuration, boolean printInfo, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         String databaseProductName = jdbcConnectionFactory.getProductName();
         if (printInfo) {
             LOG.info("Database: " + jdbcConnectionFactory.getJdbcUrl() + " (" + databaseProductName + ")");
@@ -164,11 +159,7 @@ public abstract class DatabaseType {
      * @param jdbcConnectionFactory The current connection factory.
      * @return The Database.
      */
-    public abstract Database createDatabase(
-            Configuration configuration,
-            JdbcConnectionFactory jdbcConnectionFactory,
-            StatementInterceptor statementInterceptor
-    );
+    public abstract Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor);
 
     /**
      * Initializes the Parser used by this Database Type.
@@ -176,11 +167,7 @@ public abstract class DatabaseType {
      * @param configuration The Flyway configuration.
      * @return The Parser.
      */
-    public abstract Parser createParser(
-            Configuration configuration
-            , ResourceProvider resourceProvider
-            , ParsingContext parsingContext
-    );
+    public abstract Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext);
 
     /**
      * Initializes the SqlScriptFactory used by this Database Type.
@@ -188,10 +175,7 @@ public abstract class DatabaseType {
      * @param configuration The Flyway configuration.
      * @return The SqlScriptFactory.
      */
-    public SqlScriptFactory createSqlScriptFactory(
-            final Configuration configuration,
-            final ParsingContext parsingContext) {
-
+    public SqlScriptFactory createSqlScriptFactory(final Configuration configuration, final ParsingContext parsingContext) {
         return new SqlScriptFactory() {
             @Override
             public SqlScript createSqlScript(LoadableResource resource, boolean mixed, ResourceProvider resourceProvider) {
@@ -210,11 +194,7 @@ public abstract class DatabaseType {
      * @param jdbcConnectionFactory The current connection factory.
      * @return The SqlScriptExecutorFactory.
      */
-    public SqlScriptExecutorFactory createSqlScriptExecutorFactory(
-            final JdbcConnectionFactory jdbcConnectionFactory,
-            final CallbackExecutor callbackExecutor,
-            final StatementInterceptor statementInterceptor
-    ) {
+    public SqlScriptExecutorFactory createSqlScriptExecutorFactory(final JdbcConnectionFactory jdbcConnectionFactory, final CallbackExecutor callbackExecutor, final StatementInterceptor statementInterceptor) {
         boolean supportsBatch = false;
 
 
@@ -342,6 +322,15 @@ public abstract class DatabaseType {
      */
     public boolean detectPasswordRequiredByUrl(String url) {
         return true;
+    }
+
+    /**
+     * Detects whether or not external authentication is required.
+     *
+     * @return true if external authentication is required, else false.
+     */
+    public boolean externalAuthPropertiesRequired(String url, String username, String password) {
+        return false;
     }
 
     /**
