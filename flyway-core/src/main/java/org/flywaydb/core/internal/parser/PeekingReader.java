@@ -378,16 +378,18 @@ public class PeekingReader extends FilterReader {
     }
 
     /**
-     * Reads all characters in this stream until this delimiting string has been encountered.
+     * Reads all characters in this stream until any of the delimiting strings is encountered.
      *
-     * @param str The delimiting string.
+     * @param strings The delimiting strings.
      * @return The string read, without the delimiting string.
      */
-    public String readUntilExcluding(String str) throws IOException {
+    public String readUntilExcluding(String... strings) throws IOException {
         StringBuilder result = new StringBuilder();
         do {
-            if (peek(str)) {
-                break;
+            for (String str : strings) {
+                if (peek(str)) {
+                    return result.toString();
+                }
             }
             int r = read();
             if (r == -1) {

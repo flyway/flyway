@@ -511,10 +511,21 @@ public abstract class Parser {
             return new Token(TokenType.COMMENT, pos, line, col, text, text, context.getParensDepth());
         }
         if (peek.startsWith("/*")) {
+            int commentDepth = 0;
             reader.swallow(2);
-            String text = reader.readUntilExcluding("*/");
+            StringBuilder text = new StringBuilder(reader.readUntilExcluding("*/", "/*"));
+            // handles reading nested comments
+            while (reader.peek("/*") || commentDepth > 0) {
+                if (reader.peek("/*")) {
+                    commentDepth++;
+                } else {
+                    commentDepth--;
+                }
+                reader.swallow(2);
+                text.append(reader.readUntilExcluding("*/", "/*"));
+            }
             reader.swallow(2);
-            return new Token(TokenType.COMMENT, pos, line, col, text, text, context.getParensDepth());
+            return new Token(TokenType.COMMENT, pos, line, col, text.toString(), text.toString(), context.getParensDepth());
         }
         if (Character.isDigit(c)) {
             String text = reader.readNumeric();
