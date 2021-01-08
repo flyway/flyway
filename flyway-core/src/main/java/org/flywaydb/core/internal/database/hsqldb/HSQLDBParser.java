@@ -19,10 +19,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class HSQLDBParser extends Parser {
     /**
@@ -65,23 +62,32 @@ public class HSQLDBParser extends Parser {
     }
 
     @Override
+    protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+        String tokenText = token.getText();
+        if (tokenText != null && getValidKeywords().contains(tokenText.toUpperCase(Locale.ENGLISH)) && token.getParensDepth() == 0) {
+            return true;
+        }
+        return super.shouldAdjustBlockDepth(context, token);
+    }
+
+    @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
         int lastKeywordIndex = getLastKeywordIndex(tokens);
         Token previousKeyword = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex) : null;
         String keywordText = keyword.getText();
-        String previousKeywordText = previousKeyword != null ? previousKeyword.getText() : "";
+        String previousKeywordText = previousKeyword != null ? previousKeyword.getText().toUpperCase(Locale.ENGLISH) : "";
 
-        if ("BEGIN".equals(keywordText)
-                || ((("IF".equals(keywordText) && !CONDITIONALLY_CREATABLE_OBJECTS.contains(previousKeywordText))  // excludes the IF in eg. CREATE TABLE IF EXISTS
-                || "FOR".equals(keywordText)
-                || "CASE".equals(keywordText))
-                && previousKeyword != null && !"END".equals(previousKeywordText))) {
+        if ("BEGIN".equalsIgnoreCase(keywordText)
+                || ((("IF".equalsIgnoreCase(keywordText) && !CONDITIONALLY_CREATABLE_OBJECTS.contains(previousKeywordText))  // excludes the IF in eg. CREATE TABLE IF EXISTS
+                || "FOR".equalsIgnoreCase(keywordText)
+                || "CASE".equalsIgnoreCase(keywordText))
+                && previousKeyword != null && !"END".equalsIgnoreCase(previousKeywordText))) {
             context.increaseBlockDepth(keywordText);
-        } else if (("EACH".equals(keywordText) || "SQLEXCEPTION".equals(keywordText))
+        } else if (("EACH".equalsIgnoreCase(keywordText) || "SQLEXCEPTION".equalsIgnoreCase(keywordText))
                 && previousKeyword != null
-                && "FOR".equals(previousKeywordText)) {
+                && "FOR".equalsIgnoreCase(previousKeywordText)) {
             context.decreaseBlockDepth();
-        } else if ("END".equals(keywordText)) {
+        } else if ("END".equalsIgnoreCase(keywordText)) {
             context.decreaseBlockDepth();
         }
     }

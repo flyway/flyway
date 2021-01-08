@@ -305,7 +305,7 @@ public abstract class Parser {
     }
 
     protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
-        return (token.getType() == TokenType.KEYWORD && token.getParensDepth() == 0);
+        return token.getType() == TokenType.KEYWORD && token.getParensDepth() == 0;
     }
 
     /**
