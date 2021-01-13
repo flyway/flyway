@@ -101,7 +101,7 @@ public class ConfigUtils {
 
     public static final String VAULT_URL = "flyway.vault.url";
     public static final String VAULT_TOKEN = "flyway.vault.token";
-    public static final String VAULT_SECRET = "flyway.vault.secret";
+    public static final String VAULT_SECRETS = "flyway.vault.secrets";
 
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
@@ -331,8 +331,8 @@ public class ConfigUtils {
         if ("FLYWAY_VAULT_TOKEN".equals(key)) {
             return VAULT_TOKEN;
         }
-        if ("FLYWAY_VAULT_SECRET".equals(key)) {
-            return VAULT_SECRET;
+        if ("FLYWAY_VAULT_SECRETS".equals(key)) {
+            return VAULT_SECRETS;
         }
 
         // Command-line specific

@@ -666,7 +666,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
-     * The REST API URL pointing the location of your secret in Vault
+     *
+     * The REST API URL of your Vault server, including the API version.
+     * Currently only supports API version v1.
+     * Example: http://localhost:8200/v1/
      *
      * <p><i>Flyway Teams only</i></p>
      */
@@ -674,7 +677,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     public String vaultUrl;
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
-     * The Vault token required to access your secret
+     *
+     * The Vault token required to access your secrets.
      *
      * <p><i>Flyway Teams only</i></p>
      */
@@ -682,12 +686,21 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     public String vaultToken;
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
-     * The name of your secret in Vault
+     *
+     * A comma-separated list of paths to secrets in Vault that contain Flyway
+     * configurations. This must start with the name of the engine followed by
+     * '/data/' and end with the name of the secret.
+     * The resulting form is '{engine}/data/{path}/{to}/{secret_name}'.
+     *
+     * If multiple secrets specify the same configuration parameter, then the last
+     * secret takes precedence.
+     *
+     * Example: secret/data/flyway/flywayConfig
      *
      * <p><i>Flyway Teams only</i></p>
      */
-    @Parameter(property = ConfigUtils.VAULT_SECRET)
-    public String vaultSecret;
+    @Parameter
+    public String[] vaultSecrets;
 
     /**
      * The id of the server tag in settings.xml (default: flyway-db)<br/>
@@ -855,7 +868,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
             putIfSet(conf, ConfigUtils.VAULT_URL, vaultUrl);
             putIfSet(conf, ConfigUtils.VAULT_TOKEN, vaultToken);
-            putIfSet(conf, ConfigUtils.VAULT_SECRET, vaultSecret);
+            putArrayIfSet(conf, ConfigUtils.VAULT_SECRETS, vaultSecrets);
 
             putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey);
 

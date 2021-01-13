@@ -374,8 +374,8 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public String getVaultSecret() {
-        return config.getVaultSecret();
+    public String[] getVaultSecrets() {
+        return config.getVaultSecrets();
     }
 
     /**
@@ -1320,11 +1320,14 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
-     * The REST API URL pointing the location of your secret in Vault
+     *
+     * The REST API URL of your Vault server, including the API version.
+     * Currently only supports API version v1.
+     * Example: http://localhost:8200/v1/
      *
      * <p><i>Flyway Teams only</i></p>
      *
-     * @param vaultUrl The REST API URL pointing the location of your secret in Vault
+     * @param vaultUrl The REST API URL of your Vault server
      */
     public FluentConfiguration vaultUrl(String vaultUrl) {
         config.setVaultUrl(vaultUrl);
@@ -1333,11 +1336,12 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
-     * The Vault token required to access your secret
+     *
+     * The Vault token required to access your secrets.
      *
      * <p><i>Flyway Teams only</i></p>
      *
-     * @param vaultToken The Vault token required to access your secret
+     * @param vaultToken The Vault token required to access your secrets
      */
     public FluentConfiguration vaultToken(String vaultToken) {
         config.setVaultToken(vaultToken);
@@ -1346,14 +1350,23 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
-     * The name of your secret in Vault
+     *
+     * A comma-separated list of paths to secrets in Vault that contain Flyway
+     * configurations. This must start with the name of the engine followed by
+     * '/data/' and end with the name of the secret.
+     * The resulting form is '{engine}/data/{path}/{to}/{secret_name}'.
+     *
+     * If multiple secrets specify the same configuration parameter, then the last
+     * secret takes precedence.
+     *
+     * Example: secret/data/flyway/flywayConfig
      *
      * <p><i>Flyway Teams only</i></p>
      *
-     * @param vaultSecret The name of your secret in Vault
+     * @param vaultSecrets A list of paths to secrets in Vault
      */
-    public FluentConfiguration vaultSecret(String vaultSecret) {
-        config.setVaultSecret(vaultSecret);
+    public FluentConfiguration vaultSecrets(String... vaultSecrets) {
+        config.setVaultSecrets(vaultSecrets);
         return this;
     }
 
