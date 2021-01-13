@@ -62,6 +62,17 @@ public class HSQLDBParser extends Parser {
     }
 
     @Override
+    protected int getLastKeywordIndex(List<Token> tokens, int endIndex) {
+        for (int i = endIndex - 1; i >= 0; i--) {
+            String tokenText = tokens.get(i).getText();
+            if (tokenText != null && getValidKeywords().contains(tokenText.toUpperCase(Locale.ENGLISH))) {
+                return i;
+            }
+        }
+        return super.getLastKeywordIndex(tokens, endIndex);
+    }
+
+    @Override
     protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
         String tokenText = token.getText();
         if (tokenText != null && getValidKeywords().contains(tokenText.toUpperCase(Locale.ENGLISH)) && token.getParensDepth() == 0) {

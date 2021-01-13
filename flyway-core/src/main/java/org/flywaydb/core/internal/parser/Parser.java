@@ -345,11 +345,11 @@ public abstract class Parser {
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
     }
 
-    protected static int getLastKeywordIndex(List<Token> tokens) {
+    protected int getLastKeywordIndex(List<Token> tokens) {
         return getLastKeywordIndex(tokens, tokens.size());
     }
 
-    protected static int getLastKeywordIndex(List<Token> tokens, int endIndex) {
+    protected int getLastKeywordIndex(List<Token> tokens, int endIndex) {
         for (int i = endIndex - 1; i >= 0; i--) {
             Token token = tokens.get(i);
             if (token.getType() == TokenType.KEYWORD) {
