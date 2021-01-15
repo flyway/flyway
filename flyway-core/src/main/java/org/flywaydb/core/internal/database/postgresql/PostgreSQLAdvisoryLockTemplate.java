@@ -82,7 +82,17 @@ public class PostgreSQLAdvisoryLockTemplate {
             throw rethrow;
         } finally {
             try {
-                jdbcTemplate.execute("SELECT pg_advisory_unlock(" + lockNum + ")");
+                List<Boolean> results = jdbcTemplate.query(
+                    "SELECT pg_advisory_unlock(" + lockNum + ")",
+                    new RowMapper<Boolean>() {
+                        @Override
+                        public Boolean mapRow(ResultSet rs) throws SQLException {
+                            return rs.getBoolean("pg_advisory_unlock");
+                        }
+                    });
+                if (!(results.size() == 1 && results.get(0))) {
+                    LOG.error("Unable to release PostgreSQL advisory lock");
+                }
             } catch (SQLException e) {
                 if (rethrow == null) {
                     throw new FlywaySqlException("Unable to release PostgreSQL advisory lock", e);
