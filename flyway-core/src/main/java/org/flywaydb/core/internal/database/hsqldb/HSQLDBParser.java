@@ -95,10 +95,9 @@ public class HSQLDBParser extends Parser {
                 && previousKeyword != null && !"END".equalsIgnoreCase(previousKeywordText))) {
             context.increaseBlockDepth(keywordText);
         } else if (("EACH".equalsIgnoreCase(keywordText) || "SQLEXCEPTION".equalsIgnoreCase(keywordText))
-                && previousKeyword != null
-                && "FOR".equalsIgnoreCase(previousKeywordText)) {
+                && previousKeyword != null && "FOR".equalsIgnoreCase(previousKeywordText) && context.getBlockDepth() > 0) {
             context.decreaseBlockDepth();
-        } else if ("END".equalsIgnoreCase(keywordText)) {
+        } else if ("END".equalsIgnoreCase(keywordText) && context.getBlockDepth() > 0) {
             context.decreaseBlockDepth();
         }
     }
