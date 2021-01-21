@@ -1945,23 +1945,48 @@ public class ClassicConfiguration implements Configuration {
     }
 
     public void setConjurUrl(String conjurUrl) {
-        this.conjurUrl = conjurUrl;
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("conjurUrl");
+
+
+
+
     }
 
     public void setConjurToken(String conjurToken) {
-        this.conjurToken = conjurToken;
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("conjurToken");
+
+
+
+
     }
 
     public void setVaultUrl(String vaultUrl) {
-        this.vaultUrl = vaultUrl;
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultUrl");
+
+
+
+
     }
 
     public void setVaultToken(String vaultToken) {
-        this.vaultToken = vaultToken;
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultToken");
+
+
+
+
     }
 
     public void setVaultSecrets(String... vaultSecrets) {
-        this.vaultSecrets = vaultSecrets;
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultSecrets");
+
+
+
+
     }
 
     /**
