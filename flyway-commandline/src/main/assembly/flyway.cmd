@@ -64,6 +64,9 @@ IF NOT [%1]==[] (
 if "%FLYWAY_EDITION%"=="" (
   set FLYWAY_EDITION=community
 )
+if "%FLYWAY_EDITION%"=="pro" (
+  set FLYWAY_EDITION=enterprise
+)
 if "%FLYWAY_EDITION%"=="teams" (
   set FLYWAY_EDITION=enterprise
 )

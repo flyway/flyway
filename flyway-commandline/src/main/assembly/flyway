@@ -63,7 +63,7 @@ set -- "${POSITIONAL[@]}"
 if [ -z "$FLYWAY_EDITION" ]; then
   FLYWAY_EDITION=community
 fi
-if [ "$FLYWAY_EDITION" == "teams" ]; then
+if [ "$FLYWAY_EDITION" == "pro" ] || [ "$FLYWAY_EDITION" == "teams" ]; then
   FLYWAY_EDITION=enterprise
 fi
 
