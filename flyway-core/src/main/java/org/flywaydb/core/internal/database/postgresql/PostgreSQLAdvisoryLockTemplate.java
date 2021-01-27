@@ -52,7 +52,7 @@ public class PostgreSQLAdvisoryLockTemplate {
     /**
      * Creates a new advisory lock template for this connection.
      *
-     * @param jdbcTemplate The jdbcTemplate for the connection.
+     * @param jdbcTemplate  The jdbcTemplate for the connection.
      * @param discriminator A number to discriminate between locks.
      */
     PostgreSQLAdvisoryLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {
@@ -82,7 +82,10 @@ public class PostgreSQLAdvisoryLockTemplate {
             throw rethrow;
         } finally {
             try {
-                jdbcTemplate.execute("SELECT pg_advisory_unlock(" + lockNum + ")");
+                boolean unlockResult = jdbcTemplate.queryForBoolean("SELECT pg_advisory_unlock(" + lockNum + ")");
+                if (!unlockResult) {
+                    throw new FlywayException("Unable to release PostgreSQL advisory lock");
+                }
             } catch (SQLException e) {
                 if (rethrow == null) {
                     throw new FlywaySqlException("Unable to release PostgreSQL advisory lock", e);
