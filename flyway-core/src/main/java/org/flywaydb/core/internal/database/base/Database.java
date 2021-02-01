@@ -463,10 +463,11 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     /**
      * Cleans all the objects in this database that need to be done after cleaning schemas.
+     * @param schemas The list of schemas managed by Flyway
      */
-    public void cleanPostSchemas() {
+    public void cleanPostSchemas(Schema[] schemas) {
         try {
-            doCleanPostSchemas();
+            doCleanPostSchemas(schemas);
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to clean schema " + this, e);
         }
@@ -476,8 +477,9 @@ public abstract class Database<C extends Connection> implements Closeable {
      * Cleans all the objects in this database that need to be done after cleaning schemas.
      *
      * @throws SQLException when the clean failed.
+     * @param schemas The list of schemas managed by Flyway
      */
-    protected void doCleanPostSchemas() throws SQLException {
+    protected void doCleanPostSchemas(Schema[] schemas) throws SQLException {
         // Default is to do nothing
     }
 }

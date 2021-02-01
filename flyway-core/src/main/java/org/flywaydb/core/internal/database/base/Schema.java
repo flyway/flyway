@@ -61,7 +61,7 @@ public abstract class Schema<D extends Database, T extends Table> {
     }
 
     /**
-     * @return The name of the schema, quoted for the database it lives in.
+     * @return The name of the schema.
      */
     public String getName() {
         return name;
