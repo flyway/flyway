@@ -25,11 +25,11 @@ import java.sql.SQLException;
 public interface DatabaseExecutionStrategy {
 
     /**
-     * Execute the given callable, using the defined strategy.
-     * @param callable The SQL call to execute
-     * @param <T> The return type of the SQL call
-     * @return The object returned by the SQL call
-     * @throws SQLException
+     * Execute the given callable using the defined strategy.
+     *
+     * @param callable The SQL callable to execute.
+     * @param <T>      The return type of the SQL callable.
+     * @return The object returned by the SQL callable.
      */
     <T> T execute(final SqlCallable<T> callable) throws SQLException;
 }

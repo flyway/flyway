@@ -32,7 +32,7 @@ public class InsertRowLock {
     private static final Random random = new Random();
 
     /**
-     * A random string, used as an ID of this instance of Flyway.
+     * A random string used as an ID for this instance of Flyway.
      */
     private final String tableLockString = getNextRandomString();
     private final JdbcTemplate jdbcTemplate;
@@ -80,31 +80,27 @@ public class InsertRowLock {
                 booleanTrue
         );
 
-        // Insert the locking row - the primary keyness of installed_rank will prevent us having two.
+        // Insert the locking row - the primary key-ness of 'installed_rank' will prevent us having two
         Results results = jdbcTemplate.executeStatement(insertStatement);
 
-        // Succeeded if no errors.
+        // Succeed if there were no errors
         return results.getException() == null;
     }
 
     public void doUnlock(String deleteLockTemplate) throws SQLException {
         stopLockWatchingThread();
-        String deleteLock = String.format(deleteLockTemplate.replace("?", "%s"), tableLockString);
-
-        // Remove the locking row
-        jdbcTemplate.execute(deleteLock);
+        String deleteLockStatement = String.format(deleteLockTemplate.replace("?", "%s"), tableLockString);
+        jdbcTemplate.execute(deleteLockStatement);
     }
 
     private String getNextRandomString(){
-        BigInteger bInt = new BigInteger(128, random);
-        return bInt.toString(16);
+        return new BigInteger(128, random).toString(16);
     }
 
     private void startLockWatchingThread(String updateLockStatement) {
         TimerTask lockWatcherTask = new TimerTask() {
             @Override
             public void run() {
-                // update the locking row
                 LOG.debug("Updating lock in Flyway schema history table");
                 jdbcTemplate.executeStatement(updateLockStatement);
             }
