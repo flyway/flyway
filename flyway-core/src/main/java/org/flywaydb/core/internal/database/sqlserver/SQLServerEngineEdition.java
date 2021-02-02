@@ -28,7 +28,8 @@ public enum SQLServerEngineEdition {
     EXPRESS(4),
     SQL_DATABASE(5),
     SQL_DATA_WAREHOUSE(6),
-    MANAGED_INSTANCE(8);
+    MANAGED_INSTANCE(8),
+    AZURE_SQL_EDGE(9);
 
     private final int code;
 
