@@ -26,9 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
 
 public class ChecksumCalculator {
-    private ChecksumCalculator() {
-        // Private constructor to prevent instantiation
-    }
+    private ChecksumCalculator() { }
 
     /**
      * Calculates the checksum of these resources. The checksum is encoding and line-ending independent.
@@ -80,12 +78,6 @@ public class ChecksumCalculator {
 
         return (int) crc32.getValue();
     }
-
-
-
-
-
-
 
 
 
