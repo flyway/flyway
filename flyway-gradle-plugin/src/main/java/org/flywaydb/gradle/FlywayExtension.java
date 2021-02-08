@@ -15,32 +15,30 @@
  */
 package org.flywaydb.gradle;
 
-import org.flywaydb.core.api.MigrationVersion;
-
 import java.util.Map;
 
 /**
- * The flyway's configuration properties.
- * <p>More info: <a href="https://flywaydb.org/documentation/gradle">https://flywaydb.org/documentation/gradle</a></p>
+ * Flyway's configuration properties.
+ * More info: <a href="https://flywaydb.org/documentation/gradle">https://flywaydb.org/documentation/gradle</a>
  */
 public class FlywayExtension {
     /**
-     * The fully qualified classname of the jdbc driver to use to connect to the database
+     * The fully qualified classname of the JDBC driver to use to connect to the database.
      */
     public String driver;
 
     /**
-     * The jdbc url to use to connect to the database
+     * The JDBC url to use to connect to the database.
      */
     public String url;
 
     /**
-     * The user to use to connect to the database
+     * The user to use to connect to the database.
      */
     public String user;
 
     /**
-     * The password to use to connect to the database
+     * The password to use to connect to the database.
      */
     public String password;
 
@@ -53,26 +51,25 @@ public class FlywayExtension {
     public int connectRetries;
 
     /**
-     * The SQL statements to run to initialize a new database connection immediately after opening it.
-     * (default: {@code null})
+     * The SQL statements to run to initialize a new database connection immediately after opening it. (default: {@code null})
      * <p>Also configurable with Gradle or System Property: ${flyway.initSql}</p>
      */
     public String initSql;
 
     /**
-     * <p>The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)</p><p> By default
-     * (single-schema mode) the schema history table is placed in the default schema for the connection provided by the
-     * datasource. </p> <p> When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is
-     * placed in the first schema of the list. </p>
+     * The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
+     * By default (single-schema mode) the schema history table is placed in the default schema for the connection
+     * provided by the datasource. When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema
+     * history table is placed in the first schema of the list.
      * <p>Also configurable with Gradle or System Property: ${flyway.table}</p>
      */
     public String table;
 
     /**
-     * <p>The tablespace where to create the schema history table that will be used by Flyway.</p>
-     * <p>If not specified, Flyway uses the default tablespace for the database connection.
+     * The tablespace where to create the schema history table that will be used by Flyway.
+     * If not specified, Flyway uses the default tablespace for the database connection.
      * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply
-     * ignored for all others.</p>
+     * ignored for all others.
      * <p>Also configurable with Gradle or System Property: ${flyway.tablespace}</p>
      */
     public String tablespace;
@@ -116,93 +113,90 @@ public class FlywayExtension {
 
     /**
      * Locations to scan recursively for migrations.
-     * <p>The location type is determined by its prefix.
+     * The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both SQL and Java-based migrations.
      * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
-     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.
      * (default: filesystem:src/main/resources/db/migration)
      */
     public String[] locations;
 
     /**
      * The fully qualified class names of the custom MigrationResolvers to be used in addition (default)
-     * or as a replacement (using skipDefaultResolvers) to the built-in ones for resolving Migrations to
-     * apply.
-     * <p>(default: none)</p>
+     * or as a replacement (using skipDefaultResolvers) to the built-in ones for resolving Migrations to apply.
+     * (default: none)<
      */
     public String[] resolvers;
 
     /**
      * If set to true, default built-in resolvers will be skipped, only custom migration resolvers will be used.
-     * <p>(default: false)</p>
+     * (default: false)
      */
     public Boolean skipDefaultResolvers;
 
     /**
      * The file name prefix for versioned SQL migrations. (default: V)
-     * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
+     * Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to V1_1__My_description.sql
      * <p>Also configurable with Gradle or System Property: ${flyway.sqlMigrationPrefix}</p>
      */
     public String sqlMigrationPrefix;
 
     /**
      * The file name prefix for undo SQL migrations. (default: U)
-     * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
-     * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to U1.1__My_description.sql</p>
-     * <p><i>Flyway Teams only</i></p>
+     * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
+     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to U1.1__My_description.sql
+     * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.undoSqlMigrationPrefix}</p>
      */
     public String undoSqlMigrationPrefix;
 
     /**
      * The file name prefix for repeatable SQL migrations (default: R).
-     * <p>Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to R__My_description.sql</p>
+     * Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to R__My_description.sql
      * <p>Also configurable with Gradle or System Property: ${flyway.repeatableSqlMigrationPrefix}</p>
      */
     public String repeatableSqlMigrationPrefix;
 
     /**
      * The file name prefix for Sql migrations
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
+     * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to V1_1__My_description.sql
      */
     public String sqlMigrationSeparator;
 
     /**
      * The file name suffixes for SQL migrations. (default: .sql)
-     * <p>SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
-     * <p>Multiple suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as
-     * editors with specific file associations.</p>
+     * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to V1_1__My_description.sql
+     * Multiple suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as
+     * editors with specific file associations.
      * <p>Also configurable with Gradle or System Property: ${flyway.sqlMigrationSuffixes}</p>
      */
     public String[] sqlMigrationSuffixes;
 
     /**
-     * The encoding of Sql migrations
+     * The encoding of SQL migrations.
      */
     public String encoding;
 
     /**
-     * The maximum number of retries when trying to obtain a lock.
-     * (default: 50)
+     * The maximum number of retries when trying to obtain a lock. (default: 50)
      */
     public Integer lockRetryCount;
 
     /**
-     * Placeholders to replace in Sql migrations
+     * Placeholders to replace in SQL migrations.
      */
     public Map<Object, Object> placeholders;
 
     /**
-     * Properties to pass to the JDBC driver object
-     *
+     * Properties to pass to the JDBC driver object.
+     * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.jdbcProperties}</p>
-     * <p><i>Flyway Teams only</i></p>
      */
     public Map<Object, Object> jdbcProperties;
 
@@ -212,12 +206,12 @@ public class FlywayExtension {
     public Boolean placeholderReplacement;
 
     /**
-     * The prefix of every placeholder
+     * The prefix of every placeholder.
      */
     public String placeholderPrefix;
 
     /**
-     * The suffix of every placeholder
+     * The suffix of every placeholder.
      */
     public String placeholderSuffix;
 
@@ -237,41 +231,38 @@ public class FlywayExtension {
      * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
      * Migrations not in this list will be ignored.
      * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      */
     public String[] cherryPick;
 
     /**
-     * An array of fully qualified FlywayCallback class implementations, or packages to scan for FlywayCallback implementations
+     * An array of fully qualified FlywayCallback class implementations, or packages to scan for FlywayCallback implementations.
      */
     public String[] callbacks;
 
     /**
      * If set to true, default built-in callbacks will be skipped, only custom migration callbacks will be used.
-     * <p>(default: false)</p>
+     * (default: false)
      */
     public Boolean skipDefaultCallbacks;
 
     /**
-     * Allows migrations to be run "out of order"
+     * Allows migrations to be run "out of order".
      */
     public Boolean outOfOrder;
 
     /**
-     * <p>
      * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
      * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
      * just want the schema history table to reflect this.
-     * </p>
-     * <p>
+     *
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
-     * </p>
      */
     public Boolean skipExecutingMigrations;
 
     /**
      * Whether Flyway should output a table with the results of queries when executing migrations (default: true).
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.outputQueryResults}</p>
      */
     public Boolean outputQueryResults;
@@ -283,11 +274,11 @@ public class FlywayExtension {
 
     /**
      * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br>
-     * <p> This is exclusively intended as a convenience for development. even though we
+     * This is exclusively intended as a convenience for development. even though we
      * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
      * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
-     * the next migration will bring you back to the state checked into SCM.</p>
-     * <p><b>Warning ! Do not enable in production !</b></p><br>
+     * the next migration will bring you back to the state checked into SCM.
+     * <b>Warning! Do not enable in production!</b>
      * <p>Also configurable with Gradle or System Property: ${flyway.cleanOnValidationError}</p>
      */
     public Boolean cleanOnValidationError;
@@ -342,30 +333,27 @@ public class FlywayExtension {
     /**
      * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
      * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
-     *{@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
+     * {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
      * <p>Also configurable with Gradle or System Property: ${flyway.validateMigrationNaming}</p>
      */
     public Boolean validateMigrationNaming;
 
     /**
      * Whether to disable clean. (default: {@code false})
-     * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     * This is especially useful for production environments where running clean can be quite a career limiting move.
      */
     public Boolean cleanDisabled;
 
     /**
-     * <p>
      * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
      * This schema will then be baselined with the {@code baselineVersion} before executing the migrations.
      * Only migrations above {@code baselineVersion} will then be applied.
-     * </p>
-     * <p>
+     *
      * This is useful for initial Flyway production deployments on projects with an existing DB.
-     * </p>
-     * <p>
+     *
      * Be careful when enabling this as it removes the safety net that ensures
      * Flyway does not migrate the wrong database in case of a configuration mistake!
-     * </p>
+     *
      * <p>{@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})</p>
      */
     public Boolean baselineOnMigrate;
@@ -374,11 +362,11 @@ public class FlywayExtension {
      * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
      * automatically causes the entire affected migration to be run without a transaction.
      *
-     * <p>Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
-     * statements that do not run at all within a transaction.</p>
-     * <p>This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
+     * Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
+     * statements that do not run at all within a transaction.
+     * This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
      * DDL statement was run within a transaction, the database will issue an implicit commit before and after
-     * its execution.</p>
+     * its execution.
      * <p>{@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})</p>
      */
     public Boolean mixed;
@@ -426,8 +414,8 @@ public class FlywayExtension {
      * code details) instead of warnings, the following errorOverride can be used: {@code S0001:0:I-}</p>
      * <p>Example 3: to force all errors with SQL error code 123 to be treated as warnings instead,
      * the following errorOverride can be used: {@code *:123:W}</p>
+     * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.errorOverrides}</p>
-     * <p><i>Flyway Teams only</i></p>
      */
     public String[] errorOverrides;
 
@@ -437,8 +425,8 @@ public class FlywayExtension {
      * Paths starting with s3: point to a bucket in AWS S3, which must exist. They are in the format s3:<bucket>(/optionalfolder/subfolder)/filename.sql
      * Paths starting with gcs: point to a bucket in Google Cloud Storage, which must exist. They are in the format gcs:<bucket>(/optionalfolder/subfolder)/filename.sql
      * <p>{@code null} to execute the SQL statements directly against the database. (default: {@code null})</p>
+     * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.dryRunOutput}</p>
-     * <p><i>Flyway Teams only</i></p>
      */
     public String dryRunOutput;
 
@@ -447,8 +435,8 @@ public class FlywayExtension {
      * once. Instead each statement is loaded individually. This is particularly useful for very large SQL migrations
      * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
      * (default: {@code false}
+     * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.stream}</p>
-     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean stream;
 
@@ -459,33 +447,33 @@ public class FlywayExtension {
      * reference data, as this can dramatically reduce the network overhead. This is supported for INSERT, UPDATE,
      * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
      * (default: {@code false})
+     * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.batch}</p>
-     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean batch;
 
     /**
      * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
      * (default: {@code false})
+     * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.oracle.sqlplus}</p>
-     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean oracleSqlplus;
 
     /**
      * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
      * it doesn't yet support. (default: {@code false})
+     * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.oracle.sqlplusWarn}</p>
-     * <p><i>Flyway Teams only</i></p>
      */
     public Boolean oracleSqlplusWarn;
 
     /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
-     * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
+     * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
      * to try out Flyway Teams Edition features free for 30 days.
+     * <i>Flyway Teams only</i>
      * <p>Also configurable with Gradle or System Property: ${flyway.licenseKey}</p>
-     * <p><i>Flyway Teams only</i></p>
      */
     public String licenseKey;
 
@@ -506,30 +494,30 @@ public class FlywayExtension {
     /**
      * The working directory to consider when dealing with relative paths for both config files and locations.
      * (default: basedir, the directory where the POM resides)
-     * <p/>
      * <p>Also configurable with Gradle or System Property: ${flyway.workingDirectory}</p>
      */
     public String workingDirectory;
 
     /**
-     * Whether Flyway should attempt to create the schemas specified in the schemas property
-     *
+     * Whether Flyway should attempt to create the schemas specified in the schemas propert
      * <p>Also configurable with Gradle or System Property: ${flyway.createSchemas}</p>
      */
     public Boolean createSchemas;
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
+     *
      * The REST API URL pointing to your secret in Conjur
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      */
     public String conjurUrl;
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
+     *
      * The Conjur authorization token required to access your secret
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      */
     public String conjurToken;
 
@@ -540,7 +528,7 @@ public class FlywayExtension {
      * Currently only supports API version v1.
      * Example: http://localhost:8200/v1/
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      */
     public String vaultUrl;
     /**
@@ -548,7 +536,7 @@ public class FlywayExtension {
      *
      * The Vault token required to access your secrets.
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      */
     public String vaultToken;
     /**
@@ -564,7 +552,7 @@ public class FlywayExtension {
      *
      * Example: secret/data/flyway/flywayConfig
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      */
     public String[] vaultSecrets;
 }

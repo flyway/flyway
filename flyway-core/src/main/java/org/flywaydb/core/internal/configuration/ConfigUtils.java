@@ -30,15 +30,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Configuration-related utilities.
- */
 public class ConfigUtils {
     private static final Log LOG = LogFactory.getLog(ConfigUtils.class);
 
-    /**
-     * The default configuration file name.
-     */
     public static final String CONFIG_FILE_NAME = "flyway.conf";
     public static final String CONFIG_FILES = "flyway.configFiles";
     public static final String CONFIG_FILE_ENCODING = "flyway.configFileEncoding";
@@ -115,9 +109,7 @@ public class ConfigUtils {
     // Gradle specific
     public static final String CONFIGURATIONS = "flyway.configurations";
 
-    private ConfigUtils() {
-        // Utility class
-    }
+    private ConfigUtils() { }
 
     /**
      * Converts Flyway-specific environment variables to their matching properties.
@@ -354,8 +346,8 @@ public class ConfigUtils {
      * $user.home$/flyway.conf
      * $workingDirectory$/flyway.conf
      *
-     * @param encoding the conf file encoding.
-     * @throws FlywayException when the configuration failed.
+     * @param encoding The conf file encoding.
+     * @throws FlywayException When the configuration failed.
      */
     public static Map<String, String> loadDefaultConfigurationFiles(File installationDir, String encoding) {
         Map<String, String> configMap = new HashMap<>();
@@ -373,7 +365,7 @@ public class ConfigUtils {
      * @param encoding      The encoding of the configuration file.
      * @param failIfMissing Whether to fail if the file is missing.
      * @return The properties from the configuration file. An empty Map if none.
-     * @throws FlywayException when the configuration file could not be loaded.
+     * @throws FlywayException When the configuration file could not be loaded.
      */
     public static Map<String, String> loadConfigurationFile(File configFile, String encoding, boolean failIfMissing) throws FlywayException {
         String errorMessage = "Unable to load config file: " + configFile.getAbsolutePath();
@@ -438,7 +430,7 @@ public class ConfigUtils {
      *
      * @param reader The reader used to read the configuration.
      * @return The properties from the configuration file. An empty Map if none.
-     * @throws FlywayException when the configuration could not be read.
+     * @throws FlywayException When the configuration could not be read.
      */
     public static Map<String, String> loadConfigurationFromReader(Reader reader) throws FlywayException {
         try {
@@ -607,7 +599,7 @@ public class ConfigUtils {
      * @param config The config.
      * @param key    The property name.
      * @return The property value as an integer if it exists, otherwise <code>null</code>.
-     * @throws FlywayException when the property value is not a valid integer.
+     * @throws FlywayException When the property value is not a valid integer.
      */
     public static Integer removeInteger(Map<String, String> config, String key) {
         String value = config.remove(key);
