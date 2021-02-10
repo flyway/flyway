@@ -30,6 +30,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.isMultilineBooleanExpression;
+
 public class ConfigUtils {
     private static final Log LOG = LogFactory.getLog(ConfigUtils.class);
 
@@ -428,7 +430,6 @@ public class ConfigUtils {
     /**
      * Reads the configuration from a Reader.
      *
-     * @param reader The reader used to read the configuration.
      * @return The properties from the configuration file. An empty Map if none.
      * @throws FlywayException When the configuration could not be read.
      */
@@ -442,33 +443,34 @@ public class ConfigUtils {
     }
 
     public static Map<String, String> loadConfigurationFromString(String configuration) throws IOException {
-        String[] lines = configuration.split("\n");
+        String[] lines = configuration.replace("\r\n", "\n").split("\n");
 
         StringBuilder confBuilder = new StringBuilder();
         for (int i = 0; i < lines.length; i++) {
-            String line = lines[i];
-            String replacedLine = line.trim().replace("\\", "\\\\");
+            String replacedLine = lines[i].trim().replace("\\", "\\\\");
 
             // if the line ends in a \\, then it may be a multiline property
             if (replacedLine.endsWith("\\\\")) {
-
-                // if we arent the last line
+                // if we aren't the last line
                 if (i < lines.length-1) {
-                    // look ahead to see if the next line is a property, a blank line, or another multiline
+                    // look ahead to see if the next line is a blank line, a property, or another multiline
                     String nextLine = lines[i+1];
-
                     boolean restoreMultilineDelimiter = false;
                     if (nextLine.isEmpty()) {
                         // blank line
                     } else if (nextLine.contains("=")) {
-                        // property
+                        if (isMultilineBooleanExpression(nextLine)) {
+                            // next line is an extension of a boolean expression
+                            restoreMultilineDelimiter = true;
+                        }
+                        // next line is a property
                     } else {
                         // line with content, this was a multiline property
                         restoreMultilineDelimiter = true;
                     }
 
                     if (restoreMultilineDelimiter) {
-                        // its a multiline property, so restore the original single slash
+                        // it's a multiline property, so restore the original single slash
                         replacedLine = replacedLine.substring(0, replacedLine.length()-2) + "\\";
                     }
                 }
@@ -529,9 +531,6 @@ public class ConfigUtils {
 
     /**
      * Converts this Properties object into a map.
-     *
-     * @param properties The Properties object to convert.
-     * @return The resulting map.
      */
     public static Map<String, String> propertiesToMap(Properties properties) {
         Map<String, String> props = new HashMap<>();
@@ -574,11 +573,9 @@ public class ConfigUtils {
     }
 
     /**
-     * Removes this property from the config.
-     *
      * @param config The config.
      * @param key    The property name.
-     * @return The property value as a boolean if it exists, otherwise <code>null</code>.
+     * @return The property value as a boolean if it exists, otherwise {@code null}.
      * @throws FlywayException when the property value is not a valid boolean.
      */
     public static Boolean removeBoolean(Map<String, String> config, String key) {
@@ -594,11 +591,9 @@ public class ConfigUtils {
     }
 
     /**
-     * Removes this property from the config.
-     *
      * @param config The config.
      * @param key    The property name.
-     * @return The property value as an integer if it exists, otherwise <code>null</code>.
+     * @return The property value as an integer if it exists, otherwise {@code null}.
      * @throws FlywayException When the property value is not a valid integer.
      */
     public static Integer removeInteger(Map<String, String> config, String key) {
@@ -614,11 +609,6 @@ public class ConfigUtils {
         }
     }
 
-    /**
-     * Dumps the configuration to the console when debug output is activated.
-     *
-     * @param config The configured properties.
-     */
     public static void dumpConfiguration(Map<String, String> config) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Using configuration:");
@@ -646,10 +636,10 @@ public class ConfigUtils {
     }
 
     /**
-     *  Checks the configuration for any unrecognised properties remaining after expected ones have been consumed
+     *  Checks the configuration for any unrecognised properties remaining after expected ones have been consumed.
      *
      *  @param config The configured properties.
-     *  @param prefix The expected prefix for Flyway configuration parameters - or null if none.
+     *  @param prefix The expected prefix for Flyway configuration parameters. {@code null} if none.
      */
     public static void checkConfigurationForUnrecognisedProperties(Map<String, String> config, String prefix) {
         ArrayList<String> unknownFlywayProperties = new ArrayList<>();
