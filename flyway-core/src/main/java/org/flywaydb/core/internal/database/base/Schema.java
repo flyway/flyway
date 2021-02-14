@@ -26,30 +26,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Represents a database schema.
- */
 public abstract class Schema<D extends Database, T extends Table> {
     private static final Log LOG = LogFactory.getLog(Schema.class);
-
-    /**
-     * The Jdbc Template for communicating with the DB.
-     */
     protected final JdbcTemplate jdbcTemplate;
-
-    /**
-     * The database-specific support.
-     */
     protected final D database;
-
-    /**
-     * The name of the schema.
-     */
     protected final String name;
 
     /**
-     * Creates a new schema.
-     *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
      * @param database     The database-specific support.
      * @param name         The name of the schema.
@@ -60,18 +43,10 @@ public abstract class Schema<D extends Database, T extends Table> {
         this.name = name;
     }
 
-    /**
-     * @return The name of the schema, quoted for the database it lives in.
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * Checks whether this schema exists.
-     *
-     * @return {@code true} if it does, {@code false} if not.
-     */
     public boolean exists() {
         try {
             return doExists();
@@ -83,16 +58,10 @@ public abstract class Schema<D extends Database, T extends Table> {
     /**
      * Checks whether this schema exists.
      *
-     * @return {@code true} if it does, {@code false} if not.
      * @throws SQLException when the check failed.
      */
     protected abstract boolean doExists() throws SQLException;
 
-    /**
-     * Checks whether this schema is empty.
-     *
-     * @return {@code true} if it is, {@code false} if isn't.
-     */
     public boolean empty() {
         try {
             return doEmpty();
@@ -104,7 +73,6 @@ public abstract class Schema<D extends Database, T extends Table> {
     /**
      * Checks whether this schema is empty.
      *
-     * @return {@code true} if it is, {@code false} if isn't.
      * @throws SQLException when the check failed.
      */
     protected abstract boolean doEmpty() throws SQLException;
@@ -166,8 +134,6 @@ public abstract class Schema<D extends Database, T extends Table> {
 
     /**
      * Retrieves all the tables in this schema.
-     *
-     * @return All tables in the schema.
      */
     public T[] allTables() {
         try {
@@ -180,15 +146,12 @@ public abstract class Schema<D extends Database, T extends Table> {
     /**
      * Retrieves all the tables in this schema.
      *
-     * @return All tables in the schema.
      * @throws SQLException when the retrieval failed.
      */
     protected abstract T[] doAllTables() throws SQLException;
 
     /**
      * Retrieves all the types in this schema.
-     *
-     * @return All types in the schema.
      */
     protected final Type[] allTypes() {
         ResultSet resultSet = null;
@@ -210,9 +173,6 @@ public abstract class Schema<D extends Database, T extends Table> {
 
     /**
      * Retrieves the type with this name in this schema.
-     *
-     * @param typeName The name of the type.
-     * @return The type.
      */
     protected Type getType(String typeName) {
         return null;
@@ -220,26 +180,18 @@ public abstract class Schema<D extends Database, T extends Table> {
 
     /**
      * Retrieves the table with this name in this schema.
-     *
-     * @param tableName The name of the table.
-     * @return The table.
      */
     public abstract Table getTable(String tableName);
 
     /**
      * Retrieves the function with this name in this schema.
-     *
-     * @param functionName The name of the function.
-     * @return The function.
      */
     public Function getFunction(String functionName, String... args) {
         throw new UnsupportedOperationException("getFunction()");
     }
 
     /**
-     * Retrieves all the types in this schema.
-     *
-     * @return All types in the schema.
+     * Retrieves all the functions in this schema.
      */
     protected final Function[] allFunctions() {
         try {
@@ -252,7 +204,6 @@ public abstract class Schema<D extends Database, T extends Table> {
     /**
      * Retrieves all the functions in this schema.
      *
-     * @return All functions in the schema.
      * @throws SQLException when the retrieval failed.
      */
     protected Function[] doAllFunctions() throws SQLException {
@@ -260,7 +211,7 @@ public abstract class Schema<D extends Database, T extends Table> {
     }
 
     /**
-     * @return The quoted name of the schema.
+     * @return The quoted name of this schema.
      */
     @Override
     public String toString() {

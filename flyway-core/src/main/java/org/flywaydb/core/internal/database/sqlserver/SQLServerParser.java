@@ -33,7 +33,8 @@ public class SQLServerParser extends Parser {
             "SP_ADDDISTPUBLISHER", "SP_DROPDISTPUBLISHER",
             "SP_ADDLINKEDSERVER", "SP_DROPLINKEDSERVER",
             "SP_ADDLINKEDSRVLOGIN", "SP_DROPLINKEDSRVLOGIN",
-            "SP_SERVEROPTION", "SP_REPLICATIONDBOPTION");
+            "SP_SERVEROPTION", "SP_REPLICATIONDBOPTION",
+            "SP_FULLTEXT_DATABASE");
 
     private static final Pattern TRANSACTION_REGEX = Pattern.compile("TRAN(SACTION)?");
 

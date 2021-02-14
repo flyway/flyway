@@ -305,7 +305,7 @@ public abstract class Parser {
     }
 
     protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
-        return (token.getType() == TokenType.KEYWORD && token.getParensDepth() == 0);
+        return token.getType() == TokenType.KEYWORD && token.getParensDepth() == 0;
     }
 
     /**
@@ -345,11 +345,11 @@ public abstract class Parser {
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
     }
 
-    protected static int getLastKeywordIndex(List<Token> tokens) {
+    protected int getLastKeywordIndex(List<Token> tokens) {
         return getLastKeywordIndex(tokens, tokens.size());
     }
 
-    protected static int getLastKeywordIndex(List<Token> tokens, int endIndex) {
+    protected int getLastKeywordIndex(List<Token> tokens, int endIndex) {
         for (int i = endIndex - 1; i >= 0; i--) {
             Token token = tokens.get(i);
             if (token.getType() == TokenType.KEYWORD) {
@@ -511,10 +511,21 @@ public abstract class Parser {
             return new Token(TokenType.COMMENT, pos, line, col, text, text, context.getParensDepth());
         }
         if (peek.startsWith("/*")) {
+            int commentDepth = 0;
             reader.swallow(2);
-            String text = reader.readUntilExcluding("*/");
+            StringBuilder text = new StringBuilder(reader.readUntilExcluding("*/", "/*"));
+            // handles reading nested comments
+            while (reader.peek("/*") || commentDepth > 0) {
+                if (reader.peek("/*")) {
+                    commentDepth++;
+                } else {
+                    commentDepth--;
+                }
+                reader.swallow(2);
+                text.append(reader.readUntilExcluding("*/", "/*"));
+            }
             reader.swallow(2);
-            return new Token(TokenType.COMMENT, pos, line, col, text, text, context.getParensDepth());
+            return new Token(TokenType.COMMENT, pos, line, col, text.toString(), text.toString(), context.getParensDepth());
         }
         if (Character.isDigit(c)) {
             String text = reader.readNumeric();

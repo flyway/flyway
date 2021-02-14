@@ -15,29 +15,21 @@
  */
 package org.flywaydb.core.api.configuration;
 
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
-import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.api.ClassProvider;
-import org.flywaydb.core.api.ResourceProvider;
 
 import javax.sql.DataSource;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Map;
 
-/**
- * Flyway configuration.
- */
 public interface Configuration {
     /**
-     * Retrieves the ClassLoader to use for loading migrations, resolvers, etc from the classpath.
+     * Retrieves the ClassLoader to use for loading migrations, resolvers, etc. from the classpath.
      *
-     * @return The ClassLoader to use for loading migrations, resolvers, etc from the classpath.
-     * (default: Thread.currentThread().getContextClassLoader() )
+     * @return The ClassLoader to use for loading migrations, resolvers, etc. from the classpath. (default: Thread.currentThread().getContextClassLoader() )
      */
     ClassLoader getClassLoader();
 
@@ -63,9 +55,9 @@ public interface Configuration {
     String getPassword();
 
     /**
-     * Retrieves the dataSource to use to access the database. Must have the necessary privileges to execute ddl.
+     * Retrieves the dataSource to use to access the database. Must have the necessary privileges to execute DDL.
      *
-     * @return The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
+     * @return The dataSource to use to access the database. Must have the necessary privileges to execute DDL.
      */
     DataSource getDataSource();
 
@@ -101,8 +93,7 @@ public interface Configuration {
     /**
      * Retrieves the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      *
-     * @return The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. An empty array if none.
-     * (default: none)
+     * @return The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. An empty array if none. (default: none)
      */
     MigrationResolver[] getResolvers();
 
@@ -129,8 +120,8 @@ public interface Configuration {
 
     /**
      * The file name prefix for versioned SQL migrations.
-     * <p>Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1.1__My_description.sql</p>
+     * Versioned SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to V1.1__My_description.sql
      *
      * @return The file name prefix for sql migrations. (default: V)
      */
@@ -149,10 +140,10 @@ public interface Configuration {
 
     /**
      * The file name prefix for undo SQL migrations.
-     * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
-     * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to U1.1__My_description.sql</p>
-     * <p><i>Flyway Teams only</i></p>
+     * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
+     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to U1.1__My_description.sql
+     * <i>Flyway Teams only</i>
      *
      * @return The file name prefix for undo sql migrations. (default: U)
      */
@@ -160,8 +151,8 @@ public interface Configuration {
 
     /**
      * Retrieves the file name prefix for repeatable SQL migrations.
-     * <p>Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to R__My_description.sql</p>
+     * Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to R__My_description.sql<
      *
      * @return The file name prefix for repeatable sql migrations. (default: R)
      */
@@ -169,8 +160,8 @@ public interface Configuration {
 
     /**
      * Retrieves the file name separator for sql migrations.
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
+     * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to V1_1__My_description.sql
      *
      * @return The file name separator for sql migrations. (default: __)
      */
@@ -178,10 +169,10 @@ public interface Configuration {
 
     /**
      * The file name suffixes for SQL migrations. (default: .sql)
-     * <p>SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
-     * <p>Multiple suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as
-     * editors with specific file associations.</p>
+     * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to V1_1__My_description.sql
+     * Multiple suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as
+     * editors with specific file associations.
      *
      * @return The file name suffixes for SQL migrations.
      */
@@ -234,6 +225,7 @@ public interface Configuration {
      * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
      * </ul>
      * Defaults to {@code latest}.
+     *
      * @return The target version up to which Flyway should consider migrations. Defaults to {@code latest}
      */
     MigrationVersion getTarget();
@@ -241,26 +233,25 @@ public interface Configuration {
     /**
      * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
      * Migrations not in this list will be ignored.
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
+     *
      * @return The migrations that Flyway should consider when migrating or undoing.
      */
     MigrationPattern[] getCherryPick();
 
     /**
-     * <p>Retrieves the name of the schema history table that will be used by Flyway.</p><p> By default (single-schema
-     * mode) the schema history table is placed in the default schema for the connection provided by the datasource. </p> <p>
-     * When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first
-     * schema of the list. </p>
+     * Retrieves the name of the schema history table that will be used by Flyway.
+     * By default (single-schema mode) the schema history table is placed in the default schema for the connection provided by the datasource.
+     * When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first schema of the list.
      *
      * @return The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
      */
     String getTable();
 
     /**
-     * <p>The tablespace where to create the schema history table that will be used by Flyway.</p>
-     * <p>If not specified, Flyway uses the default tablespace for the database connection.
-     * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply
-     * ignored for all others.</p>
+     * The tablespace where to create the schema history table that will be used by Flyway.
+     * If not specified, Flyway uses the default tablespace for the database connection.
+     * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply ignored for all others.
      *
      * @return The tablespace where to create the schema history table that will be used by Flyway.
      */
@@ -276,8 +267,7 @@ public interface Configuration {
      * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
      * </ul>
      *
-     * @return The schemas managed by Flyway. (default: The first schema specified in getSchemas(), and failing that
-     * the default schema for the database connection)
+     * @return The schemas managed by Flyway. (default: The first schema specified in getSchemas(), and failing that the default schema for the database connection)
      */
     String getDefaultSchema();
 
@@ -305,44 +295,37 @@ public interface Configuration {
 
     /**
      * Retrieves the locations to scan recursively for migrations.
-     * <p>The location type is determined by its prefix.
+     * The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both SQL and Java-based migrations.
      * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
-     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.
      *
      * @return Locations to scan recursively for migrations. (default: classpath:db/migration)
      */
     Location[] getLocations();
 
     /**
-     * <p>
      * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
      * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.
      * Only migrations above {@code baselineVersion} will then be applied.
-     * </p>
-     * <p>
+     *
      * This is useful for initial Flyway production deployments on projects with an existing DB.
-     * </p>
-     * <p>
-     * Be careful when enabling this as it removes the safety net that ensures
-     * Flyway does not migrate the wrong database in case of a configuration mistake!
-     * </p>
+     *
+     * Be careful when enabling this as it removes the safety net that ensures Flyway does not migrate the wrong database in case of a configuration mistake!
      *
      * @return {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
      */
     boolean isBaselineOnMigrate();
 
     /**
-     * <p>
      * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
      * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
      * just want the schema history table to reflect this.
-     * </p>
-     * <p>
+     *
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
-     * </p>
-     * <p><i>Flyway Teams only</i></p>
+     *
+     * <i>Flyway Teams only</i>
      *
      * @return {@code true} if executing the migrations should be skipped on migrate, {@code false} if not. (default: {@code false})
      */
@@ -350,8 +333,7 @@ public interface Configuration {
 
     /**
      * Allows migrations to be run "out of order".
-     * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
-     * it will be applied too instead of being ignored.</p>
+     * If you already have versions 1 and 3 applied, and now a version 2 is found, it will be applied too instead of being ignored.
      *
      * @return {@code true} if outOfOrder migrations should be applied, {@code false} if not. (default: {@code false})
      */
@@ -367,8 +349,7 @@ public interface Configuration {
      * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
      * mark it as future instead.
      *
-     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
-     * (default: {@code false})
+     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
      */
     boolean isIgnoreMissingMigrations();
 
@@ -382,8 +363,7 @@ public interface Configuration {
      * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
      * development of older versions.
      *
-     * @return {@code true} to continue normally, {@code false} to fail fast with an exception.
-     * (default: {@code false})
+     * @return {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
     boolean isIgnoreIgnoredMigrations();
 
@@ -393,8 +373,7 @@ public interface Configuration {
      * don't contain any validation-breaking changes of migrations that have already been applied to a production
      * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
      *
-     * @return {@code true} to continue normally, {@code false} to fail fast with an exception.
-     * (default: {@code false})
+     * @return {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
     boolean isIgnorePendingMigrations();
 
@@ -406,8 +385,7 @@ public interface Configuration {
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
      * an older version of the application after the database has been migrated by a newer one.
      *
-     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
-     * (default: {@code true})
+     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
      */
     boolean isIgnoreFutureMigrations();
 
@@ -428,11 +406,11 @@ public interface Configuration {
 
     /**
      * Whether to automatically call clean or not when a validation error occurs.
-     * <p> This is exclusively intended as a convenience for development. even though we
+     * This is exclusively intended as a convenience for development. even though we
      * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
      * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
-     * the next migration will bring you back to the state checked into SCM.</p>
-     * <p><b>Warning ! Do not enable in production !</b></p>
+     * the next migration will bring you back to the state checked into SCM.
+     * <b>Warning! Do not enable in production!</b>
      *
      * @return {@code true} if clean should be called. {@code false} if not. (default: {@code false})
      */
@@ -440,7 +418,7 @@ public interface Configuration {
 
     /**
      * Whether to disable clean.
-     * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     * This is especially useful for production environments where running clean can be quite a career limiting move.
      *
      * @return {@code true} to disable clean. {@code false} to leave it enabled. (default: {@code false})
      */
@@ -450,11 +428,11 @@ public interface Configuration {
      * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
      * automatically causes the entire affected migration to be run without a transaction.
      *
-     * <p>Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
-     * statements that do not run at all within a transaction.</p>
-     * <p>This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
+     * Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
+     * statements that do not run at all within a transaction.
+     * This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
      * DDL statement was run within a transaction, the database will issue an implicit commit before and after
-     * its execution.</p>
+     * its execution.
      *
      * @return {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      */
@@ -498,7 +476,7 @@ public interface Configuration {
      * code details) instead of warnings, the following errorOverride can be used: {@code S0001:0:I-}</p>
      * <p>Example 3: to force all errors with SQL error code 123 to be treated as warnings instead,
      * the following errorOverride can be used: {@code *:123:W}</p>
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @return The ErrorOverrides or an empty array if none are defined. (default: none)
      */
@@ -507,7 +485,7 @@ public interface Configuration {
     /**
      * The stream where to output the SQL statements of a migration dry run. {@code null} if the SQL statements
      * are executed against the database directly.
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @return The stream or {@code null} if the SQL statements are executed against the database directly.
      */
@@ -517,7 +495,7 @@ public interface Configuration {
      * Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at
      * once. Instead each statement is loaded individually. This is particularly useful for very large SQL migrations
      * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @return {@code true} to stream SQL migrations. {@code false} to fully loaded them in memory instead. (default: {@code false})
      */
@@ -529,7 +507,7 @@ public interface Configuration {
      * individually. This is particularly useful for very large SQL migrations composed of multiple MB or even GB of
      * reference data, as this can dramatically reduce the network overhead. This is supported for INSERT, UPDATE,
      * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @return {@code true} to batch SQL statements. {@code false} to execute them individually instead. (default: {@code false})
      */
@@ -538,7 +516,7 @@ public interface Configuration {
     /**
      * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @return {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
      */
@@ -548,22 +526,22 @@ public interface Configuration {
      * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
      * it doesn't yet support.
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @return {@code true} to issue a warning. {@code false} to fail fast instead. (default: {@code false})
      */
     boolean isOracleSqlplusWarn();
 
-    String getOracleKerberosConfigFile();  // If provided, enables Kerberos. If not, then normal auth.
+    String getOracleKerberosConfigFile();
 
-    String getOracleKerberosCacheFile();   // Optional
+    String getOracleKerberosCacheFile();
 
     /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
-     * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
+     * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
      * to try out Flyway Teams Edition features free for 30 days.
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @return Your Flyway license key.
      */
@@ -572,7 +550,7 @@ public interface Configuration {
     /**
      * Whether Flyway should output a table with the results of queries when executing migrations.
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @return {@code true} to output the results table (default: {@code true})
      */
@@ -581,21 +559,19 @@ public interface Configuration {
     /**
      * Retrieves the custom ResourceProvider to be used to look up resources. If not set, the default strategy will be used.
      *
-     * @return The custom ResourceProvider to be used to look up resources
-     * (default: null)
+     * @return The custom ResourceProvider to be used to look up resources (default: null)
      */
     ResourceProvider getResourceProvider();
 
     /**
      * Retrieves the custom ClassProvider to be used to look up {@link JavaMigration} classes. If not set, the default strategy will be used.
      *
-     * @return The custom ClassProvider to be used to look up {@link JavaMigration} classes
-     * (default: null)
+     * @return The custom ClassProvider to be used to look up {@link JavaMigration} classes (default: null)
      */
     ClassProvider<JavaMigration> getJavaMigrationClassProvider();
 
     /**
-     * Whether Flyway should attempt to create the schemas specified in the schemas property
+     * Whether Flyway should attempt to create the schemas specified in the schemas property.
      *
      * @return @{code true} to attempt to create the schemas (default: {@code true})
      */
@@ -609,7 +585,7 @@ public interface Configuration {
     /**
      * Properties to pass to the JDBC driver object
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @return Properties that will be passed to the JDBC driver object
      */
@@ -617,9 +593,10 @@ public interface Configuration {
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
+     *
      * The REST API URL pointing to your secret in Conjur
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @return The REST API URL pointing to your secret in Conjur
      */
@@ -627,9 +604,10 @@ public interface Configuration {
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
+     *
      * The Conjur authorization token required to access your secret
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @return The Conjur authorization token required to access your secret
      */
@@ -637,31 +615,44 @@ public interface Configuration {
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
-     * The REST API URL pointing the location of your secret in Vault
      *
-     * <p><i>Flyway Teams only</i></p>
+     * The REST API URL of your Vault server, including the API version.
+     * Currently only supports API version v1.
+     * Example: http://localhost:8200/v1/
      *
-     * @return The REST API URL pointing the location of your secret in Vault
+     * <i>Flyway Teams only</i>
+     *
+     * @return The REST API URL of your Vault server
      */
     String getVaultUrl();
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
-     * The Vault token required to access your secret
      *
-     * <p><i>Flyway Teams only</i></p>
+     * The Vault token required to access your secrets.
      *
-     * @return The Vault token required to access your secret
+     * <i>Flyway Teams only</i>
+     *
+     * @return The Vault token required to access your secrets
      */
     String getVaultToken();
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
-     * The name of your secret in Vault
      *
-     * <p><i>Flyway Teams only</i></p>
+     * A comma-separated list of paths to secrets in Vault that contain Flyway
+     * configurations. This must start with the name of the engine followed by
+     * '/data/' and end with the name of the secret.
+     * The resulting form is '{engine}/data/{path}/{to}/{secret_name}'.
      *
-     * @return The name of your secret in Vault
+     * If multiple secrets specify the same configuration parameter, then the last
+     * secret takes precedence.
+     *
+     * Example: secret/data/flyway/flywayConfig
+     *
+     * <i>Flyway Teams only</i>
+     *
+     * @return A list of paths to secrets in Vault
      */
-    String getVaultSecret();
+    String[] getVaultSecrets();
 }

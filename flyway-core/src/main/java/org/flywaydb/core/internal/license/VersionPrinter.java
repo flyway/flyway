@@ -26,9 +26,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
-/**
- * Prints the Flyway version.
- */
 public class VersionPrinter {
     private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
     private static final String version = readVersion();
@@ -48,20 +45,12 @@ public class VersionPrinter {
 
             ;
 
-    /**
-     * Prevents instantiation.
-     */
-    private VersionPrinter() {
-        // Do nothing.
-    }
+    private VersionPrinter() { }
 
     public static String getVersion() {
         return version;
     }
 
-    /**
-     * Prints the Flyway version.
-     */
     public static void printVersion(
 
 

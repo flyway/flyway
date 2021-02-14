@@ -45,12 +45,18 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
 
 
 
+
+
     @Override
     public void ensureSupported() {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("2", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessaryForMajorVersion("2");
+        if (isCloud()) {
+            recommendFlywayUpgradeIfNecessaryForMajorVersion("4");
+        } else {
+            recommendFlywayUpgradeIfNecessaryForMajorVersion("2");
+        }
     }
 
     @Override
@@ -70,6 +76,13 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
                 (baseline ? getBaselineStatement(table) + ";\n" : "") +
                 "ALTER TABLE " + table + " ADD CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\");\n" +
                 "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
+    }
+
+    /**
+     * @return Whether this is a SAP HANA Cloud database.
+     */
+    boolean isCloud() {
+        return getMainConnection().isCloudConnection();
     }
 
     @Override

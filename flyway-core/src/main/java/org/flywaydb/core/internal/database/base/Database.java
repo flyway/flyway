@@ -43,57 +43,27 @@ import java.sql.SQLException;
 public abstract class Database<C extends Connection> implements Closeable {
     private static final Log LOG = LogFactory.getLog(Database.class);
 
-    /**
-     * The type of database this is.
-     */
     protected final DatabaseType databaseType;
-
-    /**
-     * The Flyway configuration.
-     */
     protected final Configuration configuration;
-
-    /**
-     * The JDBC metadata to use.
-     */
+    protected final StatementInterceptor statementInterceptor;
+    protected final JdbcConnectionFactory jdbcConnectionFactory;
     protected final DatabaseMetaData jdbcMetaData;
-
+    protected JdbcTemplate jdbcTemplate;
+    private C migrationConnection;
+    private C mainConnection;
     /**
      * The main JDBC connection, without any wrapping.
      */
     protected final java.sql.Connection rawMainJdbcConnection;
-
     /**
-     * The main connection to use.
-     */
-    private C mainConnection;
-
-    /**
-     * The connection to use for migrations.
-     */
-    private C migrationConnection;
-
-    protected final JdbcConnectionFactory jdbcConnectionFactory;
-
-    protected final StatementInterceptor statementInterceptor;
-
-    /**
-     * The major.minor version of the database.
+     * The 'major.minor' version of this database.
      */
     private MigrationVersion version;
-
     /**
      * The user who applied the migrations.
      */
     private String installedBy;
 
-    protected JdbcTemplate jdbcTemplate;
-
-    /**
-     * Creates a new Database instance with this JdbcTemplate.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public Database(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         this.databaseType = jdbcConnectionFactory.getDatabaseType();
         this.configuration = configuration;
@@ -110,9 +80,6 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     /**
      * Retrieves a Flyway Connection for this JDBC connection.
-     *
-     * @param connection The JDBC connection to wrap.
-     * @return The Flyway Connection.
      */
     private C getConnection(java.sql.Connection connection) {
         return doGetConnection(connection);
@@ -120,19 +87,16 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     /**
      * Retrieves a Flyway Connection for this JDBC connection.
-     *
-     * @param connection The JDBC connection to wrap.
-     * @return The Flyway Connection.
      */
     protected abstract C doGetConnection(java.sql.Connection connection);
 
     /**
-     * Ensures Flyway supports this version of this database.
+     * Ensure Flyway supports this version of this database.
      */
     public abstract void ensureSupported();
 
     /**
-     * @return The major.minor version of the database.
+     * @return The 'major.minor' version of this database.
      */
     public final MigrationVersion getVersion() {
         if (version == null) {
@@ -143,18 +107,16 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     protected final void ensureDatabaseIsRecentEnough(String oldestSupportedVersion) {
         if (!getVersion().isAtLeast(oldestSupportedVersion)) {
-            throw new FlywayDbUpgradeRequiredException(databaseType, computeVersionDisplayName(getVersion()),
+            throw new FlywayDbUpgradeRequiredException(
+                    databaseType,
+                    computeVersionDisplayName(getVersion()),
                     computeVersionDisplayName(MigrationVersion.fromVersion(oldestSupportedVersion)));
         }
     }
 
     /**
-     * Ensures this database it at least at recent as this version otherwise suggest upgrade to this higher edition of
+     * Ensure this database it at least as recent as this version otherwise suggest upgrade to this higher edition of
      * Flyway.
-     *
-     * @param oldestSupportedVersionInThisEdition The oldest supported version of the database by this edition of Flyway.
-     * @param editionWhereStillSupported          The edition of Flyway that still supports this version of the database,
-     *                                            in case it's too old.
      */
     protected final void ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition(String oldestSupportedVersionInThisEdition,
                                                                                             Edition editionWhereStillSupported) {
@@ -180,30 +142,24 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     private void recommendFlywayUpgrade(String newestSupportedVersion) {
         String message = "Flyway upgrade recommended: " + databaseType + " " + computeVersionDisplayName(getVersion())
-                + " is newer than this version of Flyway and support has not been tested. "
-                + "The latest supported version of " + databaseType + " is " + newestSupportedVersion + ".";
-
+                + " is newer than this version of Flyway and support has not been tested."
+                + " The latest supported version of " + databaseType + " is " + newestSupportedVersion + ".";
         LOG.warn(message);
     }
 
     /**
      * Compute the user-friendly display name for this database version.
-     *
-     * @return The user-friendly display name.
      */
     protected String computeVersionDisplayName(MigrationVersion version) {
         return version.getVersion();
     }
 
-    /**
-     * @return The default delimiter for this database.
-     */
     public Delimiter getDefaultDelimiter() {
         return Delimiter.SEMICOLON;
     }
 
     /**
-     * @return The name of the database, by default as determined by JDBC
+     * @return The name of the database, by default as determined by JDBC.
      */
     public final String getCatalog() {
         try {
@@ -217,9 +173,6 @@ public abstract class Database<C extends Connection> implements Closeable {
         return getMainConnection().getJdbcConnection().getCatalog();
     }
 
-    /**
-     * @return The current database user.
-     */
     public final String getCurrentUser() {
         try {
             return doGetCurrentUser();
@@ -232,11 +185,6 @@ public abstract class Database<C extends Connection> implements Closeable {
         return jdbcMetaData.getUserName();
     }
 
-    /**
-     * Checks whether DDL transactions are supported by this database.
-     *
-     * @return {@code true} if DDL transactions are supported, {@code false} if not.
-     */
     public abstract boolean supportsDdlTransactions();
 
     /**
@@ -246,16 +194,7 @@ public abstract class Database<C extends Connection> implements Closeable {
         return false;
     }
 
-    /**
-     * @return {@code true} if this database supports changing a connection's current schema. {@code false if not}.
-     */
     public abstract boolean supportsChangingCurrentSchema();
-
-
-
-
-
-
 
 
 
@@ -274,10 +213,7 @@ public abstract class Database<C extends Connection> implements Closeable {
     public abstract String getBooleanFalse();
 
     /**
-     * Quote these identifiers for use in sql queries. Multiple identifiers will be quoted and separated by a dot.
-     *
-     * @param identifiers The identifiers to quote.
-     * @return The fully qualified quoted identifiers.
+     * Quotes these identifiers for use in SQL queries. Multiple identifiers will be quoted and separated by a dot.
      */
     public final String quote(String... identifiers) {
         StringBuilder result = new StringBuilder();
@@ -295,20 +231,18 @@ public abstract class Database<C extends Connection> implements Closeable {
     }
 
     /**
-     * Quote this identifier for use in sql queries.
-     *
-     * @param identifier The identifier to quote.
-     * @return The fully qualified quoted identifier.
+     * Quotes this identifier for use in SQL queries.
      */
     protected abstract String doQuote(String identifier);
 
     /**
-     * @return {@code true} if this database use a catalog to represent a schema. {@code false} if a schema is simply a schema.
+     * @return {@code true} if this database uses a catalog to represent a schema, or {@code false} if a schema is
+     * simply a schema.
      */
     public abstract boolean catalogIsSchema();
 
     /**
-     * @return Whether to only use a single connection for both schema history table management and applying migrations.
+     * @return Whether to use a single connection for both schema history table management and applying migrations.
      */
     public boolean useSingleConnection() {
         return false;
@@ -319,7 +253,7 @@ public abstract class Database<C extends Connection> implements Closeable {
     }
 
     /**
-     * @return The main connection, used to manipulate the schema history.
+     * @return The main connection used to manipulate the schema history.
      */
     public final C getMainConnection() {
         if (mainConnection == null) {
@@ -329,7 +263,7 @@ public abstract class Database<C extends Connection> implements Closeable {
     }
 
     /**
-     * @return The migration connection, used to apply migrations.
+     * @return The migration connection used to apply migrations.
      */
     public final C getMigrationConnection() {
         if (migrationConnection == null) {
@@ -356,9 +290,9 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * Retrieves the script used to create the schema history table.
      *
-     * @param table    The table to create.
-     * @param baseline Whether to include the creation of a baseline marker.
-     * @return The script.
+     * @param sqlScriptFactory The factory used to create the SQL script.
+     * @param table            The table to create.
+     * @param baseline         Whether to include the creation of a baseline marker.
      */
     public final SqlScript getCreateScript(SqlScriptFactory sqlScriptFactory, Table table, boolean baseline) {
         return sqlScriptFactory.createSqlScript(new StringResource(getRawCreateScript(table, baseline)), false, null);
@@ -431,18 +365,12 @@ public abstract class Database<C extends Connection> implements Closeable {
         return databaseType;
     }
 
-    /**
-     *  Whether the database supports an empty string as a migration description.
-     */
     public boolean supportsEmptyMigrationDescription() { return true; }
 
-    /**
-     * Whether the database supports multi-statement transactions
-     */
     public boolean supportsMultiStatementTransactions() { return true; }
 
     /**
-     * Cleans all the objects in this database that need to be done prior to cleaning schemas.
+     * Cleans all the objects in this database that need to be cleaned before each schema.
      */
     public void cleanPreSchemas() {
         try {
@@ -453,31 +381,30 @@ public abstract class Database<C extends Connection> implements Closeable {
     }
 
     /**
-     * Cleans all the objects in this database that need to be done prior to cleaning schemas.
+     * Cleans all the objects in this database that need to be cleaned before each schema.
      *
      * @throws SQLException when the clean failed.
      */
-    protected void doCleanPreSchemas() throws SQLException {
-        // Default is to do nothing.
-    }
+    protected void doCleanPreSchemas() throws SQLException { }
 
     /**
-     * Cleans all the objects in this database that need to be done after cleaning schemas.
+     * Cleans all the objects in this database that need to be cleaned after each schema.
+     *
+     * @param schemas The list of schemas managed by Flyway.
      */
-    public void cleanPostSchemas() {
+    public void cleanPostSchemas(Schema[] schemas) {
         try {
-            doCleanPostSchemas();
+            doCleanPostSchemas(schemas);
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to clean schema " + this, e);
         }
     }
 
     /**
-     * Cleans all the objects in this database that need to be done after cleaning schemas.
+     * Cleans all the objects in this database that need to be cleaned after each schema.
      *
+     * @param schemas The list of schemas managed by Flyway.
      * @throws SQLException when the clean failed.
      */
-    protected void doCleanPostSchemas() throws SQLException {
-        // Default is to do nothing
-    }
+    protected void doCleanPostSchemas(Schema[] schemas) throws SQLException { }
 }

@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.database.sqlserver;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
@@ -27,7 +28,10 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * SQL Server database.
@@ -276,9 +280,10 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
      * Cleans all the objects in this database that need to be done after cleaning schemas.
      *
      * @throws SQLException when the clean failed.
+     * @param schemas The list of schemas managed by Flyway
      */
     @Override
-    protected void doCleanPostSchemas() throws SQLException {
+    protected void doCleanPostSchemas(Schema[] schemas) throws SQLException {
         if (supportsPartitions()) {
             for (String statement : cleanPartitionSchemes()) {
                 jdbcTemplate.execute(statement);
@@ -294,6 +299,35 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
                 jdbcTemplate.execute(statement);
             }
         }
+
+        if (supportsTypes()) {
+            for (String statement : cleanTypes(schemas)) {
+                jdbcTemplate.execute(statement);
+            }
+        }
+    }
+
+    /**
+     * Cleans the user-defined types in this database.
+     *
+     * @param schemas The list of schemas managed by Flyway
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanTypes(Schema[] schemas) throws SQLException {
+        List<String> statements = new ArrayList<>();
+        String schemaList = Arrays.stream(schemas).map(s -> "'" + s.getName() + "'").collect(Collectors.joining(","));
+
+        List<Map<String, String>> typesAndSchemas = jdbcTemplate.queryForList(
+                "SELECT t.name as type_name, s.name as schema_name" +
+                        " FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id" +
+                        " WHERE t.is_user_defined = 1 AND s.name IN (" + schemaList + ")");
+
+        for (Map<String, String> typeAndSchema : typesAndSchemas) {
+            statements.add("DROP TYPE " + quote(typeAndSchema.get("schema_name"), typeAndSchema.get("type_name")));
+        }
+
+        return statements;
     }
 
     /**

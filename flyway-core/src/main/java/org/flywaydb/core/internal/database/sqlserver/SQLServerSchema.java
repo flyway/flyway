@@ -278,10 +278,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : cleanTypes()) {
-            jdbcTemplate.execute(statement);
-        }
-
         for (String statement : cleanSynonyms()) {
             jdbcTemplate.execute(statement);
         }
@@ -479,31 +475,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
             }
 
         }
-        return statements;
-    }
-
-    /**
-     * Cleans the types in this schema.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanTypes() throws SQLException {
-        List<String> statements = new ArrayList<>();
-
-        if (database.supportsTypes()) {
-            List<String> typeNames =
-                    jdbcTemplate.queryForStringList(
-                            "SELECT t.name FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id" +
-                                    " WHERE t.is_user_defined = 1 AND s.name = ?",
-                            name
-                    );
-
-            for (String typeName : typeNames) {
-                statements.add("DROP TYPE " + database.quote(name, typeName));
-            }
-        }
-
         return statements;
     }
 

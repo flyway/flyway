@@ -16,43 +16,32 @@
 package org.flywaydb.core.api.configuration;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.MigrationPattern;
-import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.util.ClassUtils;
 
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Fluent configuration for Flyway. This is the preferred means of configuring the Flyway API.
- * <p>
  * This configuration can be passed to Flyway using the <code>new Flyway(Configuration)</code> constructor.
- * </p>
  */
 public class FluentConfiguration implements Configuration {
     private final ClassicConfiguration config;
 
-    /**
-     * Creates a new default configuration.
-     */
     public FluentConfiguration() {
         config = new ClassicConfiguration();
     }
 
     /**
-     * Creates a new default configuration with this class loader.
-     *
      * @param classLoader The ClassLoader to use for loading migrations, resolvers, etc from the classpath. (default: Thread.currentThread().getContextClassLoader() )
      */
     public FluentConfiguration(ClassLoader classLoader) {
@@ -60,8 +49,6 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Loads this configuration into a new Flyway instance.
-     *
      * @return The new fully-configured Flyway instance.
      */
     public Flyway load() {
@@ -70,8 +57,6 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Configure with the same values as this existing configuration.
-     *
-     * @param configuration The configuration to use.
      */
     public FluentConfiguration configuration(Configuration configuration) {
         config.configure(configuration);
@@ -379,14 +364,14 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public String getVaultSecret() {
-        return config.getVaultSecret();
+    public String[] getVaultSecrets() {
+        return config.getVaultSecrets();
     }
 
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
      */
@@ -399,7 +384,7 @@ public class FluentConfiguration implements Configuration {
      * Sets the file where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. If the file specified is in a non-existent directory, Flyway will create all
      * directories and parent directories as needed.
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
      */
@@ -414,10 +399,9 @@ public class FluentConfiguration implements Configuration {
      * directories and parent directories as needed.
      * Paths starting with s3: point to a bucket in AWS S3, which must exist. They are in the format s3:<bucket>(/optionalfolder/subfolder)/filename.sql
      * Paths starting with gcs: point to a bucket in Google Cloud Storage, which must exist. They are in the format gcs:<bucket>(/optionalfolder/subfolder)/filename.sql
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
-     * @param dryRunOutputFileName The name of the output file or {@code null} to execute the SQL statements directly
-     *                             against the database.
+     * @param dryRunOutputFileName The name of the output file or {@code null} to execute the SQL statements directly against the database.
      */
     public FluentConfiguration dryRunOutput(String dryRunOutputFileName) {
         config.setDryRunOutputAsFileName(dryRunOutputFileName);
@@ -448,7 +432,7 @@ public class FluentConfiguration implements Configuration {
      * code details) instead of warnings, the following errorOverride can be used: {@code S0001:0:I-}</p>
      * <p>Example 3: to force all errors with SQL error code 123 to be treated as warnings instead,
      * the following errorOverride can be used: {@code *:123:W}</p>
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @param errorOverrides The ErrorOverrides or an empty array if none are defined. (default: none)
      */
@@ -481,11 +465,11 @@ public class FluentConfiguration implements Configuration {
      * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
      * automatically causes the entire affected migration to be run without a transaction.
      *
-     * <p>Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
-     * statements that do not run at all within a transaction.</p>
-     * <p>This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
+     * Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
+     * statements that do not run at all within a transaction.
+     * This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
      * DDL statement was run within a transaction, the database will issue an implicit commit before and after
-     * its execution.</p>
+     * its execution.
      *
      * @param mixed {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      */
@@ -504,8 +488,7 @@ public class FluentConfiguration implements Configuration {
      * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
      * mark it as future instead.
      *
-     * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
-     *                                (default: {@code false})
+     * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
      */
     public FluentConfiguration ignoreMissingMigrations(boolean ignoreMissingMigrations) {
         config.setIgnoreMissingMigrations(ignoreMissingMigrations);
@@ -522,8 +505,7 @@ public class FluentConfiguration implements Configuration {
      * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
      * development of older versions.
      *
-     * @param ignoreIgnoredMigrations {@code true} to continue normally, {@code false} to fail fast with an exception.
-     *                                (default: {@code false})
+     * @param ignoreIgnoredMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
     public FluentConfiguration ignoreIgnoredMigrations(boolean ignoreIgnoredMigrations) {
         config.setIgnoreIgnoredMigrations(ignoreIgnoredMigrations);
@@ -536,8 +518,7 @@ public class FluentConfiguration implements Configuration {
      * don't contain any validation-breaking changes of migrations that have already been applied to a production
      * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
      *
-     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception.
-     *                                (default: {@code false})
+     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
     public FluentConfiguration ignorePendingMigrations(boolean ignorePendingMigrations) {
         config.setIgnorePendingMigrations(ignorePendingMigrations);
@@ -552,8 +533,7 @@ public class FluentConfiguration implements Configuration {
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
      * an older version of the application after the database has been migrated by a newer one.
      *
-     * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail
-     *                               fast with an exception. (default: {@code true})
+     * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
      */
     public FluentConfiguration ignoreFutureMigrations(boolean ignoreFutureMigrations) {
         config.setIgnoreFutureMigrations(ignoreFutureMigrations);
@@ -564,8 +544,7 @@ public class FluentConfiguration implements Configuration {
      * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
      * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
      *
-     * @param validateMigrationNaming {@code false} to continue normally, {@code true} to fail
-     *                                                fast with an exception. (default: {@code false})
+     * @param validateMigrationNaming {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
      */
     public FluentConfiguration validateMigrationNaming(boolean validateMigrationNaming){
         config.setValidateMigrationNaming(validateMigrationNaming);
@@ -584,11 +563,11 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Whether to automatically call clean or not when a validation error occurs.
-     * <p> This is exclusively intended as a convenience for development. even though we
-     * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
-     * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
-     * the next migration will bring you back to the state checked into SCM.</p>
-     * <p><b>Warning ! Do not enable in production !</b></p>
+     * This is exclusively intended as a convenience for development. even though we strongly recommend not to change
+     * migration scripts once they have been checked into SCM and run, this provides a way of dealing with this case in
+     * a smooth manner. The database will be wiped clean automatically, ensuring that the next migration will bring you
+     * back to the state checked into SCM.
+     * <b>Warning! Do not enable in production!</b>
      *
      * @param cleanOnValidationError {@code true} if clean should be called. {@code false} if not. (default: {@code false})
      */
@@ -599,7 +578,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Whether to disable clean.
-     * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     * This is especially useful for production environments where running clean can be quite a career limiting move.
      *
      * @param cleanDisabled {@code true} to disable clean. {@code false} to leave it enabled.  (default: {@code false})
      */
@@ -610,11 +589,11 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the locations to scan recursively for migrations.
-     * <p>The location type is determined by its prefix.
+     * The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both SQL and Java-based migrations.
      * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
-     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.
      *
      * @param locations Locations to scan recursively for migrations. (default: db/migration)
      */
@@ -625,11 +604,11 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the locations to scan recursively for migrations.
-     * <p>The location type is determined by its prefix.
+     * The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both SQL and Java-based migrations.
      * Locations starting with {@code filesystem:} point to a directory on the filesystem, may only
-     * contain SQL migrations and are only scanned recursively down non-hidden directories.</p>
+     * contain SQL migrations and are only scanned recursively down non-hidden directories.
      *
      * @param locations Locations to scan recursively for migrations. (default: db/migration)
      */
@@ -639,9 +618,9 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Sets the encoding of Sql migrations.
+     * Sets the encoding of SQL migrations.
      *
-     * @param encoding The encoding of Sql migrations. (default: UTF-8)
+     * @param encoding The encoding of SQL migrations. (default: UTF-8)
      */
     public FluentConfiguration encoding(String encoding) {
         config.setEncodingAsString(encoding);
@@ -649,9 +628,9 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Sets the encoding of Sql migrations.
+     * Sets the encoding of SQL migrations.
      *
-     * @param encoding The encoding of Sql migrations. (default: UTF-8)
+     * @param encoding The encoding of SQL migrations. (default: UTF-8)
      */
     public FluentConfiguration encoding(Charset encoding) {
         config.setEncoding(encoding);
@@ -694,10 +673,10 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * <p>Sets the name of the schema history table that will be used by Flyway.</p><p> By default (single-schema mode)
-     * the schema history table is placed in the default schema for the connection provided by the datasource. </p> <p> When
-     * the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first schema
-     * of the list. </p>
+     *Sets the name of the schema history table that will be used by Flyway.
+     * By default (single-schema mode) the schema history table is placed in the default schema for the connection
+     * provided by the datasource. When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema
+     * history table is placed in the first schema of the list.
      *
      * @param table The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
      */
@@ -707,10 +686,9 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * <p>Sets the tablespace where to create the schema history table that will be used by Flyway.</p>
-     * <p>If not specified, Flyway uses the default tablespace for the database connection.
-     * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply
-     * ignored for all others.</p>
+     * Sets the tablespace where to create the schema history table that will be used by Flyway.
+     * If not specified, Flyway uses the default tablespace for the database connection.
+     * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply ignored for all others.
      *
      * @param tablespace The tablespace where to create the schema history table that will be used by Flyway. 
      */
@@ -752,7 +730,7 @@ public class FluentConfiguration implements Configuration {
     /**
      * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
      * Migrations not in this list will be ignored.
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      */
     public FluentConfiguration cherryPick(MigrationPattern... cherryPick) {
         config.setCherryPick(cherryPick);
@@ -763,7 +741,7 @@ public class FluentConfiguration implements Configuration {
      * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
      * Migrations not in this list will be ignored.
      * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      */
     public FluentConfiguration cherryPick(String... cherryPickAsString) {
         config.setCherryPick(cherryPickAsString);
@@ -812,8 +790,8 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the file name prefix for sql migrations.
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
+     * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to V1_1__My_description.sql
      *
      * @param sqlMigrationPrefix The file name prefix for sql migrations (default: V)
      */
@@ -829,10 +807,10 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the file name prefix for undo SQL migrations. (default: U)
-     * <p>Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
-     * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to U1.1__My_description.sql</p>
-     * <p><i>Flyway Teams only</i></p>
+     * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
+     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to U1.1__My_description.sql
+     * <i>Flyway Teams only</i>
      *
      * @param undoSqlMigrationPrefix The file name prefix for undo SQL migrations. (default: U)
      */
@@ -843,8 +821,8 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the file name prefix for repeatable sql migrations.
-     * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to R__My_description.sql</p>
+     * Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to R__My_description.sql
      *
      * @param repeatableSqlMigrationPrefix The file name prefix for repeatable sql migrations (default: R)
      */
@@ -855,8 +833,8 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the file name separator for sql migrations.
-     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
+     * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to V1_1__My_description.sql
      *
      * @param sqlMigrationSeparator The file name separator for sql migrations (default: __)
      */
@@ -867,10 +845,10 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * The file name suffixes for SQL migrations. (default: .sql)
-     * <p>SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-     * which using the defaults translates to V1_1__My_description.sql</p>
-     * <p>Multiple suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as
-     * editors with specific file associations.</p>
+     * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to V1_1__My_description.sql
+     * Multiple suffixes (like .sql,.pkg,.pkb) can be specified for easier compatibility with other tools such as
+     * editors with specific file associations.
      *
      * @param sqlMigrationSuffixes The file name suffixes for SQL migrations.
      */
@@ -893,9 +871,9 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Sets the datasource to use. Must have the necessary privileges to execute ddl.
+     * Sets the datasource to use. Must have the necessary privileges to execute DDL.
      *
-     * @param dataSource The datasource to use. Must have the necessary privileges to execute ddl.
+     * @param dataSource The datasource to use. Must have the necessary privileges to execute DDL.
      */
     public FluentConfiguration dataSource(DataSource dataSource) {
         config.setDataSource(dataSource);
@@ -903,7 +881,7 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Sets the datasource to use. Must have the necessary privileges to execute ddl.
+     * Sets the datasource to use. Must have the necessary privileges to execute DDL.
      *
      * @param url      The JDBC URL of the database.
      * @param user     The user of the database.
@@ -966,18 +944,14 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * <p>
      * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
      * This schema will then be baselined with the {@code baselineVersion} before executing the migrations.
      * Only migrations above {@code baselineVersion} will then be applied.
-     * </p>
-     * <p>
+     *
      * This is useful for initial Flyway production deployments on projects with an existing DB.
-     * </p>
-     * <p>
+     *
      * Be careful when enabling this as it removes the safety net that ensures
      * Flyway does not migrate the wrong database in case of a configuration mistake!
-     * </p>
      *
      * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
      */
@@ -988,8 +962,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Allows migrations to be run "out of order".
-     * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
-     * it will be applied too instead of being ignored.</p>
+     * If you already have versions 1 and 3 applied, and now a version 2 is found, it will be applied too instead of being ignored.
      *
      * @param outOfOrder {@code true} if outOfOrder migrations should be applied, {@code false} if not. (default: {@code false})
      */
@@ -999,15 +972,12 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * <p>
      * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
      * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
      * just want the schema history table to reflect this.
-     * </p>
-     * <p>
+     *
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
-     * </p>
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      */
     public FluentConfiguration skipExecutingMigrations(boolean skipExecutingMigrations) {
         config.setSkipExecutingMigrations(skipExecutingMigrations);
@@ -1052,7 +1022,7 @@ public class FluentConfiguration implements Configuration {
     /**
      * Whether Flyway should skip the default callbacks. If true, only custom callbacks are used.
      *
-     * @param skipDefaultCallbacks Whether default built-in callbacks should be skipped. <p>(default: false)</p>
+     * @param skipDefaultCallbacks Whether default built-in callbacks should be skipped. (default: false)
      */
     public FluentConfiguration skipDefaultCallbacks(boolean skipDefaultCallbacks) {
         config.setSkipDefaultCallbacks(skipDefaultCallbacks);
@@ -1082,7 +1052,7 @@ public class FluentConfiguration implements Configuration {
     /**
      * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
      *
-     * @param skipDefaultResolvers Whether default built-in resolvers should be skipped. <p>(default: false)</p>
+     * @param skipDefaultResolvers Whether default built-in resolvers should be skipped. (default: false)
      */
     public FluentConfiguration skipDefaultResolvers(boolean skipDefaultResolvers) {
         config.setSkipDefaultResolvers(skipDefaultResolvers);
@@ -1093,7 +1063,7 @@ public class FluentConfiguration implements Configuration {
      * Whether to stream SQL migrations when executing them. Streaming doesn't load the entire migration in memory at
      * once. Instead each statement is loaded individually. This is particularly useful for very large SQL migrations
      * composed of multiple MB or even GB of reference data, as this dramatically reduces Flyway's memory consumption.
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @param stream {@code true} to stream SQL migrations. {@code false} to fully loaded them in memory instead. (default: {@code false})
      */
@@ -1108,7 +1078,7 @@ public class FluentConfiguration implements Configuration {
      * individually. This is particularly useful for very large SQL migrations composed of multiple MB or even GB of
      * reference data, as this can dramatically reduce the network overhead. This is supported for INSERT, UPDATE,
      * DELETE, MERGE and UPSERT statements. All other statements are automatically executed without batching.
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @param batch {@code true} to batch SQL statements. {@code false} to execute them individually instead. (default: {@code false})
      */
@@ -1124,8 +1094,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Properties to pass to the JDBC driver object
-     *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @param jdbcProperties The properties to pass to the JDBC driver object
      */
@@ -1136,7 +1105,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Whether Flyway's support for Oracle SQL*Plus commands should be activated.
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @param oracleSqlplus {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
      */
@@ -1146,10 +1115,8 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
-     * it doesn't yet support.
-     *
-     * <p><i>Flyway Teams only</i></p>
+     * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement it doesn't yet support.
+     * <i>Flyway Teams only</i>
      *
      * @param oracleSqlplusWarn {@code true} to issue a warning. {@code false} to fail fast instead. (default: {@code false})
      */
@@ -1160,8 +1127,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * When authenticating to Oracle via Kerberos, the location of the Kerberos <code>krb5.conf</code> file
-     *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @param oracleKerberosConfigFile The Kerberos config file path.
      */
@@ -1172,8 +1138,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * When authenticating to Oracle via Kerberos, the location of the local Kerberos config cache (optional).
-     *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @param oracleKerberosCacheFile The Kerberos cache file path.
      */
@@ -1184,10 +1149,10 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
-     * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
+     * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
      * to try out Flyway Teams Edition features free for 30 days.
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @param licenseKey Your Flyway license key.
      */
@@ -1218,8 +1183,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Whether Flyway should output a table with the results of queries when executing migrations.
-     *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @param outputQueryResults {@code true} to output a table with the results of queries when executing migrations. (default: {@code true})
      */
@@ -1229,9 +1193,8 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
-     * documented in the flyway maven plugin.
-     * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
+     * Configures Flyway with these properties. This overwrites any existing configuration. Property names are documented in the flyway maven plugin.
+     * To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.
      *
      * @param properties Properties used for configuration.
      * @throws FlywayException when the configuration failed.
@@ -1242,9 +1205,8 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
-     * documented in the flyway maven plugin.
-     * <p>To use a custom ClassLoader, it must be passed to the Flyway constructor prior to calling this method.</p>
+     * Configures Flyway with these properties. This overwrites any existing configuration. Property names are documented in the flyway maven plugin.
+     * To use a custom ClassLoader, it must be passed to the Flyway constructor prior to calling this method.
      *
      * @param props Properties used for configuration.
      * @throws FlywayException when the configuration failed.
@@ -1262,7 +1224,7 @@ public class FluentConfiguration implements Configuration {
      *
      * The configuration files must be encoded with UTF-8.
      *
-     * @throws FlywayException when the configuration failed.
+     * @throws FlywayException When the configuration failed.
      */
     public FluentConfiguration loadDefaultConfigurationFiles() {
         return loadDefaultConfigurationFiles("UTF-8");
@@ -1274,8 +1236,8 @@ public class FluentConfiguration implements Configuration {
      * $user.home$/flyway.conf
      * $workingDirectory$/flyway.conf
      *
-     * @param encoding the conf file encoding.
-     * @throws FlywayException when the configuration failed.
+     * @param encoding The conf file encoding.
+     * @throws FlywayException When the configuration failed.
      */
     public FluentConfiguration loadDefaultConfigurationFiles(String encoding) {
         String installationPath = ClassUtils.getLocationOnDisk(FluentConfiguration.class);
@@ -1299,9 +1261,10 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
+     *
      * The REST API URL pointing to your secret in Conjur
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @param conjurUrl The REST API URL pointing to your secret in Conjur
      */
@@ -1312,9 +1275,10 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
+     *
      * The Conjur authorization token required to access your secret
      *
-     * <p><i>Flyway Teams only</i></p>
+     * <i>Flyway Teams only</i>
      *
      * @param conjurToken The Conjur authorization token required to access your secret
      */
@@ -1325,11 +1289,14 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
-     * The REST API URL pointing the location of your secret in Vault
      *
-     * <p><i>Flyway Teams only</i></p>
+     * The REST API URL of your Vault server, including the API version.
+     * Currently only supports API version v1.
+     * Example: http://localhost:8200/v1/
      *
-     * @param vaultUrl The REST API URL pointing the location of your secret in Vault
+     * <i>Flyway Teams only</i>
+     *
+     * @param vaultUrl The REST API URL of your Vault server
      */
     public FluentConfiguration vaultUrl(String vaultUrl) {
         config.setVaultUrl(vaultUrl);
@@ -1338,11 +1305,12 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
-     * The Vault token required to access your secret
      *
-     * <p><i>Flyway Teams only</i></p>
+     * The Vault token required to access your secrets.
      *
-     * @param vaultToken The Vault token required to access your secret
+     * <i>Flyway Teams only</i>
+     *
+     * @param vaultToken The Vault token required to access your secrets
      */
     public FluentConfiguration vaultToken(String vaultToken) {
         config.setVaultToken(vaultToken);
@@ -1351,21 +1319,30 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * NOTE: EXPERIMENTAL - Not recommended for production use
-     * The name of your secret in Vault
      *
-     * <p><i>Flyway Teams only</i></p>
+     * A comma-separated list of paths to secrets in Vault that contain Flyway
+     * configurations. This must start with the name of the engine followed by
+     * '/data/' and end with the name of the secret.
+     * The resulting form is '{engine}/data/{path}/{to}/{secret_name}'.
      *
-     * @param vaultSecret The name of your secret in Vault
+     * If multiple secrets specify the same configuration parameter, then the last
+     * secret takes precedence.
+     *
+     * Example: secret/data/flyway/flywayConfig
+     *
+     * <i>Flyway Teams only</i>
+     *
+     * @param vaultSecrets A list of paths to secrets in Vault
      */
-    public FluentConfiguration vaultSecret(String vaultSecret) {
-        config.setVaultSecret(vaultSecret);
+    public FluentConfiguration vaultSecrets(String... vaultSecrets) {
+        config.setVaultSecrets(vaultSecrets);
         return this;
     }
 
     /**
      * Configures Flyway using FLYWAY_* environment variables.
      *
-     * @throws FlywayException when the configuration failed.
+     * @throws FlywayException When the configuration failed.
      */
     public FluentConfiguration envVars() {
         config.configureUsingEnvVars();

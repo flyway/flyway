@@ -18,24 +18,9 @@ package org.flywaydb.core.internal.database.base;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.StringUtils;
 
-/**
- * A user defined type within a schema.
- */
 public abstract class Function<D extends Database, S extends Schema> extends SchemaObject<D, S> {
-    /**
-     * The arguments of the function.
-     */
     protected String[] args;
 
-    /**
-     * Creates a new function with this name within this schema.
-     *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param schema       The schema this function lives in.
-     * @param name         The name of the function.
-     * @param args         The arguments of the function.
-     */
     public Function(JdbcTemplate jdbcTemplate, D database, S schema, String name, String... args) {
         super(jdbcTemplate, database, schema, name);
         this.args = args == null ? new String[0] : args;

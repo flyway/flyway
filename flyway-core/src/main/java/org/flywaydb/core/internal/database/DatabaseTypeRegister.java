@@ -24,23 +24,23 @@ import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabaseType;
 import org.flywaydb.core.internal.database.db2.DB2DatabaseType;
 import org.flywaydb.core.internal.database.derby.DerbyDatabaseType;
 
+
 import org.flywaydb.core.internal.database.firebird.FirebirdDatabaseType;
 import org.flywaydb.core.internal.database.h2.H2DatabaseType;
 import org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabaseType;
 import org.flywaydb.core.internal.database.informix.InformixDatabaseType;
-import org.flywaydb.core.internal.database.mysql.mariadb.MariaDBDatabaseType;
 import org.flywaydb.core.internal.database.mysql.MySQLDatabaseType;
+import org.flywaydb.core.internal.database.mysql.mariadb.MariaDBDatabaseType;
 import org.flywaydb.core.internal.database.oracle.OracleDatabaseType;
 import org.flywaydb.core.internal.database.postgresql.PostgreSQLDatabaseType;
 import org.flywaydb.core.internal.database.redshift.RedshiftDatabaseType;
 import org.flywaydb.core.internal.database.saphana.SAPHANADatabaseType;
 import org.flywaydb.core.internal.database.snowflake.SnowflakeDatabaseType;
-
 import org.flywaydb.core.internal.database.sqlite.SQLiteDatabaseType;
 import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabaseType;
+import org.flywaydb.core.internal.database.sqlserver.synapse.SynapseDatabaseType;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEJConnectDatabaseType;
 import org.flywaydb.core.internal.database.sybasease.SybaseASEJTDSDatabaseType;
-import org.flywaydb.core.internal.database.sqlserver.synapse.SynapseDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -52,7 +52,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DatabaseTypeRegister {
-
     private static final Log LOG = LogFactory.getLog(DatabaseTypeRegister.class);
 
     private static final List<DatabaseType> registeredDatabaseTypes = new ArrayList<>();
@@ -110,7 +109,7 @@ public class DatabaseTypeRegister {
                     builder.append(type.getName());
                 }
 
-                LOG.debug("Multiple databases found that handle url '" + redactJdbcUrl(url) + "'. " + builder);
+                LOG.debug("Multiple databases found that handle url '" + redactJdbcUrl(url) + "': " + builder);
             }
 
             return typesAcceptingUrl.get(0);
@@ -126,8 +125,7 @@ public class DatabaseTypeRegister {
 
         List<DatabaseType> typesAcceptingUrl = new ArrayList<>();
 
-        for (int i = 0; i < registeredDatabaseTypes.size(); i++) {
-            DatabaseType type = registeredDatabaseTypes.get(i);
+        for (DatabaseType type : registeredDatabaseTypes) {
             if (type.handlesJDBCUrl(url)) {
                 typesAcceptingUrl.add(type);
             }
@@ -160,7 +158,6 @@ public class DatabaseTypeRegister {
         return url;
     }
 
-
     public static DatabaseType getDatabaseTypeForConnection(Connection connection) {
         if (!hasRegisteredDatabaseTypes) {
             registerDatabaseTypes();
@@ -170,8 +167,7 @@ public class DatabaseTypeRegister {
         String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
         String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
 
-        for (int i = 0; i < registeredDatabaseTypes.size(); i++) {
-            DatabaseType type = registeredDatabaseTypes.get(i);
+        for (DatabaseType type : registeredDatabaseTypes) {
             if (type.handlesDatabaseProductNameAndVersion(databaseProductName, databaseProductVersion, connection)) {
                 return type;
             }

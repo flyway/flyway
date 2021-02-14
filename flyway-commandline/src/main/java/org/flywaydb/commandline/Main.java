@@ -41,9 +41,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 
-/**
- * Main class and central entry point of the Flyway command-line tool.
- */
 public class Main {
     private static Log LOG;
 
@@ -64,9 +61,6 @@ public class Main {
         return new MultiLogCreator(logCreators);
     }
 
-    /**
-     * Initializes the logging.
-     */
     static void initLogging(CommandLineArguments commandLineArguments) {
         LogCreator logCreator = getLogCreator(commandLineArguments);
 
@@ -93,11 +87,6 @@ public class Main {
 
 
 
-    /**
-     * Main method.
-     *
-     * @param args The command-line arguments.
-     */
     public static void main(String[] args) {
         CommandLineArguments commandLineArguments = new CommandLineArguments(args);
         initLogging(commandLineArguments);
@@ -128,6 +117,10 @@ public class Main {
             config.putAll(envVars);
             config = overrideConfiguration(config, commandLineArguments.getConfiguration());
 
+
+
+
+
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             List<File> jarFiles = new ArrayList<>();
             jarFiles.addAll(getJdbcDriverJarFiles());
@@ -142,10 +135,6 @@ public class Main {
 
             ConfigUtils.dumpConfiguration(config);
             filterProperties(config);
-
-
-
-
 
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 
@@ -224,12 +213,6 @@ public class Main {
         return condensedMessages;
     }
 
-    /**
-     * Executes this operation on this Flyway instance.
-     *
-     * @param flyway    The Flyway instance.
-     * @param operation The operation to execute.
-     */
     private static OperationResultBase executeOperation(Flyway flyway, String operation, CommandLineArguments commandLineArguments) {
         OperationResultBase result = null;
         if ("clean".equals(operation)) {
@@ -310,11 +293,6 @@ public class Main {
         return gson.toJson(object);
     }
 
-    /**
-     * Initializes the config with the default configuration for the command-line tool.
-     *
-     * @param config The config object to initialize.
-     */
     private static void initializeDefaults(Map<String, String> config, CommandLineArguments commandLineArguments) {
         // To maintain override order, return extension value first if present
         String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : getInstallationDir();
@@ -325,8 +303,6 @@ public class Main {
 
     /**
      * Filters the properties to remove the Flyway Commandline-specific ones.
-     *
-     * @param config The properties to filter.
      */
     private static void filterProperties(Map<String, String> config) {
         config.remove(ConfigUtils.JAR_DIRS);
@@ -334,9 +310,6 @@ public class Main {
         config.remove(ConfigUtils.CONFIG_FILE_ENCODING);
     }
 
-    /**
-     * Prints the version number on the console.
-     */
     private static void printVersion() {
         VersionPrinter.printVersionOnly();
         LOG.info("");
@@ -345,9 +318,6 @@ public class Main {
         LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch") + "\n");
     }
 
-    /**
-     * Prints the usage instructions on the console.
-     */
     private static void printUsage() {
         LOG.info("Usage");
         LOG.info("=====");
@@ -442,11 +412,6 @@ public class Main {
         LOG.info("More info at https://flywaydb.org/documentation/commandline");
     }
 
-    /**
-     * Gets the jar files of all the JDBC drivers contained in the drivers folder.
-     *
-     * @return The jar files.
-     */
     private static List<File> getJdbcDriverJarFiles() {
         File driversDir = new File(getInstallationDir(), "drivers");
         File[] files = driversDir.listFiles(new FilenameFilter() {
@@ -464,12 +429,6 @@ public class Main {
         return Arrays.asList(files);
     }
 
-    /**
-     * Gets all the jar files contained in the jars folder. (For Java Migrations)
-     *
-     * @param config The configured properties.
-     * @return The jar files.
-     */
     private static List<File> getJavaMigrationJarFiles(Map<String, String> config) {
         String jarDirs = config.get(ConfigUtils.JAR_DIRS);
         if (!StringUtils.hasLength(jarDirs)) {
@@ -500,15 +459,7 @@ public class Main {
         return jarFiles;
     }
 
-    /**
-     * Loads the configuration from the various possible locations.
-     *
-     * @param config  The properties object to load to configuration into.
-     * @param commandLineArguments    The command-line arguments passed in.
-     * @param envVars The environment variables, converted into properties.
-     */
-    /* private -> for testing */
-    static void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {
+    protected static void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(commandLineArguments, envVars);
         File installationDir = new File(getInstallationDir());
 
@@ -520,8 +471,8 @@ public class Main {
     }
 
     /**
-     * If no user or password has been provided, prompt for it. If you want to avoid the prompt,
-     * pass in an empty user or password.
+     * If no user or password has been provided, prompt for it. If you want to avoid the prompt, pass in an empty
+     * user or password.
      *
      * @param config The properties object to load to configuration into.
      */
@@ -580,13 +531,6 @@ public class Main {
                 ;
     }
 
-    /**
-     * Determines the files to use for loading the configuration.
-     *
-     * @param commandLineArguments    The command-line arguments passed in.
-     * @param envVars The environment variables converted to Flyway properties.
-     * @return The configuration files.
-     */
     private static List<File> determineConfigFilesFromArgs(CommandLineArguments commandLineArguments, Map<String, String> envVars) {
         List<File> configFiles = new ArrayList<>();
 
@@ -607,9 +551,6 @@ public class Main {
         return configFiles;
     }
 
-    /**
-     * @return The installation directory of the Flyway Command-line tool.
-     */
     @SuppressWarnings("ConstantConditions")
     private static String getInstallationDir() {
         String path = ClassUtils.getLocationOnDisk(Main.class);
@@ -621,10 +562,6 @@ public class Main {
     }
 
     /**
-     * Determines the encoding to use for loading the configuration.
-     *
-     * @param commandLineArguments    The command-line arguments passed in.
-     * @param envVars The environment variables converted to Flyway properties.
      * @return The encoding. (default: UTF-8)
      */
     private static String determineConfigurationFileEncoding(CommandLineArguments commandLineArguments, Map<String, String> envVars) {

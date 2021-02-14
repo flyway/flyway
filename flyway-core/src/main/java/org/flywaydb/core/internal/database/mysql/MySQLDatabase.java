@@ -25,7 +25,6 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.database.mysql.mariadb.MariaDBDatabaseType;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
@@ -197,48 +196,21 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     @Override
     protected MigrationVersion determineVersion() {
+        // Ignore the version from the JDBC metadata and use the version returned by the database since proxies such as
+        // Azure or ProxySQL return incorrect versions
         String selectVersionOutput = DatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
         if (databaseType instanceof MariaDBDatabaseType) {
-            try {
-                String productVersion = jdbcMetaData.getDatabaseProductVersion();
-                return correctForAzureMariaDB(productVersion, selectVersionOutput);
-
-            } catch (SQLException e) {
-                throw new FlywaySqlException("Unable to determine MariaDB server version", e);
-            }
+            return extractMariaDBVersionFromString(selectVersionOutput);
         }
-        MigrationVersion jdbcMetadataVersion = super.determineVersion();
-        return correctForMySQLWithBadMetadata(jdbcMetadataVersion, selectVersionOutput);
+        return extractMySQLVersionFromString(selectVersionOutput);
     }
 
-    /*
-     * Azure Database for MySQL reports version numbers incorrectly - it claims to be 5.6 (the gateway
-     * version) while the db itself is 5.7 or greater, visible from SELECT VERSION(). We work around this specific
-     * case. This code should be simplified as soon as Azure is fixed.
-     * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
-     * A similar issue applies to Percona, except there the metadata claims to be 5.5.
-     */
-    static MigrationVersion correctForMySQLWithBadMetadata(MigrationVersion jdbcMetadataVersion, String selectVersionOutput) {
-        if (selectVersionOutput.compareTo("5.7") >= 0 && jdbcMetadataVersion.toString().compareTo("5.7") < 0) {
-            LOG.debug("MySQL-based database - reporting v" + jdbcMetadataVersion.toString() +" in JDBC metadata but database actually v" + selectVersionOutput);
-            return extractVersionFromString(selectVersionOutput, MYSQL_VERSION_PATTERN);
-        }
-        return jdbcMetadataVersion;
+    static MigrationVersion extractMySQLVersionFromString(String selectVersionOutput) {
+        return extractVersionFromString(selectVersionOutput, MYSQL_VERSION_PATTERN);
     }
 
-    /*
-     * Azure Database for MariaDB also reports version numbers incorrectly - it claims to be MySQL 5.6 (the gateway
-     * version) while the db itself is something like 10.3.6-MariaDB-suffix, visible from SELECT VERSION().
-     * This code should be simplified as soon as Azure is fixed.
-     * https://docs.microsoft.com/en-us/azure/mysql/concepts-limits#current-known-issues
-     * https://mariadb.com/kb/en/server-system-variables/#version
-     */
-    static MigrationVersion correctForAzureMariaDB(String jdbcMetadataVersion, String selectVersionOutput) {
-        if (jdbcMetadataVersion.startsWith("5.6")) {
-            LOG.debug("Azure MariaDB database - reporting v5.6 in JDBC metadata but database actually v" + selectVersionOutput);
-            return extractVersionFromString(selectVersionOutput, MARIADB_VERSION_PATTERN, MARIADB_WITH_MAXSCALE_VERSION_PATTERN);
-        }
-        return extractVersionFromString(jdbcMetadataVersion, MARIADB_VERSION_PATTERN, MARIADB_WITH_MAXSCALE_VERSION_PATTERN);
+    static MigrationVersion extractMariaDBVersionFromString(String selectVersionOutput) {
+        return extractVersionFromString(selectVersionOutput, MARIADB_VERSION_PATTERN, MARIADB_WITH_MAXSCALE_VERSION_PATTERN);
     }
 
     /*
@@ -253,7 +225,6 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         }
         throw new FlywayException("Unable to determine version from '" + versionString + "'");
     }
-
 
 
 

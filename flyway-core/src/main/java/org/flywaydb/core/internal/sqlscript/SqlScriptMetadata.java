@@ -64,6 +64,10 @@ public class SqlScriptMetadata {
         return shouldExecute;
     }
 
+    public static boolean isMultilineBooleanExpression(String line) {
+        return !line.startsWith(SHOULD_EXECUTE) && (line.contains("==") || line.contains("!="));
+    }
+
     public static SqlScriptMetadata fromResource(LoadableResource resource, Parser parser) {
         if (resource != null) {
             LOG.debug("Found script configuration: " + resource.getFilename());

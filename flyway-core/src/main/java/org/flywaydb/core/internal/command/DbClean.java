@@ -185,7 +185,7 @@ public class DbClean {
                     database).execute(new Callable<Object>() {
                 @Override
                 public Void call() {
-                    database.cleanPostSchemas();
+                    database.cleanPostSchemas(schemas);
                     return null;
                 }
             });

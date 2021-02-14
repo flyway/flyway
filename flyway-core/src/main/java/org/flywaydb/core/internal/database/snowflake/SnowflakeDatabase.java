@@ -77,13 +77,15 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
 
 
 
+
+
     @Override
     public void ensureSupported() {
         ensureDatabaseIsRecentEnough("3.0");
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("3", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessaryForMajorVersion("4.2");
+        recommendFlywayUpgradeIfNecessaryForMajorVersion("5.1");
     }
 
     @Override
