@@ -37,6 +37,7 @@ import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -197,13 +198,17 @@ class JdbcTableSchemaHistory extends SchemaHistory {
         try {
             cache.addAll(jdbcTemplate.query(query, new RowMapper<AppliedMigration>() {
                 public AppliedMigration mapRow(final ResultSet rs) throws SQLException {
-                    Integer checksum = rs.getInt("checksum");
+                    // Construct a map of lower-cased column names to ordinals. This is useful for databases that
+                    // upper-case them - eg Snowflake with QUOTED-IDENTIFIERS-IGNORE-CASE turned on
+                    HashMap<String, Integer> columnOrdinalMap = constructColumnOrdinalMap(rs);
+
+                    Integer checksum = rs.getInt(columnOrdinalMap.get("checksum"));
                     if (rs.wasNull()) {
                         checksum = null;
                     }
 
                     // Convert legacy types to their modern equivalent to avoid validation errors
-                    String type = rs.getString("type");
+                    String type = rs.getString(columnOrdinalMap.get("type"));
                     if ("SPRING_JDBC".equals(type)) {
                         type = "JDBC";
                     }
@@ -212,16 +217,16 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                     }
 
                     return new AppliedMigration(
-                            rs.getInt("installed_rank"),
-                            rs.getString("version") != null ? MigrationVersion.fromVersion(rs.getString("version")) : null,
-                            rs.getString("description"),
+                            rs.getInt(columnOrdinalMap.get("installed_rank")),
+                            rs.getString(columnOrdinalMap.get("version")) != null ? MigrationVersion.fromVersion(rs.getString(columnOrdinalMap.get("version"))) : null,
+                            rs.getString(columnOrdinalMap.get("description")),
                             MigrationType.valueOf(type),
-                            rs.getString("script"),
+                            rs.getString(columnOrdinalMap.get("script")),
                             checksum,
-                            rs.getTimestamp("installed_on"),
-                            rs.getString("installed_by"),
-                            rs.getInt("execution_time"),
-                            rs.getBoolean("success")
+                            rs.getTimestamp(columnOrdinalMap.get("installed_on")),
+                            rs.getString(columnOrdinalMap.get("installed_by")),
+                            rs.getInt(columnOrdinalMap.get("execution_time")),
+                            rs.getBoolean(columnOrdinalMap.get("success"))
                     );
                 }
             }, maxCachedInstalledRank));
@@ -229,6 +234,18 @@ class JdbcTableSchemaHistory extends SchemaHistory {
             throw new FlywaySqlException("Error while retrieving the list of applied migrations from Schema History table "
                     + table, e);
         }
+    }
+
+    private HashMap<String, Integer> constructColumnOrdinalMap(ResultSet rs) throws SQLException {
+        HashMap<String, Integer> columnOrdinalMap = new HashMap<>();
+        ResultSetMetaData metadata = rs.getMetaData();
+
+        for (int i = 1; i <= metadata.getColumnCount(); i++) {
+            // Careful - column ordinals in JDBC start at 1
+            String columnNameLower = metadata.getColumnName(i).toLowerCase();
+            columnOrdinalMap.put(columnNameLower, i);
+        }
+        return columnOrdinalMap;
     }
 
     @Override
