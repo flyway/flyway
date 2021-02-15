@@ -85,7 +85,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
         );
 
-        addMigrations(migrations, configuration.getIntermediateBaselineSqlMigrationPrefix(), separator, suffixes,
+        addMigrations(migrations, configuration.getIntermediateBaselineSqlMigrationPrefix(), suffixes,
                 false
 
 
