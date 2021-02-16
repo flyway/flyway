@@ -606,8 +606,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             Set<URL> extraURLs = new HashSet<>();
             if (isJavaProject()) {
                 addClassesAndResourcesDirs(extraURLs);
-                addConfigurationArtifacts(determineConfigurations(envVars), extraURLs);
             }
+
+            addConfigurationArtifacts(determineConfigurations(envVars), extraURLs);
 
             ClassLoader classLoader = new URLClassLoader(
                     extraURLs.toArray(new URL[0]),
