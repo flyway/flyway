@@ -683,10 +683,14 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         if (extension.configurations != null) {
             return extension.configurations;
         }
-        if (getProject().getGradle().getGradleVersion().startsWith("3")) {
-            return DEFAULT_CONFIGURATIONS_GRADLE3;
+        if (isJavaProject()) {
+            if (getProject().getGradle().getGradleVersion().startsWith("3")) {
+                return DEFAULT_CONFIGURATIONS_GRADLE3;
+            }
+            return DEFAULT_CONFIGURATIONS_GRADLE45;
+        } else {
+            return new String[0];
         }
-        return DEFAULT_CONFIGURATIONS_GRADLE45;
     }
 
     /**
