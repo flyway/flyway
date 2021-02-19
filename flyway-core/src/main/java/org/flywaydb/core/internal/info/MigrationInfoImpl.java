@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 /**
@@ -505,7 +506,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
         if ((getInstalledRank() != null) && (o.getInstalledRank() != null)) {
-            return getInstalledRank() - o.getInstalledRank();
+            return getInstalledRank().compareTo(o.getInstalledRank());
         }
 
         MigrationState state = getState();
@@ -527,7 +528,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
         if (state.isApplied() && oState == MigrationState.IGNORED) {
             if (getVersion() != null && o.getVersion() != null) {
-                return getVersion().compareTo(o.getVersion());
+                return o.getVersion().compareTo(getVersion());
             }
             return 1;
         }
@@ -573,7 +574,6 @@ public class MigrationInfoImpl implements MigrationInfo {
         return getDescription().compareTo(o.getDescription());
     }
 
-    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -581,10 +581,9 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         MigrationInfoImpl that = (MigrationInfoImpl) o;
 
-        if (appliedMigration != null ? !appliedMigration.equals(that.appliedMigration) : that.appliedMigration != null)
-            return false;
+        if (!Objects.equals(appliedMigration, that.appliedMigration)) return false;
         if (!context.equals(that.context)) return false;
-        return !(resolvedMigration != null ? !resolvedMigration.equals(that.resolvedMigration) : that.resolvedMigration != null);
+        return Objects.equals(resolvedMigration, that.resolvedMigration);
     }
 
     @Override
