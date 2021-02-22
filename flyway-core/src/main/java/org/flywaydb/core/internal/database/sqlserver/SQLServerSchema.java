@@ -55,6 +55,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
          */
         DEFAULT_CONSTRAINT("D"),
         /**
+         * PRIMARY KEY constraint.
+         */
+        PRIMARY_KEY("PK"),
+        /**
          * FOREIGN KEY constraint.
          */
         FOREIGN_KEY("F"),
@@ -206,6 +210,18 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
 
         for (String statement : cleanForeignKeys(tables)) {
             jdbcTemplate.execute(statement);
+        }
+
+        for (String statement : cleanPrimaryKeys(tables)) {
+            try {
+                jdbcTemplate.execute(statement);
+            } catch (SQLException e) {
+                // PRIMARY KEY constraints are dropped so that computed columns which are primary keys can be dropped.
+                // We ignore primary keys that cannot be dropped as the table itself will eventually be dropped.
+                if (!e.getMessage().startsWith("Cannot drop PRIMARY KEY constraint")) {
+                    throw e;
+                }
+            }
         }
 
         for (String statement : cleanDefaultConstraints(tables)) {
@@ -365,18 +381,22 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         });
     }
 
-    /**
-     * Cleans the foreign keys in this schema.
-     *
-     * @param tables the tables to be cleaned
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
+    private List<String> cleanPrimaryKeys(List<DBObject> tables) throws SQLException {
+        List<String> statements = new ArrayList<>();
+        for (DBObject table : tables) {
+            List<DBObject> pks = queryDBObjectsWithParent(table, ObjectType.PRIMARY_KEY);
+            for (DBObject pk : pks) {
+                statements.add("ALTER TABLE " + database.quote(name, table.name) + " DROP CONSTRAINT " +
+                        database.quote(pk.name));
+            }
+        }
+        return statements;
+    }
+
     private List<String> cleanForeignKeys(List<DBObject> tables) throws SQLException {
         List<String> statements = new ArrayList<>();
         for (DBObject table : tables) {
-            List<DBObject> fks = queryDBObjectsWithParent(table, ObjectType.FOREIGN_KEY,
-                    ObjectType.CHECK_CONSTRAINT);
+            List<DBObject> fks = queryDBObjectsWithParent(table, ObjectType.FOREIGN_KEY, ObjectType.CHECK_CONSTRAINT);
             for (DBObject fk : fks) {
                 statements.add("ALTER TABLE " + database.quote(name, table.name) + " DROP CONSTRAINT " +
                         database.quote(fk.name));
