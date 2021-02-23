@@ -540,25 +540,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String workingDirectory;
 
     /**
-     * NOTE: EXPERIMENTAL - Not recommended for production use
-     *
-     * The REST API URL pointing to your secret in Conjur
-     *
-     * <i>Flyway Teams only</i>
-     */
-    public String conjurUrl;
-    /**
-     * NOTE: EXPERIMENTAL - Not recommended for production use
-     *
-     * The Conjur authorization token required to access your secret
-     *
-     * <i>Flyway Teams only</i>
-     */
-    public String conjurToken;
-
-    /**
-     * NOTE: EXPERIMENTAL - Not recommended for production use
-     *
      * The REST API URL of your Vault server, including the API version.
      * Currently only supports API version v1.
      * Example: http://localhost:8200/v1/
@@ -567,20 +548,15 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     public String vaultUrl;
     /**
-     * NOTE: EXPERIMENTAL - Not recommended for production use
-     *
      * The Vault token required to access your secrets.
      *
      * <i>Flyway Teams only</i>
      */
     public String vaultToken;
     /**
-     * NOTE: EXPERIMENTAL - Not recommended for production use
-     *
-     * A comma-separated list of paths to secrets in Vault that contain Flyway
-     * configurations. This must start with the name of the engine followed by
-     * '/data/' and end with the name of the secret.
-     * The resulting form is '{engine}/data/{path}/{to}/{secret_name}'.
+     * A comma-separated list of paths to secrets in Vault that contain Flyway configurations. This
+     * must start with the name of the engine and end with the name of the secret.
+     * The resulting form is '{engine_name}/{path}/{to}/{secret_name}'.
      *
      * If multiple secrets specify the same configuration parameter, then the last
      * secret takes precedence.
@@ -755,9 +731,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
         putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus, extension.oracleSqlplus);
         putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS_WARN, oracleSqlplusWarn, extension.oracleSqlplusWarn);
-
-        putIfSet(conf, ConfigUtils.CONJUR_URL, conjurUrl, extension.conjurUrl);
-        putIfSet(conf, ConfigUtils.CONJUR_TOKEN, conjurToken, extension.conjurToken);
 
         putIfSet(conf, ConfigUtils.VAULT_URL, vaultUrl, extension.vaultUrl);
         putIfSet(conf, ConfigUtils.VAULT_TOKEN, vaultToken, extension.vaultToken);

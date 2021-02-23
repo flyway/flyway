@@ -24,7 +24,6 @@ import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 
-
 import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -92,9 +91,6 @@ public class ConfigUtils {
     public static final String CREATE_SCHEMAS = "flyway.createSchemas";
 
     // Secrets-manager specific
-    public static final String CONJUR_URL = "flyway.conjur.url";
-    public static final String CONJUR_TOKEN = "flyway.conjur.token";
-
     public static final String VAULT_URL = "flyway.vault.url";
     public static final String VAULT_TOKEN = "flyway.vault.token";
     public static final String VAULT_SECRETS = "flyway.vault.secrets";
@@ -313,12 +309,6 @@ public class ConfigUtils {
         }
 
         // Secrets-manager specific
-        if ("FLYWAY_CONJUR_URL".equals(key)) {
-            return CONJUR_URL;
-        }
-        if ("FLYWAY_CONJUR_TOKEN".equals(key)) {
-            return CONJUR_TOKEN;
-        }
         if ("FLYWAY_VAULT_URL".equals(key)) {
             return VAULT_URL;
         }
@@ -485,16 +475,6 @@ public class ConfigUtils {
         properties.load(new StringReader(contents));
         return propertiesToMap(properties);
     }
-
-
-
-
-
-
-
-
-
-
 
 
 
