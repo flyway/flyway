@@ -189,7 +189,8 @@ public class ClassUtils {
             return null;
         }
         CodeSource codeSource = protectionDomain.getCodeSource();
-        if (codeSource == null) {
+
+        if (codeSource == null || codeSource.getLocation() == null) {
             //Custom classloader with for example classes defined using URLClassLoader#defineClass(String name, byte[] b, int off, int len)
             return null;
         }
