@@ -76,4 +76,9 @@ public interface MigrationInfo extends Comparable<MigrationInfo> {
      * @return The physical location of the migration on disk.
      */
     String getPhysicalLocation();
+
+    /**
+     * @return The result between a comparison of these MigrationInfo's versions.
+     */
+    int compareVersion(MigrationInfo o);
 }

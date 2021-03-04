@@ -521,16 +521,10 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (state == MigrationState.IGNORED && oState.isApplied()) {
-            if (getVersion() != null && o.getVersion() != null) {
-                return getVersion().compareTo(o.getVersion());
-            }
-            return -1;
+            return compareVersion(o);
         }
         if (state.isApplied() && oState == MigrationState.IGNORED) {
-            if (getVersion() != null && o.getVersion() != null) {
-                return o.getVersion().compareTo(getVersion());
-            }
-            return 1;
+            return o.compareVersion(this);
         }
 
         // Sort installed before pending
@@ -541,8 +535,11 @@ public class MigrationInfoImpl implements MigrationInfo {
             return 1;
         }
 
-        // No migration installed, sort according to other criteria
-        // Two versioned migrations: sort by version
+        return compareVersion(o);
+    }
+
+    @Override
+    public int compareVersion(MigrationInfo o) {
         if (getVersion() != null && o.getVersion() != null) {
             int v = getVersion().compareTo(o.getVersion());
             if (v != 0) {
@@ -562,7 +559,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             return 0;
         }
 
-        // One versioned and one repeatable migration: versioned migration goes before repeatable one
+        // One versioned and one repeatable migration: versioned migration goes before repeatable
         if (getVersion() != null) {
             return -1;
         }
