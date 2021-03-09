@@ -386,7 +386,7 @@ public class OracleParser extends Parser {
 
     @Override
     protected boolean shouldDiscard(Token token, boolean nonCommentPartSeen) {
-        // Discard dangling PL/SQL / delimiters
+        // Discard dangling PL/SQL '/' delimiters
         return ("/".equals(token.getText()) && !nonCommentPartSeen) || super.shouldDiscard(token, nonCommentPartSeen);
     }
 

@@ -21,7 +21,7 @@ public class Recorder {
     private int recorderConfirmedPos = 0;
 
     public void record(char c) {
-        if (isRunninng()) {
+        if (isRunning()) {
             recorder.append(c);
         }
     }
@@ -31,12 +31,12 @@ public class Recorder {
     }
 
     public void truncate(int length) {
-        if (isRunninng()) {
+        if (isRunning()) {
             recorder.delete(length, recorder.length());
         }
     }
 
-    private boolean isRunninng() {
+    private boolean isRunning() {
         return recorder != null && !recorderPaused;
     }
 
@@ -48,10 +48,6 @@ public class Recorder {
 
     public void pause() {
         recorderPaused = true;
-    }
-
-    public void unpause() {
-        recorderPaused = false;
     }
 
     public void record(String str) {
