@@ -232,8 +232,14 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
             jdbcTemplate.execute(statement);
         }
 
+        // Use a 2-pass approach for cleaning indexes that cannot be dropped until the corresponding table is dropped
+        // Pass 1
         for (String statement : cleanIndexes(tables)) {
-            jdbcTemplate.execute(statement);
+            try {
+                jdbcTemplate.execute(statement);
+            } catch (SQLException e) {
+                LOG.debug("Ignoring dropping index. Error: " + e.getMessage());
+            }
         }
 
         // Use a 2-pass approach for cleaning computed columns and functions with SCHEMABINDING due to dependency errors
@@ -258,7 +264,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
             }
         }
 
-        // Pass 2
+        // Pass 2 for cleaning computed columns and functions
         for (String statement : cleanComputedColumns(tables)) {
             jdbcTemplate.execute(statement);
         }
@@ -288,6 +294,11 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         }
         for (SQLServerTable table : allTables) {
             table.drop();
+        }
+
+        // Pass 2 for cleaning indexes
+        for (String statement : cleanIndexes(tables)) {
+            jdbcTemplate.execute(statement);
         }
 
         for (String statement : cleanObjects("AGGREGATE", ObjectType.AGGREGATE)) {
