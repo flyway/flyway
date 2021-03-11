@@ -8,7 +8,7 @@ This Agreement sets out the conditions under which and the extent to which the e
 The Licensee confirms that it accepts and agrees to be legally bound by all terms and conditions of this Agreement by downloading and/or installing and/or using the Software.  If you do not accept these terms, do not download, install or use the Software.
 
 IMPORTANT NOTICES:
-(i)  A copy of Agreement will be sent with your Boxfuse GmbH invoice;
+(i)  A copy of Agreement will be sent with your Red Gate Software invoice;
 (ii)  Where you sign a paper version or a bespoke version of this Agreement, that paper/bespoke version will take precedence over any subsequent Agreements that were sent with your invoice; and
 (iii)  This Agreement shall prevail over your standard terms and conditions (if any) attached to, enclosed with, or referred to in, any purchase order or confirmation of order.
 
