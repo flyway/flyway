@@ -20,16 +20,11 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.jdbc.RowMapper;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * SQLServer implementation of Schema.
- */
 public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     private static final Log LOG = LogFactory.getLog(SQLServerSchema.class);
 
@@ -39,7 +34,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
      * SQL server object types for which we support automatic clean-up. Those types can be used in conjunction with the
      * {@code sys.objects} catalog. The full list of object types is available in the
      * <a href="https://msdn.microsoft.com/en-us/library/ms190324.aspx">MSDN documentation</a> (see the {@code type}
-     * column description.
+     * column description.)
      */
     protected enum ObjectType {
         /**
@@ -47,7 +42,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
          */
         AGGREGATE("AF"),
         /**
-         * CHECK constraint
+         * CHECK constraint.
          */
         CHECK_CONSTRAINT("C"),
         /**
@@ -75,7 +70,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
          */
         CLR_SCALAR_FUNCTION("FS"),
         /**
-         * Assembly (CLR) table-valued function
+         * Assembly (CLR) table-valued function.
          */
         CLR_TABLE_VALUED_FUNCTION("FT"),
         /**
@@ -132,16 +127,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     }
 
     /**
-     * SQL server object meta-data.
+     * SQL Server object meta-data.
      */
     public static class DBObject {
-        /**
-         * The object name.
-         */
         public final String name;
-        /**
-         * The object id.
-         */
         public final long objectId;
 
         public DBObject(long objectId, String name) {
@@ -152,8 +141,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     }
 
     /**
-     * Creates a new SQLServer schema.
-     *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
      * @param database     The database-specific support.
      * @param databaseName The database name.
@@ -232,24 +219,14 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
             jdbcTemplate.execute(statement);
         }
 
-        // Use a 2-pass approach for cleaning indexes that cannot be dropped until the corresponding table is dropped
+        // Use a 2-pass approach for cleaning indexes, computed columns and functions with SCHEMABINDING due to
+        // dependency errors
         // Pass 1
         for (String statement : cleanIndexes(tables)) {
-            try {
-                jdbcTemplate.execute(statement);
-            } catch (SQLException e) {
-                LOG.debug("Ignoring dropping index. Error: " + e.getMessage());
-            }
+            executeIgnoringDependencyErrors(statement);
         }
-
-        // Use a 2-pass approach for cleaning computed columns and functions with SCHEMABINDING due to dependency errors
-        // Pass 1
         for (String statement : cleanComputedColumns(tables)) {
-            try {
-                jdbcTemplate.execute(statement);
-            } catch (SQLException e) {
-                LOG.debug("Ignoring dependency-related error: " + e.getMessage());
-            }
+            executeIgnoringDependencyErrors(statement);
         }
         for (String statement : cleanObjects("FUNCTION",
                 ObjectType.SCALAR_FUNCTION,
@@ -257,14 +234,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
                 ObjectType.CLR_TABLE_VALUED_FUNCTION,
                 ObjectType.TABLE_VALUED_FUNCTION,
                 ObjectType.INLINED_TABLE_FUNCTION)) {
-            try {
-                jdbcTemplate.execute(statement);
-            } catch (SQLException e) {
-                LOG.debug("Ignoring dependency-related error: " + e.getMessage());
-            }
+            executeIgnoringDependencyErrors(statement);
         }
 
-        // Pass 2 for cleaning computed columns and functions
+        // Pass 2 for cleaning computed columns
         for (String statement : cleanComputedColumns(tables)) {
             jdbcTemplate.execute(statement);
         }
@@ -279,6 +252,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
             jdbcTemplate.execute(statement);
         }
 
+        // Pass 2 for cleaning functions
         for (String statement : cleanObjects("FUNCTION",
                 ObjectType.SCALAR_FUNCTION,
                 ObjectType.CLR_SCALAR_FUNCTION,
@@ -328,12 +302,20 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
 
     }
 
+    private void executeIgnoringDependencyErrors(String statement) {
+        try {
+            jdbcTemplate.execute(statement);
+        } catch (SQLException e) {
+            LOG.debug("Ignoring dependency-related error: " + e.getMessage());
+        }
+    }
+
     /**
      * Query objects with any of the given types.
      *
-     * @param types the object types to be queried
-     * @return the found objects
-     * @throws SQLException when the retrieval failed
+     * @param types The object types to be queried.
+     * @return The found objects.
+     * @throws SQLException when the retrieval failed.
      */
     protected List<DBObject> queryDBObjects(ObjectType... types) throws SQLException {
         return queryDBObjectsWithParent(null, types);
@@ -342,10 +324,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     /**
      * Query objects with any of the given types and parent (if non-null).
      *
-     * @param parent the parent object or {@code null} if unspecified
-     * @param types  the object types to be queried
-     * @return the found objects
-     * @throws SQLException when the retrieval failed
+     * @param parent The parent object or {@code null} if unspecified.
+     * @param types  the object types to be queried.
+     * @return The found objects.
+     * @throws SQLException when the retrieval failed.
      */
     private List<DBObject> queryDBObjectsWithParent(DBObject parent, ObjectType... types) throws SQLException {
         StringBuilder query = new StringBuilder("SELECT obj.object_id, obj.name FROM sys.objects AS obj " +
@@ -384,12 +366,8 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
 
         );
 
-        return jdbcTemplate.query(query.toString(), new RowMapper<DBObject>() {
-            @Override
-            public DBObject mapRow(ResultSet rs) throws SQLException {
-                return new DBObject(rs.getLong("object_id"), rs.getString("name"));
-            }
-        });
+        return jdbcTemplate.query(query.toString(), rs ->
+                new DBObject(rs.getLong("object_id"), rs.getString("name")));
     }
 
     private List<String> cleanPrimaryKeys(List<DBObject> tables) throws SQLException {
@@ -419,7 +397,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     /**
      * Cleans the computed columns in this schema.
      *
-     * @param tables the tables to be cleaned
+     * @param tables The tables to be cleaned.
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
@@ -439,7 +417,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     /**
      * Cleans the indexes in this schema.
      *
-     * @param tables the tables to be cleaned
+     * @param tables The tables to be cleaned.
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
@@ -463,7 +441,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     /**
      * Cleans the default constraints in this schema.
      *
-     * @param tables the tables to be cleaned
+     * @param tables The tables to be cleaned.
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
@@ -493,7 +471,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     /**
      * Cleans the unique constraints in this schema.
      *
-     * @param tables the tables to be cleaned
+     * @param tables the tables to be cleaned.
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
@@ -504,7 +482,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
             for (DBObject df : dfs) {
                 statements.add("ALTER TABLE " + database.quote(name, table.name) + " DROP CONSTRAINT " + database.quote(df.name));
             }
-
         }
         return statements;
     }
@@ -519,8 +496,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         List<String> statements = new ArrayList<>();
 
         if (database.supportsTriggers()) {
-            List<String> triggerNames =
-                    jdbcTemplate.queryForStringList("SELECT * FROM sys.triggers" +
+            List<String> triggerNames = jdbcTemplate.queryForStringList("SELECT * FROM sys.triggers" +
                             " WHERE is_ms_shipped=0 AND parent_id=0 AND parent_class_desc='DATABASE'");
 
             for (String triggerName : triggerNames) {
@@ -573,7 +549,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         for (DBObject dbObject : dbObjects) {
             statements.add("DROP " + dropQualifier + " " + database.quote(name, dbObject.name));
         }
-
         return statements;
     }
 
