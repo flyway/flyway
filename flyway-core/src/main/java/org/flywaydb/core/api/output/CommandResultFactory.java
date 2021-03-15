@@ -111,6 +111,7 @@ public class CommandResultFactory {
                 migrationInfo.getDescription(),
                 migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
                 migrationInfo.getInstalledOn() != null ? migrationInfo.getInstalledOn().toString() : "",
+                migrationInfo.getInstalledOn() != null ? migrationInfo.getInstalledOn().toInstant().toString() : "",
                 migrationInfo.getState().getDisplayName(),
                 getUndoableStatus(migrationInfo, undoableVersions),
                 migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
