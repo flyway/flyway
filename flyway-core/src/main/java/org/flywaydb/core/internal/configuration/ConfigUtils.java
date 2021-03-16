@@ -232,8 +232,8 @@ public class ConfigUtils {
             return PLACEHOLDERS_PROPERTY_PREFIX + key.substring("FLYWAY_PLACEHOLDERS_".length()).toLowerCase(Locale.ENGLISH);
         }
 
-        if (key.matches("FLYWAY_JDBC_PROPERTIES.+")) {
-            return JDBC_PROPERTIES_PREFIX + key.substring("FLYWAY_JDBC_PROPERTIES".length()).toLowerCase(Locale.ENGLISH);
+        if (key.matches("FLYWAY_JDBC_PROPERTIES_.+")) {
+            return JDBC_PROPERTIES_PREFIX + key.substring("FLYWAY_JDBC_PROPERTIES_".length());
         }
 
         if ("FLYWAY_REPEATABLE_SQL_MIGRATION_PREFIX".equals(key)) {
