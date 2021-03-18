@@ -153,7 +153,10 @@ public class DbMigrate {
 
             stopWatch.stop();
 
-            logSummary(count, stopWatch.getTotalTimeMillis());
+            migrateResult.targetSchemaVersion = getTargetVersion();
+            migrateResult.migrationsExecuted = count;
+
+            logSummary(count, stopWatch.getTotalTimeMillis(), migrateResult.targetSchemaVersion);
         } catch (FlywayException e) {
             callbackExecutor.onMigrateOrUndoEvent(Event.AFTER_MIGRATE_ERROR);
             throw e;
@@ -161,21 +164,19 @@ public class DbMigrate {
 
         callbackExecutor.onMigrateOrUndoEvent(Event.AFTER_MIGRATE);
 
-        if (!migrateResult.migrations.isEmpty()) {
+        return migrateResult;
+    }
 
+    private String getTargetVersion() {
+        if (!migrateResult.migrations.isEmpty()) {
             for (int i = migrateResult.migrations.size() - 1; i >= 0; i--) {
                 String targetVersion = migrateResult.migrations.get(i).version;
                 if (!targetVersion.isEmpty()) {
-                    migrateResult.targetSchemaVersion = targetVersion;
-                    break;
+                    return targetVersion;
                 }
             }
-
         }
-
-        migrateResult.migrationsExecuted = count;
-
-        return migrateResult;
+        return null;
     }
 
     private int migrateAll() {
@@ -297,19 +298,21 @@ public class DbMigrate {
      *
      * @param migrationSuccessCount The number of successfully applied migrations.
      * @param executionTime         The total time taken to perform this migration run (in ms).
+     * @param targetVersion         The version of the schema following this operation
      */
 
-    private void logSummary(int migrationSuccessCount, long executionTime) {
+    private void logSummary(int migrationSuccessCount, long executionTime, String targetVersion) {
         if (migrationSuccessCount == 0) {
             LOG.info("Schema " + schema + " is up to date. No migration necessary.");
             return;
         }
 
-        if (migrationSuccessCount == 1) {
-            LOG.info("Successfully applied 1 migration to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ")");
-        } else {
-            LOG.info("Successfully applied " + migrationSuccessCount + " migrations to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ")");
-        }
+        String targetText = (targetVersion != null) ? ", now at version v" + targetVersion : "";
+
+        String migrationText = (migrationSuccessCount == 1) ? "migration" : "migrations";
+
+        LOG.info("Successfully applied " + migrationSuccessCount + " " + migrationText + " to schema " + schema
+                + targetText + " (execution time " + TimeFormat.format(executionTime) + ")");
     }
 
     /**
