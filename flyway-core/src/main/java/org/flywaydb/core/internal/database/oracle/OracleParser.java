@@ -448,7 +448,7 @@ public class OracleParser extends Parser {
     private static final List<String> CONTROL_FLOW_KEYWORDS = Arrays.asList("IF", "LOOP", "CASE");
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
         TokenType tokenType = keyword.getType();
         String keywordText = keyword.getText();
         int parensDepth = keyword.getParensDepth();
