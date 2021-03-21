@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2020
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,10 +46,10 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
     public SnowflakeDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
 
+        // There will be issues if the Flyway schema history table was created while this option was set false
+        // (it is set either at the account level, or the individual session level) and it is subsequently set true.
         quotedIdentifiersIgnoreCase = getQuotedIdentifiersIgnoreCase(jdbcTemplate);
-        if (quotedIdentifiersIgnoreCase) {
-            LOG.warn("Current Flyway history table can't be used with QUOTED_IDENTIFIERS_IGNORE_CASE option on");
-        }
+        LOG.info("QUOTED_IDENTIFIERS_IGNORE_CASE option is " + quotedIdentifiersIgnoreCase);
     }
 
     private static boolean getQuotedIdentifiersIgnoreCase(JdbcTemplate jdbcTemplate) {

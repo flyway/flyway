@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2020
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,9 @@ public class PostgreSQLAdvisoryLockTemplate {
         RetryStrategy strategy = new RetryStrategy();
         strategy.doWithRetries(this::tryLock,
                 "Interrupted while attempting to acquire PostgreSQL advisory lock",
-                "Number of retries exceeded while attempting to acquire PostgreSQL advisory lock");
+                "Number of retries exceeded while attempting to acquire PostgreSQL advisory lock. " +
+                        "Configure the number of retries with the 'lockRetryCount' configuration option: " +
+                        "https://flywaydb.org/documentation/configuration/parameters/lockRetryCount");
     }
 
     private boolean tryLock() throws SQLException {

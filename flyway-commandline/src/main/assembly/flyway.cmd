@@ -1,5 +1,5 @@
 @REM
-@REM Copyright © Red Gate Software Ltd 2010-2020
+@REM Copyright © Red Gate Software Ltd 2010-2021
 @REM
 @REM Licensed under the Apache License, Version 2.0 (the "License");
 @REM you may not use this file except in compliance with the License.

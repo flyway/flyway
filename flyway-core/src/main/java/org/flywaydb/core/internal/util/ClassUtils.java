@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2020
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -189,7 +189,8 @@ public class ClassUtils {
             return null;
         }
         CodeSource codeSource = protectionDomain.getCodeSource();
-        if (codeSource == null) {
+
+        if (codeSource == null || codeSource.getLocation() == null) {
             //Custom classloader with for example classes defined using URLClassLoader#defineClass(String name, byte[] b, int off, int len)
             return null;
         }

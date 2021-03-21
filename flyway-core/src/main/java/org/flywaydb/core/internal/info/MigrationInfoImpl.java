@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2020
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 /**
@@ -510,7 +511,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
         if ((getInstalledRank() != null) && (o.getInstalledRank() != null)) {
-            return getInstalledRank() - o.getInstalledRank();
+            return getInstalledRank().compareTo(o.getInstalledRank());
         }
 
         MigrationState state = getState();
@@ -525,16 +526,10 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (state == MigrationState.IGNORED && oState.isApplied()) {
-            if (getVersion() != null && o.getVersion() != null) {
-                return getVersion().compareTo(o.getVersion());
-            }
-            return -1;
+            return compareVersion(o);
         }
         if (state.isApplied() && oState == MigrationState.IGNORED) {
-            if (getVersion() != null && o.getVersion() != null) {
-                return getVersion().compareTo(o.getVersion());
-            }
-            return 1;
+            return o.compareVersion(this);
         }
 
         // Sort installed before pending
@@ -545,8 +540,11 @@ public class MigrationInfoImpl implements MigrationInfo {
             return 1;
         }
 
-        // No migration installed, sort according to other criteria
-        // Two versioned migrations: sort by version
+        return compareVersion(o);
+    }
+
+    @Override
+    public int compareVersion(MigrationInfo o) {
         if (getVersion() != null && o.getVersion() != null) {
             int v = getVersion().compareTo(o.getVersion());
             if (v != 0) {
@@ -566,7 +564,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             return 0;
         }
 
-        // One versioned and one repeatable migration: versioned migration goes before repeatable one
+        // One versioned and one repeatable migration: versioned migration goes before repeatable
         if (getVersion() != null) {
             return -1;
         }
@@ -578,7 +576,6 @@ public class MigrationInfoImpl implements MigrationInfo {
         return getDescription().compareTo(o.getDescription());
     }
 
-    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -586,10 +583,9 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         MigrationInfoImpl that = (MigrationInfoImpl) o;
 
-        if (appliedMigration != null ? !appliedMigration.equals(that.appliedMigration) : that.appliedMigration != null)
-            return false;
+        if (!Objects.equals(appliedMigration, that.appliedMigration)) return false;
         if (!context.equals(that.context)) return false;
-        return !(resolvedMigration != null ? !resolvedMigration.equals(that.resolvedMigration) : that.resolvedMigration != null);
+        return Objects.equals(resolvedMigration, that.resolvedMigration);
     }
 
     @Override

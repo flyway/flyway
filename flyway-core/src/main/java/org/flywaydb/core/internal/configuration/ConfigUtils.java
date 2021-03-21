@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2020
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-
 
 
 import java.io.*;
@@ -92,9 +91,6 @@ public class ConfigUtils {
     public static final String CREATE_SCHEMAS = "flyway.createSchemas";
 
     // Secrets-manager specific
-    public static final String CONJUR_URL = "flyway.conjur.url";
-    public static final String CONJUR_TOKEN = "flyway.conjur.token";
-
     public static final String VAULT_URL = "flyway.vault.url";
     public static final String VAULT_TOKEN = "flyway.vault.token";
     public static final String VAULT_SECRETS = "flyway.vault.secrets";
@@ -236,8 +232,8 @@ public class ConfigUtils {
             return PLACEHOLDERS_PROPERTY_PREFIX + key.substring("FLYWAY_PLACEHOLDERS_".length()).toLowerCase(Locale.ENGLISH);
         }
 
-        if (key.matches("FLYWAY_JDBC_PROPERTIES.+")) {
-            return JDBC_PROPERTIES_PREFIX + key.substring("FLYWAY_JDBC_PROPERTIES".length()).toLowerCase(Locale.ENGLISH);
+        if (key.matches("FLYWAY_JDBC_PROPERTIES_.+")) {
+            return JDBC_PROPERTIES_PREFIX + key.substring("FLYWAY_JDBC_PROPERTIES_".length());
         }
 
         if ("FLYWAY_REPEATABLE_SQL_MIGRATION_PREFIX".equals(key)) {
@@ -313,12 +309,6 @@ public class ConfigUtils {
         }
 
         // Secrets-manager specific
-        if ("FLYWAY_CONJUR_URL".equals(key)) {
-            return CONJUR_URL;
-        }
-        if ("FLYWAY_CONJUR_TOKEN".equals(key)) {
-            return CONJUR_TOKEN;
-        }
         if ("FLYWAY_VAULT_URL".equals(key)) {
             return VAULT_URL;
         }
@@ -485,16 +475,6 @@ public class ConfigUtils {
         properties.load(new StringReader(contents));
         return propertiesToMap(properties);
     }
-
-
-
-
-
-
-
-
-
-
 
 
 

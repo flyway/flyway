@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2020
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import java.util.Stack;
 
 public class ParserContext {
     private int parensDepth = 0;
-    private Stack<String> blockInitiators = new Stack<>();
-    private String lastClosedBlockInitiator = null;
     private int blockDepth = 0;
+    private final Stack<String> blockInitiators = new Stack<>();
+    private String lastClosedBlockInitiator = null;
     private Delimiter delimiter;
     private StatementType statementType;
 
@@ -88,7 +88,6 @@ public class ParserContext {
         if (statementType == null) {
             throw new InvalidParameterException("statementType must be non-null");
         }
-
         this.statementType = statementType;
     }
 

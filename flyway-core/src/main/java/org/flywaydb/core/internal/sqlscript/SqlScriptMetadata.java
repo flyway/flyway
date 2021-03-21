@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2020
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
 
@@ -49,6 +50,13 @@ public class SqlScriptMetadata {
 
 
 
+
+
+
+        if(metadata.containsKey(SHOULD_EXECUTE))
+        {
+            throw new FlywayTeamsUpgradeRequiredException("shouldExecute");
+        }
 
 
         ConfigUtils.checkConfigurationForUnrecognisedProperties(metadata, null);

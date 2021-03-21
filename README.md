@@ -44,4 +44,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ## Trademark
-Flyway is a registered trademark of [Boxfuse GmbH](https://boxfuse.com), owned by [Redgate](https://www.red-gate.com/).
+Flyway is a registered trademark of Boxfuse GmbH, owned by  [Red Gate Software Ltd](https://www.red-gate.com/).

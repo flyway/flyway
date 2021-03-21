@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2020
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class PeekingReader extends FilterReader {
         super(in);
         this.supportsPeekingMultipleLines = supportsPeekingMultipleLines;
     }
-    
+
     @Override
     public int read() throws IOException {
         peekBufferOffset++;
@@ -456,7 +456,13 @@ public class PeekingReader extends FilterReader {
     public String readKeywordPart(Delimiter delimiter, ParserContext context) throws IOException {
         StringBuilder result = new StringBuilder();
         do {
-            if ((delimiter == null || !peek(delimiter.getDelimiter())) && peekKeywordPart(context)) {
+            boolean isDelimiter = delimiter != null &&
+                    (result.length() == 0 || !delimiter.isAloneOnLine()) &&
+                    peek(delimiter.getDelimiter());
+
+            boolean shouldAppend = !isDelimiter && peekKeywordPart(context);
+
+            if (shouldAppend) {
                 result.append((char) read());
             } else {
                 break;

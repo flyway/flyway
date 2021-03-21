@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2020
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,6 +111,7 @@ public class CommandResultFactory {
                 migrationInfo.getDescription(),
                 migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
                 migrationInfo.getInstalledOn() != null ? migrationInfo.getInstalledOn().toString() : "",
+                migrationInfo.getInstalledOn() != null ? migrationInfo.getInstalledOn().toInstant().toString() : "",
                 migrationInfo.getState().getDisplayName(),
                 getUndoableStatus(migrationInfo, undoableVersions),
                 migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",

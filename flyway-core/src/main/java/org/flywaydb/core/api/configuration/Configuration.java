@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2020
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -592,30 +592,6 @@ public interface Configuration {
     Map<String, String> getJdbcProperties();
 
     /**
-     * NOTE: EXPERIMENTAL - Not recommended for production use
-     *
-     * The REST API URL pointing to your secret in Conjur
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @return The REST API URL pointing to your secret in Conjur
-     */
-    String getConjurUrl();
-
-    /**
-     * NOTE: EXPERIMENTAL - Not recommended for production use
-     *
-     * The Conjur authorization token required to access your secret
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @return The Conjur authorization token required to access your secret
-     */
-    String getConjurToken();
-
-    /**
-     * NOTE: EXPERIMENTAL - Not recommended for production use
-     *
      * The REST API URL of your Vault server, including the API version.
      * Currently only supports API version v1.
      * Example: http://localhost:8200/v1/
@@ -627,8 +603,6 @@ public interface Configuration {
     String getVaultUrl();
 
     /**
-     * NOTE: EXPERIMENTAL - Not recommended for production use
-     *
      * The Vault token required to access your secrets.
      *
      * <i>Flyway Teams only</i>
@@ -638,12 +612,9 @@ public interface Configuration {
     String getVaultToken();
 
     /**
-     * NOTE: EXPERIMENTAL - Not recommended for production use
-     *
-     * A comma-separated list of paths to secrets in Vault that contain Flyway
-     * configurations. This must start with the name of the engine followed by
-     * '/data/' and end with the name of the secret.
-     * The resulting form is '{engine}/data/{path}/{to}/{secret_name}'.
+     * A comma-separated list of paths to secrets in Vault that contain Flyway configurations. This
+     * must start with the name of the engine and end with the name of the secret.
+     * The resulting form is '{engine_name}/{path}/{to}/{secret_name}'.
      *
      * If multiple secrets specify the same configuration parameter, then the last
      * secret takes precedence.
