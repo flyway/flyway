@@ -118,6 +118,11 @@ public class SqlScriptCallbackFactory {
 
         @Override
         public void handle(Event event, Context context) {
+            if (!sqlScript.shouldExecute()) {
+                LOG.debug("Not executing SQL callback: " + event.getId() + (description == null ? "" : " - " + description));
+                return;
+            }
+
             LOG.info("Executing SQL callback: " + event.getId()
                     + (description == null ? "" : " - " + description)
                     + (sqlScript.executeInTransaction() ? "" : " [non-transactional]"));
