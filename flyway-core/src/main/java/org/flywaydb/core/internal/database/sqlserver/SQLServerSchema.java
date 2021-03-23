@@ -199,16 +199,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
             jdbcTemplate.execute(statement);
         }
 
+        dropTablesIgnoringErrors(allTables());
+
         for (String statement : cleanPrimaryKeys(tables)) {
-            try {
-                jdbcTemplate.execute(statement);
-            } catch (SQLException e) {
-                // PRIMARY KEY constraints are dropped so that computed columns which are primary keys can be dropped.
-                // We ignore primary keys that cannot be dropped as the table itself will eventually be dropped.
-                if (!e.getMessage().startsWith("Cannot drop PRIMARY KEY constraint")) {
-                    throw e;
-                }
-            }
+            executeIgnoringDependencyErrors(statement);
         }
 
         for (String statement : cleanDefaultConstraints(tables)) {
@@ -262,13 +256,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
             jdbcTemplate.execute(statement);
         }
 
-        SQLServerTable[] allTables = allTables();
-        for (SQLServerTable table : allTables) {
-            table.dropSystemVersioningIfPresent();
-        }
-        for (SQLServerTable table : allTables) {
-            table.drop();
-        }
+        dropTables(allTables());
 
         // Pass 2 for cleaning indexes
         for (String statement : cleanIndexes(tables)) {
@@ -300,6 +288,23 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
 
 
 
+    }
+
+    private void dropTables(SQLServerTable[] allTables) throws SQLException {
+        for (SQLServerTable table : allTables) {
+            table.dropSystemVersioningIfPresent();
+        }
+        for (SQLServerTable table : allTables) {
+            table.drop();
+        }
+    }
+
+    private void dropTablesIgnoringErrors(SQLServerTable[] allTables) {
+        try {
+            dropTables(allTables);
+        } catch (Exception e) {
+            // Ignored
+        }
     }
 
     private void executeIgnoringDependencyErrors(String statement) {
