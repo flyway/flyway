@@ -19,9 +19,7 @@
 setlocal
 
 @REM Set the current directory to the installation directory
-call :getCurrentBatch INSTALLDIR1
-set INSTALLDIR=%INSTALLDIR1%
-set INSTALLDIR=%INSTALLDIR:~0,-10%
+set INSTALLDIR=%~dp0
 
 if exist "%INSTALLDIR%\jre\bin\java.exe" (
  set JAVA_CMD="%INSTALLDIR%\jre\bin\java.exe"
@@ -89,7 +87,3 @@ if %editionValid%==false (
 
 @REM Exit using the same code returned from Java
 EXIT /B %ERRORLEVEL%
-
-:getCurrentBatch
-    set "%~1=%~f0"
-    goto :eof
