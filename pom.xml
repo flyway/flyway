@@ -161,14 +161,14 @@
     <properties>
         <version.android>4.1.1.4</version.android>
         <version.ant>1.9.14</version.ant>
-        <version.aws-java-sdk>2.15.24</version.aws-java-sdk>
+        <version.aws-java-sdk>2.16.9</version.aws-java-sdk>
         <version.aws-secretsmanager>1.0.6</version.aws-secretsmanager>
         <version.commonslogging>1.2</version.commonslogging>
         <version.db2>11.5.0.0</version.db2>
         <version.derby>10.15.2.0</version.derby>
         <version.equinox>3.15.200</version.equinox>
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
-        <version.gcs>1.113.2</version.gcs>
+        <version.gcs>1.113.12</version.gcs>
         <version.gradle>6.1.1</version.gradle>
         <version.gson>2.8.6</version.gson>
         <version.h2>1.4.200</version.h2>
@@ -194,12 +194,12 @@
         <version.oracle>19.6.0.0</version.oracle>
         <version.osgi>4.3.1</version.osgi>
         <version.p6spy>3.9.1</version.p6spy>
-        <version.postgresql>42.2.14</version.postgresql>
+        <version.postgresql>42.2.19.jre7</version.postgresql>
         <version.redshift>1.2.10.1009</version.redshift>
         <version.sap>2.6.30</version.sap>
         <version.slf4j>1.7.30</version.slf4j>
         <version.snowflake>3.12.17</version.snowflake>
-        <version.spanner>1.16.0</version.spanner>
+        <version.spanner>1.20.1</version.spanner>
         <version.springjdbc>4.3.29.RELEASE</version.springjdbc>
         <version.sqlite>3.30.1</version.sqlite>
         <version.sybasejconnect>7.07</version.sybasejconnect>
