@@ -188,6 +188,7 @@
         <version.mariadb>2.7.2</version.mariadb>
         <version.maven>3.6.3</version.maven>
         <version.mockito>1.10.19</version.mockito>
+        <version.msal4j>1.9.1</version.msal4j>
         <version.mssql>9.2.1</version.mssql>
         <version.mssql-jdbc>${version.mssql}.jre8</version.mssql-jdbc>
         <version.mysql>8.0.23</version.mysql>
@@ -468,6 +469,12 @@
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
                 <version>${version.mssql-jdbc}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>msal4j</artifactId>
+                <version>${version.msal4j}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>

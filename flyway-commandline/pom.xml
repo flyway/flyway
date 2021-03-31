@@ -66,6 +66,10 @@
             <artifactId>mssql-jdbc</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>msal4j</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-spanner-jdbc</artifactId>
         </dependency>
