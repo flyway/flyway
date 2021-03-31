@@ -168,7 +168,7 @@
         <version.derby>10.15.2.0</version.derby>
         <version.equinox>3.15.200</version.equinox>
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
-        <version.gcs>1.113.12</version.gcs>
+        <version.gcs>1.113.13</version.gcs>
         <version.gradle>6.1.1</version.gradle>
         <version.gson>2.8.6</version.gson>
         <version.h2>1.4.200</version.h2>
