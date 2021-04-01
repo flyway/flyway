@@ -108,11 +108,23 @@ public class SQLServerParser extends Parser {
         }
 
         if (context.getBlockDepth() > 0 && ("END".equals(keywordText) ||
-                TRANSACTION_REGEX.matcher(keywordText).matches() && lastTokenIs(tokens, keyword.getParensDepth(), "BEGIN"))) {
+                isTransaction(tokens, keyword, keywordText) ||
+                isDistributedTransaction(tokens, keyword, keywordText))) {
             context.decreaseBlockDepth();
         }
 
         super.adjustBlockDepth(context, tokens, keyword, reader);
+    }
+
+    private boolean isTransaction(List<Token> tokens, Token keyword, String keywordText) {
+        return TRANSACTION_REGEX.matcher(keywordText).matches() &&
+                lastTokenIs(tokens, keyword.getParensDepth(), "BEGIN");
+    }
+
+    private boolean isDistributedTransaction(List<Token> tokens, Token keyword, String keywordText) {
+        return TRANSACTION_REGEX.matcher(keywordText).matches() &&
+                lastTokenIs(tokens, keyword.getParensDepth(), "DISTRIBUTED") &&
+                tokenAtIndexIs(tokens, tokens.size() - 2, "BEGIN");
     }
 
     @Override

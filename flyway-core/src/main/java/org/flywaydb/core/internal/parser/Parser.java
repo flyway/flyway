@@ -404,6 +404,10 @@ public abstract class Parser {
         return previousToken.getLine() == line;
     }
 
+    protected static boolean tokenAtIndexIs(List<Token> tokens, int index, String tokenText) {
+        return tokens.get(index).getText().equals(tokenText);
+    }
+
     /**
      * Check if the previous tokens in the statement at the same depth as the current token match the provided regex
      */
