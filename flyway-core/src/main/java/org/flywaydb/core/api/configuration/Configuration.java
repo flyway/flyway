@@ -101,6 +101,20 @@ public interface Configuration {
     String getBaselineDescription();
 
     /**
+     * Whether to Flyway's support for Clickhouse retrieves cluster name for distributed query.
+     *
+     * @return The cluster name distributed query. (default: 1)
+     */
+    String getClickhouseClusterName();
+
+    /**
+     * Whether to Flyway's support for Clickhouse retrieves zookeeper url for distributed locks.
+     *
+     * @return The zookeeper url for distributed locks. (default: 1)
+     */
+    String getZookeeperUrl();
+
+    /**
      * Retrieves the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      *
      * @return The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. An empty array if none. (default: none)
