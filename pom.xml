@@ -42,16 +42,9 @@
         </license>
     </licenses>
     <scm>
-
         <url>https://github.com/flyway/flyway</url>
         <connection>scm:git:${env.FLYWAY_REPO_URL}</connection>
         <developerConnection>scm:git:${env.FLYWAY_REPO_URL}</developerConnection>
-
-
-
-
-
-
         <tag>HEAD</tag>
     </scm>
     <developers>
@@ -104,13 +97,6 @@
     </distributionManagement>
 
     <repositories>
-
-
-
-
-
-
-
         <repository>
             <id>maven-central</id>
             <url>https://repo1.maven.org/maven2</url>
@@ -124,21 +110,6 @@
             <id>flyway-repo</id>
             <url>https://nexus.flywaydb.org/repository/flyway/</url>
         </repository>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <repository>
             <id>maven.oracle.com</id>
             <releases>
@@ -154,25 +125,17 @@
     </repositories>
 
     <pluginRepositories>
-
-
-
-
-
-
-
-
         <pluginRepository>
             <id>maven.oracle.com</id>
             <url>https://maven.oracle.com</url>
         </pluginRepository>
-
     </pluginRepositories>
 
     <properties>
         <version.ant>1.9.14</version.ant>
         <version.aws-java-sdk>2.17.53</version.aws-java-sdk>
         <version.aws-secretsmanager>1.0.6</version.aws-secretsmanager>
+        <version.clickhouse-jdbc>0.3.0</version.clickhouse-jdbc>
         <version.commonslogging>1.2</version.commonslogging>
         <version.db2>11.5.0.0</version.db2>
         <version.derby>10.15.2.0</version.derby>
@@ -370,6 +333,12 @@
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
+                <artifactId>clcikhouse</artifactId>
+                <version>${version.testcontainers}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
                 <artifactId>mariadb</artifactId>
                 <version>${version.testcontainers}</version>
                 <optional>true</optional>
@@ -511,6 +480,17 @@
                 <version>${version.aws-secretsmanager}</version>
                 <optional>true</optional>
             </dependency>
+            <dependency>
+                <groupId>ru.yandex.clickhouse</groupId>
+                <artifactId>clickhouse-jdbc</artifactId>
+                <version>${version.clickhouse-jdbc}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>3.5.8</version>
+            </dependency>
             <!-- Override transitive dependencies within SecretsManager to deal with high priority CVEs. These
              two can be removed when SecretsManager moves on from 1.0.6 -->
             <dependency>
@@ -604,21 +584,6 @@
     </dependencyManagement>
 
     <build>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <pluginManagement>
             <plugins>
                 <plugin>
