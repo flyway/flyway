@@ -127,7 +127,11 @@
             <artifactId>aws-secretsmanager-jdbc</artifactId>
             <optional>true</optional>
         </dependency>
-
+        <dependency>
+            <groupId>ru.yandex.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
+            <optional>true</optional>
+        </dependency>
 
 
 
