@@ -279,11 +279,11 @@ public class Flyway {
                 ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
                         configuration.isIgnorePendingMigrations());
 
+                callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
+
                 if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
                     throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
                 }
-
-                callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
 
                 return null;
             }
