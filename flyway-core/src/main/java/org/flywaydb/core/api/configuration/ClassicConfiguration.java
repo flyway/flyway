@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.flywaydb.core.api.configuration;
 
 import org.flywaydb.core.api.*;
@@ -31,12 +30,15 @@ import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import javax.sql.DataSource;
-
-import java.io.File;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+
+
+
+
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger;
@@ -235,7 +237,7 @@ public class ClassicConfiguration implements Configuration {
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
      * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
      * mark it as future instead.
-     * <p>
+     *
      * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
      */
     private boolean ignoreMissingMigrations;
@@ -249,7 +251,7 @@ public class ClassicConfiguration implements Configuration {
      * will not be reported by validate command. This is useful for situations where one must be able to deliver
      * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
      * development of older versions.
-     * <p>
+     *
      * {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
     private boolean ignoreIgnoredMigrations;
@@ -260,7 +262,7 @@ public class ClassicConfiguration implements Configuration {
      * This can be useful for verifying that in-development migration changes don't contain any validation-breaking changes
      * of migrations that have already been applied to a production environment, e.g. as part of a CI/CD process, without
      * failing because of the existence of new migration versions.
-     * <p>
+     *
      * {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
     private boolean ignorePendingMigrations;
@@ -317,9 +319,9 @@ public class ClassicConfiguration implements Configuration {
      * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
      * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.
      * Only migrations above {@code baselineVersion} will then be applied.
-     * <p>
+     *
      * This is useful for initial Flyway production deployments on projects with an existing DB.
-     * <p>
+     *
      * Be careful when enabling this as it removes the safety net that ensures
      * Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})
      */
@@ -346,7 +348,7 @@ public class ClassicConfiguration implements Configuration {
      * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
      * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
      * just want the schema history table to reflect this.
-     * <p>
+     *
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
      *
      * <i>Flyway Teams only</i>
@@ -520,10 +522,10 @@ public class ClassicConfiguration implements Configuration {
      * A comma-separated list of paths to secrets in Vault that contain Flyway configurations. This
      * must start with the name of the engine and end with the name of the secret.
      * The resulting form is '{engine_name}/{path}/{to}/{secret_name}'.
-     * <p>
+     *
      * If multiple secrets specify the same configuration parameter, then the last
      * secret takes precedence.
-     * <p>
+     *
      * Example: secret/data/flyway/flywayConfig
      *
      * <i>Flyway Teams only</i>
@@ -879,7 +881,7 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public String getOracleKerberosCacheFile() {
+    public String getOracleKerberosCacheFile(){
         return oracleKerberosCacheFile;
     }
 
@@ -893,6 +895,8 @@ public class ClassicConfiguration implements Configuration {
     public void setDryRunOutput(OutputStream dryRunOutput) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
+
+
 
 
     }
@@ -910,6 +914,47 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
     /**
@@ -925,6 +970,14 @@ public class ClassicConfiguration implements Configuration {
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
+
+
+
+
+
+
+
+
 
 
     }
@@ -962,6 +1015,8 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("errorOverrides");
 
 
+
+
     }
 
     /**
@@ -988,7 +1043,7 @@ public class ClassicConfiguration implements Configuration {
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
      * automatically causes the entire affected migration to be run without a transaction.
-     * <p>
+     *
      * Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
      * statements that do not run at all within a transaction.
      * This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
@@ -1242,6 +1297,32 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("cherryPick");
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
     /**
@@ -1253,6 +1334,12 @@ public class ClassicConfiguration implements Configuration {
     public void setCherryPick(String... cherryPickAsString) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("cherryPick");
+
+
+
+
+
+
 
 
     }
@@ -1324,6 +1411,8 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("undoSqlMigrationPrefix");
 
 
+
+
     }
 
     /**
@@ -1354,6 +1443,8 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("stream");
 
 
+
+
     }
 
     /**
@@ -1369,6 +1460,8 @@ public class ClassicConfiguration implements Configuration {
     public void setBatch(boolean batch) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("batch");
+
+
 
 
     }
@@ -1448,8 +1541,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setConnectRetries(int connectRetries) {
         if (connectRetries < 0) {
-            throw new FlywayException("Invalid number of connectRetries (must be 0 or greater): " + connectRetries,
-                    ErrorCode.CONFIGURATION);
+            throw new FlywayException("Invalid number of connectRetries (must be 0 or greater): " + connectRetries, ErrorCode.CONFIGURATION);
         }
         this.connectRetries = connectRetries;
     }
@@ -1470,6 +1562,15 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setBaselineVersion(MigrationVersion baselineVersion) {
         this.baselineVersion = baselineVersion;
+    }
+
+    /**
+     * Sets the version to tag an existing schema with when executing baseline.
+     *
+     * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
+     */
+    public void setBaselineVersionAsString(String baselineVersion) {
+        this.baselineVersion = MigrationVersion.fromVersion(baselineVersion);
     }
 
     /**
@@ -1499,9 +1600,9 @@ public class ClassicConfiguration implements Configuration {
      * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
      * This schema will then be baselined with the {@code baselineVersion} before executing the migrations.
      * Only migrations above {@code baselineVersion} will then be applied.
-     * <p>
+     *
      * This is useful for initial Flyway production deployments on projects with an existing DB.
-     * <p>
+     *
      * Be careful when enabling this as it removes the safety net that ensures
      * Flyway does not migrate the wrong database in case of a configuration mistake!
      *
@@ -1525,7 +1626,7 @@ public class ClassicConfiguration implements Configuration {
      * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
      * This should be used when you have applied a migration manually (via executing the sql yourself, or via an IDE), and
      * just want the schema history table to reflect this.
-     * <p>
+     *
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
      *
      * <i>Flyway Teams only</i>
@@ -1533,6 +1634,8 @@ public class ClassicConfiguration implements Configuration {
     public void setSkipExecutingMigrations(boolean skipExecutingMigrations) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("skipExecutingMigrations");
+
+
 
 
     }
@@ -1578,8 +1681,7 @@ public class ClassicConfiguration implements Configuration {
             if (o instanceof Callback) {
                 this.callbacks.add((Callback) o);
             } else {
-                throw new FlywayException("Invalid callback: " + callbackPath +
-                        " (must implement org.flywaydb.core.api.callback.Callback)", ErrorCode.CONFIGURATION);
+                throw new FlywayException("Invalid callback: " + callbackPath + " (must implement org.flywaydb.core.api.callback.Callback)", ErrorCode.CONFIGURATION);
             }
         } else {
             // else try to scan this location and load all callbacks found within
@@ -1590,7 +1692,7 @@ public class ClassicConfiguration implements Configuration {
     /**
      * Scan this location for classes that implement Callback.
      *
-     * @param path            The path to scan.
+     * @param path The path to scan.
      * @param errorOnNotFound Whether to show an error if the location is not found.
      */
     public void loadCallbackLocation(String path, boolean errorOnNotFound) {
@@ -1649,6 +1751,8 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.sqlplus");
 
 
+
+
     }
 
     /**
@@ -1662,6 +1766,8 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.sqlplusWarn");
 
 
+
+
     }
 
     /**
@@ -1673,6 +1779,8 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.kerberosConfigFile");
 
 
+
+
     }
 
     /**
@@ -1682,6 +1790,8 @@ public class ClassicConfiguration implements Configuration {
     public void setOracleKerberosCacheFile(String oracleKerberosCacheFile) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.kerberosCacheFile");
+
+
 
 
     }
@@ -1704,8 +1814,10 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLicenseKey(String licenseKey) {
 
-        LOG.warn(Edition.ENTERPRISE + " upgrade required: " + licenseKey
-                + " is not supported by " + Edition.COMMUNITY + ".");
+         LOG.warn(Edition.ENTERPRISE + " upgrade required: " + licenseKey
+         + " is not supported by " + Edition.COMMUNITY + ".");
+
+
 
 
     }
@@ -1721,6 +1833,8 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("outputQueryResults");
 
 
+
+
     }
 
     /**
@@ -1730,6 +1844,8 @@ public class ClassicConfiguration implements Configuration {
     public void setJdbcProperties(Map<String, String> jdbcProperties) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbcProperties");
+
+
 
 
     }
@@ -1751,6 +1867,8 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultUrl");
 
 
+
+
     }
 
     public void setVaultToken(String vaultToken) {
@@ -1758,11 +1876,15 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultToken");
 
 
+
+
     }
 
     public void setVaultSecrets(String... vaultSecrets) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultSecrets");
+
+
 
 
     }
@@ -1780,6 +1902,27 @@ public class ClassicConfiguration implements Configuration {
         setDataSource(configuration.getDataSource());
         setConnectRetries(configuration.getConnectRetries());
         setInitSql(configuration.getInitSql());
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         setEncoding(configuration.getEncoding());
@@ -2087,23 +2230,20 @@ public class ClassicConfiguration implements Configuration {
 
         // Must be done last, so that any driver-specific config has been done at this point.
         if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) ||
-                StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) ||
-                StringUtils.hasText(passwordProp))) {
+                StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
             Map<String, String> jdbcPropertiesFromProps =
                     getPropertiesUnderNamespace(
-                            props,
-                            getPlaceholders(),
-                            ConfigUtils.JDBC_PROPERTIES_PREFIX);
+                    props,
+                    getPlaceholders(),
+                    ConfigUtils.JDBC_PROPERTIES_PREFIX);
 
-            setDataSource(
-                    new DriverDataSource(classLoader, driver, url, user, password, this, jdbcPropertiesFromProps));
+            setDataSource(new DriverDataSource(classLoader, driver, url, user, password, this, jdbcPropertiesFromProps));
         }
 
         ConfigUtils.checkConfigurationForUnrecognisedProperties(props, "flyway.");
     }
 
-    private Map<String, String> getPropertiesUnderNamespace(Map<String, String> properties, Map<String, String> current,
-                                                            String namespace) {
+    private Map<String, String> getPropertiesUnderNamespace(Map<String, String> properties, Map<String, String> current, String namespace) {
         Map<String, String> placeholdersFromProps = new HashMap<>(current);
         Iterator<Map.Entry<String, String>> iterator = properties.entrySet().iterator();
         while (iterator.hasNext()) {
