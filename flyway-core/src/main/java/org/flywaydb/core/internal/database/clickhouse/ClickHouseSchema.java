@@ -39,14 +39,12 @@ public class ClickHouseSchema extends Schema<ClickHouseDatabase, ClickHouseTable
     @Override
     protected boolean doExists() throws SQLException {
         int i = jdbcTemplate.queryForInt("SELECT COUNT() FROM system.databases WHERE name = ?", name);
-        System.out.println("ClickHouseDatabase doExists - i: " + i + " > 0 name: " + name);
         return i > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
         int i = jdbcTemplate.queryForInt("SELECT COUNT() FROM system.tables WHERE database = ?", name);
-        System.out.println("ClickHouseDatabase doEmpty - i: " + i + "  == 0 name: " + name);
         return i == 0;
     }
 
