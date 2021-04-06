@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.flywaydb.core.api.configuration;
 
 import org.flywaydb.core.Flyway;
@@ -24,6 +25,7 @@ import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
 
 import javax.sql.DataSource;
+
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -74,10 +76,14 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public String getDefaultSchema() { return config.getDefaultSchema(); }
+    public String getDefaultSchema() {
+        return config.getDefaultSchema();
+    }
 
     @Override
-    public String[] getSchemas() { return config.getSchemas(); }
+    public String[] getSchemas() {
+        return config.getSchemas();
+    }
 
     @Override
     public String getTable() {
@@ -165,7 +171,9 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public boolean isValidateMigrationNaming() { return config.isValidateMigrationNaming(); }
+    public boolean isValidateMigrationNaming() {
+        return config.isValidateMigrationNaming();
+    }
 
     @Override
     public boolean isValidateOnMigrate() {
@@ -195,6 +203,16 @@ public class FluentConfiguration implements Configuration {
     @Override
     public boolean isBaselineOnMigrate() {
         return config.isBaselineOnMigrate();
+    }
+
+    @Override
+    public String getClickhouseClusterName() {
+        return config.getClickhouseClusterName();
+    }
+
+    @Override
+    public String getZookeeperUrl() {
+        return config.getZookeeperUrl();
     }
 
     @Override
@@ -298,10 +316,14 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public String getOracleKerberosConfigFile() { return config.getOracleKerberosConfigFile(); }
+    public String getOracleKerberosConfigFile() {
+        return config.getOracleKerberosConfigFile();
+    }
 
     @Override
-    public String getOracleKerberosCacheFile() { return config.getOracleKerberosCacheFile(); }
+    public String getOracleKerberosCacheFile() {
+        return config.getOracleKerberosCacheFile();
+    }
 
     @Override
     public String getLicenseKey() {
@@ -449,7 +471,7 @@ public class FluentConfiguration implements Configuration {
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
      * automatically causes the entire affected migration to be run without a transaction.
-     *
+     * <p>
      * Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
      * statements that do not run at all within a transaction.
      * This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
@@ -531,7 +553,7 @@ public class FluentConfiguration implements Configuration {
      *
      * @param validateMigrationNaming {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
      */
-    public FluentConfiguration validateMigrationNaming(boolean validateMigrationNaming){
+    public FluentConfiguration validateMigrationNaming(boolean validateMigrationNaming) {
         config.setValidateMigrationNaming(validateMigrationNaming);
         return this;
     }
@@ -658,7 +680,7 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     *Sets the name of the schema history table that will be used by Flyway.
+     * Sets the name of the schema history table that will be used by Flyway.
      * By default (single-schema mode) the schema history table is placed in the default schema for the connection
      * provided by the datasource. When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema
      * history table is placed in the first schema of the list.
@@ -675,7 +697,7 @@ public class FluentConfiguration implements Configuration {
      * If not specified, Flyway uses the default tablespace for the database connection.
      * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply ignored for all others.
      *
-     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway. 
+     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway.
      */
     public FluentConfiguration tablespace(String tablespace) {
         config.setTablespace(tablespace);
@@ -684,7 +706,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
      * <li>{@code current}: designates the current version of the schema</li>
@@ -699,7 +721,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
      * <li>{@code current}: designates the current version of the schema</li>
@@ -932,9 +954,9 @@ public class FluentConfiguration implements Configuration {
      * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
      * This schema will then be baselined with the {@code baselineVersion} before executing the migrations.
      * Only migrations above {@code baselineVersion} will then be applied.
-     *
+     * <p>
      * This is useful for initial Flyway production deployments on projects with an existing DB.
-     *
+     * <p>
      * Be careful when enabling this as it removes the safety net that ensures
      * Flyway does not migrate the wrong database in case of a configuration mistake!
      *
@@ -960,7 +982,7 @@ public class FluentConfiguration implements Configuration {
      * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
      * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
      * just want the schema history table to reflect this.
-     *
+     * <p>
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
      * <i>Flyway Teams only</i>
      */
@@ -1083,7 +1105,7 @@ public class FluentConfiguration implements Configuration {
      *
      * @param jdbcProperties The properties to pass to the JDBC driver object
      */
-    public FluentConfiguration jdbcProperties(Map<String,String> jdbcProperties) {
+    public FluentConfiguration jdbcProperties(Map<String, String> jdbcProperties) {
         config.setJdbcProperties(jdbcProperties);
         return this;
     }
@@ -1206,7 +1228,7 @@ public class FluentConfiguration implements Configuration {
      * $installationDir$/conf/flyway.conf
      * $user.home$/flyway.conf
      * $workingDirectory$/flyway.conf
-     *
+     * <p>
      * The configuration files must be encoded with UTF-8.
      *
      * @throws FlywayException When the configuration failed.
@@ -1274,10 +1296,10 @@ public class FluentConfiguration implements Configuration {
      * A comma-separated list of paths to secrets in Vault that contain Flyway configurations. This
      * must start with the name of the engine and end with the name of the secret.
      * The resulting form is '{engine_name}/{path}/{to}/{secret_name}'.
-     *
+     * <p>
      * If multiple secrets specify the same configuration parameter, then the last
      * secret takes precedence.
-     *
+     * <p>
      * Example: secret/data/flyway/flywayConfig
      *
      * <i>Flyway Teams only</i>

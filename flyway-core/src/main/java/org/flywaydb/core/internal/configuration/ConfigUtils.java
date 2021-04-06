@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.flywaydb.core.internal.configuration;
 
 import org.flywaydb.core.api.ErrorCode;
@@ -22,7 +23,6 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-
 
 import java.io.*;
 import java.util.*;
@@ -101,13 +101,18 @@ public class ConfigUtils {
     public static final String ORACLE_KERBEROS_CONFIG_FILE = "flyway.oracle.kerberosConfigFile";
     public static final String ORACLE_KERBEROS_CACHE_FILE = "flyway.oracle.kerberosCacheFile";
 
+    // Clickhouse specific
+    public static final String CLICKHOUSE_CLUSTER_NAME = "flyway.clickhouse.clusterName";
+    public static final String ZOOKEEPER_URL = "flyway.zookeeper.url";
+
     // Command-line specific
     public static final String JAR_DIRS = "flyway.jarDirs";
 
     // Gradle specific
     public static final String CONFIGURATIONS = "flyway.configurations";
 
-    private ConfigUtils() { }
+    private ConfigUtils() {
+    }
 
     /**
      * Converts Flyway-specific environment variables to their matching properties.
@@ -229,7 +234,8 @@ public class ConfigUtils {
             return PLACEHOLDER_SUFFIX;
         }
         if (key.matches("FLYWAY_PLACEHOLDERS_.+")) {
-            return PLACEHOLDERS_PROPERTY_PREFIX + key.substring("FLYWAY_PLACEHOLDERS_".length()).toLowerCase(Locale.ENGLISH);
+            return PLACEHOLDERS_PROPERTY_PREFIX +
+                    key.substring("FLYWAY_PLACEHOLDERS_".length()).toLowerCase(Locale.ENGLISH);
         }
 
         if (key.matches("FLYWAY_JDBC_PROPERTIES_.+")) {
@@ -308,6 +314,14 @@ public class ConfigUtils {
             return ORACLE_KERBEROS_CACHE_FILE;
         }
 
+        // Clickhouse specific
+        if ("FLYWAY_CLICKHOUSE_CLUSTER_NAME".equals(key)) {
+            return CLICKHOUSE_CLUSTER_NAME;
+        }
+        if ("FLYWAY_ZOOKEEPER_URL".equals(key)) {
+            return ZOOKEEPER_URL;
+        }
+
         // Secrets-manager specific
         if ("FLYWAY_VAULT_URL".equals(key)) {
             return VAULT_URL;
@@ -343,8 +357,12 @@ public class ConfigUtils {
      */
     public static Map<String, String> loadDefaultConfigurationFiles(File installationDir, String encoding) {
         Map<String, String> configMap = new HashMap<>();
-        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(installationDir.getAbsolutePath() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
-        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        configMap.putAll(ConfigUtils.loadConfigurationFile(
+                new File(installationDir.getAbsolutePath() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME), encoding,
+                false));
+        configMap.putAll(ConfigUtils
+                .loadConfigurationFile(new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME),
+                        encoding, false));
         configMap.putAll(ConfigUtils.loadConfigurationFile(new File(ConfigUtils.CONFIG_FILE_NAME), encoding, false));
 
         return configMap;
@@ -359,7 +377,8 @@ public class ConfigUtils {
      * @return The properties from the configuration file. An empty Map if none.
      * @throws FlywayException When the configuration file could not be loaded.
      */
-    public static Map<String, String> loadConfigurationFile(File configFile, String encoding, boolean failIfMissing) throws FlywayException {
+    public static Map<String, String> loadConfigurationFile(File configFile, String encoding, boolean failIfMissing)
+            throws FlywayException {
         String errorMessage = "Unable to load config file: " + configFile.getAbsolutePath();
 
         if ("-".equals(configFile.getName())) {
@@ -397,8 +416,9 @@ public class ConfigUtils {
                     // Prepend the first character to the rest of the string
                     // This is a char, represented as an int, so we cast to a char
                     // which is implicitly converted to an string
-                    String configurationString = (char)firstCharacter + FileCopyUtils.copyToString(bufferedReader);
-                    Map<String, String> configurationFromStandardInput = loadConfigurationFromString(configurationString);
+                    String configurationString = (char) firstCharacter + FileCopyUtils.copyToString(bufferedReader);
+                    Map<String, String> configurationFromStandardInput =
+                            loadConfigurationFromString(configurationString);
 
                     if (configurationFromStandardInput.isEmpty()) {
                         LOG.debug("Empty configuration provided from standard input");
@@ -442,9 +462,9 @@ public class ConfigUtils {
             // if the line ends in a \\, then it may be a multiline property
             if (replacedLine.endsWith("\\\\")) {
                 // if we aren't the last line
-                if (i < lines.length-1) {
+                if (i < lines.length - 1) {
                     // look ahead to see if the next line is a blank line, a property, or another multiline
-                    String nextLine = lines[i+1];
+                    String nextLine = lines[i + 1];
                     boolean restoreMultilineDelimiter = false;
                     if (nextLine.isEmpty()) {
                         // blank line
@@ -461,7 +481,7 @@ public class ConfigUtils {
 
                     if (restoreMultilineDelimiter) {
                         // it's a multiline property, so restore the original single slash
-                        replacedLine = replacedLine.substring(0, replacedLine.length()-2) + "\\";
+                        replacedLine = replacedLine.substring(0, replacedLine.length() - 2) + "\\";
                     }
                 }
             }
@@ -477,22 +497,6 @@ public class ConfigUtils {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     static String expandEnvironmentVariables(String value, Map<String, String> environmentVariables) {
         Pattern pattern = Pattern.compile("\\$\\{([A-Za-z0-9_]+)}");
         Matcher matcher = pattern.matcher(value);
@@ -503,7 +507,8 @@ public class ConfigUtils {
             String variableValue = environmentVariables.getOrDefault(variableName, "");
 
             LOG.debug("Expanding environment variable in config: " + variableName + " -> " + variableValue);
-            expandedValue = expandedValue.replaceAll(Pattern.quote(matcher.group(0)), Matcher.quoteReplacement(variableValue));
+            expandedValue =
+                    expandedValue.replaceAll(Pattern.quote(matcher.group(0)), Matcher.quoteReplacement(variableValue));
         }
 
         return expandedValue;
@@ -616,10 +621,10 @@ public class ConfigUtils {
     }
 
     /**
-     *  Checks the configuration for any unrecognised properties remaining after expected ones have been consumed.
+     * Checks the configuration for any unrecognised properties remaining after expected ones have been consumed.
      *
-     *  @param config The configured properties.
-     *  @param prefix The expected prefix for Flyway configuration parameters. {@code null} if none.
+     * @param config The configured properties.
+     * @param prefix The expected prefix for Flyway configuration parameters. {@code null} if none.
      */
     public static void checkConfigurationForUnrecognisedProperties(Map<String, String> config, String prefix) {
         ArrayList<String> unknownFlywayProperties = new ArrayList<>();
