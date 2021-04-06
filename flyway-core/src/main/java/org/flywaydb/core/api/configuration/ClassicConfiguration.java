@@ -567,14 +567,10 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public String getDefaultSchema() {
-        return defaultSchemaName;
-    }
+    public String getDefaultSchema() { return defaultSchemaName; }
 
     @Override
-    public String[] getSchemas() {
-        return schemaNames;
-    }
+    public String[] getSchemas() { return schemaNames; }
 
     @Override
     public String getTable() {
@@ -2222,6 +2218,29 @@ public class ClassicConfiguration implements Configuration {
         if (zookeeperUrlProp != null) {
             setZookeeperUrl(zookeeperUrlProp);
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         String licenseKeyProp = props.remove(ConfigUtils.LICENSE_KEY);
         if (licenseKeyProp != null) {
