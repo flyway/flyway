@@ -58,7 +58,6 @@ public class ClickHouseSchema extends Schema<ClickHouseDatabase, ClickHouseTable
         if (jdbcTemplate.getConnection().getCatalog().equals(name)) {
             jdbcTemplate.getConnection().setCatalog("default");
         }
-
         jdbcTemplate.executeStatement("DROP DATABASE " + database.quote(name));
     }
 

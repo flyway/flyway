@@ -16,6 +16,7 @@
 
 package org.flywaydb.core.internal.database.clickhouse;
 
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Table;
 
@@ -27,10 +28,14 @@ import java.util.concurrent.Callable;
  */
 public class ClickHouseConnection extends Connection<ClickHouseDatabase> {
 
+    private final Configuration configuration;
+
     ClickHouseConnection(
+            Configuration configuration,
             ClickHouseDatabase database,
             java.sql.Connection connection) {
         super(database, connection);
+        this.configuration = configuration;
     }
 
     @Override
@@ -50,7 +55,7 @@ public class ClickHouseConnection extends Connection<ClickHouseDatabase> {
 
     @Override
     public <T> T lock(Table table, Callable<T> callable) {
-        return new ZookeeperDistributedLockImpl("127.0.0.1:2181", table.getSchema().getName())
+        return new ZookeeperDistributedLockImpl(configuration.getZookeeperUrl(), table.getSchema().getName())
                 .execute(callable);
     }
 }
