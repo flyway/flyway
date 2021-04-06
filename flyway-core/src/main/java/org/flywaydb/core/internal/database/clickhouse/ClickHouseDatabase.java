@@ -43,7 +43,7 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection> {
 
     @Override
     protected ClickHouseConnection doGetConnection(Connection connection) {
-        return new ClickHouseConnection(this, connection);
+        return new ClickHouseConnection(configuration, this, connection);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection> {
 
     @Override
     public String getRawCreateScript(Table table, boolean baseline) {
-        String clusterName = configuration.getTablespace();
+        String clusterName = configuration.getClickhouseClusterName();
         if (StringUtils.hasText(clusterName)) {
             return "CREATE TABLE IF NOT EXISTS " + table + "_local ON CLUSTER " + clusterName + "(" +
                     "    installed_rank Int32," +
