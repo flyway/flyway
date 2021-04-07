@@ -19,9 +19,7 @@
 setlocal
 
 @REM Set the current directory to the installation directory
-call :getCurrentBatch INSTALLDIR1
-set INSTALLDIR=%INSTALLDIR1%
-set INSTALLDIR=%INSTALLDIR:~0,-10%
+set INSTALLDIR=%~dp0
 
 if exist "%INSTALLDIR%\jre\bin\java.exe" (
  set JAVA_CMD="%INSTALLDIR%\jre\bin\java.exe"
@@ -85,11 +83,7 @@ if %editionValid%==false (
   EXIT /B 1
 )
 
-%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\%FLYWAY_EDITION%\*;%INSTALLDIR%\drivers\*" org.flywaydb.commandline.Main %*
+%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\%FLYWAY_EDITION%\*;%INSTALLDIR%\drivers\*" org.flywaydb.commandline.Main %*
 
 @REM Exit using the same code returned from Java
 EXIT /B %ERRORLEVEL%
-
-:getCurrentBatch
-    set "%~1=%~f0"
-    goto :eof

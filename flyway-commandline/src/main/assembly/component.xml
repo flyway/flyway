@@ -112,6 +112,14 @@
             </includes>
         </dependencySet>
         <dependencySet>
+            <outputDirectory>lib/aad</outputDirectory>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>com.microsoft.azure:msal4j</include>
+                <include>com.fasterxml.jackson.core:jackson-core</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
             <outputDirectory>lib/community</outputDirectory>
             <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
             <useTransitiveDependencies>false</useTransitiveDependencies>
