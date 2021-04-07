@@ -55,7 +55,10 @@ public class ClickHouseConnection extends Connection<ClickHouseDatabase> {
 
     @Override
     public <T> T lock(Table table, Callable<T> callable) {
-        return new ZookeeperDistributedLockImpl(configuration.getZookeeperUrl(), table.getSchema().getName())
-                .execute(callable);
+        if (configuration.getZookeeperUrl() != null && !configuration.getZookeeperUrl().isEmpty()) {
+            return new ZookeeperDistributedLockImpl(configuration.getZookeeperUrl(), table.getSchema().getName())
+                    .execute(callable);
+        }
+        return super.lock(table, callable);
     }
 }
