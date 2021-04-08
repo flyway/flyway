@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import oracle.jdbc.OracleConnection;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
@@ -31,7 +33,9 @@ import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -194,5 +198,25 @@ public class OracleDatabaseType extends DatabaseType {
 
 
         return !usernamePasswordPattern.matcher(url).matches();
+    }
+
+    @Override
+    public Connection alterConnectionAsNeeded(Connection connection, Configuration configuration) {
+        Map<String, String> jdbcProperties = configuration.getJdbcProperties();
+
+        if (jdbcProperties != null && jdbcProperties.containsKey(OracleConnection.PROXY_USER_NAME)) {
+            OracleConnection oracleConnection = (OracleConnection) connection;
+            if (!oracleConnection.isProxySession()) {
+                Properties props = new Properties();
+                props.putAll(configuration.getJdbcProperties());
+                try {
+                    oracleConnection.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, props);
+                } catch (SQLException e) {
+                    throw new FlywayException("Unable to open proxy session: " + e.getMessage(), e);
+                }
+            }
+        }
+
+        return super.alterConnectionAsNeeded(connection, configuration);
     }
 }

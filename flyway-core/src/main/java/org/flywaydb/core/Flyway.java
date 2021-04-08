@@ -503,8 +503,10 @@ public class Flyway {
             resourceNameValidator.validateSQLMigrationNaming(resourceProvider, configuration);
         }
 
-        JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(),
+        JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(
+                configuration.getDataSource(),
                 configuration.getConnectRetries(),
+                configuration,
                 statementInterceptor
         );
 

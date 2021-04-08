@@ -36,12 +36,7 @@ import java.sql.Statement;
 public class JdbcUtils {
     private static final Log LOG = LogFactory.getLog(JdbcUtils.class);
 
-    /**
-     * Prevents instantiation.
-     */
-    private JdbcUtils() {
-        //Do nothing
-    }
+    private JdbcUtils() { }
 
     /**
      * Opens a new connection from this dataSource.
@@ -98,8 +93,6 @@ public class JdbcUtils {
 
     /**
      * Safely closes this connection. This method never fails.
-     *
-     * @param connection The connection to close.
      */
     public static void closeConnection(Connection connection) {
         if (connection == null) {
@@ -115,8 +108,6 @@ public class JdbcUtils {
 
     /**
      * Safely closes this statement. This method never fails.
-     *
-     * @param statement The statement to close.
      */
     public static void closeStatement(Statement statement) {
         if (statement == null) {
@@ -132,8 +123,6 @@ public class JdbcUtils {
 
     /**
      * Safely closes this resultSet. This method never fails.
-     *
-     * @param resultSet The resultSet to close.
      */
     public static void closeResultSet(ResultSet resultSet) {
         if (resultSet == null) {
@@ -147,12 +136,6 @@ public class JdbcUtils {
         }
     }
 
-    /**
-     * Retrieves the database metadata for this connection.
-     *
-     * @param connection The connection to use to query the database.
-     * @return The database metadata.
-     */
     public static DatabaseMetaData getDatabaseMetaData(Connection connection) {
         DatabaseMetaData databaseMetaData;
         try {
@@ -167,10 +150,7 @@ public class JdbcUtils {
     }
 
     /**
-     * Retrieves the name of the database product.
-     *
-     * @param databaseMetaData The connection metadata to use to query the database.
-     * @return The name of the database product. Ex.: Oracle, MySQL, ...
+     * @return The name of the database product. Example: Oracle, MySQL, ...
      */
     public static String getDatabaseProductName(DatabaseMetaData databaseMetaData) {
         try {
@@ -189,30 +169,13 @@ public class JdbcUtils {
     }
 
     /**
-     * Retrieves the version of the database product.
-     *
-     * @param databaseMetaData The connection metadata to use to query the database.
-     * @return The version of the database product. Ex.: MariaDB 10.3, ...
+     * @return The version of the database product. Example: MariaDB 10.3, ...
      */
     public static String getDatabaseProductVersion(DatabaseMetaData databaseMetaData) {
         try {
             return databaseMetaData.getDatabaseProductVersion();
         } catch (SQLException e) {
             throw new FlywaySqlException("Error while determining database product version", e);
-        }
-    }
-
-    /**
-     * Retrieves the name of the database driver.
-     *
-     * @param databaseMetaData The connection metadata to use to query the database.
-     * @return The name of the database driver. Ex.: MariaDB JDBC driver, ...
-     */
-    public static String getDriverName(DatabaseMetaData databaseMetaData) {
-        try {
-            return databaseMetaData.getDriverName();
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error while determining database driver name", e);
         }
     }
 }

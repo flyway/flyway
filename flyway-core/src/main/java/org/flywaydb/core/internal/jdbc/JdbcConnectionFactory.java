@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
@@ -37,6 +38,7 @@ public class JdbcConnectionFactory {
 
     private final DataSource dataSource;
     private final int connectRetries;
+    private final Configuration configuration;
     private final DatabaseType databaseType;
     private final String jdbcUrl;
     private final String driverInfo;
@@ -50,25 +52,23 @@ public class JdbcConnectionFactory {
 
 
 
-
-
-
-
     /**
      * Creates a new JDBC connection factory. This automatically opens a first connection which can be obtained via
      * a call to getConnection and which must be closed again to avoid leaking it.
      *
-     * @param dataSource                 The dataSource to obtain the connection from.
+     * @param dataSource                 The DataSource to obtain the connection from.
      * @param connectRetries             The maximum number of retries when attempting to connect to the database.
+     * @param configuration              The Flyway configuration.
      * @param statementInterceptor       The statement interceptor. {@code null} if none.
      */
-    public JdbcConnectionFactory(DataSource dataSource, int connectRetries, StatementInterceptor statementInterceptor) {
+    public JdbcConnectionFactory(DataSource dataSource, int connectRetries, Configuration configuration, StatementInterceptor statementInterceptor) {
         this.dataSource = dataSource;
         this.connectRetries = connectRetries;
+        this.configuration = configuration;
 
         firstConnection = JdbcUtils.openConnection(dataSource, connectRetries);
-
         this.databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(firstConnection);
+
         final DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(firstConnection);
         this.jdbcUrl = getJdbcUrl(databaseMetaData);
         this.driverInfo = getDriverInfo(databaseMetaData);
@@ -77,6 +77,7 @@ public class JdbcConnectionFactory {
 
 
 
+        firstConnection = this.databaseType.alterConnectionAsNeeded(firstConnection, configuration);
     }
 
     public void setConnectionInitializer(ConnectionInitializer connectionInitializer) {
@@ -98,22 +99,10 @@ public class JdbcConnectionFactory {
 
 
 
-
-
-
-
-
-
-    /**
-     * @return The type of database this is.
-     */
     public DatabaseType getDatabaseType() {
         return databaseType;
     }
 
-    /**
-     * @return The JDBC url for these connections.
-     */
     public String getJdbcUrl() {
         return jdbcUrl;
     }
@@ -126,15 +115,8 @@ public class JdbcConnectionFactory {
         return productName;
     }
 
-    /**
-     * Opens a new connection from this dataSource.
-     *
-     * @return The new connection.
-     * @throws FlywayException when the connection could not be opened.
-     */
     public Connection openConnection() throws FlywayException {
-        Connection connection =
-                firstConnection == null ? JdbcUtils.openConnection(dataSource, connectRetries) : firstConnection;
+        Connection connection = firstConnection == null ? JdbcUtils.openConnection(dataSource, connectRetries) : firstConnection;
         firstConnection = null;
 
         if (connectionInitializer != null) {
@@ -152,19 +134,13 @@ public class JdbcConnectionFactory {
 
 
 
+        connection = databaseType.alterConnectionAsNeeded(connection, configuration);
         return connection;
     }
 
     public interface ConnectionInitializer {
         void initialize(JdbcConnectionFactory jdbcConnectionFactory, Connection connection);
     }
-
-    /**
-     * Retrieves the Jdbc Url for this connection.
-     *
-     * @param databaseMetaData The Jdbc connection metadata.
-     * @return The Jdbc Url.
-     */
 
     private static String getJdbcUrl(DatabaseMetaData databaseMetaData) {
         String url;
@@ -180,10 +156,7 @@ public class JdbcConnectionFactory {
     }
 
     /**
-     * Filter out parameters to avoid including passwords, etc.
-     *
-     * @param url The raw url.
-     * @return The filtered url.
+     * Filter out URL parameters to avoid including passwords etc.
      */
     static String filterUrl(String url) {
         int questionMark = url.indexOf("?");
