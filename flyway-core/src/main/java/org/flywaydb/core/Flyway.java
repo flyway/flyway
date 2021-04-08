@@ -182,11 +182,7 @@ public class Flyway {
                         }
                     }
 
-                    if (!nonEmptySchemas.isEmpty()
-
-
-
-                    ) {
+                    if (!nonEmptySchemas.isEmpty()) {
                         if (configuration.isBaselineOnMigrate()) {
                             doBaseline(schemaHistory, callbackExecutor, database);
                         } else {
@@ -238,23 +234,7 @@ public class Flyway {
      * @throws FlywayException when the undo failed.
      */
     public UndoResult undo() throws FlywayException {
-
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("undo");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
     /**
@@ -475,25 +455,11 @@ public class Flyway {
     /*private -> testing*/ <T> T execute(Command<T> command, boolean scannerRequired) {
         T result;
 
-        VersionPrinter.printVersion(
-
-
-
-        );
+        VersionPrinter.printVersion();
 
         configurationValidator.validate(configuration);
 
         StatementInterceptor statementInterceptor = null;
-
-
-
-
-
-
-
-
-
-
 
         final Pair<ResourceProvider, ClassProvider<JavaMigration>> resourceProviderClassProviderPair = createResourceAndClassProviders(scannerRequired);
         final ResourceProvider resourceProvider = resourceProviderClassProviderPair.getLeft();
@@ -548,12 +514,6 @@ public class Flyway {
             Pair<Schema, List<Schema>> schemas = prepareSchemas(database);
             Schema defaultSchema = schemas.getLeft();
 
-
-
-
-
-
-
             parsingContext.populate(database, configuration);
 
             database.ensureSupported();
@@ -579,11 +539,6 @@ public class Flyway {
             );
         } finally {
             IOUtils.close(database);
-
-
-
-
-
             showMemoryUsage();
         }
         return result;
@@ -603,10 +558,6 @@ public class Flyway {
                 classProvider = configuration.getJavaMigrationClassProvider();
             } else {
                 boolean stream = false;
-
-
-
-
                 Scanner<JavaMigration> scanner = new Scanner<>(
                         JavaMigration.class,
                         Arrays.asList(configuration.getLocations()),
@@ -701,32 +652,7 @@ public class Flyway {
                                             ParsingContext parsingContext) {
         List<Callback> effectiveCallbacks = new ArrayList<>();
         CallbackExecutor callbackExecutor = NoopCallbackExecutor.INSTANCE;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         effectiveCallbacks.addAll(Arrays.asList(configuration.getCallbacks()));
-
-
-
-
-
-
-
-
         if (!configuration.isSkipDefaultCallbacks()) {
             SqlScriptExecutorFactory sqlScriptExecutorFactory =
                     jdbcConnectionFactory.getDatabaseType().createSqlScriptExecutorFactory(jdbcConnectionFactory,
@@ -742,10 +668,6 @@ public class Flyway {
                             configuration
                     ).getCallbacks());
         }
-
-
-
-
 
         return effectiveCallbacks;
     }
