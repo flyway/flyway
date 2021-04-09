@@ -505,7 +505,6 @@ public class Flyway {
 
         JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(
                 configuration.getDataSource(),
-                configuration.getConnectRetries(),
                 configuration,
                 statementInterceptor
         );

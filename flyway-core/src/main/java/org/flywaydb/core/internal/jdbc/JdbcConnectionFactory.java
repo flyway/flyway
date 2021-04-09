@@ -57,13 +57,12 @@ public class JdbcConnectionFactory {
      * a call to getConnection and which must be closed again to avoid leaking it.
      *
      * @param dataSource                 The DataSource to obtain the connection from.
-     * @param connectRetries             The maximum number of retries when attempting to connect to the database.
      * @param configuration              The Flyway configuration.
      * @param statementInterceptor       The statement interceptor. {@code null} if none.
      */
-    public JdbcConnectionFactory(DataSource dataSource, int connectRetries, Configuration configuration, StatementInterceptor statementInterceptor) {
+    public JdbcConnectionFactory(DataSource dataSource, Configuration configuration, StatementInterceptor statementInterceptor) {
         this.dataSource = dataSource;
-        this.connectRetries = connectRetries;
+        this.connectRetries = configuration.getConnectRetries();
         this.configuration = configuration;
 
         firstConnection = JdbcUtils.openConnection(dataSource, connectRetries);
