@@ -397,19 +397,19 @@ public class Main {
         LOG.info("");
         LOG.info("Flags");
         LOG.info("-----");
-        LOG.info("-X          : Print debug output");
-        LOG.info("-q          : Suppress all output, except for errors and warnings");
-        LOG.info("-n          : Suppress prompting for a user and password");
-        LOG.info("-v          : Print the Flyway version and exit");
-        LOG.info("-?          : Print this usage info and exit");
-        LOG.info("-community  : Run the Flyway Community Edition (default)");
-        LOG.info("-teams      : Run the Flyway Teams Edition");
+        LOG.info("-X              : Print debug output");
+        LOG.info("-q              : Suppress all output, except for errors and warnings");
+        LOG.info("-n              : Suppress prompting for a user and password");
+        LOG.info("--version, -v   : Print the Flyway version and exit");
+        LOG.info("--help, -h, -?  : Print this usage info and exit");
+        LOG.info("-community      : Run the Flyway Community Edition (default)");
+        LOG.info("-teams          : Run the Flyway Teams Edition");
         LOG.info("");
         LOG.info("Example");
         LOG.info("-------");
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
-        LOG.info("More info at https://flywaydb.org/documentation/commandline");
+        LOG.info("More info at https://flywaydb.org/documentation/usage/commandline");
     }
 
     private static List<File> getJdbcDriverJarFiles() {
