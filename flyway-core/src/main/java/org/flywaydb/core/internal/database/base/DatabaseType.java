@@ -239,4 +239,8 @@ public abstract class DatabaseType {
     public Properties getExternalAuthProperties(String url, String username) {
         return new Properties();
     }
+
+    public Connection alterConnectionAsNeeded(Connection connection, Configuration configuration) {
+        return connection;
+    }
 }

@@ -82,7 +82,7 @@ public class MariaDBDatabaseType extends DatabaseType {
 
     @Override
     public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
-        return new MySQLParser(configuration, parsingContext);
+        return new MariaDBParser(configuration, parsingContext);
     }
 
     @Override

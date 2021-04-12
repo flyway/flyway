@@ -22,14 +22,16 @@ import org.flywaydb.core.internal.jdbc.Results;
 
 import java.math.BigInteger;
 import java.sql.SQLException;
-import java.time.Duration;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class InsertRowLock {
     private static final Log LOG = LogFactory.getLog(InsertRowLock.class);
     private static final Random random = new Random();
+    private static final int NUM_THREADS = 2;
 
     /**
      * A random string used as an ID for this instance of Flyway.
@@ -37,11 +39,13 @@ public class InsertRowLock {
     private final String tableLockString = getNextRandomString();
     private final JdbcTemplate jdbcTemplate;
     public final int lockTimeoutMins;
-    private Timer timer;
+    private final ScheduledExecutorService executor;
+    private ScheduledFuture<?> scheduledFuture;
 
     public InsertRowLock(JdbcTemplate jdbcTemplate, int lockTimeoutMins) {
         this.jdbcTemplate = jdbcTemplate;
         this.lockTimeoutMins = lockTimeoutMins;
+        this.executor = createScheduledExecutor();
     }
 
     public void doLock(String insertStatementTemplate, String updateLockStatement, String deleteExpiredLockStatement, String booleanTrue) throws SQLException {
@@ -50,7 +54,7 @@ public class InsertRowLock {
             try {
                 jdbcTemplate.execute(deleteExpiredLockStatement);
                 if (insertLockingRow(insertStatementTemplate, booleanTrue)) {
-                    startLockWatchingThread(String.format(updateLockStatement.replace("?", "%s"), tableLockString));
+                    scheduledFuture = startLockWatchingThread(String.format(updateLockStatement.replace("?", "%s"), tableLockString));
                     return;
                 }
                 if (retryCount < 50) {
@@ -97,19 +101,23 @@ public class InsertRowLock {
         return new BigInteger(128, random).toString(16);
     }
 
-    private void startLockWatchingThread(String updateLockStatement) {
-        TimerTask lockWatcherTask = new TimerTask() {
-            @Override
-            public void run() {
-                LOG.debug("Updating lock in Flyway schema history table");
-                jdbcTemplate.executeStatement(updateLockStatement);
-            }
+    private ScheduledExecutorService createScheduledExecutor() {
+        return Executors.newScheduledThreadPool(NUM_THREADS, r -> {
+            Thread t = Executors.defaultThreadFactory().newThread(r);
+            t.setDaemon(true);
+            return t;
+        });
+    }
+
+    private ScheduledFuture<?> startLockWatchingThread(String updateLockStatement) {
+        Runnable lockUpdatingTask = () -> {
+            LOG.debug("Updating lock in Flyway schema history table");
+            jdbcTemplate.executeStatement(updateLockStatement);
         };
-        timer = new Timer();
-        timer.schedule(lockWatcherTask, 0, Duration.ofMinutes(lockTimeoutMins / 2).toMillis());
+        return executor.scheduleAtFixedRate(lockUpdatingTask, 0, lockTimeoutMins / 2, TimeUnit.MINUTES);
     }
 
     private void stopLockWatchingThread() {
-        timer.cancel();
+        scheduledFuture.cancel(true);
     }
 }
