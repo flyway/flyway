@@ -63,8 +63,11 @@ public class SQLServerParser extends Parser {
 
     @Override
     protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
-        String current = keywords.get(keywords.size() - 1).getText();
-        if ("BACKUP".equals(current) || "RESTORE".equals(current) || "RECONFIGURE".equals(current)) {
+        Token currentToken = keywords.get(keywords.size() - 1);
+        String current = currentToken.getText();
+
+        if (currentToken.getType() != TokenType.IDENTIFIER &&
+                ("BACKUP".equals(current) || "RESTORE".equals(current) || "RECONFIGURE".equals(current))) {
             return false;
         }
 
@@ -130,5 +133,15 @@ public class SQLServerParser extends Parser {
     @Override
     protected int getTransactionalDetectionCutoff() {
         return Integer.MAX_VALUE;
+    }
+
+    @Override
+    protected char getOpeningIdentifierSymbol() {
+        return '[';
+    }
+
+    @Override
+    protected char getClosingIdentifierSymbol() {
+        return ']';
     }
 }
