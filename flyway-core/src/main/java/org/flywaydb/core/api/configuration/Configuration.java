@@ -18,6 +18,7 @@ package org.flywaydb.core.api.configuration;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
+import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import javax.sql.DataSource;
@@ -377,6 +378,15 @@ public interface Configuration {
      * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
      */
     boolean isIgnoreFutureMigrations();
+
+    /**
+     * Ignore migrations that match this comma-separated list of patterns when validating migrations.
+     * Each pattern is of the form <migration_type>:<migration_state>
+     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * Example: repeatable:missing,versioned:pending,*:failed
+     * <i>Flyway Teams only</i>
+     */
+    ValidatePattern[] getIgnoreMigrationPatterns();
 
     /**
      * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be

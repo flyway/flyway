@@ -301,7 +301,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
      * Migrations not in this list will be ignored.
      * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
-     * <i>Flyway Teams only</i><
+     * <i>Flyway Teams only</i>
      */
     @Parameter
     private String[] cherryPick;
@@ -383,6 +383,16 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     @Parameter(property = ConfigUtils.IGNORE_FUTURE_MIGRATIONS)
     private Boolean ignoreFutureMigrations;
+
+    /**
+     * Ignore migrations that match this comma-separated list of patterns when validating migrations.
+     * Each pattern is of the form <migration_type>:<migration_state>
+     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * Example: repeatable:missing,versioned:pending,*:failed
+     * <i>Flyway Teams only</i>
+     */
+    @Parameter(property = ConfigUtils.IGNORE_MIGRATION_PATTERNS)
+    private String[] ignoreMigrationPatterns;
 
     /**
      * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure
@@ -801,6 +811,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.IGNORE_IGNORED_MIGRATIONS, ignoreIgnoredMigrations);
             putIfSet(conf, ConfigUtils.IGNORE_PENDING_MIGRATIONS, ignorePendingMigrations);
             putIfSet(conf, ConfigUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations);
+            putArrayIfSet(conf, ConfigUtils.IGNORE_MIGRATION_PATTERNS, ignoreMigrationPatterns);
             putIfSet(conf, ConfigUtils.VALIDATE_MIGRATION_NAMING, validateMigrationNaming);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix);
