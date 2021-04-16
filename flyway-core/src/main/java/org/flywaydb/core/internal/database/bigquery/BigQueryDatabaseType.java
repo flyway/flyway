@@ -64,8 +64,8 @@ public class BigQueryDatabaseType extends DatabaseType {
     @Override
     public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
         // https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers
-        System.out.println("DEBUGGY " + databaseProductName + " " + databaseProductVersion);
-        return databaseProductName.toLowerCase().startsWith("bigquery");
+        // databaseProductName: Google BigQuery 2.0, databaseProductVersion: 2.0
+        return databaseProductName.toLowerCase().contains("bigquery");
     }
 
     @Override

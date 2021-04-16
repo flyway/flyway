@@ -43,9 +43,11 @@ public class BigQueryTable extends Table<BigQueryDatabase, BigQuerySchema> {
 
     @Override
     protected boolean doExists() throws SQLException {
+        if (!schema.exists()) {
+            return false;
+        }
         return jdbcTemplate.queryForInt(
-                "SELECT COUNT(*) FROM `?`.INFORMATION_SCHEMA.TABLES WHERE table_type='BASE TABLE' AND table_name=?",
-                schema.getName(), name
+                "SELECT COUNT(*) FROM " + database.quote(schema.getName()) + ".INFORMATION_SCHEMA.TABLES WHERE table_type='BASE TABLE' AND table_name='" + name + "'"
         ) > 0;
     }
 

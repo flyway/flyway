@@ -106,7 +106,12 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
     }
 
     @Override
-    public boolean useSingleConnection() {
+    public boolean supportsMultiStatementTransactions() {
         return false;
+    }
+
+    @Override
+    public boolean useSingleConnection() {
+        return true;
     }
 }

@@ -40,15 +40,18 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE schema_name=?", name) > 0;
+        return jdbcTemplate.queryForInt(
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE schema_name='" + name + "'"
+        ) > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
         // The TABLES table contains one record for each table, view, materialized view, and external table.
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM ?.INFORMATION_SCHEMA.TABLES", name)
-                + jdbcTemplate.queryForInt("SELECT COUNT(*) FROM ?.INFORMATION_SCHEMA.ROUTINES", name)
-                == 0;
+        return doExists() &&
+                (jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + database.quote(name) + ".INFORMATION_SCHEMA.TABLES")
+                        + jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + database.quote(name) + ".INFORMATION_SCHEMA.ROUTINES")
+                ) == 0;
     }
 
     @Override
@@ -87,16 +90,16 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
     /**
      * Generates the statements for dropping the routines in this schema.
      *
+     * @param objType The type of object for the DROP statement; FUNCTION or PROCEDURE
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
-     * @param objType The type of object for the DROP statement; FUNCTION or PROCEDURE
      */
     private List<String> generateDropStatementsForRoutines(String objType) throws SQLException {
         List<String> objNames =
                 jdbcTemplate.queryForStringList(
                         // Search for all functions
-                        "SELECT routine_name FROM `?`.INFORMATION_SCHEMA.ROUTINES WHERE routine_type='?'",
-                        name, objType
+                        "SELECT routine_name FROM " + database.quote(name) + ".INFORMATION_SCHEMA.ROUTINES WHERE routine_type='?'",
+                        objType
                 );
 
         List<String> statements = new ArrayList<>();
@@ -109,17 +112,17 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
     /**
      * Generates the statements for dropping the TABLE, EXTERNAL TABLE, VIEW, MATERIALIZED VIEW, in this schema.
      *
+     * @param type    The object type, BASE TABLE, EXTERNAL, VIEW, or MATERIALIZED VIEW.
+     * @param objType The type of object for the DROP statement; TABLE, EXTERNAL TABLE, VIEW or MATERIALIZED VIEW.
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
-     * @param type The object type, BASE TABLE, EXTERNAL, VIEW, or MATERIALIZED VIEW.
-     * @param objType The type of object for the DROP statement; TABLE, EXTERNAL TABLE, VIEW or MATERIALIZED VIEW.
      */
     private List<String> generateDropStatements(String type, String objType) throws SQLException {
         List<String> names =
                 jdbcTemplate.queryForStringList(
                         // Search for all views
-                        "SELECT table_name FROM `?`.INFORMATION_SCHEMA.TABLES WHERE table_type='?'",
-                        name, type
+                        "SELECT table_name FROM " + database.quote(name) + ".INFORMATION_SCHEMA.TABLES WHERE table_type='?'",
+                        type
                 );
         List<String> statements = new ArrayList<>();
         for (String domainName : names) {
@@ -134,8 +137,7 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
         List<String> tableNames =
                 jdbcTemplate.queryForStringList(
                         //Search for all the table names
-                        "SELECT table_name FROM `?`.INFORMATION_SCHEMA.TABLES WHERE table_type='BASE TABLE'",
-                        name
+                        "SELECT table_name FROM " + database.quote(name) + ".INFORMATION_SCHEMA.TABLES WHERE table_type='BASE TABLE'"
                 );
         BigQueryTable[] tables = new BigQueryTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {

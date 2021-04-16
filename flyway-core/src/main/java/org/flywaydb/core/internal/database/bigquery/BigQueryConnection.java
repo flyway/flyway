@@ -62,7 +62,7 @@ public class BigQueryConnection extends Connection<BigQueryDatabase> {
     @Override
     public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
         String sn = jdbcTemplate.queryForString(
-                "SELECT schema_name FROM INFORMATION_SCHEMA.SCHEMATA WHERE schema_name=? LIMIT 1",
+                "SELECT schema_name FROM INFORMATION_SCHEMA.SCHEMATA WHERE schema_name='?' LIMIT 1",
                 schema
         );
 
