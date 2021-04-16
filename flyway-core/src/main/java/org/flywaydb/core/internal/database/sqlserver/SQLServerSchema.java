@@ -213,8 +213,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
             jdbcTemplate.execute(statement);
         }
 
-        // Use a 2-pass approach for cleaning indexes, computed columns and functions with SCHEMABINDING due to
-        // dependency errors
+        // Use a 2-pass approach for cleaning indexes, computed columns and functions with SCHEMABINDING due to dependency errors
         // Pass 1
         for (String statement : cleanIndexes(tables)) {
             executeIgnoringDependencyErrors(statement);

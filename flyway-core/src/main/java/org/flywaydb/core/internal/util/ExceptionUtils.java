@@ -17,21 +17,11 @@ package org.flywaydb.core.internal.util;
 
 import java.sql.SQLException;
 
-/**
- * Utility class for dealing with exceptions.
- */
 public class ExceptionUtils {
-    /**
-     * Prevents instantiation.
-     */
-    private ExceptionUtils() {
-        //Do nothing
-    }
+
+    private ExceptionUtils() {}
 
     /**
-     * Returns the root cause of this throwable.
-     *
-     * @param throwable The throwable to inspect.
      * @return The root cause or the throwable itself if it doesn't have a cause.
      */
     public static Throwable getRootCause(Throwable throwable) {
@@ -49,10 +39,7 @@ public class ExceptionUtils {
     }
 
     /**
-     * Retrives the exact location where this exception was thrown.
-     *
-     * @param e The exception.
-     * @return The location, suitable for a debug message.
+     * Retrieves the exact location where this exception was thrown.
      */
     public static String getThrowLocation(Throwable e) {
         StackTraceElement element = e.getStackTrace()[0];
@@ -64,9 +51,6 @@ public class ExceptionUtils {
 
     /**
      * Transforms the details of this SQLException into a nice readable message.
-     *
-     * @param e The exception.
-     * @return The message.
      */
     public static String toMessage(SQLException e) {
         SQLException cause = e;
