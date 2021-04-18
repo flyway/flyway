@@ -391,7 +391,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * Example: repeatable:missing,versioned:pending,*:failed
      * <i>Flyway Teams only</i>
      */
-    @Parameter(property = ConfigUtils.IGNORE_MIGRATION_PATTERNS)
+    @Parameter
     private String[] ignoreMigrationPatterns;
 
     /**

@@ -15,8 +15,6 @@
  */
 package org.flywaydb.gradle;
 
-import org.flywaydb.core.api.pattern.ValidatePattern;
-
 import java.util.Map;
 
 /**
@@ -339,7 +337,7 @@ public class FlywayExtension {
      * Example: repeatable:missing,versioned:pending,*:failed
      * <i>Flyway Teams only</i>
      */
-    public ValidatePattern[] ignoreMigrationPatterns;
+    public String[] ignoreMigrationPatterns;
 
     /**
      * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be

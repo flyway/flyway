@@ -1519,8 +1519,6 @@ public class ClassicConfiguration implements Configuration {
 
 
 
-
-
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
         setValidateMigrationNaming(configuration.isValidateMigrationNaming());
@@ -1752,90 +1750,72 @@ public class ClassicConfiguration implements Configuration {
         if (skipDefaultCallbacksProp != null) {
             setSkipDefaultCallbacks(skipDefaultCallbacksProp);
         }
-
-        Map<String, String> placeholdersFromProps = getPropertiesUnderNamespace(props, getPlaceholders(),
-                ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX);
+        Map<String, String> placeholdersFromProps = getPropertiesUnderNamespace(props, getPlaceholders(), ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX);
         setPlaceholders(placeholdersFromProps);
-
         Boolean mixedProp = removeBoolean(props, ConfigUtils.MIXED);
         if (mixedProp != null) {
             setMixed(mixedProp);
         }
-
         Boolean groupProp = removeBoolean(props, ConfigUtils.GROUP);
         if (groupProp != null) {
             setGroup(groupProp);
         }
-
         String installedByProp = props.remove(ConfigUtils.INSTALLED_BY);
         if (installedByProp != null) {
             setInstalledBy(installedByProp);
         }
-
         String dryRunOutputProp = props.remove(ConfigUtils.DRYRUN_OUTPUT);
         if (dryRunOutputProp != null) {
             setDryRunOutputAsFileName(dryRunOutputProp);
         }
-
         String errorOverridesProp = props.remove(ConfigUtils.ERROR_OVERRIDES);
         if (errorOverridesProp != null) {
             setErrorOverrides(StringUtils.tokenizeToStringArray(errorOverridesProp, ","));
         }
-
         Boolean streamProp = removeBoolean(props, ConfigUtils.STREAM);
         if (streamProp != null) {
             setStream(streamProp);
         }
-
         Boolean batchProp = removeBoolean(props, ConfigUtils.BATCH);
         if (batchProp != null) {
             setBatch(batchProp);
         }
-
         Boolean oracleSqlplusProp = removeBoolean(props, ConfigUtils.ORACLE_SQLPLUS);
         if (oracleSqlplusProp != null) {
             setOracleSqlplus(oracleSqlplusProp);
         }
-
         Boolean oracleSqlplusWarnProp = removeBoolean(props, ConfigUtils.ORACLE_SQLPLUS_WARN);
         if (oracleSqlplusWarnProp != null) {
             setOracleSqlplusWarn(oracleSqlplusWarnProp);
         }
-
         Boolean createSchemasProp = removeBoolean(props, ConfigUtils.CREATE_SCHEMAS);
         if (createSchemasProp != null) {
             setShouldCreateSchemas(createSchemasProp);
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        String oracleKerberosConfigFile = props.remove(ConfigUtils.ORACLE_KERBEROS_CONFIG_FILE);
+        if (oracleKerberosConfigFile != null) {
+            setOracleKerberosConfigFile(oracleKerberosConfigFile);
+        }
+        String oracleKerberosCacheFile = props.remove(ConfigUtils.ORACLE_KERBEROS_CACHE_FILE);
+        if (oracleKerberosCacheFile != null) {
+            setOracleKerberosCacheFile(oracleKerberosCacheFile);
+        }
+        String vaultUrl = props.remove(ConfigUtils.VAULT_URL);
+        if (vaultUrl != null) {
+            setVaultUrl(vaultUrl);
+        }
+        String vaultToken = props.remove(ConfigUtils.VAULT_TOKEN);
+        if (vaultToken != null) {
+            setVaultToken(vaultToken);
+        }
+        String vaultSecrets = props.remove(ConfigUtils.VAULT_SECRETS);
+        if (vaultSecrets != null) {
+            setVaultSecrets(StringUtils.tokenizeToStringArray(vaultSecrets, ","));
+        }
+        String ignoreMigrationPatternsProp = props.remove(ConfigUtils.IGNORE_MIGRATION_PATTERNS);
+        if (ignoreMigrationPatternsProp != null) {
+            setIgnoreMigrationPatterns(StringUtils.tokenizeToStringArray(ignoreMigrationPatternsProp, ","));
+        }
         String licenseKeyProp = props.remove(ConfigUtils.LICENSE_KEY);
         if (licenseKeyProp != null) {
             setLicenseKey(licenseKeyProp);
