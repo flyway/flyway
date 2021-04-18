@@ -17,110 +17,45 @@ package org.flywaydb.core.internal.info;
 
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.resolver.Context;
-import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.scanner.Scanner;
-import org.flywaydb.core.api.output.ValidateOutput;
 
+import org.flywaydb.core.api.output.CommandResultFactory;
+import org.flywaydb.core.api.output.InfoResult;
+import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.api.output.ValidateOutput;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.api.output.InfoResult;
-import org.flywaydb.core.api.output.CommandResultFactory;
-import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.*;
 
-/**
- * Default implementation of MigrationInfoService.
- */
 public class MigrationInfoServiceImpl implements MigrationInfoService, OperationResult {
-    /**
-     * The migration resolver for available migrations.
-     */
     private final MigrationResolver migrationResolver;
-
-    /**
-     * Database-specific functionality.
-     */
+    private final Configuration configuration;
     private final Database database;
-
     private final Context context;
-
-    /**
-     * The schema history table for applied migrations.
-     */
     private final SchemaHistory schemaHistory;
-
-    /**
-     * The target version up to which to retrieve the info.
-     */
-    private MigrationVersion target;
-
-    /**
-     * The migrations to retrieve info for.
-     */
-    private MigrationPattern[] cherryPick;
-
-    /**
-     * Allows migrations to be run "out of order".
-     * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
-     * it will be applied too instead of being ignored.</p>
-     * <p>(default: {@code false})</p>
-     */
-    private boolean outOfOrder;
-
-    /**
-     * Whether pending migrations are allowed.
-     */
+    private final MigrationVersion target;
+    private final MigrationPattern[] cherryPick;
+    private final boolean outOfOrder;
     private final boolean pending;
-
-    /**
-     * Whether missing migrations are allowed.
-     */
     private final boolean missing;
-
-    /**
-     * Whether ignored migrations are allowed.
-     */
     private final boolean ignored;
-
-    /**
-     * Whether future migrations are allowed.
-     */
     private final boolean future;
-
     /**
      * The migrations infos calculated at the last refresh.
      */
     private List<MigrationInfoImpl> migrationInfos;
-
     /**
      * Whether all of the specified schemas are empty or not.
      */
     private Boolean allSchemasEmpty;
 
     /**
-     * Creates a new MigrationInfoServiceImpl.
-     *
      * @param migrationResolver The migration resolver for available migrations.
      * @param schemaHistory     The schema history table for applied migrations.
      * @param configuration     The current configuration.
@@ -138,12 +73,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                                     boolean pending, boolean missing, boolean ignored, boolean future) {
         this.migrationResolver = migrationResolver;
         this.schemaHistory = schemaHistory;
-        this.context = new Context() {
-            @Override
-            public Configuration getConfiguration() {
-                return configuration;
-            }
-        };
+        this.configuration = configuration;
+        this.context = () -> configuration;
         this.database = database;
         this.target = target;
         this.outOfOrder = outOfOrder;
@@ -167,6 +98,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         context.missing = missing;
         context.ignored = ignored;
         context.future = future;
+        context.ignorePatterns = configuration.getIgnoreMigrationPatterns();
         context.target = target;
         context.cherryPick = cherryPick;
 
@@ -465,7 +397,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
 
 
-
     @Override
     public MigrationInfo[] all() {
         return migrationInfos.toArray(new MigrationInfo[0]);
@@ -546,8 +477,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     }
 
     /**
-     * Retrieves the full set of infos about the migrations resolved on the classpath.
-     *
      * @return The resolved migrations. An empty array if none.
      */
     public MigrationInfo[] resolved() {
@@ -562,8 +491,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     }
 
     /**
-     * Retrieves the full set of infos about the migrations that failed.
-     *
      * @return The failed migrations. An empty array if none.
      */
     public MigrationInfo[] failed() {
@@ -578,8 +505,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     }
 
     /**
-     * Retrieves the full set of infos about future migrations applied to the DB.
-     *
      * @return The future migrations. An empty array if none.
      */
     public MigrationInfo[] future() {
@@ -600,8 +525,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     }
 
     /**
-     * Retrieves the full set of infos about out of order migrations applied to the DB.
-     *
      * @return The out of order migrations. An empty array if none.
      */
     public MigrationInfo[] outOfOrder() {
@@ -631,12 +554,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
 
 
-
-
-
     /**
-     * Validate all migrations for consistency.
-     *
      * @return The list of migrations that failed validation, which is empty if everything is fine.
      */
     public List<ValidateOutput> validate() {

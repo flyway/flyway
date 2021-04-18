@@ -58,13 +58,15 @@ class CommandLineArguments {
     }
 
     // Flags
+    // GNU standards require --version, --help and their single-letter forms
+    // RG standards mandate --help / -h
     private static String DEBUG_FLAG = "-X";
     private static String QUIET_FLAG = "-q";
     private static String SUPPRESS_PROMPT_FLAG = "-n";
-    private static String PRINT_VERSION_AND_EXIT_FLAG = "-v";
+    private static List<String> PRINT_VERSION_AND_EXIT_FLAGS = Arrays.asList( "-v", "--version" );
     // The JSON_FLAG is deprecated and should be removed in v8
     private static String JSON_FLAG = "-json";
-    private static String PRINT_USAGE_FLAG = "-?";
+    private static List<String> PRINT_USAGE_FLAGS = Arrays.asList( "-?", "-h", "--help" );
     private static String COMMUNITY_FLAG = "-community";
     private static String ENTERPRISE_FLAG = "-enterprise";
     private static String PRO_FLAG = "-pro";
@@ -85,26 +87,31 @@ class CommandLineArguments {
 
     private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-    private static List<String> VALID_OPERATIONS_AND_FLAGS = Arrays.asList(
-            DEBUG_FLAG,
-            QUIET_FLAG,
-            SUPPRESS_PROMPT_FLAG,
-            PRINT_VERSION_AND_EXIT_FLAG,
-            JSON_FLAG,
-            PRINT_USAGE_FLAG,
-            COMMUNITY_FLAG,
-            ENTERPRISE_FLAG,
-            PRO_FLAG,
-            TEAMS_FLAG,
-            "help",
-            "migrate",
-            "clean",
-            "info",
-            "validate",
-            "undo",
-            "baseline",
-            "repair"
-    );
+    private static List<String> VALID_OPERATIONS_AND_FLAGS = getValidOperationsAndFlags();
+
+    private static List<String> getValidOperationsAndFlags() {
+        List<String> operationsAndFlags = new ArrayList(Arrays.asList(
+                DEBUG_FLAG,
+                QUIET_FLAG,
+                SUPPRESS_PROMPT_FLAG,
+                JSON_FLAG,
+                COMMUNITY_FLAG,
+                ENTERPRISE_FLAG,
+                PRO_FLAG,
+                TEAMS_FLAG,
+                "help",
+                "migrate",
+                "clean",
+                "info",
+                "validate",
+                "undo",
+                "baseline",
+                "repair"
+        ));
+        operationsAndFlags.addAll(PRINT_VERSION_AND_EXIT_FLAGS);
+        operationsAndFlags.addAll(PRINT_USAGE_FLAGS);
+        return operationsAndFlags;
+    }
 
     private final String[] args;
 
@@ -115,6 +122,15 @@ class CommandLineArguments {
     private static boolean isFlagSet(String[] args, String flag) {
         for (String arg : args) {
             if (flag.equals(arg)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isFlagSet(String[] args, List<String> flags) {
+        for (String flag : flags) {
+            if (isFlagSet(args, flag)) {
                 return true;
             }
         }
@@ -197,7 +213,7 @@ class CommandLineArguments {
 
     void validate() {
         for (String arg : args) {
-            if (!isConfigurationArg(arg) && !CommandLineArguments.VALID_OPERATIONS_AND_FLAGS.contains(arg)) {
+            if (!isConfigurationArg(arg) && !VALID_OPERATIONS_AND_FLAGS.contains(arg)) {
                 throw new FlywayException("Invalid argument: " + arg);
             }
         }
@@ -218,7 +234,7 @@ class CommandLineArguments {
     }
 
     boolean shouldPrintVersionAndExit() {
-        return isFlagSet(args, PRINT_VERSION_AND_EXIT_FLAG);
+        return isFlagSet(args, PRINT_VERSION_AND_EXIT_FLAGS);
     }
 
     boolean shouldOutputJson() {
@@ -232,7 +248,7 @@ class CommandLineArguments {
     }
 
     boolean shouldPrintUsage() {
-        return isFlagSet(args, PRINT_USAGE_FLAG) || getOperations().isEmpty();
+        return isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty();
     }
 
     Level getLogLevel() {

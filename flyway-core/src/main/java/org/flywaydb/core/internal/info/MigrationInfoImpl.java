@@ -22,62 +22,22 @@ import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-/**
- * Default implementation of MigrationInfo.
- */
 public class MigrationInfoImpl implements MigrationInfo {
-    /**
-     * The resolved migration to aggregate the info from.
-     */
     private final ResolvedMigration resolvedMigration;
-
-    /**
-     * The applied migration to aggregate the info from.
-     */
     private final AppliedMigration appliedMigration;
-
-    /**
-     * The current context.
-     */
     private final MigrationInfoContext context;
-
-    /**
-     * Whether this migration was applied out of order.
-     */
     private final boolean outOfOrder;
-
-    /**
-     * Whether this migration was deleted.
-     */
     private final boolean deleted;
-
-    /**
-     * Whether this migration should not be executed.
-     */
     private final boolean shouldNotExecuteMigration;
 
 
 
 
-
-
-
-
-    /**
-     * Creates a new MigrationInfoImpl.
-     *
-     * @param resolvedMigration The resolved migration to aggregate the info from.
-     * @param appliedMigration  The applied migration to aggregate the info from.
-     * @param context           The current context.
-     * @param outOfOrder        Whether this migration was applied out of order.
-
-
-
-     */
     MigrationInfoImpl(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration,
                       MigrationInfoContext context, boolean outOfOrder, boolean deleted
 
@@ -191,7 +151,6 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
-            // ignore a resolved and not applied migration which shouldn't be executed
             if (shouldNotExecuteMigration) {
                 return MigrationState.IGNORED;
             }
@@ -284,7 +243,6 @@ public class MigrationInfoImpl implements MigrationInfo {
     }
 
     private boolean isRepeatableLatest() {
-        // succeed if this isn't a repeatable
         if (appliedMigration.getVersion() != null) {
             return true;
         }
@@ -334,9 +292,7 @@ public class MigrationInfoImpl implements MigrationInfo {
     }
 
     /**
-     * Validates this migrationInfo for consistency.
-     *
-     * @return The error code with the relevant message, or {@code null} if everything is fine.
+     * @return The error code with the relevant validation message, or {@code null} if everything is fine.
      */
     public ErrorDetails validate() {
         MigrationState state = getState();
@@ -347,16 +303,19 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
-
-        // Ignore any migrations above the current target as they are out of scope.
         if (MigrationState.ABOVE_TARGET.equals(state)) {
             return null;
         }
 
-        // Ignore deleted migrations
         if (MigrationState.DELETED.equals(state)) {
             return null;
         }
+
+
+
+
+
+
 
         if (state.isFailed() && (!context.future || MigrationState.FUTURE_FAILED != state)) {
             if (getVersion() == null) {
@@ -366,7 +325,6 @@ public class MigrationInfoImpl implements MigrationInfo {
             String errorMessage = "Detected failed migration to version " + getVersion() + " (" + getDescription() + ")" + ". Please remove any half-completed changes then run repair to fix the schema history.";
             return new ErrorDetails(ErrorCode.FAILED_VERSIONED_MIGRATION, errorMessage);
         }
-
 
 
 
@@ -469,20 +427,10 @@ public class MigrationInfoImpl implements MigrationInfo {
         if (SchemaHistory.NO_DESCRIPTION_MARKER.equals(appliedMigration.getDescription())) {
             return !"".equals(resolvedMigration.getDescription());
         }
-        // The default
         return (!AbbreviationUtils.abbreviateDescription(resolvedMigration.getDescription())
                 .equals(appliedMigration.getDescription()));
     }
 
-    /**
-     * Creates a message for a mismatch.
-     *
-     * @param mismatch            The type of mismatch.
-     * @param migrationIdentifier The offending version.
-     * @param applied             The applied value.
-     * @param resolved            The resolved value.
-     * @return The message.
-     */
     private String createMismatchMessage(String mismatch, String migrationIdentifier, Object applied, Object resolved) {
         return String.format("Migration " + mismatch + " mismatch for migration %s\n" +
                         "-> Applied to database : %s\n" +

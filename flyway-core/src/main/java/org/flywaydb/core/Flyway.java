@@ -503,8 +503,9 @@ public class Flyway {
             resourceNameValidator.validateSQLMigrationNaming(resourceProvider, configuration);
         }
 
-        JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(),
-                configuration.getConnectRetries(),
+        JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(
+                configuration.getDataSource(),
+                configuration,
                 statementInterceptor
         );
 
@@ -569,14 +570,11 @@ public class Flyway {
 
             result = command.execute(
                     createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory, parsingContext),
-                    SchemaHistoryFactory.getSchemaHistory(configuration, noCallbackSqlScriptExecutorFactory, sqlScriptFactory,
-                            database, defaultSchema,
-                            statementInterceptor
-                    ),
+                    SchemaHistoryFactory.getSchemaHistory(configuration, noCallbackSqlScriptExecutorFactory, sqlScriptFactory, database, defaultSchema, statementInterceptor),
                     database,
                     schemas.getRight().toArray(new Schema[0]),
-                    callbackExecutor, statementInterceptor
-            );
+                    callbackExecutor,
+                    statementInterceptor);
         } finally {
             IOUtils.close(database);
 

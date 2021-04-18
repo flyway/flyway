@@ -18,8 +18,6 @@ package org.flywaydb.core.internal.jdbc;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -39,63 +37,15 @@ import java.util.logging.Logger;
  * YAGNI: The simplest DataSource implementation that works for Flyway.
  */
 public class DriverDataSource implements DataSource {
-    private static final Log LOG = LogFactory.getLog(DriverDataSource.class);
-
-    /**
-     * The JDBC Driver instance to use.
-     */
     private Driver driver;
-
-    /**
-     * The JDBC URL to use for connecting through the Driver.
-     */
     private final String url;
-
-    /**
-     * The detected type of the driver.
-     */
     private final DatabaseType type;
-
-    /**
-     * The JDBC user to use for connecting through the Driver.
-     */
     private final String user;
-
-    /**
-     * The JDBC password to use for connecting through the Driver.
-     */
     private final String password;
-
-    /**
-     * The default properties to be passed to a new connection.
-     */
     private final Properties defaultProperties;
-
-    /**
-     * Additional properties to pass to a new connection
-     */
     private final Map<String, String> additionalProperties;
-
-    /**
-     * The ClassLoader to use.
-     */
-    private final ClassLoader classLoader;
-
-    /**
-     * Whether connection should have auto commit activated or not. Default: {@code true}
-     */
     private boolean autoCommit = true;
 
-    /**
-     * Creates a new DriverDataSource.
-     *
-     * @param classLoader The ClassLoader to use.
-     * @param driverClass The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
-     * @param url         The JDBC URL to use for connecting through the Driver. (required)
-     * @param user        The JDBC user to use for connecting through the Driver.
-     * @param password    The JDBC password to use for connecting through the Driver.
-     * @throws FlywayException when the datasource could not be created.
-     */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password) throws FlywayException {
         this(classLoader, driverClass, url, user, password, null, new Properties(), new HashMap<>());
     }
@@ -104,17 +54,6 @@ public class DriverDataSource implements DataSource {
         this(classLoader, driverClass, url, user, password, configuration, new Properties(), new HashMap<>());
     }
 
-    /**
-     * Creates a new DriverDataSource.
-     *
-     * @param classLoader           The ClassLoader to use.
-     * @param driverClass           The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
-     * @param url                   The JDBC URL to use for connecting through the Driver. (required)
-     * @param user                  The JDBC user to use for connecting through the Driver.
-     * @param password              The JDBC password to use for connecting through the Driver.
-     * @param additionalProperties  The properties to pass to the connection.
-     * @throws FlywayException when the datasource could not be created.
-     */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Map<String, String> additionalProperties) throws FlywayException {
         this(classLoader, driverClass, url, user, password, null, new Properties(), additionalProperties);
     }
@@ -139,7 +78,6 @@ public class DriverDataSource implements DataSource {
      */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Configuration configuration, Properties defaultProperties,
                             Map<String, String> additionalProperties) throws FlywayException {
-        this.classLoader = classLoader;
         this.url = detectFallbackUrl(url);
 
         this.type = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
@@ -272,7 +210,7 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * @return The additional properties to pass to a JDBC connection
+     * @return The additional properties to pass to a JDBC connection.
      */
     public Map<String, String> getAdditionalProperties() {
         return this.additionalProperties;

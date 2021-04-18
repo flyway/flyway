@@ -260,7 +260,11 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     }
 
     private void handleUpdateCount(long updateCount) {
-        LOG.info(updateCount + " rows affected");
+        if (updateCount > 0) {
+            LOG.info(updateCount + " rows affected");
+        } else {
+            LOG.debug(updateCount + " rows affected");
+        }
     }
 
     protected void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement) {

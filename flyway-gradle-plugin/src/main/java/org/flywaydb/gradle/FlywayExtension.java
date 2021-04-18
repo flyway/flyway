@@ -15,6 +15,8 @@
  */
 package org.flywaydb.gradle;
 
+import org.flywaydb.core.api.pattern.ValidatePattern;
+
 import java.util.Map;
 
 /**
@@ -329,6 +331,15 @@ public class FlywayExtension {
      * <p>Also configurable with Gradle or System Property: ${flyway.ignoreFutureMigrations}</p>
      */
     public Boolean ignoreFutureMigrations;
+
+    /**
+     * Ignore migrations that match this comma-separated list of patterns when validating migrations.
+     * Each pattern is of the form <migration_type>:<migration_state>
+     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * Example: repeatable:missing,versioned:pending,*:failed
+     * <i>Flyway Teams only</i>
+     */
+    public ValidatePattern[] ignoreMigrationPatterns;
 
     /**
      * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be

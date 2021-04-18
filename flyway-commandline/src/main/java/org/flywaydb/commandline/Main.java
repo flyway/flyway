@@ -199,18 +199,18 @@ public class Main {
     }
 
     static String getMessagesFromException(Throwable e) {
-        String condensedMessages = "";
+        StringBuilder condensedMessages = new StringBuilder();
         String preamble = "";
         while (e != null) {
             if (e instanceof FlywayException) {
-                condensedMessages += preamble + e.getMessage();
+                condensedMessages.append(preamble).append(e.getMessage());
             } else {
-                condensedMessages += preamble + e.toString();
+                condensedMessages.append(preamble).append(e);
             }
             preamble = "\r\nCaused by: ";
             e = e.getCause();
         }
-        return condensedMessages;
+        return condensedMessages.toString();
     }
 
     private static OperationResultBase executeOperation(Flyway flyway, String operation, CommandLineArguments commandLineArguments) {
@@ -378,6 +378,7 @@ public class Main {
         LOG.info("ignoreIgnoredMigrations      : Allow ignored migrations when validating");
         LOG.info("ignorePendingMigrations      : Allow pending migrations when validating");
         LOG.info("ignoreFutureMigrations       : Allow future migrations when validating");
+        LOG.info("ignoreMigrationPatterns      : [" + "teams] Patterns of migrations and states to ignore during validate");
         LOG.info("cleanOnValidationError       : Automatically clean on a validation error");
         LOG.info("cleanDisabled                : Whether to disable clean");
         LOG.info("baselineVersion              : Version to tag schema with when executing baseline");
@@ -397,28 +398,24 @@ public class Main {
         LOG.info("");
         LOG.info("Flags");
         LOG.info("-----");
-        LOG.info("-X          : Print debug output");
-        LOG.info("-q          : Suppress all output, except for errors and warnings");
-        LOG.info("-n          : Suppress prompting for a user and password");
-        LOG.info("-v          : Print the Flyway version and exit");
-        LOG.info("-?          : Print this usage info and exit");
-        LOG.info("-community  : Run the Flyway Community Edition (default)");
-        LOG.info("-teams      : Run the Flyway Teams Edition");
+        LOG.info("-X              : Print debug output");
+        LOG.info("-q              : Suppress all output, except for errors and warnings");
+        LOG.info("-n              : Suppress prompting for a user and password");
+        LOG.info("--version, -v   : Print the Flyway version and exit");
+        LOG.info("--help, -h, -?  : Print this usage info and exit");
+        LOG.info("-community      : Run the Flyway Community Edition (default)");
+        LOG.info("-teams          : Run the Flyway Teams Edition");
         LOG.info("");
         LOG.info("Example");
         LOG.info("-------");
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
-        LOG.info("More info at https://flywaydb.org/documentation/commandline");
+        LOG.info("More info at https://flywaydb.org/documentation/usage/commandline");
     }
 
     private static List<File> getJdbcDriverJarFiles() {
         File driversDir = new File(getInstallationDir(), "drivers");
-        File[] files = driversDir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".jar");
-            }
-        });
+        File[] files = driversDir.listFiles((dir, name) -> name.endsWith(".jar"));
 
         // see javadoc of listFiles(): null if given path is not a real directory
         if (files == null) {
@@ -441,11 +438,7 @@ public class Main {
         List<File> jarFiles = new ArrayList<>();
         for (String dirName : dirs) {
             File dir = new File(dirName);
-            File[] files = dir.listFiles(new FilenameFilter() {
-                public boolean accept(File dir, String name) {
-                    return name.endsWith(".jar");
-                }
-            });
+            File[] files = dir.listFiles((dir1, name) -> name.endsWith(".jar"));
 
             // see javadoc of listFiles(): null if given path is not a real directory
             if (files == null) {
