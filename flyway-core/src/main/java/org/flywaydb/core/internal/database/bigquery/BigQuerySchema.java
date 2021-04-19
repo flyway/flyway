@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.database.bigquery;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -40,8 +41,11 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
 
     @Override
     protected boolean doExists() throws SQLException {
+        // Restrict to the specified GCP project and BigQuery region. The region is by default US.
+        String qualifier = database.getMainConnection().getProjectIdRegionQualifier();
+
         return jdbcTemplate.queryForInt(
-                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE schema_name='" + name + "'"
+                "SELECT COUNT(*) FROM " + qualifier + "INFORMATION_SCHEMA.SCHEMATA WHERE schema_name='" + name + "'"
         ) > 0;
     }
 

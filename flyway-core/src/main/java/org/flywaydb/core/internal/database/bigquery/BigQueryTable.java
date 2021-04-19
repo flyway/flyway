@@ -53,6 +53,6 @@ public class BigQueryTable extends Table<BigQueryDatabase, BigQuerySchema> {
 
     @Override
     protected void doLock() throws SQLException {
-        jdbcTemplate.execute("DELETE FROM " + this + " WHERE FALSE");
+        // Do nothing as BigQuery does not support table-level lock.
     }
 }

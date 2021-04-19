@@ -19,19 +19,67 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class BigQueryParser extends Parser {
     private static final Pattern ALTER_CREATE_DROP_REGEX = Pattern.compile("^(ALTER|CREATE|DROP)");
+    private static final String ALTERNATIVE_SINGLE_LINE_COMMENT = "#";
+    private static final String TRIPLE_STRING_LITERAL_SINGLE_QUOTE = "'''";
+    private static final String TRIPLE_STRING_LITERAL_DOUBLE_QUOTE = "\"\"\"";
+
 
     public BigQueryParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 3);
     }
 
     @Override
+    protected Set<String> getValidKeywords() {
+        // https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#reserved_keywords
+        return new HashSet<>(Arrays.asList(
+                "ALL", "AND", "ANY", "ARRAY", "AS", "ASC", "ASSERT_ROWS_MODIFIED", "AT",
+                "BETWEEN", "BY",
+                "CASE", "CAST", "COLLATE", "CONTAINS", "CREATE", "CROSS", "CUBE", "CURRENT",
+                "DEFAULT", "DEFINE", "DESC", "DISTINCT",
+                "ELSE", "END", "ENUM", "ESCAPE", "EXCEPT", "EXCLUDE", "EXISTS", "EXTRACT",
+                "FALSE", "FETCH", "FOLLOWING", "FOR", "FROM", "FULL",
+                "GROUP", "GROUPING", "GROUPS",
+                "HASH", "HAVING",
+                "IF", "IGNORE", "IN", "INNER",
+                "INTERSECT", "INTERVAL", "INTO", "IS",
+                "JOIN",
+                "LATERAL", "LEFT", "LIKE", "LIMIT", "LOOKUP",
+                "MERGE",
+                "NATURAL", "NEW", "NO",
+                "NOT", "NULL", "NULLS",
+                "OF", "ON", "OR",
+                "ORDER", "OUTER", "OVER",
+                "PARTITION", "PRECEDING", "PROTO",
+                "RANGE", "RECURSIVE", "RESPECT", "RIGHT", "ROLLUP", "ROWS",
+                "SELECT", "SET", "SOME", "STRUCT",
+                "TABLESAMPLE", "THEN", "TO", "TREAT", "TRUE",
+                "UNBOUNDED", "UNION", "UNNEST", "USING",
+                "WHEN", "WHERE", "WINDOW", "WITH", "WITHIN"
+        ));
+    }
+
+    @Override
+    protected char getIdentifierQuote() {
+        return '`';
+    }
+
+    @Override
     protected char getAlternativeStringLiteralQuote() {
-        return '\'';
+        return '"';
+    }
+
+    @Override
+    protected boolean isSingleLineComment(String peek, ParserContext context, int col) {
+        return super.isSingleLineComment(peek, context, col)
+                || peek.startsWith(ALTERNATIVE_SINGLE_LINE_COMMENT);
     }
 
     @Override
@@ -44,12 +92,31 @@ public class BigQueryParser extends Parser {
         return null;
     }
 
+    @Override
+    protected Token handleStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+        // BigQuery also supports ''' to quote string.
+        handleAmbiguityStringLiteral(reader, '\'', TRIPLE_STRING_LITERAL_SINGLE_QUOTE);
+        return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
+    }
+
     @SuppressWarnings("Duplicates")
     @Override
     protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
-        String dollarQuote = (char) reader.read() + reader.readUntilIncluding('\'');
-        reader.swallowUntilExcluding(dollarQuote);
-        reader.swallow(dollarQuote.length());
+        // BigQuery also supports """ to quote string.
+        handleAmbiguityStringLiteral(reader, '"', TRIPLE_STRING_LITERAL_DOUBLE_QUOTE);
+
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
+    }
+
+    private void handleAmbiguityStringLiteral(PeekingReader reader, char singleQuote, String tripleQuote) throws IOException {
+        if (reader.peek(tripleQuote)) {
+            reader.swallow(tripleQuote.length());
+            reader.swallowUntilExcluding(tripleQuote);
+            reader.swallow(tripleQuote.length());
+        } else {
+            reader.swallow();
+            reader.swallowUntilExcludingWithEscape(singleQuote, false, '\\');
+            reader.swallow();
+        }
     }
 }

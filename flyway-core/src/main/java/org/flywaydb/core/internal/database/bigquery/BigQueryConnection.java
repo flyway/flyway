@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.database.bigquery;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
@@ -31,55 +30,37 @@ public class BigQueryConnection extends Connection<BigQueryDatabase> {
         super(database, connection);
     }
 
-    // FIXME Remove useless code
-    private String getProjectID() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT @@project_id");
-    }
-
-    private String getASchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT schema_name FROM INFORMATION_SCHEMA.SCHEMATA LIMIT 1");
-    }
-
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
-        // BigQuery doesn't have a concept of current schema. We return a dataset (schema) name.
-        return getASchemaName();
-    }
-
-    @Override
-    public void changeCurrentSchemaTo(Schema schema) {
-        try {
-            if (schema.getName().equals(originalSchemaNameOrSearchPath) || originalSchemaNameOrSearchPath.startsWith(schema.getName() + ",") || !schema.exists()) {
-                return;
-            }
-
-            doChangeCurrentSchemaOrSearchPathTo(schema.toString());
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error setting current schema to " + schema, e);
-        }
+        // BigQuery has no concept of current schema, return DefaultDataset if it is set in JDBC, otherwise null.
+        String defaultDataset = getJdbcClientOption("DefaultDataset");
+        return StringUtils.hasText(defaultDataset) ? defaultDataset.trim() : null;
     }
 
     @Override
     public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
-        String sn = jdbcTemplate.queryForString(
-                "SELECT schema_name FROM INFORMATION_SCHEMA.SCHEMATA WHERE schema_name='?' LIMIT 1",
-                schema
-        );
-
-        if (!StringUtils.hasText(sn)) {
-            throw new SQLException("schema " + schema + " does not exist");
-        }
+        // BigQuery has no concept of current schema, do nothing.
     }
 
     @Override
     public Schema doGetCurrentSchema() throws SQLException {
-        String schemaName = getCurrentSchemaNameOrSearchPath();
+        // BigQuery has no concept of current schema, return DefaultDataset if it is set in JDBC, otherwise null.
+        String defaultDataset = getJdbcClientOption("DefaultDataset");
+        return StringUtils.hasText(defaultDataset) ? getSchema(defaultDataset.trim()) : null;
+    }
 
-        if (!StringUtils.hasText(schemaName)) {
-            throw new FlywayException("BigQuery does not have any dataset. Please create one.");
-        }
+    public String getJdbcClientOption(String option) throws SQLException {
+        return getJdbcConnection().getClientInfo(option);
+    }
 
-        return getSchema(schemaName);
+    public String getProjectIdRegionQualifier() throws SQLException {
+        String projectId = getJdbcClientOption("ProjectId");
+        String projectQualifier = StringUtils.hasText(projectId) ? database.quote(projectId.trim()) + "." : "";
+
+        String location = getJdbcClientOption("Location");
+        String regionQualifier = StringUtils.hasText(location) ? database.quote("region-" + location.trim()) + "." : "";
+
+        return projectQualifier + regionQualifier;
     }
 
     @Override

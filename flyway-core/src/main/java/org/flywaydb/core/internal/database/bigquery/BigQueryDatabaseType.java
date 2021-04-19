@@ -40,7 +40,7 @@ public class BigQueryDatabaseType extends DatabaseType {
 
     @Override
     public int getNullType() {
-        return Types.VARCHAR;
+        return Types.NULL;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class BigQueryDatabaseType extends DatabaseType {
 
     @Override
     public String getBackupDriverClass(String url, ClassLoader classLoader) {
-        if (ClassUtils.isPresent(BIGQUERY_JDBC_DRIVER, classLoader)) {
+        if(ClassUtils.isPresent(BIGQUERY_JDBC_DRIVER, classLoader)) {
             return BIGQUERY_JDBC_DRIVER;
         }
         return BIGQUERY_JDBC_DRIVER;

@@ -15,11 +15,13 @@
  */
 package org.flywaydb.core.internal.database.bigquery;
 
+import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.util.AbbreviationUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -64,6 +66,25 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
                 ");\n" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "");
     }
+
+    @Override
+    public String getInsertStatement(Table table) {
+        // Explicitly set installed_on to CURRENT_TIMESTAMP().
+        return "INSERT INTO " + table
+                + " (" + quote("installed_rank")
+                + ", " + quote("version")
+                + ", " + quote("description")
+                + ", " + quote("type")
+                + ", " + quote("script")
+                + ", " + quote("checksum")
+                + ", " + quote("installed_by")
+                + ", " + quote("installed_on")
+                + ", " + quote("execution_time")
+                + ", " + quote("success")
+                + ")"
+                + " VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), ?, ?)";
+    }
+
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
