@@ -18,7 +18,6 @@ package org.flywaydb.core.internal.database.bigquery;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -60,12 +59,12 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
 
     @Override
     protected void doCreate() throws SQLException {
-        jdbcTemplate.execute("CREATE SCHEMA " + database.quote(name));
+        jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS " + database.quote(name));
     }
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP SCHEMA " + database.quote(name) + " CASCADE");
+        jdbcTemplate.execute("DROP SCHEMA IF EXISTS " + database.quote(name) + " CASCADE");
     }
 
     @Override
