@@ -19,7 +19,6 @@ import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
@@ -51,16 +50,6 @@ public class BigQueryConnection extends Connection<BigQueryDatabase> {
 
     public String getJdbcClientOption(String option) throws SQLException {
         return getJdbcConnection().getClientInfo(option);
-    }
-
-    public String getProjectIdRegionQualifier() throws SQLException {
-        String projectId = getJdbcClientOption("ProjectId");
-        String projectQualifier = StringUtils.hasText(projectId) ? database.quote(projectId.trim()) + "." : "";
-
-        String location = getJdbcClientOption("Location");
-        String regionQualifier = StringUtils.hasText(location) ? database.quote("region-" + location.trim()) + "." : "";
-
-        return projectQualifier + regionQualifier;
     }
 
     @Override

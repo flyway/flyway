@@ -40,12 +40,24 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        // Restrict to the specified GCP project and BigQuery region. The region is by default US.
-        String qualifier = database.getMainConnection().getProjectIdRegionQualifier();
-
-        return jdbcTemplate.queryForInt(
-                "SELECT COUNT(*) FROM " + qualifier + "INFORMATION_SCHEMA.SCHEMATA WHERE schema_name='" + name + "'"
-        ) > 0;
+        /*
+        We have to provide region to query INFORMATION_SCHEMA.SCHEMATA correctly.
+        Otherwise, it defaults to US.
+        So we make a workaround to query the schema.INFORMATION_SCHEMA.TABLES view.
+         */
+        boolean schemaExists = false;
+        try {
+            schemaExists = jdbcTemplate.queryForInt(
+                    "SELECT COUNT(*) FROM " + database.quote(name) + ".INFORMATION_SCHEMA.TABLES"
+            ) >= 0;
+        } catch (SQLException e) {
+            if (e.getMessage().contains("NOT_FOUND")) {
+                schemaExists = false;
+            } else {
+                throw e;
+            }
+        }
+        return schemaExists;
     }
 
     @Override
