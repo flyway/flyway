@@ -28,10 +28,12 @@ import org.flywaydb.core.internal.util.ClassUtils;
 import java.sql.Connection;
 import java.sql.Types;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class BigQueryDatabaseType extends DatabaseType {
     private static final String BIGQUERY_JDBC42_DRIVER = "com.simba.googlebigquery.jdbc42.Driver";
     private static final String BIGQUERY_JDBC_DRIVER = "com.simba.googlebigquery.jdbc.Driver";
+    private static final Pattern oAuthPattern = Pattern.compile("OAuth\\w+=([^;]*)", Pattern.CASE_INSENSITIVE);
 
     @Override
     public String getName() {
@@ -49,6 +51,11 @@ public class BigQueryDatabaseType extends DatabaseType {
     }
 
     @Override
+    public Pattern getJDBCCredentialsPattern() {
+        return oAuthPattern;
+    }
+
+    @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
         return BIGQUERY_JDBC42_DRIVER;
     }
@@ -58,7 +65,7 @@ public class BigQueryDatabaseType extends DatabaseType {
         if(ClassUtils.isPresent(BIGQUERY_JDBC_DRIVER, classLoader)) {
             return BIGQUERY_JDBC_DRIVER;
         }
-        return BIGQUERY_JDBC_DRIVER;
+        return null;
     }
 
     @Override
