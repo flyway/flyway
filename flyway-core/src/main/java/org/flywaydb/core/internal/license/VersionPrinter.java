@@ -18,7 +18,6 @@ package org.flywaydb.core.internal.license;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-
 import org.flywaydb.core.internal.util.DateUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
@@ -33,9 +32,6 @@ public class VersionPrinter {
     public static final Edition EDITION =
 
             Edition.COMMUNITY
-
-
-
 
 
 
@@ -58,11 +54,6 @@ public class VersionPrinter {
     ) {
 
         printVersionOnly();
-
-
-
-
-
 
 
 

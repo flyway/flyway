@@ -17,12 +17,9 @@ package org.flywaydb.core.internal.license;
 
 import org.flywaydb.core.api.FlywayException;
 
-/**
- * Thrown when an attempt was made to use a Flyway Teams Edition feature not supported by
- * Flyway Community Edition.
- */
-public class FlywayTeamsUpgradeRequiredException extends FlywayException {
-    public FlywayTeamsUpgradeRequiredException(String feature) {
-        super(Edition.ENTERPRISE + " upgrade required: " + feature + " is not supported by " + Edition.COMMUNITY + ".");
+public class FlywayTrialExpiredException extends FlywayException {
+    public FlywayTrialExpiredException(Edition edition) {
+        super("Your 30 day limited Flyway trial license has expired and is no longer valid. " +
+                "Visit https://flywaydb.org/trial-upgrade to upgrade to a full " + edition + " license to keep on using this software.");
     }
 }
