@@ -331,6 +331,15 @@ public class FlywayExtension {
     public Boolean ignoreFutureMigrations;
 
     /**
+     * Ignore migrations that match this comma-separated list of patterns when validating migrations.
+     * Each pattern is of the form <migration_type>:<migration_state>
+     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * Example: repeatable:missing,versioned:pending,*:failed
+     * <i>Flyway Teams only</i>
+     */
+    public String[] ignoreMigrationPatterns;
+
+    /**
      * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
      * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
      * {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})

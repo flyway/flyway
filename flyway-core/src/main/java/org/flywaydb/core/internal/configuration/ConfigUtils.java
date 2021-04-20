@@ -55,6 +55,7 @@ public class ConfigUtils {
     public static final String IGNORE_MISSING_MIGRATIONS = "flyway.ignoreMissingMigrations";
     public static final String IGNORE_IGNORED_MIGRATIONS = "flyway.ignoreIgnoredMigrations";
     public static final String IGNORE_PENDING_MIGRATIONS = "flyway.ignorePendingMigrations";
+    public static final String IGNORE_MIGRATION_PATTERNS = "flyway.ignoreMigrationPatterns";
     public static final String INIT_SQL = "flyway.initSql";
     public static final String INSTALLED_BY = "flyway.installedBy";
     public static final String LICENSE_KEY = "flyway.licenseKey";
@@ -192,6 +193,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_IGNORE_PENDING_MIGRATIONS".equals(key)) {
             return IGNORE_PENDING_MIGRATIONS;
+        }
+        if ("FLYWAY_IGNORE_MIGRATION_PATTERNS".equals(key)) {
+            return IGNORE_MIGRATION_PATTERNS;
         }
         if ("FLYWAY_INIT_SQL".equals(key)) {
             return INIT_SQL;

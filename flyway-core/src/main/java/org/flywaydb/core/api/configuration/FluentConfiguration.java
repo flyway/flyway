@@ -19,6 +19,7 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
+import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -162,6 +163,11 @@ public class FluentConfiguration implements Configuration {
     @Override
     public boolean isIgnoreFutureMigrations() {
         return config.isIgnoreFutureMigrations();
+    }
+
+    @Override
+    public ValidatePattern[] getIgnoreMigrationPatterns() {
+        return config.getIgnoreMigrationPatterns();
     }
 
     @Override
@@ -532,6 +538,18 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration ignoreFutureMigrations(boolean ignoreFutureMigrations) {
         config.setIgnoreFutureMigrations(ignoreFutureMigrations);
+        return this;
+    }
+
+    /**
+     * Ignore migrations that match this comma-separated list of patterns when validating migrations.
+     * Each pattern is of the form <migration_type>:<migration_state>
+     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * Example: repeatable:missing,versioned:pending,*:failed
+     * <i>Flyway Teams only</i>
+     */
+    public FluentConfiguration ignoreMigrationPatterns(String... ignoreMigrationPatterns) {
+        config.setIgnoreMigrationPatterns(ignoreMigrationPatterns);
         return this;
     }
 

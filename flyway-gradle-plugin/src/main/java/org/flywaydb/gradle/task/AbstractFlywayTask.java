@@ -273,7 +273,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
      * <i>Flyway Teams only</i>
      */
-    private String[] cherryPick;
+    public String[] cherryPick;
 
     /**
      * An array of fully qualified FlywayCallback class implementations, or packages to scan for FlywayCallback implementations.
@@ -369,6 +369,15 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * <p>Also configurable with Gradle or System Property: ${flyway.ignoreFutureMigrations}</p>
      */
     public Boolean ignoreFutureMigrations;
+
+    /**
+     * Ignore migrations that match this comma-separated list of patterns when validating migrations.
+     * Each pattern is of the form <migration_type>:<migration_state>
+     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * Example: repeatable:missing,versioned:pending,*:failed
+     * <i>Flyway Teams only</i>
+     */
+    public String[] ignoreMigrationPatterns;
 
     /**
      * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
@@ -573,7 +582,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         extension = (FlywayExtension) getProject().getExtensions().getByName("flyway");
     }
 
-    @SuppressWarnings("unused")
     @TaskAction
     public Object runTask() {
         try {
@@ -717,6 +725,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.IGNORE_IGNORED_MIGRATIONS, ignoreIgnoredMigrations, extension.ignoreIgnoredMigrations);
         putIfSet(conf, ConfigUtils.IGNORE_PENDING_MIGRATIONS, ignorePendingMigrations, extension.ignorePendingMigrations);
         putIfSet(conf, ConfigUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations, extension.ignoreFutureMigrations);
+        putIfSet(conf, ConfigUtils.IGNORE_MIGRATION_PATTERNS, StringUtils.arrayToCommaDelimitedString(ignoreMigrationPatterns), StringUtils.arrayToCommaDelimitedString(extension.ignoreMigrationPatterns));
         putIfSet(conf, ConfigUtils.VALIDATE_MIGRATION_NAMING, validateMigrationNaming, extension.validateMigrationNaming);
         putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled, extension.cleanDisabled);
         putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate, extension.baselineOnMigrate);

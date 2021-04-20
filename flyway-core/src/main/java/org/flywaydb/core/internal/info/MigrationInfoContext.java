@@ -17,69 +17,24 @@ package org.flywaydb.core.internal.info;
 
 import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.pattern.ValidatePattern;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * The current context of the migrations.
- */
 public class MigrationInfoContext {
-    /**
-     * Whether out of order migrations are allowed.
-     */
     public boolean outOfOrder;
-
-    /**
-     * Whether pending migrations are allowed.
-     */
     public boolean pending;
-
-    /**
-     * Whether missing migrations are allowed.
-     */
     public boolean missing;
-
-    /**
-     * Whether ignored migrations are allowed.
-     */
     public boolean ignored;
-
-    /**
-     * Whether future migrations are allowed.
-     */
     public boolean future;
-
-    /**
-     * The migration target.
-     */
+    public ValidatePattern[] ignorePatterns = new ValidatePattern[0];
     public MigrationVersion target;
-
-    /**
-     * The migrations to consider.
-     */
     public MigrationPattern[] cherryPick;
-
-    /**
-     * The SCHEMA migration version that was applied.
-     */
     public MigrationVersion schema;
-
-    /**
-     * The BASELINE migration version that was applied.
-     */
     public MigrationVersion baseline;
-
-    /**
-     * The last resolved migration.
-     */
     public MigrationVersion lastResolved = MigrationVersion.EMPTY;
-
-    /**
-     * The last applied migration.
-     */
     public MigrationVersion lastApplied = MigrationVersion.EMPTY;
-
     public Map<String, Integer> latestRepeatableRuns = new HashMap<>();
 
     @Override

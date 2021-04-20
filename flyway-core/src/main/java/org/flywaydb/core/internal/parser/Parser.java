@@ -83,6 +83,14 @@ public abstract class Parser {
         return 0;
     }
 
+    protected char getOpeningIdentifierSymbol() {
+        return 0;
+    }
+
+    protected char getClosingIdentifierSymbol() {
+        return 0;
+    }
+
     protected Set<String> getValidKeywords() {
         return null;
     }
@@ -358,9 +366,6 @@ public abstract class Parser {
         return -1;
     }
 
-    /**
-     * Returns the last token at the given parensDepth. Skips comments and blank lines. Will return null if no token found.
-     */
     protected static Token getPreviousToken(List<Token> tokens, int parensDepth) {
         for (int i = tokens.size()-1; i >= 0; i--) {
             Token previousToken = tokens.get(i);
@@ -380,9 +385,6 @@ public abstract class Parser {
         return null;
     }
 
-    /**
-     * Returns true if the previous token matches the tokenText
-     */
     protected static boolean lastTokenIs(List<Token> tokens, int parensDepth, String tokenText) {
         Token previousToken = getPreviousToken(tokens, parensDepth);
         if (previousToken == null) {
@@ -392,9 +394,6 @@ public abstract class Parser {
         return tokenText.equals(previousToken.getText());
     }
 
-    /**
-     * Returns true if the previous token is on the given line
-     */
     protected static boolean lastTokenIsOnLine(List<Token> tokens, int parensDepth, int line) {
         Token previousToken = getPreviousToken(tokens, parensDepth);
         if (previousToken == null) {
@@ -408,9 +407,6 @@ public abstract class Parser {
         return tokens.get(index).getText().equals(tokenText);
     }
 
-    /**
-     * Check if the previous tokens in the statement at the same depth as the current token match the provided regex
-     */
     protected static boolean doTokensMatchPattern(List<Token> previousTokens, Token current, Pattern regex) {
         ArrayList<String> tokenStrings = new ArrayList<>();
         tokenStrings.add(current.getText());
@@ -461,9 +457,6 @@ public abstract class Parser {
     protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
         return true;
     }
-
-
-
 
 
 
@@ -546,6 +539,10 @@ public abstract class Parser {
         if (isDelimiter(peek, context, col)) {
             return handleDelimiter(reader, context, pos, line, col);
         }
+        if (isOpeningIdentifier(c)) {
+            String text = readIdentifier(reader);
+            return new Token(TokenType.IDENTIFIER, pos, line, col, text, text, context.getParensDepth());
+        }
         if (isLetter(c, context)) {
             String text = readKeyword(reader, context.getDelimiter(), context);
             if (reader.peek('.')) {
@@ -576,6 +573,10 @@ public abstract class Parser {
         return "" + (char) reader.read() + reader.readKeywordPart(delimiter, context);
     }
 
+    protected String readIdentifier(PeekingReader reader) throws IOException {
+        return "" + (char) reader.read() + reader.readUntilIncluding(getClosingIdentifierSymbol());
+    }
+
     protected Token handleDelimiter(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
         String text = context.getDelimiter().getDelimiter();
         reader.swallow(text.length());
@@ -594,16 +595,14 @@ public abstract class Parser {
         return (c == '_' || context.isLetter(c));
     }
 
+    private boolean isOpeningIdentifier(char c) {
+        return c == getOpeningIdentifierSymbol();
+    }
+
     protected boolean isSingleLineComment(String peek, ParserContext context, int col) {
         return peek.startsWith("--");
     }
 
-    /**
-     * Checks whether this is a keyword ({@code true}) or not ({@code false} = identifier, ...).
-     *
-     * @param text The token to check.
-     * @return {@code true} if it is, {@code false} if not.
-     */
     protected boolean isKeyword(String text) {
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
