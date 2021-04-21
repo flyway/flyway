@@ -468,11 +468,14 @@ public class MigrationInfoImpl implements MigrationInfo {
             return 1;
         }
 
-        if (state == MigrationState.IGNORED && oState.isApplied()) {
-            return compareVersion(o);
-        }
-        if (state.isApplied() && oState == MigrationState.IGNORED) {
-            return o.compareVersion(this);
+        // Allow interleaving ignored versioned migrations with applied versioned migrations
+        if (getVersion() != null && o.getVersion() != null) {
+            if (state == MigrationState.IGNORED && oState.isApplied()) {
+                return compareVersion(o);
+            }
+            if (state.isApplied() && oState == MigrationState.IGNORED) {
+                return compareVersion(o);
+            }
         }
 
         // Sort installed before pending
