@@ -215,7 +215,7 @@ public abstract class Parser {
                     continue;
                 }
 
-                if (shouldAdjustBlockDepth(context, token)) {
+                if (shouldAdjustBlockDepth(context, tokens, token)) {
                     if (tokenType == TokenType.KEYWORD) {
                         keywords.add(token);
                     }
@@ -314,7 +314,7 @@ public abstract class Parser {
         }
     }
 
-    protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
         return token.getType() == TokenType.KEYWORD && token.getParensDepth() == 0;
     }
 
