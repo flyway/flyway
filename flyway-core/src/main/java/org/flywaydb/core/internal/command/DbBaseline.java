@@ -102,7 +102,8 @@ public class DbBaseline {
                         throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " with ("
                                 + baselineVersion + "," + baselineDescription
                                 + ") as it has already been baselined with ("
-                                + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")");
+                                + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")\n" +
+                                "Need to reset your baseline? Learn more: https://flywaydb.org/reset-the-baseline-migration");
                     }
                 } else {
                     if (schemaHistory.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
@@ -110,7 +111,8 @@ public class DbBaseline {
                     }
 
                     if (schemaHistory.hasNonSyntheticAppliedMigrations()) {
-                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations");
+                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations\n" +
+                                "Need to reset your baseline? Learn more: https://flywaydb.org/reset-the-baseline-migration");
                     }
 
                     if (schemaHistory.allAppliedMigrations().isEmpty()) {
@@ -119,7 +121,8 @@ public class DbBaseline {
                     }
 
                     throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations.\n" +
-                            "Delete the schema history table with the clean command, and run baseline again.");
+                            "Delete the schema history table with the clean command, and run baseline again.\n" +
+                            "Need to reset your baseline? Learn more: https://flywaydb.org/reset-the-baseline-migration");
                 }
             }
         } catch (FlywayException e) {

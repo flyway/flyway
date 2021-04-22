@@ -411,6 +411,7 @@ public class Main {
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
         LOG.info("More info at https://flywaydb.org/documentation/usage/commandline");
+        LOG.info("Learn more about Flyway Teams edition at https://flywaydb.org/try-flyway-teams-edition");
     }
 
     private static List<File> getJdbcDriverJarFiles() {
