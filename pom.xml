@@ -746,6 +746,7 @@
                     <excludes>
                         <exclude>LICENSE</exclude>
                         <exclude>**/build/**</exclude>
+                        <exclude>**/src/test/**</exclude>
                         <exclude>.idea/**</exclude>
                         <exclude>**/*.sh</exclude>
                         <exclude>**/*.txt</exclude>
