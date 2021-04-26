@@ -35,18 +35,13 @@ import java.util.TreeSet;
 public class FileSystemScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
     private final Charset defaultEncoding;
-
-
-
-
+    private boolean stream = false;
 
     /**
      * Creates a new filesystem scanner.
      *
      * @param encoding The encoding to use.
-
-
-
+     * @param stream   Whether to use streaming.
      */
     public FileSystemScanner(Charset encoding, boolean stream) {
         this.defaultEncoding = encoding;
@@ -87,22 +82,14 @@ public class FileSystemScanner {
                 Charset encoding = defaultEncoding;
                 String encodingBlurb = "";
                 if (new File(resourceName + ".conf").exists()) {
-                    LoadableResource metadataResource = new FileSystemResource(location, resourceName + ".conf", defaultEncoding
-
-
-
-                    );
+                    LoadableResource metadataResource = new FileSystemResource(location, resourceName + ".conf", defaultEncoding, false);
                     SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource, null);
                     if (metadata.encoding() != null) {
                         encoding = Charset.forName(metadata.encoding());
                         encodingBlurb = " (with overriding encoding " + encoding + ")";
                     }
                 }
-                resources.add(new FileSystemResource(location, resourceName, encoding
-
-
-
-                ));
+                resources.add(new FileSystemResource(location, resourceName, encoding, stream));
 
                 LOG.debug("Found filesystem resource: " + resourceName + encodingBlurb);
             }

@@ -220,20 +220,12 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             }
 
             // Build final migration info
-            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, av.getLeft(), context, av.getRight().outOfOrder, av.getRight().deleted
-
-
-
-            ));
+            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, av.getLeft(), context, av.getRight().outOfOrder, av.getRight().deleted, av.getRight().undone));
         }
 
         // Add all pending migrations to output list
         for (ResolvedMigration prv : pendingResolvedVersioned) {
-            migrationInfos1.add(new MigrationInfoImpl(prv, null, context, false, false
-
-
-
-            ));
+            migrationInfos1.add(new MigrationInfoImpl(prv, null, context, false, false, false));
         }
 
         if (target != null && target != MigrationVersion.CURRENT && target != MigrationVersion.LATEST) {
@@ -285,20 +277,12 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             }
 
             // Add to output list
-            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false, av.getRight().deleted
-
-
-
-            ));
+            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false, av.getRight().deleted, false));
         }
 
         // Add pending repeatables to output list
         for (ResolvedMigration prr : pendingResolvedRepeatable) {
-            migrationInfos1.add(new MigrationInfoImpl(prr, null, context, false, false
-
-
-
-            ));
+            migrationInfos1.add(new MigrationInfoImpl(prr, null, context, false, false, false));
         }
 
         // Set output
