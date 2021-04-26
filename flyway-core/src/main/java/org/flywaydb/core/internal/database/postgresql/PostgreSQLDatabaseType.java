@@ -18,12 +18,11 @@ package org.flywaydb.core.internal.database.postgresql;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.DatabaseType;
+import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.authentication.postgres.PgpassFileReader;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-import org.flywaydb.core.internal.license.FlywayTeamsUpgradeMessage;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -32,7 +31,7 @@ import java.sql.Connection;
 import java.sql.Types;
 import java.util.Properties;
 
-public class PostgreSQLDatabaseType extends DatabaseType {
+public class PostgreSQLDatabaseType extends BaseDatabaseType {
 
 
 
@@ -125,7 +124,7 @@ public class PostgreSQLDatabaseType extends DatabaseType {
         PgpassFileReader pgpassFileReader = new PgpassFileReader();
 
         if (pgpassFileReader.getPgpassFilePath() != null) {
-            LOG.info(FlywayTeamsUpgradeMessage.generate(
+            LOG.info(org.flywaydb.core.internal.license.FlywayTeamsUpgradeMessage.generate(
                     "pgpass file '" + pgpassFileReader.getPgpassFilePath() + "'",
                     "use this for database authentication"));
         }

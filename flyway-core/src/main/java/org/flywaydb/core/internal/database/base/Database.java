@@ -20,6 +20,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
@@ -138,6 +139,12 @@ public abstract class Database<C extends Connection> implements Closeable {
         if (getVersion().isMajorNewerThan(newestSupportedVersion)) {
             recommendFlywayUpgrade(newestSupportedVersion);
         }
+    }
+
+    protected final void notifyDatabaseIsNotFormallySupported() {
+        String message = "Support for " + databaseType + " is provided only on a community-led basis, and is not formally supported by Redgate";
+
+        LOG.warn(message);
     }
 
     private void recommendFlywayUpgrade(String newestSupportedVersion) {

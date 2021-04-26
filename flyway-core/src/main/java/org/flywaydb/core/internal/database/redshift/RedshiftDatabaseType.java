@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.database.redshift;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.DatabaseType;
+import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.parser.Parser;
@@ -29,13 +29,19 @@ import java.sql.Connection;
 import java.sql.Types;
 import java.util.Map;
 
-public class RedshiftDatabaseType extends DatabaseType {
+public class RedshiftDatabaseType extends BaseDatabaseType {
     private static final String REDSHIFT_JDBC4_DRIVER = "com.amazon.redshift.jdbc4.Driver";
     private static final String REDSHIFT_JDBC41_DRIVER = "com.amazon.redshift.jdbc41.Driver";
 
     @Override
     public String getName() {
         return "Redshift";
+    }
+
+    @Override
+    public int getPriority() {
+        // Redshift needs to be checked in advance of Postgres
+        return 1;
     }
 
     @Override

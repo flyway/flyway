@@ -63,6 +63,7 @@
 
     <modules>
         <module>flyway-core</module>
+        <module>flyway-community-db-support</module>
         <module>flyway-gradle-plugin</module>
         <module>flyway-maven-plugin</module>
         <module>flyway-commandline</module>
@@ -174,6 +175,7 @@
         <version.h2>1.4.200</version.h2>
         <version.hsqldb>2.5.1</version.hsqldb>
         <version.httpclient>4.5.2</version.httpclient>
+        <version.ignite>2.9.0</version.ignite>
         <version.informix>4.50.3</version.informix>
         <version.jansi>1.18</version.jansi>
         <version.jaxb>2.3.1</version.jaxb>
@@ -325,6 +327,12 @@
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-spanner-jdbc</artifactId>
                 <version>${version.spanner}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ignite</groupId>
+                <artifactId>ignite-core</artifactId>
+                <version>${version.ignite}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>

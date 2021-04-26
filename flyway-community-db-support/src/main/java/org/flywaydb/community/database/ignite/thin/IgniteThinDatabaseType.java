@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.sybasease;
+package org.flywaydb.community.database.ignite.thin;
 
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -26,12 +26,18 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 
 import java.sql.Connection;
 import java.sql.Types;
-import java.util.Properties;
 
-public class SybaseASEJConnectDatabaseType extends BaseDatabaseType {
-    @Override
+/*
+ * # Apache Ignite Thin: jdbc:ignite:thin://<hostAndPortRange0>[,<hostAndPortRange1>]...[,<hostAndPortRangeN>][/schema][?<params>] where hostAndPortRange := host[:port_from[..port_to]], params := param1=value1[&param2=value2]...[&paramN=valueN]
+ *
+ * See https://ignite.apache.org/docs/latest/installation/installing-using-docker
+ *
+ * For simple testing, use `docker run -d -p 10800:10800 apacheignite/ignite` to spin up the DB and then
+ * `jdbc:ignite:thin://127.0.0.1` as the JDBC URL, no username or password
+ * */
+public class IgniteThinDatabaseType extends BaseDatabaseType {
     public String getName() {
-        return "Sybase ASE";
+        return "Apache Ignite";
     }
 
     @Override
@@ -41,34 +47,26 @@ public class SybaseASEJConnectDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:sybase:") || url.startsWith("jdbc:p6spy:sybase:");
-    }
-
-    @Override
-    public String getDriverClass(String url, ClassLoader classLoader) {
-        if (url.startsWith("jdbc:p6spy:sybase:")) {
-            return "com.p6spy.engine.spy.P6SpyDriver";
-        }
-        return "com.sybase.jdbc4.jdbc.SybDriver";
+        return url.startsWith("jdbc:ignite:thin:");
     }
 
     @Override
     public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
-        return databaseProductName.startsWith("Adaptive Server Enterprise");
+        return databaseProductName.startsWith("Apache Ignite");
+    }
+
+    @Override
+    public String getDriverClass(String url, ClassLoader classLoader) {
+        return "org.apache.ignite.IgniteJdbcThinDriver";
     }
 
     @Override
     public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
-        return new SybaseASEDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
+        return new IgniteThinDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
     public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
-        return new SybaseASEParser(configuration, parsingContext);
-    }
-
-    @Override
-    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
-        props.put("APPLICATIONNAME", APPLICATION_NAME);
+        return new IgniteThinParser(configuration, parsingContext);
     }
 }
