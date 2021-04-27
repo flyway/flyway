@@ -206,18 +206,35 @@ public class OracleDatabaseType extends BaseDatabaseType {
         Map<String, String> jdbcProperties = configuration.getJdbcProperties();
 
         if (jdbcProperties != null && jdbcProperties.containsKey(OracleConnection.PROXY_USER_NAME)) {
-            OracleConnection oracleConnection = (OracleConnection) connection;
-            if (!oracleConnection.isProxySession()) {
-                Properties props = new Properties();
-                props.putAll(configuration.getJdbcProperties());
-                try {
+            try {
+                OracleConnection oracleConnection = getUnderlyingOracleConnection(connection);
+                if (!oracleConnection.isProxySession()) {
+                    Properties props = new Properties();
+                    props.putAll(configuration.getJdbcProperties());
                     oracleConnection.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, props);
-                } catch (SQLException e) {
-                    throw new FlywayException("Unable to open proxy session: " + e.getMessage(), e);
                 }
+            } catch (FlywayException e) {
+                LOG.warn(e.getMessage());
+            } catch (SQLException e) {
+                throw new FlywayException("Unable to open proxy session: " + e.getMessage(), e);
             }
         }
 
         return super.alterConnectionAsNeeded(connection, configuration);
+    }
+
+    private OracleConnection getUnderlyingOracleConnection(Connection connection) {
+        try {
+            if (connection instanceof OracleConnection) {
+                return (OracleConnection) connection;
+            } else if (connection.isWrapperFor(OracleConnection.class)) {
+                // This includes com.zaxxer.HikariCP.HikariProxyConnection, potentially other unknown wrapper types
+                return connection.unwrap(OracleConnection.class);
+            } else {
+                throw new FlywayException("Unable to extract Oracle connection type from '" + connection.getClass().getName() + "'");
+            }
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to unwrap connection type '" + connection.getClass().getName() + "'", e);
+        }
     }
 }
