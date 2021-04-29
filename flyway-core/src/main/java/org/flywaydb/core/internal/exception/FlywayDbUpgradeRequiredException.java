@@ -16,7 +16,7 @@
 package org.flywaydb.core.internal.exception;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.database.base.DatabaseType;
+import org.flywaydb.core.internal.database.DatabaseType;
 
 /**
  * Thrown when an attempt was made to migrate an outdated database version not supported by Flyway.

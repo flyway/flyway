@@ -21,8 +21,8 @@ import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
-import org.flywaydb.core.internal.database.base.DatabaseType;
 
 import java.sql.Connection;
 import java.sql.SQLException;

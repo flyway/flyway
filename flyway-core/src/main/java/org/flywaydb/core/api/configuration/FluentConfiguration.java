@@ -1162,7 +1162,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
-     * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
+     * Request your <a href="https://flywaydb.org/try-flyway-teams-edition">Flyway trial license key</a>
      * to try out Flyway Teams Edition features free for 30 days.
      *
      * <i>Flyway Teams only</i>

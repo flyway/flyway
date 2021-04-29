@@ -39,6 +39,12 @@ public class SynapseDatabaseType extends SQLServerDatabaseType {
     }
 
     @Override
+    public int getPriority() {
+        // Synapse needs to be checked in advance of the plain SQL Server type
+        return 1;
+    }
+
+    @Override
     public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
         if (databaseProductName.startsWith("Microsoft SQL Server")) {
 

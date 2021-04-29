@@ -22,7 +22,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.DatabaseType;
+import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.database.mysql.mariadb.MariaDBDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
@@ -198,7 +198,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     protected MigrationVersion determineVersion() {
         // Ignore the version from the JDBC metadata and use the version returned by the database since proxies such as
         // Azure or ProxySQL return incorrect versions
-        String selectVersionOutput = DatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
+        String selectVersionOutput = BaseDatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
         if (databaseType instanceof MariaDBDatabaseType) {
             return extractMariaDBVersionFromString(selectVersionOutput);
         }

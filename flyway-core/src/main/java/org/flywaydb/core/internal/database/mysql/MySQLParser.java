@@ -111,7 +111,7 @@ public class MySQLParser extends Parser {
     }
 
     @Override
-    protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
         TokenType tokenType = token.getType();
         if (TokenType.DELIMITER.equals(tokenType) || ";".equals(token.getText())) {
             return true;
@@ -119,7 +119,12 @@ public class MySQLParser extends Parser {
             return true;
         }
 
-        return super.shouldAdjustBlockDepth(context, token);
+        Token lastToken = getPreviousToken(tokens, context.getParensDepth());
+        if (lastToken != null && lastToken.getType() == TokenType.KEYWORD) {
+            return true;
+        }
+
+        return super.shouldAdjustBlockDepth(context, tokens, token);
     }
 
     private boolean doesDelimiterEndFunction(List<Token> tokens, Token delimiter) {

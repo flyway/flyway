@@ -18,37 +18,18 @@ package org.flywaydb.core.internal.database;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.base.DatabaseType;
-import org.flywaydb.core.internal.database.base.TestContainersDatabaseType;
-import org.flywaydb.core.internal.database.clickhouse.ClickHouseDatabaseType;
-import org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabaseType;
-import org.flywaydb.core.internal.database.db2.DB2DatabaseType;
-import org.flywaydb.core.internal.database.derby.DerbyDatabaseType;
+import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 
 
-import org.flywaydb.core.internal.database.firebird.FirebirdDatabaseType;
-import org.flywaydb.core.internal.database.h2.H2DatabaseType;
-import org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabaseType;
-import org.flywaydb.core.internal.database.informix.InformixDatabaseType;
-import org.flywaydb.core.internal.database.mysql.MySQLDatabaseType;
-import org.flywaydb.core.internal.database.mysql.mariadb.MariaDBDatabaseType;
-import org.flywaydb.core.internal.database.oracle.OracleDatabaseType;
-import org.flywaydb.core.internal.database.postgresql.PostgreSQLDatabaseType;
-import org.flywaydb.core.internal.database.redshift.RedshiftDatabaseType;
-import org.flywaydb.core.internal.database.saphana.SAPHANADatabaseType;
-import org.flywaydb.core.internal.database.snowflake.SnowflakeDatabaseType;
-import org.flywaydb.core.internal.database.sqlite.SQLiteDatabaseType;
-import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabaseType;
-import org.flywaydb.core.internal.database.sqlserver.synapse.SynapseDatabaseType;
-import org.flywaydb.core.internal.database.sybasease.SybaseASEJConnectDatabaseType;
-import org.flywaydb.core.internal.database.sybasease.SybaseASEJTDSDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,30 +52,14 @@ public class DatabaseTypeRegister {
 
 
 
-            registeredDatabaseTypes.add(new SynapseDatabaseType());
 
-            registeredDatabaseTypes.add(new CockroachDBDatabaseType());
-            registeredDatabaseTypes.add(new RedshiftDatabaseType());
-            registeredDatabaseTypes.add(new MariaDBDatabaseType());
+            ServiceLoader<DatabaseType> loader = ServiceLoader.load(DatabaseType.class);
+            for (DatabaseType dt : loader) {
+                registeredDatabaseTypes.add(dt);
+            }
 
-            registeredDatabaseTypes.add(new DB2DatabaseType());
-            registeredDatabaseTypes.add(new DerbyDatabaseType());
-            registeredDatabaseTypes.add(new FirebirdDatabaseType());
-            registeredDatabaseTypes.add(new H2DatabaseType());
-            registeredDatabaseTypes.add(new HSQLDBDatabaseType());
-            registeredDatabaseTypes.add(new InformixDatabaseType());
-            registeredDatabaseTypes.add(new MySQLDatabaseType());
-            registeredDatabaseTypes.add(new OracleDatabaseType());
-            registeredDatabaseTypes.add(new PostgreSQLDatabaseType());
-            registeredDatabaseTypes.add(new SAPHANADatabaseType());
-            registeredDatabaseTypes.add(new SnowflakeDatabaseType());
-            registeredDatabaseTypes.add(new SQLiteDatabaseType());
-            registeredDatabaseTypes.add(new SQLServerDatabaseType());
-            registeredDatabaseTypes.add(new SybaseASEJTDSDatabaseType());
-            registeredDatabaseTypes.add(new SybaseASEJConnectDatabaseType());
-            registeredDatabaseTypes.add(new ClickHouseDatabaseType());
-
-            registeredDatabaseTypes.add(new TestContainersDatabaseType());
+            // Sort by preference order
+            Collections.sort(registeredDatabaseTypes);
 
             hasRegisteredDatabaseTypes = true;
         }
@@ -113,7 +78,6 @@ public class DatabaseTypeRegister {
 
                 LOG.debug("Multiple databases found that handle url '" + redactJdbcUrl(url) + "': " + builder);
             }
-
             return typesAcceptingUrl.get(0);
         } else {
             throw new FlywayException("No database found to handle " + redactJdbcUrl(url));
@@ -139,7 +103,7 @@ public class DatabaseTypeRegister {
     public static String redactJdbcUrl(String url) {
         List<DatabaseType> types = getDatabaseTypesForUrl(url);
         if (types.isEmpty()) {
-            url = redactJdbcUrl(url, DatabaseType.getDefaultJDBCCredentialsPattern());
+            url = redactJdbcUrl(url, BaseDatabaseType.getDefaultJDBCCredentialsPattern());
         } else {
             for (DatabaseType type : types) {
                 Pattern dbPattern = type.getJDBCCredentialsPattern();

@@ -20,8 +20,9 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.DatabaseType;
+import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -39,7 +40,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-public class OracleDatabaseType extends DatabaseType {
+public class OracleDatabaseType extends BaseDatabaseType {
     // Oracle usernames/passwords can be 1-30 chars, can only contain alphanumerics and # _ $
     // The first (and only) capture group represents the password
     private static final Pattern usernamePasswordPattern = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/([a-zA-Z0-9#_$]+)@.*");
@@ -205,18 +206,35 @@ public class OracleDatabaseType extends DatabaseType {
         Map<String, String> jdbcProperties = configuration.getJdbcProperties();
 
         if (jdbcProperties != null && jdbcProperties.containsKey(OracleConnection.PROXY_USER_NAME)) {
-            OracleConnection oracleConnection = (OracleConnection) connection;
-            if (!oracleConnection.isProxySession()) {
-                Properties props = new Properties();
-                props.putAll(configuration.getJdbcProperties());
-                try {
+            try {
+                OracleConnection oracleConnection = getUnderlyingOracleConnection(connection);
+                if (!oracleConnection.isProxySession()) {
+                    Properties props = new Properties();
+                    props.putAll(configuration.getJdbcProperties());
                     oracleConnection.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, props);
-                } catch (SQLException e) {
-                    throw new FlywayException("Unable to open proxy session: " + e.getMessage(), e);
                 }
+            } catch (FlywayException e) {
+                LOG.warn(e.getMessage());
+            } catch (SQLException e) {
+                throw new FlywayException("Unable to open proxy session: " + e.getMessage(), e);
             }
         }
 
         return super.alterConnectionAsNeeded(connection, configuration);
+    }
+
+    private OracleConnection getUnderlyingOracleConnection(Connection connection) {
+        try {
+            if (connection instanceof OracleConnection) {
+                return (OracleConnection) connection;
+            } else if (connection.isWrapperFor(OracleConnection.class)) {
+                // This includes com.zaxxer.HikariCP.HikariProxyConnection, potentially other unknown wrapper types
+                return connection.unwrap(OracleConnection.class);
+            } else {
+                throw new FlywayException("Unable to extract Oracle connection type from '" + connection.getClass().getName() + "'");
+            }
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to unwrap connection type '" + connection.getClass().getName() + "'", e);
+        }
     }
 }

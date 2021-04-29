@@ -22,6 +22,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
 import org.flywaydb.core.internal.database.DefaultExecutionStrategy;
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.jdbc.*;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
@@ -38,8 +39,8 @@ import java.util.regex.Pattern;
 
 import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.getMetadataResource;
 
-public abstract class DatabaseType {
-    protected static final Log LOG = LogFactory.getLog(DatabaseType.class);
+public abstract class BaseDatabaseType implements DatabaseType {
+    protected static final Log LOG = LogFactory.getLog(BaseDatabaseType.class);
 
     // Don't grab semicolons and ampersands - they have special meaning in URLs
     private static final Pattern defaultJdbcCredentialsPattern = Pattern.compile("password=([^;&]*).*", Pattern.CASE_INSENSITIVE);
@@ -54,6 +55,11 @@ public abstract class DatabaseType {
      * @return The human-readable name for this database.
      */
     public abstract String getName();
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 
     /**
      * @return The JDBC type used to represent {@code null} in prepared statements.
@@ -72,8 +78,25 @@ public abstract class DatabaseType {
     public abstract boolean handlesJDBCUrl(String url);
 
     /**
-     * Gets a regex that identifies credentials in the JDBC URL, where they conform to a pattern specific to this database.
-     * The first captured group represents the password text.
+     * When identifying database types, the priority with which this type will be used. High numbers indicate
+     * that this type will be used in preference to others.
+     */
+    public int getPriority() {
+        return 0;
+    }
+
+    /**
+     * When identifying database types, the priority with which this type will be used. This should return -1 if
+     * to be used in preference to the other type; +1 if the other should be used in preference to this.
+     */
+    public int compareTo(DatabaseType other) {
+        return other.getPriority() - this.getPriority();
+    }
+
+    /**
+     * A regex that identifies credentials in the JDBC URL, where they conform to a pattern specific to this database.
+     * The first captured group should represent the password text, so that it can be redacted if necessary.
+     * @return The URL regex.
      */
     public Pattern getJDBCCredentialsPattern() {
         return defaultJdbcCredentialsPattern;
