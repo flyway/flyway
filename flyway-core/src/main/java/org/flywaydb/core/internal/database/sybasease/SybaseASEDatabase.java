@@ -179,7 +179,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
                     int statusIndex = getStatusIndex(columns);
                     if (statusIndex > -1) {
                         String options = results.getResults().get(resultsIndex).getData().get(0).get(statusIndex);
-                        return (options.contains("ddl in tran"));
+                        return options.contains("ddl in tran");
                     }
                 }
             }
