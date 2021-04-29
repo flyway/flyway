@@ -34,9 +34,6 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * MySQL database.
- */
 public class MySQLDatabase extends Database<MySQLConnection> {
     // See https://mariadb.com/kb/en/version/
     private static final Pattern MARIADB_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+(-\\d+)*-MariaDB(-\\w+)*");
@@ -48,22 +45,15 @@ public class MySQLDatabase extends Database<MySQLConnection> {
      * Whether this is a Percona XtraDB Cluster in strict mode.
      */
     private final boolean pxcStrict;
-
     /**
      * Whether this database is enforcing GTID consistency.
      */
     private final boolean gtidConsistencyEnforced;
-
     /**
      * Whether the event scheduler table is queryable.
      */
     final boolean eventSchedulerQueryable;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public MySQLDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
 

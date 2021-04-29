@@ -21,7 +21,6 @@ import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 
 public class MariaDBDatabase extends MySQLDatabase {
-
     public MariaDBDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }

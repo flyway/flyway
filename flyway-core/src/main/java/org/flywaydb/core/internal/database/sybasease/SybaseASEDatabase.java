@@ -30,20 +30,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-/**
- * Sybase ASE database.
- */
 public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     private static final Log LOG = LogFactory.getLog(SybaseASEDatabase.class);
 
     private String databaseName = null;
     private boolean supportsMultiStatementTransactions = false;
 
-    /**
-     * Creates a new Sybase ASE database.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public SybaseASEDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }

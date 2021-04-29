@@ -129,6 +129,26 @@
                 <!-- add at V8: com.boxfuse.flyway-master:flyway-community-db-support -->
             </includes>
         </dependencySet>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         <dependencySet>
             <outputDirectory>drivers</outputDirectory>
             <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
