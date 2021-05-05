@@ -204,6 +204,16 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public String getClickhouseClusterName() {
+        return config.getClickhouseClusterName();
+    }
+
+    @Override
+    public String getZookeeperUrl() {
+        return config.getZookeeperUrl();
+    }
+
+    @Override
     public boolean isOutOfOrder() {
         return config.isOutOfOrder();
     }
@@ -693,7 +703,7 @@ public class FluentConfiguration implements Configuration {
      * If not specified, Flyway uses the default tablespace for the database connection.
      * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply ignored for all others.
      *
-     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway. 
+     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway.
      */
     public FluentConfiguration tablespace(String tablespace) {
         config.setTablespace(tablespace);
@@ -702,7 +712,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
      * <li>{@code current}: designates the current version of the schema</li>
@@ -717,7 +727,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
      * <li>{@code current}: designates the current version of the schema</li>

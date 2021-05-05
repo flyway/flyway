@@ -102,6 +102,10 @@ public class ConfigUtils {
     public static final String ORACLE_KERBEROS_CONFIG_FILE = "flyway.oracle.kerberosConfigFile";
     public static final String ORACLE_KERBEROS_CACHE_FILE = "flyway.oracle.kerberosCacheFile";
 
+    // Clickhouse specific
+    public static final String CLICKHOUSE_CLUSTER_NAME = "flyway.clickhouse.clusterName";
+    public static final String ZOOKEEPER_URL = "flyway.zookeeper.url";
+
     // Command-line specific
     public static final String JAR_DIRS = "flyway.jarDirs";
 
@@ -310,6 +314,14 @@ public class ConfigUtils {
         }
         if ("FLYWAY_ORACLE_KERBEROS_CACHE_FILE".equals(key)) {
             return ORACLE_KERBEROS_CACHE_FILE;
+        }
+
+        // Clickhouse specific
+        if ("FLYWAY_CLICKHOUSE_CLUSTER_NAME".equals(key)) {
+            return CLICKHOUSE_CLUSTER_NAME;
+        }
+        if ("FLYWAY_ZOOKEEPER_URL".equals(key)) {
+            return ZOOKEEPER_URL;
         }
 
         // Secrets-manager specific

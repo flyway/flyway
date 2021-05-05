@@ -92,6 +92,8 @@ public class ClassicConfiguration implements Configuration {
     private MigrationVersion baselineVersion = MigrationVersion.fromVersion("1");
     private String baselineDescription = "<< Flyway Baseline >>";
     private boolean baselineOnMigrate;
+    private String clickhouseClusterName;
+    private String zookeeperUrl;
     private boolean outOfOrder;
     private boolean skipExecutingMigrations;
     private final List<Callback> callbacks = new ArrayList<>();
@@ -280,6 +282,16 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isBaselineOnMigrate() {
         return baselineOnMigrate;
+    }
+
+    @Override
+    public String getClickhouseClusterName() {
+        return clickhouseClusterName;
+    }
+
+    @Override
+    public String getZookeeperUrl() {
+        return zookeeperUrl;
     }
 
     @Override
@@ -1177,6 +1189,20 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * For usage with more then one replic into the Clickhouse DB
+     */
+    public void setClickhouseClusterName(String clickhouseClusterName) {
+        this.clickhouseClusterName = clickhouseClusterName;
+    }
+
+    /**
+     * For distributed locks
+     */
+    public void setZookeeperUrl(String zookeeperUrl) {
+        this.zookeeperUrl = zookeeperUrl;
+    }
+
+    /**
      * Sets the description to tag an existing schema with when executing baseline.
      *
      * @param baselineDescription The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
@@ -1546,6 +1572,8 @@ public class ClassicConfiguration implements Configuration {
         setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
         setShouldCreateSchemas(configuration.getCreateSchemas());
         setLockRetryCount(configuration.getLockRetryCount());
+        setClickhouseClusterName(configuration.getClickhouseClusterName());
+        setZookeeperUrl(configuration.getZookeeperUrl());
 
         url = configuration.getUrl();
         user = configuration.getUser();
@@ -1809,6 +1837,14 @@ public class ClassicConfiguration implements Configuration {
         String ignoreMigrationPatternsProp = props.remove(ConfigUtils.IGNORE_MIGRATION_PATTERNS);
         if (ignoreMigrationPatternsProp != null) {
             setIgnoreMigrationPatterns(StringUtils.tokenizeToStringArray(ignoreMigrationPatternsProp, ","));
+        }
+        String clickhouseClusterNameProp = props.remove(ConfigUtils.CLICKHOUSE_CLUSTER_NAME);
+        if (clickhouseClusterNameProp != null) {
+            setClickhouseClusterName(clickhouseClusterNameProp);
+        }
+        String zookeeperUrlProp = props.remove(ConfigUtils.ZOOKEEPER_URL);
+        if (zookeeperUrlProp != null) {
+            setZookeeperUrl(zookeeperUrlProp);
         }
         String licenseKeyProp = props.remove(ConfigUtils.LICENSE_KEY);
         if (licenseKeyProp != null) {
