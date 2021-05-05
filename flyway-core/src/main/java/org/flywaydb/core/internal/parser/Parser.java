@@ -407,7 +407,7 @@ public abstract class Parser {
         return tokens.get(index).getText().equals(tokenText);
     }
 
-    protected static boolean doTokensMatchPattern(List<Token> previousTokens, Token current, Pattern regex) {
+    protected boolean doTokensMatchPattern(List<Token> previousTokens, Token current, Pattern regex) {
         ArrayList<String> tokenStrings = new ArrayList<>();
         tokenStrings.add(current.getText());
 
