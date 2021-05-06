@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.database.vertica;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.DatabaseType;
+import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.parser.Parser;
@@ -27,7 +27,7 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 import java.sql.Connection;
 import java.sql.Types;
 
-public class VerticaDatabaseType extends DatabaseType {
+public class VerticaDatabaseType extends BaseDatabaseType {
     @Override
     public String getName() {
         return "Vertica";
