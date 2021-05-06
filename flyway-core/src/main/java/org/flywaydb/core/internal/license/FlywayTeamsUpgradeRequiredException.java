@@ -23,6 +23,7 @@ import org.flywaydb.core.api.FlywayException;
  */
 public class FlywayTeamsUpgradeRequiredException extends FlywayException {
     public FlywayTeamsUpgradeRequiredException(String feature) {
-        super(Edition.ENTERPRISE + " upgrade required: " + feature + " is not supported by " + Edition.COMMUNITY + ".");
+        super(Edition.ENTERPRISE + " upgrade required: " + feature + " is not supported by " + Edition.COMMUNITY + "\n" +
+                "Try " + Edition.ENTERPRISE + " for free: https://flywaydb.org/try-flyway-teams-edition");
     }
 }

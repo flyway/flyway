@@ -138,15 +138,12 @@ public class ResourceNameParser {
             prefixes.add(Pair.of(event.getId(), ResourceType.CALLBACK));
         }
 
-        Comparator<Pair<String, ResourceType>> prefixComparator
-                = new Comparator<Pair<String, ResourceType>>() {
-            public int compare(Pair<String, ResourceType> p1, Pair<String, ResourceType> p2) {
-                // Sort most-hard-to-match first; that is, in descending order of prefix length
-                return p2.getLeft().length() - p1.getLeft().length();
-            }
+        Comparator<Pair<String, ResourceType>> prefixComparator = (p1, p2) -> {
+            // Sort most-hard-to-match first; that is, in descending order of prefix length
+            return p2.getLeft().length() - p1.getLeft().length();
         };
 
-        Collections.sort(prefixes, prefixComparator);
+        prefixes.sort(prefixComparator);
         return prefixes;
     }
 }

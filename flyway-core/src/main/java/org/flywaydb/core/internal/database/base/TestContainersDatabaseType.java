@@ -24,7 +24,7 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 
 import java.sql.Connection;
 
-public class TestContainersDatabaseType extends DatabaseType {
+public class TestContainersDatabaseType extends BaseDatabaseType {
     @Override
     public String getName() {
         return "Test Containers";

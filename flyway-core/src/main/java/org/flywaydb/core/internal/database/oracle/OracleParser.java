@@ -30,6 +30,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -60,6 +61,8 @@ public class OracleParser extends Parser {
 
 
 
+    private static final String ACCESSIBLE_BY_REGEX = "ACCESSIBLE\\sBY\\s((FUNCTION|PROCEDURE|PACKAGE|TRIGGER|TYPE)\\s)*";
+
     private static final Pattern PLSQL_TYPE_BODY_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sTYPE\\sBODY\\s([^\\s]*\\s)?(IS|AS)");
 
@@ -68,7 +71,7 @@ public class OracleParser extends Parser {
     private static final StatementType PLSQL_PACKAGE_BODY_STATEMENT = new StatementType();
 
     private static final Pattern PLSQL_PACKAGE_DEFINITION_REGEX = Pattern.compile(
-            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\s([^\\s]*\\s)?(AUTHID\\s[^\\s]*\\s)?(IS|AS)");
+            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\s([^\\s]*\\s)?(AUTHID\\s[^\\s]*\\s|" + ACCESSIBLE_BY_REGEX + ")*(IS|AS)");
 
     private static final Pattern PLSQL_VIEW_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sVIEW\\s([^\\s]*\\s)?AS\\sWITH\\s(PROCEDURE|FUNCTION)");
@@ -486,9 +489,10 @@ public class OracleParser extends Parser {
         if ("BEGIN".equals(keywordText)
                 || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !precedingEndAttachesToThisKeyword(tokens, parensDepth, context, keyword))
                 || ("TRIGGER".equals(keywordText) && lastTokenIs(tokens, parensDepth, "COMPOUND"))
-                || doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_BODY_REGEX)
-                || doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_DEFINITION_REGEX)
-                || doTokensMatchPattern(tokens, keyword, PLSQL_TYPE_BODY_REGEX)
+                || (context.getBlockDepth() == 0 && (
+                        doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_BODY_REGEX) ||
+                        doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_DEFINITION_REGEX) ||
+                        doTokensMatchPattern(tokens, keyword, PLSQL_TYPE_BODY_REGEX)))
         ) {
             context.increaseBlockDepth(keywordText);
         } else if ("END".equals(keywordText)) {
@@ -513,6 +517,34 @@ public class OracleParser extends Parser {
         return lastTokenIs(tokens, parensDepth, "END") &&
                lastTokenIsOnLine(tokens, parensDepth, keyword.getLine()) &&
                keyword.getText().equals(context.getLastClosedBlockInitiator());
+    }
+
+    @Override
+    protected boolean doTokensMatchPattern(List<Token> previousTokens, Token current, Pattern regex) {
+        if (regex == PLSQL_PACKAGE_DEFINITION_REGEX &&
+                previousTokens.stream().anyMatch(t -> t.getType() == TokenType.KEYWORD && t.getText().equalsIgnoreCase("ACCESSIBLE"))) {
+            ArrayList<String> tokenStrings = new ArrayList<>();
+            tokenStrings.add(current.getText());
+
+            for (int i = previousTokens.size()-1; i >= 0; i--) {
+                Token prevToken = previousTokens.get(i);
+                if (prevToken.getType() == TokenType.KEYWORD) {
+                    tokenStrings.add(prevToken.getText());
+                }
+            }
+
+            StringBuilder builder = new StringBuilder();
+            for (int i = tokenStrings.size()-1; i >= 0; i--) {
+                builder.append(tokenStrings.get(i));
+                if (i != 0) {
+                    builder.append(" ");
+                }
+            }
+
+            return regex.matcher(builder.toString()).matches() || super.doTokensMatchPattern(previousTokens, current, regex);
+        }
+
+        return super.doTokensMatchPattern(previousTokens, current, regex);
     }
 
     @Override

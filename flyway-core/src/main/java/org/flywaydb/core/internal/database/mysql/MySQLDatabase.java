@@ -22,7 +22,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.DatabaseType;
+import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.database.mysql.mariadb.MariaDBDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
@@ -34,9 +34,6 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * MySQL database.
- */
 public class MySQLDatabase extends Database<MySQLConnection> {
     // See https://mariadb.com/kb/en/version/
     private static final Pattern MARIADB_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+(-\\d+)*-MariaDB(-\\w+)*");
@@ -48,22 +45,15 @@ public class MySQLDatabase extends Database<MySQLConnection> {
      * Whether this is a Percona XtraDB Cluster in strict mode.
      */
     private final boolean pxcStrict;
-
     /**
      * Whether this database is enforcing GTID consistency.
      */
     private final boolean gtidConsistencyEnforced;
-
     /**
      * Whether the event scheduler table is queryable.
      */
     final boolean eventSchedulerQueryable;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public MySQLDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
 
@@ -198,7 +188,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     protected MigrationVersion determineVersion() {
         // Ignore the version from the JDBC metadata and use the version returned by the database since proxies such as
         // Azure or ProxySQL return incorrect versions
-        String selectVersionOutput = DatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
+        String selectVersionOutput = BaseDatabaseType.getSelectVersionOutput(rawMainJdbcConnection);
         if (databaseType instanceof MariaDBDatabaseType) {
             return extractMariaDBVersionFromString(selectVersionOutput);
         }

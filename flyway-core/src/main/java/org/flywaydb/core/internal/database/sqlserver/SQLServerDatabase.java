@@ -33,15 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * SQL Server database.
- */
 public class SQLServerDatabase extends Database<SQLServerConnection> {
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public SQLServerDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
@@ -50,7 +42,6 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     protected SQLServerConnection doGetConnection(Connection connection) {
         return new SQLServerConnection(this, connection);
     }
-
 
 
 

@@ -39,11 +39,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
     MigrationInfoImpl(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration,
-                      MigrationInfoContext context, boolean outOfOrder, boolean deleted
-
-
-
-    ) {
+                      MigrationInfoContext context, boolean outOfOrder, boolean deleted, boolean undone) {
         this.resolvedMigration = resolvedMigration;
         this.appliedMigration = appliedMigration;
         this.context = context;

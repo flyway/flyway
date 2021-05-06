@@ -24,7 +24,8 @@ import org.flywaydb.core.api.FlywayException;
 public class FlywayValidateException extends FlywayException {
 
     public FlywayValidateException(ErrorDetails errorDetails, String allValidateMessages) {
-        super("Validate failed: " + errorDetails.errorMessage + "\n" + allValidateMessages, errorDetails.errorCode);
+        super("Validate failed: " + errorDetails.errorMessage + "\n" + allValidateMessages +
+                "\nNeed more flexibility with validation rules? Learn more: https://flywaydb.org/custom-validate-rules", errorDetails.errorCode);
     }
 
 }

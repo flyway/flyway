@@ -58,11 +58,7 @@ public class FileSystemResource extends LoadableResource {
      *
      * @param fileNameWithPath The path and filename of the resource on the filesystem.
      */
-    public FileSystemResource(Location location, String fileNameWithPath, Charset encoding
-
-
-
-    ) {
+    public FileSystemResource(Location location, String fileNameWithPath, Charset encoding, boolean stream) {
         this.file = new File(new File(fileNameWithPath).getPath());
         this.relativePath = location == null ? file.getPath() : location.getPathRelativeToThis(file.getPath()).replace("\\", "/");
         this.encoding = encoding;

@@ -32,9 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Oracle database.
- */
 public class OracleDatabase extends Database<OracleConnection> {
     private static final String ORACLE_NET_TNS_ADMIN = "oracle.net.tns_admin";
 
@@ -50,11 +47,6 @@ public class OracleDatabase extends Database<OracleConnection> {
         }
     }
 
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public OracleDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
@@ -63,7 +55,6 @@ public class OracleDatabase extends Database<OracleConnection> {
     protected OracleConnection doGetConnection(Connection connection) {
         return new OracleConnection(this, connection);
     }
-
 
 
 

@@ -30,20 +30,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-/**
- * Sybase ASE database.
- */
 public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     private static final Log LOG = LogFactory.getLog(SybaseASEDatabase.class);
 
     private String databaseName = null;
     private boolean supportsMultiStatementTransactions = false;
 
-    /**
-     * Creates a new Sybase ASE database.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public SybaseASEDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
@@ -187,7 +179,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
                     int statusIndex = getStatusIndex(columns);
                     if (statusIndex > -1) {
                         String options = results.getResults().get(resultsIndex).getData().get(0).get(statusIndex);
-                        return (options.contains("ddl in tran"));
+                        return options.contains("ddl in tran");
                     }
                 }
             }

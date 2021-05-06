@@ -15,9 +15,9 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.database.base.Table;
 
 import java.sql.Connection;

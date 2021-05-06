@@ -18,12 +18,14 @@ package org.flywaydb.core.internal.license;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.extensibility.FlywayExtension;
 import org.flywaydb.core.internal.util.DateUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.ServiceLoader;
 
 public class VersionPrinter {
     private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
@@ -65,7 +67,17 @@ public class VersionPrinter {
 
     public static void printVersionOnly() {
         LOG.info(EDITION + " " + version + " by Redgate");
+        printExtensionVersions();
     }
+
+    private static void printExtensionVersions() {
+        ServiceLoader<FlywayExtension> loader = ServiceLoader.load(FlywayExtension.class);
+        for (FlywayExtension extension : loader) {
+            LOG.info( ">\t" + extension.getDescription());
+        }
+    }
+
+
 
 
 

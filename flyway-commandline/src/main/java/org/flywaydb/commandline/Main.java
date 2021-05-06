@@ -21,6 +21,7 @@ import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
 
+import org.flywaydb.core.internal.database.DatabaseType;
 
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
@@ -28,7 +29,6 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.*;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
-import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -411,6 +411,7 @@ public class Main {
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
         LOG.info("More info at https://flywaydb.org/documentation/usage/commandline");
+        LOG.info("Learn more about Flyway Teams edition at https://flywaydb.org/try-flyway-teams-edition");
     }
 
     private static List<File> getJdbcDriverJarFiles() {
