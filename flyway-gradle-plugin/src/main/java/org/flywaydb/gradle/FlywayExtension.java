@@ -540,4 +540,11 @@ public class FlywayExtension {
      * <i>Flyway Teams only</i>
      */
     public String[] vaultSecrets;
+
+    /**
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
+     *
+     * @return @{code true} to fail (default: {@code false})
+     */
+    public Boolean failOnMissingLocations;
 }

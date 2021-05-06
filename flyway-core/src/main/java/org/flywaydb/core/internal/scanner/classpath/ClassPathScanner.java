@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.scanner.classpath;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -69,20 +70,9 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
     private final ResourceNameCache resourceNameCache;
 
     /**
-     * Whether to show an error if the location was not found. Used to suppress errors when we scan built in Flyway paths.
+     * Whether to throw an exception if a location was not found.
      */
-    private final boolean errorOnNotFound;
-
-    /**
-     * Creates a new Classpath scanner.
-     *
-     * @param classLoader The ClassLoader for loading migrations on the classpath.
-     */
-    public ClassPathScanner(Class<I> implementedInterface, ClassLoader classLoader, Charset encoding, Location location,
-                            ResourceNameCache resourceNameCache,
-                            LocationScannerCache locationScannerCache) {
-        this(implementedInterface, classLoader, encoding, location, resourceNameCache, locationScannerCache, true);
-    }
+    private final boolean throwOnMissingLocations;
 
     /**
      * Creates a new Classpath scanner.
@@ -92,13 +82,13 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
     public ClassPathScanner(Class<I> implementedInterface, ClassLoader classLoader, Charset encoding, Location location,
                             ResourceNameCache resourceNameCache,
                             LocationScannerCache locationScannerCache,
-                            boolean errorOnNotFound) {
+                            boolean throwOnMissingLocations) {
         this.implementedInterface = implementedInterface;
         this.classLoader = classLoader;
         this.location = location;
         this.resourceNameCache = resourceNameCache;
         this.locationScannerCache = locationScannerCache;
-        this.errorOnNotFound = errorOnNotFound;
+        this.throwOnMissingLocations = throwOnMissingLocations;
 
         LOG.debug("Scanning for classpath resources at '" + location + "' ...");
         for (String resourceName : findResourceNames()) {
@@ -233,10 +223,12 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         }
 
         if (!locationResolved) {
-            if (errorOnNotFound) {
-                LOG.error("Unable to resolve location " + location + ".");
+            String message = "Unable to resolve location " + location + ".";
+
+            if (throwOnMissingLocations) {
+                throw new FlywayException(message);
             } else {
-                LOG.debug("Unable to resolve location " + location + ".");
+                LOG.debug(message);
             }
         }
 

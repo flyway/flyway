@@ -52,8 +52,8 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
      * Constructor. Scans the given locations for resources, and classes implementing the specified interface.
      */
     public Scanner(Class<I> implementedInterface, Collection<Location> locations, ClassLoader classLoader, Charset encoding,
-                   boolean stream, ResourceNameCache resourceNameCache, LocationScannerCache locationScannerCache) {
-        FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding, stream);
+                   boolean stream, ResourceNameCache resourceNameCache, LocationScannerCache locationScannerCache, boolean throwOnMissingLocations) {
+        FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding, stream, throwOnMissingLocations);
 
         FeatureDetector detector =  new FeatureDetector(classLoader);
         boolean android = detector.isAndroidAvailable();
@@ -79,7 +79,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
             } else if (location.isAwsS3()) {
                 if (aws) {
-                    Collection<LoadableResource> awsResources = new AwsS3Scanner(encoding).scanForResources(location);
+                    Collection<LoadableResource> awsResources = new AwsS3Scanner(encoding, throwOnMissingLocations).scanForResources(location);
                     resources.addAll(awsResources);
                     cloudMigrationCount += awsResources.stream().filter(r -> r.getFilename().endsWith(".sql")).count();
                 } else {
@@ -88,7 +88,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
             } else {
                 ResourceAndClassScanner<I> resourceAndClassScanner = android
                         ? new AndroidScanner<>(implementedInterface, classLoader, encoding, location)
-                        : new ClassPathScanner<>(implementedInterface, classLoader, encoding, location, resourceNameCache, locationScannerCache);
+                        : new ClassPathScanner<>(implementedInterface, classLoader, encoding, location, resourceNameCache, locationScannerCache, throwOnMissingLocations);
                 resources.addAll(resourceAndClassScanner.scanForResources());
                 classes.addAll(resourceAndClassScanner.scanForClasses());
             }

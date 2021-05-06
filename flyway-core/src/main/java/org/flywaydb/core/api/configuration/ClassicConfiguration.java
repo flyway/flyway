@@ -24,11 +24,11 @@ import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
-import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.license.Edition;
 
 import javax.sql.DataSource;
 import java.io.*;
@@ -117,6 +117,7 @@ public class ClassicConfiguration implements Configuration {
     private String vaultUrl;
     private String vaultToken;
     private String[] vaultSecrets;
+    private boolean failOnMissingLocations = false;
     private final ClasspathClassScanner classScanner;
 
     public ClassicConfiguration() {
@@ -394,6 +395,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String[] getVaultSecrets() {
         return vaultSecrets;
+    }
+
+    @Override
+    public boolean getFailOnMissingLocations() {
+        return failOnMissingLocations;
     }
 
     @Override
@@ -1479,6 +1485,15 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
+     *
+     * @return @{code true} to fail (default: {@code false})
+     */
+    public void setFailOnMissingLocations(boolean failOnMissingLocations) {
+        this.failOnMissingLocations = failOnMissingLocations;
+    }
+
+    /**
      * Configure with the same values as this existing configuration.
      */
     public void configure(Configuration configuration) {
@@ -1546,6 +1561,7 @@ public class ClassicConfiguration implements Configuration {
         setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
         setShouldCreateSchemas(configuration.getCreateSchemas());
         setLockRetryCount(configuration.getLockRetryCount());
+        setFailOnMissingLocations(configuration.getFailOnMissingLocations());
 
         url = configuration.getUrl();
         user = configuration.getUser();
@@ -1813,6 +1829,10 @@ public class ClassicConfiguration implements Configuration {
         String licenseKeyProp = props.remove(ConfigUtils.LICENSE_KEY);
         if (licenseKeyProp != null) {
             setLicenseKey(licenseKeyProp);
+        }
+        Boolean failOnMissingLocationsProp = removeBoolean(props, ConfigUtils.FAIL_ON_MISSING_LOCATIONS);
+        if (failOnMissingLocationsProp != null) {
+            setFailOnMissingLocations(failOnMissingLocationsProp);
         }
 
         // Must be done last, so that any driver-specific config has been done at this point.

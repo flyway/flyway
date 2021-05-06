@@ -625,4 +625,11 @@ public interface Configuration {
      * @return A list of paths to secrets in Vault
      */
     String[] getVaultSecrets();
+
+    /**
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
+     *
+     * @return @{code true} to fail (default: {@code false})
+     */
+    boolean getFailOnMissingLocations();
 }

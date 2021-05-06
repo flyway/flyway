@@ -610,7 +610,8 @@ public class Flyway {
                         configuration.getEncoding(),
                         stream,
                         resourceNameCache,
-                        locationScannerCache
+                        locationScannerCache,
+                        configuration.getFailOnMissingLocations()
                 );
                 // set the defaults
                 resourceProvider = scanner;

@@ -576,6 +576,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     public String[] vaultSecrets;
 
+    /**
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
+     *
+     * @return @{code true} to fail (default: {@code false})
+     */
+    public boolean failOnMissingLocations;
+
     public AbstractFlywayTask() {
         super();
         setGroup("Flyway");
@@ -733,6 +740,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks, extension.skipDefaultCallbacks);
         putIfSet(conf, ConfigUtils.DEFAULT_SCHEMA, defaultSchema, extension.defaultSchema);
         putIfSet(conf, ConfigUtils.CREATE_SCHEMAS, createSchemas, extension.createSchemas);
+        putIfSet(conf, ConfigUtils.FAIL_ON_MISSING_LOCATIONS, failOnMissingLocations, extension.failOnMissingLocations);
 
         putIfSet(conf, ConfigUtils.SCHEMAS, StringUtils.arrayToCommaDelimitedString(schemas), StringUtils.arrayToCommaDelimitedString(extension.schemas));
         putIfSet(conf, ConfigUtils.RESOLVERS, StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));

@@ -359,6 +359,11 @@ public class FluentConfiguration implements Configuration {
         return config.getVaultSecrets();
     }
 
+    @Override
+    public boolean getFailOnMissingLocations() {
+        return config.getFailOnMissingLocations();
+    }
+
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.
@@ -1314,6 +1319,16 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration envVars() {
         config.configureUsingEnvVars();
+        return this;
+    }
+
+    /**
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
+     *
+     * @return @{code true} to fail (default: {@code false})
+     */
+    public FluentConfiguration failOnMissingLocations(boolean failOnMissingLocations) {
+        config.setFailOnMissingLocations(failOnMissingLocations);
         return this;
     }
 }

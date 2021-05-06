@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.scanner.filesystem;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -36,18 +37,21 @@ public class FileSystemScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
     private final Charset defaultEncoding;
     private boolean stream = false;
+    private boolean throwOnMissingLocations;
 
     /**
      * Creates a new filesystem scanner.
      *
      * @param encoding The encoding to use.
      * @param stream   Whether to use streaming.
+     * @param throwOnMissingLocations   Whether to throw on missing locations.
      */
-    public FileSystemScanner(Charset encoding, boolean stream) {
+    public FileSystemScanner(Charset encoding, boolean stream, boolean throwOnMissingLocations) {
         this.defaultEncoding = encoding;
 
 
 
+        this.throwOnMissingLocations = throwOnMissingLocations;
     }
 
     /**
@@ -63,14 +67,26 @@ public class FileSystemScanner {
 
         File dir = new File(path);
         if (!dir.exists()) {
+            if (throwOnMissingLocations) {
+                throw new FlywayException("Failed to find filesystem location:" + path + ".");
+            }
+
             LOG.error("Skipping filesystem location:" + path + " (not found).");
             return Collections.emptyList();
         }
         if (!dir.canRead()) {
+            if (throwOnMissingLocations) {
+                throw new FlywayException("Failed to find filesystem location:" + path + " (not readable).");
+            }
+
             LOG.error("Skipping filesystem location:" + path + " (not readable).");
             return Collections.emptyList();
         }
         if (!dir.isDirectory()) {
+            if (throwOnMissingLocations) {
+                throw new FlywayException("Failed to find filesystem location:" + path + " (not a directory).");
+            }
+
             LOG.error("Skipping filesystem location:" + path + " (not a directory).");
             return Collections.emptyList();
         }

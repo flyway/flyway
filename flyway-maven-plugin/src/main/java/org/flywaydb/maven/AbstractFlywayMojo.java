@@ -669,6 +669,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     public String[] vaultSecrets;
 
     /**
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
+     *
+     * @return @{code true} to fail (default: {@code false})
+     */
+    @Parameter(property = ConfigUtils.FAIL_ON_MISSING_LOCATIONS)
+    public Boolean failOnMissingLocations;
+
+    /**
      * The id of the server tag in settings.xml (default: flyway-db)
      * The credentials can be specified by user/password or {@code serverId} from settings.xml
      * <p>Also configurable with Maven or System Property: ${flyway.serverId}</p>
@@ -820,6 +828,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate);
             putIfSet(conf, ConfigUtils.DRIVER, driver);
             putIfSet(conf, ConfigUtils.CREATE_SCHEMAS, createSchemas);
+            putIfSet(conf, ConfigUtils.FAIL_ON_MISSING_LOCATIONS, failOnMissingLocations);
 
             putArrayIfSet(conf, ConfigUtils.ERROR_OVERRIDES, errorOverrides);
             putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput);
