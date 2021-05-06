@@ -73,7 +73,7 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
                 "    \"script\" VARCHAR(1000) NOT NULL,\n" +
                 "    \"checksum\" INTEGER,\n" +
                 "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
-                "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT now(),\n" +
+                "    \"installed_on\" TIMESTAMPTZ NOT NULL DEFAULT now(),\n" +
                 "    \"execution_time\" INTEGER NOT NULL,\n" +
                 "    \"success\" BOOLEAN NOT NULL\n" +
                 ")" + tablespace + ";\n" +
