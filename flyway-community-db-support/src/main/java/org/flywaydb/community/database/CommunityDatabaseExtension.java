@@ -17,7 +17,6 @@ package org.flywaydb.community.database;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.extensibility.FlywayExtension;
-import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
 import java.io.IOException;
@@ -31,7 +30,7 @@ public class CommunityDatabaseExtension implements FlywayExtension {
     private static String readVersion() {
         try {
             return FileCopyUtils.copyToString(
-                    VersionPrinter.class.getClassLoader().getResourceAsStream("org/flywaydb/community/database/version.txt"),
+                    CommunityDatabaseExtension.class.getClassLoader().getResourceAsStream("org/flywaydb/community/database/version.txt"),
                     StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new FlywayException("Unable to read extension version: " + e.getMessage(), e);
