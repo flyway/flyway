@@ -20,6 +20,8 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
+
+
 import org.flywaydb.core.internal.util.BomStrippingReader;
 
 import java.io.*;
@@ -49,19 +51,20 @@ public class FileSystemResource extends LoadableResource {
     private final File file;
     private final String relativePath;
     private final Charset encoding;
+    private final boolean detectEncoding;
 
 
 
 
-    /**
-     * Creates a new ClassPathResource.
-     *
-     * @param fileNameWithPath The path and filename of the resource on the filesystem.
-     */
     public FileSystemResource(Location location, String fileNameWithPath, Charset encoding, boolean stream) {
+        this(location, fileNameWithPath, encoding, false, stream);
+    }
+
+    public FileSystemResource(Location location, String fileNameWithPath, Charset encoding, boolean detectEncoding, boolean stream) {
         this.file = new File(new File(fileNameWithPath).getPath());
         this.relativePath = location == null ? file.getPath() : location.getPathRelativeToThis(file.getPath()).replace("\\", "/");
         this.encoding = encoding;
+        this.detectEncoding = detectEncoding;
 
 
 
@@ -87,17 +90,28 @@ public class FileSystemResource extends LoadableResource {
 
     @Override
     public Reader read() {
+        Charset charSet = encoding;
+
+
+
+
+
+
+
+
+
+
         try {
-            return Channels.newReader(FileChannel.open(file.toPath(), StandardOpenOption.READ), encoding.newDecoder(), 4096);
+            return Channels.newReader(FileChannel.open(file.toPath(), StandardOpenOption.READ), charSet.newDecoder(), 4096);
         } catch (IOException e){
             LOG.debug("Unable to load filesystem resource" + file.getPath() + " using FileChannel.open." +
                     " Falling back to FileInputStream implementation. Exception message: " + e.getMessage());
         }
 
         try {
-            return new BufferedReader(new BomStrippingReader(new InputStreamReader(new FileInputStream(file), encoding)));
+            return new BufferedReader(new BomStrippingReader(new InputStreamReader(new FileInputStream(file), charSet)));
         } catch (IOException e) {
-            throw new FlywayException("Unable to load filesystem resource: " + file.getPath() + " (encoding: " + encoding + ")", e);
+            throw new FlywayException("Unable to load filesystem resource: " + file.getPath() + " (encoding: " + charSet + ")", e);
         }
     }
 

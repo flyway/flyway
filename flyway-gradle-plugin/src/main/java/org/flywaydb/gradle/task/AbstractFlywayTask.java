@@ -228,6 +228,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String encoding;
 
     /**
+     * Whether or not Flyway should try to automatically detect SQL migration file encoding
+     * <i>Flyway Teams only</i>
+     * <p>Also configurable with Gradle or System Property: ${flyway.detectEncoding}</p>
+     */
+    public Boolean detectEncoding;
+
+    /**
      * Placeholders to replace in SQL migrations.
      */
     public Map<Object, Object> placeholders;
@@ -717,6 +724,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.GROUP, group, extension.group);
         putIfSet(conf, ConfigUtils.INSTALLED_BY, installedBy, extension.installedBy);
         putIfSet(conf, ConfigUtils.ENCODING, encoding, extension.encoding);
+        putIfSet(conf, ConfigUtils.DETECT_ENCODING, detectEncoding, extension.detectEncoding);
         putIfSet(conf, ConfigUtils.LOCK_RETRY_COUNT, lockRetryCount, extension.lockRetryCount);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement, extension.placeholderReplacement);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix, extension.placeholderPrefix);

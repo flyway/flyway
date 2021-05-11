@@ -184,6 +184,13 @@ public class FlywayExtension {
     public String encoding;
 
     /**
+     * Whether or not Flyway should try to automatically detect SQL migration file encoding
+     * <i>Flyway Teams only</i>
+     * <p>Also configurable with Gradle or System Property: ${flyway.detectEncoding}</p>
+     */
+    public Boolean detectEncoding;
+
+    /**
      * The maximum number of retries when trying to obtain a lock. (default: 50)
      */
     public Integer lockRetryCount;

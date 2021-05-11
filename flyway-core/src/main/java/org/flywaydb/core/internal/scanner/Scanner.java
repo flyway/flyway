@@ -51,9 +51,17 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     /*
      * Constructor. Scans the given locations for resources, and classes implementing the specified interface.
      */
-    public Scanner(Class<I> implementedInterface, Collection<Location> locations, ClassLoader classLoader, Charset encoding,
-                   boolean stream, ResourceNameCache resourceNameCache, LocationScannerCache locationScannerCache, boolean throwOnMissingLocations) {
-        FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding, stream, throwOnMissingLocations);
+    public Scanner(
+            Class<I> implementedInterface,
+            Collection<Location> locations,
+            ClassLoader classLoader,
+            Charset encoding,
+            boolean detectEncoding,
+            boolean stream,
+            ResourceNameCache resourceNameCache,
+            LocationScannerCache locationScannerCache,
+            boolean throwOnMissingLocations) {
+        FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding, stream, detectEncoding, throwOnMissingLocations);
 
         FeatureDetector detector =  new FeatureDetector(classLoader);
         boolean android = detector.isAndroidAvailable();

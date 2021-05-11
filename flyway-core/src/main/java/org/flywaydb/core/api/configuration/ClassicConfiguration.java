@@ -62,6 +62,7 @@ public class ClassicConfiguration implements Configuration {
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     private Locations locations = new Locations("db/migration");
     private Charset encoding = StandardCharsets.UTF_8;
+    private boolean detectEncoding = false;
     private String defaultSchemaName = null;
     private String[] schemaNames = {};
     private String table = "flyway_schema_history";
@@ -150,6 +151,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public Charset getEncoding() {
         return encoding;
+    }
+
+    @Override
+    public boolean getDetectEncoding() {
+        return detectEncoding;
     }
 
     @Override
@@ -801,6 +807,21 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setEncoding(Charset encoding) {
         this.encoding = encoding;
+    }
+
+    /**
+     * Whether or not Flyway should try to automatically detect SQL migration file encoding
+     *
+     * @param detectEncoding {@code true} to enable auto detection, {@code false} otherwise
+     * <i>Flyway Teams only</i>
+     */
+    public void setDetectEncoding(boolean detectEncoding) {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("detectEncoding");
+
+
+
+
     }
 
     /**
@@ -1527,7 +1548,6 @@ public class ClassicConfiguration implements Configuration {
 
 
 
-
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
         setValidateMigrationNaming(configuration.isValidateMigrationNaming());
@@ -1659,6 +1679,10 @@ public class ClassicConfiguration implements Configuration {
         String encodingProp = props.remove(ConfigUtils.ENCODING);
         if (encodingProp != null) {
             setEncodingAsString(encodingProp);
+        }
+        Boolean detectEncoding = removeBoolean(props, ConfigUtils.DETECT_ENCODING);
+        if (detectEncoding != null) {
+            setDetectEncoding(detectEncoding);
         }
         String defaultSchemaProp = props.remove(ConfigUtils.DEFAULT_SCHEMA);
         if (defaultSchemaProp != null) {

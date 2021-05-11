@@ -36,6 +36,7 @@ import java.util.TreeSet;
 public class FileSystemScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
     private final Charset defaultEncoding;
+    private final boolean detectEncoding;
     private boolean stream = false;
     private boolean throwOnMissingLocations;
 
@@ -44,10 +45,12 @@ public class FileSystemScanner {
      *
      * @param encoding The encoding to use.
      * @param stream   Whether to use streaming.
+     * @param detectEncoding   Whether to use auto detect encoding.
      * @param throwOnMissingLocations   Whether to throw on missing locations.
      */
-    public FileSystemScanner(Charset encoding, boolean stream, boolean throwOnMissingLocations) {
+    public FileSystemScanner(Charset encoding, boolean stream, boolean detectEncoding, boolean throwOnMissingLocations) {
         this.defaultEncoding = encoding;
+        this.detectEncoding = detectEncoding;
 
 
 
@@ -94,6 +97,7 @@ public class FileSystemScanner {
         Set<LoadableResource> resources = new TreeSet<>();
 
         for (String resourceName : findResourceNamesFromFileSystem(path, new File(path))) {
+            boolean detectEncodingForThisResource = detectEncoding;
             if (location.matchesPath(resourceName)) {
                 Charset encoding = defaultEncoding;
                 String encodingBlurb = "";
@@ -102,10 +106,11 @@ public class FileSystemScanner {
                     SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource, null);
                     if (metadata.encoding() != null) {
                         encoding = Charset.forName(metadata.encoding());
+                        detectEncodingForThisResource = false;
                         encodingBlurb = " (with overriding encoding " + encoding + ")";
                     }
                 }
-                resources.add(new FileSystemResource(location, resourceName, encoding, stream));
+                resources.add(new FileSystemResource(location, resourceName, encoding, detectEncodingForThisResource, stream));
 
                 LOG.debug("Found filesystem resource: " + resourceName + encodingBlurb);
             }

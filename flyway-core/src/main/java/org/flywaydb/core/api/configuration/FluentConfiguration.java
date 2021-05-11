@@ -75,6 +75,9 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public boolean getDetectEncoding() { return config.getDetectEncoding(); }
+
+    @Override
     public String getDefaultSchema() { return config.getDefaultSchema(); }
 
     @Override
@@ -642,6 +645,17 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration encoding(Charset encoding) {
         config.setEncoding(encoding);
+        return this;
+    }
+
+    /**
+     * Whether or not Flyway should try to automatically detect SQL migration file encoding
+     *
+     * @param detectEncoding {@code true} to enable auto detection, {@code false} otherwise
+     * <i>Flyway Teams only</i>
+     */
+    public FluentConfiguration detectEncoding(boolean detectEncoding) {
+        config.setDetectEncoding(detectEncoding);
         return this;
     }
 

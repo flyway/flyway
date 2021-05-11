@@ -360,6 +360,7 @@ public class Main {
         LOG.info("batch                        : [" + "teams] Batch SQL statements when executing them");
         LOG.info("mixed                        : Allow mixing transactional and non-transactional statements");
         LOG.info("encoding                     : Encoding of SQL migrations");
+        LOG.info("detectEncoding               : [" + "teams] Whether or not Flyway should try to automatically detect SQL migration file encoding");
         LOG.info("placeholderReplacement       : Whether placeholders should be replaced");
         LOG.info("placeholders                 : Placeholders to replace in sql migrations");
         LOG.info("placeholderPrefix            : Prefix of every placeholder");

@@ -208,6 +208,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String encoding;
 
     /**
+     * Whether or not Flyway should try to automatically detect SQL migration file encoding
+     * <i>Flyway Teams only</i>
+     * <p>Also configurable with Maven or System Property: ${flyway.detectEncoding}</p>
+     */
+    @Parameter
+    private Boolean detectEncoding;
+
+    /**
      * The maximum number of retries when trying to obtain a lock. (default: 50)
      * <p>Also configurable with Maven or System Property: ${flyway.lockRetryCount}</p>
      */
@@ -799,6 +807,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putArrayIfSet(conf, ConfigUtils.CALLBACKS, callbacks);
             putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks);
             putIfSet(conf, ConfigUtils.ENCODING, encoding);
+            putIfSet(conf, ConfigUtils.DETECT_ENCODING, detectEncoding);
             putIfSet(conf, ConfigUtils.LOCK_RETRY_COUNT, lockRetryCount);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix);

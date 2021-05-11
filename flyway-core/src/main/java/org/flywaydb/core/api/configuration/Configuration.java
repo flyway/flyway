@@ -284,6 +284,14 @@ public interface Configuration {
     Charset getEncoding();
 
     /**
+     * Whether or not Flyway should try to automatically detect SQL migration file encoding
+     *
+     * @param detectEncoding {@code true} to enable auto detection, {@code false} otherwise
+     * <i>Flyway Teams only</i>
+     */
+    boolean getDetectEncoding();
+
+    /**
      * Retrieves the locations to scan recursively for migrations.
      * The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may

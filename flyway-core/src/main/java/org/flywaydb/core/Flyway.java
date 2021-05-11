@@ -608,6 +608,7 @@ public class Flyway {
                         Arrays.asList(configuration.getLocations()),
                         configuration.getClassLoader(),
                         configuration.getEncoding(),
+                        configuration.getDetectEncoding(),
                         stream,
                         resourceNameCache,
                         locationScannerCache,
