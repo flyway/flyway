@@ -30,11 +30,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.StandardOpenOption;
 
-/**
- * A resource on the filesystem.
- */
 public class FileSystemResource extends LoadableResource {
-
     private static final Log LOG = LogFactory.getLog(FileSystemResource.class);
 
 
@@ -44,17 +40,10 @@ public class FileSystemResource extends LoadableResource {
 
 
 
-
-    /**
-     * The location of the resource on the filesystem.
-     */
     private final File file;
     private final String relativePath;
     private final Charset encoding;
     private final boolean detectEncoding;
-
-
-
 
     public FileSystemResource(Location location, String fileNameWithPath, Charset encoding, boolean stream) {
         this(location, fileNameWithPath, encoding, false, stream);
@@ -70,19 +59,11 @@ public class FileSystemResource extends LoadableResource {
 
     }
 
-    /**
-     * @return The location of the resource on the filesystem.
-     */
     @Override
     public String getAbsolutePath() {
         return file.getPath();
     }
 
-    /**
-     * Retrieves the location of this resource on disk.
-     *
-     * @return The location of this resource on disk.
-     */
     @Override
     public String getAbsolutePathOnDisk() {
         return file.getAbsolutePath();
@@ -91,7 +72,6 @@ public class FileSystemResource extends LoadableResource {
     @Override
     public Reader read() {
         Charset charSet = encoding;
-
 
 
 

@@ -30,7 +30,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Paths;
 
 public class ClassPathResource extends LoadableResource {
-
     private static final Log LOG = LogFactory.getLog(ClassPathResource.class);
     private final String fileNameWithAbsolutePath;
     private final String fileNameWithRelativePath;
@@ -83,7 +82,6 @@ public class ClassPathResource extends LoadableResource {
         }
 
         Charset charset = encoding;
-
 
 
 

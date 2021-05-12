@@ -649,7 +649,7 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Whether or not Flyway should try to automatically detect SQL migration file encoding
+     * Whether Flyway should try to automatically detect SQL migration file encoding
      *
      * @param detectEncoding {@code true} to enable auto detection, {@code false} otherwise
      * <i>Flyway Teams only</i>

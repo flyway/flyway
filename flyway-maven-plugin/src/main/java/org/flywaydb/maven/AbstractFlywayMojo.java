@@ -208,7 +208,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String encoding;
 
     /**
-     * Whether or not Flyway should try to automatically detect SQL migration file encoding
+     * Whether Flyway should try to automatically detect SQL migration file encoding
      * <i>Flyway Teams only</i>
      * <p>Also configurable with Maven or System Property: ${flyway.detectEncoding}</p>
      */

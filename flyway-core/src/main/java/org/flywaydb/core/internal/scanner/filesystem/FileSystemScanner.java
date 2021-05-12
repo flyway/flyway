@@ -30,24 +30,13 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
-/**
- * FileSystem scanner.
- */
 public class FileSystemScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
     private final Charset defaultEncoding;
     private final boolean detectEncoding;
+    private final boolean throwOnMissingLocations;
     private boolean stream = false;
-    private boolean throwOnMissingLocations;
 
-    /**
-     * Creates a new filesystem scanner.
-     *
-     * @param encoding The encoding to use.
-     * @param stream   Whether to use streaming.
-     * @param detectEncoding   Whether to use auto detect encoding.
-     * @param throwOnMissingLocations   Whether to throw on missing locations.
-     */
     public FileSystemScanner(Charset encoding, boolean stream, boolean detectEncoding, boolean throwOnMissingLocations) {
         this.defaultEncoding = encoding;
         this.detectEncoding = detectEncoding;
