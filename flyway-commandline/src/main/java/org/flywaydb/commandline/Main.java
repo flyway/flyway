@@ -136,6 +136,10 @@ public class Main {
             ConfigUtils.dumpConfiguration(config);
             filterProperties(config);
 
+            if(!commandLineArguments.skipCheckForUpdate()) {
+                VersionChecker.checkForVersionUpdates();
+            }
+
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 
             OperationResultBase result;
