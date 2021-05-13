@@ -208,6 +208,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String encoding;
 
     /**
+     * Whether Flyway should try to automatically detect SQL migration file encoding
+     * <i>Flyway Teams only</i>
+     * <p>Also configurable with Maven or System Property: ${flyway.detectEncoding}</p>
+     */
+    @Parameter
+    private Boolean detectEncoding;
+
+    /**
      * The maximum number of retries when trying to obtain a lock. (default: 50)
      * <p>Also configurable with Maven or System Property: ${flyway.lockRetryCount}</p>
      */
@@ -285,11 +293,16 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * The target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
-     * <li>{@code current}: designates the current version of the schema</li>
-     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code current}: Designates the current version of the schema</li>
+     * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>
+     *     &lt;version&gt;? (end with a '?'): Instructs Flyway not to fail if the target version doesn't exist.
+     *     In this case, Flyway will go up to but not beyond the specified target
+     *     (default: fail if the target version doesn't exist) <i>Flyway Teams only</i>
+     * </li>
      * </ul>
      * Defaults to {@code latest}.
      * <p>Also configurable with Maven or System Property: ${flyway.target}</p>
@@ -669,6 +682,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     public String[] vaultSecrets;
 
     /**
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
+     *
+     * @return @{code true} to fail (default: {@code false})
+     */
+    @Parameter(property = ConfigUtils.FAIL_ON_MISSING_LOCATIONS)
+    public Boolean failOnMissingLocations;
+
+    /**
      * The id of the server tag in settings.xml (default: flyway-db)
      * The credentials can be specified by user/password or {@code serverId} from settings.xml
      * <p>Also configurable with Maven or System Property: ${flyway.serverId}</p>
@@ -791,6 +812,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putArrayIfSet(conf, ConfigUtils.CALLBACKS, callbacks);
             putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks);
             putIfSet(conf, ConfigUtils.ENCODING, encoding);
+            putIfSet(conf, ConfigUtils.DETECT_ENCODING, detectEncoding);
             putIfSet(conf, ConfigUtils.LOCK_RETRY_COUNT, lockRetryCount);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix);
@@ -820,6 +842,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate);
             putIfSet(conf, ConfigUtils.DRIVER, driver);
             putIfSet(conf, ConfigUtils.CREATE_SCHEMAS, createSchemas);
+            putIfSet(conf, ConfigUtils.FAIL_ON_MISSING_LOCATIONS, failOnMissingLocations);
 
             putArrayIfSet(conf, ConfigUtils.ERROR_OVERRIDES, errorOverrides);
             putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput);

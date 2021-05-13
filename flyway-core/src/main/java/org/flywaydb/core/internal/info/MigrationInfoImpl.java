@@ -39,11 +39,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
     MigrationInfoImpl(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration,
-                      MigrationInfoContext context, boolean outOfOrder, boolean deleted
-
-
-
-    ) {
+                      MigrationInfoContext context, boolean outOfOrder, boolean deleted, boolean undone) {
         this.resolvedMigration = resolvedMigration;
         this.appliedMigration = appliedMigration;
         this.context = context;
@@ -473,11 +469,14 @@ public class MigrationInfoImpl implements MigrationInfo {
             return 1;
         }
 
-        if (state == MigrationState.IGNORED && oState.isApplied()) {
-            return compareVersion(o);
-        }
-        if (state.isApplied() && oState == MigrationState.IGNORED) {
-            return o.compareVersion(this);
+        // Allow interleaving ignored versioned migrations with applied versioned migrations
+        if (getVersion() != null && o.getVersion() != null) {
+            if (state == MigrationState.IGNORED && oState.isApplied()) {
+                return compareVersion(o);
+            }
+            if (state.isApplied() && oState == MigrationState.IGNORED) {
+                return compareVersion(o);
+            }
         }
 
         // Sort installed before pending

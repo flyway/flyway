@@ -75,6 +75,9 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public boolean getDetectEncoding() { return config.getDetectEncoding(); }
+
+    @Override
     public String getDefaultSchema() { return config.getDefaultSchema(); }
 
     @Override
@@ -93,6 +96,11 @@ public class FluentConfiguration implements Configuration {
     @Override
     public MigrationVersion getTarget() {
         return config.getTarget();
+    }
+
+    @Override
+    public boolean getFailOnMissingTarget() {
+        return config.getFailOnMissingTarget();
     }
 
     @Override
@@ -362,6 +370,11 @@ public class FluentConfiguration implements Configuration {
     @Override
     public String[] getVaultSecrets() {
         return config.getVaultSecrets();
+    }
+
+    @Override
+    public boolean getFailOnMissingLocations() {
+        return config.getFailOnMissingLocations();
     }
 
     /**
@@ -646,6 +659,17 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * Whether Flyway should try to automatically detect SQL migration file encoding
+     *
+     * @param detectEncoding {@code true} to enable auto detection, {@code false} otherwise
+     * <i>Flyway Teams only</i>
+     */
+    public FluentConfiguration detectEncoding(boolean detectEncoding) {
+        config.setDetectEncoding(detectEncoding);
+        return this;
+    }
+
+    /**
      * Sets the default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
      * <i>schemas</i> is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default
      * schema for the database connection.
@@ -707,11 +731,11 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
-     * <li>{@code current}: designates the current version of the schema</li>
-     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code current}: Designates the current version of the schema</li>
+     * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
      * </ul>
      * Defaults to {@code latest}.
      */
@@ -722,11 +746,16 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
-     * <li>{@code current}: designates the current version of the schema</li>
-     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code current}: Designates the current version of the schema</li>
+     * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>
+     *     &lt;version&gt;? (end with a '?'): Instructs Flyway not to fail if the target version doesn't exist.
+     *     In this case, Flyway will go up to but not beyond the specified target
+     *     (default: fail if the target version doesn't exist) <i>Flyway Teams only</i>
+     * </li>
      * </ul>
      * Defaults to {@code latest}.
      */
@@ -1157,7 +1186,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
-     * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
+     * Request your <a href="https://flywaydb.org/try-flyway-teams-edition">Flyway trial license key</a>
      * to try out Flyway Teams Edition features free for 30 days.
      *
      * <i>Flyway Teams only</i>
@@ -1319,6 +1348,16 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration envVars() {
         config.configureUsingEnvVars();
+        return this;
+    }
+
+    /**
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
+     *
+     * @return @{code true} to fail (default: {@code false})
+     */
+    public FluentConfiguration failOnMissingLocations(boolean failOnMissingLocations) {
+        config.setFailOnMissingLocations(failOnMissingLocations);
         return this;
     }
 }

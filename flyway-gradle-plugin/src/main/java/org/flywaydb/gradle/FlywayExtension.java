@@ -184,6 +184,13 @@ public class FlywayExtension {
     public String encoding;
 
     /**
+     * Whether Flyway should try to automatically detect SQL migration file encoding
+     * <i>Flyway Teams only</i>
+     * <p>Also configurable with Gradle or System Property: ${flyway.detectEncoding}</p>
+     */
+    public Boolean detectEncoding;
+
+    /**
      * The maximum number of retries when trying to obtain a lock. (default: 50)
      */
     public Integer lockRetryCount;
@@ -217,11 +224,16 @@ public class FlywayExtension {
 
     /**
      * The target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
-     * <li>{@code current}: designates the current version of the schema</li>
-     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code current}: Designates the current version of the schema</li>
+     * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>
+     *     &lt;version&gt;? (end with a '?'): Instructs Flyway not to fail if the target version doesn't exist.
+     *     In this case, Flyway will go up to but not beyond the specified target
+     *     (default: fail if the target version doesn't exist) <i>Flyway Teams only</i>
+     * </li>
      * </ul>
      * Defaults to {@code latest}.
      */
@@ -540,4 +552,11 @@ public class FlywayExtension {
      * <i>Flyway Teams only</i>
      */
     public String[] vaultSecrets;
+
+    /**
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
+     *
+     * @return @{code true} to fail (default: {@code false})
+     */
+    public Boolean failOnMissingLocations;
 }

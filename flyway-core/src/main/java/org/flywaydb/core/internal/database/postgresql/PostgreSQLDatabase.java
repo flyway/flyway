@@ -25,15 +25,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-/**
- * PostgreSQL database.
- */
 public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public PostgreSQLDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
@@ -42,7 +34,6 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
     protected PostgreSQLConnection doGetConnection(Connection connection) {
         return new PostgreSQLConnection(this, connection);
     }
-
 
 
 

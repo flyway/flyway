@@ -16,8 +16,8 @@
 package org.flywaydb.core.internal.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
-import org.flywaydb.core.internal.database.base.DatabaseType;
 
 import java.sql.*;
 import java.util.ArrayList;

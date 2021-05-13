@@ -222,14 +222,23 @@ public interface Configuration {
      * Migrations with a higher version number will be ignored. 
      * Special values:
      * <ul>
-     * <li>{@code current}: designates the current version of the schema</li>
-     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code current}: Designates the current version of the schema</li>
+     * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>
+     *     &lt;version&gt;? (end with a '?'): Instructs Flyway not to fail if the target version doesn't exist.
+     *     In this case, Flyway will go up to but not beyond the specified target
+     *     (default: fail if the target version doesn't exist) <i>Flyway Teams only</i>
+     * </li>
      * </ul>
-     * Defaults to {@code latest}.
      *
      * @return The target version up to which Flyway should consider migrations. Defaults to {@code latest}
      */
     MigrationVersion getTarget();
+
+    /**
+     * Whether to fail if no migration with the configured target version exists (default: {@code true})
+     */
+    boolean getFailOnMissingTarget();
 
     /**
      * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
@@ -293,6 +302,14 @@ public interface Configuration {
      * @return The encoding of Sql migrations. (default: UTF-8)
      */
     Charset getEncoding();
+
+    /**
+     * Whether Flyway should try to automatically detect SQL migration file encoding
+     *
+     * @return {@code true} to enable auto detection, {@code false} otherwise
+     * <i>Flyway Teams only</i>
+     */
+    boolean getDetectEncoding();
 
     /**
      * Retrieves the locations to scan recursively for migrations.
@@ -636,4 +653,11 @@ public interface Configuration {
      * @return A list of paths to secrets in Vault
      */
     String[] getVaultSecrets();
+
+    /**
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
+     *
+     * @return @{code true} to fail (default: {@code false})
+     */
+    boolean getFailOnMissingLocations();
 }

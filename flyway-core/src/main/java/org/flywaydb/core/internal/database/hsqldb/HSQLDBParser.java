@@ -73,12 +73,12 @@ public class HSQLDBParser extends Parser {
     }
 
     @Override
-    protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
         String tokenText = token.getText();
         if (tokenText != null && getValidKeywords().contains(tokenText.toUpperCase(Locale.ENGLISH)) && token.getParensDepth() == 0) {
             return true;
         }
-        return super.shouldAdjustBlockDepth(context, token);
+        return super.shouldAdjustBlockDepth(context, tokens, token);
     }
 
     @Override

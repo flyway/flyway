@@ -17,13 +17,12 @@ package org.flywaydb.core.internal.database.mysql;
 
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.authentication.mysql.MySQLOptionFileReader;
 
+import org.flywaydb.core.internal.database.base.BaseDatabaseType;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-import org.flywaydb.core.internal.license.FlywayTeamsUpgradeMessage;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -33,7 +32,7 @@ import java.sql.Connection;
 import java.sql.Types;
 import java.util.Properties;
 
-public class MySQLDatabaseType extends DatabaseType {
+public class MySQLDatabaseType extends BaseDatabaseType {
     private static final String MYSQL_LEGACY_JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
 
@@ -147,7 +146,7 @@ public class MySQLDatabaseType extends DatabaseType {
 
         mySQLOptionFileReader.populateOptionFiles();
         if (!mySQLOptionFileReader.optionFiles.isEmpty()) {
-            LOG.info(FlywayTeamsUpgradeMessage.generate("a MySQL option file", "use this for database authentication"));
+            LOG.info(org.flywaydb.core.internal.license.FlywayTeamsUpgradeMessage.generate("a MySQL option file", "use this for database authentication"));
         }
         return super.getExternalAuthProperties(url, username);
 

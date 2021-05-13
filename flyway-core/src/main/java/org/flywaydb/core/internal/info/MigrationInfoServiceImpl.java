@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.info;
 
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
-
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.InfoResult;
 import org.flywaydb.core.api.output.OperationResult;
@@ -25,6 +24,7 @@ import org.flywaydb.core.api.output.ValidateOutput;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
@@ -237,11 +237,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             }
 
             // Build final migration info
-            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, av.getLeft(), context, av.getRight().outOfOrder, av.getRight().deleted
-
-
-
-            ));
+            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, av.getLeft(), context, av.getRight().outOfOrder, av.getRight().deleted, av.getRight().undone));
         }
 
         boolean intermediateBaselineExists = MigrationVersion.EMPTY != context.pendingIntermediateBaseline;
@@ -249,23 +245,17 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         for (ResolvedMigration prv : pendingResolvedVersioned) {
         	if (intermediateBaselineExists 
         			&& prv.getVersion().compareTo(context.pendingIntermediateBaseline) <= 0) continue;
-
-            migrationInfos1.add(new MigrationInfoImpl(prv, null, context, false, false
-
-
-
-            ));
+            migrationInfos1.add(new MigrationInfoImpl(prv, null, context, false, false, false));
         }
 
         if (intermediateBaselineExists) {
-            migrationInfos1.add(new MigrationInfoImpl(pendingIntermediateBaselineMigration, null, context, false, false
-
-
-
-            ));
+            migrationInfos1.add(new MigrationInfoImpl(pendingIntermediateBaselineMigration, null, context, false, false, false));
         }
 
-        if (target != null && target != MigrationVersion.CURRENT && target != MigrationVersion.LATEST) {
+        if (configuration.getFailOnMissingTarget() &&
+                target != null &&
+                target != MigrationVersion.CURRENT &&
+                target != MigrationVersion.LATEST) {
             boolean targetFound = false;
 
             for (MigrationInfoImpl migration : migrationInfos1) {
@@ -314,20 +304,12 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             }
 
             // Add to output list
-            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false, av.getRight().deleted
-
-
-
-            ));
+            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false, av.getRight().deleted, false));
         }
 
         // Add pending repeatables to output list
         for (ResolvedMigration prr : pendingResolvedRepeatable) {
-            migrationInfos1.add(new MigrationInfoImpl(prr, null, context, false, false
-
-
-
-            ));
+            migrationInfos1.add(new MigrationInfoImpl(prr, null, context, false, false, false));
         }
 
         // Set output

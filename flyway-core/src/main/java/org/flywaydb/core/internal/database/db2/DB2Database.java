@@ -24,15 +24,7 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-/**
- * DB2 database.
- */
 public class DB2Database extends Database<DB2Connection> {
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public DB2Database(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
@@ -41,7 +33,6 @@ public class DB2Database extends Database<DB2Connection> {
     protected DB2Connection doGetConnection(Connection connection) {
         return new DB2Connection(this, connection);
     }
-
 
 
 

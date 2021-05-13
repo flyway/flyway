@@ -228,6 +228,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String encoding;
 
     /**
+     * Whether Flyway should try to automatically detect SQL migration file encoding
+     * <i>Flyway Teams only</i>
+     * <p>Also configurable with Gradle or System Property: ${flyway.detectEncoding}</p>
+     */
+    public Boolean detectEncoding;
+
+    /**
      * Placeholders to replace in SQL migrations.
      */
     public Map<Object, Object> placeholders;
@@ -257,11 +264,16 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     /**
      * The target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
-     * <li>{@code current}: designates the current version of the schema</li>
-     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code current}: Designates the current version of the schema</li>
+     * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>
+     *     &lt;version&gt;? (end with a '?'): Instructs Flyway not to fail if the target version doesn't exist.
+     *     In this case, Flyway will go up to but not beyond the specified target
+     *     (default: fail if the target version doesn't exist) <i>Flyway Teams only</i>
+     * </li>
      * </ul>
      * Defaults to {@code latest}.
      */
@@ -576,6 +588,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     public String[] vaultSecrets;
 
+    /**
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
+     *
+     * @return @{code true} to fail (default: {@code false})
+     */
+    public boolean failOnMissingLocations;
+
     public AbstractFlywayTask() {
         super();
         setGroup("Flyway");
@@ -710,6 +729,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.GROUP, group, extension.group);
         putIfSet(conf, ConfigUtils.INSTALLED_BY, installedBy, extension.installedBy);
         putIfSet(conf, ConfigUtils.ENCODING, encoding, extension.encoding);
+        putIfSet(conf, ConfigUtils.DETECT_ENCODING, detectEncoding, extension.detectEncoding);
         putIfSet(conf, ConfigUtils.LOCK_RETRY_COUNT, lockRetryCount, extension.lockRetryCount);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement, extension.placeholderReplacement);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix, extension.placeholderPrefix);
@@ -733,6 +753,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks, extension.skipDefaultCallbacks);
         putIfSet(conf, ConfigUtils.DEFAULT_SCHEMA, defaultSchema, extension.defaultSchema);
         putIfSet(conf, ConfigUtils.CREATE_SCHEMAS, createSchemas, extension.createSchemas);
+        putIfSet(conf, ConfigUtils.FAIL_ON_MISSING_LOCATIONS, failOnMissingLocations, extension.failOnMissingLocations);
 
         putIfSet(conf, ConfigUtils.SCHEMAS, StringUtils.arrayToCommaDelimitedString(schemas), StringUtils.arrayToCommaDelimitedString(extension.schemas));
         putIfSet(conf, ConfigUtils.RESOLVERS, StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));

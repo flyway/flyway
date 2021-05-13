@@ -48,14 +48,14 @@ public class SAPHANAParser extends Parser {
     }
 
     @Override
-    protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
         TokenType tokenType = token.getType();
         if ((context.getStatementType() == FUNCTION_OR_PROCEDURE_STATEMENT || context.getStatementType() == ANONYMOUS_BLOCK_STATEMENT) &&
                 (TokenType.EOF == tokenType || TokenType.DELIMITER == tokenType)) {
             return true;
         }
 
-        return super.shouldAdjustBlockDepth(context, token);
+        return super.shouldAdjustBlockDepth(context, tokens, token);
     }
 
     @Override

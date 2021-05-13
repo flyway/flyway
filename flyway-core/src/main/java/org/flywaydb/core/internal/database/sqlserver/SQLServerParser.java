@@ -91,7 +91,7 @@ public class SQLServerParser extends Parser {
     }
 
     @Override
-    protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
         TokenType tokenType = token.getType();
         if (TokenType.DELIMITER.equals(tokenType) || ";".equals(token.getText())) {
             return true;
@@ -99,7 +99,7 @@ public class SQLServerParser extends Parser {
             return true;
         }
 
-        return super.shouldAdjustBlockDepth(context, token);
+        return super.shouldAdjustBlockDepth(context, tokens, token);
     }
 
     @Override

@@ -28,9 +28,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
-/**
- * MySQL connection.
- */
 public class MySQLConnection extends Connection<MySQLDatabase> {
     private static final Log LOG = LogFactory.getLog(MySQLConnection.class);
 
@@ -67,8 +64,6 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
     // #2215: ensure the database is recent enough and the current user has the necessary SELECT grant
     private boolean hasUserVariableResetCapability() {
-
-
 
 
 

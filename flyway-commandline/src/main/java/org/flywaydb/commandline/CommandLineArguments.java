@@ -60,41 +60,44 @@ class CommandLineArguments {
     // Flags
     // GNU standards require --version, --help and their single-letter forms
     // RG standards mandate --help / -h
-    private static String DEBUG_FLAG = "-X";
-    private static String QUIET_FLAG = "-q";
-    private static String SUPPRESS_PROMPT_FLAG = "-n";
-    private static List<String> PRINT_VERSION_AND_EXIT_FLAGS = Arrays.asList( "-v", "--version" );
+    private static final String DEBUG_FLAG = "-X";
+    private static final String QUIET_FLAG = "-q";
+    private static final String SUPPRESS_PROMPT_FLAG = "-n";
+    private static final List<String> PRINT_VERSION_AND_EXIT_FLAGS = Arrays.asList( "-v", "--version" );
     // The JSON_FLAG is deprecated and should be removed in v8
-    private static String JSON_FLAG = "-json";
-    private static List<String> PRINT_USAGE_FLAGS = Arrays.asList( "-?", "-h", "--help" );
-    private static String COMMUNITY_FLAG = "-community";
-    private static String ENTERPRISE_FLAG = "-enterprise";
-    private static String PRO_FLAG = "-pro";
-    private static String TEAMS_FLAG = "-teams";
+    private static final String JSON_FLAG = "-json";
+    private static final List<String> PRINT_USAGE_FLAGS = Arrays.asList( "-?", "-h", "--help" );
+    private static final String SKIP_CHECK_FOR_UPDATE_FLAG = "-skipCheckForUpdate";
+    private static final String COMMUNITY_FLAG = "-community";
+    private static final String ENTERPRISE_FLAG = "-enterprise";
+    private static final String PRO_FLAG = "-pro";
+    private static final String TEAMS_FLAG = "-teams";
 
     // Command line specific configuration options
-    private static String OUTPUT_FILE = "outputFile";
-    private static String OUTPUT_TYPE = "outputType";
-    private static String CONFIG_FILE_ENCODING = "configFileEncoding";
-    private static String CONFIG_FILES = "configFiles";
-    private static String COLOR = "color";
-    private static String WORKING_DIRECTORY = "workingDirectory";
-    private static String INFO_SINCE_DATE = "infoSinceDate";
-    private static String INFO_UNTIL_DATE = "infoUntilDate";
-    private static String INFO_SINCE_VERSION = "infoSinceVersion";
-    private static String INFO_UNTIL_VERSION = "infoUntilVersion";
-    private static String INFO_OF_STATE = "infoOfState";
+    private static final String OUTPUT_FILE = "outputFile";
+    private static final String OUTPUT_TYPE = "outputType";
+    private static final String CONFIG_FILE_ENCODING = "configFileEncoding";
+    private static final String CONFIG_FILES = "configFiles";
+    private static final String COLOR = "color";
+    private static final String WORKING_DIRECTORY = "workingDirectory";
+    private static final String INFO_SINCE_DATE = "infoSinceDate";
+    private static final String INFO_UNTIL_DATE = "infoUntilDate";
+    private static final String INFO_SINCE_VERSION = "infoSinceVersion";
+    private static final String INFO_UNTIL_VERSION = "infoUntilVersion";
+    private static final String INFO_OF_STATE = "infoOfState";
 
-    private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-    private static List<String> VALID_OPERATIONS_AND_FLAGS = getValidOperationsAndFlags();
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+    private static final List<String> VALID_OPERATIONS_AND_FLAGS = getValidOperationsAndFlags();
 
     private static List<String> getValidOperationsAndFlags() {
-        List<String> operationsAndFlags = new ArrayList(Arrays.asList(
+        List<String> operationsAndFlags = new ArrayList<>(Arrays.asList(
                 DEBUG_FLAG,
                 QUIET_FLAG,
                 SUPPRESS_PROMPT_FLAG,
                 JSON_FLAG,
+                SKIP_CHECK_FOR_UPDATE_FLAG,
                 COMMUNITY_FLAG,
                 ENTERPRISE_FLAG,
                 PRO_FLAG,
@@ -349,6 +352,10 @@ class CommandLineArguments {
 
     boolean isConfigFileEncodingSet() {
         return !getConfigFileEncoding().isEmpty();
+    }
+
+    boolean skipCheckForUpdate() {
+        return isFlagSet(args, SKIP_CHECK_FOR_UPDATE_FLAG);
     }
 
     Color getColor() {

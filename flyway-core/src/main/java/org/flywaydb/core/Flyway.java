@@ -33,9 +33,9 @@ import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.strategy.RetryStrategy;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
@@ -167,8 +167,7 @@ public class Flyway {
                                    SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
                                    StatementInterceptor statementInterceptor) {
                 if (configuration.isValidateOnMigrate()) {
-                    ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
-                            true);
+                    ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor, true);
                     if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
                         throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
                     }
@@ -201,19 +200,18 @@ public class Flyway {
                     } else {
                         if (configuration.getCreateSchemas()) {
                             new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(false);
-                        } else {
+                        } else if(!schemas[0].exists()) {
                             LOG.warn("The configuration option 'createSchemas' is false.\n" +
-                                    "However the schema history table still needs a schema to reside in.\n" +
+                                    "However, the schema history table still needs a schema to reside in.\n" +
                                     "You must manually create a schema for the schema history table to reside in.\n" +
-                                    "See http://flywaydb.org/documentation/migrations#the-createschemas-option-and-the-schema-history-table)");
+                                    "See https://flywaydb.org/documentation/concepts/migrations.html#the-createschemas-option-and-the-schema-history-table");
                         }
 
                         schemaHistory.create(false);
                     }
                 }
 
-                 MigrateResult result = new DbMigrate(database, schemaHistory, schemas[0], migrationResolver, configuration,
-                         callbackExecutor).migrate();
+                MigrateResult result = new DbMigrate(database, schemaHistory, schemas[0], migrationResolver, configuration, callbackExecutor).migrate();
 
                 callbackExecutor.onOperationFinishEvent(Event.AFTER_MIGRATE_OPERATION_FINISH, result);
 
@@ -610,9 +608,11 @@ public class Flyway {
                         Arrays.asList(configuration.getLocations()),
                         configuration.getClassLoader(),
                         configuration.getEncoding(),
+                        configuration.getDetectEncoding(),
                         stream,
                         resourceNameCache,
-                        locationScannerCache
+                        locationScannerCache,
+                        configuration.getFailOnMissingLocations()
                 );
                 // set the defaults
                 resourceProvider = scanner;

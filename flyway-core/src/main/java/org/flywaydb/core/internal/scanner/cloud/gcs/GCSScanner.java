@@ -20,6 +20,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -35,20 +36,31 @@ import java.util.TreeSet;
 
 public class GCSScanner extends CloudScanner {
     private static final Log LOG = LogFactory.getLog(GCSScanner.class);
+    private boolean throwOnMissingLocations;
 
     /**
      * Creates a new GCS scanner.
      *
      * @param encoding The encoding to use.
+     * @param throwOnMissingLocations Whether to throw on missing locations.
      */
-    public GCSScanner(Charset encoding) {
+    public GCSScanner(Charset encoding, boolean throwOnMissingLocations) {
         super(encoding);
+        this.throwOnMissingLocations = throwOnMissingLocations;
     }
 
     @Override
     public Collection<LoadableResource> scanForResources(final Location location) {
         if (System.getenv("GOOGLE_APPLICATION_CREDENTIALS") == null) {
-            LOG.error("Can't read location " + location + "; GOOGLE_APPLICATION_CREDENTIALS environment variable not set");
+
+            String message = "Can't read location " + location + "; GOOGLE_APPLICATION_CREDENTIALS environment variable not set";
+
+            if (throwOnMissingLocations) {
+                throw new FlywayException(message);
+            }
+
+            LOG.error(message);
+
             return Collections.emptyList();
         }
 

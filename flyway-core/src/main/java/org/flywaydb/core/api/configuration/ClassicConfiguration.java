@@ -24,11 +24,11 @@ import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
-import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.license.Edition;
 
 import javax.sql.DataSource;
 import java.io.*;
@@ -62,11 +62,13 @@ public class ClassicConfiguration implements Configuration {
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     private Locations locations = new Locations("db/migration");
     private Charset encoding = StandardCharsets.UTF_8;
+    private boolean detectEncoding = false;
     private String defaultSchemaName = null;
     private String[] schemaNames = {};
     private String table = "flyway_schema_history";
     private String tablespace;
     private MigrationVersion target;
+    private boolean failOnMissingTarget = true;
     private MigrationPattern[] cherryPick;
     private boolean placeholderReplacement = true;
     private Map<String, String> placeholders = new HashMap<>();
@@ -118,6 +120,7 @@ public class ClassicConfiguration implements Configuration {
     private String vaultUrl;
     private String vaultToken;
     private String[] vaultSecrets;
+    private boolean failOnMissingLocations = false;
     private final ClasspathClassScanner classScanner;
 
     public ClassicConfiguration() {
@@ -153,6 +156,11 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
+    public boolean getDetectEncoding() {
+        return detectEncoding;
+    }
+
+    @Override
     public String getDefaultSchema() { return defaultSchemaName; }
 
     @Override
@@ -171,6 +179,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public MigrationVersion getTarget() {
         return target;
+    }
+
+    @Override
+    public boolean getFailOnMissingTarget() {
+        return failOnMissingTarget;
     }
 
     @Override
@@ -400,6 +413,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String[] getVaultSecrets() {
         return vaultSecrets;
+    }
+
+    @Override
+    public boolean getFailOnMissingLocations() {
+        return failOnMissingLocations;
     }
 
     @Override
@@ -804,6 +822,21 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Whether Flyway should try to automatically detect SQL migration file encoding
+     *
+     * @param detectEncoding {@code true} to enable auto detection, {@code false} otherwise
+     * <i>Flyway Teams only</i>
+     */
+    public void setDetectEncoding(boolean detectEncoding) {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("detectEncoding");
+
+
+
+
+    }
+
+    /**
      * Sets the encoding of SQL migrations.
      *
      * @param encoding The encoding of SQL migrations. (default: UTF-8)
@@ -870,11 +903,11 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
-     * <li>{@code current}: designates the current version of the schema</li>
-     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code current}: Designates the current version of the schema</li>
+     * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
      * </ul>
      * Defaults to {@code latest}.
      */
@@ -884,16 +917,36 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
-     * <li>{@code current}: designates the current version of the schema</li>
-     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code current}: Designates the current version of the schema</li>
+     * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>
+     *     &lt;version&gt;? (end with a '?'): Instructs Flyway not to fail if the target version doesn't exist.
+     *     In this case, Flyway will go up to but not beyond the specified target
+     *     (default: fail if the target version doesn't exist) <i>Flyway Teams only</i>
+     * </li>
      * </ul>
      * Defaults to {@code latest}.
      */
     public void setTargetAsString(String target) {
-        this.target = MigrationVersion.fromVersion(target);
+        if (target.endsWith("?")) {
+
+            throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("failOnMissingTarget");
+
+
+
+
+
+        } else {
+            this.failOnMissingTarget = true;
+            this.target = MigrationVersion.fromVersion(target);
+        }
+    }
+
+    private void setFailOnMissingTarget(boolean failOnMissingTarget) {
+        this.failOnMissingTarget = failOnMissingTarget;
     }
 
     /**
@@ -1485,6 +1538,15 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
+     *
+     * @return @{code true} to fail (default: {@code false})
+     */
+    public void setFailOnMissingLocations(boolean failOnMissingLocations) {
+        this.failOnMissingLocations = failOnMissingLocations;
+    }
+
+    /**
      * Configure with the same values as this existing configuration.
      */
     public void configure(Configuration configuration) {
@@ -1497,7 +1559,6 @@ public class ClassicConfiguration implements Configuration {
         setDataSource(configuration.getDataSource());
         setConnectRetries(configuration.getConnectRetries());
         setInitSql(configuration.getInitSql());
-
 
 
 
@@ -1547,11 +1608,13 @@ public class ClassicConfiguration implements Configuration {
         setTable(configuration.getTable());
         setTablespace(configuration.getTablespace());
         setTarget(configuration.getTarget());
+        setFailOnMissingTarget(configuration.getFailOnMissingTarget());
         setValidateOnMigrate(configuration.isValidateOnMigrate());
         setResourceProvider(configuration.getResourceProvider());
         setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
         setShouldCreateSchemas(configuration.getCreateSchemas());
         setLockRetryCount(configuration.getLockRetryCount());
+        setFailOnMissingLocations(configuration.getFailOnMissingLocations());
 
         url = configuration.getUrl();
         user = configuration.getUser();
@@ -1650,6 +1713,10 @@ public class ClassicConfiguration implements Configuration {
         if (encodingProp != null) {
             setEncodingAsString(encodingProp);
         }
+        Boolean detectEncoding = removeBoolean(props, ConfigUtils.DETECT_ENCODING);
+        if (detectEncoding != null) {
+            setDetectEncoding(detectEncoding);
+        }
         String defaultSchemaProp = props.remove(ConfigUtils.DEFAULT_SCHEMA);
         if (defaultSchemaProp != null) {
             setDefaultSchema(defaultSchemaProp);
@@ -1712,7 +1779,7 @@ public class ClassicConfiguration implements Configuration {
         }
         String targetProp = props.remove(ConfigUtils.TARGET);
         if (targetProp != null) {
-            setTarget(MigrationVersion.fromVersion(targetProp));
+            setTargetAsString(targetProp);
         }
         String cherryPickProp = props.remove(ConfigUtils.CHERRY_PICK);
         if (cherryPickProp != null) {
@@ -1819,6 +1886,10 @@ public class ClassicConfiguration implements Configuration {
         String licenseKeyProp = props.remove(ConfigUtils.LICENSE_KEY);
         if (licenseKeyProp != null) {
             setLicenseKey(licenseKeyProp);
+        }
+        Boolean failOnMissingLocationsProp = removeBoolean(props, ConfigUtils.FAIL_ON_MISSING_LOCATIONS);
+        if (failOnMissingLocationsProp != null) {
+            setFailOnMissingLocations(failOnMissingLocationsProp);
         }
 
         // Must be done last, so that any driver-specific config has been done at this point.

@@ -49,6 +49,7 @@ public class ConfigUtils {
     public static final String DRIVER = "flyway.driver";
     public static final String DRYRUN_OUTPUT = "flyway.dryRunOutput";
     public static final String ENCODING = "flyway.encoding";
+    public static final String DETECT_ENCODING = "flyway.detectEncoding";
     public static final String ERROR_OVERRIDES = "flyway.errorOverrides";
     public static final String GROUP = "flyway.group";
     public static final String IGNORE_FUTURE_MIGRATIONS = "flyway.ignoreFutureMigrations";
@@ -90,6 +91,7 @@ public class ConfigUtils {
     public static final String VALIDATE_ON_MIGRATE = "flyway.validateOnMigrate";
     public static final String VALIDATE_MIGRATION_NAMING = "flyway.validateMigrationNaming";
     public static final String CREATE_SCHEMAS = "flyway.createSchemas";
+    public static final String FAIL_ON_MISSING_LOCATIONS = "flyway.failOnMissingLocations";
 
     // Secrets-manager specific
     public static final String VAULT_URL = "flyway.vault.url";
@@ -171,6 +173,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_ENCODING".equals(key)) {
             return ENCODING;
+        }
+        if ("FLYWAY_DETECT_ENCODING".equals(key)) {
+            return DETECT_ENCODING;
         }
         if ("FLYWAY_ERROR_OVERRIDES".equals(key)) {
             return ERROR_OVERRIDES;
@@ -296,6 +301,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_CREATE_SCHEMAS".equals(key)) {
             return CREATE_SCHEMAS;
+        }
+        if ("FLYWAY_FAIL_ON_MISSING_LOCATIONS".equals(key)) {
+            return FAIL_ON_MISSING_LOCATIONS;
         }
 
         // Oracle-specific

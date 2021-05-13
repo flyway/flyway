@@ -21,6 +21,7 @@ import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
 
+import org.flywaydb.core.internal.database.DatabaseType;
 
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
@@ -28,7 +29,6 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.*;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
-import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -135,6 +135,10 @@ public class Main {
 
             ConfigUtils.dumpConfiguration(config);
             filterProperties(config);
+
+            if(!commandLineArguments.skipCheckForUpdate()) {
+                VersionChecker.checkForVersionUpdates();
+            }
 
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 
@@ -348,6 +352,7 @@ public class Main {
         LOG.info("schemas                      : Comma-separated list of the schemas managed by Flyway");
         LOG.info("table                        : Name of Flyway's schema history table");
         LOG.info("locations                    : Classpath locations to scan recursively for migrations");
+        LOG.info("failOnMissingLocations       : Whether to fail if a location specified in the flyway.locations option doesn't exist");
         LOG.info("resolvers                    : Comma-separated list of custom MigrationResolvers");
         LOG.info("skipDefaultResolvers         : Skips default resolvers (jdbc, sql and Spring-jdbc)");
         LOG.info("sqlMigrationPrefix           : File name prefix for versioned SQL migrations");
@@ -359,6 +364,7 @@ public class Main {
         LOG.info("batch                        : [" + "teams] Batch SQL statements when executing them");
         LOG.info("mixed                        : Allow mixing transactional and non-transactional statements");
         LOG.info("encoding                     : Encoding of SQL migrations");
+        LOG.info("detectEncoding               : [" + "teams] Whether Flyway should try to automatically detect SQL migration file encoding");
         LOG.info("placeholderReplacement       : Whether placeholders should be replaced");
         LOG.info("placeholders                 : Placeholders to replace in sql migrations");
         LOG.info("placeholderPrefix            : Prefix of every placeholder");
@@ -411,6 +417,7 @@ public class Main {
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
         LOG.info("More info at https://flywaydb.org/documentation/usage/commandline");
+        LOG.info("Learn more about Flyway Teams edition at https://flywaydb.org/try-flyway-teams-edition");
     }
 
     private static List<File> getJdbcDriverJarFiles() {

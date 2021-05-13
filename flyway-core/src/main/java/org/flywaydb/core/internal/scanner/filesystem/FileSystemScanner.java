@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.scanner.filesystem;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -29,30 +30,20 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
-/**
- * FileSystem scanner.
- */
 public class FileSystemScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
     private final Charset defaultEncoding;
+    private final boolean detectEncoding;
+    private final boolean throwOnMissingLocations;
+    private boolean stream = false;
 
-
-
-
-
-    /**
-     * Creates a new filesystem scanner.
-     *
-     * @param encoding The encoding to use.
-
-
-
-     */
-    public FileSystemScanner(Charset encoding, boolean stream) {
+    public FileSystemScanner(Charset encoding, boolean stream, boolean detectEncoding, boolean throwOnMissingLocations) {
         this.defaultEncoding = encoding;
+        this.detectEncoding = detectEncoding;
 
 
 
+        this.throwOnMissingLocations = throwOnMissingLocations;
     }
 
     /**
@@ -68,14 +59,26 @@ public class FileSystemScanner {
 
         File dir = new File(path);
         if (!dir.exists()) {
+            if (throwOnMissingLocations) {
+                throw new FlywayException("Failed to find filesystem location:" + path + ".");
+            }
+
             LOG.error("Skipping filesystem location:" + path + " (not found).");
             return Collections.emptyList();
         }
         if (!dir.canRead()) {
+            if (throwOnMissingLocations) {
+                throw new FlywayException("Failed to find filesystem location:" + path + " (not readable).");
+            }
+
             LOG.error("Skipping filesystem location:" + path + " (not readable).");
             return Collections.emptyList();
         }
         if (!dir.isDirectory()) {
+            if (throwOnMissingLocations) {
+                throw new FlywayException("Failed to find filesystem location:" + path + " (not a directory).");
+            }
+
             LOG.error("Skipping filesystem location:" + path + " (not a directory).");
             return Collections.emptyList();
         }
@@ -83,26 +86,20 @@ public class FileSystemScanner {
         Set<LoadableResource> resources = new TreeSet<>();
 
         for (String resourceName : findResourceNamesFromFileSystem(path, new File(path))) {
+            boolean detectEncodingForThisResource = detectEncoding;
             if (location.matchesPath(resourceName)) {
                 Charset encoding = defaultEncoding;
                 String encodingBlurb = "";
                 if (new File(resourceName + ".conf").exists()) {
-                    LoadableResource metadataResource = new FileSystemResource(location, resourceName + ".conf", defaultEncoding
-
-
-
-                    );
+                    LoadableResource metadataResource = new FileSystemResource(location, resourceName + ".conf", defaultEncoding, false);
                     SqlScriptMetadata metadata = SqlScriptMetadata.fromResource(metadataResource, null);
                     if (metadata.encoding() != null) {
                         encoding = Charset.forName(metadata.encoding());
+                        detectEncodingForThisResource = false;
                         encodingBlurb = " (with overriding encoding " + encoding + ")";
                     }
                 }
-                resources.add(new FileSystemResource(location, resourceName, encoding
-
-
-
-                ));
+                resources.add(new FileSystemResource(location, resourceName, encoding, detectEncodingForThisResource, stream));
 
                 LOG.debug("Found filesystem resource: " + resourceName + encodingBlurb);
             }

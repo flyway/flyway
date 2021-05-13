@@ -189,104 +189,78 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
 
     @Override
     protected void doClean() throws SQLException {
-        List<DBObject> tables = queryDBObjects(ObjectType.USER_TABLE);
-
-        for (String statement : cleanTriggers()) {
-            jdbcTemplate.execute(statement);
+        for (String statement : getCleanStatementsBeforeFirstTableDrop(queryDBObjects(ObjectType.USER_TABLE))) {
+            executeIgnoringDependencyErrors(statement);
         }
-
-        for (String statement : cleanForeignKeys(tables)) {
-            jdbcTemplate.execute(statement);
-        }
-
         dropTablesIgnoringErrors(allTables());
-
-        for (String statement : cleanPrimaryKeys(tables)) {
+        for (String statement : getCleanStatementsBeforeSecondTableDrop(queryDBObjects(ObjectType.USER_TABLE))) {
+            executeIgnoringDependencyErrors(statement);
+        }
+        dropTablesIgnoringErrors(allTables());
+        for (String statement : getCleanStatementsAfterLastTableDrop(queryDBObjects(ObjectType.USER_TABLE))) {
             executeIgnoringDependencyErrors(statement);
         }
 
-        for (String statement : cleanDefaultConstraints(tables)) {
+        for (String statement : getCleanStatementsBeforeFirstTableDrop(queryDBObjects(ObjectType.USER_TABLE))) {
             jdbcTemplate.execute(statement);
         }
-
-        for (String statement : cleanUniqueConstraints(tables)) {
+        dropTablesIgnoringErrors(allTables());
+        for (String statement : getCleanStatementsBeforeSecondTableDrop(queryDBObjects(ObjectType.USER_TABLE))) {
             jdbcTemplate.execute(statement);
         }
-
-        // Use a 2-pass approach for cleaning indexes, computed columns and functions with SCHEMABINDING due to dependency errors
-        // Pass 1
-        for (String statement : cleanIndexes(tables)) {
-            executeIgnoringDependencyErrors(statement);
-        }
-        for (String statement : cleanComputedColumns(tables)) {
-            executeIgnoringDependencyErrors(statement);
-        }
-        for (String statement : cleanObjects("FUNCTION",
-                ObjectType.SCALAR_FUNCTION,
-                ObjectType.CLR_SCALAR_FUNCTION,
-                ObjectType.CLR_TABLE_VALUED_FUNCTION,
-                ObjectType.TABLE_VALUED_FUNCTION,
-                ObjectType.INLINED_TABLE_FUNCTION)) {
-            executeIgnoringDependencyErrors(statement);
-        }
-
-        // Pass 2 for cleaning computed columns
-        for (String statement : cleanComputedColumns(tables)) {
-            jdbcTemplate.execute(statement);
-        }
-
-        for (String statement : cleanObjects("PROCEDURE",
-                ObjectType.STORED_PROCEDURE,
-                ObjectType.CLR_STORED_PROCEDURE)) {
-            jdbcTemplate.execute(statement);
-        }
-
-        for (String statement : cleanObjects("VIEW", ObjectType.VIEW)) {
-            jdbcTemplate.execute(statement);
-        }
-
-        // Pass 2 for cleaning functions
-        for (String statement : cleanObjects("FUNCTION",
-                ObjectType.SCALAR_FUNCTION,
-                ObjectType.CLR_SCALAR_FUNCTION,
-                ObjectType.CLR_TABLE_VALUED_FUNCTION,
-                ObjectType.TABLE_VALUED_FUNCTION,
-                ObjectType.INLINED_TABLE_FUNCTION)) {
-            jdbcTemplate.execute(statement);
-        }
-
         dropTables(allTables());
-
-        // Pass 2 for cleaning indexes
-        for (String statement : cleanIndexes(tables)) {
+        for (String statement : getCleanStatementsAfterLastTableDrop(queryDBObjects(ObjectType.USER_TABLE))) {
             jdbcTemplate.execute(statement);
         }
+    }
 
-        for (String statement : cleanObjects("AGGREGATE", ObjectType.AGGREGATE)) {
-            jdbcTemplate.execute(statement);
-        }
+    private List<String> getCleanStatementsBeforeFirstTableDrop(List<DBObject> tables) throws SQLException {
+        List<String> statements = new ArrayList<>();
 
-        for (String statement : cleanSynonyms()) {
-            jdbcTemplate.execute(statement);
-        }
+        statements.addAll(cleanTriggers());
+        statements.addAll(cleanForeignKeys(tables));
 
-        for (String statement : cleanRules()) {
-            jdbcTemplate.execute(statement);
-        }
+        return statements;
+    }
 
-        for (String statement : cleanObjects("DEFAULT", ObjectType.DEFAULT_CONSTRAINT)) {
-            jdbcTemplate.execute(statement);
-        }
+    private List<String> getCleanStatementsBeforeSecondTableDrop(List<DBObject> tables) throws SQLException {
+        List<String> statements = new ArrayList<>();
+
+        statements.addAll(cleanForeignKeys(tables));
+        statements.addAll(cleanPrimaryKeys(tables));
+        statements.addAll(cleanDefaultConstraints(tables));
+        statements.addAll(cleanUniqueConstraints(tables));
+        statements.addAll(cleanComputedColumns(tables));
+        statements.addAll(cleanObjects("PROCEDURE", ObjectType.STORED_PROCEDURE, ObjectType.CLR_STORED_PROCEDURE));
+        statements.addAll(cleanObjects("VIEW", ObjectType.VIEW));
+        statements.addAll(cleanObjects("FUNCTION",
+                ObjectType.SCALAR_FUNCTION,
+                ObjectType.CLR_SCALAR_FUNCTION,
+                ObjectType.CLR_TABLE_VALUED_FUNCTION,
+                ObjectType.TABLE_VALUED_FUNCTION,
+                ObjectType.INLINED_TABLE_FUNCTION));
+
+        return statements;
+    }
+
+    private List<String> getCleanStatementsAfterLastTableDrop(List<DBObject> tables) throws SQLException {
+        List<String> statements = new ArrayList<>();
+
+        statements.addAll(cleanIndexes(tables));
+        statements.addAll(cleanObjects("AGGREGATE", ObjectType.AGGREGATE));
+        statements.addAll(cleanSynonyms());
+        statements.addAll(cleanRules());
+        statements.addAll(cleanObjects("DEFAULT", ObjectType.DEFAULT_CONSTRAINT));
 
 
 
 
-            for (String statement : cleanObjects("SEQUENCE", ObjectType.SEQUENCE_OBJECT)) {
-                jdbcTemplate.execute(statement);
-            }
+            statements.addAll(cleanObjects("SEQUENCE", ObjectType.SEQUENCE_OBJECT));
 
 
 
+
+        return statements;
     }
 
     private void dropTables(SQLServerTable[] allTables) throws SQLException {

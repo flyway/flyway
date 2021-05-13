@@ -15,9 +15,6 @@
  */
 package org.flywaydb.core.internal.license;
 
-/**
- * The various editions of Flyway.
- */
 public enum Edition {
     COMMUNITY("Community"),
     PRO("Teams"),
