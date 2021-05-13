@@ -228,7 +228,10 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             migrationInfos1.add(new MigrationInfoImpl(prv, null, context, false, false, false));
         }
 
-        if (target != null && target != MigrationVersion.CURRENT && target != MigrationVersion.LATEST) {
+        if (configuration.getFailOnMissingTarget() &&
+                target != null &&
+                target != MigrationVersion.CURRENT &&
+                target != MigrationVersion.LATEST) {
             boolean targetFound = false;
 
             for (MigrationInfoImpl migration : migrationInfos1) {
