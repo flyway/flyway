@@ -165,7 +165,7 @@
     <properties>
         <version.android>4.1.1.4</version.android>
         <version.ant>1.9.14</version.ant>
-        <version.aws-java-sdk>2.16.15</version.aws-java-sdk>
+        <version.aws-java-sdk>2.16.61</version.aws-java-sdk>
         <version.aws-secretsmanager>1.0.6</version.aws-secretsmanager>
         <version.commonslogging>1.2</version.commonslogging>
         <version.db2>11.5.0.0</version.db2>
