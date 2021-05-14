@@ -456,6 +456,10 @@ public class OracleParser extends Parser {
         String keywordText = keyword.getText();
         int parensDepth = keyword.getParensDepth();
 
+        if (lastTokenIs(tokens, parensDepth, "GOTO")) {
+            return;
+        }
+
         if (context.getStatementType() == PLSQL_WRAPPED_STATEMENT) {
             // ensure wrapped SQL has an increased block depth so it gets treated as one statement
             if (context.getBlockDepth() == initialWrappedBlockDepth) {
