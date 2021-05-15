@@ -46,11 +46,6 @@ public class DatabaseTypeRegister {
 
             registeredDatabaseTypes.clear();
 
-
-
-
-
-
             ServiceLoader<DatabaseType> loader = ServiceLoader.load(DatabaseType.class);
             for (DatabaseType dt : loader) {
                 registeredDatabaseTypes.add(dt);
