@@ -58,13 +58,13 @@ public class ExasolParser extends Parser {
     }
 
     @Override
-    protected StatementType detectStatementType(final String simplifiedStatement) {
+    protected StatementType detectStatementType(final String simplifiedStatement, final ParserContext context) {
 
         if (simplifiedStatement.toLowerCase().matches(CREATE_SCRIPT_REGEXP)) {
             return SCRIPT;
         }
 
-        return super.detectStatementType(simplifiedStatement);
+        return super.detectStatementType(simplifiedStatement, context);
     }
 
     @Override
