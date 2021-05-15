@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,16 @@
 package org.flywaydb.core.api.output;
 
 public class InfoOutput {
-
     public String category;
     public String version;
     public String description;
     public String type;
+    /**
+     * @deprecated
+     * Will be removed in Flyway V8 and replaced with {@code installedOnUTC}.
+     */
     public String installedOn;
+    private final String installedOnUTC;
     public String state;
     public String undoable;
     public String filepath;
@@ -34,6 +38,7 @@ public class InfoOutput {
             String description,
             String type,
             String installedOn,
+            String installedOnUTC,
             String state,
             String undoable,
             String filepath,
@@ -44,10 +49,15 @@ public class InfoOutput {
         this.description = description;
         this.type = type;
         this.installedOn = installedOn;
+        this.installedOnUTC = installedOnUTC;
         this.state = state;
         this.undoable = undoable;
         this.filepath = filepath;
         this.installedBy = installedBy;
         this.executionTime = executionTime;
+    }
+
+    public String getInstalledOnUTC() {
+        return installedOnUTC;
     }
 }

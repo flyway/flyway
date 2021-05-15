@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UndoResult extends OperationResultBase {
-
     public String initialSchemaVersion;
     public String targetSchemaVersion;
     public String schemaName;
@@ -33,5 +32,4 @@ public class UndoResult extends OperationResultBase {
         this.undoneMigrations = new ArrayList<>();
         this.operation = "undo";
     }
-    
 }

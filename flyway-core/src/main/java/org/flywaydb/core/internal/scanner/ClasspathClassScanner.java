@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package org.flywaydb.core.internal.scanner;
 
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 
 import java.nio.charset.Charset;
@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClasspathClassScanner {
-
     private final ResourceNameCache resourceNameCache = new ResourceNameCache();
     private final LocationScannerCache locationScannerCache = new LocationScannerCache();
 
@@ -53,5 +52,4 @@ public class ClasspathClassScanner {
         String nameWithDots = resourceName.replace("/", ".");
         return nameWithDots.substring(0, (nameWithDots.length() - ".class".length()));
     }
-
 }

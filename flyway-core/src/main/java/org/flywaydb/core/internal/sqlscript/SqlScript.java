@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-import org.flywaydb.core.internal.resource.LoadableResource;
+import org.flywaydb.core.api.resource.LoadableResource;
 
 import java.util.Collection;
 
@@ -54,6 +54,13 @@ public interface SqlScript extends Comparable<SqlScript> {
      * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
      */
     boolean executeInTransaction();
+
+    /**
+     * Whether the script should execute or not.
+     *
+     * @return {@code true} if the script should execute, or {@code false} if not.
+     */
+    boolean shouldExecute();
 
     /**
      * Validates this SQL script.

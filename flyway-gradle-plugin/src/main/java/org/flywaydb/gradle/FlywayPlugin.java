@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,7 @@
  */
 package org.flywaydb.gradle;
 
-import org.flywaydb.gradle.task.FlywayBaselineTask;
-import org.flywaydb.gradle.task.FlywayCleanTask;
-import org.flywaydb.gradle.task.FlywayInfoTask;
-import org.flywaydb.gradle.task.FlywayMigrateTask;
-import org.flywaydb.gradle.task.FlywayRepairTask;
-import org.flywaydb.gradle.task.FlywayUndoTask;
-import org.flywaydb.gradle.task.FlywayValidateTask;
+import org.flywaydb.gradle.task.*;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 

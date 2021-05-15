@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,17 @@ import com.google.gson.GsonBuilder;
 import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
+
+import org.flywaydb.core.internal.database.DatabaseType;
+
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.output.CompositeResult;
+import org.flywaydb.core.api.output.*;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
-import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.core.api.output.ErrorOutput;
-import org.flywaydb.core.api.output.OperationResult;
-import org.flywaydb.core.api.output.OperationResultBase;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -42,9 +41,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 
-/**
- * Main class and central entry point of the Flyway command-line tool.
- */
 public class Main {
     private static Log LOG;
 
@@ -65,9 +61,6 @@ public class Main {
         return new MultiLogCreator(logCreators);
     }
 
-    /**
-     * Initializes the logging.
-     */
     static void initLogging(CommandLineArguments commandLineArguments) {
         LogCreator logCreator = getLogCreator(commandLineArguments);
 
@@ -94,11 +87,6 @@ public class Main {
 
 
 
-    /**
-     * Main method.
-     *
-     * @param args The command-line arguments.
-     */
     public static void main(String[] args) {
         CommandLineArguments commandLineArguments = new CommandLineArguments(args);
         initLogging(commandLineArguments);
@@ -129,6 +117,10 @@ public class Main {
             config.putAll(envVars);
             config = overrideConfiguration(config, commandLineArguments.getConfiguration());
 
+
+
+
+
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             List<File> jarFiles = new ArrayList<>();
             jarFiles.addAll(getJdbcDriverJarFiles());
@@ -142,8 +134,12 @@ public class Main {
             }
 
             ConfigUtils.dumpConfiguration(config);
-
             filterProperties(config);
+
+            if(!commandLineArguments.skipCheckForUpdate()) {
+                VersionChecker.checkForVersionUpdates();
+            }
+
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 
             OperationResultBase result;
@@ -206,29 +202,21 @@ public class Main {
         return combinedConfiguration;
     }
 
-
     static String getMessagesFromException(Throwable e) {
-        String condensedMessages = "";
+        StringBuilder condensedMessages = new StringBuilder();
         String preamble = "";
         while (e != null) {
             if (e instanceof FlywayException) {
-                condensedMessages += preamble + e.getMessage();
+                condensedMessages.append(preamble).append(e.getMessage());
             } else {
-                condensedMessages += preamble + e.toString();
+                condensedMessages.append(preamble).append(e);
             }
             preamble = "\r\nCaused by: ";
             e = e.getCause();
         }
-        return condensedMessages;
+        return condensedMessages.toString();
     }
 
-
-    /**
-     * Executes this operation on this Flyway instance.
-     *
-     * @param flyway    The Flyway instance.
-     * @param operation The operation to execute.
-     */
     private static OperationResultBase executeOperation(Flyway flyway, String operation, CommandLineArguments commandLineArguments) {
         OperationResultBase result = null;
         if ("clean".equals(operation)) {
@@ -247,14 +235,24 @@ public class Main {
             }
         } else if ("info".equals(operation)) {
             MigrationInfoService info = flyway.info();
-            result = info.getInfoResult();
             MigrationInfo current = info.current();
             MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
 
             MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
             LOG.info("Schema version: " + schemaVersionToOutput);
             LOG.info("");
-            LOG.info(MigrationInfoDumper.dumpToAsciiTable(info.all()));
+
+
+
+
+
+
+
+             result = info.getInfoResult();
+             MigrationInfo[] infos = info.all();
+
+
+            LOG.info(MigrationInfoDumper.dumpToAsciiTable(infos));
         } else if ("repair".equals(operation)) {
             result = flyway.repair();
         } else {
@@ -265,6 +263,17 @@ public class Main {
 
         return result;
     }
+
+
+
+
+
+
+
+
+
+
+
 
     private static void printJson(CommandLineArguments commandLineArguments, OperationResult object) {
         String json = convertObjectToJsonString(object);
@@ -288,11 +297,6 @@ public class Main {
         return gson.toJson(object);
     }
 
-    /**
-     * Initializes the config with the default configuration for the command-line tool.
-     *
-     * @param config The config object to initialize.
-     */
     private static void initializeDefaults(Map<String, String> config, CommandLineArguments commandLineArguments) {
         // To maintain override order, return extension value first if present
         String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : getInstallationDir();
@@ -301,11 +305,8 @@ public class Main {
         config.put(ConfigUtils.JAR_DIRS, new File(workingDirectory, "jars").getAbsolutePath());
     }
 
-
     /**
-     * Filters there properties to remove the Flyway Commandline-specific ones.
-     *
-     * @param config The properties to filter.
+     * Filters the properties to remove the Flyway Commandline-specific ones.
      */
     private static void filterProperties(Map<String, String> config) {
         config.remove(ConfigUtils.JAR_DIRS);
@@ -313,9 +314,6 @@ public class Main {
         config.remove(ConfigUtils.CONFIG_FILE_ENCODING);
     }
 
-    /**
-     * Prints the version number on the console.
-     */
     private static void printVersion() {
         VersionPrinter.printVersionOnly();
         LOG.info("");
@@ -324,9 +322,6 @@ public class Main {
         LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch") + "\n");
     }
 
-    /**
-     * Prints the usage instructions on the console.
-     */
     private static void printUsage() {
         LOG.info("Usage");
         LOG.info("=====");
@@ -357,6 +352,7 @@ public class Main {
         LOG.info("schemas                      : Comma-separated list of the schemas managed by Flyway");
         LOG.info("table                        : Name of Flyway's schema history table");
         LOG.info("locations                    : Classpath locations to scan recursively for migrations");
+        LOG.info("failOnMissingLocations       : Whether to fail if a location specified in the flyway.locations option doesn't exist");
         LOG.info("resolvers                    : Comma-separated list of custom MigrationResolvers");
         LOG.info("skipDefaultResolvers         : Skips default resolvers (jdbc, sql and Spring-jdbc)");
         LOG.info("sqlMigrationPrefix           : File name prefix for versioned SQL migrations");
@@ -368,10 +364,12 @@ public class Main {
         LOG.info("batch                        : [" + "teams] Batch SQL statements when executing them");
         LOG.info("mixed                        : Allow mixing transactional and non-transactional statements");
         LOG.info("encoding                     : Encoding of SQL migrations");
+        LOG.info("detectEncoding               : [" + "teams] Whether Flyway should try to automatically detect SQL migration file encoding");
         LOG.info("placeholderReplacement       : Whether placeholders should be replaced");
         LOG.info("placeholders                 : Placeholders to replace in sql migrations");
         LOG.info("placeholderPrefix            : Prefix of every placeholder");
         LOG.info("placeholderSuffix            : Suffix of every placeholder");
+        LOG.info("lockRetryCount               : The maximum number of retries when trying to obtain a lock");
         LOG.info("jdbcProperties               : Properties to pass to the JDBC driver object");
         LOG.info("installedBy                  : Username that will be recorded in the schema history table");
         LOG.info("target                       : Target version up to which Flyway should use migrations");
@@ -386,6 +384,7 @@ public class Main {
         LOG.info("ignoreIgnoredMigrations      : Allow ignored migrations when validating");
         LOG.info("ignorePendingMigrations      : Allow pending migrations when validating");
         LOG.info("ignoreFutureMigrations       : Allow future migrations when validating");
+        LOG.info("ignoreMigrationPatterns      : [" + "teams] Patterns of migrations and states to ignore during validate");
         LOG.info("cleanOnValidationError       : Automatically clean on a validation error");
         LOG.info("cleanDisabled                : Whether to disable clean");
         LOG.info("baselineVersion              : Version to tag schema with when executing baseline");
@@ -405,33 +404,25 @@ public class Main {
         LOG.info("");
         LOG.info("Flags");
         LOG.info("-----");
-        LOG.info("-X          : Print debug output");
-        LOG.info("-q          : Suppress all output, except for errors and warnings");
-        LOG.info("-n          : Suppress prompting for a user and password");
-        LOG.info("-v          : Print the Flyway version and exit");
-        LOG.info("-?          : Print this usage info and exit");
-        LOG.info("-community  : Run the Flyway Community Edition (default)");
-        LOG.info("-teams      : Run the Flyway Teams Edition");
+        LOG.info("-X              : Print debug output");
+        LOG.info("-q              : Suppress all output, except for errors and warnings");
+        LOG.info("-n              : Suppress prompting for a user and password");
+        LOG.info("--version, -v   : Print the Flyway version and exit");
+        LOG.info("--help, -h, -?  : Print this usage info and exit");
+        LOG.info("-community      : Run the Flyway Community Edition (default)");
+        LOG.info("-teams          : Run the Flyway Teams Edition");
         LOG.info("");
         LOG.info("Example");
         LOG.info("-------");
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
-        LOG.info("More info at https://flywaydb.org/documentation/commandline");
+        LOG.info("More info at https://flywaydb.org/documentation/usage/commandline");
+        LOG.info("Learn more about Flyway Teams edition at https://flywaydb.org/try-flyway-teams-edition");
     }
 
-    /**
-     * Gets the jar files of all the JDBC drivers contained in the drivers folder.
-     *
-     * @return The jar files.
-     */
     private static List<File> getJdbcDriverJarFiles() {
         File driversDir = new File(getInstallationDir(), "drivers");
-        File[] files = driversDir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".jar");
-            }
-        });
+        File[] files = driversDir.listFiles((dir, name) -> name.endsWith(".jar"));
 
         // see javadoc of listFiles(): null if given path is not a real directory
         if (files == null) {
@@ -442,12 +433,6 @@ public class Main {
         return Arrays.asList(files);
     }
 
-    /**
-     * Gets all the jar files contained in the jars folder. (For Java Migrations)
-     *
-     * @param config The configured properties.
-     * @return The jar files.
-     */
     private static List<File> getJavaMigrationJarFiles(Map<String, String> config) {
         String jarDirs = config.get(ConfigUtils.JAR_DIRS);
         if (!StringUtils.hasLength(jarDirs)) {
@@ -460,11 +445,7 @@ public class Main {
         List<File> jarFiles = new ArrayList<>();
         for (String dirName : dirs) {
             File dir = new File(dirName);
-            File[] files = dir.listFiles(new FilenameFilter() {
-                public boolean accept(File dir, String name) {
-                    return name.endsWith(".jar");
-                }
-            });
+            File[] files = dir.listFiles((dir1, name) -> name.endsWith(".jar"));
 
             // see javadoc of listFiles(): null if given path is not a real directory
             if (files == null) {
@@ -478,15 +459,7 @@ public class Main {
         return jarFiles;
     }
 
-    /**
-     * Loads the configuration from the various possible locations.
-     *
-     * @param config  The properties object to load to configuration into.
-     * @param commandLineArguments    The command-line arguments passed in.
-     * @param envVars The environment variables, converted into properties.
-     */
-    /* private -> for testing */
-    static void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {
+    protected static void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(commandLineArguments, envVars);
         File installationDir = new File(getInstallationDir());
 
@@ -498,8 +471,8 @@ public class Main {
     }
 
     /**
-     * If no user or password has been provided, prompt for it. If you want to avoid the prompt,
-     * pass in an empty user or password.
+     * If no user or password has been provided, prompt for it. If you want to avoid the prompt, pass in an empty
+     * user or password.
      *
      * @param config The properties object to load to configuration into.
      */
@@ -520,7 +493,7 @@ public class Main {
 
 
 
-                && needsUser(url)) {
+                && needsUser(url, config.getOrDefault(ConfigUtils.PASSWORD, null))) {
             config.put(ConfigUtils.USER, console.readLine("Database user: "));
         }
 
@@ -528,7 +501,7 @@ public class Main {
 
 
 
-                && needsPassword(url)) {
+                && needsPassword(url, config.get(ConfigUtils.USER))) {
             char[] password = console.readPassword("Database password: ");
             config.put(ConfigUtils.PASSWORD, password == null ? "" : String.valueOf(password));
         }
@@ -537,26 +510,27 @@ public class Main {
     /**
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a username.
      */
-    private static boolean needsUser(String url) {
+    private static boolean needsUser(String url, String password) {
         DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
-        return databaseType.detectUserRequiredByUrl(url);
+        return databaseType.detectUserRequiredByUrl(url)
+
+
+
+                ;
     }
 
     /**
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a password.
      */
-    private static boolean needsPassword(String url) {
+    private static boolean needsPassword(String url, String username) {
         DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
-        return databaseType.detectPasswordRequiredByUrl(url);
+        return databaseType.detectPasswordRequiredByUrl(url)
+
+
+
+                ;
     }
 
-    /**
-     * Determines the files to use for loading the configuration.
-     *
-     * @param commandLineArguments    The command-line arguments passed in.
-     * @param envVars The environment variables converted to Flyway properties.
-     * @return The configuration files.
-     */
     private static List<File> determineConfigFilesFromArgs(CommandLineArguments commandLineArguments, Map<String, String> envVars) {
         List<File> configFiles = new ArrayList<>();
 
@@ -577,9 +551,6 @@ public class Main {
         return configFiles;
     }
 
-    /**
-     * @return The installation directory of the Flyway Command-line tool.
-     */
     @SuppressWarnings("ConstantConditions")
     private static String getInstallationDir() {
         String path = ClassUtils.getLocationOnDisk(Main.class);
@@ -591,10 +562,6 @@ public class Main {
     }
 
     /**
-     * Determines the encoding to use for loading the configuration.
-     *
-     * @param commandLineArguments    The command-line arguments passed in.
-     * @param envVars The environment variables converted to Flyway properties.
      * @return The encoding. (default: UTF-8)
      */
     private static String determineConfigurationFileEncoding(CommandLineArguments commandLineArguments, Map<String, String> envVars) {

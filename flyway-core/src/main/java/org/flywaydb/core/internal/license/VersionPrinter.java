@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,18 @@ package org.flywaydb.core.internal.license;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-
+import org.flywaydb.core.extensibility.FlywayExtension;
 import org.flywaydb.core.internal.util.DateUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.ServiceLoader;
 
-/**
- * Prints the Flyway version.
- */
 public class VersionPrinter {
     private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
     private static final String version = readVersion();
-    private static boolean printed;
 
     public static final Edition EDITION =
 
@@ -44,42 +41,21 @@ public class VersionPrinter {
 
 
 
-
-
-
             ;
 
-    /**
-     * Prevents instantiation.
-     */
-    private VersionPrinter() {
-        // Do nothing.
-    }
+    private VersionPrinter() { }
 
     public static String getVersion() {
         return version;
     }
 
-    /**
-     * Prints the Flyway version.
-     */
     public static void printVersion(
 
 
 
     ) {
-        if (printed) {
-            return;
-        }
-        printed = true;
-
 
         printVersionOnly();
-
-
-
-
-
 
 
 
@@ -91,7 +67,17 @@ public class VersionPrinter {
 
     public static void printVersionOnly() {
         LOG.info(EDITION + " " + version + " by Redgate");
+        printExtensionVersions();
     }
+
+    private static void printExtensionVersions() {
+        ServiceLoader<FlywayExtension> loader = ServiceLoader.load(FlywayExtension.class);
+        for (FlywayExtension extension : loader) {
+            LOG.info( ">\t" + extension.getDescription());
+        }
+    }
+
+
 
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,34 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.resource;
+package org.flywaydb.core.api.resource;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.util.BomFilter;
-import org.flywaydb.core.internal.util.IOUtils;
-import org.flywaydb.core.internal.util.StringUtils;
-
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.util.zip.CRC32;
 
 /**
  * A loadable resource.
  */
 public abstract class LoadableResource implements Resource, Comparable<LoadableResource> {
-
-    private Integer checksum;
-
     /**
      * Reads the contents of this resource.
      *
      * @return The reader with the contents of the resource.
      */
     public abstract Reader read();
-
-
 
 
 

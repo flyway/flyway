@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2010-2020 Redgate Software Ltd
+    Copyright © Red Gate Software Ltd 2010-2021
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -33,4 +33,16 @@
             <fileMode>644</fileMode>
         </fileSet>
     </fileSets>
+    <files>
+        <file>
+            <source>src/main/assembly/sqljdbc_auth.dll</source>
+            <outputDirectory>native</outputDirectory>
+            <destName>mssql-jdbc_auth-${version.mssql}.x86.dll</destName>
+        </file>
+        <file>
+            <source>src/main/assembly/sqljdbc_auth.dll</source>
+            <outputDirectory>native</outputDirectory>
+            <destName>mssql-jdbc_auth-${version.mssql}.x64.dll</destName>
+        </file>
+    </files>
 </assembly>

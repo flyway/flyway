@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.database;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -24,36 +23,55 @@ import org.flywaydb.core.internal.jdbc.Results;
 import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class InsertRowLock {
     private static final Log LOG = LogFactory.getLog(InsertRowLock.class);
     private static final Random random = new Random();
+    private static final int NUM_THREADS = 2;
 
     /**
-     * A random string, used as an ID of this instance of Flyway.
+     * A random string used as an ID for this instance of Flyway.
      */
     private final String tableLockString = getNextRandomString();
+    private final JdbcTemplate jdbcTemplate;
+    public final int lockTimeoutMins;
+    private final ScheduledExecutorService executor;
+    private ScheduledFuture<?> scheduledFuture;
 
-    public void doLock(JdbcTemplate jdbcTemplate, String insertStatementTemplate, String booleanTrue) throws SQLException {
+    public InsertRowLock(JdbcTemplate jdbcTemplate, int lockTimeoutMins) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.lockTimeoutMins = lockTimeoutMins;
+        this.executor = createScheduledExecutor();
+    }
 
+    public void doLock(String insertStatementTemplate, String updateLockStatement, String deleteExpiredLockStatement, String booleanTrue) throws SQLException {
         int retryCount = 0;
-        do {
+        while (true) {
             try {
-                if (insertLockingRow(jdbcTemplate, insertStatementTemplate, booleanTrue)) {
+                jdbcTemplate.execute(deleteExpiredLockStatement);
+                if (insertLockingRow(insertStatementTemplate, booleanTrue)) {
+                    scheduledFuture = startLockWatchingThread(String.format(updateLockStatement.replace("?", "%s"), tableLockString));
                     return;
                 }
-                retryCount++;
-                LOG.debug("Waiting for lock on " + this);
+                if (retryCount < 50) {
+                    retryCount++;
+                    LOG.debug("Waiting for lock on Flyway schema history table");
+                } else {
+                    LOG.error("Waiting for lock on Flyway schema history table. Application may be deadlocked. Lock row may require manual removal " +
+                            "from the schema history table.");
+                }
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
                 // Ignore - if interrupted, we still need to wait for lock to become available
             }
-        } while (retryCount < 50);
-
-        throw new FlywayException("Unable to obtain table lock - another Flyway instance may be running");
+        }
     }
 
-    private boolean insertLockingRow(JdbcTemplate jdbcTemplate, String insertStatementTemplate, String booleanTrue) {
+    private boolean insertLockingRow(String insertStatementTemplate, String booleanTrue) {
         String insertStatement = String.format(insertStatementTemplate.replace("?", "%s"),
                 -100,
                 "'" + tableLockString + "'",
@@ -66,34 +84,40 @@ public class InsertRowLock {
                 booleanTrue
         );
 
-        // Insert the locking row - the primary keyness of installed_rank will prevent us having two.
+        // Insert the locking row - the primary key-ness of 'installed_rank' will prevent us having two
         Results results = jdbcTemplate.executeStatement(insertStatement);
-        // Succeeded if one row updated and no errors.
-        return (results.getResults().size() > 0
-                && results.getResults().get(0).getUpdateCount() == 1
-                && results.getErrors().size() == 0);
+
+        // Succeed if there were no errors
+        return results.getException() == null;
     }
 
-    public void doUnlock(JdbcTemplate jdbcTemplate, String selectLockTemplate, String deleteLockTemplate) throws SQLException {
-
-        String selectLock = String.format(selectLockTemplate.replace("?", "%s"), tableLockString);
-
-        // Check that there are no other locks in place. This should not happen!
-        int competingLocksTaken = jdbcTemplate.queryForInt(selectLock);
-        if (competingLocksTaken > 0) {
-            throw new FlywayException("Internal error: on unlocking, a competing lock was found");
-        }
-
-        String deleteLock = String.format(deleteLockTemplate.replace("?", "%s"), tableLockString);
-
-        // Remove the locking row
-        jdbcTemplate.executeStatement(deleteLock);
+    public void doUnlock(String deleteLockTemplate) throws SQLException {
+        stopLockWatchingThread();
+        String deleteLockStatement = String.format(deleteLockTemplate.replace("?", "%s"), tableLockString);
+        jdbcTemplate.execute(deleteLockStatement);
     }
 
-    //get next random string
-    private static String getNextRandomString(){
-        BigInteger bInt = new BigInteger(128, random);
-        return bInt.toString(16);
+    private String getNextRandomString(){
+        return new BigInteger(128, random).toString(16);
     }
 
+    private ScheduledExecutorService createScheduledExecutor() {
+        return Executors.newScheduledThreadPool(NUM_THREADS, r -> {
+            Thread t = Executors.defaultThreadFactory().newThread(r);
+            t.setDaemon(true);
+            return t;
+        });
+    }
+
+    private ScheduledFuture<?> startLockWatchingThread(String updateLockStatement) {
+        Runnable lockUpdatingTask = () -> {
+            LOG.debug("Updating lock in Flyway schema history table");
+            jdbcTemplate.executeStatement(updateLockStatement);
+        };
+        return executor.scheduleAtFixedRate(lockUpdatingTask, 0, lockTimeoutMins / 2, TimeUnit.MINUTES);
+    }
+
+    private void stopLockWatchingThread() {
+        scheduledFuture.cancel(true);
+    }
 }

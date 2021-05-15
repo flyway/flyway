@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 /**
  * Utility methods for dealing with classes.
@@ -116,6 +117,25 @@ public class ClassUtils {
     }
 
     /**
+     * Determine whether a class implementing the service identified by the supplied name is present
+     * and can be loaded. Will return {@code false} if either no class is found, or the class or
+     * one of its dependencies is not present or cannot be loaded.
+     *
+     * @param serviceName The name of the service to check.
+     * @param classLoader The ClassLoader to use.
+     * @return whether an implementation of the specified service is present
+     */
+    public static boolean isImplementationPresent(String serviceName, ClassLoader classLoader) {
+        try {
+            Class service = classLoader.loadClass(serviceName);
+            return ServiceLoader.load(service).iterator().hasNext();
+        } catch (Throwable ex) {
+            // Class or one of its dependencies is not present...
+            return false;
+        }
+    }
+
+    /**
      * Loads the class with this name using the class loader.
      *
      * @param implementedInterface The interface the class is expected to implement.
@@ -169,7 +189,8 @@ public class ClassUtils {
             return null;
         }
         CodeSource codeSource = protectionDomain.getCodeSource();
-        if (codeSource == null) {
+
+        if (codeSource == null || codeSource.getLocation() == null) {
             //Custom classloader with for example classes defined using URLClassLoader#defineClass(String name, byte[] b, int off, int len)
             return null;
         }

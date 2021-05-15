@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -27,6 +26,10 @@ import static java.lang.Character.isDigit;
 
 public class MySQLParser extends Parser {
     private static final char ALTERNATIVE_SINGLE_LINE_COMMENT = '#';
+
+    private static final Pattern STORED_PROGRAM_REGEX = Pattern.compile(
+            "^CREATE\\s(((DEFINER\\s@\\s)?(PROCEDURE|FUNCTION|EVENT))|TRIGGER)", Pattern.CASE_INSENSITIVE);
+    private static final StatementType STORED_PROGRAM_STATEMENT = new StatementType();
 
     public MySQLParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 8);
@@ -99,7 +102,16 @@ public class MySQLParser extends Parser {
     }
 
     @Override
-    protected boolean shouldAdjustBlockDepth(ParserContext context, Token token) {
+    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context) {
+        if (STORED_PROGRAM_REGEX.matcher(simplifiedStatement).matches()) {
+            return STORED_PROGRAM_STATEMENT;
+        }
+
+        return super.detectStatementType(simplifiedStatement, context);
+    }
+
+    @Override
+    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
         TokenType tokenType = token.getType();
         if (TokenType.DELIMITER.equals(tokenType) || ";".equals(token.getText())) {
             return true;
@@ -107,11 +119,15 @@ public class MySQLParser extends Parser {
             return true;
         }
 
-        return super.shouldAdjustBlockDepth(context, token);
+        Token lastToken = getPreviousToken(tokens, context.getParensDepth());
+        if (lastToken != null && lastToken.getType() == TokenType.KEYWORD) {
+            return true;
+        }
+
+        return super.shouldAdjustBlockDepth(context, tokens, token);
     }
 
     private boolean doesDelimiterEndFunction(List<Token> tokens, Token delimiter) {
-
         // if there's not enough tokens, its not the function
         if (tokens.size() < 2) {
             return false;
@@ -132,18 +148,19 @@ public class MySQLParser extends Parser {
     }
 
     @Override
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
         String keywordText = keyword.getText();
 
         int parensDepth = keyword.getParensDepth();
 
-        if ("BEGIN".equals(keywordText)) {
+        if ("BEGIN".equalsIgnoreCase(keywordText) && context.getStatementType() == STORED_PROGRAM_STATEMENT) {
             context.increaseBlockDepth("");
         }
 
-        if (context.getBlockDepth() > 0 && lastTokenIs(tokens, parensDepth, "END")) {
+        if (context.getBlockDepth() > 0 && lastTokenIs(tokens, parensDepth, "END") &&
+                !"IF".equalsIgnoreCase(keywordText) && !"LOOP".equalsIgnoreCase(keywordText)) {
             String initiator = context.getBlockInitiator();
-            if (initiator.equals("") || initiator.equals(keywordText) || "AS".equals(keywordText)) {
+            if (initiator.equals("") || initiator.equals(keywordText) || "AS".equalsIgnoreCase(keywordText)) {
                 context.decreaseBlockDepth();
             }
         }

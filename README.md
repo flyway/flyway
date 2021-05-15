@@ -2,7 +2,7 @@
 
 ### Database Migrations Made Easy.
 
-![Flyway](https://flywaydb.org/assets/logo/flyway-logo-tm.png "Flyway")
+![Flyway](https://flywaydb.org/assets/logo/flyway-logo.png "Flyway")
 
 #### Evolve your database schema easily and reliably across all your instances.
 Simple, focused and powerful.
@@ -29,7 +29,7 @@ Flyway is brought to you by [Redgate](https://www.red-gate.com/) with the help o
 https://flywaydb.org/documentation/contribute
 
 ## License
-Copyright (C) 2010-2020 [Boxfuse GmbH](https://boxfuse.com)
+Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2020
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -44,4 +44,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ## Trademark
-Flyway is a registered trademark of [Boxfuse GmbH](https://boxfuse.com), owned by [Redgate](https://www.red-gate.com/).
+Flyway is a registered trademark of Boxfuse GmbH, owned by  [Red Gate Software Ltd](https://www.red-gate.com/).

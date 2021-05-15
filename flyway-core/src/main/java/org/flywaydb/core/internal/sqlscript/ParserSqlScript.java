@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,10 @@ package org.flywaydb.core.internal.sqlscript;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.parser.Parser;
-import org.flywaydb.core.internal.resource.LoadableResource;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class ParserSqlScript implements SqlScript {
     private static final Log LOG = LogFactory.getLog(ParserSqlScript.class);
@@ -67,7 +62,7 @@ public class ParserSqlScript implements SqlScript {
      */
     public ParserSqlScript(Parser parser, LoadableResource resource, LoadableResource metadataResource, boolean mixed) {
         this.resource = resource;
-        this.metadata = SqlScriptMetadata.fromResource(metadataResource);
+        this.metadata = SqlScriptMetadata.fromResource(metadataResource, parser);
         this.parser = parser;
 
 
@@ -196,6 +191,11 @@ public class ParserSqlScript implements SqlScript {
         validate();
 
         return !nonTransactionalStatementFound;
+    }
+
+    @Override
+    public boolean shouldExecute() {
+        return metadata.shouldExecute();
     }
 
     @Override

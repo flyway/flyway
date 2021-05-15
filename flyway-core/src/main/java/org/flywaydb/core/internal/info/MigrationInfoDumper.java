@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.util.AsciiTable;
 import org.flywaydb.core.internal.util.DateUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Dumps migrations in an ascii-art table in the logs and the console.
@@ -94,7 +90,6 @@ public class MigrationInfoDumper {
     private static String getVersionStr(MigrationInfo migrationInfo) {
         return migrationInfo.getVersion() == null ? "" : migrationInfo.getVersion().toString();
     }
-
 
 
 

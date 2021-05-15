@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,8 @@ import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
-import org.flywaydb.core.internal.database.base.DatabaseType;
-import org.flywaydb.core.internal.util.SqlCallable;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -51,13 +50,10 @@ public class JavaMigrationExecutor implements MigrationExecutor {
         DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(context.getConnection());
 
         DatabaseExecutionStrategy strategy = databaseType.createExecutionStrategy(context.getConnection());
-        strategy.execute(new SqlCallable<Boolean>() {
-                @Override
-                public Boolean call() throws SQLException {
-                    executeOnce(context);
-                    return true;
-                }
-            });
+        strategy.execute(() -> {
+            executeOnce(context);
+            return true;
+        });
     }
 
     private void executeOnce(final Context context) throws SQLException {
@@ -83,5 +79,10 @@ public class JavaMigrationExecutor implements MigrationExecutor {
     @Override
     public boolean canExecuteInTransaction() {
         return javaMigration.canExecuteInTransaction();
+    }
+
+    @Override
+    public boolean shouldExecute() {
+        return true;
     }
 }

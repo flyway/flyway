@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,14 +73,14 @@ public class DbRepair {
     private final Database database;
 
     /**
-     * The POJO containing the repair result
+     * The POJO containing the repair result.
      */
     private RepairResult repairResult;
 
     /**
-     * The factory object which constructs a repair result
+     * The Flyway configuration.
      */
-    private final CommandResultFactory commandResultFactory;
+    private final Configuration configuration;
 
     /**
      * Creates a new DbRepair.
@@ -94,13 +94,14 @@ public class DbRepair {
                     CallbackExecutor callbackExecutor, Configuration configuration) {
         this.database = database;
         this.connection = database.getMainConnection();
-        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration,
-                MigrationVersion.LATEST, true, null, true, true, true, true);
         this.schemaHistory = schemaHistory;
         this.callbackExecutor = callbackExecutor;
+        this.configuration = configuration;
 
-        this.commandResultFactory = new CommandResultFactory();
-        this.repairResult = commandResultFactory.createRepairResult(database.getCatalog());
+        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
+                MigrationVersion.LATEST, true, configuration.getCherryPick(), true, true, true, true);
+
+        this.repairResult = CommandResultFactory.createRepairResult(database.getCatalog());
     }
 
     /**
@@ -118,7 +119,7 @@ public class DbRepair {
                 public CompletedRepairActions call() {
                     CompletedRepairActions completedActions = new CompletedRepairActions();
 
-                    completedActions.removedFailedMigrations = schemaHistory.removeFailedMigrations(repairResult);
+                    completedActions.removedFailedMigrations = schemaHistory.removeFailedMigrations(repairResult, configuration.getCherryPick());
                     migrationInfoService.refresh();
 
                     completedActions.deletedMissingMigrations = deleteMissingMigrations();
@@ -169,7 +170,7 @@ public class DbRepair {
                     || state == MigrationState.FUTURE_SUCCESS || state == MigrationState.FUTURE_FAILED) {
                 schemaHistory.delete(applied);
                 removed = true;
-                repairResult.migrationsDeleted.add(commandResultFactory.createRepairOutput(migrationInfo));
+                repairResult.migrationsDeleted.add(CommandResultFactory.createRepairOutput(migrationInfo));
             }
         }
 
@@ -192,10 +193,11 @@ public class DbRepair {
 
 
 
+                    && migrationInfoImpl.getState() != MigrationState.IGNORED
                     && updateNeeded(resolved, applied)) {
                 schemaHistory.update(applied, resolved);
                 repaired = true;
-                repairResult.migrationsAligned.add(commandResultFactory.createRepairOutput(migrationInfo));
+                repairResult.migrationsAligned.add(CommandResultFactory.createRepairOutput(migrationInfo));
             }
 
             // Repair repeatable
@@ -206,10 +208,11 @@ public class DbRepair {
 
 
 
+                    && migrationInfoImpl.getState() != MigrationState.IGNORED
                     && resolved.checksumMatchesWithoutBeingIdentical(applied.getChecksum())) {
                 schemaHistory.update(applied, resolved);
                 repaired = true;
-                repairResult.migrationsAligned.add(commandResultFactory.createRepairOutput(migrationInfo));
+                repairResult.migrationsAligned.add(CommandResultFactory.createRepairOutput(migrationInfo));
             }
         }
 

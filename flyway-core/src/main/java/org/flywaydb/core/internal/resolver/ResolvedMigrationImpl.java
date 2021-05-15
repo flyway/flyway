@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,61 +27,24 @@ import java.util.Objects;
  */
 public class ResolvedMigrationImpl implements ResolvedMigration {
     /**
-     * The target version of this migration.
-     */
-    private final MigrationVersion version;
-
-    /**
-     * The description of the migration.
-     */
-    private final String description;
-
-    /**
      * The name of the script to execute for this migration, relative to its classpath location.
      */
     private final String script;
-
     /**
      * The equivalent checksum of the migration. For versioned migrations, this is the same as the checksum.
      * For repeatable migrations, it is the checksum calculated prior to placeholder replacement.
      */
     private final Integer equivalentChecksum;
-
-    /**
-     * The checksum of the migration.
-     */
     private final Integer checksum;
-
-    /**
-     * The type of migration (INIT, SQL, ...)
-     */
+    private final MigrationVersion version;
+    private final String description;
     private final MigrationType type;
-
-    /**
-     * The physical location of the migration on disk.
-     */
     private final String physicalLocation;
-
-    /**
-     * The executor to run this migration.
-     */
     private final MigrationExecutor executor;
 
-    /**
-     * Creates a new resolved migration.
-     *
-     * @param version               The target version of this migration.
-     * @param description           The description of the migration.
-     * @param script                The name of the script to execute for this migration, relative to its classpath location.
-     * @param checksum              The checksum of the migration.
-     * @param equivalentChecksum    The equivalent checksum of the migration.
-     * @param type                  The type of migration (SQL, ...)
-     * @param physicalLocation      The physical location of the migration on disk.
-     * @param executor              The executor to run this migration.
-     */
-    public ResolvedMigrationImpl(MigrationVersion version, String description, String script,
-                                 Integer checksum, Integer equivalentChecksum,
-                                 MigrationType type, String physicalLocation, MigrationExecutor executor) {
+    public ResolvedMigrationImpl(MigrationVersion version, String description, String script, Integer checksum,
+                                 Integer equivalentChecksum, MigrationType type, String physicalLocation,
+                                 MigrationExecutor executor) {
         this.version = version;
         this.description = description;
         this.script = script;
@@ -91,6 +54,8 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         this.physicalLocation = physicalLocation;
         this.executor = executor;
     }
+
+    public void validate() { }
 
     @Override
     public MigrationVersion getVersion() {
@@ -109,9 +74,7 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
 
     @Override
     public Integer getChecksum() {
-        return checksum == null ?
-                equivalentChecksum :
-                checksum;
+        return checksum == null ? equivalentChecksum : checksum;
     }
 
     @Override
@@ -143,8 +106,7 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
 
         if (checksum != null ? !checksum.equals(migration.checksum) : migration.checksum != null) return false;
         if (equivalentChecksum != null ? !equivalentChecksum.equals(migration.equivalentChecksum) : migration.equivalentChecksum != null) return false;
-        if (description != null ? !description.equals(migration.description) : migration.description != null)
-            return false;
+        if (description != null ? !description.equals(migration.description) : migration.description != null) return false;
         if (script != null ? !script.equals(migration.script) : migration.script != null) return false;
         if (type != migration.type) return false;
         return Objects.equals(version, migration.version);
@@ -174,13 +136,6 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
                 '}';
     }
 
-    /**
-     * Validates this resolved migration.
-     */
-    public void validate() {
-        // Do nothing by default.
-    }
-
     @Override
     public boolean checksumMatches(Integer checksum) {
         return Objects.equals(checksum, this.checksum) ||
@@ -191,7 +146,6 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     public boolean checksumMatchesWithoutBeingIdentical(Integer checksum) {
         // The checksum in the database matches the one calculated without replacement, but not the one with.
         // That is, the script has placeholders and the checksum was originally calculated ignoring their values.
-        return Objects.equals(checksum, this.equivalentChecksum)
-                && !Objects.equals(checksum, this.checksum);
+        return Objects.equals(checksum, this.equivalentChecksum) && !Objects.equals(checksum, this.checksum);
     }
 }

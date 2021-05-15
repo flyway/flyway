@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,14 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class HSQLDBParser extends Parser {
     /**
      * List of objects which can be dropped with IF EXISTS
      */
     private static final List<String> CONDITIONALLY_CREATABLE_OBJECTS = Arrays.asList(
-            "CONSTRAINT", "TABLE", "COLUMN", "INDEX", "SEQUENCE", "VIEW", "SCHEMA"
+            "COLUMN", "CONSTRAINT", "INDEX", "PROCEDURE", "SCHEMA", "SEQUENCE", "TABLE", "VIEW"
     );
 
     public HSQLDBParser(Configuration configuration, ParsingContext parsingContext) {
@@ -49,8 +46,7 @@ public class HSQLDBParser extends Parser {
                 "HANDLER", "HAVING", "HOLD", "HOUR",
                 "IDENTITY", "IF", "IN", "INDEX", "INDICATOR", "INNER", "INOUT", "INSENSITIVE", "INSERT", "INT", "INTEGER", "INTERSECT", "INTERSECTION", "INTERVAL", "INTO", "IS", "ITERATE",
                 "JOIN",
-                "LAG",
-                "LANGUAGE", "LARGE", "LAST_VALUE", "LATERAL", "LEAD", "LEADING", "LEAVE", "LEFT", "LIKE", "LIKE_REGEX", "LN", "LOCAL", "LOCALTIME", "LOCALTIMESTAMP", "LOOP", "LOWER",
+                "LAG", "LANGUAGE", "LARGE", "LAST_VALUE", "LATERAL", "LEAD", "LEADING", "LEAVE", "LEFT", "LIKE", "LIKE_REGEX", "LN", "LOCAL", "LOCALTIME", "LOCALTIMESTAMP", "LOOP", "LOWER",
                 "MATCH", "MAX", "MAX_CARDINALITY", "MEMBER", "MERGE", "METHOD", "MIN", "MINUTE", "MOD", "MODIFIES", "MODULE", "MONTH", "MULTISET",
                 "NATIONAL", "NATURAL", "NCHAR", "NCLOB", "NEW", "NO", "NONE", "NORMALIZE", "NOT", "NTH_VALUE", "NTILE", "NULL", "NULLIF", "NUMERIC",
                 "OCCURRENCES_REGEX", "OCTET_LENGTH", "OF", "OFFSET", "OLD", "ON", "ONLY", "OPEN", "OR", "ORDER", "OUT", "OUTER", "OVER", "OVERLAPS", "OVERLAY",
@@ -66,23 +62,42 @@ public class HSQLDBParser extends Parser {
     }
 
     @Override
+    protected int getLastKeywordIndex(List<Token> tokens, int endIndex) {
+        for (int i = endIndex - 1; i >= 0; i--) {
+            String tokenText = tokens.get(i).getText();
+            if (tokenText != null && getValidKeywords().contains(tokenText.toUpperCase(Locale.ENGLISH))) {
+                return i;
+            }
+        }
+        return super.getLastKeywordIndex(tokens, endIndex);
+    }
+
+    @Override
+    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
+        String tokenText = token.getText();
+        if (tokenText != null && getValidKeywords().contains(tokenText.toUpperCase(Locale.ENGLISH)) && token.getParensDepth() == 0) {
+            return true;
+        }
+        return super.shouldAdjustBlockDepth(context, tokens, token);
+    }
+
+    @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
         int lastKeywordIndex = getLastKeywordIndex(tokens);
         Token previousKeyword = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex) : null;
         String keywordText = keyword.getText();
-        String previousKeywordText = previousKeyword != null ? previousKeyword.getText() : "";
+        String previousKeywordText = previousKeyword != null ? previousKeyword.getText().toUpperCase(Locale.ENGLISH) : "";
 
-        if ("BEGIN".equals(keywordText)
-                || ((("IF".equals(keywordText) && !CONDITIONALLY_CREATABLE_OBJECTS.contains(previousKeywordText))  // excludes the IF in eg. CREATE TABLE IF EXISTS
-                || "FOR".equals(keywordText)
-                || "CASE".equals(keywordText))
-                && previousKeyword != null && !"END".equals(previousKeywordText))) {
+        if ("BEGIN".equalsIgnoreCase(keywordText)
+                || ((("IF".equalsIgnoreCase(keywordText) && !CONDITIONALLY_CREATABLE_OBJECTS.contains(previousKeywordText))  // excludes the IF in eg. CREATE TABLE IF EXISTS
+                || "FOR".equalsIgnoreCase(keywordText)
+                || "CASE".equalsIgnoreCase(keywordText))
+                && previousKeyword != null && !"END".equalsIgnoreCase(previousKeywordText))) {
             context.increaseBlockDepth(keywordText);
-        } else if (("EACH".equals(keywordText) || "SQLEXCEPTION".equals(keywordText))
-                && previousKeyword != null
-                && "FOR".equals(previousKeywordText)) {
+        } else if (("EACH".equalsIgnoreCase(keywordText) || "SQLEXCEPTION".equalsIgnoreCase(keywordText))
+                && previousKeyword != null && "FOR".equalsIgnoreCase(previousKeywordText) && context.getBlockDepth() > 0) {
             context.decreaseBlockDepth();
-        } else if ("END".equals(keywordText)) {
+        } else if ("END".equalsIgnoreCase(keywordText) && context.getBlockDepth() > 0) {
             context.decreaseBlockDepth();
         }
     }

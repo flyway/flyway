@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,12 @@ package org.flywaydb.commandline;
 
 import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.MigrationState;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 class CommandLineArguments {
@@ -54,46 +58,63 @@ class CommandLineArguments {
     }
 
     // Flags
-    private static String DEBUG_FLAG = "-X";
-    private static String QUIET_FLAG = "-q";
-    private static String SUPPRESS_PROMPT_FLAG = "-n";
-    private static String PRINT_VERSION_AND_EXIT_FLAG = "-v";
+    // GNU standards require --version, --help and their single-letter forms
+    // RG standards mandate --help / -h
+    private static final String DEBUG_FLAG = "-X";
+    private static final String QUIET_FLAG = "-q";
+    private static final String SUPPRESS_PROMPT_FLAG = "-n";
+    private static final List<String> PRINT_VERSION_AND_EXIT_FLAGS = Arrays.asList( "-v", "--version" );
     // The JSON_FLAG is deprecated and should be removed in v8
-    private static String JSON_FLAG = "-json";
-    private static String PRINT_USAGE_FLAG = "-?";
-    private static String COMMUNITY_FLAG = "-community";
-    private static String ENTERPRISE_FLAG = "-enterprise";
-    private static String PRO_FLAG = "-pro";
-    private static String TEAMS_FLAG = "-teams";
+    private static final String JSON_FLAG = "-json";
+    private static final List<String> PRINT_USAGE_FLAGS = Arrays.asList( "-?", "-h", "--help" );
+    private static final String SKIP_CHECK_FOR_UPDATE_FLAG = "-skipCheckForUpdate";
+    private static final String COMMUNITY_FLAG = "-community";
+    private static final String ENTERPRISE_FLAG = "-enterprise";
+    private static final String PRO_FLAG = "-pro";
+    private static final String TEAMS_FLAG = "-teams";
 
     // Command line specific configuration options
-    private static String OUTPUT_FILE = "outputFile";
-    private static String OUTPUT_TYPE = "outputType";
-    private static String CONFIG_FILE_ENCODING = "configFileEncoding";
-    private static String CONFIG_FILES = "configFiles";
-    private static String COLOR = "color";
-    private static String WORKING_DIRECTORY = "workingDirectory";
+    private static final String OUTPUT_FILE = "outputFile";
+    private static final String OUTPUT_TYPE = "outputType";
+    private static final String CONFIG_FILE_ENCODING = "configFileEncoding";
+    private static final String CONFIG_FILES = "configFiles";
+    private static final String COLOR = "color";
+    private static final String WORKING_DIRECTORY = "workingDirectory";
+    private static final String INFO_SINCE_DATE = "infoSinceDate";
+    private static final String INFO_UNTIL_DATE = "infoUntilDate";
+    private static final String INFO_SINCE_VERSION = "infoSinceVersion";
+    private static final String INFO_UNTIL_VERSION = "infoUntilVersion";
+    private static final String INFO_OF_STATE = "infoOfState";
 
-    private static List<String> VALID_OPERATIONS_AND_FLAGS = Arrays.asList(
-            DEBUG_FLAG,
-            QUIET_FLAG,
-            SUPPRESS_PROMPT_FLAG,
-            PRINT_VERSION_AND_EXIT_FLAG,
-            JSON_FLAG,
-            PRINT_USAGE_FLAG,
-            COMMUNITY_FLAG,
-            ENTERPRISE_FLAG,
-            PRO_FLAG,
-            TEAMS_FLAG,
-            "help",
-            "migrate",
-            "clean",
-            "info",
-            "validate",
-            "undo",
-            "baseline",
-            "repair"
-    );
+
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+    private static final List<String> VALID_OPERATIONS_AND_FLAGS = getValidOperationsAndFlags();
+
+    private static List<String> getValidOperationsAndFlags() {
+        List<String> operationsAndFlags = new ArrayList<>(Arrays.asList(
+                DEBUG_FLAG,
+                QUIET_FLAG,
+                SUPPRESS_PROMPT_FLAG,
+                JSON_FLAG,
+                SKIP_CHECK_FOR_UPDATE_FLAG,
+                COMMUNITY_FLAG,
+                ENTERPRISE_FLAG,
+                PRO_FLAG,
+                TEAMS_FLAG,
+                "help",
+                "migrate",
+                "clean",
+                "info",
+                "validate",
+                "undo",
+                "baseline",
+                "repair"
+        ));
+        operationsAndFlags.addAll(PRINT_VERSION_AND_EXIT_FLAGS);
+        operationsAndFlags.addAll(PRINT_USAGE_FLAGS);
+        return operationsAndFlags;
+    }
 
     private final String[] args;
 
@@ -104,6 +125,15 @@ class CommandLineArguments {
     private static boolean isFlagSet(String[] args, String flag) {
         for (String arg : args) {
             if (flag.equals(arg)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isFlagSet(String[] args, List<String> flags) {
+        for (String flag : flags) {
+            if (isFlagSet(args, flag)) {
                 return true;
             }
         }
@@ -166,7 +196,12 @@ class CommandLineArguments {
         return OUTPUT_FILE.equals(configurationOptionName) ||
                 OUTPUT_TYPE.equals(configurationOptionName) ||
                 COLOR.equals(configurationOptionName) ||
-                WORKING_DIRECTORY.equals(configurationOptionName);
+                WORKING_DIRECTORY.equals(configurationOptionName) ||
+                INFO_SINCE_DATE.equals(configurationOptionName) ||
+                INFO_UNTIL_DATE.equals(configurationOptionName) ||
+                INFO_SINCE_VERSION.equals(configurationOptionName) ||
+                INFO_UNTIL_VERSION.equals(configurationOptionName) ||
+                INFO_OF_STATE.equals(configurationOptionName);
     }
 
     private static String getConfigurationOptionNameFromArg(String arg) {
@@ -181,7 +216,7 @@ class CommandLineArguments {
 
     void validate() {
         for (String arg : args) {
-            if (!isConfigurationArg(arg) && !CommandLineArguments.VALID_OPERATIONS_AND_FLAGS.contains(arg)) {
+            if (!isConfigurationArg(arg) && !VALID_OPERATIONS_AND_FLAGS.contains(arg)) {
                 throw new FlywayException("Invalid argument: " + arg);
             }
         }
@@ -202,7 +237,7 @@ class CommandLineArguments {
     }
 
     boolean shouldPrintVersionAndExit() {
-        return isFlagSet(args, PRINT_VERSION_AND_EXIT_FLAG);
+        return isFlagSet(args, PRINT_VERSION_AND_EXIT_FLAGS);
     }
 
     boolean shouldOutputJson() {
@@ -216,7 +251,7 @@ class CommandLineArguments {
     }
 
     boolean shouldPrintUsage() {
-        return isFlagSet(args, PRINT_USAGE_FLAG) || getOperations().isEmpty();
+        return isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty();
     }
 
     Level getLogLevel() {
@@ -251,6 +286,58 @@ class CommandLineArguments {
         return getArgumentValue(WORKING_DIRECTORY, args);
     }
 
+    Date getInfoSinceDate() {
+        return parseDate(INFO_SINCE_DATE);
+    }
+
+    Date getInfoUntilDate() {
+        return parseDate(INFO_UNTIL_DATE);
+    }
+
+    MigrationVersion getInfoSinceVersion() {
+        return parseVersion(INFO_SINCE_VERSION);
+    }
+
+    MigrationVersion getInfoUntilVersion() {
+        return parseVersion(INFO_UNTIL_VERSION);
+    }
+
+    MigrationState getInfoOfState() {
+        String stateStr = getArgumentValue(INFO_OF_STATE, args);
+
+        if (!StringUtils.hasText(stateStr)) {
+            return null;
+        }
+
+        return MigrationState.valueOf(stateStr.toUpperCase(Locale.ENGLISH));
+    }
+
+    private MigrationVersion parseVersion(String argument) {
+        String versionStr = getArgumentValue(argument, args);
+
+        if (versionStr.isEmpty()) {
+            return null;
+        }
+
+        return MigrationVersion.fromVersion(versionStr);
+    }
+
+    private Date parseDate(String argument) {
+        String dateStr = getArgumentValue(argument, args);
+
+        if (dateStr.isEmpty()) {
+            return null;
+        }
+
+        try {
+            return DATE_FORMAT.parse(dateStr);
+        } catch (ParseException e) {
+            throw new FlywayException("'" + dateStr + "' is an invalid value for the " + argument + " option. " +
+                    "The expected format is 'dd/mm/yyyy hh:mm', like '13/10/2020 16:30'. " +
+                    "See the Flyway documentation for help: https://flywaydb.org/documentation/usage/commandline/info#filtering-output");
+        }
+    }
+
     boolean isOutputFileSet() {
         return !getOutputFile().isEmpty();
     }
@@ -265,6 +352,10 @@ class CommandLineArguments {
 
     boolean isConfigFileEncodingSet() {
         return !getConfigFileEncoding().isEmpty();
+    }
+
+    boolean skipCheckForUpdate() {
+        return isFlagSet(args, SKIP_CHECK_FOR_UPDATE_FLAG);
     }
 
     Color getColor() {

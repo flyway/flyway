@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,28 @@ package org.flywaydb.core.internal.database.mysql;
 
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.authentication.mysql.MySQLOptionFileReader;
+
+import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.DatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.Types;
 import java.util.Properties;
 
-public class MySQLDatabaseType extends DatabaseType {
+public class MySQLDatabaseType extends BaseDatabaseType {
     private static final String MYSQL_LEGACY_JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
+
+
+
+
 
     @Override
     public String getName() {
@@ -54,8 +60,8 @@ public class MySQLDatabaseType extends DatabaseType {
             throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbc-secretsmanager");
 
         }
-
-        return url.startsWith("jdbc:mysql:") || url.startsWith("jdbc:google:");
+        return url.startsWith("jdbc:mysql:") || url.startsWith("jdbc:google:") ||
+               url.startsWith("jdbc:p6spy:mysql:") || url.startsWith("jdbc:p6spy:google:");
     }
 
     @Override
@@ -65,7 +71,9 @@ public class MySQLDatabaseType extends DatabaseType {
 
 
 
-
+        if (url.startsWith("jdbc:p6spy:mysql:") || url.startsWith("jdbc:p6spy:google:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         if (url.startsWith("jdbc:mysql:")) {
             return "com.mysql.cj.jdbc.Driver";
         } else {
@@ -120,5 +128,33 @@ public class MySQLDatabaseType extends DatabaseType {
 
 
         return super.detectPasswordRequiredByUrl(url);
+    }
+
+    @Override
+    public boolean externalAuthPropertiesRequired(String url, String username, String password) {
+
+        return super.externalAuthPropertiesRequired(url, username, password);
+
+
+
+
+    }
+
+    @Override
+    public Properties getExternalAuthProperties(String url, String username) {
+        MySQLOptionFileReader mySQLOptionFileReader = new MySQLOptionFileReader();
+
+        mySQLOptionFileReader.populateOptionFiles();
+        if (!mySQLOptionFileReader.optionFiles.isEmpty()) {
+            LOG.info(org.flywaydb.core.internal.license.FlywayTeamsUpgradeMessage.generate("a MySQL option file", "use this for database authentication"));
+        }
+        return super.getExternalAuthProperties(url, username);
+
+
+
+
+
+
+
     }
 }

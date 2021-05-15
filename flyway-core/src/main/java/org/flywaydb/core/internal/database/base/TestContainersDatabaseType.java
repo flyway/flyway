@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 
 import java.sql.Connection;
 
-public class TestContainersDatabaseType extends DatabaseType {
+public class TestContainersDatabaseType extends BaseDatabaseType {
     @Override
     public String getName() {
         return "Test Containers";
@@ -44,11 +44,14 @@ public class TestContainersDatabaseType extends DatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:tc:");
+        return url.startsWith("jdbc:tc:") || url.startsWith("jdbc:p6spy:tc:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
+        if (url.startsWith("jdbc:p6spy:tc:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         return "org.testcontainers.jdbc.ContainerDatabaseDriver";
     }
 

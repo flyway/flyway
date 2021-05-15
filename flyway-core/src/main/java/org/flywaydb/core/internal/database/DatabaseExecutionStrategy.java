@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,11 @@ import java.sql.SQLException;
 public interface DatabaseExecutionStrategy {
 
     /**
-     * Execute the given callable, using the defined strategy.
-     * @param callable The SQL call to execute
-     * @param <T> The return type of the SQL call
-     * @return The object returned by the SQL call
-     * @throws SQLException
+     * Execute the given callable using the defined strategy.
+     *
+     * @param callable The SQL callable to execute.
+     * @param <T>      The return type of the SQL callable.
+     * @return The object returned by the SQL callable.
      */
     <T> T execute(final SqlCallable<T> callable) throws SQLException;
 }

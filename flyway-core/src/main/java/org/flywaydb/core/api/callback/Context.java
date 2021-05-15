@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.flywaydb.core.api.callback;
 
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.output.OperationResult;
 
 import java.sql.Connection;
 
@@ -48,4 +49,9 @@ public interface Context {
      * <p><i>Flyway Teams only</i></p>
      */
     Statement getStatement();
+
+    /**
+     * @return The OperationResult object for the finished operation. Only relevant for the AFTER_*_OPERATION_FINISH events.
+     */
+    OperationResult getOperationResult();
 }

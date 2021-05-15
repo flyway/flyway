@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.flywaydb.core.api.output;
 import java.util.ArrayList;
 
 public class CleanResult extends OperationResultBase {
-
     public ArrayList<String> schemasCleaned = new ArrayList<>();
     public ArrayList<String> schemasDropped = new ArrayList<>();
         
@@ -27,5 +26,4 @@ public class CleanResult extends OperationResultBase {
         this.database = database;
         this.operation = "clean";
     }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,12 @@ public class ResourceNameParser {
     }
 
     public ResourceName parse(String resourceName) {
+        return parse(resourceName, configuration.getSqlMigrationSuffixes());
+    }
+
+    public ResourceName parse(String resourceName, String[] suffixes) {
         // Strip off suffixes
-        Pair<String, String> suffixResult = stripSuffix(resourceName, configuration.getSqlMigrationSuffixes());
+        Pair<String, String> suffixResult = stripSuffix(resourceName, suffixes);
 
         // Find the appropriate prefix
         Pair<String, ResourceType> prefix = findPrefix(suffixResult.getLeft(), prefixes);
@@ -79,7 +83,7 @@ public class ResourceNameParser {
 
             String description = splitName.getRight().replace("_", " ");
             return new ResourceName(prefixResult.getLeft(), splitName.getLeft(),
-                    configuration.getSqlMigrationSeparator(), description, suffixResult.getRight(),
+                    configuration.getSqlMigrationSeparator(), description, splitName.getRight(), suffixResult.getRight(),
                     isValid, validationMessage);
         }
 
@@ -134,15 +138,12 @@ public class ResourceNameParser {
             prefixes.add(Pair.of(event.getId(), ResourceType.CALLBACK));
         }
 
-        Comparator<Pair<String, ResourceType>> prefixComparator
-                = new Comparator<Pair<String, ResourceType>>() {
-            public int compare(Pair<String, ResourceType> p1, Pair<String, ResourceType> p2) {
-                // Sort most-hard-to-match first; that is, in descending order of prefix length
-                return p2.getLeft().length() - p1.getLeft().length();
-            }
+        Comparator<Pair<String, ResourceType>> prefixComparator = (p1, p2) -> {
+            // Sort most-hard-to-match first; that is, in descending order of prefix length
+            return p2.getLeft().length() - p1.getLeft().length();
         };
 
-        Collections.sort(prefixes, prefixComparator);
+        prefixes.sort(prefixComparator);
         return prefixes;
     }
 }

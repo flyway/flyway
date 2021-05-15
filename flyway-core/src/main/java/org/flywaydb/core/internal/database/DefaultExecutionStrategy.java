@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,9 @@ import org.flywaydb.core.internal.util.SqlCallable;
 import java.sql.SQLException;
 
 /**
- * The default execution strategy for a {@code SQLCallable}, which just performs a single execution.
+ * The default execution strategy for a {@code SQLCallable}, which performs a single execution.
  */
 public class DefaultExecutionStrategy implements DatabaseExecutionStrategy {
-
     public <T> T execute(final SqlCallable<T> callable) throws SQLException {
         return callable.call();
     }

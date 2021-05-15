@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MigrateResult extends OperationResultBase {
-
     public String initialSchemaVersion;
     public String targetSchemaVersion;
     public String schemaName;
@@ -35,5 +34,4 @@ public class MigrateResult extends OperationResultBase {
         this.migrations = new ArrayList<>();
         this.operation = "migrate";
     }
-
 }

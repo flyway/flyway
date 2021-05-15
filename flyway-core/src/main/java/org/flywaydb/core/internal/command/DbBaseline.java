@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,8 +74,7 @@ public class DbBaseline {
         this.baselineDescription = baselineDescription;
         this.callbackExecutor = callbackExecutor;
 
-        CommandResultFactory commandResultFactory = new CommandResultFactory();
-        baselineResult = commandResultFactory.createBaselineResult(database.getCatalog());
+        baselineResult = CommandResultFactory.createBaselineResult(database.getCatalog());
     }
 
     /**
@@ -103,7 +102,8 @@ public class DbBaseline {
                         throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " with ("
                                 + baselineVersion + "," + baselineDescription
                                 + ") as it has already been baselined with ("
-                                + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")");
+                                + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")\n" +
+                                "Need to reset your baseline? Learn more: https://flywaydb.org/reset-the-baseline-migration");
                     }
                 } else {
                     if (schemaHistory.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
@@ -111,7 +111,8 @@ public class DbBaseline {
                     }
 
                     if (schemaHistory.hasNonSyntheticAppliedMigrations()) {
-                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations");
+                        throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations\n" +
+                                "Need to reset your baseline? Learn more: https://flywaydb.org/reset-the-baseline-migration");
                     }
 
                     if (schemaHistory.allAppliedMigrations().isEmpty()) {
@@ -120,7 +121,8 @@ public class DbBaseline {
                     }
 
                     throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations.\n" +
-                            "Delete the schema history table with the clean command, and run baseline again.");
+                            "Delete the schema history table with the clean command, and run baseline again.\n" +
+                            "Need to reset your baseline? Learn more: https://flywaydb.org/reset-the-baseline-migration");
                 }
             }
         } catch (FlywayException e) {

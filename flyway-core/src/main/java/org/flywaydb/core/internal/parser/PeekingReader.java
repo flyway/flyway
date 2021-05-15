@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class PeekingReader extends FilterReader {
         super(in);
         this.supportsPeekingMultipleLines = supportsPeekingMultipleLines;
     }
-    
+
     @Override
     public int read() throws IOException {
         peekBufferOffset++;
@@ -378,16 +378,18 @@ public class PeekingReader extends FilterReader {
     }
 
     /**
-     * Reads all characters in this stream until this delimiting string has been encountered.
+     * Reads all characters in this stream until any of the delimiting strings is encountered.
      *
-     * @param str The delimiting string.
+     * @param strings The delimiting strings.
      * @return The string read, without the delimiting string.
      */
-    public String readUntilExcluding(String str) throws IOException {
+    public String readUntilExcluding(String... strings) throws IOException {
         StringBuilder result = new StringBuilder();
         do {
-            if (peek(str)) {
-                break;
+            for (String str : strings) {
+                if (peek(str)) {
+                    return result.toString();
+                }
             }
             int r = read();
             if (r == -1) {
@@ -454,7 +456,13 @@ public class PeekingReader extends FilterReader {
     public String readKeywordPart(Delimiter delimiter, ParserContext context) throws IOException {
         StringBuilder result = new StringBuilder();
         do {
-            if ((delimiter == null || !peek(delimiter.getDelimiter())) && peekKeywordPart(context)) {
+            boolean isDelimiter = delimiter != null &&
+                    (result.length() == 0 || !delimiter.isAloneOnLine()) &&
+                    peek(delimiter.getDelimiter());
+
+            boolean shouldAppend = !isDelimiter && peekKeywordPart(context);
+
+            if (shouldAppend) {
                 result.append((char) read());
             } else {
                 break;

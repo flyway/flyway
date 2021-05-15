@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,4 +37,11 @@ public interface MigrationExecutor {
      * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
      */
     boolean canExecuteInTransaction();
+
+    /**
+     * Whether the migration associated with this executor should be executed or not.
+     *
+     * @return {@code true} if the migration should be executed, or {@code false} if not.
+     */
+    boolean shouldExecute();
 }

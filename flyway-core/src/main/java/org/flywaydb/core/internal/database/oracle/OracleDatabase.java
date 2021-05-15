@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,9 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Oracle database.
- */
 public class OracleDatabase extends Database<OracleConnection> {
     private static final String ORACLE_NET_TNS_ADMIN = "oracle.net.tns_admin";
 
@@ -50,11 +47,6 @@ public class OracleDatabase extends Database<OracleConnection> {
         }
     }
 
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public OracleDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
@@ -63,7 +55,6 @@ public class OracleDatabase extends Database<OracleConnection> {
     protected OracleConnection doGetConnection(Connection connection) {
         return new OracleConnection(this, connection);
     }
-
 
 
 

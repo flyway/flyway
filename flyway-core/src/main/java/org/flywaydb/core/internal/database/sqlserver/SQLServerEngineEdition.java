@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,8 @@ public enum SQLServerEngineEdition {
     EXPRESS(4),
     SQL_DATABASE(5),
     SQL_DATA_WAREHOUSE(6),
-    MANAGED_INSTANCE(8);
+    MANAGED_INSTANCE(8),
+    AZURE_SQL_EDGE(9);
 
     private final int code;
 

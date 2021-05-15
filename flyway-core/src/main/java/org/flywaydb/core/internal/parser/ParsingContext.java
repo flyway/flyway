@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.resource.ResourceName;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -37,14 +38,27 @@ public class ParsingContext {
     private static final String USER_PLACEHOLDER = "flyway:user";
     private static final String DATABASE_PLACEHOLDER = "flyway:database";
     private static final String TIMESTAMP_PLACEHOLDER = "flyway:timestamp";
+    private static final String FILENAME_PLACEHOLDER = "flyway:filename";
+    private static final String WORKING_DIRECTORY_PLACEHOLDER = "flyway:workingDirectory";
 
-    private Map<String, String> placeholders = new HashMap<>();
+    private final Map<String, String> placeholders = new HashMap<>();
+    private Database database;
 
     public Map<String, String> getPlaceholders() {
         return placeholders;
     }
 
+    private void setDatabase(Database database) {
+        this.database = database;
+    }
+
+    public Database getDatabase() {
+        return database;
+    }
+
     public void populate(Database database, Configuration configuration) {
+        setDatabase(database);
+
         String defaultSchemaName = configuration.getDefaultSchema();
         String[] schemaNames = configuration.getSchemas();
 
@@ -71,6 +85,15 @@ public class ParsingContext {
 
         placeholders.put(USER_PLACEHOLDER, currentUser);
         placeholders.put(TIMESTAMP_PLACEHOLDER, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        placeholders.put(WORKING_DIRECTORY_PLACEHOLDER, System.getProperty("user.dir"));
+    }
+
+    public void updateFilenamePlaceholder(ResourceName resourceName) {
+        if (resourceName.isValid()) {
+            placeholders.put(FILENAME_PLACEHOLDER, resourceName.getFilename());
+        } else {
+            placeholders.remove(FILENAME_PLACEHOLDER);
+        }
     }
 
     private Schema getCurrentSchema(Database database) {

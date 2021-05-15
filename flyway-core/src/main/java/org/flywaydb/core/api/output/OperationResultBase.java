@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class OperationResultBase implements OperationResult {
-
     public String flywayVersion;
     public String database;
     public List<String> warnings;
@@ -32,5 +31,4 @@ public abstract class OperationResultBase implements OperationResult {
     public void addWarning(String warning) {
         warnings.add(warning);
     }
-
 }

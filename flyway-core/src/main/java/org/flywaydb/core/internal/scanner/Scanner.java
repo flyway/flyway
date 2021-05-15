@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,19 @@
  */
 package org.flywaydb.core.internal.scanner;
 
+import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.ClassProvider;
+import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
-import org.flywaydb.core.internal.resource.LoadableResource;
-import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.scanner.android.AndroidScanner;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
-import org.flywaydb.core.internal.scanner.filesystem.FileSystemScanner;
 import org.flywaydb.core.internal.scanner.cloud.gcs.GCSScanner;
 import org.flywaydb.core.internal.scanner.cloud.s3.AwsS3Scanner;
+import org.flywaydb.core.internal.scanner.filesystem.FileSystemScanner;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -51,11 +51,17 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     /*
      * Constructor. Scans the given locations for resources, and classes implementing the specified interface.
      */
-    public Scanner(Class<I> implementedInterface, Collection<Location> locations, ClassLoader classLoader, Charset encoding,
-                   boolean stream,
-                   ResourceNameCache resourceNameCache, LocationScannerCache locationScannerCache
-    ) {
-        FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding, stream);
+    public Scanner(
+            Class<I> implementedInterface,
+            Collection<Location> locations,
+            ClassLoader classLoader,
+            Charset encoding,
+            boolean detectEncoding,
+            boolean stream,
+            ResourceNameCache resourceNameCache,
+            LocationScannerCache locationScannerCache,
+            boolean throwOnMissingLocations) {
+        FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding, stream, detectEncoding, throwOnMissingLocations);
 
         FeatureDetector detector =  new FeatureDetector(classLoader);
         boolean android = detector.isAndroidAvailable();
@@ -81,16 +87,16 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
             } else if (location.isAwsS3()) {
                 if (aws) {
-                    Collection<LoadableResource> awsResources = new AwsS3Scanner(encoding).scanForResources(location);
+                    Collection<LoadableResource> awsResources = new AwsS3Scanner(encoding, throwOnMissingLocations).scanForResources(location);
                     resources.addAll(awsResources);
-                    cloudMigrationCount += awsResources.stream().filter(r -> r.getFilename().endsWith(".sql")).count();;
+                    cloudMigrationCount += awsResources.stream().filter(r -> r.getFilename().endsWith(".sql")).count();
                 } else {
                     LOG.error("Can't read location " + location + "; AWS SDK not found");
                 }
             } else {
                 ResourceAndClassScanner<I> resourceAndClassScanner = android
                         ? new AndroidScanner<>(implementedInterface, classLoader, encoding, location)
-                        : new ClassPathScanner<>(implementedInterface, classLoader, encoding, location, resourceNameCache, locationScannerCache);
+                        : new ClassPathScanner<>(implementedInterface, classLoader, encoding, location, resourceNameCache, locationScannerCache, throwOnMissingLocations);
                 resources.addAll(resourceAndClassScanner.scanForResources());
                 classes.addAll(resourceAndClassScanner.scanForClasses());
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -260,9 +260,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     }
 
     private void handleUpdateCount(long updateCount) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Update Count: " + updateCount);
-        }
+        LOG.debug(updateCount + (updateCount == 1 ? "row" : "rows") + "affected");
     }
 
     protected void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement) {

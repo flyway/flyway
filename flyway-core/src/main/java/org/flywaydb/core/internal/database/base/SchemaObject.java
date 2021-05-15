@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,35 +20,15 @@ import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 
-/**
- * An object within a database schema.
- */
 public abstract class SchemaObject<D extends Database, S extends Schema> {
-    /**
-     * The Jdbc Template for communicating with the DB.
-     */
     protected final JdbcTemplate jdbcTemplate;
-
-    /**
-     * The database-specific support.
-     */
     protected final D database;
-
-    /**
-     * The schema this table lives in.
-     */
     protected final S schema;
-
-    /**
-     * The name of the table.
-     */
     protected final String name;
 
     /**
-     * Creates a new schema object with this name within this schema.
-     *
-     * @param jdbcTemplate The jdbc template to access the DB.
-     * @param database    The database-specific support.
+     * @param jdbcTemplate The JDBC template to access the DB.
+     * @param database     The database-specific support.
      * @param schema       The schema the object lives in.
      * @param name         The name of the object.
      */
@@ -66,16 +46,10 @@ public abstract class SchemaObject<D extends Database, S extends Schema> {
         return schema;
     }
 
-    /**
-     * @return The name of the object.
-     */
     public final String getName() {
         return name;
     }
 
-    /**
-     * Drops this object from the database.
-     */
     public final void drop() {
         try {
             doDrop();
@@ -85,8 +59,6 @@ public abstract class SchemaObject<D extends Database, S extends Schema> {
     }
 
     /**
-     * Drops this object from the database.
-     *
      * @throws java.sql.SQLException when the drop failed.
      */
     protected abstract void doDrop() throws SQLException;

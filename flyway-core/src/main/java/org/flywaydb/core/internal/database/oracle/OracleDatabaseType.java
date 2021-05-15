@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,18 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import oracle.jdbc.OracleConnection;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.DatabaseType;
-import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.database.base.BaseDatabaseType;
+
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
@@ -33,15 +34,16 @@ import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-public class OracleDatabaseType extends DatabaseType {
+public class OracleDatabaseType extends BaseDatabaseType {
     // Oracle usernames/passwords can be 1-30 chars, can only contain alphanumerics and # _ $
-    private static Pattern usernamePasswordPattern = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/[a-zA-Z0-9#_$]+@//.*");
+    // The first (and only) capture group represents the password
+    private static final Pattern usernamePasswordPattern = Pattern.compile("^jdbc:oracle:thin:[a-zA-Z0-9#_$]+/([a-zA-Z0-9#_$]+)@.*");
 
     @Override
     public String getName() {
@@ -63,8 +65,12 @@ public class OracleDatabaseType extends DatabaseType {
             throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbc-secretsmanager");
 
         }
+        return url.startsWith("jdbc:oracle") || url.startsWith("jdbc:p6spy:oracle");
+    }
 
-        return url.startsWith("jdbc:oracle");
+    @Override
+    public Pattern getJDBCCredentialsPattern() {
+        return usernamePasswordPattern;
     }
 
     @Override
@@ -74,7 +80,9 @@ public class OracleDatabaseType extends DatabaseType {
 
 
 
-
+        if (url.startsWith("jdbc:p6spy:oracle:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         return "oracle.jdbc.OracleDriver";
     }
 
@@ -92,38 +100,6 @@ public class OracleDatabaseType extends DatabaseType {
 
     @Override
     public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -223,5 +199,42 @@ public class OracleDatabaseType extends DatabaseType {
 
 
         return !usernamePasswordPattern.matcher(url).matches();
+    }
+
+    @Override
+    public Connection alterConnectionAsNeeded(Connection connection, Configuration configuration) {
+        Map<String, String> jdbcProperties = configuration.getJdbcProperties();
+
+        if (jdbcProperties != null && jdbcProperties.containsKey(OracleConnection.PROXY_USER_NAME)) {
+            try {
+                OracleConnection oracleConnection = getUnderlyingOracleConnection(connection);
+                if (!oracleConnection.isProxySession()) {
+                    Properties props = new Properties();
+                    props.putAll(configuration.getJdbcProperties());
+                    oracleConnection.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, props);
+                }
+            } catch (FlywayException e) {
+                LOG.warn(e.getMessage());
+            } catch (SQLException e) {
+                throw new FlywayException("Unable to open proxy session: " + e.getMessage(), e);
+            }
+        }
+
+        return super.alterConnectionAsNeeded(connection, configuration);
+    }
+
+    private OracleConnection getUnderlyingOracleConnection(Connection connection) {
+        try {
+            if (connection instanceof OracleConnection) {
+                return (OracleConnection) connection;
+            } else if (connection.isWrapperFor(OracleConnection.class)) {
+                // This includes com.zaxxer.HikariCP.HikariProxyConnection, potentially other unknown wrapper types
+                return connection.unwrap(OracleConnection.class);
+            } else {
+                throw new FlywayException("Unable to extract Oracle connection type from '" + connection.getClass().getName() + "'");
+            }
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to unwrap connection type '" + connection.getClass().getName() + "'", e);
+        }
     }
 }

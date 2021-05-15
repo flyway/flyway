@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RepairResult extends OperationResultBase {
-
     public List<String> repairActions;
     public List<RepairOutput> migrationsRemoved;
     public List<RepairOutput> migrationsDeleted;
@@ -42,5 +41,4 @@ public class RepairResult extends OperationResultBase {
         if (completedRepairActions.deletedMissingMigrations) repairActions.add(completedRepairActions.deletedMessage());
         if (completedRepairActions.alignedAppliedMigrationChecksums) repairActions.add(completedRepairActions.alignedMessage());
     }
-
 }

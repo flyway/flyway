@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 package org.flywaydb.core.internal.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
-import org.flywaydb.core.internal.database.base.DatabaseType;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -237,13 +237,10 @@ public class JdbcTemplate {
         try {
             statement = connection.createStatement();
             statement.setEscapeProcessing(false);
-            boolean hasResults;
-            try {
-                hasResults = statement.execute(sql);
-            } finally {
-                extractWarnings(results, statement);
-            }
+
+            boolean hasResults = statement.execute(sql);
             extractResults(results, statement, sql, hasResults);
+            extractWarnings(results, statement);
         } catch (final SQLException e) {
             extractErrors(results, e);
         } finally {

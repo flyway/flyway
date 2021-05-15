@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,20 @@ import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.SqlCallable;
 
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  * CockroachDB-specific table.
  *
  * Note that CockroachDB doesn't support table locks. We therefore use a row in the schema history as a lock indicator;
- * if another process ahs inserted such a row we wait (potentially indefinitely) for it to be removed before
+ * if another process has inserted such a row we wait (potentially indefinitely) for it to be removed before
  * carrying out a migration.
  */
 public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSchema> {
-    private final InsertRowLock insertRowLock = new InsertRowLock();
+    private final InsertRowLock insertRowLock;
 
     /**
      * Creates a new CockroachDB table.
@@ -42,6 +46,7 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
      */
     CockroachDBTable(JdbcTemplate jdbcTemplate, CockroachDBDatabase database, CockroachDBSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
+        this.insertRowLock = new InsertRowLock(jdbcTemplate, 10);
     }
 
     @Override
@@ -56,7 +61,7 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
     }
 
     protected void doDropOnce() throws SQLException {
-        jdbcTemplate.execute("DROP TABLE " + database.quote(schema.getName(), name) + " CASCADE");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS " + database.quote(schema.getName(), name) + " CASCADE");
     }
 
     @Override
@@ -77,45 +82,53 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
                     "   WHERE  table_schema = ?\n" +
                     "   AND    table_name = ?\n" +
                     ")", schema.getName(), name);
+        } else if (!schema.hasSchemaSupport) {
+            return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
+                    "   SELECT 1\n" +
+                    "   FROM   information_schema.tables \n" +
+                    "   WHERE  table_catalog = ?\n" +
+                    "   AND    table_schema = 'public'\n" +
+                    "   AND    table_name = ?\n" +
+                    ")", schema.getName(), name);
+        } else {
+            // There is a bug in CockroachDB v20.2.0-beta.* which causes the string equality operator to not work as
+            // expected, therefore we apply a workaround using the like operator.
+            // https://github.com/cockroachdb/cockroach/issues/55437
+            String sql = "SELECT EXISTS (\n" +
+                    "   SELECT 1\n" +
+                    "   FROM   information_schema.tables \n" +
+                    "   WHERE  table_schema = ?\n" +
+                    "   AND    table_name like '%"+name+"%' and length(table_name) = length(?)\n" +
+                    ")";
+            return jdbcTemplate.queryForBoolean(sql, schema.getName(), name);
         }
-
-        return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
-                "   SELECT 1\n" +
-                "   FROM   information_schema.tables \n" +
-                "   WHERE  table_catalog = ?\n" +
-                "   AND    table_schema = 'public'\n" +
-                "   AND    table_name = ?\n" +
-                ")", schema.getName(), name);
     }
 
     @Override
     protected void doLock() throws SQLException {
-        if (lockDepth > 0) {
-            // Lock has already been taken - so the relevant row in the table already exists
-            return;
-        }
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        cal.add(Calendar.MINUTE, -insertRowLock.lockTimeoutMins);
+        DateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
-        insertRowLock.doLock(jdbcTemplate, database.getInsertStatement(this), database.getBooleanTrue());
+        String updateLockStatement = "UPDATE " + this + " SET installed_on = now() WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
+        String deleteExpiredLockStatement =
+                " DELETE FROM " + this +
+                " WHERE DESCRIPTION = 'flyway-lock'" +
+                " AND installed_on < TIMESTAMP '" + timestampFormat.format(cal.getTime()) + "'";
+
+        if (lockDepth == 0) {
+            insertRowLock.doLock(database.getInsertStatement(this), updateLockStatement, deleteExpiredLockStatement, database.getBooleanTrue());
+        }
     }
 
     @Override
     protected void doUnlock() throws SQLException {
-        // Leave the locking row alone until we get to the final level of unlocking
-        if (lockDepth > 1) {
-            return;
+        if (lockDepth == 1) {
+            insertRowLock.doUnlock(getDeleteLockTemplate());
         }
-
-        String selectLockTemplate = getSelectLockTemplate();
-        String deleteLockTemplate = getDeleteLockTemplate();
-
-        insertRowLock.doUnlock(jdbcTemplate, selectLockTemplate, deleteLockTemplate);
-    }
-
-    private String getSelectLockTemplate() {
-        return "SELECT COUNT(*) FROM " + this.toString() + " WHERE version != '?' AND DESCRIPTION = 'flyway-lock'";
     }
 
     private String getDeleteLockTemplate() {
-        return "DELETE FROM " + this.toString() + " WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
+        return "DELETE FROM " + this + " WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
     }
 }

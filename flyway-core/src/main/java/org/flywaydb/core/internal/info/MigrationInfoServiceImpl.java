@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,87 +17,45 @@ package org.flywaydb.core.internal.info;
 
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.output.CommandResultFactory;
+import org.flywaydb.core.api.output.InfoResult;
+import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.api.output.ValidateOutput;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.api.output.InfoResult;
-import org.flywaydb.core.api.output.CommandResultFactory;
-import org.flywaydb.core.api.output.OperationResult;
+
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
-/**
- * Default implementation of MigrationInfoService.
- */
 public class MigrationInfoServiceImpl implements MigrationInfoService, OperationResult {
-    /**
-     * The migration resolver for available migrations.
-     */
     private final MigrationResolver migrationResolver;
-
+    private final Configuration configuration;
+    private final Database database;
     private final Context context;
-
-    /**
-     * The schema history table for applied migrations.
-     */
     private final SchemaHistory schemaHistory;
-
-    /**
-     * The target version up to which to retrieve the info.
-     */
-    private MigrationVersion target;
-
-    /**
-     * The migrations to retrieve info for.
-     */
-    private MigrationPattern[] cherryPick;
-
-    /**
-     * Allows migrations to be run "out of order".
-     * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
-     * it will be applied too instead of being ignored.</p>
-     * <p>(default: {@code false})</p>
-     */
-    private boolean outOfOrder;
-
-    /**
-     * Whether pending migrations are allowed.
-     */
+    private final MigrationVersion target;
+    private final MigrationPattern[] cherryPick;
+    private final boolean outOfOrder;
     private final boolean pending;
-
-    /**
-     * Whether missing migrations are allowed.
-     */
     private final boolean missing;
-
-    /**
-     * Whether ignored migrations are allowed.
-     */
     private final boolean ignored;
-
-    /**
-     * Whether future migrations are allowed.
-     */
     private final boolean future;
-
     /**
      * The migrations infos calculated at the last refresh.
      */
     private List<MigrationInfoImpl> migrationInfos;
+    /**
+     * Whether all of the specified schemas are empty or not.
+     */
+    private Boolean allSchemasEmpty;
 
     /**
-     * Creates a new MigrationInfoServiceImpl.
-     *
      * @param migrationResolver The migration resolver for available migrations.
      * @param schemaHistory     The schema history table for applied migrations.
      * @param configuration     The current configuration.
@@ -110,17 +68,14 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
      * @param future            Whether future migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver,
-                                    SchemaHistory schemaHistory, final Configuration configuration,
+                                    SchemaHistory schemaHistory, Database database, final Configuration configuration,
                                     MigrationVersion target, boolean outOfOrder, MigrationPattern[] cherryPick,
                                     boolean pending, boolean missing, boolean ignored, boolean future) {
         this.migrationResolver = migrationResolver;
         this.schemaHistory = schemaHistory;
-        this.context = new Context() {
-            @Override
-            public Configuration getConfiguration() {
-                return configuration;
-            }
-        };
+        this.configuration = configuration;
+        this.context = () -> configuration;
+        this.database = database;
         this.target = target;
         this.outOfOrder = outOfOrder;
         this.cherryPick = cherryPick;
@@ -143,6 +98,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         context.missing = missing;
         context.ignored = ignored;
         context.future = future;
+        context.ignorePatterns = configuration.getIgnoreMigrationPatterns();
         context.target = target;
         context.cherryPick = cherryPick;
 
@@ -166,6 +122,14 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 resolvedRepeatable.put(resolvedMigration.getDescription(), resolvedMigration);
             }
         }
+
+
+
+
+
+
+
+
 
 
 
@@ -256,23 +220,18 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             }
 
             // Build final migration info
-            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, av.getLeft(), context, av.getRight().outOfOrder, av.getRight().deleted
-
-
-
-            ));
+            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, av.getLeft(), context, av.getRight().outOfOrder, av.getRight().deleted, av.getRight().undone));
         }
 
         // Add all pending migrations to output list
         for (ResolvedMigration prv : pendingResolvedVersioned) {
-            migrationInfos1.add(new MigrationInfoImpl(prv, null, context, false, false
-
-
-
-            ));
+            migrationInfos1.add(new MigrationInfoImpl(prv, null, context, false, false, false));
         }
 
-        if (target != null && target != MigrationVersion.CURRENT && target != MigrationVersion.LATEST) {
+        if (configuration.getFailOnMissingTarget() &&
+                target != null &&
+                target != MigrationVersion.CURRENT &&
+                target != MigrationVersion.LATEST) {
             boolean targetFound = false;
 
             for (MigrationInfoImpl migration : migrationInfos1) {
@@ -321,20 +280,12 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             }
 
             // Add to output list
-            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false, av.getRight().deleted
-
-
-
-            ));
+            migrationInfos1.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false, av.getRight().deleted, false));
         }
 
         // Add pending repeatables to output list
         for (ResolvedMigration prr : pendingResolvedRepeatable) {
-            migrationInfos1.add(new MigrationInfoImpl(prr, null, context, false, false
-
-
-
-            ));
+            migrationInfos1.add(new MigrationInfoImpl(prr, null, context, false, false, false));
         }
 
         // Set output
@@ -350,15 +301,12 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
      */
     private void markRepeatableAsDeleted(String description, List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedRepeatable) {
         for (int i = appliedRepeatable.size() - 1; i >= 0; i--) {
-            Pair<AppliedMigration, AppliedMigrationAttributes> av = appliedRepeatable.get(i);
-            if (!av.getLeft().getType().isSynthetic() && description.equals(av.getLeft().getDescription())) {
-                if (av.getRight().deleted) {
-                    throw new FlywayException("Corrupted schema history: multiple delete entries for description " + description,
-                            ErrorCode.DUPLICATE_DELETED_MIGRATION);
-                } else {
-                    av.getRight().deleted = true;
-                    return;
+            Pair<AppliedMigration, AppliedMigrationAttributes> ar = appliedRepeatable.get(i);
+            if (!ar.getLeft().getType().isSynthetic() && description.equals(ar.getLeft().getDescription())) {
+                if (!ar.getRight().deleted) {
+                    ar.getRight().deleted = true;
                 }
+                return;
             }
         }
     }
@@ -407,11 +355,22 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
 
 
-
     @Override
     public MigrationInfo[] all() {
         return migrationInfos.toArray(new MigrationInfo[0]);
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Override
     public MigrationInfo current() {
@@ -476,8 +435,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     }
 
     /**
-     * Retrieves the full set of infos about the migrations resolved on the classpath.
-     *
      * @return The resolved migrations. An empty array if none.
      */
     public MigrationInfo[] resolved() {
@@ -492,8 +449,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     }
 
     /**
-     * Retrieves the full set of infos about the migrations that failed.
-     *
      * @return The failed migrations. An empty array if none.
      */
     public MigrationInfo[] failed() {
@@ -508,8 +463,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     }
 
     /**
-     * Retrieves the full set of infos about future migrations applied to the DB.
-     *
      * @return The future migrations. An empty array if none.
      */
     public MigrationInfo[] future() {
@@ -530,8 +483,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     }
 
     /**
-     * Retrieves the full set of infos about out of order migrations applied to the DB.
-     *
      * @return The out of order migrations. An empty array if none.
      */
     public MigrationInfo[] outOfOrder() {
@@ -561,34 +512,38 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
 
 
-
-
-
     /**
-     * Validate all migrations for consistency.
-     *
-     * @return The error message, or {@code null} if everything is fine.
+     * @return The list of migrations that failed validation, which is empty if everything is fine.
      */
-    public String validate() {
-        StringBuilder builder = new StringBuilder();
-        boolean hasFailures = false;
+    public List<ValidateOutput> validate() {
+        List<ValidateOutput> invalidMigrations = new ArrayList<>();
 
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
-            String message = migrationInfo.validate();
-            if (message != null) {
-                if (!hasFailures)
-                    builder.append("\n");
-
-                builder.append(message + "\n");
-                hasFailures = true;
+            ErrorDetails validateError = migrationInfo.validate();
+            if (validateError != null) {
+                invalidMigrations.add(CommandResultFactory.createValidateOutput(migrationInfo, validateError));
             }
         }
-        return (hasFailures) ? builder.toString() : null;
+        return invalidMigrations;
+    }
+
+    public void setAllSchemasEmpty(Schema[] schemas) {
+        allSchemasEmpty = Arrays.stream(schemas).allMatch(Schema::empty);
     }
 
     @Override
     public InfoResult getInfoResult() {
-        CommandResultFactory commandResultFactory = new CommandResultFactory();
-        return commandResultFactory.createInfoResult(this.context.getConfiguration(), this.all(), this.current());
+        return getInfoResult(this.all());
     }
+
+    public InfoResult getInfoResult(MigrationInfo[] infos) {
+        return CommandResultFactory.createInfoResult(this.context.getConfiguration(), this.database, infos, this.current(), this.allSchemasEmpty);
+    }
+
+
+
+
+
+
+
 }

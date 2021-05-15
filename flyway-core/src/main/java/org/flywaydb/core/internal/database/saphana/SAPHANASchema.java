@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public class SAPHANASchema extends Schema<SAPHANADatabase, SAPHANATable> {
             jdbcTemplate.execute(dropStatement);
         }
 
-        for (String dropStatement : generateDropStatements("VIEW")) {
+        for (String dropStatement : generateDropStatementsForViews()) {
             jdbcTemplate.execute(dropStatement);
         }
 
@@ -91,9 +91,22 @@ public class SAPHANASchema extends Schema<SAPHANADatabase, SAPHANATable> {
      */
     private List<String> generateDropStatements(String objectType) throws SQLException {
         List<String> dropStatements = new ArrayList<>();
-        List<String> dbObjects = getDbObjects(objectType);
-        for (String dbObject : dbObjects) {
+        for (String dbObject : getDbObjects(objectType)) {
             dropStatements.add("DROP " + objectType + " " + database.quote(name, dbObject) + " CASCADE");
+        }
+        return dropStatements;
+    }
+
+    /**
+     * Generates DROP statements for all views in this schema.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the statements could not be generated.
+     */
+    private List<String> generateDropStatementsForViews() throws SQLException {
+        List<String> dropStatements = new ArrayList<>();
+        for (String dbObject : getDbObjects("VIEW")) {
+            dropStatements.add("DROP VIEW " + database.quote(name, dbObject));
         }
         return dropStatements;
     }

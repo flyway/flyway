@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 Redgate Software Ltd
+ * Copyright © Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,18 @@ package org.flywaydb.core.internal.database.redshift;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.database.base.DatabaseType;
+import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.ClassUtils;
 
 import java.sql.Connection;
 import java.sql.Types;
+import java.util.Map;
 
-public class RedshiftDatabaseType extends DatabaseType {
+public class RedshiftDatabaseType extends BaseDatabaseType {
     private static final String REDSHIFT_JDBC4_DRIVER = "com.amazon.redshift.jdbc4.Driver";
     private static final String REDSHIFT_JDBC41_DRIVER = "com.amazon.redshift.jdbc41.Driver";
 
@@ -39,17 +39,26 @@ public class RedshiftDatabaseType extends DatabaseType {
     }
 
     @Override
+    public int getPriority() {
+        // Redshift needs to be checked in advance of Postgres
+        return 1;
+    }
+
+    @Override
     public int getNullType() {
         return Types.VARCHAR;
     }
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:redshift:");
+        return url.startsWith("jdbc:redshift:") || url.startsWith("jdbc:p6spy:redshift:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
+        if (url.startsWith("jdbc:p6spy:redshift:")) {
+            return "com.p6spy.engine.spy.P6SpyDriver";
+        }
         return "com.amazon.redshift.jdbc42.Driver";
     }
 
@@ -69,8 +78,19 @@ public class RedshiftDatabaseType extends DatabaseType {
                 return true;
             }
         }
-
+        // This is the open-source driver at https://github.com/aws/amazon-redshift-jdbc-driver
+        if (databaseProductName.startsWith("Redshift")) {
+            return true;
+        }
         return false;
+    }
+
+    @Override
+    public void setOverridingConnectionProps(Map<String, String> props) {
+        // Necessary because the Amazon v2 driver does not appear to respect the way Properties.get() handles defaults.
+        // If not forced to false, the driver allows resultsets to be read on different threads and will throw if
+        // connections are closed before all results are read.
+        props.put("enableFetchRingBuffer", "false");
     }
 
     @Override
