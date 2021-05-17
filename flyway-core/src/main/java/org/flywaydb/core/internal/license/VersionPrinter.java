@@ -29,6 +29,7 @@ import java.util.ServiceLoader;
 
 public class VersionPrinter {
     private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
+    public static ClassLoader classLoader = VersionPrinter.class.getClassLoader();
     private static final String version = readVersion();
 
     public static final Edition EDITION =
@@ -71,7 +72,7 @@ public class VersionPrinter {
     }
 
     private static void printExtensionVersions() {
-        ServiceLoader<FlywayExtension> loader = ServiceLoader.load(FlywayExtension.class);
+        ServiceLoader<FlywayExtension> loader = ServiceLoader.load(FlywayExtension.class, classLoader);
         for (FlywayExtension extension : loader) {
             LOG.info( ">\t" + extension.getDescription());
         }
