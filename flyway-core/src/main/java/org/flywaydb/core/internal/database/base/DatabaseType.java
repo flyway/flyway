@@ -56,15 +56,32 @@ public abstract class DatabaseType {
     public abstract String getName();
 
     /**
-     * @return The JDBC type used to represent {@code null} in prepared statements.
+     * @return The JDBC type used to represent generic {@code null} in prepared statements.
      */
     public abstract int getNullType();
 
 
+    /**
+     * @return The JDBC type used to represent String {@code null} in prepared statements.
+     */
+    public int getStringNullType() {
+        return this.getNullType();
+    }
 
 
+    /**
+     * @return The JDBC type used to represent Integer {@code null} in prepared statements.
+     */
+    public int getIntegerNullType() {
+        return this.getNullType();
+    }
 
-
+    /**
+     * @return The JDBC type used to represent Boolean {@code null} in prepared statements.
+     */
+    public int getBooleanNullType() {
+        return this.getNullType();
+    }
 
     /**
      * Whether this database type should handle the given JDBC url.

@@ -35,9 +35,25 @@ public class JdbcTemplate {
     protected final Connection connection;
 
     /**
-     * The type to assign to a null value.
+     * The type to assign to a generic null value.
      */
     protected final int nullType;
+
+    /**
+     * The type to assign to a String null value.
+     */
+    protected final int stringNullType;
+
+    /**
+     * The type to assign to a Integer null value.
+     */
+    protected final int integerNullType;
+
+    /**
+     * The type to assign to a Boolean null value.
+     */
+    protected final int booleanNullType;
+
 
     /**
      * Creates a new JdbcTemplate.
@@ -56,6 +72,9 @@ public class JdbcTemplate {
     public JdbcTemplate(Connection connection, DatabaseType databaseType) {
         this.connection = connection;
         this.nullType = databaseType.getNullType();
+        this.stringNullType = databaseType.getStringNullType();
+        this.integerNullType = databaseType.getIntegerNullType();
+        this.booleanNullType = databaseType.getBooleanNullType();
     }
 
     /**
@@ -354,11 +373,11 @@ public class JdbcTemplate {
             } else if (params[i] instanceof String){
                 statement.setString(i + 1, params[i].toString());
             } else if (params[i] == JdbcNullTypes.StringNull) {
-                statement.setNull(i + 1, nullType);
+                statement.setNull(i + 1, stringNullType);
             } else if (params[i] == JdbcNullTypes.IntegerNull) {
-                statement.setNull(i + 1, nullType);
+                statement.setNull(i + 1, integerNullType);
             } else if (params[i] == JdbcNullTypes.BooleanNull) {
-                statement.setNull(i + 1, nullType);
+                statement.setNull(i + 1, booleanNullType);
             } else {
                 throw new FlywayException("Unhandled object of type '" + params[i].getClass().getName() + "'. " +
                         "Please contact support or leave an issue on GitHub.");

@@ -46,6 +46,21 @@ public class BigQueryDatabaseType extends DatabaseType {
     }
 
     @Override
+    public int getStringNullType() {
+        return Types.VARCHAR;
+    }
+
+    @Override
+    public int getIntegerNullType() {
+        return Types.INTEGER;
+    }
+
+    @Override
+    public int getBooleanNullType() {
+        return Types.BOOLEAN;
+    }
+
+    @Override
     public boolean handlesJDBCUrl(String url) {
         return url.startsWith("jdbc:bigquery:");
     }
