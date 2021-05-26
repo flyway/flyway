@@ -481,6 +481,14 @@
                 <version>${version.msal4j}</version>
                 <optional>true</optional>
             </dependency>
+            <!-- Temporary - overrides the transitive dependency in msal4j -->
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>9.9.3</version>
+                <optional>true</optional>
+            </dependency>
+            <!-- /Temporary -->
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
