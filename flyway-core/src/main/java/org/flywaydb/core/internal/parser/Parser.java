@@ -469,6 +469,7 @@ public abstract class Parser {
         int pos = tracker.getPos();
         int line = tracker.getLine();
         int col = tracker.getCol();
+        int colIgnoringWhitepace = tracker.getColIgnoringWhitespace();
 
         String peek = reader.peek(peekDepth);
         if (peek == null) {
@@ -537,7 +538,7 @@ public abstract class Parser {
             reader.swallowUntilExcludingWithEscape('\'', true);
             return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
         }
-        if (isDelimiter(peek, context, col)) {
+        if (isDelimiter(peek, context, col, colIgnoringWhitepace)) {
             return handleDelimiter(reader, context, pos, line, col);
         }
         if (isOpeningIdentifier(c)) {
@@ -588,7 +589,7 @@ public abstract class Parser {
         return alternativeStringLiteralQuote != 0 && peek.charAt(0) == alternativeStringLiteralQuote;
     }
 
-    protected boolean isDelimiter(String peek, ParserContext context, int col) {
+    protected boolean isDelimiter(String peek, ParserContext context, int col, int colIgnoringWhitepace) {
         return peek.startsWith(context.getDelimiter().getDelimiter());
     }
 

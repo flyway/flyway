@@ -75,18 +75,21 @@ public class Delimiter {
     /**
      * @return Whether the delimiter sits alone on a new line or not.
      */
-    public boolean isAloneOnLine() {
+    public boolean shouldBeAloneOnLine() {
         return aloneOnLine;
     }
 
+    /**
+     * @return The escape string for the delimiter, if any.
+     */
+    public String getEscape() {
+        String returnValue = null;
 
 
 
 
-
-
-
-
+        return returnValue;
+    }
 
 
     @Override

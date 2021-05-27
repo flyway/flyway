@@ -457,7 +457,7 @@ public class PeekingReader extends FilterReader {
         StringBuilder result = new StringBuilder();
         do {
             boolean isDelimiter = delimiter != null &&
-                    (result.length() == 0 || !delimiter.isAloneOnLine()) &&
+                    (result.length() == 0 || !delimiter.shouldBeAloneOnLine()) &&
                     peek(delimiter.getDelimiter());
 
             boolean shouldAppend = !isDelimiter && peekKeywordPart(context);

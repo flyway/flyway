@@ -39,6 +39,9 @@ public class PositionTrackingReader extends FilterReader {
             } else if (c == '\r') {
                 tracker.carriageReturn();
             } else {
+                if (!Character.isWhitespace(c)) {
+                    tracker.nextColIgnoringWhitespace();
+                }
                 tracker.nextCol();
             }
         }

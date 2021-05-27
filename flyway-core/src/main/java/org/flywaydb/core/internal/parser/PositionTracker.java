@@ -19,10 +19,12 @@ public class PositionTracker {
     private int pos = 0;
     private int line = 1;
     private int col = 1;
+    private int colIgnoringWhitespace = 1;
 
     private int markPos = 0;
     private int markLine = 1;
     private int markCol = 1;
+    private int markColIgnoringWhitespace = 1;
 
     public int getPos() {
         return pos;
@@ -36,6 +38,10 @@ public class PositionTracker {
         return col;
     }
 
+    public int getColIgnoringWhitespace() {
+        return colIgnoringWhitespace;
+    }
+
     public void nextPos() {
         pos++;
     }
@@ -44,24 +50,32 @@ public class PositionTracker {
         col++;
     }
 
+    public void nextColIgnoringWhitespace() {
+        colIgnoringWhitespace++;
+    }
+
     public void linefeed() {
         line++;
         col = 1;
+        colIgnoringWhitespace=1;
     }
 
     public void carriageReturn() {
         col = 1;
+        colIgnoringWhitespace=1;
     }
 
     public void mark() {
         markPos = pos;
         markLine = line;
         markCol = col;
+        markColIgnoringWhitespace = colIgnoringWhitespace;
     }
 
     public void reset() {
         pos = markPos;
         line = markLine;
         col = markCol;
+        colIgnoringWhitespace = markColIgnoringWhitespace;
     }
 }
