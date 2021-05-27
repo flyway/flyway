@@ -20,6 +20,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.util.LinkUtils;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -69,7 +70,10 @@ public class VersionChecker {
             MigrationVersion latest = MigrationVersion.fromVersion(obj.response.docs[0].latestVersion);
 
             if (current.compareTo(latest) < 0) {
-                LOG.warn("You are on an older version of Flyway. Please download latest at https://www.flywaydb.org/download/community");
+                LOG.warn("This version of Flyway is out of date. Upgrade to Flyway "
+                        + latest
+                        + ":"
+                        + LinkUtils.createFlywayDbWebsiteLinkWithRef("cmd-line","documentation", "learnmore", "staying-up-to-date"));
             }
         } catch (Exception e) {
             // Ignored

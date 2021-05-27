@@ -17,6 +17,7 @@ package org.flywaydb.core.api.pattern;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
+import org.flywaydb.core.internal.util.LinkUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +47,9 @@ public class ValidatePattern {
 
         if (patternParts.length != 2) {
             throw new FlywayException("Invalid pattern '" + pattern + "'. Pattern must be of the form <migration_type>:<migration_state> " +
-                    "See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details");
+                    "See " +
+                    LinkUtils.createFlywayDbWebsiteLink("documentation", "configuration", "parameters", "ignoreMigrationPatterns") +
+                    " for full details");
         }
 
         String migrationType = patternParts[0].trim().toLowerCase();

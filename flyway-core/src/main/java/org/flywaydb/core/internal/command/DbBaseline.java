@@ -26,6 +26,7 @@ import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
+import org.flywaydb.core.internal.util.LinkUtils;
 
 /**
  * Handles Flyway's baseline command.
@@ -103,7 +104,8 @@ public class DbBaseline {
                                 + baselineVersion + "," + baselineDescription
                                 + ") as it has already been baselined with ("
                                 + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")\n" +
-                                "Need to reset your baseline? Learn more: https://flywaydb.org/reset-the-baseline-migration");
+                                "Need to reset your baseline? Learn more: " +
+                                LinkUtils.createFlywayDbWebsiteLink("reset-the-baseline-migration"));
                     }
                 } else {
                     if (schemaHistory.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
@@ -112,7 +114,7 @@ public class DbBaseline {
 
                     if (schemaHistory.hasNonSyntheticAppliedMigrations()) {
                         throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations\n" +
-                                "Need to reset your baseline? Learn more: https://flywaydb.org/reset-the-baseline-migration");
+                                "Need to reset your baseline? Learn more: " + LinkUtils.createFlywayDbWebsiteLink("reset-the-baseline-migration"));
                     }
 
                     if (schemaHistory.allAppliedMigrations().isEmpty()) {
@@ -122,7 +124,7 @@ public class DbBaseline {
 
                     throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations.\n" +
                             "Delete the schema history table with the clean command, and run baseline again.\n" +
-                            "Need to reset your baseline? Learn more: https://flywaydb.org/reset-the-baseline-migration");
+                            "Need to reset your baseline? Learn more: " + LinkUtils.createFlywayDbWebsiteLink("reset-the-baseline-migration"));
                 }
             }
         } catch (FlywayException e) {

@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.license;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.LinkUtils;
 
 /**
  * Thrown when an attempt was made to use a Flyway Teams Edition feature not supported by
@@ -24,6 +25,7 @@ import org.flywaydb.core.api.FlywayException;
 public class FlywayTeamsUpgradeRequiredException extends FlywayException {
     public FlywayTeamsUpgradeRequiredException(String feature) {
         super(Edition.ENTERPRISE + " upgrade required: " + feature + " is not supported by " + Edition.COMMUNITY + "\n" +
-                "Try " + Edition.ENTERPRISE + " for free: https://flywaydb.org/try-flyway-teams-edition");
+                "Try " + Edition.ENTERPRISE + " for free: " +
+                LinkUtils.createFlywayDbWebsiteLinkWithRef("desired-feature_" + feature, "try-flyway-teams-edition"));
     }
 }

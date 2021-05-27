@@ -29,6 +29,7 @@ import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.sqlscript.SqlStatementIterator;
 import org.flywaydb.core.internal.util.BomStrippingReader;
 import org.flywaydb.core.internal.util.IOUtils;
+import org.flywaydb.core.internal.util.LinkUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -308,7 +309,7 @@ public abstract class Parser {
             } while (true);
         } catch (Exception e) {
             IOUtils.close(reader);
-            String docsPage = "https://flywaydb.org/documentation/knownparserlimitations";
+            String docsPage = LinkUtils.createFlywayDbWebsiteLink("documentation", "knownparserlimitations");
             throw new FlywayException("Unable to parse statement in " + resource.getAbsolutePath()
                     + " at line " + statementLine + " col " + statementCol + ". See " + docsPage + " for more information: " + e.getMessage(), e);
         }
