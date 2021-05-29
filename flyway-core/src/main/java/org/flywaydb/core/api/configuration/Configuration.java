@@ -649,4 +649,13 @@ public interface Configuration {
      * @return @{code true} to fail (default: {@code false})
      */
     boolean getFailOnMissingLocations();
+
+    /**
+     * Whether to allow creating the missing schema history table for non-empty schemas.
+     *
+     * Be careful when enabling this as it removes the safety net that ensures Flyway does not migrate the wrong database in case of a configuration mistake!
+     *
+     * @return @{code true} to allow (default: {@code false})
+     */
+    boolean allowCreateHistoryOnNonEmptySchemas();
 }

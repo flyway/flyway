@@ -372,6 +372,25 @@ public class FluentConfiguration implements Configuration {
         return config.getFailOnMissingLocations();
     }
 
+    @Override
+    public boolean allowCreateHistoryOnNonEmptySchemas()
+    {
+        return config.allowCreateHistoryOnNonEmptySchemas();
+    }
+
+    /**
+     * Whether to allow creating the missing schema history table for non-empty schemas.
+     *
+     * Be careful when enabling this as it removes the safety net that ensures Flyway does not migrate the wrong database in case of a configuration mistake!
+     *
+     * @param allowCreateHistoryOnNonEmptySchemas true to allow (default: false)
+     */
+    public FluentConfiguration allowCreateHistoryOnNonEmptySchemas(boolean allowCreateHistoryOnNonEmptySchemas)
+    {
+        config.setAllowCreateHistoryOnNonEmptySchemas(allowCreateHistoryOnNonEmptySchemas);
+        return this;
+    }
+
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.

@@ -121,6 +121,7 @@ public class ClassicConfiguration implements Configuration {
     private String[] vaultSecrets;
     private boolean failOnMissingLocations = false;
     private final ClasspathClassScanner classScanner;
+    private boolean allowCreateHistoryOnNonEmptySchemas = false;
 
     public ClassicConfiguration() {
         classScanner = new ClasspathClassScanner(this.classLoader);
@@ -477,6 +478,17 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getOracleKerberosCacheFile(){
         return oracleKerberosCacheFile;
+    }
+
+    @Override
+    public boolean allowCreateHistoryOnNonEmptySchemas()
+    {
+        return allowCreateHistoryOnNonEmptySchemas;
+    }
+
+    public void setAllowCreateHistoryOnNonEmptySchemas(boolean allowCreateHistoryOnNonEmptySchemas)
+    {
+        this.allowCreateHistoryOnNonEmptySchemas = allowCreateHistoryOnNonEmptySchemas;
     }
 
     /**
@@ -1609,6 +1621,7 @@ public class ClassicConfiguration implements Configuration {
         setShouldCreateSchemas(configuration.getCreateSchemas());
         setLockRetryCount(configuration.getLockRetryCount());
         setFailOnMissingLocations(configuration.getFailOnMissingLocations());
+        setAllowCreateHistoryOnNonEmptySchemas(configuration.allowCreateHistoryOnNonEmptySchemas());
 
         url = configuration.getUrl();
         user = configuration.getUser();

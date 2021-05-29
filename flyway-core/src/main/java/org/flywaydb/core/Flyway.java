@@ -180,9 +180,11 @@ public class Flyway {
 
                 if (!schemaHistory.exists()) {
                     List<Schema> nonEmptySchemas = new ArrayList<>();
-                    for (Schema schema : schemas) {
-                        if (schema.exists() && !schema.empty()) {
-                            nonEmptySchemas.add(schema);
+                    if (!configuration.allowCreateHistoryOnNonEmptySchemas()) {
+                        for (Schema schema : schemas) {
+                            if (schema.exists() && !schema.empty()) {
+                                nonEmptySchemas.add(schema);
+                            }
                         }
                     }
 
