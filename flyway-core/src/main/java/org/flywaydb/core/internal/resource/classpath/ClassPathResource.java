@@ -20,14 +20,17 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
-
-
 import org.flywaydb.core.internal.util.UrlUtils;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
+
+
+
+
+
 
 public class ClassPathResource extends LoadableResource {
     private static final Log LOG = LogFactory.getLog(ClassPathResource.class);

@@ -482,7 +482,8 @@
                 <version>${version.msal4j}</version>
                 <optional>true</optional>
             </dependency>
-            <!-- Temporary - overrides the transitive dependency in msal4j -->
+            <!-- Override the transitive dependency in msal4j to avoid an insecure version. This can be removed
+                when msal4j is bumped to this version of nimbus-jose-jwt or higher. -->
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>

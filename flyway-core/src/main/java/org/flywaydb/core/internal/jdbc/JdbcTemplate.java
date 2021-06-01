@@ -342,8 +342,6 @@ public class JdbcTemplate {
 
     protected PreparedStatement prepareStatement(String sql, Object[] params) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(sql);
-
-        //Spanner requires specific types for null but most others e.g. postgres don't work that way
         for (int i = 0; i < params.length; i++) {
             if (params[i] == null) {
                 statement.setNull(i + 1, nullType);

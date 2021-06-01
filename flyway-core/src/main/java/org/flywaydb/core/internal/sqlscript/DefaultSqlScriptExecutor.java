@@ -123,6 +123,8 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
+
+
                     executeStatement(jdbcTemplate, sqlScript, sqlStatement);
 
 
@@ -147,6 +149,10 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
                     + "SQL: " + sqlStatement.getSql());
         }
     }
+
+
+
+
 
 
 
@@ -260,7 +266,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     }
 
     private void handleUpdateCount(long updateCount) {
-        LOG.debug(updateCount + (updateCount == 1 ? "row" : "rows") + "affected");
+        LOG.debug(updateCount + (updateCount == 1 ? " row" : " rows") + " affected");
     }
 
     protected void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement) {
