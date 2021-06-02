@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 public class DatabaseTypeRegister {
     private static final Log LOG = LogFactory.getLog(DatabaseTypeRegister.class);
-    public static ClassLoader classLoader = DatabaseTypeRegister.class.getClassLoader();
+    public static ClassLoader classLoader = new DatabaseTypeRegister().getClass().getClassLoader();
 
     private static final List<DatabaseType> registeredDatabaseTypes = new ArrayList<>();
     private static boolean hasRegisteredDatabaseTypes = false;
