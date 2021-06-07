@@ -511,25 +511,43 @@ public class Main {
     /**
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a username.
      */
-    private static boolean needsUser(String url, String password) {
+    protected static boolean needsUser(String url, String password) {
         DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
-        return databaseType.detectUserRequiredByUrl(url)
+        if (databaseType.detectUserRequiredByUrl(url)) {
 
 
 
-                ;
+
+
+
+
+
+             return true;
+
+        }
+
+        return false;
     }
 
     /**
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a password.
      */
-    private static boolean needsPassword(String url, String username) {
+    protected static boolean needsPassword(String url, String username) {
         DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
-        return databaseType.detectPasswordRequiredByUrl(url)
+        if (databaseType.detectPasswordRequiredByUrl(url)) {
 
 
 
-                ;
+
+
+
+
+
+             return true;
+
+        }
+
+        return false;
     }
 
     private static List<File> determineConfigFilesFromArgs(CommandLineArguments commandLineArguments, Map<String, String> envVars) {
