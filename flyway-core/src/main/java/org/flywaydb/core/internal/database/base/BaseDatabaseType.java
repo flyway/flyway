@@ -266,4 +266,8 @@ public abstract class BaseDatabaseType implements DatabaseType {
     public Connection alterConnectionAsNeeded(Connection connection, Configuration configuration) {
         return connection;
     }
+
+    public String instantiateClassExtendedErrorMessage() {
+        return "";
+    }
 }

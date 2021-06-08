@@ -105,8 +105,13 @@ public class DriverDataSource implements DataSource {
         } catch (FlywayException e) {
             String backupDriverClass = type.getBackupDriverClass(url, classLoader);
             if (backupDriverClass == null) {
+                String extendedError = type.instantiateClassExtendedErrorMessage();
+                if (StringUtils.hasText(extendedError)) {
+                    extendedError = "\r\n" + extendedError;
+                }
                 throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass
-                        + " => Check whether the jar file is present", e,
+                        + " => Check whether the jar file is present"
+                        + extendedError, e,
                         ErrorCode.JDBC_DRIVER);
             }
             try {

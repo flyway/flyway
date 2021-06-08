@@ -258,4 +258,6 @@ public interface DatabaseType extends Comparable<DatabaseType> {
      * @param configuration The Flyway configuration.
      */
     Connection alterConnectionAsNeeded(Connection connection, Configuration configuration);
+
+    String instantiateClassExtendedErrorMessage();
 }
