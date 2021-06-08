@@ -231,7 +231,7 @@ public abstract class Parser {
                         return null;
                     }
                     if (canExecuteInTransaction == null) {
-                        canExecuteInTransaction = true;
+                        canExecuteInTransaction = determineCanExecuteInTransaction(simplifiedStatement, keywords, true);
                     }
 
 
@@ -294,11 +294,7 @@ public abstract class Parser {
                         adjustDelimiter(context, statementType);
                     }
                     if (canExecuteInTransaction == null) {
-                        if (keywords.size() > getTransactionalDetectionCutoff()) {
-                            canExecuteInTransaction = true;
-                        } else {
-                            canExecuteInTransaction = detectCanExecuteInTransaction(simplifiedStatement, keywords);
-                        }
+                        canExecuteInTransaction = determineCanExecuteInTransaction(simplifiedStatement, keywords, null);
                     }
 
 
@@ -453,6 +449,18 @@ public abstract class Parser {
 
     protected StatementType detectStatementType(String simplifiedStatement, ParserContext context) {
         return StatementType.UNKNOWN;
+    }
+
+    private Boolean determineCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords, Boolean defaultValue) {
+        if (keywords.size() > getTransactionalDetectionCutoff()) {
+            return true;
+        } else {
+            Boolean canExecuteInTransaction = detectCanExecuteInTransaction(simplifiedStatement, keywords);
+            if (canExecuteInTransaction == null) {
+                canExecuteInTransaction = defaultValue;
+            }
+            return canExecuteInTransaction;
+        }
     }
 
     protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
