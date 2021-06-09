@@ -126,9 +126,12 @@
             <includes>
                 <include>org.flywaydb:flyway-core</include>
                 <include>org.flywaydb:flyway-commandline</include>
+                <include>org.flywaydb:flyway-gcp-beta-support</include>
                 <!-- add at V8: com.boxfuse.flyway-master:flyway-community-db-support -->
             </includes>
         </dependencySet>
+
+
 
 
 
