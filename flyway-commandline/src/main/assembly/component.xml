@@ -150,6 +150,16 @@
 
 
         <dependencySet>
+            <outputDirectory>drivers/gcp</outputDirectory>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>com.google.cloud:google-cloud-spanner-jdbc</include>
+            </includes>
+            <excludes>
+                <exclude>commons-logging:commons-logging</exclude>
+            </excludes>
+        </dependencySet>
+        <dependencySet>
             <outputDirectory>drivers</outputDirectory>
             <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
             <useTransitiveDependencies>false</useTransitiveDependencies>

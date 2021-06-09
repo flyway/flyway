@@ -72,7 +72,7 @@ if ! [[ "$FLYWAY_EDITION" =~ ^(community|pro|enterprise|teams|\[edition\])$ ]]; 
     exit 1
 fi
 
-CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/$FLYWAY_EDITION/*:$INSTALLDIR/drivers/*"
+CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/$FLYWAY_EDITION/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/gcp/*"
 
 EXTRA_ARGS=
 if $linux; then
