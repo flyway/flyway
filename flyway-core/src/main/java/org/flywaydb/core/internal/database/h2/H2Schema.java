@@ -70,7 +70,7 @@ public class H2Schema extends Schema<H2Database, H2Table> {
             table.drop();
         }
 
-        List<String> sequenceNames = listObjectNames("SEQUENCE", "IS_GENERATED = false");
+        List<String> sequenceNames = listObjectNames("SEQUENCE", "");
         for (String statement : generateDropStatements("SEQUENCE", sequenceNames)) {
             jdbcTemplate.execute(statement);
         }

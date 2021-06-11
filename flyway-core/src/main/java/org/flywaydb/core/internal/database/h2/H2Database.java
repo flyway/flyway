@@ -85,7 +85,7 @@ public class H2Database extends Database<H2Connection> {
     protected MigrationVersion determineVersion() {
         try {
             int buildId = getMainConnection().getJdbcTemplate().queryForInt(
-                    "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'info.BUILD_ID'");
+                    "SELECT SETTING_VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE SETTING_NAME = 'info.BUILD_ID'");
             return MigrationVersion.fromVersion(super.determineVersion().getVersion() + "." + buildId);
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine H2 build ID", e);
@@ -95,7 +95,7 @@ public class H2Database extends Database<H2Connection> {
     private CompatibilityMode determineCompatibilityMode() {
         try {
             String mode = getMainConnection().getJdbcTemplate().queryForString(
-                    "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'MODE'");
+                    "SELECT SETTING_VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE SETTING_NAME = 'MODE'");
             if (mode == null || "".equals(mode))
                 return CompatibilityMode.REGULAR;
             return CompatibilityMode.valueOf(mode);
@@ -117,7 +117,7 @@ public class H2Database extends Database<H2Connection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("1.4", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("1.4.200");
+        recommendFlywayUpgradeIfNecessary("2.0.201");
         supportsDropSchemaCascade = getVersion().isAtLeast("1.4.200");
     }
 
