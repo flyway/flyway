@@ -45,6 +45,11 @@ import java.util.*;
 public class Main {
     private static Log LOG;
 
+
+
+
+
+
     static LogCreator getLogCreator(CommandLineArguments commandLineArguments) {
         // JSON output uses a different mechanism, so we do not create any loggers
         if (commandLineArguments.shouldOutputJson()) {
@@ -142,6 +147,12 @@ public class Main {
             }
 
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
+
+
+
+
+
+
 
             OperationResultBase result;
             if (commandLineArguments.getOperations().size()==1) {
@@ -314,6 +325,25 @@ public class Main {
         config.remove(ConfigUtils.CONFIG_FILES);
         config.remove(ConfigUtils.CONFIG_FILE_ENCODING);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private static void printVersion() {
         VersionPrinter.printVersionOnly();

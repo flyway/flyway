@@ -117,6 +117,12 @@ public class VersionPrinter {
 
 
 
+
+
+
+
+
+
     private static String readVersion() {
         try {
             return FileCopyUtils.copyToString(

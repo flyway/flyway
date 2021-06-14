@@ -65,6 +65,7 @@ class CommandLineArguments {
     private static final String QUIET_FLAG = "-q";
     private static final String SUPPRESS_PROMPT_FLAG = "-n";
     private static final List<String> PRINT_VERSION_AND_EXIT_FLAGS = Arrays.asList( "-v", "--version" );
+    private static final String CHECK_LICENCE = "-checkLicence";
     // The JSON_FLAG is deprecated and should be removed in v8
     private static final String JSON_FLAG = "-json";
     private static final List<String> PRINT_USAGE_FLAGS = Arrays.asList( "-?", "-h", "--help" );
@@ -87,7 +88,6 @@ class CommandLineArguments {
     private static final String INFO_UNTIL_VERSION = "infoUntilVersion";
     private static final String INFO_OF_STATE = "infoOfState";
 
-
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     private static final List<String> VALID_OPERATIONS_AND_FLAGS = getValidOperationsAndFlags();
@@ -103,6 +103,7 @@ class CommandLineArguments {
                 ENTERPRISE_FLAG,
                 PRO_FLAG,
                 TEAMS_FLAG,
+                CHECK_LICENCE,
                 "help",
                 "migrate",
                 "clean",
@@ -241,6 +242,10 @@ class CommandLineArguments {
         return isFlagSet(args, PRINT_VERSION_AND_EXIT_FLAGS);
     }
 
+    boolean shouldCheckLicenseAndExit() {
+        return isFlagSet(args, CHECK_LICENCE);
+    }
+
     boolean shouldOutputJson() {
         // The JSON_FLAG is deprecated and should be removed in v8
         // Not easy to warn about it as that needs to be injected into JSON
@@ -252,7 +257,7 @@ class CommandLineArguments {
     }
 
     boolean shouldPrintUsage() {
-        return isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty();
+        return (isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty()) && !isFlagSet(args, CHECK_LICENCE);
     }
 
     Level getLogLevel() {
