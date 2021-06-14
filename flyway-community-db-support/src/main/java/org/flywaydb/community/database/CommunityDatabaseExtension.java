@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 
 public class CommunityDatabaseExtension implements FlywayExtension {
     public String getDescription() {
-        return "Flyway Community database support extension " + readVersion() + " by Redgate";
+        return "Community-contributed database support extension " + readVersion() + " by Redgate";
     }
 
     private static String readVersion() {
