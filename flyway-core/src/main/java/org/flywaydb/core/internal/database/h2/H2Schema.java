@@ -80,12 +80,6 @@ public class H2Schema extends Schema<H2Database, H2Table> {
             jdbcTemplate.execute(statement);
         }
 
-        List<String> aliasNames = jdbcTemplate.queryForStringList(
-                "SELECT ALIAS_NAME FROM INFORMATION_SCHEMA.FUNCTION_ALIASES WHERE ALIAS_SCHEMA = ?", name);
-        for (String statement : generateDropStatements("ALIAS", aliasNames)) {
-            jdbcTemplate.execute(statement);
-        }
-
         List<String> domainNames = listObjectNames("DOMAIN", "");
         if (!domainNames.isEmpty()) {
             if (name.equals(database.getMainConnection().getCurrentSchema().getName())) {
