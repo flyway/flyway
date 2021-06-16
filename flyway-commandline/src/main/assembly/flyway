@@ -61,7 +61,13 @@ while [[ $# -gt 0 ]]; do
 done
 set -- "${POSITIONAL[@]}"
 if [ -z "$FLYWAY_EDITION" ]; then
-  FLYWAY_EDITION=community
+  CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/enterprise/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/gcp/*"
+  "$JAVA_CMD" $JAVA_ARGS $EXTRA_ARGS -cp "$CP" org.flywaydb.commandline.Main "$@" -checkLicence >/dev/null 2>/dev/null
+  if [ $? -eq 0 ]; then
+    FLYWAY_EDITION=enterprise
+  else
+    FLYWAY_EDITION=community
+  fi
 fi
 if [ "$FLYWAY_EDITION" == "pro" ] || [ "$FLYWAY_EDITION" == "teams" ]; then
   FLYWAY_EDITION=enterprise
@@ -72,7 +78,7 @@ if ! [[ "$FLYWAY_EDITION" =~ ^(community|pro|enterprise|teams|\[edition\])$ ]]; 
     exit 1
 fi
 
-CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/$FLYWAY_EDITION/*:$INSTALLDIR/drivers/*"
+CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/$FLYWAY_EDITION/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/gcp/*"
 
 EXTRA_ARGS=
 if $linux; then

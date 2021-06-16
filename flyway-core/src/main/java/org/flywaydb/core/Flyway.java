@@ -34,6 +34,7 @@ import org.flywaydb.core.internal.clazz.NoopClassProvider;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 import org.flywaydb.core.internal.database.DatabaseType;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.strategy.RetryStrategy;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
@@ -134,6 +135,10 @@ public class Flyway {
 
         // Load callbacks from default package
         this.configuration.loadCallbackLocation("db/callback", false);
+
+        // Set ClassLoader for ServiceLoader
+        DatabaseTypeRegister.classLoader = configuration.getClassLoader();
+        VersionPrinter.classLoader = configuration.getClassLoader();
     }
 
     /**

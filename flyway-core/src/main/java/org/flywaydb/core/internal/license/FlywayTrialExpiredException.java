@@ -16,10 +16,13 @@
 package org.flywaydb.core.internal.license;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.LinkUtils;
 
 public class FlywayTrialExpiredException extends FlywayException {
     public FlywayTrialExpiredException(Edition edition) {
         super("Your 30 day limited Flyway trial license has expired and is no longer valid. " +
-                "Visit https://flywaydb.org/trial-upgrade to upgrade to a full " + edition + " license to keep on using this software.");
+                "Visit " +
+                LinkUtils.createFlywayDbWebsiteLink("trial-upgrade") +
+                " to upgrade to a full " + edition + " license to keep on using this software.");
     }
 }

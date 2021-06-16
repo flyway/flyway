@@ -21,6 +21,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.strategy.RetryStrategy;
+import org.flywaydb.core.internal.util.LinkUtils;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -87,7 +88,7 @@ public class PostgreSQLAdvisoryLockTemplate {
                 "Interrupted while attempting to acquire PostgreSQL advisory lock",
                 "Number of retries exceeded while attempting to acquire PostgreSQL advisory lock. " +
                         "Configure the number of retries with the 'lockRetryCount' configuration option: " +
-                        "https://flywaydb.org/documentation/configuration/parameters/lockRetryCount");
+                        LinkUtils.createFlywayDbWebsiteLink("documentation", "configuration", "parameters", "lockRetryCount"));
     }
 
     private boolean tryLock() throws SQLException {

@@ -21,3 +21,4 @@ target
 
 flyway-core/SPOOLEDCONTENTS.SQL
 flyway-cli-sample/jars/
+out/**

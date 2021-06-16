@@ -19,6 +19,7 @@ import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.internal.util.LinkUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.text.ParseException;
@@ -64,6 +65,7 @@ class CommandLineArguments {
     private static final String QUIET_FLAG = "-q";
     private static final String SUPPRESS_PROMPT_FLAG = "-n";
     private static final List<String> PRINT_VERSION_AND_EXIT_FLAGS = Arrays.asList( "-v", "--version" );
+    private static final String CHECK_LICENCE = "-checkLicence";
     // The JSON_FLAG is deprecated and should be removed in v8
     private static final String JSON_FLAG = "-json";
     private static final List<String> PRINT_USAGE_FLAGS = Arrays.asList( "-?", "-h", "--help" );
@@ -86,7 +88,6 @@ class CommandLineArguments {
     private static final String INFO_UNTIL_VERSION = "infoUntilVersion";
     private static final String INFO_OF_STATE = "infoOfState";
 
-
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     private static final List<String> VALID_OPERATIONS_AND_FLAGS = getValidOperationsAndFlags();
@@ -102,6 +103,7 @@ class CommandLineArguments {
                 ENTERPRISE_FLAG,
                 PRO_FLAG,
                 TEAMS_FLAG,
+                CHECK_LICENCE,
                 "help",
                 "migrate",
                 "clean",
@@ -240,6 +242,10 @@ class CommandLineArguments {
         return isFlagSet(args, PRINT_VERSION_AND_EXIT_FLAGS);
     }
 
+    boolean shouldCheckLicenseAndExit() {
+        return isFlagSet(args, CHECK_LICENCE);
+    }
+
     boolean shouldOutputJson() {
         // The JSON_FLAG is deprecated and should be removed in v8
         // Not easy to warn about it as that needs to be injected into JSON
@@ -251,7 +257,7 @@ class CommandLineArguments {
     }
 
     boolean shouldPrintUsage() {
-        return isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty();
+        return (isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty()) && !isFlagSet(args, CHECK_LICENCE);
     }
 
     Level getLogLevel() {
@@ -334,7 +340,8 @@ class CommandLineArguments {
         } catch (ParseException e) {
             throw new FlywayException("'" + dateStr + "' is an invalid value for the " + argument + " option. " +
                     "The expected format is 'dd/mm/yyyy hh:mm', like '13/10/2020 16:30'. " +
-                    "See the Flyway documentation for help: https://flywaydb.org/documentation/usage/commandline/info#filtering-output");
+                    "See the Flyway documentation for help: " +
+                    LinkUtils.createFlywayDbWebsiteLinkWithRef("cmd-line","documentation", "usage", "commandline", "info#filtering-output"));
         }
     }
 

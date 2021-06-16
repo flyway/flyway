@@ -167,6 +167,7 @@
         <version.ant>1.9.14</version.ant>
         <version.aws-java-sdk>2.16.61</version.aws-java-sdk>
         <version.aws-secretsmanager>1.0.6</version.aws-secretsmanager>
+        <version.commonscodec>1.15</version.commonscodec>
         <version.commonslogging>1.2</version.commonslogging>
         <version.db2>11.5.0.0</version.db2>
         <version.derby>10.15.2.0</version.derby>
@@ -177,7 +178,7 @@
         <version.gson>2.8.6</version.gson>
         <version.h2>1.4.200</version.h2>
         <version.hsqldb>2.5.1</version.hsqldb>
-        <version.httpclient>4.5.2</version.httpclient>
+        <version.httpclient>4.5.13</version.httpclient>
         <version.ignite>2.9.0</version.ignite>
         <version.informix>4.50.3</version.informix>
         <version.jansi>1.18</version.jansi>
@@ -197,6 +198,7 @@
         <version.mssql>9.2.1</version.mssql>
         <version.mssql-jdbc>${version.mssql}.jre8</version.mssql-jdbc>
         <version.mysql>8.0.24</version.mysql>
+        <version.netty-codec>4.1.65.Final</version.netty-codec>
         <version.oracle>19.6.0.0</version.oracle>
         <version.osgi>4.3.1</version.osgi>
         <version.p6spy>3.9.1</version.p6spy>
@@ -487,6 +489,15 @@
                 <version>${version.msal4j}</version>
                 <optional>true</optional>
             </dependency>
+            <!-- Override the transitive dependency in msal4j to avoid an insecure version. This can be removed
+                 when msal4j is bumped to this version of nimbus-jose-jwt or higher. -->
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>9.9.3</version>
+                <optional>true</optional>
+            </dependency>
+            <!-- /Temporary -->
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
@@ -516,11 +527,25 @@
                 <version>${version.aws-secretsmanager}</version>
                 <optional>true</optional>
             </dependency>
+            <!-- We don't explicitly depend on httpclient or commons-codec but Spanner and Android depend
+            on different versions so we're pinning to the newer (Spanner) ones -->
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>${version.httpclient}</version>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${version.commonscodec}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <!-- This is a transitive dependency with a CVE. Remove when updated -->
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec</artifactId>
+                <version>${version.netty-codec}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.android</groupId>

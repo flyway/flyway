@@ -50,6 +50,8 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
 
 
+
+
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("9.0");

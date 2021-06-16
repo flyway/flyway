@@ -32,6 +32,7 @@ import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.LinkUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.*;
@@ -43,6 +44,11 @@ import java.util.*;
 
 public class Main {
     private static Log LOG;
+
+
+
+
+
 
     static LogCreator getLogCreator(CommandLineArguments commandLineArguments) {
         // JSON output uses a different mechanism, so we do not create any loggers
@@ -141,6 +147,12 @@ public class Main {
             }
 
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
+
+
+
+
+
+
 
             OperationResultBase result;
             if (commandLineArguments.getOperations().size()==1) {
@@ -314,6 +326,25 @@ public class Main {
         config.remove(ConfigUtils.CONFIG_FILE_ENCODING);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     private static void printVersion() {
         VersionPrinter.printVersionOnly();
         LOG.info("");
@@ -416,8 +447,8 @@ public class Main {
         LOG.info("-------");
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
-        LOG.info("More info at https://flywaydb.org/documentation/usage/commandline");
-        LOG.info("Learn more about Flyway Teams edition at https://flywaydb.org/try-flyway-teams-edition");
+        LOG.info("More info at " + LinkUtils.createFlywayDbWebsiteLinkWithRef("cmd-line","documentation", "usage", "commandline"));
+        LOG.info("Learn more about Flyway Teams edition at " + LinkUtils.createFlywayDbWebsiteLinkWithRef("cmd-line","try-flyway-teams-edition"));
     }
 
     private static List<File> getJdbcDriverJarFiles() {
@@ -510,25 +541,43 @@ public class Main {
     /**
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a username.
      */
-    private static boolean needsUser(String url, String password) {
+    protected static boolean needsUser(String url, String password) {
         DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
-        return databaseType.detectUserRequiredByUrl(url)
+        if (databaseType.detectUserRequiredByUrl(url)) {
 
 
 
-                ;
+
+
+
+
+
+             return true;
+
+        }
+
+        return false;
     }
 
     /**
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a password.
      */
-    private static boolean needsPassword(String url, String username) {
+    protected static boolean needsPassword(String url, String username) {
         DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
-        return databaseType.detectPasswordRequiredByUrl(url)
+        if (databaseType.detectPasswordRequiredByUrl(url)) {
 
 
 
-                ;
+
+
+
+
+
+             return true;
+
+        }
+
+        return false;
     }
 
     private static List<File> determineConfigFilesFromArgs(CommandLineArguments commandLineArguments, Map<String, String> envVars) {

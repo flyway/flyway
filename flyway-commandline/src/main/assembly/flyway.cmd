@@ -60,7 +60,7 @@ IF NOT [%1]==[] (
 )
 :loop-end
 if "%FLYWAY_EDITION%"=="" (
-  set FLYWAY_EDITION=community
+  CALL :checklicense %*
 )
 if "%FLYWAY_EDITION%"=="pro" (
   set FLYWAY_EDITION=enterprise
@@ -83,7 +83,12 @@ if %editionValid%==false (
   EXIT /B 1
 )
 
-%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\%FLYWAY_EDITION%\*;%INSTALLDIR%\drivers\*" org.flywaydb.commandline.Main %*
+%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\%FLYWAY_EDITION%\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\gcp\*" org.flywaydb.commandline.Main %*
 
 @REM Exit using the same code returned from Java
 EXIT /B %ERRORLEVEL%
+:checkLicense
+%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\enterprise\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\gcp\*" org.flywaydb.commandline.Main %* -checkLicence >NUL 2>NUL
+if %ERRORLEVEL% EQU 0 (set FLYWAY_EDITION=enterprise) else (SET FLYWAY_EDITION=community)
+SET ERRORLEVEL=0
+EXIT /B

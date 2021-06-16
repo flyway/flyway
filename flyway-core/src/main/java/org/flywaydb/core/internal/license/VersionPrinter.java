@@ -27,8 +27,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.ServiceLoader;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 public class VersionPrinter {
     private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
+    public static ClassLoader classLoader = VersionPrinter.class.getClassLoader();
     private static final String version = readVersion();
 
     public static final Edition EDITION =
@@ -71,11 +74,23 @@ public class VersionPrinter {
     }
 
     private static void printExtensionVersions() {
-        ServiceLoader<FlywayExtension> loader = ServiceLoader.load(FlywayExtension.class);
+        ServiceLoader<FlywayExtension> loader = ServiceLoader.load(FlywayExtension.class, classLoader);
         for (FlywayExtension extension : loader) {
             LOG.info( ">\t" + extension.getDescription());
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

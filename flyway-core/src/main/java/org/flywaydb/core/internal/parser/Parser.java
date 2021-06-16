@@ -29,6 +29,7 @@ import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.sqlscript.SqlStatementIterator;
 import org.flywaydb.core.internal.util.BomStrippingReader;
 import org.flywaydb.core.internal.util.IOUtils;
+import org.flywaydb.core.internal.util.LinkUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -230,7 +231,7 @@ public abstract class Parser {
                         return null;
                     }
                     if (canExecuteInTransaction == null) {
-                        canExecuteInTransaction = true;
+                        canExecuteInTransaction = determineCanExecuteInTransaction(simplifiedStatement, keywords, true);
                     }
 
 
@@ -293,11 +294,7 @@ public abstract class Parser {
                         adjustDelimiter(context, statementType);
                     }
                     if (canExecuteInTransaction == null) {
-                        if (keywords.size() > getTransactionalDetectionCutoff()) {
-                            canExecuteInTransaction = true;
-                        } else {
-                            canExecuteInTransaction = detectCanExecuteInTransaction(simplifiedStatement, keywords);
-                        }
+                        canExecuteInTransaction = determineCanExecuteInTransaction(simplifiedStatement, keywords, null);
                     }
 
 
@@ -308,7 +305,7 @@ public abstract class Parser {
             } while (true);
         } catch (Exception e) {
             IOUtils.close(reader);
-            String docsPage = "https://flywaydb.org/documentation/knownparserlimitations";
+            String docsPage = LinkUtils.createFlywayDbWebsiteLink("documentation", "knownparserlimitations");
             throw new FlywayException("Unable to parse statement in " + resource.getAbsolutePath()
                     + " at line " + statementLine + " col " + statementCol + ". See " + docsPage + " for more information: " + e.getMessage(), e);
         }
@@ -454,6 +451,18 @@ public abstract class Parser {
         return StatementType.UNKNOWN;
     }
 
+    private Boolean determineCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords, Boolean defaultValue) {
+        if (keywords.size() > getTransactionalDetectionCutoff()) {
+            return true;
+        } else {
+            Boolean canExecuteInTransaction = detectCanExecuteInTransaction(simplifiedStatement, keywords);
+            if (canExecuteInTransaction == null) {
+                canExecuteInTransaction = defaultValue;
+            }
+            return canExecuteInTransaction;
+        }
+    }
+
     protected Boolean detectCanExecuteInTransaction(String simplifiedStatement, List<Token> keywords) {
         return true;
     }
@@ -468,6 +477,7 @@ public abstract class Parser {
         int pos = tracker.getPos();
         int line = tracker.getLine();
         int col = tracker.getCol();
+        int colIgnoringWhitepace = tracker.getColIgnoringWhitespace();
 
         String peek = reader.peek(peekDepth);
         if (peek == null) {
@@ -536,7 +546,7 @@ public abstract class Parser {
             reader.swallowUntilExcludingWithEscape('\'', true);
             return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
         }
-        if (isDelimiter(peek, context, col)) {
+        if (isDelimiter(peek, context, col, colIgnoringWhitepace)) {
             return handleDelimiter(reader, context, pos, line, col);
         }
         if (isOpeningIdentifier(c)) {
@@ -587,7 +597,7 @@ public abstract class Parser {
         return alternativeStringLiteralQuote != 0 && peek.charAt(0) == alternativeStringLiteralQuote;
     }
 
-    protected boolean isDelimiter(String peek, ParserContext context, int col) {
+    protected boolean isDelimiter(String peek, ParserContext context, int col, int colIgnoringWhitepace) {
         return peek.startsWith(context.getDelimiter().getDelimiter());
     }
 

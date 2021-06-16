@@ -15,9 +15,13 @@
  */
 package org.flywaydb.core.internal.license;
 
+import org.flywaydb.core.internal.util.LinkUtils;
+
 public class FlywayTeamsUpgradeMessage {
     public static String generate(String detectedFeature, String usageMessage) {
         return "Detected " + detectedFeature + ". " +
-               "Upgrade to " + Edition.ENTERPRISE + " to " + usageMessage + ". Try " + Edition.ENTERPRISE + " for free: https://flywaydb.org/try-flyway-teams-edition.";
+               "Upgrade to " + Edition.ENTERPRISE + " to " + usageMessage + ". Try " + Edition.ENTERPRISE + " " +
+                "for free: " +
+                LinkUtils.createFlywayDbWebsiteLinkWithRef("desired-feature_" + detectedFeature,"try-flyway-teams-edition");
     }
 }

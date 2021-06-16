@@ -40,6 +40,7 @@ public class ParsingContext {
     private static final String TIMESTAMP_PLACEHOLDER = "flyway:timestamp";
     private static final String FILENAME_PLACEHOLDER = "flyway:filename";
     private static final String WORKING_DIRECTORY_PLACEHOLDER = "flyway:workingDirectory";
+    private static final String TABLE_PLACEHOLDER = "flyway:table";
 
     private final Map<String, String> placeholders = new HashMap<>();
     private Database database;
@@ -86,6 +87,7 @@ public class ParsingContext {
         placeholders.put(USER_PLACEHOLDER, currentUser);
         placeholders.put(TIMESTAMP_PLACEHOLDER, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         placeholders.put(WORKING_DIRECTORY_PLACEHOLDER, System.getProperty("user.dir"));
+        placeholders.put(TABLE_PLACEHOLDER, configuration.getTable());
     }
 
     public void updateFilenamePlaceholder(ResourceName resourceName) {

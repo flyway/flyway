@@ -16,17 +16,23 @@
 package org.flywaydb.core.internal.database.cockroachdb;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * CockroachDB connection.
  */
 public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
+    private static final Log LOG = LogFactory.getLog(CockroachDBConnection.class);
+
     CockroachDBConnection(CockroachDBDatabase database, java.sql.Connection connection) {
         super(database, connection);
     }
@@ -55,7 +61,17 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         if (database.supportsSchemas()) {
-            return jdbcTemplate.queryForString("SHOW search_path");
+            String sp = jdbcTemplate.queryForString("SHOW search_path");
+            // Up to Cockroach 20, the default response is "public". In 21, that became "$user,public", but this is
+            // illegal in the corresponding SET query. Normally this simply results in an exception which we skip over,
+            // but in dry runs the produced script will be invalid and error when you run it.
+            if (sp.contains("$user")) {
+                LOG.warn("Search path contains $user; removing...");
+                ArrayList<String> paths = new ArrayList(Arrays.asList(sp.split(",")));
+                paths.remove("$user");
+                sp = String.join(",", paths);
+            }
+            return sp;
         } else {
             return jdbcTemplate.queryForString("SHOW database");
         }

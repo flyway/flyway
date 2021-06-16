@@ -61,17 +61,18 @@ public class OracleParser extends Parser {
 
 
 
-    private static final String ACCESSIBLE_BY_REGEX = "ACCESSIBLE\\sBY\\s((FUNCTION|PROCEDURE|PACKAGE|TRIGGER|TYPE)\\s)*";
+    //                                                 accessible   by    (        keyword<space>optionalidentifier                      )
+    private static final String ACCESSIBLE_BY_REGEX = "ACCESSIBLE\\sBY\\s\\(?((FUNCTION|PROCEDURE|PACKAGE|TRIGGER|TYPE)\\s[^\\s]*\\s?+)*\\)?";
 
     private static final Pattern PLSQL_TYPE_BODY_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sTYPE\\sBODY\\s([^\\s]*\\s)?(IS|AS)");
 
     private static final Pattern PLSQL_PACKAGE_BODY_REGEX = Pattern.compile(
-            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\sBODY\\s([^\\s]*\\s)?(IS|AS)");
+            "^CREATE(\\s*OR\\s*REPLACE)?(\\s*(NON)?EDITIONABLE)?\\s*PACKAGE\\s*BODY\\s*([^\\s]*\\s)?(IS|AS)");
     private static final StatementType PLSQL_PACKAGE_BODY_STATEMENT = new StatementType();
 
     private static final Pattern PLSQL_PACKAGE_DEFINITION_REGEX = Pattern.compile(
-            "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\s([^\\s]*\\s)?(AUTHID\\s[^\\s]*\\s|" + ACCESSIBLE_BY_REGEX + ")*(IS|AS)");
+            "^CREATE(\\s*OR\\s*REPLACE)?(\\s*(NON)?EDITIONABLE)?\\s*PACKAGE\\s([^\\s*]*\\s*)?(AUTHID\\s*[^\\s*]*\\s*|" + ACCESSIBLE_BY_REGEX + ")*(IS|AS)");
 
     private static final Pattern PLSQL_VIEW_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sVIEW\\s([^\\s]*\\s)?AS\\sWITH\\s(PROCEDURE|FUNCTION)");
@@ -92,6 +93,7 @@ public class OracleParser extends Parser {
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sPACKAGE\\sWRAPPED(\\s[^\\s]*)*");
     private static final Pattern PLSQL_WRAPPED_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\s(FUNCTION|PROCEDURE|TYPE)\\sWRAPPED(\\s[^\\s]*)*");
+
     private static final StatementType PLSQL_WRAPPED_STATEMENT = new StatementType();
     private int initialWrappedBlockDepth = -1;
 
@@ -552,26 +554,30 @@ public class OracleParser extends Parser {
     }
 
     @Override
-    protected boolean isDelimiter(String peek, ParserContext context, int col) {
+    protected boolean isDelimiter(String peek, ParserContext context, int col, int colIgnoringWhitepace) {
         Delimiter delimiter = context.getDelimiter();
 
-        // Only consider alone-on-line delimiters (such as "/" for PL/SQL) if
-        // it's the first character on the line
-        if (delimiter.isAloneOnLine() && col > 1) {
-            return false;
-        }
-
-
-
-
-
-
-
-        if (col == 1 && "/".equals(peek.trim())) {
+        if (peek.startsWith(delimiter.getEscape() + delimiter.getDelimiter())) {
             return true;
         }
 
-        return super.isDelimiter(peek, context, col);
+        if (delimiter.shouldBeAloneOnLine()) {
+            // Only consider alone-on-line delimiters (such as "/" for PL/SQL) if
+            // it's the first character on the line
+            if (colIgnoringWhitepace == 1 && peek == delimiter.getDelimiter()) {
+                return true;
+            }
+
+            if (colIgnoringWhitepace != 1) {
+                return false;
+            }
+        } else {
+            if (colIgnoringWhitepace == 1 && "/".equals(peek.trim())) {
+                return true;
+            }
+        }
+
+        return super.isDelimiter(peek, context, col, colIgnoringWhitepace);
     }
 
 
