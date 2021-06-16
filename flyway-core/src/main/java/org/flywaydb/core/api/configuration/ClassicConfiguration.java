@@ -1456,8 +1456,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLicenseKey(String licenseKey) {
 
-         LOG.warn(Edition.ENTERPRISE + " upgrade required: " + licenseKey
-         + " is not supported by " + Edition.COMMUNITY + ".");
+         LOG.warn(Edition.ENTERPRISE + " upgrade required: licenseKey is not supported by " + Edition.COMMUNITY + ".");
 
 
 
