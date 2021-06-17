@@ -194,7 +194,7 @@
         <version.mariadb>2.7.2</version.mariadb>
         <version.maven>3.6.3</version.maven>
         <version.mockito>1.10.19</version.mockito>
-        <version.msal4j>1.10.0</version.msal4j>
+        <version.msal4j>1.10.1</version.msal4j>
         <version.mssql>9.2.1</version.mssql>
         <version.mssql-jdbc>${version.mssql}.jre8</version.mssql-jdbc>
         <version.mysql>8.0.24</version.mysql>
@@ -483,15 +483,6 @@
                 <version>${version.msal4j}</version>
                 <optional>true</optional>
             </dependency>
-            <!-- Override the transitive dependency in msal4j to avoid an insecure version. This can be removed
-                 when msal4j is bumped to this version of nimbus-jose-jwt or higher. -->
-            <dependency>
-                <groupId>com.nimbusds</groupId>
-                <artifactId>nimbus-jose-jwt</artifactId>
-                <version>9.9.3</version>
-                <optional>true</optional>
-            </dependency>
-            <!-- /Temporary -->
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
