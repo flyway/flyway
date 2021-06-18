@@ -79,6 +79,8 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
 
 
 
+
+
     @Override
     public void ensureSupported() {
         ensureDatabaseIsRecentEnough("3.0");
