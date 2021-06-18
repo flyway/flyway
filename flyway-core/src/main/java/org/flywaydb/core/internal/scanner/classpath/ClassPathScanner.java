@@ -90,10 +90,15 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         this.locationScannerCache = locationScannerCache;
         this.throwOnMissingLocations = throwOnMissingLocations;
 
-        LOG.debug("Scanning for classpath resources at '" + location + "' ...");
+        final boolean debugEnabled = LOG.isDebugEnabled();
+        if (debugEnabled) {
+            LOG.debug("Scanning for classpath resources at '" + location + "' ...");
+        }
         for (String resourceName : findResourceNames()) {
             resources.add(new ClassPathResource(location, resourceName, classLoader, encoding));
-            LOG.debug("Found resource: " + resourceName);
+            if (debugEnabled) {
+                LOG.debug("Found resource: " + resourceName);
+            }
         }
     }
 
@@ -104,7 +109,9 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
 
     @Override
     public Collection<Class<? extends I>> scanForClasses() {
-        LOG.debug("Scanning for classes at " + location);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Scanning for classes at " + location);
+        }
 
         List<Class<? extends I>> classes = new ArrayList<>();
 
@@ -145,7 +152,9 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
 
         List<URL> locationUrls = getLocationUrlsForPath(location);
         for (URL locationUrl : locationUrls) {
-            LOG.debug("Scanning URL: " + locationUrl.toExternalForm());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Scanning URL: " + locationUrl.toExternalForm());
+            }
 
             UrlResolver urlResolver = createUrlResolver(locationUrl.getProtocol());
             URL resolvedUrl = urlResolver.toStandardJavaUrl(locationUrl);
@@ -223,12 +232,13 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         }
 
         if (!locationResolved) {
-            String message = "Unable to resolve location " + location + ".";
-
             if (throwOnMissingLocations) {
+                String message = "Unable to resolve location " + location + ".";
                 throw new FlywayException(message);
-            } else {
-                LOG.debug(message);
+            }
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Unable to resolve location " + location + ".");
             }
         }
 
@@ -246,7 +256,9 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
             return locationUrlCache.get(location);
         }
 
-        LOG.debug("Determining location urls for " + location + " using ClassLoader " + classLoader + " ...");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Determining location urls for " + location + " using ClassLoader " + classLoader + " ...");
+        }
 
         List<URL> locationUrls = new ArrayList<>();
 

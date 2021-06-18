@@ -152,12 +152,16 @@ public class ClassUtils {
             }
 
             if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isEnum() || clazz.isAnonymousClass()) {
-                LOG.debug("Skipping non-instantiable class: " + className);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Skipping non-instantiable class: " + className);
+                }
                 return null;
             }
 
             clazz.getDeclaredConstructor().newInstance();
-            LOG.debug("Found class: " + className);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Found class: " + className);
+            }
             //noinspection unchecked
             return (Class<? extends I>) clazz;
         } catch (Throwable e) {
@@ -206,8 +210,11 @@ public class ClassUtils {
      */
     public static ClassLoader addJarsOrDirectoriesToClasspath(ClassLoader classLoader, List<File> jarFiles) {
         List<URL> urls = new ArrayList<>();
+        final boolean debugEnabled = LOG.isDebugEnabled();
         for (File jarFile : jarFiles) {
-            LOG.debug("Adding location to classpath: " + jarFile.getAbsolutePath());
+            if (debugEnabled) {
+                LOG.debug("Adding location to classpath: " + jarFile.getAbsolutePath());
+            }
 
             try {
                 urls.add(jarFile.toURI().toURL());

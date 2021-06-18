@@ -135,7 +135,9 @@ public abstract class BaseDatabaseType implements DatabaseType {
         String databaseProductName = jdbcConnectionFactory.getProductName();
         if (printInfo) {
             LOG.info("Database: " + jdbcConnectionFactory.getJdbcUrl() + " (" + databaseProductName + ")");
-            LOG.debug("Driver  : " + jdbcConnectionFactory.getDriverInfo());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Driver  : " + jdbcConnectionFactory.getDriverInfo());
+            }
         }
 
         Database database = createDatabase(configuration, jdbcConnectionFactory, statementInterceptor);

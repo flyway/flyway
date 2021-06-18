@@ -43,7 +43,9 @@ public class ResourceNameValidator {
 
         for (Resource resource : getAllSqlResources(provider, configuration)) {
             String filename = resource.getFilename();
-            LOG.debug("Validating " + filename);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Validating " + filename);
+            }
             // Filter out special purpose files that the parser will not identify.
             if (isSpecialResourceFile(configuration, filename)) {
                 continue;

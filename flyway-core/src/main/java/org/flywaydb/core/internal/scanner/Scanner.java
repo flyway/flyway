@@ -25,7 +25,6 @@ import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
 import org.flywaydb.core.internal.scanner.android.AndroidScanner;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
-import org.flywaydb.core.internal.scanner.cloud.gcs.GCSScanner;
 import org.flywaydb.core.internal.scanner.cloud.s3.AwsS3Scanner;
 import org.flywaydb.core.internal.scanner.filesystem.FileSystemScanner;
 import org.flywaydb.core.internal.util.FeatureDetector;
@@ -33,7 +32,11 @@ import org.flywaydb.core.internal.util.StringUtils;
 
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Scanner for Resources and Classes.
@@ -156,7 +159,9 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
             if (StringUtils.startsAndEndsWith(fileName, prefix, suffixes)) {
                 result.add(resource);
             } else {
-                LOG.debug("Filtering out resource: " + resource.getAbsolutePath() + " (filename: " + fileName + ")");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Filtering out resource: " + resource.getAbsolutePath() + " (filename: " + fileName + ")");
+                }
             }
         }
         return result;

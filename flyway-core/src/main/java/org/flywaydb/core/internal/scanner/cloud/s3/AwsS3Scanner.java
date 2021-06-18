@@ -78,8 +78,12 @@ public class AwsS3Scanner extends CloudScanner {
     private Collection<LoadableResource> getLoadableResources(String bucketName, final ListObjectsV2Response listObjectResult) {
         List<S3Object> objectSummaries = listObjectResult.contents();
         Set<LoadableResource> resources = new TreeSet<>();
+        final boolean debugEnabled = LOG.isDebugEnabled();
+
         for (S3Object objectSummary : objectSummaries) {
-            LOG.debug("Found Amazon S3 resource: " + bucketName.concat("/").concat(objectSummary.key()));
+            if (debugEnabled) {
+                LOG.debug("Found Amazon S3 resource: " + bucketName.concat("/").concat(objectSummary.key()));
+            }
             resources.add(new AwsS3Resource(bucketName, objectSummary, encoding));
         }
         return resources;

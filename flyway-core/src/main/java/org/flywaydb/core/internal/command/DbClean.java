@@ -152,7 +152,10 @@ public class DbClean {
     }
 
     private void dropSchema(final Schema schema, CleanResult cleanResult) {
-        LOG.debug("Dropping schema " + schema + "...");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Dropping schema " + schema + "...");
+        }
+
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {

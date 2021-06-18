@@ -75,7 +75,9 @@ public class DatabaseTypeRegister {
                     builder.append(type.getName());
                 }
 
-                LOG.debug("Multiple databases found that handle url '" + redactJdbcUrl(url) + "': " + builder);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Multiple databases found that handle url '" + redactJdbcUrl(url) + "': " + builder);
+                }
             }
             return typesAcceptingUrl.get(0);
         } else {

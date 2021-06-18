@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
-import static org.flywaydb.core.internal.util.BooleanEvaluator.evaluateExpression;
 
 public class SqlScriptMetadata {
     private static final Log LOG = LogFactory.getLog(SqlScriptMetadata.class);
@@ -78,7 +77,9 @@ public class SqlScriptMetadata {
 
     public static SqlScriptMetadata fromResource(LoadableResource resource, Parser parser) {
         if (resource != null) {
-            LOG.debug("Found script configuration: " + resource.getFilename());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Found script configuration: " + resource.getFilename());
+            }
             if (parser == null) {
                 return new SqlScriptMetadata(ConfigUtils.loadConfigurationFromReader(resource.read()));
             }

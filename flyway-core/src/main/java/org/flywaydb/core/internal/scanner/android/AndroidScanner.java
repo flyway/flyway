@@ -103,7 +103,9 @@ public class AndroidScanner<I> implements ResourceAndClassScanner<I> {
                 try {
                     dex.close();
                 } catch (IOException e) {
-                    LOG.debug("Unable to close DEX file (" + sourceDir + "): " + e.getMessage());
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Unable to close DEX file (" + sourceDir + "): " + e.getMessage());
+                    }
                 }
             }
         }

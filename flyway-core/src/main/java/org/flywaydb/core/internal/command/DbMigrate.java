@@ -339,9 +339,13 @@ public class DbMigrate {
             }
 
             if (skipExecutingMigrations) {
-                LOG.debug("Skipping execution of migration of " + migrationText);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Skipping execution of migration of " + migrationText);
+                }
             } else {
-                LOG.debug("Starting migration of " + migrationText + " ...");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Starting migration of " + migrationText + " ...");
+                }
 
                 connectionUserObjects.restoreOriginalState();
                 connectionUserObjects.changeCurrentSchemaTo(schema);
@@ -360,7 +364,9 @@ public class DbMigrate {
                         throw new FlywayMigrateException(migration, isOutOfOrder, e);
                     }
 
-                    LOG.debug("Successfully completed migration of " + migrationText);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Successfully completed migration of " + migrationText);
+                    }
                     callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE);
                 } finally {
                     callbackExecutor.setMigrationInfo(null);

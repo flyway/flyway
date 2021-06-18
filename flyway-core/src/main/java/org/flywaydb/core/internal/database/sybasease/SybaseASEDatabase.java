@@ -150,8 +150,10 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
      */
     public boolean supportsMultiStatementTransactions() {
         if (supportsMultiStatementTransactions) {
-            LOG.debug("ddl in tran was found to be true at some point during execution." +
-                    "Therefore multi statement transaction support is assumed.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("ddl in tran was found to be true at some point during execution." +
+                        "Therefore multi statement transaction support is assumed.");
+            }
             return true;
         }
 

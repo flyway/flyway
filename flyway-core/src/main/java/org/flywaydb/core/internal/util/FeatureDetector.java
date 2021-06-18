@@ -137,7 +137,9 @@ public final class FeatureDetector {
     public boolean isJBossVFSv2Available() {
         if (jbossVFSv2Available == null) {
             jbossVFSv2Available = ClassUtils.isPresent("org.jboss.virtual.VFS", classLoader);
-            LOG.debug("JBoss VFS v2 available: " + jbossVFSv2Available);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("JBoss VFS v2 available: " + jbossVFSv2Available);
+            }
         }
 
         return jbossVFSv2Available;
@@ -151,7 +153,9 @@ public final class FeatureDetector {
     public boolean isJBossVFSv3Available() {
         if (jbossVFSv3Available == null) {
             jbossVFSv3Available = ClassUtils.isPresent("org.jboss.vfs.VFS", classLoader);
-            LOG.debug("JBoss VFS v3 available: " + jbossVFSv3Available);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("JBoss VFS v3 available: " + jbossVFSv3Available);
+            }
         }
 
         return jbossVFSv3Available;
@@ -167,7 +171,9 @@ public final class FeatureDetector {
             // Use this class' classloader to detect the OSGi framework
             ClassLoader classLoader = FeatureDetector.class.getClassLoader();
             osgiFrameworkAvailable = ClassUtils.isPresent("org.osgi.framework.Bundle", classLoader);
-            LOG.debug("OSGi framework available: " + osgiFrameworkAvailable);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("OSGi framework available: " + osgiFrameworkAvailable);
+            }
         }
 
         return osgiFrameworkAvailable;
@@ -194,7 +200,9 @@ public final class FeatureDetector {
     public boolean isAwsAvailable() {
         if (awsAvailable == null) {
             awsAvailable = ClassUtils.isPresent("software.amazon.awssdk.services.s3.S3Client", classLoader);
-            LOG.debug("AWS SDK available: " + awsAvailable);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("AWS SDK available: " + awsAvailable);
+            }
         }
 
         return awsAvailable;
@@ -208,7 +216,9 @@ public final class FeatureDetector {
     public boolean isGCSAvailable() {
         if (gcsAvailable == null) {
             gcsAvailable = ClassUtils.isPresent("com.google.cloud.storage.Storage", classLoader);
-            LOG.debug("Google Cloud Storage available: " + gcsAvailable);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Google Cloud Storage available: " + gcsAvailable);
+            }
         }
 
         return gcsAvailable;

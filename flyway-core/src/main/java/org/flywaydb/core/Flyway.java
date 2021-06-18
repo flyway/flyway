@@ -547,7 +547,9 @@ public class Flyway {
             database = databaseType.createDatabase(configuration, !dbConnectionInfoPrinted, jdbcConnectionFactory, statementInterceptor);
 
             dbConnectionInfoPrinted = true;
-            LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
+            }
 
             Pair<Schema, List<Schema>> schemas = prepareSchemas(database);
             Schema defaultSchema = schemas.getLeft();
@@ -642,7 +644,9 @@ public class Flyway {
 
         long totalMB = total / (1024 * 1024);
         long usedMB = used / (1024 * 1024);
-        LOG.debug("Memory usage: " + usedMB + " of " + totalMB + "M");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Memory usage: " + usedMB + " of " + totalMB + "M");
+        }
     }
 
     private Pair<Schema, List<Schema>> prepareSchemas(Database database) {
@@ -653,8 +657,10 @@ public class Flyway {
             throw new FlywayException("The defaultSchema property is specified but is not a member of the schemas property");
         }
 
-        LOG.debug("Schemas: " + StringUtils.arrayToCommaDelimitedString(schemaNames));
-        LOG.debug("Default schema: " + defaultSchemaName);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Schemas: " + StringUtils.arrayToCommaDelimitedString(schemaNames));
+            LOG.debug("Default schema: " + defaultSchemaName);
+        }
 
         List<Schema> schemas = new ArrayList<>();
 

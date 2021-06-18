@@ -83,7 +83,9 @@ public class DerbyDatabaseType extends BaseDatabaseType {
 
                 driver.connect(shutdownUrl, new Properties());
             } catch (SQLException e) {
-                LOG.debug("Unexpected error on Derby Embedded Database shutdown: " + e.getMessage());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Unexpected error on Derby Embedded Database shutdown: " + e.getMessage());
+                }
             }
         }
     }

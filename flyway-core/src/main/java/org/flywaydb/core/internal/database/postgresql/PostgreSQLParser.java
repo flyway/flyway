@@ -111,7 +111,9 @@ public class PostgreSQLParser extends Parser {
         try {
             isDBVerUnder12 = !parsingContext.getDatabase().getVersion().isAtLeast("12");
         } catch (Exception e) {
-            LOG.debug("Unable to determine database version: " + e.getMessage());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Unable to determine database version: " + e.getMessage());
+            }
         }
         
         if (isDBVerUnder12 && ALTER_TYPE_ADD_VALUE_REGEX.matcher(simplifiedStatement).matches()) {

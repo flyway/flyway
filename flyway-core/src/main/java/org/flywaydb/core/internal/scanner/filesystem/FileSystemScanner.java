@@ -55,7 +55,10 @@ public class FileSystemScanner {
      */
     public Collection<LoadableResource> scanForResources(Location location) {
         String path = location.getRootPath();
-        LOG.debug("Scanning for filesystem resources at '" + path + "'");
+        final boolean debugEnabled = LOG.isDebugEnabled();
+        if (debugEnabled) {
+            LOG.debug("Scanning for filesystem resources at '" + path + "'");
+        }
 
         File dir = new File(path);
         if (!dir.exists()) {
@@ -101,7 +104,9 @@ public class FileSystemScanner {
                 }
                 resources.add(new FileSystemResource(location, resourceName, encoding, detectEncodingForThisResource, stream));
 
-                LOG.debug("Found filesystem resource: " + resourceName + encodingBlurb);
+                if (debugEnabled) {
+                    LOG.debug("Found filesystem resource: " + resourceName + encodingBlurb);
+                }
             }
         }
 
@@ -116,7 +121,10 @@ public class FileSystemScanner {
      * @return The resource names;
      */
     private Set<String> findResourceNamesFromFileSystem(String scanRootLocation, File folder) {
-        LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
+        final boolean debugEnabled = LOG.isDebugEnabled();
+        if (debugEnabled) {
+            LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
+        }
 
         Set<String> resourceNames = new TreeSet<>();
 
@@ -126,7 +134,9 @@ public class FileSystemScanner {
                 if (file.isDirectory()) {
                     if (file.isHidden()) {
                         // #1807: Skip hidden directories to avoid issues with Kubernetes
-                        LOG.debug("Skipping hidden directory: " + file.getAbsolutePath());
+                        if (debugEnabled) {
+                            LOG.debug("Skipping hidden directory: " + file.getAbsolutePath());
+                        }
                     } else {
                         resourceNames.addAll(findResourceNamesFromFileSystem(scanRootLocation, file));
                     }

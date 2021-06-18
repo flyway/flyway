@@ -284,7 +284,9 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         try {
             jdbcTemplate.execute(statement);
         } catch (SQLException e) {
-            LOG.debug("Ignoring dependency-related error: " + e.getMessage());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Ignoring dependency-related error: " + e.getMessage());
+            }
         }
     }
 

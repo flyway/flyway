@@ -74,8 +74,11 @@ public class GCSScanner extends CloudScanner {
 
     private Collection<LoadableResource> getLoadableResources(String bucketName, Page<Blob> listObjectResult) {
         Set<LoadableResource> resources = new TreeSet<>();
+        final boolean debugEnabled = LOG.isDebugEnabled();
         for (Blob blob : listObjectResult.iterateAll()) {
-            LOG.debug("Found GCS resource: " + bucketName.concat("/").concat(blob.getName()));
+            if (debugEnabled) {
+                LOG.debug("Found GCS resource: " + bucketName.concat("/").concat(blob.getName()));
+            }
             resources.add(new GCSResource(blob, encoding));
         }
         return resources;

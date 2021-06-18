@@ -15,14 +15,15 @@
  */
 package org.flywaydb.community.database.ignite.thin;
 
-import java.sql.SQLException;
-import java.util.UUID;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Results;
+
+import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * Ignite Thin-specific table.
@@ -67,7 +68,9 @@ public class IgniteThinTable extends Table<IgniteThinDatabase, IgniteThinSchema>
                     return;
                 }
                 retryCount++;
-                LOG.debug("Waiting for lock on " + this);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Waiting for lock on " + this);
+                }
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
                 // Ignore - if interrupted, we still need to wait for lock to become available

@@ -41,7 +41,9 @@ public class JBossVFSv3ClassPathLocationScanner implements ClassPathLocationScan
         if (!classPathRootOnDisk.endsWith("/")) {
             classPathRootOnDisk = classPathRootOnDisk + "/";
         }
-        LOG.debug("Scanning starting at classpath root on JBoss VFS: " + classPathRootOnDisk);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Scanning starting at classpath root on JBoss VFS: " + classPathRootOnDisk);
+        }
 
         Set<String> resourceNames = new TreeSet<>();
 

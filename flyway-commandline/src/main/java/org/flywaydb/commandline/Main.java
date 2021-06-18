@@ -349,8 +349,10 @@ public class Main {
         VersionPrinter.printVersionOnly();
         LOG.info("");
 
-        LOG.debug("Java " + System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")");
-        LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch") + "\n");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Java " + System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")");
+            LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch") + "\n");
+        }
     }
 
     private static void printUsage() {
@@ -457,7 +459,9 @@ public class Main {
 
         // see javadoc of listFiles(): null if given path is not a real directory
         if (files == null) {
-            LOG.debug("Directory for Jdbc Drivers not found: " + driversDir.getAbsolutePath());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Directory for Jdbc Drivers not found: " + driversDir.getAbsolutePath());
+            }
             return Collections.emptyList();
         }
 

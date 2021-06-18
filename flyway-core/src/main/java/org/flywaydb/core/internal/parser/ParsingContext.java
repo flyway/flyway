@@ -23,13 +23,10 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.resource.ResourceName;
 
-import java.sql.SQLException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 
 public class ParsingContext {
     private static final Log LOG = LogFactory.getLog(ParsingContext.class);
@@ -102,7 +99,9 @@ public class ParsingContext {
         try {
             return database.getMainConnection().getCurrentSchema();
         } catch (FlywayException e) {
-            LOG.debug("Could not get schema for " + DEFAULT_SCHEMA_PLACEHOLDER + " placeholder.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Could not get schema for " + DEFAULT_SCHEMA_PLACEHOLDER + " placeholder.");
+            }
             return null;
         }
     }
@@ -111,7 +110,9 @@ public class ParsingContext {
         try {
             return database.getCurrentUser();
         } catch (FlywayException e) {
-            LOG.debug("Could not get user for " + USER_PLACEHOLDER + " placeholder.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Could not get user for " + USER_PLACEHOLDER + " placeholder.");
+            }
             return null;
         }
     }

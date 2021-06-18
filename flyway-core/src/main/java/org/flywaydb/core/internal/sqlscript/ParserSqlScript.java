@@ -184,7 +184,9 @@ public class ParserSqlScript implements SqlScript {
     public boolean executeInTransaction() {
         Boolean executeInTransactionOverride = metadata.executeInTransaction();
         if (executeInTransactionOverride != null) {
-            LOG.debug("Using executeInTransaction=" + executeInTransactionOverride + " from script configuration");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Using executeInTransaction=" + executeInTransactionOverride + " from script configuration");
+            }
             return executeInTransactionOverride;
         }
 

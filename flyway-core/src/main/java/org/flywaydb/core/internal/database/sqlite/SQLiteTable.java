@@ -50,7 +50,9 @@ public class SQLiteTable extends Table<SQLiteDatabase, SQLiteSchema> {
     @Override
     protected void doDrop() throws SQLException {
         if (undroppable) {
-            LOG.debug("SQLite system table " + this + " cannot be dropped. Ignoring.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("SQLite system table " + this + " cannot be dropped. Ignoring.");
+            }
         } else {
             String dropSql = "DROP TABLE " + database.quote(schema.getName(), name);
             if (getSchema().getForeignKeysEnabled()) {
@@ -69,6 +71,8 @@ public class SQLiteTable extends Table<SQLiteDatabase, SQLiteSchema> {
 
     @Override
     protected void doLock() {
-        LOG.debug("Unable to lock " + this + " as SQLite does not support locking. No concurrent migration supported.");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Unable to lock " + this + " as SQLite does not support locking. No concurrent migration supported.");
+        }
     }
 }

@@ -15,8 +15,6 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
-import org.flywaydb.core.api.callback.Error;
-import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.callback.Warning;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -26,11 +24,6 @@ import org.flywaydb.core.internal.jdbc.Result;
 import org.flywaydb.core.internal.jdbc.Results;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.util.AsciiTable;
-
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     private static final Log LOG = LogFactory.getLog(DefaultSqlScriptExecutor.class);
@@ -266,7 +259,9 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
     }
 
     private void handleUpdateCount(long updateCount) {
-        LOG.debug(updateCount + (updateCount == 1 ? " row" : " rows") + " affected");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(updateCount + (updateCount == 1 ? " row" : " rows") + " affected");
+        }
     }
 
     protected void handleException(Results results, SqlScript sqlScript, SqlStatement sqlStatement) {

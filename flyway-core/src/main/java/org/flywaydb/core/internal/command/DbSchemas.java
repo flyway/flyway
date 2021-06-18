@@ -93,11 +93,16 @@ public class DbSchemas {
                                 throw new FlywayException("Unable to determine schema for the schema history table." +
                                         " Set a default schema for the connection or specify one using the defaultSchema property!");
                             }
-                            LOG.debug("Creating schema: " + schema);
+
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Creating schema: " + schema);
+                            }
                             schema.create();
                             createdSchemas.add(schema);
                         } else {
-                            LOG.debug("Skipping creation of existing schema: " + schema);
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Skipping creation of existing schema: " + schema);
+                            }
                         }
                     }
 

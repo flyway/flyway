@@ -22,24 +22,28 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.CommandResultFactory;
-import org.flywaydb.core.api.output.RepairOutput;
 import org.flywaydb.core.api.output.RepairResult;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.jdbc.JdbcNullTypes;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.RowMapper;
-import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 /**
@@ -113,7 +117,9 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                             public Object call() {
                                 sqlScriptExecutorFactory.createSqlScriptExecutor(connection.getJdbcConnection(), false, false, true)
                                         .execute(database.getCreateScript(sqlScriptFactory, table, baseline));
-                                LOG.debug("Created Schema History table " + table + (baseline ? " with baseline" : ""));
+                                if (LOG.isDebugEnabled()) {
+                                    LOG.debug("Created Schema History table " + table + (baseline ? " with baseline" : ""));
+                                }
                                 return null;
                             }
                         });
@@ -170,7 +176,9 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                     installedRank, versionObj, description, type.name(), script, checksumObj, database.getInstalledBy(),
                     executionTime, success);
 
-            LOG.debug("Schema History table " + table + " successfully updated to reflect changes");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Schema History table " + table + " successfully updated to reflect changes");
+            }
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to insert row for version '" + version + "' in Schema History table " + table, e);
         } finally {

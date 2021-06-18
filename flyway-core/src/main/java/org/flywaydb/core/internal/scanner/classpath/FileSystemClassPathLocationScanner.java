@@ -34,7 +34,9 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
         String filePath = UrlUtils.toFilePath(locationUrl);
         File folder = new File(filePath);
         if (!folder.isDirectory()) {
-            LOG.debug("Skipping path as it is not a directory: " + filePath);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Skipping path as it is not a directory: " + filePath);
+            }
             return new TreeSet<>();
         }
 
@@ -42,7 +44,9 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
         if (!classPathRootOnDisk.endsWith(File.separator)) {
             classPathRootOnDisk = classPathRootOnDisk + File.separator;
         }
-        LOG.debug("Scanning starting at classpath root in filesystem: " + classPathRootOnDisk);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Scanning starting at classpath root in filesystem: " + classPathRootOnDisk);
+        }
         return findResourceNamesFromFileSystem(classPathRootOnDisk, location, folder);
     }
 
@@ -57,7 +61,11 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
     /*private -> for testing*/
     @SuppressWarnings("ConstantConditions")
     Set<String> findResourceNamesFromFileSystem(String classPathRootOnDisk, String scanRootLocation, File folder) {
-        LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
+        final boolean debugEnabled = LOG.isDebugEnabled();
+
+        if (debugEnabled) {
+            LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
+        }
 
         Set<String> resourceNames = new TreeSet<>();
 
@@ -67,7 +75,9 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
                 if (file.isDirectory()) {
                     if (file.isHidden()) {
                         // #1807: Skip hidden directories to avoid issues with Kubernetes
-                        LOG.debug("Skipping hidden directory: " + file.getAbsolutePath());
+                        if (debugEnabled) {
+                            LOG.debug("Skipping hidden directory: " + file.getAbsolutePath());
+                        }
                     } else {
                         resourceNames.addAll(findResourceNamesFromFileSystem(classPathRootOnDisk, scanRootLocation, file));
                     }

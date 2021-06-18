@@ -112,8 +112,9 @@ public abstract class Parser {
         ParserContext context = new ParserContext(getDefaultDelimiter());
 
         String filename = resource.getFilename();
-        LOG.debug("Parsing " + filename + " ...");
-
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Parsing " + filename + " ...");
+        }
         ResourceName result = new ResourceNameParser(configuration).parse(filename);
         parsingContext.updateFilenamePlaceholder(result);
 

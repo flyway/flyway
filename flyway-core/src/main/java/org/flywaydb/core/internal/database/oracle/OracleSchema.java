@@ -167,9 +167,12 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
                 JAVA_DATA
         );
 
+        boolean debugEnabled = LOG.isDebugEnabled();
         for (ObjectType objectType : objectTypesToClean) {
             if (objectTypeNames.contains(objectType.getName())) {
-                LOG.debug("Cleaning objects of type " + objectType + " ...");
+                if (debugEnabled) {
+                    LOG.debug("Cleaning objects of type " + objectType + " ...");
+                }
                 objectType.dropObjects(jdbcTemplate, database, this);
             }
         }
@@ -208,7 +211,9 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
             //wait until the tables disappear
             while (database.queryReturnsRows(queryForFbaTrackedTables + " AND TABLE_NAME = ?", name, tableName)) {
                 try {
-                    LOG.debug("Actively waiting for Flashback cleanup on table: " + database.quote(name, tableName));
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Actively waiting for Flashback cleanup on table: " + database.quote(name, tableName));
+                    }
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     throw new FlywayException("Waiting for Flashback cleanup interrupted", e);

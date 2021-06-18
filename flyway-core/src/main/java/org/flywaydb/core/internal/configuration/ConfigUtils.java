@@ -384,7 +384,9 @@ public class ConfigUtils {
             throw new FlywayException(errorMessage);
         }
 
-        LOG.debug("Loading config file: " + configFile.getAbsolutePath());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Loading config file: " + configFile.getAbsolutePath());
+        }
 
         try {
             return loadConfigurationFromReader(new InputStreamReader(new FileInputStream(configFile), encoding));
@@ -423,7 +425,9 @@ public class ConfigUtils {
                 }
             }
         } catch (Exception e) {
-            LOG.debug("Could not load configuration from standard input " + e.getMessage());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Could not load configuration from standard input " + e.getMessage());
+            }
         }
 
         return config;
@@ -514,7 +518,9 @@ public class ConfigUtils {
             String variableName = matcher.group(1);
             String variableValue = environmentVariables.getOrDefault(variableName, "");
 
-            LOG.debug("Expanding environment variable in config: " + variableName + " -> " + variableValue);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Expanding environment variable in config: " + variableName + " -> " + variableValue);
+            }
             expandedValue = expandedValue.replaceAll(Pattern.quote(matcher.group(0)), Matcher.quoteReplacement(variableValue));
         }
 
@@ -621,7 +627,6 @@ public class ConfigUtils {
                         value = DatabaseTypeRegister.redactJdbcUrl(value);
                         break;
                 }
-
                 LOG.debug(entry.getKey() + " -> " + value);
             }
         }

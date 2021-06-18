@@ -39,11 +39,17 @@ public class PgpassFileReader implements ExternalAuthFileReader {
             return fileContents;
         }
 
-        LOG.debug("Found pgpass file '" + pgpassFilePath + "'.");
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Found pgpass file '" + pgpassFilePath + "'.");
+        }
         try {
             fileContents.add(new String(Files.readAllBytes(Paths.get(pgpassFilePath))));
         } catch (IOException e) {
-            LOG.debug("Unable to read from pgpass file '" + pgpassFilePath + "'.");
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Unable to read from pgpass file '" + pgpassFilePath + "'.");
+            }
         }
 
         return fileContents;
