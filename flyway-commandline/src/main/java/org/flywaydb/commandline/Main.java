@@ -100,7 +100,7 @@ public class Main {
         try {
             commandLineArguments.validate();
 
-            if (commandLineArguments.shouldPrintVersionAndExit()) {
+            if (!commandLineArguments.shouldCheckLicenseAndExit() && commandLineArguments.shouldPrintVersionAndExit()) {
                 printVersion();
                 System.exit(0);
             }
