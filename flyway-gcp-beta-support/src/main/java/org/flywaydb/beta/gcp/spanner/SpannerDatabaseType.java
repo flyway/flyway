@@ -54,13 +54,7 @@ public class SpannerDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        boolean gcpBeta = false;
-        try {
-            gcpBeta = Boolean.parseBoolean(System.getenv(GCPDatabaseExtension.GCP_BETA_FEATURE_FLAG));
-        } catch (IllegalArgumentException | NullPointerException e) {
-            LOG.debug(GCPDatabaseExtension.GCP_BETA_FEATURE_FLAG + " environment property missing or of illegal value");
-        }
-        return (url.startsWith("jdbc:cloudspanner:") || url.startsWith("jdbc:p6spy:cloudspanner:")) && gcpBeta;
+        return (url.startsWith("jdbc:cloudspanner:") || url.startsWith("jdbc:p6spy:cloudspanner:"));
     }
 
     @Override

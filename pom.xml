@@ -67,9 +67,7 @@
         <module>flyway-gradle-plugin</module>
         <module>flyway-maven-plugin</module>
         <module>flyway-commandline</module>
-
-
-
+        <module>flyway-gcp-beta-support</module>
 
 
 

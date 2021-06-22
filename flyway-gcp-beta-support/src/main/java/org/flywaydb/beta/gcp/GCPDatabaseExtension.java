@@ -23,11 +23,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class GCPDatabaseExtension implements FlywayExtension {
-
-    public static final String GCP_BETA_FEATURE_FLAG = "FLYWAY_GOOGLE_CLOUD_PLATFORM_BETA";
-
     public String getDescription() {
-        return "GCP Spanner/BigQuery database support (beta) " + readVersion() + " by Redgate";
+        return "GCP Spanner/BigQuery database support (beta) " + readVersion() + " by Redgate\n" +
+                "Interested in joining the beta programme? " +
+                "Join the GCP Spanner beta via https://flywaydb.org/documentation/database/cloud-spanner#using-flyway-with-google-cloud-spanner " +
+                "and the GCP BigQuery beta via https://flywaydb.org/documentation/database/big-query#using-flyway-with-google-big-query";
     }
 
     private static String readVersion() {
