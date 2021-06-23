@@ -26,11 +26,7 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-/**
- * H2 database.
- */
 public class H2Database extends Database<H2Connection> {
-
     /**
      * A dummy user used in Oracle mode, where USER() can return null but nulls can't be inserted into the
      * schema history table
@@ -55,21 +51,10 @@ public class H2Database extends Database<H2Connection> {
         Ignite
     }
 
-    /**
-     * Whether this version supports DROP SCHEMA ... CASCADE.
-     */
     boolean supportsDropSchemaCascade;
-
-    /**
-     * The compatibility mode of the database
-     */
+    private boolean requiresV2MetadataColumnNames;
     CompatibilityMode compatibilityMode;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public H2Database(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
 
@@ -78,14 +63,16 @@ public class H2Database extends Database<H2Connection> {
 
     @Override
     protected H2Connection doGetConnection(Connection connection) {
-        return new H2Connection(this, connection);
+        return new H2Connection(this, connection, requiresV2MetadataColumnNames);
     }
 
     @Override
     protected MigrationVersion determineVersion() {
+        String query = requiresV2MetadataColumnNames
+                ? "SELECT SETTING_VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE SETTING_NAME = 'info.BUILD_ID'"
+                : "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'info.BUILD_ID'";
         try {
-            int buildId = getMainConnection().getJdbcTemplate().queryForInt(
-                    "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'info.BUILD_ID'");
+            int buildId = getMainConnection().getJdbcTemplate().queryForInt(query);
             return MigrationVersion.fromVersion(super.determineVersion().getVersion() + "." + buildId);
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine H2 build ID", e);
@@ -93,9 +80,11 @@ public class H2Database extends Database<H2Connection> {
     }
 
     private CompatibilityMode determineCompatibilityMode() {
+        String query = requiresV2MetadataColumnNames
+                ? "SELECT SETTING_VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE SETTING_NAME = 'MODE'"
+                : "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'MODE'";
         try {
-            String mode = getMainConnection().getJdbcTemplate().queryForString(
-                    "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'MODE'");
+            String mode = getMainConnection().getJdbcTemplate().queryForString(query);
             if (mode == null || "".equals(mode))
                 return CompatibilityMode.REGULAR;
             return CompatibilityMode.valueOf(mode);
@@ -111,14 +100,16 @@ public class H2Database extends Database<H2Connection> {
 
 
 
+
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("1.2.137");
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("1.4", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("1.4.200");
+        recommendFlywayUpgradeIfNecessary("2.0.201");
         supportsDropSchemaCascade = getVersion().isAtLeast("1.4.200");
+        requiresV2MetadataColumnNames = getVersion().isAtLeast("2.0.0");
     }
 
     @Override
@@ -206,5 +197,4 @@ public class H2Database extends Database<H2Connection> {
     public boolean catalogIsSchema() {
         return false;
     }
-
 }

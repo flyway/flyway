@@ -20,12 +20,12 @@ import org.flywaydb.core.internal.database.base.Schema;
 
 import java.sql.SQLException;
 
-/**
- * H2 connection.
- */
 public class H2Connection extends Connection<H2Database> {
-    H2Connection(H2Database database, java.sql.Connection connection) {
+    private final boolean requiresV2Metadata;
+
+    H2Connection(H2Database database, java.sql.Connection connection, boolean requiresV2Metadata) {
         super(database, connection);
+        this.requiresV2Metadata = requiresV2Metadata;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class H2Connection extends Connection<H2Database> {
 
     @Override
     public Schema getSchema(String name) {
-        return new H2Schema(jdbcTemplate, database, name);
+        return new H2Schema(jdbcTemplate, database, name, requiresV2Metadata);
     }
 
     @Override
