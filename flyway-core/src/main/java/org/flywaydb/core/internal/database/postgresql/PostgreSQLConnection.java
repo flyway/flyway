@@ -31,7 +31,7 @@ import java.util.concurrent.Callable;
 public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
     private final String originalRole;
 
-    PostgreSQLConnection(PostgreSQLDatabase database, java.sql.Connection connection) {
+    protected PostgreSQLConnection(PostgreSQLDatabase database, java.sql.Connection connection) {
         super(database, connection);
 
         try {

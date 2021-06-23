@@ -32,7 +32,7 @@ public class PostgreSQLTable extends Table<PostgreSQLDatabase, PostgreSQLSchema>
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    PostgreSQLTable(JdbcTemplate jdbcTemplate, PostgreSQLDatabase database, PostgreSQLSchema schema, String name) {
+    protected PostgreSQLTable(JdbcTemplate jdbcTemplate, PostgreSQLDatabase database, PostgreSQLSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
     }
 
