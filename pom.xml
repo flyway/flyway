@@ -175,7 +175,7 @@
         <version.gradle>6.1.1</version.gradle>
         <version.gson>2.8.6</version.gson>
         <version.h2>1.4.200</version.h2>
-        <version.hsqldb>2.5.1</version.hsqldb>
+        <version.hsqldb>2.6.0</version.hsqldb>
         <version.httpclient>4.5.13</version.httpclient>
         <version.ignite>2.9.0</version.ignite>
         <version.informix>4.50.3</version.informix>
