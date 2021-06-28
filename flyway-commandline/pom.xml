@@ -39,9 +39,13 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>flyway-gcp-beta-support</artifactId>
+            <artifactId>flyway-gcp-bigquery</artifactId>
             <version>${project.version}</version>
-            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>flyway-gcp-spanner</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
@@ -307,7 +311,14 @@
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-gcp-beta-support</artifactId>
+                                            <artifactId>flyway-gcp-bigquery</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.enterprise</groupId>
+                                            <artifactId>flyway-gcp-spanner</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
                                             <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>

@@ -1,2 +1,0 @@
-org.flywaydb.beta.gcp.spanner.SpannerDatabaseType
-org.flywaydb.beta.gcp.bigquery.BigQueryDatabaseType
