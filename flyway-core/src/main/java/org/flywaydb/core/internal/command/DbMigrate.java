@@ -66,6 +66,7 @@ public class DbMigrate {
      * This is used to remember the type of migration between calls to migrateGroup().
      */
     private boolean isPreviousVersioned;
+    private final List<ResolvedMigration> appliedResolvedMigrations = new ArrayList<>();
 
     public DbMigrate(Database database,
                      SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
@@ -216,8 +217,13 @@ public class DbMigrate {
 
         LinkedHashMap<MigrationInfoImpl, Boolean> group = new LinkedHashMap<>();
         for (MigrationInfoImpl pendingMigration : infoService.pending()) {
+            if (appliedResolvedMigrations.contains(pendingMigration.getResolvedMigration())) {
+                continue;
+            }
+
             boolean isOutOfOrder = pendingMigration.getVersion() != null
                     && pendingMigration.getVersion().compareTo(currentSchemaVersion) < 0;
+
             group.put(pendingMigration, isOutOfOrder);
 
             if (!configuration.isGroup()) {
@@ -352,6 +358,7 @@ public class DbMigrate {
                     try {
                         LOG.info("Migrating " + migrationText);
                         migration.getResolvedMigration().getExecutor().execute(context);
+                        appliedResolvedMigrations.add(migration.getResolvedMigration());
                     } catch (FlywayException e) {
                         callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
                         throw new FlywayMigrateException(migration, isOutOfOrder, e);
