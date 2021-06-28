@@ -42,11 +42,14 @@
 
 
 
+
+
+
+
         <!-- JDBC drivers -->
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-spanner-jdbc</artifactId>
-            <version>${version.spanner}</version>
             <optional>true</optional>
         </dependency>
     </dependencies>
