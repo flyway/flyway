@@ -20,22 +20,31 @@ import com.google.gson.GsonBuilder;
 import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
-
-import org.flywaydb.core.internal.database.DatabaseType;
-
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.output.*;
+import org.flywaydb.core.api.output.CompositeResult;
+import org.flywaydb.core.api.output.ErrorOutput;
+import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.api.output.OperationResultBase;
+
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
+
+import org.flywaydb.core.internal.license.FlywayTrialExpiredException;
 import org.flywaydb.core.internal.license.VersionPrinter;
+
+import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.LinkUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.io.*;
+import java.io.Console;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +53,9 @@ import java.util.*;
 
 public class Main {
     private static Log LOG;
+
+
+
 
 
 
@@ -325,8 +337,6 @@ public class Main {
         config.remove(ConfigUtils.CONFIG_FILES);
         config.remove(ConfigUtils.CONFIG_FILE_ENCODING);
     }
-
-
 
 
 

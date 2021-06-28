@@ -19,20 +19,16 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.extensibility.FlywayExtension;
-import org.flywaydb.core.internal.util.DateUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.ServiceLoader;
-
-import static java.time.temporal.ChronoUnit.DAYS;
 
 public class VersionPrinter {
     private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
     public static ClassLoader classLoader = VersionPrinter.class.getClassLoader();
-    private static final String version = readVersion();
+    public static final String version = readVersion();
 
     public static final Edition EDITION =
 
@@ -52,20 +48,8 @@ public class VersionPrinter {
         return version;
     }
 
-    public static void printVersion(
-
-
-
-    ) {
-
+    public static void printVersion() {
         printVersionOnly();
-
-
-
-
-
-
-
     }
 
     public static void printVersionOnly() {
@@ -79,49 +63,6 @@ public class VersionPrinter {
             LOG.info( ">\t" + extension.getDescription());
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private static String readVersion() {
         try {
