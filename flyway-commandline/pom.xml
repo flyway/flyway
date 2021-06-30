@@ -40,12 +40,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-gcp-bigquery</artifactId>
-            <version>${project.version}</version>
+            <version>${project.version}-beta</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-gcp-spanner</artifactId>
-            <version>${project.version}</version>
+            <version>${project.version}-beta</version>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
@@ -312,14 +312,14 @@
                                         <artifactItem>
                                             <groupId>org.flywaydb.enterprise</groupId>
                                             <artifactId>flyway-gcp-bigquery</artifactId>
-                                            <version>${project.version}</version>
+                                            <version>${project.version}-beta</version>
                                             <type>jar</type>
                                             <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>org.flywaydb.enterprise</groupId>
                                             <artifactId>flyway-gcp-spanner</artifactId>
-                                            <version>${project.version}</version>
+                                            <version>${project.version}-beta</version>
                                             <type>jar</type>
                                             <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
                                         </artifactItem>
