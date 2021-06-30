@@ -24,8 +24,7 @@ import java.nio.charset.StandardCharsets;
 
 public class SpannerDatabaseExtension implements FlywayExtension {
     public String getDescription() {
-        return "GCP Spanner database support (beta) " + readVersion() + " by Redgate\n" +
-                "Join the GCP Spanner beta via https://flywaydb.org/documentation/database/cloud-spanner#using-flyway-with-google-cloud-spanner";
+        return "GCP Spanner database support (beta) " + readVersion() + " by Redgate";
     }
 
     private static String readVersion() {

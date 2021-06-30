@@ -24,8 +24,7 @@ import java.nio.charset.StandardCharsets;
 
 public class BigQueryDatabaseExtension implements FlywayExtension {
     public String getDescription() {
-        return "GCP BigQuery database support (beta) " + readVersion() + " by Redgate\n" +
-                "Join the GCP BigQuery beta via https://flywaydb.org/documentation/database/big-query#using-flyway-with-google-big-query";
+        return "GCP BigQuery database support (beta) " + readVersion() + " by Redgate";
     }
 
     private static String readVersion() {

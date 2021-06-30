@@ -270,4 +270,6 @@ public abstract class BaseDatabaseType implements DatabaseType {
     public String instantiateClassExtendedErrorMessage() {
         return "";
     }
+
+    public void printMessages() { }
 }

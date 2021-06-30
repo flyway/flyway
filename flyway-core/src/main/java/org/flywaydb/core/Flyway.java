@@ -543,7 +543,7 @@ public class Flyway {
             VersionPrinter.printVersion();
 
             database = databaseType.createDatabase(configuration, !dbConnectionInfoPrinted, jdbcConnectionFactory, statementInterceptor);
-
+            databaseType.printMessages();
             dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
 

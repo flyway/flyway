@@ -60,7 +60,7 @@ public class VersionPrinter {
     private static void printExtensionVersions() {
         ServiceLoader<FlywayExtension> loader = ServiceLoader.load(FlywayExtension.class, classLoader);
         for (FlywayExtension extension : loader) {
-            LOG.info( ">\t" + extension.getDescription());
+            LOG.debug( ">\t" + extension.getDescription());
         }
     }
 

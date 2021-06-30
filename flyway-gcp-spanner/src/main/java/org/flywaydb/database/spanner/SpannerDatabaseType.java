@@ -88,4 +88,9 @@ public class SpannerDatabaseType extends BaseDatabaseType {
     public boolean detectPasswordRequiredByUrl(String url) {
         return !url.contains("credentials=");
     }
+
+    @Override
+    public void printMessages() {
+        LOG.info("Join the GCP Spanner beta via https://flywaydb.org/documentation/database/cloud-spanner#using-flyway-with-google-cloud-spanner");
+    }
 }

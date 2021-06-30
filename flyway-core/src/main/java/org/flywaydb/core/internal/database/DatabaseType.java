@@ -260,4 +260,6 @@ public interface DatabaseType extends Comparable<DatabaseType> {
     Connection alterConnectionAsNeeded(Connection connection, Configuration configuration);
 
     String instantiateClassExtendedErrorMessage();
+
+    void printMessages();
 }
