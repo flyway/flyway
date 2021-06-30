@@ -209,6 +209,7 @@
         <version.springjdbc>4.3.30.RELEASE</version.springjdbc>
         <version.sqlite>3.34.0</version.sqlite>
         <version.testcontainers>1.14.3</version.testcontainers>
+        <exasol.version>6.2.5</exasol.version>
     </properties>
 
     <dependencyManagement>
@@ -425,6 +426,11 @@
                 <artifactId>jdbc</artifactId>
                 <version>${version.informix}</version>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.exasol</groupId>
+                <artifactId>exasol-jdbc</artifactId>
+                <version>${exasol.version}</version>
             </dependency>
 
 

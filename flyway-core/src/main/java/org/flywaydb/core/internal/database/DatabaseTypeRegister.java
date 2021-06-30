@@ -18,8 +18,8 @@ package org.flywaydb.core.internal.database;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 
+import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -47,12 +47,8 @@ public class DatabaseTypeRegister {
 
             registeredDatabaseTypes.clear();
 
-
-
-
-
-
             ServiceLoader<DatabaseType> loader = ServiceLoader.load(DatabaseType.class, classLoader);
+
             for (DatabaseType dt : loader) {
                 registeredDatabaseTypes.add(dt);
             }
