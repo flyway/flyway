@@ -208,7 +208,7 @@
         <version.spanner>2.0.2</version.spanner>
         <version.springjdbc>4.3.30.RELEASE</version.springjdbc>
         <version.sqlite>3.34.0</version.sqlite>
-        <version.testcontainers>1.14.3</version.testcontainers>
+        <version.testcontainers>1.15.3</version.testcontainers>
     </properties>
 
     <dependencyManagement>
