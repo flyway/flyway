@@ -30,6 +30,8 @@
 
 
 
+        <flyway-gcp-bigquery.version>${project.version}</flyway-gcp-bigquery.version>
+        <flyway-gcp-spanner.version>${project.version}</flyway-gcp-spanner.version>
     </properties>
     <dependencies>
         <dependency>
@@ -40,12 +42,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-gcp-bigquery</artifactId>
-            <version>${project.version}-beta</version>
+            <version>${flyway-gcp-bigquery.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-gcp-spanner</artifactId>
-            <version>${project.version}-beta</version>
+            <version>${flyway-gcp-spanner.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
@@ -312,14 +314,14 @@
                                         <artifactItem>
                                             <groupId>org.flywaydb.enterprise</groupId>
                                             <artifactId>flyway-gcp-bigquery</artifactId>
-                                            <version>${project.version}-beta</version>
+                                            <version>${flyway-gcp-bigquery.version}</version>
                                             <type>jar</type>
                                             <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>org.flywaydb.enterprise</groupId>
                                             <artifactId>flyway-gcp-spanner</artifactId>
-                                            <version>${project.version}-beta</version>
+                                            <version>${flyway-gcp-spanner.version}</version>
                                             <type>jar</type>
                                             <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
                                         </artifactItem>

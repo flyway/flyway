@@ -28,7 +28,7 @@
     <artifactId>flyway-gcp-bigquery</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <version>${project.parent.version}-beta</version>
+    <version>${project.parent.version}</version>
 
     <dependencies>
         <dependency>
