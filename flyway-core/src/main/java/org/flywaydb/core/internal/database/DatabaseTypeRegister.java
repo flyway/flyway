@@ -20,6 +20,7 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 
+import org.flywaydb.core.internal.database.yugabytedb.YugabyteDBDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -56,6 +57,7 @@ public class DatabaseTypeRegister {
             for (DatabaseType dt : loader) {
                 registeredDatabaseTypes.add(dt);
             }
+            registeredDatabaseTypes.add(new YugabyteDBDatabaseType());
 
             // Sort by preference order
             Collections.sort(registeredDatabaseTypes);
