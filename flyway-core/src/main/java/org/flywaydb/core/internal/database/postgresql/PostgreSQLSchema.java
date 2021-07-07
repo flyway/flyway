@@ -38,7 +38,7 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable
      * @param database     The database-specific support.
      * @param name         The name of the schema.
      */
-    PostgreSQLSchema(JdbcTemplate jdbcTemplate, PostgreSQLDatabase database, String name) {
+    protected PostgreSQLSchema(JdbcTemplate jdbcTemplate, PostgreSQLDatabase database, String name) {
         super(jdbcTemplate, database, name);
     }
 
