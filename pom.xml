@@ -510,6 +510,20 @@
                 <version>${version.aws-secretsmanager}</version>
                 <optional>true</optional>
             </dependency>
+            <!-- Override transitive dependencies within SecretsManager to deal with high priority CVEs. These
+             two can be removed when SecretsManager moves on from 1.0.6 -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.10.5.1</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-cbor</artifactId>
+                <version>2.12.1</version>
+                <optional>true</optional>
+            </dependency>
             <!-- We don't explicitly depend on httpclient or commons-codec but Spanner and Android depend
             on different versions so we're pinning to the newer (Spanner) ones -->
             <dependency>
