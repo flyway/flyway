@@ -24,11 +24,9 @@ import org.flywaydb.core.internal.util.LinkUtils;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
-import java.sql.ResultSet;
 
 
 public class VersionChecker {
@@ -47,8 +45,21 @@ public class VersionChecker {
     private static final String FlywayUrl = "https://search.maven.org/solrsearch/select?q=a:flyway-core";
     private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
 
+    private static boolean canConnectToMaven() {
+        try {
+            InetAddress address = InetAddress.getByName("maven.org");
+            return address.isReachable(500);
+        } catch(Exception e) {
+            return false;
+        }
+    }
+
     public static void checkForVersionUpdates() {
         HttpsURLConnection connection = null;
+
+        if (!canConnectToMaven()) {
+            return;
+        }
 
         try {
             URL url = new URL(FlywayUrl);
