@@ -116,8 +116,8 @@ done
 
 echo ============== PUBLISHING GRADLE
 cd "$FLYWAY_RELEASE_DIR"/gradle-plugin-publishing
-gradlew -b release-community.gradle clean publishPlugins -Dversion="$VERSION" -Dgradle.publish.key="$FLYWAY_GRADLE_KEY" -Dgradle.publish.secret="$FLYWAY_GRADLE_SECRET"
-gradlew -b release-enterprise.gradle clean publishPlugins -Dversion="$VERSION" -Dgradle.publish.key="$FLYWAY_GRADLE_KEY" -Dgradle.publish.secret="$FLYWAY_GRADLE_SECRET"
+./gradlew -b release-community.gradle clean publishPlugins -Dversion="$VERSION" -Dgradle.publish.key="$FLYWAY_GRADLE_KEY" -Dgradle.publish.secret="$FLYWAY_GRADLE_SECRET"
+./gradlew -b release-enterprise.gradle clean publishPlugins -Dversion="$VERSION" -Dgradle.publish.key="$FLYWAY_GRADLE_KEY" -Dgradle.publish.secret="$FLYWAY_GRADLE_SECRET"
 
 echo ============== RELEASE SUCCESS
 cd "$FLYWAY_RELEASE_DIR"
