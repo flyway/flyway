@@ -59,7 +59,12 @@ fi
 echo ============== RUNNING OSSIFIER
 cd "$FLYWAY_RELEASE_DIR"/flyway-main/master-only/flyway-ossifier
 #OSSifier reads the OSSIFY_TEST_MODE environment variable
-mvn clean compile exec:java -Dexec.mainClass="com.boxfuse.flyway.ossifier.OSSifier" -Dexec.args="$FLYWAY_RELEASE_DIR $FLYWAY_RELEASE_DIR/flyway-main" -DskipTests -DskipITs
+if [[ "$TEAMCITY_OS" == *"Windows"* ]]; then
+  WIN_FLYWAY_RELEASE_DIR=$(cygpath -w ${FLYWAY_RELEASE_DIR})
+  mvn clean compile exec:java -Dexec.mainClass="com.boxfuse.flyway.ossifier.OSSifier" -Dexec.args="$WIN_FLYWAY_RELEASE_DIR $WIN_FLYWAY_RELEASE_DIR/flyway-main" -DskipTests -DskipITs
+else
+  mvn clean compile exec:java -Dexec.mainClass="com.boxfuse.flyway.ossifier.OSSifier" -Dexec.args="$FLYWAY_RELEASE_DIR $FLYWAY_RELEASE_DIR/flyway-main" -DskipTests -DskipITs
+fi
 
 echo ============== PURGE ENTERPRISE
 cd "$FLYWAY_RELEASE_DIR"/flyway-enterprise
