@@ -25,11 +25,14 @@ import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
 import org.flywaydb.core.internal.scanner.android.AndroidScanner;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
-import org.flywaydb.core.internal.scanner.cloud.gcs.GCSScanner;
 import org.flywaydb.core.internal.scanner.cloud.s3.AwsS3Scanner;
 import org.flywaydb.core.internal.scanner.filesystem.FileSystemScanner;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
+
+
+
+
 
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
