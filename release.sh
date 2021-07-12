@@ -34,6 +34,8 @@ RELEASE_REPOSITORY_ID=sonatype-nexus-staging
 PROFILE=sonatype-release
 FAKE_SOURCES=$FLYWAY_RELEASE_DIR/fake-sources/flyway-sources.jar
 QUALIFIER=-beta
+NEXUS_ID=sonatype-nexus-staging
+NEXUS_URL=https://oss.sonatype.org
 
 echo ============== RELEASE START \(Version: "$VERSION", Git Branch: "$FLYWAY_BRANCH"\)
 echo ============== CLONING
@@ -91,7 +93,7 @@ PACKAGES=flyway-core,flyway-gradle-plugin,flyway-maven-plugin,flyway-commandline
 
 echo ============== DEPLOYING COMMUNITY
 cd "$FLYWAY_RELEASE_DIR"/flyway
-mvn -s "$SETTINGS_FILE" -Psonatype-release -Pbuild-assemblies deploy scm:tag -DperformRelease=true -DskipTests -DskipITs -pl $PACKAGES -am
+mvn -s "$SETTINGS_FILE" -P$PROFILE  -Pbuild-assemblies deploy scm:tag -DperformRelease=true -DskipTests -DskipITs -pl $PACKAGES -am
 
 echo ============== DEPLOYING ENTERPRISE TO $RELEASE_REPOSITORY_URL
 cd "$FLYWAY_RELEASE_DIR"/flyway-enterprise
@@ -113,6 +115,12 @@ for i in ${PACKAGES//,/ }; do
     mvn -s "$SETTINGS_FILE" -f pom.xml gpg:sign-and-deploy-file -P$PROFILE -DrepositoryId=$RELEASE_REPOSITORY_ID -Durl=$RELEASE_REPOSITORY_URL -Dfile=flyway-commandline/target/flyway-commandline-"$NEWVERSION"-macosx-x64.tar.gz -DgroupId=$GROUP_ID -DartifactId=flyway-commandline -Dversion="$NEWVERSION" -Dpackaging=tar.gz -DgeneratePom=false -Dclassifier=macosx-x64 -DperformRelease=true -Dsources="$FAKE_SOURCES"
   fi
 done
+
+echo ============== PUBLISHING MAVEN
+cd "$FLYWAY_RELEASE_DIR"
+STAGING_REPOSITORY_ID=$(mvn -s "$SETTINGS_FILE" -P$PROFILE org.sonatype.plugins:nexus-staging-maven-plugin:1.5.1:rc-list -DserverId=$NEXUS_ID -DnexusUrl=$NEXUS_URL | grep -o -P '(orgflywaydb-\d+)')
+mvn -s "$SETTINGS_FILE" -P$PROFILE org.sonatype.plugins:nexus-staging-maven-plugin:1.5.1:rc-close -DserverId=$NEXUS_ID -DnexusUrl=$NEXUS_URL -DstagingRepositoryId=$STAGING_REPOSITORY_ID -DstagingDescription="Automated closing of Staging Repository"
+mvn -s "$SETTINGS_FILE" -P$PROFILE org.sonatype.plugins:nexus-staging-maven-plugin:1.5.1:rc-release -DserverId=$NEXUS_ID -DnexusUrl=$NEXUS_URL -DstagingRepositoryId$STAGING_REPOSITORY_ID -DstagingDescription="Automated release of Staging Repository"
 
 echo ============== PUBLISHING GRADLE
 cd "$FLYWAY_RELEASE_DIR"/gradle-plugin-publishing
