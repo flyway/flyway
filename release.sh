@@ -116,11 +116,13 @@ for i in ${PACKAGES//,/ }; do
   fi
 done
 
-echo ============== PUBLISHING MAVEN
-cd "$FLYWAY_RELEASE_DIR"
-STAGING_REPOSITORY_ID=$(mvn -s "$SETTINGS_FILE" -P$PROFILE org.sonatype.plugins:nexus-staging-maven-plugin:1.5.1:rc-list -DserverId=$NEXUS_ID -DnexusUrl=$NEXUS_URL | grep -o -P '(orgflywaydb-\d+)')
-mvn -s "$SETTINGS_FILE" -P$PROFILE org.sonatype.plugins:nexus-staging-maven-plugin:1.5.1:rc-close -DserverId=$NEXUS_ID -DnexusUrl=$NEXUS_URL -DstagingRepositoryId=$STAGING_REPOSITORY_ID -DstagingDescription="Automated closing of Staging Repository"
-mvn -s "$SETTINGS_FILE" -P$PROFILE org.sonatype.plugins:nexus-staging-maven-plugin:1.5.1:rc-release -DserverId=$NEXUS_ID -DnexusUrl=$NEXUS_URL -DstagingRepositoryId$STAGING_REPOSITORY_ID -DstagingDescription="Automated release of Staging Repository"
+if [ "$FLYWAY_MAVEN_AUTO_RELEASE " == "true" ]; then
+  echo ============== PUBLISHING MAVEN
+  cd "$FLYWAY_RELEASE_DIR"
+  STAGING_REPOSITORY_ID=$(mvn -s "$SETTINGS_FILE" -P$PROFILE org.sonatype.plugins:nexus-staging-maven-plugin:1.5.1:rc-list -DserverId=$NEXUS_ID -DnexusUrl=$NEXUS_URL | grep -o -P '(orgflywaydb-\d+)')
+  mvn -s "$SETTINGS_FILE" -P$PROFILE org.sonatype.plugins:nexus-staging-maven-plugin:1.5.1:rc-close -DserverId=$NEXUS_ID -DnexusUrl=$NEXUS_URL -DstagingRepositoryId=$STAGING_REPOSITORY_ID -DstagingDescription="Automated closing of Staging Repository"
+  mvn -s "$SETTINGS_FILE" -P$PROFILE org.sonatype.plugins:nexus-staging-maven-plugin:1.5.1:rc-release -DserverId=$NEXUS_ID -DnexusUrl=$NEXUS_URL -DstagingRepositoryId$STAGING_REPOSITORY_ID -DstagingDescription="Automated release of Staging Repository"
+fi
 
 echo ============== PUBLISHING GRADLE
 cd "$FLYWAY_RELEASE_DIR"/gradle-plugin-publishing
