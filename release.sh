@@ -119,7 +119,7 @@ done
 if [ "$FLYWAY_MAVEN_AUTO_RELEASE" == "true" ]; then
   echo ============== PUBLISHING MAVEN
   cd "$FLYWAY_RELEASE_DIR"
-  STAGING_REPOSITORY_ID=$(mvn -s "$SETTINGS_FILE" -P$PROFILE org.sonatype.plugins:nexus-staging-maven-plugin:1.5.1:rc-list -DserverId=$NEXUS_ID -DnexusUrl=$NEXUS_URL | grep -o -P '(orgflywaydb-\d+)')
+  STAGING_REPOSITORY_ID=$(mvn -s "$SETTINGS_FILE" -P$PROFILE org.sonatype.plugins:nexus-staging-maven-plugin:1.5.1:rc-list -DserverId=$NEXUS_ID -DnexusUrl=$NEXUS_URL | sed -nE 's/.*(orgflywaydb\-[0-9]+).*/\1/p')
   mvn -s "$SETTINGS_FILE" -P$PROFILE org.sonatype.plugins:nexus-staging-maven-plugin:1.5.1:rc-close -DserverId=$NEXUS_ID -DnexusUrl=$NEXUS_URL -DstagingRepositoryId=$STAGING_REPOSITORY_ID -DstagingDescription="Automated closing of Staging Repository"
   mvn -s "$SETTINGS_FILE" -P$PROFILE org.sonatype.plugins:nexus-staging-maven-plugin:1.5.1:rc-release -DserverId=$NEXUS_ID -DnexusUrl=$NEXUS_URL -DstagingRepositoryId=$STAGING_REPOSITORY_ID -DstagingDescription="Automated release of Staging Repository"
 fi
