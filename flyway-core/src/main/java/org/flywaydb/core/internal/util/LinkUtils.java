@@ -34,10 +34,10 @@ public class LinkUtils {
     public static String createFlywayDbWebsiteLink(String... pathParts) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append("https://flywaydb.org/");
+        stringBuilder.append("https://flywaydb.org");
 
         for (String pathPart : pathParts) {
-            stringBuilder.append(pathPart).append("/");
+            stringBuilder.append("/").append(pathPart);
         }
 
         try {
