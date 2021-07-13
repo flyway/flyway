@@ -128,7 +128,7 @@
                 <include>org.flywaydb:flyway-commandline</include>
                 <include>org.flywaydb:flyway-gcp-bigquery</include>
                 <include>org.flywaydb:flyway-gcp-spanner</include>
-                <!-- add at V8: com.boxfuse.flyway-master:flyway-community-db-support -->
+                <include>org.flywaydb:flyway-community-db-support</include>
             </includes>
         </dependencySet>
 

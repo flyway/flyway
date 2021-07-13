@@ -41,6 +41,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>flyway-community-db-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>flyway-gcp-bigquery</artifactId>
             <version>${flyway-gcp-bigquery.version}</version>
         </dependency>
