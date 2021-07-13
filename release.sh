@@ -116,7 +116,7 @@ for i in ${PACKAGES//,/ }; do
   fi
 done
 
-if [ "$FLYWAY_MAVEN_AUTO_RELEASE " == "true" ]; then
+if [ "$FLYWAY_MAVEN_AUTO_RELEASE" == "true" ]; then
   echo ============== PUBLISHING MAVEN
   cd "$FLYWAY_RELEASE_DIR"
   STAGING_REPOSITORY_ID=$(mvn -s "$SETTINGS_FILE" -P$PROFILE org.sonatype.plugins:nexus-staging-maven-plugin:1.5.1:rc-list -DserverId=$NEXUS_ID -DnexusUrl=$NEXUS_URL | grep -o -P '(orgflywaydb-\d+)')
