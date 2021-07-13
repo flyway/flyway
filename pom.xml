@@ -206,6 +206,7 @@
         <version.slf4j>1.7.30</version.slf4j>
         <version.snowflake>3.13.1</version.snowflake>
         <version.spanner>2.0.2</version.spanner>
+        <version.vertica>10.1.0-0</version.vertica>
         <version.springjdbc>4.3.30.RELEASE</version.springjdbc>
         <version.sqlite>3.34.0</version.sqlite>
         <version.testcontainers>1.15.3</version.testcontainers>
@@ -426,6 +427,13 @@
                 <version>${version.informix}</version>
                 <optional>true</optional>
             </dependency>
+            <dependency>
+                <groupId>com.vertica.jdbc</groupId>
+                <artifactId>vertica-jdbc</artifactId>
+                <version>${version.vertica}</version>
+                <optional>true</optional>
+            </dependency>
+
 
 
 
