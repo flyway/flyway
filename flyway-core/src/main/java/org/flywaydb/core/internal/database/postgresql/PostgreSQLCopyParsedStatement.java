@@ -57,9 +57,22 @@ public class PostgreSQLCopyParsedStatement extends ParsedSqlStatement {
         );
         this.copyData = copyData;
     }
-
+    
     @Override
-    public Results execute(JdbcTemplate jdbcTemplate
+    public Results execute(JdbcTemplate jdbcTemplate) {
+    	Results results;
+    	
+    	try {
+    		results = execute(jdbcTemplate, jdbcTemplate.getConnection().getClass().getClassLoader());
+        } catch (Exception e) {
+        	// In case JBoss module class loader
+        	results = execute(jdbcTemplate, getClass().getClassLoader());
+        }
+    	
+    	return results;
+    }
+
+    public Results execute(JdbcTemplate jdbcTemplate, ClassLoader classLoader
 
 
 
@@ -71,7 +84,6 @@ public class PostgreSQLCopyParsedStatement extends ParsedSqlStatement {
         Method copyManagerCopyInMethod;
         try {
             Connection connection = jdbcTemplate.getConnection();
-            ClassLoader classLoader = connection.getClass().getClassLoader();
 
             Class<?> baseConnectionClass = classLoader.loadClass("org.postgresql.core.BaseConnection");
             baseConnection = connection.unwrap(baseConnectionClass);
