@@ -35,6 +35,7 @@ public class MigrationInfoContext {
     public MigrationVersion baseline;
     public MigrationVersion lastResolved = MigrationVersion.EMPTY;
     public MigrationVersion lastApplied = MigrationVersion.EMPTY;
+    public MigrationVersion pendingIntermediateBaseline = MigrationVersion.EMPTY;
     public Map<String, Integer> latestRepeatableRuns = new HashMap<>();
 
     @Override

@@ -134,6 +134,7 @@ public class ResourceNameParser {
 
 
         prefixes.add(Pair.of(configuration.getRepeatableSqlMigrationPrefix(), ResourceType.REPEATABLE_MIGRATION));
+        prefixes.add(Pair.of(configuration.getIntermediateBaselineSqlMigrationPrefix(), ResourceType.INTERMEDIATE_BASELINE_MIGRATION));
         for (Event event : Event.values()) {
             prefixes.add(Pair.of(event.getId(), ResourceType.CALLBACK));
         }

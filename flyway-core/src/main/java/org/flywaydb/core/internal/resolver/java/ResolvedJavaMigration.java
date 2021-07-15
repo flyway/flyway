@@ -38,7 +38,7 @@ public class ResolvedJavaMigration extends ResolvedMigrationImpl {
 
 
 
-                        MigrationType.JDBC,
+                        javaMigration.isIntermediateBaseline() ? MigrationType.JDBC_IBASE : MigrationType.JDBC,
                 ClassUtils.getLocationOnDisk(javaMigration.getClass()),
                 new JavaMigrationExecutor(javaMigration)
         );

@@ -134,6 +134,11 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public String getIntermediateBaselineSqlMigrationPrefix() {
+    	return config.getIntermediateBaselineSqlMigrationPrefix();
+    }
+
+    @Override
     public String getRepeatableSqlMigrationPrefix() {
         return config.getRepeatableSqlMigrationPrefix();
     }

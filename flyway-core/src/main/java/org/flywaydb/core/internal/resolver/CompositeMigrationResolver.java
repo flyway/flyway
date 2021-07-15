@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Facility for retrieving and sorting the available migrations from the classpath through the various migration
@@ -142,30 +143,50 @@ public class CompositeMigrationResolver implements MigrationResolver {
      */
     /* private -> for testing */
     static void checkForIncompatibilities(List<ResolvedMigration> migrations) {
-    	ResolvedMigrationComparator resolvedMigrationComparator = new ResolvedMigrationComparator();
-        // check for more than one migration with same version
-        for (int i = 0; i < migrations.size() - 1; i++) {
-            ResolvedMigration current = migrations.get(i);
-            ResolvedMigration next = migrations.get(i + 1);
-            if (resolvedMigrationComparator.compare(current, next) == 0) {
-                if (current.getVersion() != null) {
-                    throw new FlywayException(String.format("Found more than one migration with version %s\nOffenders:\n-> %s (%s)\n-> %s (%s)",
-                            current.getVersion(),
+        ResolvedMigrationComparator resolvedMigrationComparator = new ResolvedMigrationComparator();
+        TreeSet<ResolvedMigration> repeatableMigrations = new TreeSet<>(resolvedMigrationComparator);
+        TreeSet<ResolvedMigration> versionedMigrations = new TreeSet<>(resolvedMigrationComparator);
+        TreeSet<ResolvedMigration> intermediateBaselineMigrations = new TreeSet<>(resolvedMigrationComparator);
+
+        for (int i = 0; i < migrations.size(); i++) {
+            ResolvedMigration next = migrations.get(i);
+
+            if (next.getVersion() == null) {
+                if (!repeatableMigrations.add(next)) {
+                    ResolvedMigration current = repeatableMigrations.pollLast();
+                    throw new FlywayException(String.format("Found more than one repeatable migration with description %s%nOffenders:%n-> %s (%s)%n-> %s (%s)",
+                            current.getDescription(),
                             current.getPhysicalLocation(),
                             current.getType(),
                             next.getPhysicalLocation(),
                             next.getType()),
-                    ErrorCode.DUPLICATE_VERSIONED_MIGRATION);
+                            ErrorCode.DUPLICATE_REPEATABLE_MIGRATION);
                 }
-                throw new FlywayException(String.format("Found more than one repeatable migration with description %s\nOffenders:\n-> %s (%s)\n-> %s (%s)",
-                        current.getDescription(),
-                        current.getPhysicalLocation(),
-                        current.getType(),
-                        next.getPhysicalLocation(),
-                        next.getType()),
-                        ErrorCode.DUPLICATE_REPEATABLE_MIGRATION);
+            } else {
+                if (next.getType().isIntermediateBaseline()) {
+                    if (!intermediateBaselineMigrations.add(next)) {
+                        ResolvedMigration current = intermediateBaselineMigrations.pollLast();
+                        throw new FlywayException(String.format("Found more than one intermediate baseline migration with version %s%nOffenders:%n-> %s (%s)%n-> %s (%s)",
+                                current.getVersion(),
+                                current.getPhysicalLocation(),
+                                current.getType(),
+                                next.getPhysicalLocation(),
+                                next.getType()),
+                                ErrorCode.DUPLICATE_INTERMEDIATE_BASELINE_MIGRATION);
+                    }
+                } else {
+                    if (!versionedMigrations.add(next)) {
+                        ResolvedMigration current = versionedMigrations.pollLast();
+                        throw new FlywayException(String.format("Found more than one migration with version %s%nOffenders:%n-> %s (%s)%n-> %s (%s)",
+                                current.getVersion(),
+                                current.getPhysicalLocation(),
+                                current.getType(),
+                                next.getPhysicalLocation(),
+                                next.getType()),
+                                ErrorCode.DUPLICATE_VERSIONED_MIGRATION);
+                    }
+                }
             }
         }
     }
-
 }

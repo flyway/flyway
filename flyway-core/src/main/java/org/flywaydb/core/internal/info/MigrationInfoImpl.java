@@ -167,6 +167,9 @@ public class MigrationInfoImpl implements MigrationInfo {
                 if ((resolvedMigration.getVersion().compareTo(context.lastApplied) < 0) && !context.outOfOrder) {
                     return MigrationState.IGNORED;
                 }
+                if (resolvedMigration.getVersion().compareTo(context.pendingIntermediateBaseline) < 0) {
+                	return MigrationState.IGNORED;
+                }
             }
             return MigrationState.PENDING;
         }
@@ -175,7 +178,9 @@ public class MigrationInfoImpl implements MigrationInfo {
             return MigrationState.SUCCESS;
         }
 
-        if (MigrationType.BASELINE == appliedMigration.getType()) {
+        if (MigrationType.BASELINE == appliedMigration.getType()
+            || MigrationType.SQL_IBASE == appliedMigration.getType()
+            || MigrationType.JDBC_IBASE == appliedMigration.getType()) {
             return MigrationState.BASELINE;
         }
 

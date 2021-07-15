@@ -85,6 +85,13 @@ public class SqlMigrationResolver implements MigrationResolver {
 
         );
 
+        addMigrations(migrations, configuration.getIntermediateBaselineSqlMigrationPrefix(), suffixes,
+                false
+
+
+
+        );
+
         migrations.sort(new ResolvedMigrationComparator());
         return migrations;
     }
@@ -165,6 +172,10 @@ public class SqlMigrationResolver implements MigrationResolver {
             Integer checksum = getChecksumForLoadableResource(repeatable, resources);
             Integer equivalentChecksum = getEquivalentChecksumForLoadableResource(repeatable, resources);
 
+            MigrationType migrationType = MigrationType.SQL;
+            if (prefix.equals(configuration.getIntermediateBaselineSqlMigrationPrefix())) {
+                migrationType = MigrationType.SQL_IBASE;
+            }
             migrations.add(new ResolvedMigrationImpl(
                     result.getVersion(),
                     result.getDescription(),
@@ -174,7 +185,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-                            MigrationType.SQL,
+                    migrationType,
                     resource.getAbsolutePathOnDisk(),
                     new SqlMigrationExecutor(sqlScriptExecutorFactory, sqlScript
 

@@ -27,11 +27,12 @@ import org.flywaydb.core.internal.util.Pair;
  * <li><strong>Versioned Migrations:</strong> V2__Add_new_table</li>
  * <li><strong>Undo Migrations:</strong> U2__Add_new_table</li>
  * <li><strong>Repeatable Migrations:</strong> R__Add_new_table</li>
+ * <li><strong>Intermediate Baseline Migrations:</strong> IB__Add_new_table</li>
  * </ul>
  *
  * <p>The file name consists of the following parts:</p>
  * <ul>
- * <li><strong>Prefix:</strong> V for versioned migrations, U for undo migrations, R for repeatable migrations</li>
+ * <li><strong>Prefix:</strong> V for versioned migrations, U for undo migrations, R for repeatable migrations, IB for intermediate baseline migrations</li>
  * <li><strong>Version:</strong> Underscores (automatically replaced by dots at runtime) separate as many parts as you like (Not for repeatable migrations)</li>
  * <li><strong>Separator:</strong> __ (two underscores)</li>
  * <li><strong>Description:</strong> Underscores (automatically replaced by spaces at runtime) separate the words</li>
@@ -43,6 +44,7 @@ import org.flywaydb.core.internal.util.Pair;
 public abstract class BaseJavaMigration implements JavaMigration {
     private final MigrationVersion version;
     private final String description;
+    private final boolean intermediateBaseline;
 
 
 
@@ -57,7 +59,9 @@ public abstract class BaseJavaMigration implements JavaMigration {
 
 
         boolean repeatable = shortName.startsWith("R");
-        if (shortName.startsWith("V") || repeatable
+        intermediateBaseline = shortName.startsWith("IB");
+        if (intermediateBaseline) prefix = "IB";
+        if (shortName.startsWith("V") ||  repeatable
 
 
 
@@ -106,5 +110,10 @@ public abstract class BaseJavaMigration implements JavaMigration {
     @Override
     public boolean canExecuteInTransaction() {
         return true;
+    }
+    
+    @Override
+    public boolean isIntermediateBaseline() {
+    	return intermediateBaseline;
     }
 }

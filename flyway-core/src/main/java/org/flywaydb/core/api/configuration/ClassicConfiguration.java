@@ -75,6 +75,7 @@ public class ClassicConfiguration implements Configuration {
     private String placeholderPrefix = "${";
     private String placeholderSuffix = "}";
     private String sqlMigrationPrefix = "V";
+    private String intermediateBaselineSqlMigrationPrefix = "IB";
     private String undoSqlMigrationPrefix = "U";
     private String repeatableSqlMigrationPrefix = "R";
     private ResourceProvider resourceProvider = null;
@@ -213,6 +214,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getSqlMigrationPrefix() {
         return sqlMigrationPrefix;
+    }
+
+    @Override
+    public String getIntermediateBaselineSqlMigrationPrefix() {
+        return intermediateBaselineSqlMigrationPrefix;
     }
 
     @Override
