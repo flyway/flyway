@@ -23,15 +23,7 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 
 import java.sql.Connection;
 
-/**
- * SQLite database.
- */
 public class SQLiteDatabase extends Database<SQLiteConnection> {
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public SQLiteDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
@@ -65,10 +57,6 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
                 ");\n" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "") +
                 "CREATE INDEX \"" + table.getSchema().getName() + "\".\"" + table.getName() + "_s_idx\" ON \"" + table.getName() + "\" (\"success\");";
-    }
-
-    public String getDbName() {
-        return "sqlite";
     }
 
     @Override

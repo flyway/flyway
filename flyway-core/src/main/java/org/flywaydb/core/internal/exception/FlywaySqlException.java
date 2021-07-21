@@ -23,14 +23,10 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.sql.SQLException;
 
 /**
- * This specific exception thrown when Flyway encounters a problem in SQL statement.
+ * The specific exception thrown when Flyway encounters a problem in SQL statement.
  */
 public class FlywaySqlException extends FlywayException {
-    /**
-     * Creates new instance of FlywaySqlScriptException.
-     *
-     * @param sqlException Cause of the problem.
-     */
+
     public FlywaySqlException(String message, SQLException sqlException) {
         super(message, sqlException, ErrorCode.DB_CONNECTION);
     }
