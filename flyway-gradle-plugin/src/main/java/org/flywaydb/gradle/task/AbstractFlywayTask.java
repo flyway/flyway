@@ -832,13 +832,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     }
 
     private String[] getLocations() {
-        // To maintain override order, return extension value first if present
-        if (extension.locations != null) {
-            return extension.locations;
-        }
-
+        // To maintain override order, return configured values before extension values
         if (locations != null) {
             return locations;
+        }
+
+        if (extension.locations != null) {
+            return extension.locations;
         }
 
         return null;
