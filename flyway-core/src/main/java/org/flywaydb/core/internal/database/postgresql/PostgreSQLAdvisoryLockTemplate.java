@@ -88,7 +88,7 @@ public class PostgreSQLAdvisoryLockTemplate {
                 "Interrupted while attempting to acquire PostgreSQL advisory lock",
                 "Number of retries exceeded while attempting to acquire PostgreSQL advisory lock. " +
                         "Configure the number of retries with the 'lockRetryCount' configuration option: " +
-                        LinkUtils.createFlywayDbWebsiteLink("documentation", "configuration", "parameters", "lockRetryCount"));
+                        LinkUtils.createFlywayDbWebsiteLink("documentation/configuration/parameters/lockRetryCount"));
     }
 
     private boolean tryLock() throws SQLException {

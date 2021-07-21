@@ -457,8 +457,8 @@ public class Main {
         LOG.info("-------");
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
-        LOG.info("More info at " + LinkUtils.createFlywayDbWebsiteLinkWithRef("cmd-line","documentation", "usage", "commandline"));
-        LOG.info("Learn more about Flyway Teams edition at " + LinkUtils.createFlywayDbWebsiteLinkWithRef("cmd-line","try-flyway-teams-edition"));
+        LOG.info("More info at " + LinkUtils.createFlywayDbWebsiteLink("documentation/usage/commandline", "cmd-line"));
+        LOG.info("Learn more about Flyway Teams edition at " + LinkUtils.createFlywayDbWebsiteLink("try-flyway-teams-edition", "cmd-line"));
     }
 
     private static List<File> getJdbcDriverJarFiles() {

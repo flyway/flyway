@@ -305,7 +305,7 @@ public abstract class Parser {
             } while (true);
         } catch (Exception e) {
             IOUtils.close(reader);
-            String docsPage = LinkUtils.createFlywayDbWebsiteLink("documentation", "knownparserlimitations");
+            String docsPage = LinkUtils.createFlywayDbWebsiteLink("documentation/knownparserlimitations");
             throw new FlywayException("Unable to parse statement in " + resource.getAbsolutePath()
                     + " at line " + statementLine + " col " + statementCol + ". See " + docsPage + " for more information: " + e.getMessage(), e);
         }

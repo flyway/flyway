@@ -84,7 +84,7 @@ public class VersionChecker {
                 LOG.warn("This version of Flyway is out of date. Upgrade to Flyway "
                         + latest
                         + ":"
-                        + LinkUtils.createFlywayDbWebsiteLinkWithRef("cmd-line","documentation", "learnmore", "staying-up-to-date"));
+                        + LinkUtils.createFlywayDbWebsiteLink("documentation/learnmore/staying-up-to-date", "cmd-line"));
             }
         } catch (Exception e) {
             // Ignored

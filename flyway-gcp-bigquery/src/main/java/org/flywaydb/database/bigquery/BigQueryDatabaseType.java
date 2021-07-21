@@ -107,7 +107,7 @@ public class BigQueryDatabaseType extends BaseDatabaseType {
         LOG.info(""); //this can go when the beta message above is retired.
         LOG.info("Experiencing performance issues while using GCP BigQuery?");
         LOG.info("Find out how Flyway Teams improves performance with batching at " +
-                LinkUtils.createFlywayDbWebsiteLink("documentation", "database", "big-query#flyway-teams-features-for-bigquery"));
+                LinkUtils.createFlywayDbWebsiteLink("documentation/database/big-query#flyway-teams-features-for-bigquery"));
 
     }
 }

@@ -341,7 +341,7 @@ class CommandLineArguments {
             throw new FlywayException("'" + dateStr + "' is an invalid value for the " + argument + " option. " +
                     "The expected format is 'dd/mm/yyyy hh:mm', like '13/10/2020 16:30'. " +
                     "See the Flyway documentation for help: " +
-                    LinkUtils.createFlywayDbWebsiteLinkWithRef("cmd-line","documentation", "usage", "commandline", "info#filtering-output"));
+                    LinkUtils.createFlywayDbWebsiteLink("documentation/usage/commandline/info#filtering-output", "cmd-line"));
         }
     }
 

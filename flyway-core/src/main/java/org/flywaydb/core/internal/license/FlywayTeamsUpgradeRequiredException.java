@@ -26,6 +26,6 @@ public class FlywayTeamsUpgradeRequiredException extends FlywayException {
     public FlywayTeamsUpgradeRequiredException(String feature) {
         super(Edition.ENTERPRISE + " upgrade required: " + feature + " is not supported by " + Edition.COMMUNITY + "\n" +
                 "Try " + Edition.ENTERPRISE + " for free: " +
-                LinkUtils.createFlywayDbWebsiteLinkWithRef("desired-feature_" + feature, "try-flyway-teams-edition"));
+                LinkUtils.createFlywayDbWebsiteLink("try-flyway-teams-edition", "desired-feature_" + feature));
     }
 }

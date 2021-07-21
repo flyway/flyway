@@ -19,8 +19,9 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.license.VersionPrinter;
 
 public class LinkUtils {
-    public static String createFlywayDbWebsiteLinkWithRef(String ref, String... pathParts) {
-        String link = createFlywayDbWebsiteLink(pathParts);
+
+    public static String createFlywayDbWebsiteLink(String url, String ref) {
+        String link = createFlywayDbWebsiteLink(url);
 
         if (link.contains("?ref=v")) {
             link += "_" + ref;
@@ -31,22 +32,14 @@ public class LinkUtils {
         return link;
     }
 
-    public static String createFlywayDbWebsiteLink(String... pathParts) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        stringBuilder.append("https://flywaydb.org");
-
-        for (String pathPart : pathParts) {
-            stringBuilder.append("/").append(pathPart);
-        }
-
+    public static String createFlywayDbWebsiteLink(String url) {
+        String link = "https://flywaydb.org/" + url;
         try {
             MigrationVersion current = MigrationVersion.fromVersion(VersionPrinter.getVersion());
-            stringBuilder.append("?ref=v").append(current);
+            link += "?ref=v" + current;
         } catch (Exception e) {
             // Ignore failure to parse version
         }
-
-        return stringBuilder.toString();
+        return link;
     }
 }

@@ -25,11 +25,7 @@ import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.LinkUtils;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 /**
  * Utility class for dealing with jdbc connections.
@@ -57,13 +53,13 @@ public class JdbcUtils {
                 if ("08S01".equals(e.getSQLState()) && e.getMessage().contains("This driver is not configured for integrated authentication")) {
                     throw new FlywaySqlException("Unable to obtain connection from database"
                             + getDataSourceInfo(dataSource) + ": " + e.getMessage() + "\nTo setup integrated authentication see " +
-                            LinkUtils.createFlywayDbWebsiteLink("documentation", "database", "sqlserver#windows-authentication"), e);
+                            LinkUtils.createFlywayDbWebsiteLink("documentation/database/sqlserver#windows-authentication"), e);
                 } else if (e.getSQLState() == null && e.getMessage().contains("MSAL4J")) {
                     throw new FlywaySqlException("Unable to obtain connection from database"
                             + getDataSourceInfo(dataSource) + ": " + e.getMessage() +
                             "\nYou need to install some extra drivers in order for interactive authentication to work." +
                             "\nFor instructions, see " +
-                            LinkUtils.createFlywayDbWebsiteLink("documentation", "database", "ssqlserver#azure-active-directory"), e);
+                            LinkUtils.createFlywayDbWebsiteLink("documentation/database/ssqlserver#azure-active-directory"), e);
                 }
 
                 if (++retries > connectRetries) {

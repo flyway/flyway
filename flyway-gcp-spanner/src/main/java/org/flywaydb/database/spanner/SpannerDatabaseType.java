@@ -97,7 +97,7 @@ public class SpannerDatabaseType extends BaseDatabaseType {
         LOG.info(""); //this can go when the beta message above is retired.
         LOG.info("Experiencing performance issues while using GCP Spanner?");
         LOG.info("Find out how Flyway Teams improves performance with batching at " +
-                LinkUtils.createFlywayDbWebsiteLink("documentation", "database", "cloud-spanner#flyway-teams-features-for-cloud-spanner"));
+                LinkUtils.createFlywayDbWebsiteLink("documentation/database/cloud-spanner#flyway-teams-features-for-cloud-spanner"));
 
     }
 }

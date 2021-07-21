@@ -48,7 +48,7 @@ public class ValidatePattern {
         if (patternParts.length != 2) {
             throw new FlywayException("Invalid pattern '" + pattern + "'. Pattern must be of the form <migration_type>:<migration_state> " +
                     "See " +
-                    LinkUtils.createFlywayDbWebsiteLink("documentation", "configuration", "parameters", "ignoreMigrationPatterns") +
+                    LinkUtils.createFlywayDbWebsiteLink("documentation/configuration/parameters/ignoreMigrationPatterns") +
                     " for full details");
         }
 

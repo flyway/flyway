@@ -22,6 +22,6 @@ public class FlywayTeamsUpgradeMessage {
         return "Detected " + detectedFeature + ". " +
                "Upgrade to " + Edition.ENTERPRISE + " to " + usageMessage + ". Try " + Edition.ENTERPRISE + " " +
                 "for free: " +
-                LinkUtils.createFlywayDbWebsiteLinkWithRef("desired-feature_" + detectedFeature,"try-flyway-teams-edition");
+                LinkUtils.createFlywayDbWebsiteLink("try-flyway-teams-edition", "desired-feature_" + detectedFeature);
     }
 }
