@@ -28,14 +28,16 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
 
-
 public class VersionChecker {
     private static class MavenResponse {
-        public MavenDocs[] docs;
+        public MavenDoc[] docs;
     }
 
-    private static class MavenDocs {
+    private static class MavenDoc {
         public String latestVersion;
+
+        // 'g' is the key for the group id in the Maven REST API
+        public String g;
     }
 
     private static class MavenObject {
@@ -78,13 +80,24 @@ public class VersionChecker {
             MavenObject obj = new Gson().fromJson(response.toString(), MavenObject.class);
 
             MigrationVersion current = MigrationVersion.fromVersion(VersionPrinter.getVersion());
-            MigrationVersion latest = MigrationVersion.fromVersion(obj.response.docs[0].latestVersion);
+            MigrationVersion latest = null;
+
+            String groupID = "org.flywaydb";
+
+
+
+
+            MavenDoc[] mavenDocs = obj.response.docs;
+            for (MavenDoc mavenDoc : mavenDocs) {
+                if (mavenDoc.g.equals(groupID)) {
+                    latest = MigrationVersion.fromVersion(mavenDoc.latestVersion);
+                    break;
+                }
+            }
 
             if (current.compareTo(latest) < 0) {
-                LOG.warn("This version of Flyway is out of date. Upgrade to Flyway "
-                        + latest
-                        + ":"
-                        + LinkUtils.createFlywayDbWebsiteLink("documentation/learnmore/staying-up-to-date", "cmd-line"));
+                LOG.warn("This version of Flyway is out of date. Upgrade to Flyway " + latest + ": "
+                        + LinkUtils.createFlywayDbWebsiteLink("documentation/learnmore/staying-up-to-date", "cmd-line") + "\n");
             }
         } catch (Exception e) {
             // Ignored
@@ -94,5 +107,4 @@ public class VersionChecker {
             }
         }
     }
-
 }

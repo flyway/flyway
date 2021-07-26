@@ -194,13 +194,6 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     public abstract boolean supportsDdlTransactions();
 
-    /**
-     * Whether to add the baseline marker directly as part of the create table statement for this database.
-     */
-    public boolean useDirectBaseline() {
-        return false;
-    }
-
     public abstract boolean supportsChangingCurrentSchema();
 
 

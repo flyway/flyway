@@ -15,13 +15,9 @@
  */
 package org.flywaydb.core.internal.util;
 
-/**
- * General IO-related utilities.
- */
 public class IOUtils {
 
-    private IOUtils() {
-    }
+    private IOUtils() { }
 
     /**
      * Closes this closeable and never fail while doing so.
