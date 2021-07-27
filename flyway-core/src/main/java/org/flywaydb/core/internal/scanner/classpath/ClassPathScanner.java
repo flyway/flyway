@@ -27,6 +27,7 @@ import org.flywaydb.core.internal.scanner.classpath.jboss.JBossVFSv2UrlResolver;
 import org.flywaydb.core.internal.scanner.classpath.jboss.JBossVFSv3ClassPathLocationScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
+import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.UrlUtils;
 
 import java.io.IOException;
@@ -39,46 +40,30 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
-/**
- * ClassPath scanner.
- */
 public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
     private static final Log LOG = LogFactory.getLog(ClassPathScanner.class);
 
     private final Class<I> implementedInterface;
-    /**
-     * The ClassLoader for loading migrations on the classpath.
-     */
     private final ClassLoader classLoader;
     private final Location location;
-
-    private final Set<LoadableResource> resources = new TreeSet<>();
-
+    private final Set<LoadableResource> resources = new HashSet<>();
     /**
      * Cache location lookups.
      */
     private final Map<Location, List<URL>> locationUrlCache = new HashMap<>();
-
     /**
      * Cache location scanners.
      */
     private final LocationScannerCache locationScannerCache;
-
     /**
      * Cache resource names.
      */
     private final ResourceNameCache resourceNameCache;
-
     /**
      * Whether to throw an exception if a location was not found.
      */
     private final boolean throwOnMissingLocations;
 
-    /**
-     * Creates a new Classpath scanner.
-     *
-     * @param classLoader The ClassLoader for loading migrations on the classpath.
-     */
     public ClassPathScanner(Class<I> implementedInterface, ClassLoader classLoader, Charset encoding, Location location,
                             ResourceNameCache resourceNameCache,
                             LocationScannerCache locationScannerCache,
@@ -91,9 +76,11 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         this.throwOnMissingLocations = throwOnMissingLocations;
 
         LOG.debug("Scanning for classpath resources at '" + location + "' ...");
-        for (String resourceName : findResourceNames()) {
-            resources.add(new ClassPathResource(location, resourceName, classLoader, encoding));
-            LOG.debug("Found resource: " + resourceName);
+        for (Pair<String, String> resourceNameAndParentURL : findResourceNamesAndParentURLs()) {
+            String resourceName = resourceNameAndParentURL.getLeft();
+            String parentURL = resourceNameAndParentURL.getRight();
+            resources.add(new ClassPathResource(location, resourceName, classLoader, encoding, parentURL));
+            LOG.debug("Found resource: " + resourceNameAndParentURL.getLeft());
         }
     }
 
@@ -134,14 +121,8 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         return nameWithDots.substring(0, (nameWithDots.length() - ".class".length()));
     }
 
-    /**
-     * Finds the resources names present at this location and below on the classpath starting with this prefix and
-     * ending with this suffix.
-     *
-     * @return The resource names.
-     */
-    private Set<String> findResourceNames() {
-        Set<String> resourceNames = new TreeSet<>();
+    private Set<Pair<String, String>> findResourceNamesAndParentURLs() {
+        Set<Pair<String, String>> resourceNamesAndParentURLs = new TreeSet<>();
 
         List<URL> locationUrls = getLocationUrlsForPath(location);
         for (URL locationUrl : locationUrls) {
@@ -168,7 +149,9 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
                     }
                 }
 
-                resourceNames.addAll(filteredNames);
+                for (String filteredName : filteredNames) {
+                    resourceNamesAndParentURLs.add(Pair.of(filteredName, resolvedUrl.getPath()));
+                }
             }
         }
 
@@ -207,7 +190,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
                                 String entryName = entries.nextElement().getName();
                                 if (entryName.startsWith(location.getRootPath())) {
                                     locationResolved = true;
-                                    resourceNames.add(entryName);
+                                    resourceNamesAndParentURLs.add(Pair.of(entryName, url.getPath()));
                                 }
                             }
                         } finally {
@@ -232,7 +215,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
             }
         }
 
-        return resourceNames;
+        return resourceNamesAndParentURLs;
     }
 
     /**

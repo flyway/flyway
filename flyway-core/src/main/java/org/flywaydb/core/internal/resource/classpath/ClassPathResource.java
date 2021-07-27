@@ -26,6 +26,8 @@ import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
+import java.util.Enumeration;
+import java.util.Objects;
 
 
 
@@ -39,19 +41,26 @@ public class ClassPathResource extends LoadableResource {
     private final ClassLoader classLoader;
     private final Charset encoding;
     private final boolean detectEncoding;
+    private final String parentURL;
 
     public ClassPathResource(Location location, String fileNameWithAbsolutePath, ClassLoader classLoader,
                              Charset encoding) {
-        this(location, fileNameWithAbsolutePath, classLoader, encoding, false);
+        this(location, fileNameWithAbsolutePath, classLoader, encoding, false, "");
     }
 
     public ClassPathResource(Location location, String fileNameWithAbsolutePath, ClassLoader classLoader,
-                             Charset encoding, Boolean detectEncoding) {
+                             Charset encoding, String parentURL) {
+        this(location, fileNameWithAbsolutePath, classLoader, encoding, false, parentURL);
+    }
+
+    public ClassPathResource(Location location, String fileNameWithAbsolutePath, ClassLoader classLoader,
+                             Charset encoding, Boolean detectEncoding, String parentURL) {
         this.fileNameWithAbsolutePath = fileNameWithAbsolutePath;
         this.fileNameWithRelativePath = location == null ? fileNameWithAbsolutePath : location.getPathRelativeToThis(fileNameWithAbsolutePath);
         this.classLoader = classLoader;
         this.encoding = encoding;
         this.detectEncoding = detectEncoding;
+        this.parentURL = parentURL;
     }
 
     @Override
@@ -74,12 +83,37 @@ public class ClassPathResource extends LoadableResource {
     }
 
     private URL getUrl() {
-        return classLoader.getResource(fileNameWithAbsolutePath);
+        try {
+            Enumeration<URL> urls = classLoader.getResources(fileNameWithAbsolutePath);
+            while (urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                if (url.getPath() != null && url.getPath().contains(parentURL)) {
+                    return url;
+                }
+            }
+        } catch (IOException e) {
+            throw new FlywayException(e);
+        }
+
+        return null;
     }
 
     @Override
     public Reader read() {
-        InputStream inputStream = classLoader.getResourceAsStream(fileNameWithAbsolutePath);
+        InputStream inputStream = null;
+        try {
+            Enumeration<URL> urls = classLoader.getResources(fileNameWithAbsolutePath);
+            while (urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                if (url.getPath() != null && url.getPath().contains(parentURL)) {
+                    inputStream = url.openStream();
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            throw new FlywayException(e);
+        }
+
         if (inputStream == null) {
             throw new FlywayException("Unable to obtain inputstream for resource: " + fileNameWithAbsolutePath);
         }
@@ -114,11 +148,11 @@ public class ClassPathResource extends LoadableResource {
 
         ClassPathResource that = (ClassPathResource) o;
 
-        return fileNameWithAbsolutePath.equals(that.fileNameWithAbsolutePath);
+        return fileNameWithAbsolutePath.equals(that.fileNameWithAbsolutePath) && parentURL.equals(that.parentURL);
     }
 
     @Override
     public int hashCode() {
-        return fileNameWithAbsolutePath.hashCode();
+        return Objects.hash(fileNameWithAbsolutePath, parentURL);
     }
 }
