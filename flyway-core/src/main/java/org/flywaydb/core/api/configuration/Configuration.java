@@ -608,42 +608,6 @@ public interface Configuration {
     Map<String, String> getJdbcProperties();
 
     /**
-     * The REST API URL of your Vault server, including the API version.
-     * Currently only supports API version v1.
-     * Example: http://localhost:8200/v1/
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @return The REST API URL of your Vault server
-     */
-    String getVaultUrl();
-
-    /**
-     * The Vault token required to access your secrets.
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @return The Vault token required to access your secrets
-     */
-    String getVaultToken();
-
-    /**
-     * A comma-separated list of paths to secrets in Vault that contain Flyway configurations. This
-     * must start with the name of the engine and end with the name of the secret.
-     * The resulting form is '{engine_name}/{path}/{to}/{secret_name}'.
-     *
-     * If multiple secrets specify the same configuration parameter, then the last
-     * secret takes precedence.
-     *
-     * Example: secret/data/flyway/flywayConfig
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @return A list of paths to secrets in Vault
-     */
-    String[] getVaultSecrets();
-
-    /**
      * Whether to fail if a location specified in the flyway.locations option doesn't exist
      *
      * @return @{code true} to fail (default: {@code false})

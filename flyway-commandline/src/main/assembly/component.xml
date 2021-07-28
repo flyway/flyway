@@ -129,8 +129,11 @@
                 <include>org.flywaydb:flyway-gcp-bigquery</include>
                 <include>org.flywaydb:flyway-gcp-spanner</include>
                 <include>org.flywaydb:flyway-community-db-support</include>
+                <include>org.flywaydb:flyway-vault-integration</include>
             </includes>
         </dependencySet>
+
+
 
 
 

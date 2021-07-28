@@ -353,21 +353,6 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public String getVaultUrl() {
-        return config.getVaultUrl();
-    }
-
-    @Override
-    public String getVaultToken() {
-        return config.getVaultToken();
-    }
-
-    @Override
-    public String[] getVaultSecrets() {
-        return config.getVaultSecrets();
-    }
-
-    @Override
     public boolean getFailOnMissingLocations() {
         return config.getFailOnMissingLocations();
     }
@@ -1288,51 +1273,6 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration createSchemas(boolean createSchemas) {
         config.setShouldCreateSchemas(createSchemas);
-        return this;
-    }
-
-    /**
-     * The REST API URL of your Vault server, including the API version.
-     * Currently only supports API version v1.
-     * Example: http://localhost:8200/v1/
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @param vaultUrl The REST API URL of your Vault server
-     */
-    public FluentConfiguration vaultUrl(String vaultUrl) {
-        config.setVaultUrl(vaultUrl);
-        return this;
-    }
-
-    /**
-     * The Vault token required to access your secrets.
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @param vaultToken The Vault token required to access your secrets
-     */
-    public FluentConfiguration vaultToken(String vaultToken) {
-        config.setVaultToken(vaultToken);
-        return this;
-    }
-
-    /**
-     * A comma-separated list of paths to secrets in Vault that contain Flyway configurations. This
-     * must start with the name of the engine and end with the name of the secret.
-     * The resulting form is '{engine_name}/{path}/{to}/{secret_name}'.
-     *
-     * If multiple secrets specify the same configuration parameter, then the last
-     * secret takes precedence.
-     *
-     * Example: secret/data/flyway/flywayConfig
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @param vaultSecrets A list of paths to secrets in Vault
-     */
-    public FluentConfiguration vaultSecrets(String... vaultSecrets) {
-        config.setVaultSecrets(vaultSecrets);
         return this;
     }
 

@@ -19,10 +19,10 @@ import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.extensibility.ConfigurationProvider;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-
 
 import java.io.*;
 import java.util.*;
@@ -320,17 +320,6 @@ public class ConfigUtils {
             return ORACLE_KERBEROS_CACHE_FILE;
         }
 
-        // Secrets-manager specific
-        if ("FLYWAY_VAULT_URL".equals(key)) {
-            return VAULT_URL;
-        }
-        if ("FLYWAY_VAULT_TOKEN".equals(key)) {
-            return VAULT_TOKEN;
-        }
-        if ("FLYWAY_VAULT_SECRETS".equals(key)) {
-            return VAULT_SECRETS;
-        }
-
         // Command-line specific
         if ("FLYWAY_JAR_DIRS".equals(key)) {
             return JAR_DIRS;
@@ -339,6 +328,14 @@ public class ConfigUtils {
         // Gradle specific
         if ("FLYWAY_CONFIGURATIONS".equals(key)) {
             return CONFIGURATIONS;
+        }
+
+        ServiceLoader<ConfigurationProvider> loader = ServiceLoader.load(ConfigurationProvider.class);
+        for (ConfigurationProvider configurationProvider : loader) {
+            String configurationParameter = configurationProvider.getConfigurationParameterFromEnvironmentVariable(key);
+            if (configurationParameter != null) {
+                return configurationParameter;
+            }
         }
 
         return null;
@@ -487,6 +484,8 @@ public class ConfigUtils {
         properties.load(new StringReader(contents));
         return propertiesToMap(properties);
     }
+
+
 
 
 

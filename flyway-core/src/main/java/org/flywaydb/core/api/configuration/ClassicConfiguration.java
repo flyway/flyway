@@ -116,9 +116,6 @@ public class ClassicConfiguration implements Configuration {
     private boolean oracleSqlplusWarn;
     private String oracleKerberosConfigFile = "";
     private String oracleKerberosCacheFile = "";
-    private String vaultUrl;
-    private String vaultToken;
-    private String[] vaultSecrets;
     private boolean failOnMissingLocations = false;
     private final ClasspathClassScanner classScanner;
 
@@ -392,21 +389,6 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public Map<String, String> getJdbcProperties() {
         return jdbcProperties;
-    }
-
-    @Override
-    public String getVaultUrl() {
-        return vaultUrl;
-    }
-
-    @Override
-    public String getVaultToken() {
-        return vaultToken;
-    }
-
-    @Override
-    public String[] getVaultSecrets() {
-        return vaultSecrets;
     }
 
     @Override
@@ -1503,33 +1485,6 @@ public class ClassicConfiguration implements Configuration {
         this.lockRetryCount = lockRetryCount;
     }
 
-    public void setVaultUrl(String vaultUrl) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultUrl");
-
-
-
-
-    }
-
-    public void setVaultToken(String vaultToken) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultToken");
-
-
-
-
-    }
-
-    public void setVaultSecrets(String... vaultSecrets) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultSecrets");
-
-
-
-
-    }
-
     /**
      * Whether to fail if a location specified in the flyway.locations option doesn't exist
      *
@@ -1552,9 +1507,6 @@ public class ClassicConfiguration implements Configuration {
         setDataSource(configuration.getDataSource());
         setConnectRetries(configuration.getConnectRetries());
         setInitSql(configuration.getInitSql());
-
-
-
 
 
 
@@ -1859,18 +1811,6 @@ public class ClassicConfiguration implements Configuration {
         String oracleKerberosCacheFile = props.remove(ConfigUtils.ORACLE_KERBEROS_CACHE_FILE);
         if (oracleKerberosCacheFile != null) {
             setOracleKerberosCacheFile(oracleKerberosCacheFile);
-        }
-        String vaultUrl = props.remove(ConfigUtils.VAULT_URL);
-        if (vaultUrl != null) {
-            setVaultUrl(vaultUrl);
-        }
-        String vaultToken = props.remove(ConfigUtils.VAULT_TOKEN);
-        if (vaultToken != null) {
-            setVaultToken(vaultToken);
-        }
-        String vaultSecrets = props.remove(ConfigUtils.VAULT_SECRETS);
-        if (vaultSecrets != null) {
-            setVaultSecrets(StringUtils.tokenizeToStringArray(vaultSecrets, ","));
         }
         String ignoreMigrationPatternsProp = props.remove(ConfigUtils.IGNORE_MIGRATION_PATTERNS);
         if (ignoreMigrationPatternsProp != null) {
