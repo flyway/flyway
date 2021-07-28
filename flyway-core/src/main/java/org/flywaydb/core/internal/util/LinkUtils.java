@@ -29,7 +29,7 @@ public class LinkUtils {
             link += "?ref=" + ref;
         }
 
-        return link;
+        return sanitize(link);
     }
 
     public static String createFlywayDbWebsiteLink(String url) {
@@ -40,6 +40,10 @@ public class LinkUtils {
         } catch (Exception e) {
             // Ignore failure to parse version
         }
-        return link;
+        return sanitize(link);
+    }
+
+    private static String sanitize(String link) {
+        return link.replace(" ", "%20");
     }
 }

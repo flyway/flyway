@@ -20,10 +20,12 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.extensibility.ApiExtension;
 
 import javax.sql.DataSource;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 
 public interface Configuration {
@@ -33,6 +35,16 @@ public interface Configuration {
      * @return The ClassLoader to use for loading migrations, resolvers, etc. from the classpath. (default: Thread.currentThread().getContextClassLoader() )
      */
     ClassLoader getClassLoader();
+
+    /**
+     * Retrieves the API extensions
+     */
+    List<ApiExtension> getApiExtensions();
+
+    /**
+     * Retrieves the API extension configurator of the requested class
+     */
+    <T extends ApiExtension> T getExtensionConfiguration(Class<T> clazz);
 
     /**
      * Retrieves the url used to construct the dataSource. May be null if the dataSource was passed in directly.

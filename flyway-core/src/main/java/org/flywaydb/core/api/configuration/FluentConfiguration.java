@@ -21,6 +21,7 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.extensibility.ApiExtension;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
 
@@ -28,6 +29,7 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -1294,5 +1296,15 @@ public class FluentConfiguration implements Configuration {
     public FluentConfiguration failOnMissingLocations(boolean failOnMissingLocations) {
         config.setFailOnMissingLocations(failOnMissingLocations);
         return this;
+    }
+
+    @Override
+    public List<ApiExtension> getApiExtensions() {
+        return config.getApiExtensions();
+    }
+
+    @Override
+    public <T extends ApiExtension> T getExtensionConfiguration(Class<T> clazz) {
+        return config.getExtensionConfiguration(clazz);
     }
 }

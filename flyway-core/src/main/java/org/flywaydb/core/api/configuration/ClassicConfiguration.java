@@ -22,6 +22,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.extensibility.ApiExtension;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
@@ -51,6 +52,8 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger
  */
 public class ClassicConfiguration implements Configuration {
     private static final Log LOG = LogFactory.getLog(ClassicConfiguration.class);
+
+    private List<ApiExtension> apiExtensions = new ArrayList<>();
 
     private String driver;
     private String url;
@@ -1494,6 +1497,30 @@ public class ClassicConfiguration implements Configuration {
         this.failOnMissingLocations = failOnMissingLocations;
     }
 
+    @Override
+    public List<ApiExtension> getApiExtensions() {
+        return apiExtensions;
+    }
+
+    @Override
+    public <T extends ApiExtension> T getExtensionConfiguration(Class<T> clazz) {
+        for (ApiExtension apiExtension : apiExtensions) {
+            if (clazz.isInstance(apiExtension)) {
+                return (T) apiExtension;
+            }
+        }
+
+        ServiceLoader<ApiExtension> loader = ServiceLoader.load(ApiExtension.class);
+        for (ApiExtension apiExtension : loader) {
+            if (clazz.isInstance(apiExtension)) {
+                apiExtensions.add(apiExtension);
+                return (T) apiExtension;
+            }
+        }
+
+        throw new FlywayException("Requested extension of type " + clazz.getName() + " but none found.");
+    }
+
     /**
      * Configure with the same values as this existing configuration.
      */
@@ -1564,6 +1591,19 @@ public class ClassicConfiguration implements Configuration {
         url = configuration.getUrl();
         user = configuration.getUser();
         password = configuration.getPassword();
+
+        apiExtensions = configuration.getApiExtensions();
+
+        Map<String, String> extensionConfiguration = new HashMap<>();
+        for (ApiExtension apiExtension : apiExtensions) {
+            try {
+                extensionConfiguration.putAll(apiExtension.getConfiguration());
+            } catch (Exception e) {
+                throw new FlywayException("Unable to read configuration from " + apiExtension.getClass().getName() + ": " + e.getMessage());
+            }
+        }
+
+        this.configure(extensionConfiguration);
     }
 
     /**
@@ -1589,6 +1629,14 @@ public class ClassicConfiguration implements Configuration {
     public void configure(Map<String, String> props) {
         // Make copy to prevent removing elements from the original.
         props = new HashMap<>(props);
+
+        for (ApiExtension apiExtension : apiExtensions) {
+            try {
+                props.putAll(apiExtension.getConfiguration());
+            } catch (Exception e) {
+                throw new FlywayException("Unable to read configuration from " + apiExtension.getClass().getName() + ": " + e.getMessage());
+            }
+        }
 
         String driverProp = props.remove(ConfigUtils.DRIVER);
         if (driverProp != null) {
@@ -1841,21 +1889,19 @@ public class ClassicConfiguration implements Configuration {
     }
 
     private Map<String, String> getPropertiesUnderNamespace(Map<String, String> properties, Map<String, String> current, String namespace) {
-        Map<String, String> placeholdersFromProps = new HashMap<>(current);
         Iterator<Map.Entry<String, String>> iterator = properties.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, String> entry = iterator.next();
             String propertyName = entry.getKey();
 
-            if (propertyName.startsWith(namespace)
-                    && propertyName.length() > namespace.length()) {
+            if (propertyName.startsWith(namespace) && propertyName.length() > namespace.length()) {
                 String placeholderName = propertyName.substring(namespace.length());
                 String placeholderValue = entry.getValue();
-                placeholdersFromProps.put(placeholderName, placeholderValue);
+                current.put(placeholderName, placeholderValue);
                 iterator.remove();
             }
         }
-        return placeholdersFromProps;
+        return current;
     }
 
     /**
