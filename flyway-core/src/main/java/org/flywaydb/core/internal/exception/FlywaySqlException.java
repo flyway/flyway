@@ -36,6 +36,6 @@ public class FlywaySqlException extends FlywayException {
         String title = super.getMessage();
         String underline = StringUtils.trimOrPad("", title.length(), '-');
 
-        return "\n" + title + "\n" + underline + "\n" + ExceptionUtils.toMessage((SQLException) getCause());
+        return title + "\n" + underline + "\n" + ExceptionUtils.toMessage((SQLException) getCause());
     }
 }
