@@ -651,37 +651,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String workingDirectory;
 
     /**
-     * The REST API URL of your Vault server, including the API version.
-     * Currently only supports API version v1.
-     * Example: http://localhost:8200/v1/
-     *
-     * <i>Flyway Teams only</i>
-     */
-    @Parameter(property = ConfigUtils.VAULT_URL)
-    public String vaultUrl;
-    /**
-     * The Vault token required to access your secrets.
-     *
-     * <i>Flyway Teams only</i>
-     */
-    @Parameter(property = ConfigUtils.VAULT_TOKEN)
-    public String vaultToken;
-    /**
-     * A comma-separated list of paths to secrets in Vault that contain Flyway configurations. This
-     * must start with the name of the engine and end with the name of the secret.
-     * The resulting form is '{engine_name}/{path}/{to}/{secret_name}'.
-     *
-     * If multiple secrets specify the same configuration parameter, then the last
-     * secret takes precedence.
-     *
-     * Example: secret/data/flyway/flywayConfig
-     *
-     * <i>Flyway Teams only</i>
-     */
-    @Parameter
-    public String[] vaultSecrets;
-
-    /**
      * Whether to fail if a location specified in the flyway.locations option doesn't exist
      *
      * @return @{code true} to fail (default: {@code false})
@@ -702,6 +671,19 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "${settings}", readonly = true)
     protected Settings settings;
+
+    /**
+     * The configuration for Vault secrets manager.
+     * You will need to configure the following fields:
+     * <ul>
+     *  <li>vaultUrl: The REST API URL of your Vault server - https://flywaydb.org/documentation/configuration/parameters/vaultUrl</li>
+     *  <li>vaultToken: The Vault token required to access your secrets - https://flywaydb.org/documentation/configuration/parameters/vaultToken</li>
+     *  <li>vaultSecrets: A list of paths to secrets in Vault that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/vaultSecrets</li>
+     * </ul>
+     * <i>Flyway Teams only</i>
+     */
+    @Parameter
+    protected VaultConfiguration vaultConfiguration;
 
     /**
      * Reference to the current project that includes the Flyway Maven plugin.
@@ -852,10 +834,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus);
             putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS_WARN, oracleSqlplusWarn);
 
-            putIfSet(conf, ConfigUtils.VAULT_URL, vaultUrl);
-            putIfSet(conf, ConfigUtils.VAULT_TOKEN, vaultToken);
-            putArrayIfSet(conf, ConfigUtils.VAULT_SECRETS, vaultSecrets);
-
             putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey);
 
             if (placeholders != null) {
@@ -870,6 +848,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                     String value = jdbcProperties.get(property);
                     conf.put(ConfigUtils.JDBC_PROPERTIES_PREFIX + property, value == null ? "" : value);
                 }
+            }
+
+            if (vaultConfiguration != null){
+                vaultConfiguration.extract(conf);
             }
 
             conf.putAll(ConfigUtils.propertiesToMap(mavenProject.getProperties()));

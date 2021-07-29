@@ -93,11 +93,6 @@ public class ConfigUtils {
     public static final String CREATE_SCHEMAS = "flyway.createSchemas";
     public static final String FAIL_ON_MISSING_LOCATIONS = "flyway.failOnMissingLocations";
 
-    // Secrets-manager specific
-    public static final String VAULT_URL = "flyway.vault.url";
-    public static final String VAULT_TOKEN = "flyway.vault.token";
-    public static final String VAULT_SECRETS = "flyway.vault.secrets";
-
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
     public static final String ORACLE_SQLPLUS_WARN = "flyway.oracle.sqlplusWarn";
