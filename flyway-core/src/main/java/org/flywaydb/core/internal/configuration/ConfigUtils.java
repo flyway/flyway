@@ -487,16 +487,21 @@ public class ConfigUtils {
 
     public static Map<String, String> loadConfigurationFromSecretsManagers(Map<String, String> config) {
         Map<String, String> secretsManagerConfiguration = new HashMap<>();
+        ConfigurationProvider currentConfigurationProvider = null;
 
         try {
             ServiceLoader<ConfigurationProvider> loader = ServiceLoader.load(ConfigurationProvider.class);
             for (ConfigurationProvider configurationProvider : loader) {
+                currentConfigurationProvider = configurationProvider;
                 if (configurationProvider.isConfigured(config)) {
                     secretsManagerConfiguration.putAll(configurationProvider.getConfiguration(config));
                 }
             }
         } catch (Exception e) {
-            throw new FlywayException("Unable to read configuration from Vault: " + e.getMessage());
+            if (currentConfigurationProvider == null) {
+                throw new FlywayException("Unable to read configuration from a configuration provider: " + e.getMessage());
+            }
+            throw new FlywayException("Unable to read configuration from " + currentConfigurationProvider.getClass().getName() + ": " + e.getMessage());
         }
 
         return secretsManagerConfiguration;
