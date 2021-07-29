@@ -800,9 +800,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         addConfigFromProperties(conf, loadConfigurationFromConfigFiles(getWorkingDirectory(), envVars));
         addConfigFromProperties(conf, envVars);
         addConfigFromProperties(conf, System.getProperties());
-
-
-
+        conf.putAll(ConfigUtils.loadConfigurationFromSecretsManagers(conf));
         removeGradlePluginSpecificPropertiesToAvoidWarnings(conf);
 
         return conf;

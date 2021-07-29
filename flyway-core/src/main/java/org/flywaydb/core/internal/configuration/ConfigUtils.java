@@ -485,24 +485,22 @@ public class ConfigUtils {
         return propertiesToMap(properties);
     }
 
+    public static Map<String, String> loadConfigurationFromSecretsManagers(Map<String, String> config) {
+        Map<String, String> secretsManagerConfiguration = new HashMap<>();
 
+        try {
+            ServiceLoader<ConfigurationProvider> loader = ServiceLoader.load(ConfigurationProvider.class);
+            for (ConfigurationProvider configurationProvider : loader) {
+                if (configurationProvider.isConfigured(config)) {
+                    secretsManagerConfiguration.putAll(configurationProvider.getConfiguration(config));
+                }
+            }
+        } catch (Exception e) {
+            throw new FlywayException("Unable to read configuration from Vault: " + e.getMessage());
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return secretsManagerConfiguration;
+    }
 
     static String expandEnvironmentVariables(String value, Map<String, String> environmentVariables) {
         Pattern pattern = Pattern.compile("\\$\\{([A-Za-z0-9_]+)}");

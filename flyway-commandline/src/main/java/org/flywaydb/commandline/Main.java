@@ -134,10 +134,7 @@ public class Main {
 
             config.putAll(envVars);
             config = overrideConfiguration(config, commandLineArguments.getConfiguration());
-
-
-
-
+            config = overrideConfiguration(config, ConfigUtils.loadConfigurationFromSecretsManagers(config));
 
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             List<File> jarFiles = new ArrayList<>();
