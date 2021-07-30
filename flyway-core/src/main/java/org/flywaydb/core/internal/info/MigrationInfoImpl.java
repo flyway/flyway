@@ -446,9 +446,6 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
-
-
-
         if ((getInstalledRank() != null) && (o.getInstalledRank() != null)) {
             return getInstalledRank().compareTo(o.getInstalledRank());
         }
@@ -462,16 +459,6 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
         if (state.isApplied() && oState == MigrationState.BELOW_BASELINE) {
             return 1;
-        }
-
-        // Allow interleaving ignored versioned migrations with applied versioned migrations
-        if (getVersion() != null && o.getVersion() != null) {
-            if (state == MigrationState.IGNORED && oState.isApplied()) {
-                return compareVersion(o);
-            }
-            if (state.isApplied() && oState == MigrationState.IGNORED) {
-                return compareVersion(o);
-            }
         }
 
         // Sort installed before pending
