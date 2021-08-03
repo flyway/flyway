@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 public class DatabaseTypeRegister {
     private static final Log LOG = LogFactory.getLog(DatabaseTypeRegister.class);
-    public static ClassLoader classLoader = new DatabaseTypeRegister().getClass().getClassLoader();
+    private static final ClassLoader CLASS_LOADER = new DatabaseTypeRegister().getClass().getClassLoader();
 
     private static final List<DatabaseType> registeredDatabaseTypes = new ArrayList<>();
     private static boolean hasRegisteredDatabaseTypes = false;
@@ -52,7 +52,7 @@ public class DatabaseTypeRegister {
 
 
 
-            ServiceLoader<DatabaseType> loader = ServiceLoader.load(DatabaseType.class, classLoader);
+            ServiceLoader<DatabaseType> loader = ServiceLoader.load(DatabaseType.class, CLASS_LOADER);
             for (DatabaseType dt : loader) {
                 registeredDatabaseTypes.add(dt);
             }

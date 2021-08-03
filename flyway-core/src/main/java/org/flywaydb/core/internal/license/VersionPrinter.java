@@ -27,8 +27,8 @@ import java.util.ServiceLoader;
 
 public class VersionPrinter {
     private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
-    public static ClassLoader classLoader = VersionPrinter.class.getClassLoader();
-    public static final String version = readVersion();
+    private static final ClassLoader CLASS_LOADER = new VersionPrinter().getClass().getClassLoader();
+    public static final String VERSION = readVersion();
 
     public static final Edition EDITION =
 
@@ -45,7 +45,7 @@ public class VersionPrinter {
     private VersionPrinter() { }
 
     public static String getVersion() {
-        return version;
+        return VERSION;
     }
 
     public static void printVersion() {
@@ -53,12 +53,12 @@ public class VersionPrinter {
     }
 
     public static void printVersionOnly() {
-        LOG.info(EDITION + " " + version + " by Redgate");
+        LOG.info(EDITION + " " + VERSION + " by Redgate");
         printExtensionVersions();
     }
 
     private static void printExtensionVersions() {
-        ServiceLoader<FlywayExtension> loader = ServiceLoader.load(FlywayExtension.class, classLoader);
+        ServiceLoader<FlywayExtension> loader = ServiceLoader.load(FlywayExtension.class, CLASS_LOADER);
         for (FlywayExtension extension : loader) {
             LOG.debug( ">\t" + extension.getDescription());
         }

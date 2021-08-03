@@ -137,10 +137,6 @@ public class Flyway {
 
         // Load callbacks from default package
         this.configuration.loadCallbackLocation("db/callback", false);
-
-        // Set ClassLoader for ServiceLoader
-        DatabaseTypeRegister.classLoader = configuration.getClassLoader();
-        VersionPrinter.classLoader = configuration.getClassLoader();
     }
 
     /**
