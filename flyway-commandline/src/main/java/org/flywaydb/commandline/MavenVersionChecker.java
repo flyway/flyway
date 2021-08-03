@@ -28,7 +28,7 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
 
-public class VersionChecker {
+public class MavenVersionChecker {
     private static class MavenResponse {
         public MavenDoc[] docs;
     }
@@ -44,8 +44,8 @@ public class VersionChecker {
         public MavenResponse response;
     }
 
-    private static final String FlywayUrl = "https://search.maven.org/solrsearch/select?q=a:flyway-core";
-    private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
+    private static final String FLYWAY_URL = "https://search.maven.org/solrsearch/select?q=a:flyway-core";
+    private static final Log LOG = LogFactory.getLog(MavenVersionChecker.class);
 
     private static boolean canConnectToMaven() {
         try {
@@ -64,7 +64,7 @@ public class VersionChecker {
         }
 
         try {
-            URL url = new URL(FlywayUrl);
+            URL url = new URL(FLYWAY_URL);
             connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
 

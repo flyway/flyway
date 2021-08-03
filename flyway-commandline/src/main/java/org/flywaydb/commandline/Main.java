@@ -39,6 +39,7 @@ import org.flywaydb.core.internal.license.VersionPrinter;
 
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.LinkUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -152,7 +153,14 @@ public class Main {
             filterProperties(config);
 
             if(!commandLineArguments.skipCheckForUpdate()) {
-                VersionChecker.checkForVersionUpdates();
+                if (FeatureDetector.areExperimentalFeaturesEnabled()) {
+                    String message = RedgateUpdateChecker.getUpdateCheckMessage(config.get(ConfigUtils.URL));
+                    if (!message.isEmpty()) {
+                        LOG.info(message);
+                    }
+                } else {
+                    MavenVersionChecker.checkForVersionUpdates();
+                }
             }
 
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
