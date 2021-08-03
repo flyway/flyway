@@ -46,9 +46,9 @@ public class YugabyteDBDatabaseType extends PostgreSQLDatabaseType {
 
     @Override
     public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
-        String selectVersionQueryOutput = getSelectVersionOutput(connection);
         // The YB is what distinguishes Yugabyte
-        return Pattern.matches("PostgreSQL\\s\\d{1,2}(\\.\\d{1,2})?-YB-\\d{1,2}(\\.\\d{1,2})?.*", selectVersionQueryOutput);
+        return databaseProductName.startsWith("PostgreSQL")
+                && Pattern.matches("PostgreSQL\\s\\d{1,2}(\\.\\d{1,2})?-YB-\\d{1,2}(\\.\\d{1,2})?.*", getSelectVersionOutput(connection));
     }
 
     @Override
@@ -60,5 +60,4 @@ public class YugabyteDBDatabaseType extends PostgreSQLDatabaseType {
     public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
         return new YugabyteDBParser(configuration, parsingContext);
     }
-
 }
