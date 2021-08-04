@@ -38,7 +38,7 @@ public class RedgateUpdateChecker {
     }
 
     private static final String UPDATE_CHECK_ENDPOINT = "https://repo.flywaydb.org/update-check";
-    private static final String REDGATE_SERVER_ADDRESS = "repo.flywaydb.org";
+    private static final String REDGATE_SERVER_ADDRESS = "https://repo.flywaydb.org";
     private static final Log LOG = LogFactory.getLog(RedgateUpdateChecker.class);
 
     public static String getUpdateCheckMessage(String jdbcUrl) {
@@ -84,11 +84,22 @@ public class RedgateUpdateChecker {
     }
 
     private static boolean isRedgateServerReachable() {
+        HttpsURLConnection connection = null;
+
         try {
-            InetAddress address = InetAddress.getByName(REDGATE_SERVER_ADDRESS);
-            return address.isReachable(500);
-        } catch (Exception e) {
+            HttpsURLConnection.setFollowRedirects(false);
+            connection = (HttpsURLConnection) new URL(REDGATE_SERVER_ADDRESS).openConnection();
+
+            connection.setRequestMethod("HEAD");
+            connection.setConnectTimeout(1000);
+
+            return (connection.getResponseCode() == HttpsURLConnection.HTTP_OK);
+        } catch (IOException e) {
             return false;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
 
