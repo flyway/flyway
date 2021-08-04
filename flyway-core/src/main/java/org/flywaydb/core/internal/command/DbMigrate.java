@@ -143,6 +143,9 @@ public class DbMigrate {
             if (count == 0) {
                 // No further migrations available
                 break;
+            } else if (configuration.getTarget() == MigrationVersion.NEXT) {
+                // With target=next we only execute one migration
+                break;
             }
         }
 

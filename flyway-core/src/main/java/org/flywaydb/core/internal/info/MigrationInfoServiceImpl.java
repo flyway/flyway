@@ -29,6 +29,7 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
+import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Pair;
 
 import java.util.*;
@@ -231,7 +232,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         if (configuration.getFailOnMissingTarget() &&
                 target != null &&
                 target != MigrationVersion.CURRENT &&
-                target != MigrationVersion.LATEST) {
+                target != MigrationVersion.LATEST &&
+                target != MigrationVersion.NEXT) {
             boolean targetFound = false;
 
             for (MigrationInfoImpl migration : migrationInfos1) {
@@ -291,6 +293,15 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         // Set output
         Collections.sort(migrationInfos1);
         migrationInfos = migrationInfos1;
+
+        if (context.target == MigrationVersion.NEXT) {
+            MigrationInfo[] pendingMigrationInfos = pending();
+            if (pendingMigrationInfos.length == 0) {
+                context.target = null;
+            } else {
+                context.target = pendingMigrationInfos[0].getVersion();
+            }
+        }
     }
 
     /**

@@ -161,7 +161,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
-                if (context.target != null && resolvedMigration.getVersion().compareTo(context.target) > 0) {
+                if (context.target != null && context.target != MigrationVersion.NEXT && resolvedMigration.getVersion().compareTo(context.target) > 0) {
                     return MigrationState.ABOVE_TARGET;
                 }
                 if ((resolvedMigration.getVersion().compareTo(context.lastApplied) < 0) && !context.outOfOrder) {

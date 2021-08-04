@@ -27,6 +27,7 @@ import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.license.Edition;
@@ -891,6 +892,15 @@ public class ClassicConfiguration implements Configuration {
      * Defaults to {@code latest}.
      */
     public void setTarget(MigrationVersion target) {
+        if (!FeatureDetector.areExperimentalFeaturesEnabled() && target == MigrationVersion.NEXT) {
+
+
+
+
+
+             throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("target=next");
+
+        }
         this.target = target;
     }
 
@@ -919,8 +929,8 @@ public class ClassicConfiguration implements Configuration {
 
 
         } else {
-            this.failOnMissingTarget = true;
-            this.target = MigrationVersion.fromVersion(target);
+            setFailOnMissingTarget(true);
+            setTarget(MigrationVersion.fromVersion(target));
         }
     }
 

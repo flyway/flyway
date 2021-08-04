@@ -42,6 +42,11 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     public static final MigrationVersion CURRENT = new MigrationVersion(BigInteger.valueOf(-2), "<< Current Version >>");
 
     /**
+     * Next version.
+     */
+    public static final MigrationVersion NEXT = new MigrationVersion(BigInteger.valueOf(-3), "<< Next Version >>");
+
+    /**
      * Regex for matching proper version format
      */
     private static final Pattern SPLIT_REGEX = Pattern.compile("\\.(?=\\d)");
@@ -66,6 +71,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     @SuppressWarnings("ConstantConditions")
     public static MigrationVersion fromVersion(String version) {
         if ("current".equalsIgnoreCase(version)) return CURRENT;
+        if ("next".equalsIgnoreCase(version)) return NEXT;
         if ("latest".equalsIgnoreCase(version) || LATEST.getVersion().equals(version)) return LATEST;
         if (version == null) return EMPTY;
         return new MigrationVersion(version);
