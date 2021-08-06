@@ -130,8 +130,11 @@ public class RedgateUpdateChecker {
         hashedId = getHashed(operatingSystem.getBytes(StandardCharsets.UTF_8), hashedId);
         hashedId = getHashed(jdbcUrl.getBytes(StandardCharsets.UTF_8), hashedId);
         hashedId = getHashed(System.getProperty("user.dir").getBytes(StandardCharsets.UTF_8), hashedId);
-        hardwareAddress = NetworkInterface.getByInetAddress(InetAddress.getLocalHost()).getHardwareAddress();
-
+        NetworkInterface networkInterface = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
+        if(networkInterface == null) {
+            throw new Exception("Network Interface was null when creating fingerprint");
+        }
+        hardwareAddress = networkInterface.getHardwareAddress();
         if(hardwareAddress == null || hardwareAddress.length == 0) {
             throw new Exception("Hardware address was null or empty when creating fingerprint");
         }
