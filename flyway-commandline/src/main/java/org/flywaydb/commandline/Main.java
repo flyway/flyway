@@ -40,7 +40,7 @@ import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.LinkUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.Console;
@@ -462,8 +462,8 @@ public class Main {
         LOG.info("-------");
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
-        LOG.info("More info at " + LinkUtils.createFlywayDbWebsiteLink("documentation/usage/commandline", "cmd-line"));
-        LOG.info("Learn more about Flyway Teams edition at " + LinkUtils.createFlywayDbWebsiteLink("try-flyway-teams-edition", "cmd-line"));
+        LOG.info("More info at " + FlywayDbWebsiteLinks.USAGE_COMMANDLINE);
+        LOG.info("Learn more about Flyway Teams edition at " + FlywayDbWebsiteLinks.TRY_TEAMS_EDITION);
     }
 
     private static List<File> getJdbcDriverJarFiles() {

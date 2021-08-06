@@ -20,7 +20,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.core.internal.util.LinkUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -97,7 +97,7 @@ public class MavenVersionChecker {
 
             if (current.compareTo(latest) < 0) {
                 LOG.warn("This version of Flyway is out of date. Upgrade to Flyway " + latest + ": "
-                        + LinkUtils.createFlywayDbWebsiteLink("documentation/learnmore/staying-up-to-date", "cmd-line") + "\n");
+                        + FlywayDbWebsiteLinks.STAYING_UP_TO_DATE + "\n");
             }
         } catch (Exception e) {
             // Ignored

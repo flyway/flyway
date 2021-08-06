@@ -19,7 +19,7 @@ import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.util.LinkUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.text.ParseException;
@@ -340,8 +340,7 @@ class CommandLineArguments {
         } catch (ParseException e) {
             throw new FlywayException("'" + dateStr + "' is an invalid value for the " + argument + " option. " +
                     "The expected format is 'dd/mm/yyyy hh:mm', like '13/10/2020 16:30'. " +
-                    "See the Flyway documentation for help: " +
-                    LinkUtils.createFlywayDbWebsiteLink("documentation/usage/commandline/info#filtering-output", "cmd-line"));
+                    "See the Flyway documentation for help: " + FlywayDbWebsiteLinks.FILTER_INFO_OUTPUT);
         }
     }
 

@@ -24,7 +24,7 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.LinkUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.sql.Connection;
 import java.sql.Types;
@@ -102,12 +102,12 @@ public class BigQueryDatabaseType extends BaseDatabaseType {
 
     @Override
     public void printMessages() {
-        LOG.info("Join the GCP BigQuery beta via https://flywaydb.org/documentation/database/big-query#using-flyway-with-google-big-query");
+        LOG.info("Join the GCP BigQuery beta via" + FlywayDbWebsiteLinks.BIG_QUERY_BETA);
 
         LOG.info(""); //this can go when the beta message above is retired.
         LOG.info("Experiencing performance issues while using GCP BigQuery?");
         LOG.info("Find out how Flyway Teams improves performance with batching at " +
-                LinkUtils.createFlywayDbWebsiteLink("documentation/database/big-query#flyway-teams-features-for-bigquery"));
+                FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_BIG_QUERY);
 
     }
 }

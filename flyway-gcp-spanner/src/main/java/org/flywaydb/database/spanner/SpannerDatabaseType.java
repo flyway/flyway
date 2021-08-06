@@ -23,7 +23,7 @@ import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.core.internal.util.LinkUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.sql.Connection;
 import java.sql.Types;
@@ -92,12 +92,12 @@ public class SpannerDatabaseType extends BaseDatabaseType {
 
     @Override
     public void printMessages() {
-        LOG.info("Join the GCP Spanner beta via https://flywaydb.org/documentation/database/cloud-spanner#using-flyway-with-google-cloud-spanner");
+        LOG.info("Join the GCP Spanner beta via " + FlywayDbWebsiteLinks.CLOUD_SPANNER_BETA);
 
         LOG.info(""); //this can go when the beta message above is retired.
         LOG.info("Experiencing performance issues while using GCP Spanner?");
         LOG.info("Find out how Flyway Teams improves performance with batching at " +
-                LinkUtils.createFlywayDbWebsiteLink("documentation/database/cloud-spanner#flyway-teams-features-for-cloud-spanner"));
+                FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_CLOUD_SPANNER);
 
     }
 }
