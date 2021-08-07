@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,7 +161,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
-                if (context.target != null && resolvedMigration.getVersion().compareTo(context.target) > 0) {
+                if (context.target != null && context.target != MigrationVersion.NEXT && resolvedMigration.getVersion().compareTo(context.target) > 0) {
                     return MigrationState.ABOVE_TARGET;
                 }
                 if ((resolvedMigration.getVersion().compareTo(context.lastApplied) < 0) && !context.outOfOrder) {
@@ -446,9 +446,6 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
-
-
-
         if ((getInstalledRank() != null) && (o.getInstalledRank() != null)) {
             return getInstalledRank().compareTo(o.getInstalledRank());
         }
@@ -462,16 +459,6 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
         if (state.isApplied() && oState == MigrationState.BELOW_BASELINE) {
             return 1;
-        }
-
-        // Allow interleaving ignored versioned migrations with applied versioned migrations
-        if (getVersion() != null && o.getVersion() != null) {
-            if (state == MigrationState.IGNORED && oState.isApplied()) {
-                return compareVersion(o);
-            }
-            if (state.isApplied() && oState == MigrationState.IGNORED) {
-                return compareVersion(o);
-            }
         }
 
         // Sort installed before pending

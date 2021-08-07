@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+
+
 import org.flywaydb.core.internal.strategy.RetryStrategy;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
@@ -135,10 +137,6 @@ public class Flyway {
 
         // Load callbacks from default package
         this.configuration.loadCallbackLocation("db/callback", false);
-
-        // Set ClassLoader for ServiceLoader
-        DatabaseTypeRegister.classLoader = configuration.getClassLoader();
-        VersionPrinter.classLoader = configuration.getClassLoader();
     }
 
     /**
@@ -478,12 +476,6 @@ public class Flyway {
     /*private -> testing*/ <T> T execute(Command<T> command, boolean scannerRequired) {
         T result;
 
-        VersionPrinter.printVersion(
-
-
-
-        );
-
         configurationValidator.validate(configuration);
 
         StatementInterceptor statementInterceptor = null;
@@ -544,12 +536,14 @@ public class Flyway {
 
         Database database = null;
         try {
-            database = databaseType.createDatabase(configuration, !dbConnectionInfoPrinted, jdbcConnectionFactory, statementInterceptor);
+            VersionPrinter.printVersion();
 
+            database = databaseType.createDatabase(configuration, !dbConnectionInfoPrinted, jdbcConnectionFactory, statementInterceptor);
+            databaseType.printMessages();
             dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
 
-            Pair<Schema, List<Schema>> schemas = prepareSchemas(database);
+            Pair<Schema, List<Schema>> schemas = SchemaHistoryFactory.prepareSchemas(configuration, database);
             Schema defaultSchema = schemas.getLeft();
 
 
@@ -571,9 +565,25 @@ public class Flyway {
             SqlScriptExecutorFactory sqlScriptExecutorFactory =
                     databaseType.createSqlScriptExecutorFactory(jdbcConnectionFactory, callbackExecutor, statementInterceptor);
 
+            SchemaHistory schemaHistory = SchemaHistoryFactory.getSchemaHistory(
+                    configuration,
+                    noCallbackSqlScriptExecutorFactory,
+                    sqlScriptFactory,
+                    database,
+                    defaultSchema,
+                    statementInterceptor);
+
+
+
+
+
+
+
+
+
             result = command.execute(
                     createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory, parsingContext),
-                    SchemaHistoryFactory.getSchemaHistory(configuration, noCallbackSqlScriptExecutorFactory, sqlScriptFactory, database, defaultSchema, statementInterceptor),
+                    schemaHistory,
                     database,
                     schemas.getRight().toArray(new Schema[0]),
                     callbackExecutor,
@@ -643,57 +653,6 @@ public class Flyway {
         long totalMB = total / (1024 * 1024);
         long usedMB = used / (1024 * 1024);
         LOG.debug("Memory usage: " + usedMB + " of " + totalMB + "M");
-    }
-
-    private Pair<Schema, List<Schema>> prepareSchemas(Database database) {
-        String defaultSchemaName = configuration.getDefaultSchema();
-        String[] schemaNames = configuration.getSchemas();
-
-        if (!isDefaultSchemaValid(defaultSchemaName, schemaNames)) {
-            throw new FlywayException("The defaultSchema property is specified but is not a member of the schemas property");
-        }
-
-        LOG.debug("Schemas: " + StringUtils.arrayToCommaDelimitedString(schemaNames));
-        LOG.debug("Default schema: " + defaultSchemaName);
-
-        List<Schema> schemas = new ArrayList<>();
-
-        if (schemaNames.length == 0) {
-            Schema currentSchema = database.getMainConnection().getCurrentSchema();
-            if (currentSchema == null) {
-                throw new FlywayException("Unable to determine schema for the schema history table." +
-                        " Set a default schema for the connection or specify one using the defaultSchema property!");
-            }
-            schemas.add(currentSchema);
-        } else {
-            for (String schemaName : schemaNames) {
-                schemas.add(database.getMainConnection().getSchema(schemaName));
-            }
-        }
-
-        if (defaultSchemaName == null && schemaNames.length > 0) {
-            defaultSchemaName = schemaNames[0];
-        }
-
-        Schema defaultSchema = (defaultSchemaName != null)
-                ? database.getMainConnection().getSchema(defaultSchemaName)
-                : database.getMainConnection().getCurrentSchema();
-
-        return Pair.of(defaultSchema, schemas);
-    }
-
-    private boolean isDefaultSchemaValid(String defaultSchema, String[] schemas) {
-        // No default schema specified
-        if (defaultSchema == null) {
-            return true;
-        }
-        // Default schema is one of those Flyway is managing
-        for (String schema : schemas) {
-            if (defaultSchema.equals(schema)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private List<Callback> prepareCallbacks(Database database, ResourceProvider resourceProvider,

@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.extensibility.ApiExtension;
 
 import javax.sql.DataSource;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 
 public interface Configuration {
@@ -33,6 +35,16 @@ public interface Configuration {
      * @return The ClassLoader to use for loading migrations, resolvers, etc. from the classpath. (default: Thread.currentThread().getContextClassLoader() )
      */
     ClassLoader getClassLoader();
+
+    /**
+     * Retrieves the API extensions
+     */
+    List<ApiExtension> getApiExtensions();
+
+    /**
+     * Retrieves the API extension configurator of the requested class
+     */
+    <T extends ApiExtension> T getExtensionConfiguration(Class<T> clazz);
 
     /**
      * Retrieves the url used to construct the dataSource. May be null if the dataSource was passed in directly.
@@ -606,42 +618,6 @@ public interface Configuration {
      * @return Properties that will be passed to the JDBC driver object
      */
     Map<String, String> getJdbcProperties();
-
-    /**
-     * The REST API URL of your Vault server, including the API version.
-     * Currently only supports API version v1.
-     * Example: http://localhost:8200/v1/
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @return The REST API URL of your Vault server
-     */
-    String getVaultUrl();
-
-    /**
-     * The Vault token required to access your secrets.
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @return The Vault token required to access your secrets
-     */
-    String getVaultToken();
-
-    /**
-     * A comma-separated list of paths to secrets in Vault that contain Flyway configurations. This
-     * must start with the name of the engine and end with the name of the secret.
-     * The resulting form is '{engine_name}/{path}/{to}/{secret_name}'.
-     *
-     * If multiple secrets specify the same configuration parameter, then the last
-     * secret takes precedence.
-     *
-     * Example: secret/data/flyway/flywayConfig
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @return A list of paths to secrets in Vault
-     */
-    String[] getVaultSecrets();
 
     /**
      * Whether to fail if a location specified in the flyway.locations option doesn't exist

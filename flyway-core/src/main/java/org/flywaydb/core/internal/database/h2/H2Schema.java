@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,21 +26,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * H2 implementation of Schema.
- */
 public class H2Schema extends Schema<H2Database, H2Table> {
     private static final Log LOG = LogFactory.getLog(H2Schema.class);
+    private final boolean requiresV2Metadata;
 
-    /**
-     * Creates a new H2 schema.
-     *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
-     */
-    H2Schema(JdbcTemplate jdbcTemplate, H2Database database, String name) {
+    H2Schema(JdbcTemplate jdbcTemplate, H2Database database, String name, boolean requiresV2Metadata) {
         super(jdbcTemplate, database, name);
+        this.requiresV2Metadata = requiresV2Metadata;
     }
 
     @Override
@@ -70,7 +62,9 @@ public class H2Schema extends Schema<H2Database, H2Table> {
             table.drop();
         }
 
-        List<String> sequenceNames = listObjectNames("SEQUENCE", "IS_GENERATED = false");
+        String sequenceSuffix = requiresV2Metadata ? "" : "IS_GENERATED = false";
+
+        List<String> sequenceNames = listObjectNames("SEQUENCE", sequenceSuffix);
         for (String statement : generateDropStatements("SEQUENCE", sequenceNames)) {
             jdbcTemplate.execute(statement);
         }
@@ -80,10 +74,12 @@ public class H2Schema extends Schema<H2Database, H2Table> {
             jdbcTemplate.execute(statement);
         }
 
-        List<String> aliasNames = jdbcTemplate.queryForStringList(
-                "SELECT ALIAS_NAME FROM INFORMATION_SCHEMA.FUNCTION_ALIASES WHERE ALIAS_SCHEMA = ?", name);
-        for (String statement : generateDropStatements("ALIAS", aliasNames)) {
-            jdbcTemplate.execute(statement);
+        if (!requiresV2Metadata) {
+            List<String> aliasNames = jdbcTemplate.queryForStringList(
+                    "SELECT ALIAS_NAME FROM INFORMATION_SCHEMA.FUNCTION_ALIASES WHERE ALIAS_SCHEMA = ?", name);
+            for (String statement : generateDropStatements("ALIAS", aliasNames)) {
+                jdbcTemplate.execute(statement);
+            }
         }
 
         List<String> domainNames = listObjectNames("DOMAIN", "");

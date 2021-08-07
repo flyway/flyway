@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,9 +42,14 @@ public class ResourceNameValidator {
         ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
 
         for (Resource resource : getAllSqlResources(provider, configuration)) {
-            LOG.debug("Validating " + resource.getFilename());
+            String filename = resource.getFilename();
+            LOG.debug("Validating " + filename);
+            // Filter out special purpose files that the parser will not identify.
+            if (isSpecialResourceFile(configuration, filename)) {
+                continue;
+            }
 
-            ResourceName result = resourceNameParser.parse(resource.getFilename());
+            ResourceName result = resourceNameParser.parse(filename);
             if (!result.isValid()) {
                 errorsFound.add(result.getValidityMessage());
             }
@@ -57,5 +62,16 @@ public class ResourceNameValidator {
 
     private Collection<LoadableResource> getAllSqlResources(ResourceProvider provider, Configuration configuration) {
         return provider.getResources("", configuration.getSqlMigrationSuffixes());
+    }
+
+    private boolean isSpecialResourceFile(Configuration configuration, String filename) {
+
+
+
+
+
+
+
+        return false;
     }
 }

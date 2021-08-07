@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.extensibility.ApiExtension;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
 
@@ -28,6 +29,7 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -350,21 +352,6 @@ public class FluentConfiguration implements Configuration {
     @Override
     public Map<String, String> getJdbcProperties() {
         return config.getJdbcProperties();
-    }
-
-    @Override
-    public String getVaultUrl() {
-        return config.getVaultUrl();
-    }
-
-    @Override
-    public String getVaultToken() {
-        return config.getVaultToken();
-    }
-
-    @Override
-    public String[] getVaultSecrets() {
-        return config.getVaultSecrets();
     }
 
     @Override
@@ -1292,51 +1279,6 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * The REST API URL of your Vault server, including the API version.
-     * Currently only supports API version v1.
-     * Example: http://localhost:8200/v1/
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @param vaultUrl The REST API URL of your Vault server
-     */
-    public FluentConfiguration vaultUrl(String vaultUrl) {
-        config.setVaultUrl(vaultUrl);
-        return this;
-    }
-
-    /**
-     * The Vault token required to access your secrets.
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @param vaultToken The Vault token required to access your secrets
-     */
-    public FluentConfiguration vaultToken(String vaultToken) {
-        config.setVaultToken(vaultToken);
-        return this;
-    }
-
-    /**
-     * A comma-separated list of paths to secrets in Vault that contain Flyway configurations. This
-     * must start with the name of the engine and end with the name of the secret.
-     * The resulting form is '{engine_name}/{path}/{to}/{secret_name}'.
-     *
-     * If multiple secrets specify the same configuration parameter, then the last
-     * secret takes precedence.
-     *
-     * Example: secret/data/flyway/flywayConfig
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @param vaultSecrets A list of paths to secrets in Vault
-     */
-    public FluentConfiguration vaultSecrets(String... vaultSecrets) {
-        config.setVaultSecrets(vaultSecrets);
-        return this;
-    }
-
-    /**
      * Configures Flyway using FLYWAY_* environment variables.
      *
      * @throws FlywayException When the configuration failed.
@@ -1354,5 +1296,15 @@ public class FluentConfiguration implements Configuration {
     public FluentConfiguration failOnMissingLocations(boolean failOnMissingLocations) {
         config.setFailOnMissingLocations(failOnMissingLocations);
         return this;
+    }
+
+    @Override
+    public List<ApiExtension> getApiExtensions() {
+        return config.getApiExtensions();
+    }
+
+    @Override
+    public <T extends ApiExtension> T getExtensionConfiguration(Class<T> clazz) {
+        return config.getExtensionConfiguration(clazz);
     }
 }

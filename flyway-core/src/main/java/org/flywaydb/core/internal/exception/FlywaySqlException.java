@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,10 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.sql.SQLException;
 
 /**
- * This specific exception thrown when Flyway encounters a problem in SQL statement.
+ * The specific exception thrown when Flyway encounters a problem in SQL statement.
  */
 public class FlywaySqlException extends FlywayException {
-    /**
-     * Creates new instance of FlywaySqlScriptException.
-     *
-     * @param sqlException Cause of the problem.
-     */
+
     public FlywaySqlException(String message, SQLException sqlException) {
         super(message, sqlException, ErrorCode.DB_CONNECTION);
     }
@@ -40,6 +36,6 @@ public class FlywaySqlException extends FlywayException {
         String title = super.getMessage();
         String underline = StringUtils.trimOrPad("", title.length(), '-');
 
-        return "\n" + title + "\n" + underline + "\n" + ExceptionUtils.toMessage((SQLException) getCause());
+        return title + "\n" + underline + "\n" + ExceptionUtils.toMessage((SQLException) getCause());
     }
 }

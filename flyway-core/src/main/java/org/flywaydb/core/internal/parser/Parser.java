@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.sqlscript.SqlStatementIterator;
 import org.flywaydb.core.internal.util.BomStrippingReader;
 import org.flywaydb.core.internal.util.IOUtils;
-import org.flywaydb.core.internal.util.LinkUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -305,9 +305,8 @@ public abstract class Parser {
             } while (true);
         } catch (Exception e) {
             IOUtils.close(reader);
-            String docsPage = LinkUtils.createFlywayDbWebsiteLink("documentation", "knownparserlimitations");
             throw new FlywayException("Unable to parse statement in " + resource.getAbsolutePath()
-                    + " at line " + statementLine + " col " + statementCol + ". See " + docsPage + " for more information: " + e.getMessage(), e);
+                    + " at line " + statementLine + " col " + statementCol + ". See " + FlywayDbWebsiteLinks.KNOWN_PARSER_LIMITATIONS + " for more information: " + e.getMessage(), e);
         }
     }
 

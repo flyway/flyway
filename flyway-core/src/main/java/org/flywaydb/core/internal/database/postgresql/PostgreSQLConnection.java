@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import java.util.concurrent.Callable;
 public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
     private final String originalRole;
 
-    PostgreSQLConnection(PostgreSQLDatabase database, java.sql.Connection connection) {
+    protected PostgreSQLConnection(PostgreSQLDatabase database, java.sql.Connection connection) {
         super(database, connection);
 
         try {

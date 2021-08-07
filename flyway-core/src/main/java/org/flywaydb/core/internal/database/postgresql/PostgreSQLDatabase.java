@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,8 +52,9 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
 
 
+
     @Override
-    public final void ensureSupported() {
+    public void ensureSupported() {
         ensureDatabaseIsRecentEnough("9.0");
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("9.5", org.flywaydb.core.internal.license.Edition.ENTERPRISE);

@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -212,5 +212,28 @@ public final class FeatureDetector {
         }
 
         return gcsAvailable;
+    }
+
+    /**
+     * Checks if the "experimental features" flag is set in the environment. You should not activate this flag
+     * outside of a development environment; features activated may be in development and/or undocumented.
+     *
+     * @return {@code true} if it is, {@code false} if it is not
+     */
+    public static boolean areExperimentalFeaturesEnabled() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+        return false;
     }
 }

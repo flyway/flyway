@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -561,39 +561,23 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String workingDirectory;
 
     /**
-     * The REST API URL of your Vault server, including the API version.
-     * Currently only supports API version v1.
-     * Example: http://localhost:8200/v1/
-     *
-     * <i>Flyway Teams only</i>
-     */
-    public String vaultUrl;
-    /**
-     * The Vault token required to access your secrets.
-     *
-     * <i>Flyway Teams only</i>
-     */
-    public String vaultToken;
-    /**
-     * A comma-separated list of paths to secrets in Vault that contain Flyway configurations. This
-     * must start with the name of the engine and end with the name of the secret.
-     * The resulting form is '{engine_name}/{path}/{to}/{secret_name}'.
-     *
-     * If multiple secrets specify the same configuration parameter, then the last
-     * secret takes precedence.
-     *
-     * Example: secret/data/flyway/flywayConfig
-     *
-     * <i>Flyway Teams only</i>
-     */
-    public String[] vaultSecrets;
-
-    /**
      * Whether to fail if a location specified in the flyway.locations option doesn't exist
      *
      * @return @{code true} to fail (default: {@code false})
      */
     public boolean failOnMissingLocations;
+
+    /**
+     * The configuration for Vault secrets manager.
+     * You will need to configure the following fields:
+     * <ul>
+     *  <li>vaultUrl: The REST API URL of your Vault server - https://flywaydb.org/documentation/configuration/parameters/vaultUrl</li>
+     *  <li>vaultToken: The Vault token required to access your secrets - https://flywaydb.org/documentation/configuration/parameters/vaultToken</li>
+     *  <li>vaultSecrets: A list of paths to secrets in Vault that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/vaultSecrets</li>
+     * </ul>
+     * <i>Flyway Teams only</i>
+     */
+    public VaultConfiguration vaultConfiguration;
 
     public AbstractFlywayTask() {
         super();
@@ -767,26 +751,16 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus, extension.oracleSqlplus);
         putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS_WARN, oracleSqlplusWarn, extension.oracleSqlplusWarn);
 
-        putIfSet(conf, ConfigUtils.VAULT_URL, vaultUrl, extension.vaultUrl);
-        putIfSet(conf, ConfigUtils.VAULT_TOKEN, vaultToken, extension.vaultToken);
-        putIfSet(conf, ConfigUtils.VAULT_SECRETS, vaultSecrets, extension.vaultSecrets);
-
         putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey, extension.licenseKey);
 
-        if (placeholders != null) {
-            for (Map.Entry<Object, Object> entry : placeholders.entrySet()) {
-                conf.put(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX + entry.getKey().toString(), entry.getValue().toString());
-            }
-        }
         if (extension.placeholders != null) {
             for (Map.Entry<Object, Object> entry : extension.placeholders.entrySet()) {
                 conf.put(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX + entry.getKey().toString(), entry.getValue().toString());
             }
         }
-
-        if (jdbcProperties != null) {
-            for (Map.Entry<Object, Object> entry : jdbcProperties.entrySet()) {
-                conf.put(ConfigUtils.JDBC_PROPERTIES_PREFIX + entry.getKey().toString(), entry.getValue().toString());
+        if (placeholders != null) {
+            for (Map.Entry<Object, Object> entry : placeholders.entrySet()) {
+                conf.put(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX + entry.getKey().toString(), entry.getValue().toString());
             }
         }
 
@@ -795,14 +769,24 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                 conf.put(ConfigUtils.JDBC_PROPERTIES_PREFIX + entry.getKey().toString(), entry.getValue().toString());
             }
         }
-        
+        if (jdbcProperties != null) {
+            for (Map.Entry<Object, Object> entry : jdbcProperties.entrySet()) {
+                conf.put(ConfigUtils.JDBC_PROPERTIES_PREFIX + entry.getKey().toString(), entry.getValue().toString());
+            }
+        }
+
+        if (extension.vaultConfiguration != null){
+            extension.vaultConfiguration.extract(conf);
+        }
+        if (vaultConfiguration != null){
+            vaultConfiguration.extract(conf);
+        }
+
         addConfigFromProperties(conf, getProject().getProperties());
         addConfigFromProperties(conf, loadConfigurationFromConfigFiles(getWorkingDirectory(), envVars));
         addConfigFromProperties(conf, envVars);
         addConfigFromProperties(conf, System.getProperties());
-
-
-
+        conf.putAll(ConfigUtils.loadConfigurationFromSecretsManagers(conf));
         removeGradlePluginSpecificPropertiesToAvoidWarnings(conf);
 
         return conf;
@@ -832,13 +816,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     }
 
     private String[] getLocations() {
-        // To maintain override order, return extension value first if present
-        if (extension.locations != null) {
-            return extension.locations;
-        }
-
+        // To maintain override order, return configured values before extension values
         if (locations != null) {
             return locations;
+        }
+
+        if (extension.locations != null) {
+            return extension.locations;
         }
 
         return null;

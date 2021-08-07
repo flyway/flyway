@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.strategy.RetryStrategy;
-import org.flywaydb.core.internal.util.LinkUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -88,7 +88,7 @@ public class PostgreSQLAdvisoryLockTemplate {
                 "Interrupted while attempting to acquire PostgreSQL advisory lock",
                 "Number of retries exceeded while attempting to acquire PostgreSQL advisory lock. " +
                         "Configure the number of retries with the 'lockRetryCount' configuration option: " +
-                        LinkUtils.createFlywayDbWebsiteLink("documentation", "configuration", "parameters", "lockRetryCount"));
+                        FlywayDbWebsiteLinks.LOCK_RETRY_COUNT);
     }
 
     private boolean tryLock() throws SQLException {

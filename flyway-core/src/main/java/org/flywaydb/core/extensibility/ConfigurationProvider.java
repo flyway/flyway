@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Private API. No compatibility guarantees provided.
- */
-package org.flywaydb.core.internal.resource.gcs;
+package org.flywaydb.core.extensibility;
+
+import java.util.Map;
+
+public interface ConfigurationProvider {
+    boolean isConfigured(Map<String, String> configuration);
+    String getConfigurationParameterFromEnvironmentVariable(String environmentVariable);
+    Map<String, String> getConfiguration(Map<String, String> currentConfiguration) throws Exception;
+}

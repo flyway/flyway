@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,12 +117,13 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     /*
-     * CREATE TABLE ... AS SELECT ... cannot be used in two scenarios:
+     * CREATE TABLE ... AS SELECT ... cannot be used in three scenarios:
      * - Percona XtraDB Cluster in strict mode doesn't support it
+     * - TiDB doesn't support it (overridden elsewhere)
      * - When GTID consistency is being enforced. Note that if GTID_MODE is ON, then ENFORCE_GTID_CONSISTENCY is
      * necessarily ON as well.
      */
-    private boolean isCreateTableAsSelectAllowed() {
+    protected boolean isCreateTableAsSelectAllowed() {
         return !pxcStrict && !gtidConsistencyEnforced;
     }
 
@@ -215,6 +216,8 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         }
         throw new FlywayException("Unable to determine version from '" + versionString + "'");
     }
+
+
 
 
 

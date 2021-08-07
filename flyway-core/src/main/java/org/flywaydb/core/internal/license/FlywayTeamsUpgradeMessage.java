@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,12 @@
  */
 package org.flywaydb.core.internal.license;
 
-import org.flywaydb.core.internal.util.LinkUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 public class FlywayTeamsUpgradeMessage {
     public static String generate(String detectedFeature, String usageMessage) {
         return "Detected " + detectedFeature + ". " +
                "Upgrade to " + Edition.ENTERPRISE + " to " + usageMessage + ". Try " + Edition.ENTERPRISE + " " +
-                "for free: " +
-                LinkUtils.createFlywayDbWebsiteLinkWithRef("desired-feature_" + detectedFeature,"try-flyway-teams-edition");
+                "for free: " + FlywayDbWebsiteLinks.TRY_TEAMS_EDITION;
     }
 }

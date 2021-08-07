@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,7 @@ public class DbMigrate {
      * This is used to remember the type of migration between calls to migrateGroup().
      */
     private boolean isPreviousVersioned;
+    private final List<ResolvedMigration> appliedResolvedMigrations = new ArrayList<>();
 
     public DbMigrate(Database database,
                      SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
@@ -142,6 +143,9 @@ public class DbMigrate {
             if (count == 0) {
                 // No further migrations available
                 break;
+            } else if (configuration.getTarget() == MigrationVersion.NEXT) {
+                // With target=next we only execute one migration
+                break;
             }
         }
 
@@ -216,8 +220,13 @@ public class DbMigrate {
 
         LinkedHashMap<MigrationInfoImpl, Boolean> group = new LinkedHashMap<>();
         for (MigrationInfoImpl pendingMigration : infoService.pending()) {
+            if (appliedResolvedMigrations.contains(pendingMigration.getResolvedMigration())) {
+                continue;
+            }
+
             boolean isOutOfOrder = pendingMigration.getVersion() != null
                     && pendingMigration.getVersion().compareTo(currentSchemaVersion) < 0;
+
             group.put(pendingMigration, isOutOfOrder);
 
             if (!configuration.isGroup()) {
@@ -259,11 +268,11 @@ public class DbMigrate {
         try {
             if (executeGroupInTransaction) {
                 ExecutionTemplateFactory.createExecutionTemplate(connectionUserObjects.getJdbcConnection(), database).execute(() -> {
-                    doMigrateGroup(group, stopWatch, skipExecutingMigrations);
+                    doMigrateGroup(group, stopWatch, skipExecutingMigrations, true);
                     return null;
                 });
             } else {
-                doMigrateGroup(group, stopWatch, skipExecutingMigrations);
+                doMigrateGroup(group, stopWatch, skipExecutingMigrations, false);
             }
         } catch (FlywayMigrateException e) {
             MigrationInfoImpl migration = e.getMigration();
@@ -311,7 +320,7 @@ public class DbMigrate {
         return executeGroupInTransaction;
     }
 
-    private void doMigrateGroup(LinkedHashMap<MigrationInfoImpl, Boolean> group, StopWatch stopWatch, boolean skipExecutingMigrations) {
+    private void doMigrateGroup(LinkedHashMap<MigrationInfoImpl, Boolean> group, StopWatch stopWatch, boolean skipExecutingMigrations, boolean isExecuteInTransaction) {
         Context context = new Context() {
             @Override
             public Configuration getConfiguration() {
@@ -351,7 +360,19 @@ public class DbMigrate {
                     callbackExecutor.onEachMigrateOrUndoEvent(Event.BEFORE_EACH_MIGRATE);
                     try {
                         LOG.info("Migrating " + migrationText);
+
+                        // With single connection databases we need to manually disable the transaction for the
+                        // migration as it is turned on for schema history changes
+                        boolean oldAutoCommit = context.getConnection().getAutoCommit();
+                        if (database.useSingleConnection() && !isExecuteInTransaction) {
+                            context.getConnection().setAutoCommit(true);
+                        }
                         migration.getResolvedMigration().getExecutor().execute(context);
+                        if (database.useSingleConnection() && !isExecuteInTransaction) {
+                            context.getConnection().setAutoCommit(oldAutoCommit);
+                        }
+
+                        appliedResolvedMigrations.add(migration.getResolvedMigration());
                     } catch (FlywayException e) {
                         callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
                         throw new FlywayMigrateException(migration, isOutOfOrder, e);

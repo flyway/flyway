@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,38 +20,51 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.core.internal.util.LinkUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
-import java.sql.ResultSet;
 
-
-public class VersionChecker {
+public class MavenVersionChecker {
     private static class MavenResponse {
-        public MavenDocs[] docs;
+        public MavenDoc[] docs;
     }
 
-    private static class MavenDocs {
+    private static class MavenDoc {
         public String latestVersion;
+
+        // 'g' is the key for the group id in the Maven REST API
+        public String g;
     }
 
     private static class MavenObject {
         public MavenResponse response;
     }
 
-    private static final String FlywayUrl = "https://search.maven.org/solrsearch/select?q=a:flyway-core";
-    private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
+    private static final String FLYWAY_URL = "https://search.maven.org/solrsearch/select?q=a:flyway-core";
+    private static final Log LOG = LogFactory.getLog(MavenVersionChecker.class);
+
+    private static boolean canConnectToMaven() {
+        try {
+            InetAddress address = InetAddress.getByName("maven.org");
+            return address.isReachable(500);
+        } catch(Exception e) {
+            return false;
+        }
+    }
 
     public static void checkForVersionUpdates() {
         HttpsURLConnection connection = null;
 
+        if (!canConnectToMaven()) {
+            return;
+        }
+
         try {
-            URL url = new URL(FlywayUrl);
+            URL url = new URL(FLYWAY_URL);
             connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
 
@@ -67,13 +80,24 @@ public class VersionChecker {
             MavenObject obj = new Gson().fromJson(response.toString(), MavenObject.class);
 
             MigrationVersion current = MigrationVersion.fromVersion(VersionPrinter.getVersion());
-            MigrationVersion latest = MigrationVersion.fromVersion(obj.response.docs[0].latestVersion);
+            MigrationVersion latest = null;
+
+            String groupID = "org.flywaydb";
+
+
+
+
+            MavenDoc[] mavenDocs = obj.response.docs;
+            for (MavenDoc mavenDoc : mavenDocs) {
+                if (mavenDoc.g.equals(groupID)) {
+                    latest = MigrationVersion.fromVersion(mavenDoc.latestVersion);
+                    break;
+                }
+            }
 
             if (current.compareTo(latest) < 0) {
-                LOG.warn("This version of Flyway is out of date. Upgrade to Flyway "
-                        + latest
-                        + ":"
-                        + LinkUtils.createFlywayDbWebsiteLinkWithRef("cmd-line","documentation", "learnmore", "staying-up-to-date"));
+                LOG.warn("This version of Flyway is out of date. Upgrade to Flyway " + latest + ": "
+                        + FlywayDbWebsiteLinks.STAYING_UP_TO_DATE + "\n");
             }
         } catch (Exception e) {
             // Ignored
@@ -83,5 +107,4 @@ public class VersionChecker {
             }
         }
     }
-
 }

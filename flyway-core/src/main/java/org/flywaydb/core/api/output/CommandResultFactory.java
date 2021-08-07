@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,12 +96,14 @@ public class CommandResultFactory {
 
     private static String getDatabaseName(Configuration configuration, Database database) {
         try {
-            Connection connection = configuration.getDataSource().getConnection();
-            String catalog = connection.getCatalog();
-            connection.close();
-            return catalog != null ? catalog : database.getCatalog();
+            return database.getCatalog();
         } catch (Exception e) {
-            return "";
+            try(Connection connection = configuration.getDataSource().getConnection()) {
+                String catalog = connection.getCatalog();
+                return catalog != null ? catalog : "";
+            } catch (Exception e1) {
+                return "";
+            }
         }
     }
 

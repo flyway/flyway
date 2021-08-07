@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,16 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.extensibility.FlywayExtension;
-import org.flywaydb.core.internal.util.DateUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.ServiceLoader;
-
-import static java.time.temporal.ChronoUnit.DAYS;
 
 public class VersionPrinter {
     private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
-    public static ClassLoader classLoader = VersionPrinter.class.getClassLoader();
-    private static final String version = readVersion();
+    private static final ClassLoader CLASS_LOADER = new VersionPrinter().getClass().getClassLoader();
+    public static final String VERSION = readVersion();
 
     public static final Edition EDITION =
 
@@ -49,79 +45,24 @@ public class VersionPrinter {
     private VersionPrinter() { }
 
     public static String getVersion() {
-        return version;
+        return VERSION;
     }
 
-    public static void printVersion(
-
-
-
-    ) {
-
+    public static void printVersion() {
         printVersionOnly();
-
-
-
-
-
-
-
     }
 
     public static void printVersionOnly() {
-        LOG.info(EDITION + " " + version + " by Redgate");
+        LOG.info(EDITION + " " + VERSION + " by Redgate");
         printExtensionVersions();
     }
 
     private static void printExtensionVersions() {
-        ServiceLoader<FlywayExtension> loader = ServiceLoader.load(FlywayExtension.class, classLoader);
+        ServiceLoader<FlywayExtension> loader = ServiceLoader.load(FlywayExtension.class, CLASS_LOADER);
         for (FlywayExtension extension : loader) {
-            LOG.info( ">\t" + extension.getDescription());
+            LOG.debug( ">\t" + extension.getDescription());
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private static String readVersion() {
         try {

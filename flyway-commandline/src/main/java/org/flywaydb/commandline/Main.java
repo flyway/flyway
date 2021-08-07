@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,22 +20,32 @@ import com.google.gson.GsonBuilder;
 import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
-
-import org.flywaydb.core.internal.database.DatabaseType;
-
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.output.*;
+import org.flywaydb.core.api.output.CompositeResult;
+import org.flywaydb.core.api.output.ErrorOutput;
+import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.api.output.OperationResultBase;
+
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
+
+import org.flywaydb.core.internal.license.FlywayTrialExpiredException;
 import org.flywaydb.core.internal.license.VersionPrinter;
+
+import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.LinkUtils;
+import org.flywaydb.core.internal.util.FeatureDetector;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.io.*;
+import java.io.Console;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +54,9 @@ import java.util.*;
 
 public class Main {
     private static Log LOG;
+
+
+
 
 
 
@@ -100,7 +113,7 @@ public class Main {
         try {
             commandLineArguments.validate();
 
-            if (commandLineArguments.shouldPrintVersionAndExit()) {
+            if (!commandLineArguments.shouldCheckLicenseAndExit() && commandLineArguments.shouldPrintVersionAndExit()) {
                 printVersion();
                 System.exit(0);
             }
@@ -122,10 +135,7 @@ public class Main {
 
             config.putAll(envVars);
             config = overrideConfiguration(config, commandLineArguments.getConfiguration());
-
-
-
-
+            config = overrideConfiguration(config, ConfigUtils.loadConfigurationFromSecretsManagers(config));
 
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             List<File> jarFiles = new ArrayList<>();
@@ -143,7 +153,14 @@ public class Main {
             filterProperties(config);
 
             if(!commandLineArguments.skipCheckForUpdate()) {
-                VersionChecker.checkForVersionUpdates();
+                if (FeatureDetector.areExperimentalFeaturesEnabled()) {
+                    String message = RedgateUpdateChecker.getUpdateCheckMessage(config.get(ConfigUtils.URL));
+                    if (!message.isEmpty()) {
+                        LOG.info(message);
+                    }
+                } else {
+                    MavenVersionChecker.checkForVersionUpdates();
+                }
             }
 
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
@@ -343,8 +360,6 @@ public class Main {
 
 
 
-
-
     private static void printVersion() {
         VersionPrinter.printVersionOnly();
         LOG.info("");
@@ -447,8 +462,8 @@ public class Main {
         LOG.info("-------");
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
-        LOG.info("More info at " + LinkUtils.createFlywayDbWebsiteLinkWithRef("cmd-line","documentation", "usage", "commandline"));
-        LOG.info("Learn more about Flyway Teams edition at " + LinkUtils.createFlywayDbWebsiteLinkWithRef("cmd-line","try-flyway-teams-edition"));
+        LOG.info("More info at " + FlywayDbWebsiteLinks.USAGE_COMMANDLINE);
+        LOG.info("Learn more about Flyway Teams edition at " + FlywayDbWebsiteLinks.TRY_TEAMS_EDITION);
     }
 
     private static List<File> getJdbcDriverJarFiles() {

@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,18 @@
 package org.flywaydb.core.internal.util;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-/**
- * Utility methods for dealing with dates.
- */
 public class DateUtils {
     /**
      * Prevents instantiation.
      */
-    private DateUtils() {
-        // Do nothing
-    }
+    private DateUtils() {}
 
     /**
      * Formats this date in the standard ISO yyyy-MM-dd HH:mm:ss format.
@@ -82,5 +80,14 @@ public class DateUtils {
         String month = StringUtils.trimOrLeftPad("" + (calendar.get(Calendar.MONTH) + 1), 2, '0');
         String day = StringUtils.trimOrLeftPad("" + calendar.get(Calendar.DAY_OF_MONTH), 2, '0');
         return year + "-" + month + "-" + day;
+    }
+
+    public static Date addDaysToDate(Date fromDate, int days) {
+        return Date.from(fromDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+                .plusDays(days)
+                .atStartOfDay(ZoneId.systemDefault())
+                .toInstant());
     }
 }

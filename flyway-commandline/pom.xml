@@ -1,6 +1,6 @@
 <!--
 
-    Copyright © Red Gate Software Ltd 2010-2021
+    Copyright (C) Red Gate Software Ltd 2010-2021
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@
 
 
 
+        <flyway-gcp-bigquery.version>${project.version}</flyway-gcp-bigquery.version>
+        <flyway-gcp-spanner.version>${project.version}</flyway-gcp-spanner.version>
     </properties>
     <dependencies>
         <dependency>
@@ -37,7 +39,21 @@
             <artifactId>flyway-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>flyway-community-db-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>flyway-gcp-bigquery</artifactId>
+            <version>${flyway-gcp-bigquery.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>flyway-gcp-spanner</artifactId>
+            <version>${flyway-gcp-spanner.version}</version>
+        </dependency>
 
 
 
@@ -309,7 +325,21 @@
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-gcp-beta-support</artifactId>
+                                            <artifactId>flyway-gcp-bigquery</artifactId>
+                                            <version>${flyway-gcp-bigquery.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.enterprise</groupId>
+                                            <artifactId>flyway-gcp-spanner</artifactId>
+                                            <version>${flyway-gcp-spanner.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.enterprise</groupId>
+                                            <artifactId>flyway-vault-integration</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
                                             <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>

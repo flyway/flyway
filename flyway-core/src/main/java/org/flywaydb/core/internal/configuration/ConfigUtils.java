@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.extensibility.ConfigurationProvider;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
-
 
 import java.io.*;
 import java.util.*;
@@ -92,11 +92,6 @@ public class ConfigUtils {
     public static final String VALIDATE_MIGRATION_NAMING = "flyway.validateMigrationNaming";
     public static final String CREATE_SCHEMAS = "flyway.createSchemas";
     public static final String FAIL_ON_MISSING_LOCATIONS = "flyway.failOnMissingLocations";
-
-    // Secrets-manager specific
-    public static final String VAULT_URL = "flyway.vault.url";
-    public static final String VAULT_TOKEN = "flyway.vault.token";
-    public static final String VAULT_SECRETS = "flyway.vault.secrets";
 
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
@@ -320,17 +315,6 @@ public class ConfigUtils {
             return ORACLE_KERBEROS_CACHE_FILE;
         }
 
-        // Secrets-manager specific
-        if ("FLYWAY_VAULT_URL".equals(key)) {
-            return VAULT_URL;
-        }
-        if ("FLYWAY_VAULT_TOKEN".equals(key)) {
-            return VAULT_TOKEN;
-        }
-        if ("FLYWAY_VAULT_SECRETS".equals(key)) {
-            return VAULT_SECRETS;
-        }
-
         // Command-line specific
         if ("FLYWAY_JAR_DIRS".equals(key)) {
             return JAR_DIRS;
@@ -339,6 +323,14 @@ public class ConfigUtils {
         // Gradle specific
         if ("FLYWAY_CONFIGURATIONS".equals(key)) {
             return CONFIGURATIONS;
+        }
+
+        ServiceLoader<ConfigurationProvider> loader = ServiceLoader.load(ConfigurationProvider.class);
+        for (ConfigurationProvider configurationProvider : loader) {
+            String configurationParameter = configurationProvider.getConfigurationParameterFromEnvironmentVariable(key);
+            if (configurationParameter != null) {
+                return configurationParameter;
+            }
         }
 
         return null;
@@ -488,22 +480,27 @@ public class ConfigUtils {
         return propertiesToMap(properties);
     }
 
+    public static Map<String, String> loadConfigurationFromSecretsManagers(Map<String, String> config) {
+        Map<String, String> secretsManagerConfiguration = new HashMap<>();
+        ConfigurationProvider currentConfigurationProvider = null;
 
+        try {
+            ServiceLoader<ConfigurationProvider> loader = ServiceLoader.load(ConfigurationProvider.class);
+            for (ConfigurationProvider configurationProvider : loader) {
+                currentConfigurationProvider = configurationProvider;
+                if (configurationProvider.isConfigured(config)) {
+                    secretsManagerConfiguration.putAll(configurationProvider.getConfiguration(config));
+                }
+            }
+        } catch (Exception e) {
+            if (currentConfigurationProvider == null) {
+                throw new FlywayException("Unable to read configuration from a configuration provider: " + e.getMessage());
+            }
+            throw new FlywayException("Unable to read configuration from " + currentConfigurationProvider.getClass().getName() + ": " + e.getMessage());
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return secretsManagerConfiguration;
+    }
 
     static String expandEnvironmentVariables(String value, Map<String, String> environmentVariables) {
         Pattern pattern = Pattern.compile("\\$\\{([A-Za-z0-9_]+)}");

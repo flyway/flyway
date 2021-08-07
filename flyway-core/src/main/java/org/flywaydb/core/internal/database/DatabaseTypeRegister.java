@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 public class DatabaseTypeRegister {
     private static final Log LOG = LogFactory.getLog(DatabaseTypeRegister.class);
-    public static ClassLoader classLoader = new DatabaseTypeRegister().getClass().getClassLoader();
+    private static final ClassLoader CLASS_LOADER = new DatabaseTypeRegister().getClass().getClassLoader();
 
     private static final List<DatabaseType> registeredDatabaseTypes = new ArrayList<>();
     private static boolean hasRegisteredDatabaseTypes = false;
@@ -47,7 +47,7 @@ public class DatabaseTypeRegister {
 
             registeredDatabaseTypes.clear();
 
-            ServiceLoader<DatabaseType> loader = ServiceLoader.load(DatabaseType.class, classLoader);
+            ServiceLoader<DatabaseType> loader = ServiceLoader.load(DatabaseType.class, CLASS_LOADER);
 
             for (DatabaseType dt : loader) {
                 registeredDatabaseTypes.add(dt);

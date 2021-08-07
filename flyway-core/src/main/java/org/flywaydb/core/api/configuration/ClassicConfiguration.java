@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,12 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.extensibility.ApiExtension;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.license.Edition;
@@ -51,6 +53,8 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger
  */
 public class ClassicConfiguration implements Configuration {
     private static final Log LOG = LogFactory.getLog(ClassicConfiguration.class);
+
+    private List<ApiExtension> apiExtensions = new ArrayList<>();
 
     private String driver;
     private String url;
@@ -116,9 +120,6 @@ public class ClassicConfiguration implements Configuration {
     private boolean oracleSqlplusWarn;
     private String oracleKerberosConfigFile = "";
     private String oracleKerberosCacheFile = "";
-    private String vaultUrl;
-    private String vaultToken;
-    private String[] vaultSecrets;
     private boolean failOnMissingLocations = false;
     private final ClasspathClassScanner classScanner;
 
@@ -392,21 +393,6 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public Map<String, String> getJdbcProperties() {
         return jdbcProperties;
-    }
-
-    @Override
-    public String getVaultUrl() {
-        return vaultUrl;
-    }
-
-    @Override
-    public String getVaultToken() {
-        return vaultToken;
-    }
-
-    @Override
-    public String[] getVaultSecrets() {
-        return vaultSecrets;
     }
 
     @Override
@@ -906,6 +892,15 @@ public class ClassicConfiguration implements Configuration {
      * Defaults to {@code latest}.
      */
     public void setTarget(MigrationVersion target) {
+        if (!FeatureDetector.areExperimentalFeaturesEnabled() && target == MigrationVersion.NEXT) {
+
+
+
+
+
+             throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("target=next");
+
+        }
         this.target = target;
     }
 
@@ -934,8 +929,8 @@ public class ClassicConfiguration implements Configuration {
 
 
         } else {
-            this.failOnMissingTarget = true;
-            this.target = MigrationVersion.fromVersion(target);
+            setFailOnMissingTarget(true);
+            setTarget(MigrationVersion.fromVersion(target));
         }
     }
 
@@ -1456,8 +1451,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLicenseKey(String licenseKey) {
 
-         LOG.warn(Edition.ENTERPRISE + " upgrade required: " + licenseKey
-         + " is not supported by " + Edition.COMMUNITY + ".");
+         LOG.warn(Edition.ENTERPRISE + " upgrade required: licenseKey is not supported by " + Edition.COMMUNITY + ".");
 
 
 
@@ -1504,33 +1498,6 @@ public class ClassicConfiguration implements Configuration {
         this.lockRetryCount = lockRetryCount;
     }
 
-    public void setVaultUrl(String vaultUrl) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultUrl");
-
-
-
-
-    }
-
-    public void setVaultToken(String vaultToken) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultToken");
-
-
-
-
-    }
-
-    public void setVaultSecrets(String... vaultSecrets) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultSecrets");
-
-
-
-
-    }
-
     /**
      * Whether to fail if a location specified in the flyway.locations option doesn't exist
      *
@@ -1538,6 +1505,30 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setFailOnMissingLocations(boolean failOnMissingLocations) {
         this.failOnMissingLocations = failOnMissingLocations;
+    }
+
+    @Override
+    public List<ApiExtension> getApiExtensions() {
+        return apiExtensions;
+    }
+
+    @Override
+    public <T extends ApiExtension> T getExtensionConfiguration(Class<T> clazz) {
+        for (ApiExtension apiExtension : apiExtensions) {
+            if (clazz.isInstance(apiExtension)) {
+                return (T) apiExtension;
+            }
+        }
+
+        ServiceLoader<ApiExtension> loader = ServiceLoader.load(ApiExtension.class);
+        for (ApiExtension apiExtension : loader) {
+            if (clazz.isInstance(apiExtension)) {
+                apiExtensions.add(apiExtension);
+                return (T) apiExtension;
+            }
+        }
+
+        throw new FlywayException("Requested extension of type " + clazz.getName() + " but none found.");
     }
 
     /**
@@ -1553,9 +1544,6 @@ public class ClassicConfiguration implements Configuration {
         setDataSource(configuration.getDataSource());
         setConnectRetries(configuration.getConnectRetries());
         setInitSql(configuration.getInitSql());
-
-
-
 
 
 
@@ -1613,6 +1601,19 @@ public class ClassicConfiguration implements Configuration {
         url = configuration.getUrl();
         user = configuration.getUser();
         password = configuration.getPassword();
+
+        apiExtensions = configuration.getApiExtensions();
+
+        Map<String, String> extensionConfiguration = new HashMap<>();
+        for (ApiExtension apiExtension : apiExtensions) {
+            try {
+                extensionConfiguration.putAll(apiExtension.getConfiguration());
+            } catch (Exception e) {
+                throw new FlywayException("Unable to read configuration from " + apiExtension.getClass().getName() + ": " + e.getMessage());
+            }
+        }
+
+        this.configure(extensionConfiguration);
     }
 
     /**
@@ -1638,6 +1639,14 @@ public class ClassicConfiguration implements Configuration {
     public void configure(Map<String, String> props) {
         // Make copy to prevent removing elements from the original.
         props = new HashMap<>(props);
+
+        for (ApiExtension apiExtension : apiExtensions) {
+            try {
+                props.putAll(apiExtension.getConfiguration());
+            } catch (Exception e) {
+                throw new FlywayException("Unable to read configuration from " + apiExtension.getClass().getName() + ": " + e.getMessage());
+            }
+        }
 
         String driverProp = props.remove(ConfigUtils.DRIVER);
         if (driverProp != null) {
@@ -1861,18 +1870,6 @@ public class ClassicConfiguration implements Configuration {
         if (oracleKerberosCacheFile != null) {
             setOracleKerberosCacheFile(oracleKerberosCacheFile);
         }
-        String vaultUrl = props.remove(ConfigUtils.VAULT_URL);
-        if (vaultUrl != null) {
-            setVaultUrl(vaultUrl);
-        }
-        String vaultToken = props.remove(ConfigUtils.VAULT_TOKEN);
-        if (vaultToken != null) {
-            setVaultToken(vaultToken);
-        }
-        String vaultSecrets = props.remove(ConfigUtils.VAULT_SECRETS);
-        if (vaultSecrets != null) {
-            setVaultSecrets(StringUtils.tokenizeToStringArray(vaultSecrets, ","));
-        }
         String ignoreMigrationPatternsProp = props.remove(ConfigUtils.IGNORE_MIGRATION_PATTERNS);
         if (ignoreMigrationPatternsProp != null) {
             setIgnoreMigrationPatterns(StringUtils.tokenizeToStringArray(ignoreMigrationPatternsProp, ","));
@@ -1902,21 +1899,19 @@ public class ClassicConfiguration implements Configuration {
     }
 
     private Map<String, String> getPropertiesUnderNamespace(Map<String, String> properties, Map<String, String> current, String namespace) {
-        Map<String, String> placeholdersFromProps = new HashMap<>(current);
         Iterator<Map.Entry<String, String>> iterator = properties.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, String> entry = iterator.next();
             String propertyName = entry.getKey();
 
-            if (propertyName.startsWith(namespace)
-                    && propertyName.length() > namespace.length()) {
+            if (propertyName.startsWith(namespace) && propertyName.length() > namespace.length()) {
                 String placeholderName = propertyName.substring(namespace.length());
                 String placeholderValue = entry.getValue();
-                placeholdersFromProps.put(placeholderName, placeholderValue);
+                current.put(placeholderName, placeholderValue);
                 iterator.remove();
             }
         }
-        return placeholdersFromProps;
+        return current;
     }
 
     /**

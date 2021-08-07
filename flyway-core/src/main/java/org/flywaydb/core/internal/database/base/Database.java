@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -193,13 +193,6 @@ public abstract class Database<C extends Connection> implements Closeable {
     }
 
     public abstract boolean supportsDdlTransactions();
-
-    /**
-     * Whether to add the baseline marker directly as part of the create table statement for this database.
-     */
-    public boolean useDirectBaseline() {
-        return false;
-    }
 
     public abstract boolean supportsChangingCurrentSchema();
 
