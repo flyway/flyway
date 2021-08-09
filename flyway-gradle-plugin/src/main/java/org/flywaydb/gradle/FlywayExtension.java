@@ -146,6 +146,15 @@ public class FlywayExtension {
     public String sqlMigrationPrefix;
 
     /**
+     * The file name prefix for intermediate baseline SQL migrations. (default: IB)
+     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to IB1.1__My_description.sql
+     * <i>Flyway Teams only</i>
+     * <p>Also configurable with Gradle or System Property: ${flyway.intermediateBaselineSqlMigrationPrefix}</p>
+     */
+    public String intermediateBaselineSqlMigrationPrefix;
+
+    /**
      * The file name prefix for undo SQL migrations. (default: U)
      * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
      * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,

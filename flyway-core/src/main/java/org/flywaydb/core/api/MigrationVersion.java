@@ -20,27 +20,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * A version of a migration.
- *
- * @author Axel Fontaine
- */
 public final class MigrationVersion implements Comparable<MigrationVersion> {
     /**
      * Version for an empty schema.
      */
     public static final MigrationVersion EMPTY = new MigrationVersion(null, "<< Empty Schema >>");
-
     /**
      * Latest version.
      */
     public static final MigrationVersion LATEST = new MigrationVersion(BigInteger.valueOf(-1), "<< Latest Version >>");
-
     /**
      * Current version. Only a marker. For the real version use Flyway.info().current() instead.
      */
     public static final MigrationVersion CURRENT = new MigrationVersion(BigInteger.valueOf(-2), "<< Current Version >>");
-
     /**
      * Next version.
      */
@@ -50,12 +42,10 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * Regex for matching proper version format
      */
     private static final Pattern SPLIT_REGEX = Pattern.compile("\\.(?=\\d)");
-
     /**
      * The individual parts this version string is composed of. Ex. 1.2.3.4.0 -> [1, 2, 3, 4, 0]
      */
     private final List<BigInteger> versionParts;
-
     /**
      * The printable text to represent the version.
      */
@@ -90,8 +80,6 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     }
 
     /**
-     * Creates a Version using this version string.
-     *
      * @param version     The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
      *                    means that this version refers to an empty schema.
      * @param displayText The alternative text to display instead of the version number.
@@ -102,9 +90,6 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         this.displayText = displayText;
     }
 
-    /**
-     * @return The textual representation of the version.
-     */
     @Override
     public String toString() {
         return displayText;
@@ -236,7 +221,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     }
 
     /**
-     * Splits this string into list of Long
+     * Splits this string into list of BigIntegers
      *
      * @param versionStr The string to split.
      * @return The resulting array.

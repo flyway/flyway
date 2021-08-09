@@ -79,6 +79,7 @@ public class ClassicConfiguration implements Configuration {
     private String placeholderPrefix = "${";
     private String placeholderSuffix = "}";
     private String sqlMigrationPrefix = "V";
+    private String intermediateBaselineSqlMigrationPrefix = "IB";
     private String undoSqlMigrationPrefix = "U";
     private String repeatableSqlMigrationPrefix = "R";
     private ResourceProvider resourceProvider = null;
@@ -214,6 +215,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getSqlMigrationPrefix() {
         return sqlMigrationPrefix;
+    }
+
+    @Override
+    public String getIntermediateBaselineSqlMigrationPrefix() {
+        return intermediateBaselineSqlMigrationPrefix;
     }
 
     @Override
@@ -1049,6 +1055,25 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Sets the file name prefix for intermediate baseline SQL migrations.
+     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to IB1.1__My_description.sql
+     * <i>Flyway Teams only</i>
+     *
+     * @param intermediateBaselineSqlMigrationPrefix The file name prefix for intermediate baseline sql migrations (default: IB)
+     */
+    public void setIntermediateBaselineSqlMigrationPrefix(String intermediateBaselineSqlMigrationPrefix) {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("intermediateBaselineSqlMigrationPrefix");
+
+
+
+
+
+
+    }
+
+    /**
      * Sets the file name prefix for undo SQL migrations. (default: U)
      * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
      * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
@@ -1562,6 +1587,7 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
         setValidateMigrationNaming(configuration.isValidateMigrationNaming());
@@ -1699,6 +1725,10 @@ public class ClassicConfiguration implements Configuration {
         String undoSqlMigrationPrefixProp = props.remove(ConfigUtils.UNDO_SQL_MIGRATION_PREFIX);
         if (undoSqlMigrationPrefixProp != null) {
             setUndoSqlMigrationPrefix(undoSqlMigrationPrefixProp);
+        }
+        String intermediateBaselineSqlMigrationPrefixProp = props.remove(ConfigUtils.INTERMEDIATE_BASELINE_SQL_MIGRATION_PREFIX);
+        if (intermediateBaselineSqlMigrationPrefixProp != null) {
+            setIntermediateBaselineSqlMigrationPrefix(intermediateBaselineSqlMigrationPrefixProp);
         }
         String repeatableSqlMigrationPrefixProp = props.remove(ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX);
         if (repeatableSqlMigrationPrefixProp != null) {

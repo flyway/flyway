@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.resource;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Pair;
 
 import java.util.*;
@@ -130,6 +131,9 @@ public class ResourceNameParser {
         List<Pair<String, ResourceType>> prefixes = new ArrayList<>();
 
         prefixes.add(Pair.of(configuration.getSqlMigrationPrefix(), ResourceType.MIGRATION));
+
+
+
 
 
 

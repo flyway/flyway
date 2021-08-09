@@ -136,6 +136,11 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public String getIntermediateBaselineSqlMigrationPrefix() {
+        return config.getIntermediateBaselineSqlMigrationPrefix();
+    }
+
+    @Override
     public String getRepeatableSqlMigrationPrefix() {
         return config.getRepeatableSqlMigrationPrefix();
     }
@@ -816,6 +821,19 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration sqlMigrationPrefix(String sqlMigrationPrefix) {
         config.setSqlMigrationPrefix(sqlMigrationPrefix);
+        return this;
+    }
+
+    /**
+     * Sets the file name prefix for intermediate baseline SQL migrations.
+     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to IB1.1__My_description.sql
+     * <i>Flyway Teams only</i>
+     *
+     * @param intermediateBaselineSqlMigrationPrefix The file name prefix for intermediate baseline sql migrations (default: IB)
+     */
+    public FluentConfiguration intermediateBaselineSqlMigrationPrefix(String intermediateBaselineSqlMigrationPrefix) {
+        config.setIntermediateBaselineSqlMigrationPrefix(intermediateBaselineSqlMigrationPrefix);
         return this;
     }
 

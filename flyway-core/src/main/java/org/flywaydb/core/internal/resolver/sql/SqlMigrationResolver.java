@@ -36,6 +36,7 @@ import org.flywaydb.core.internal.resource.ResourceNameParser;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
+import org.flywaydb.core.internal.util.FeatureDetector;
 
 import java.io.Reader;
 import java.util.ArrayList;
@@ -75,6 +76,9 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
         );
+
+
+
 
 
 
@@ -174,7 +178,8 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-                            MigrationType.SQL,
+
+                    MigrationType.SQL,
                     resource.getAbsolutePathOnDisk(),
                     new SqlMigrationExecutor(sqlScriptExecutorFactory, sqlScript
 
