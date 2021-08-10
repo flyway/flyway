@@ -56,7 +56,8 @@ public class MariaDBDatabaseType extends BaseDatabaseType {
             throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbc-secretsmanager");
 
         }
-        return url.startsWith("jdbc:mariadb:") || url.startsWith("jdbc:p6spy:mariadb:");
+        return url.startsWith("jdbc:mariadb:") || url.startsWith("jdbc:p6spy:mariadb:")
+                || url.startsWith("jdbc:otel:mariadb:");
     }
 
     @Override
@@ -68,6 +69,9 @@ public class MariaDBDatabaseType extends BaseDatabaseType {
 
         if (url.startsWith("jdbc:p6spy:mariadb:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:mariadb:")) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
         return "org.mariadb.jdbc.Driver";
     }

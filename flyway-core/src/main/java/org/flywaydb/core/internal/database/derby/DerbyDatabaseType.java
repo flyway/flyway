@@ -43,13 +43,17 @@ public class DerbyDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:derby:") || url.startsWith("jdbc:p6spy:derby:");
+        return url.startsWith("jdbc:derby:") || url.startsWith("jdbc:p6spy:derby:")
+                || url.startsWith("jdbc:otel:derby:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:derby:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:derby:")) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
         if (url.startsWith("jdbc:derby://")) {
             return "org.apache.derby.jdbc.ClientDriver";

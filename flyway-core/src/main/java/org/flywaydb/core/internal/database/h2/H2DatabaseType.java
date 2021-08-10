@@ -40,13 +40,16 @@ public class H2DatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:h2:") || url.startsWith("jdbc:p6spy:h2:");
+        return url.startsWith("jdbc:h2:") || url.startsWith("jdbc:p6spy:h2:") || url.startsWith("jdbc:otel:h2:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:h2:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:h2:")) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
         return "org.h2.Driver";
     }

@@ -42,13 +42,17 @@ public class FirebirdDatabaseType extends BaseDatabaseType {
     @Override
     public boolean handlesJDBCUrl(String url) {
         return url.startsWith("jdbc:firebird:") || url.startsWith("jdbc:firebirdsql:") ||
-               url.startsWith("jdbc:p6spy:firebird:") || url.startsWith("jdbc:p6spy:firebirdsql:");
+               url.startsWith("jdbc:p6spy:firebird:") || url.startsWith("jdbc:p6spy:firebirdsql:") ||
+                url.startsWith("jdbc:otel:firebird:") || url.startsWith("jdbc:otel:firebirdsql:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:firebird:") || url.startsWith("jdbc:p6spy:firebirdsql:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:firebird:") || url.startsWith("jdbc:otel:firebirdsql:")) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
         return "org.firebirdsql.jdbc.FBDriver";
     }

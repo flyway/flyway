@@ -40,13 +40,17 @@ public class HSQLDBDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:hsqldb:") || url.startsWith("jdbc:p6spy:hsqldb:");
+        return url.startsWith("jdbc:hsqldb:") || url.startsWith("jdbc:p6spy:hsqldb:")
+                || url.startsWith("jdbc:otel:hsqldb:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:hsqldb:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:hsqldb:")) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
         return "org.hsqldb.jdbcDriver";
     }

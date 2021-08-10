@@ -56,7 +56,8 @@ public class PostgreSQLDatabaseType extends BaseDatabaseType {
             throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbc-secretsmanager");
 
         }
-        return url.startsWith("jdbc:postgresql:") || url.startsWith("jdbc:p6spy:postgresql:");
+        return url.startsWith("jdbc:postgresql:") || url.startsWith("jdbc:p6spy:postgresql:")
+                || url.startsWith("jdbc:otel:postgresql:");
     }
 
     @Override
@@ -68,6 +69,9 @@ public class PostgreSQLDatabaseType extends BaseDatabaseType {
 
         if (url.startsWith("jdbc:p6spy:postgresql:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:postgresql:")) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
         return "org.postgresql.Driver";
     }

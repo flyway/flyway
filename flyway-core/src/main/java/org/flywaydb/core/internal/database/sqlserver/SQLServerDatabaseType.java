@@ -54,7 +54,8 @@ public class SQLServerDatabaseType extends BaseDatabaseType {
 
         }
         return url.startsWith("jdbc:sqlserver:") || (supportsJTDS() && url.startsWith("jdbc:jtds:")) ||
-               url.startsWith("jdbc:p6spy:sqlserver:") || (supportsJTDS() && url.startsWith("jdbc:p6spy:jtds:"));
+               url.startsWith("jdbc:p6spy:sqlserver:") || (supportsJTDS() && url.startsWith("jdbc:p6spy:jtds:")) ||
+                url.startsWith("jdbc:otel:sqlserver:") || (supportsJTDS() && url.startsWith("jdbc:otel:jtds:"));
     }
 
     @Override
@@ -66,6 +67,9 @@ public class SQLServerDatabaseType extends BaseDatabaseType {
 
         if (url.startsWith("jdbc:p6spy:sqlserver:") || (supportsJTDS() && url.startsWith("jdbc:p6spy:jtds:"))) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:sqlserver:") || (supportsJTDS() && url.startsWith("jdbc:otel:jtds:"))) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
 
         if (url.startsWith("jdbc:jtds:")) {

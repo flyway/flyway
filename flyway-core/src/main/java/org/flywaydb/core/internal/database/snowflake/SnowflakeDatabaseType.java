@@ -47,13 +47,17 @@ public class SnowflakeDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:snowflake:") || url.startsWith("jdbc:p6spy:snowflake:");
+        return url.startsWith("jdbc:snowflake:") || url.startsWith("jdbc:p6spy:snowflake:")
+                || url.startsWith("jdbc:otel:snowflake:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:snowflake:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:snowflake:")) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
         return "net.snowflake.client.jdbc.SnowflakeDriver";
     }

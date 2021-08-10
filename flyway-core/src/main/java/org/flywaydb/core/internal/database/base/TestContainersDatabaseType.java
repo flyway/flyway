@@ -44,13 +44,16 @@ public class TestContainersDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:tc:") || url.startsWith("jdbc:p6spy:tc:");
+        return url.startsWith("jdbc:tc:") || url.startsWith("jdbc:p6spy:tc:") || url.startsWith("jdbc:otel:tc:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:tc:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:tc:")) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
         return "org.testcontainers.jdbc.ContainerDatabaseDriver";
     }
