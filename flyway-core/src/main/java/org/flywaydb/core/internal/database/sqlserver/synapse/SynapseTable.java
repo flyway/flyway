@@ -26,21 +26,9 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-/**
- * Synapse-specific table.
- */
 public class SynapseTable extends SQLServerTable {
     private final InsertRowLock insertRowLock;
 
-    /**
-     * Creates a new Synapse table.
-     *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param databaseName The database this table lives in.
-     * @param schema       The schema this table lives in.
-     * @param name         The name of the table.
-     */
     SynapseTable(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, SQLServerSchema schema, String name) {
         super(jdbcTemplate, database, databaseName, schema, name);
         this.insertRowLock = new InsertRowLock(jdbcTemplate, 10);
@@ -53,8 +41,8 @@ public class SynapseTable extends SQLServerTable {
         cal.add(Calendar.MINUTE, -insertRowLock.lockTimeoutMins);
         Timestamp timeoutTimeAgo = new Timestamp(cal.getTime().getTime());
 
-        String updateLockStatement = "UPDATE " + this + " SET installed_on = '" + currentDateTime + "' WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
-        String deleteExpiredLockStatement = "DELETE FROM " + this + " WHERE DESCRIPTION = 'flyway-lock' AND installed_on < '" + timeoutTimeAgo + "'";
+        String updateLockStatement = "UPDATE " + this + " SET installed_on = '" + currentDateTime + "' WHERE version = '?' AND description = 'flyway-lock'";
+        String deleteExpiredLockStatement = "DELETE FROM " + this + " WHERE description = 'flyway-lock' AND installed_on < '" + timeoutTimeAgo + "'";
 
         if (lockDepth == 0) {
             insertRowLock.doLock(database.getInsertStatement(this), updateLockStatement, deleteExpiredLockStatement, database.getBooleanTrue());
@@ -69,6 +57,6 @@ public class SynapseTable extends SQLServerTable {
     }
 
     private String getDeleteLockTemplate() {
-        return "DELETE FROM " + this + " WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
+        return "DELETE FROM " + this + " WHERE version = '?' AND description = 'flyway-lock'";
     }
 }

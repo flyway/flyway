@@ -26,15 +26,8 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import java.sql.Connection;
 import java.util.Date;
 
-/**
- * Azure Synapse database.
- */
 public class SynapseDatabase extends SQLServerDatabase {
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
+
     public SynapseDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
