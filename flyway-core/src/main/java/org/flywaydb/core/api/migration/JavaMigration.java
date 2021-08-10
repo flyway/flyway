@@ -60,11 +60,11 @@ public interface JavaMigration {
     boolean isUndo();
 
     /**
-     * Whether this is an intermediate baseline migration.
+     * Whether this is a state script.
      *
      * @return {@code true} if it is, {@code false} if not.
      */
-    boolean isIntermediateBaseline();
+    boolean isStateScript();
 
     /**
      * Whether the execution should take place inside a transaction. Almost all implementations should return {@code true}.

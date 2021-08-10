@@ -136,8 +136,8 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public String getIntermediateBaselineSqlMigrationPrefix() {
-        return config.getIntermediateBaselineSqlMigrationPrefix();
+    public String getStateScriptPrefix() {
+        return config.getStateScriptPrefix();
     }
 
     @Override
@@ -825,15 +825,15 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Sets the file name prefix for intermediate baseline SQL migrations.
+     * Sets the file name prefix for state scripts.
      * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to IB1.1__My_description.sql
+     * which using the defaults translates to S1.1__My_description.sql
      * <i>Flyway Teams only</i>
      *
-     * @param intermediateBaselineSqlMigrationPrefix The file name prefix for intermediate baseline sql migrations (default: IB)
+     * @param stateScriptPrefix The file name prefix for state scripts (default: S)
      */
-    public FluentConfiguration intermediateBaselineSqlMigrationPrefix(String intermediateBaselineSqlMigrationPrefix) {
-        config.setIntermediateBaselineSqlMigrationPrefix(intermediateBaselineSqlMigrationPrefix);
+    public FluentConfiguration stateScriptPrefix(String stateScriptPrefix) {
+        config.setStateScriptPrefix(stateScriptPrefix);
         return this;
     }
 

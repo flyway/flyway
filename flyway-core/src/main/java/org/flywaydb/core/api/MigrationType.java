@@ -33,9 +33,9 @@ public enum MigrationType {
      */
     SQL(false, false, false),
     /**
-     * SQL intermediate baseline migrations.
+     * SQL state scripts.
      */
-    SQL_INT_BASELINE(false, false, true),
+    SQL_STATE_SCRIPT(false, false, true),
     /**
      * Undo SQL migrations.
      */
@@ -45,9 +45,9 @@ public enum MigrationType {
      */
     JDBC(false, false, false),
     /**
-     * JDBC Java-based intermediate baseline migrations.
+     * JDBC Java-based state scripts.
      */
-    JDBC_INT_BASELINE(false, false, true),
+    JDBC_STATE_SCRIPT(false, false, true),
     /**
      * Undo JDBC java-based migrations.
      */
@@ -87,12 +87,12 @@ public enum MigrationType {
 
     private final boolean synthetic;
     private final boolean undo;
-    private final boolean intermediateBaseline;
+    private final boolean stateScript;
 
-    MigrationType(boolean synthetic, boolean undo, boolean intermediateBaseline) {
+    MigrationType(boolean synthetic, boolean undo, boolean stateScript) {
         this.synthetic = synthetic;
         this.undo = undo;
-        this.intermediateBaseline = intermediateBaseline;
+        this.stateScript = stateScript;
     }
 
     /**
@@ -111,10 +111,10 @@ public enum MigrationType {
     }
 
     /**
-     * @return Whether this is an intermediate baseline migration, which represents all migrations with
-     * version <= current intermediate baseline version.
+     * @return Whether this is a state script, which represents all migrations with
+     * version <= current state script version.
      */
-    public boolean isIntermediateBaseline() {
-        return intermediateBaseline;
+    public boolean isStateScript() {
+        return stateScript;
     }
 }

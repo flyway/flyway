@@ -79,7 +79,7 @@ public class ClassicConfiguration implements Configuration {
     private String placeholderPrefix = "${";
     private String placeholderSuffix = "}";
     private String sqlMigrationPrefix = "V";
-    private String intermediateBaselineSqlMigrationPrefix = "IB";
+    private String stateScriptPrefix = "S";
     private String undoSqlMigrationPrefix = "U";
     private String repeatableSqlMigrationPrefix = "R";
     private ResourceProvider resourceProvider = null;
@@ -218,8 +218,8 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public String getIntermediateBaselineSqlMigrationPrefix() {
-        return intermediateBaselineSqlMigrationPrefix;
+    public String getStateScriptPrefix() {
+        return stateScriptPrefix;
     }
 
     @Override
@@ -1055,16 +1055,16 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Sets the file name prefix for intermediate baseline SQL migrations.
+     * Sets the file name prefix for state scripts.
      * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to IB1.1__My_description.sql
+     * which using the defaults translates to S1.1__My_description.sql
      * <i>Flyway Teams only</i>
      *
-     * @param intermediateBaselineSqlMigrationPrefix The file name prefix for intermediate baseline sql migrations (default: IB)
+     * @param stateScriptPrefix The file name prefix for state scripts (default: S)
      */
-    public void setIntermediateBaselineSqlMigrationPrefix(String intermediateBaselineSqlMigrationPrefix) {
+    public void setStateScriptPrefix(String stateScriptPrefix) {
 
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("intermediateBaselineSqlMigrationPrefix");
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("stateScriptPrefix");
 
 
 
@@ -1726,9 +1726,9 @@ public class ClassicConfiguration implements Configuration {
         if (undoSqlMigrationPrefixProp != null) {
             setUndoSqlMigrationPrefix(undoSqlMigrationPrefixProp);
         }
-        String intermediateBaselineSqlMigrationPrefixProp = props.remove(ConfigUtils.INTERMEDIATE_BASELINE_SQL_MIGRATION_PREFIX);
-        if (intermediateBaselineSqlMigrationPrefixProp != null) {
-            setIntermediateBaselineSqlMigrationPrefix(intermediateBaselineSqlMigrationPrefixProp);
+        String stateScriptMigrationPrefixProp = props.remove(ConfigUtils.STATE_SCRIPT_PREFIX);
+        if (stateScriptMigrationPrefixProp != null) {
+            setStateScriptPrefix(stateScriptMigrationPrefixProp);
         }
         String repeatableSqlMigrationPrefixProp = props.remove(ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX);
         if (repeatableSqlMigrationPrefixProp != null) {

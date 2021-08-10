@@ -105,8 +105,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
         Map<Pair<MigrationVersion, Boolean>, ResolvedMigration> resolvedVersioned = new TreeMap<>();
         Map<String, ResolvedMigration> resolvedRepeatable = new TreeMap<>();
-        ResolvedMigration pendingIntermediateBaselineMigration = null;
-        AppliedMigration appliedIntermediateBaselineMigration = null;
+        ResolvedMigration pendingStateScript = null;
+        AppliedMigration appliedStateScript = null;
 
         // Separate resolved migrations into versioned and repeatable
         for (ResolvedMigration resolvedMigration : resolvedMigrations) {
@@ -115,7 +115,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 if (version.compareTo(context.lastResolved) > 0) {
                     context.lastResolved = version;
                 }
-                if (FeatureDetector.areExperimentalFeaturesEnabled() && resolvedMigration.getType().isIntermediateBaseline() && version.compareTo(context.latestIntermediateBaseline) > 0) {
+                if (FeatureDetector.areExperimentalFeaturesEnabled() && resolvedMigration.getType().isStateScript() && version.compareTo(context.latestStateScript) > 0) {
 
 
 
@@ -253,14 +253,14 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
         // Add all pending migrations to output list
         for (ResolvedMigration prv : pendingResolvedVersioned) {
-            if (prv.getVersion().compareTo(context.latestIntermediateBaseline) <= 0) {
+            if (prv.getVersion().compareTo(context.latestStateScript) <= 0) {
                 continue;
             }
             migrationInfos1.add(new MigrationInfoImpl(prv, null, context, false, false, false));
         }
 
-        if (pendingIntermediateBaselineMigration != null) {
-            migrationInfos1.add(new MigrationInfoImpl(pendingIntermediateBaselineMigration, null, context, false, false, false));
+        if (pendingStateScript != null) {
+            migrationInfos1.add(new MigrationInfoImpl(pendingStateScript, null, context, false, false, false));
         }
 
         if (configuration.getFailOnMissingTarget() &&

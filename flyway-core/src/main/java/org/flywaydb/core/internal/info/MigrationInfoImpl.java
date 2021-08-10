@@ -168,9 +168,9 @@ public class MigrationInfoImpl implements MigrationInfo {
                 if ((resolvedMigration.getVersion().compareTo(context.lastApplied) < 0) && !context.outOfOrder) {
                     return MigrationState.IGNORED;
                 }
-                if (resolvedMigration.getVersion().compareTo(context.latestIntermediateBaseline) < 0 ||
-                        (resolvedMigration.getVersion().compareTo(context.latestIntermediateBaseline) == 0 && !resolvedMigration.getType().isIntermediateBaseline())) {
-                        return MigrationState.BELOW_BASELINE;
+                if (resolvedMigration.getVersion().compareTo(context.latestStateScript) < 0 ||
+                        (resolvedMigration.getVersion().compareTo(context.latestStateScript) == 0 && !resolvedMigration.getType().isStateScript())) {
+                        return MigrationState.IGNORED;
                 }
             }
             return MigrationState.PENDING;

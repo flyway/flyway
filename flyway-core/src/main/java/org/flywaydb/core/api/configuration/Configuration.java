@@ -141,16 +141,16 @@ public interface Configuration {
     String getSqlMigrationPrefix();
 
     /**
-     * The file name prefix for intermediate baseline SQL migrations.
-     * Intermediate baseline SQL migrations represent all migrations with version <= current intermediate baseline version
+     * The file name prefix for state scripts.
+     * State scripts represent all migrations with version <= current state script version
      * while keeping older migrations if needed for upgrading older deployments
      * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to IB1.1__My_description.sql
+     * which using the defaults translates to S1.1__My_description.sql
      * <i>Flyway Teams only</i>
      *
-     * @return The file name prefix for intermediate baseline sql migrations. (default: IB)
+     * @return The file name prefix for state scripts. (default: S)
      */
-    String getIntermediateBaselineSqlMigrationPrefix();
+    String getStateScriptPrefix();
 
     /**
      * The file name prefix for undo SQL migrations.
