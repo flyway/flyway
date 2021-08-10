@@ -30,6 +30,8 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class RedgateUpdateChecker {
 
@@ -125,22 +127,45 @@ public class RedgateUpdateChecker {
             throw new Exception("All parameters required for getFingerprint - operatingSystem: " + isEmpty(operatingSystem) + ", jdbcUrl: " + isEmpty(jdbcUrl));
         }
 
-        byte[] hardwareAddress;
         byte[] hashedId = operatingSystem.getBytes(StandardCharsets.UTF_8);
         hashedId = getHashed(operatingSystem.getBytes(StandardCharsets.UTF_8), hashedId);
         hashedId = getHashed(jdbcUrl.getBytes(StandardCharsets.UTF_8), hashedId);
         hashedId = getHashed(System.getProperty("user.dir").getBytes(StandardCharsets.UTF_8), hashedId);
-        NetworkInterface networkInterface = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
-        if(networkInterface == null) {
-            throw new Exception("Network Interface was null when creating fingerprint");
-        }
-        hardwareAddress = networkInterface.getHardwareAddress();
-        if(hardwareAddress == null || hardwareAddress.length == 0) {
-            throw new Exception("Hardware address was null or empty when creating fingerprint");
+
+        List<byte[]> hardwareAddresses = getHardwareAddresses();
+
+        if (hardwareAddresses.size() == 0) {
+            throw new Exception("No hardware addresses found when creating fingerprint");
         }
 
-        hashedId = getHashed(hardwareAddress, hashedId);
+        for (byte[] hardwareAddress : hardwareAddresses) {
+            hashedId = getHashed(hardwareAddress, hashedId);
+        }
+
         return hashToString(hashedId);
+    }
+
+    private static List<byte[]> getHardwareAddresses() throws SocketException {
+        Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+
+        // This can be null, ignore IntelliJ's suggestion
+        if (networkInterfaces == null) {
+            return new ArrayList<>();
+        }
+
+        return Collections.list(networkInterfaces)
+                .stream()
+                .map(RedgateUpdateChecker::extractHardwareAddress)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    private static byte[] extractHardwareAddress(NetworkInterface networkInterface) {
+        try {
+            return networkInterface.getHardwareAddress();
+        } catch (SocketException e) {
+            return null;
+        }
     }
 
     private static boolean isEmpty(String s) {

@@ -153,7 +153,7 @@ public class Main {
             filterProperties(config);
 
             if(!commandLineArguments.skipCheckForUpdate()) {
-                if (FeatureDetector.areExperimentalFeaturesEnabled()) {
+                if (FeatureDetector.isRedgateUpdateCheckEnabled()) {
                     String message = RedgateUpdateChecker.getUpdateCheckMessage(config.get(ConfigUtils.URL));
                     if (!message.isEmpty()) {
                         LOG.info(message);
