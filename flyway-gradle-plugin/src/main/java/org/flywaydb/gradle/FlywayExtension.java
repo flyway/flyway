@@ -15,6 +15,7 @@
  */
 package org.flywaydb.gradle;
 
+import org.flywaydb.gradle.task.DaprConfiguration;
 import org.flywaydb.gradle.task.VaultConfiguration;
 
 import java.util.Map;
@@ -554,4 +555,15 @@ public class FlywayExtension {
      * <i>Flyway Teams only</i>
      */
     public VaultConfiguration vaultConfiguration;
+
+    /**
+     * The configuration for DAPR Secrets Store.
+     * You will need to configure the following fields:
+     * <ul>
+     *  <li>daprUrl: The REST API URL of your Dapr application sidecar - https://flywaydb.org/documentation/configuration/parameters/daprUrl</li>
+     *  <li>daprSecrets: A list of paths to secrets in Dapr that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/daprSecrets</li>
+     * </ul>
+     * <i>Flyway Teams only</i>
+     */
+    public DaprConfiguration daprConfiguration;
 }

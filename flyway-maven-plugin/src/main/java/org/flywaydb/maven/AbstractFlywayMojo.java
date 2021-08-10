@@ -696,6 +696,18 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     protected VaultConfiguration vaultConfiguration;
 
     /**
+     * The configuration for DAPR Secrets Store.
+     * You will need to configure the following fields:
+     * <ul>
+     *  <li>daprUrl: The REST API URL of your Dapr application sidecar - https://flywaydb.org/documentation/configuration/parameters/daprUrl</li>
+     *  <li>daprSecrets: A list of paths to secrets in Dapr that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/daprSecrets</li>
+     * </ul>
+     * <i>Flyway Teams only</i>
+     */
+    @Parameter
+    protected DaprConfiguration daprConfiguration;
+
+    /**
      * Reference to the current project that includes the Flyway Maven plugin.
      */
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
@@ -863,6 +875,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
             if (vaultConfiguration != null){
                 vaultConfiguration.extract(conf);
+            }
+            if (daprConfiguration != null) {
+                daprConfiguration.extract(conf);
             }
 
             conf.putAll(ConfigUtils.propertiesToMap(mavenProject.getProperties()));

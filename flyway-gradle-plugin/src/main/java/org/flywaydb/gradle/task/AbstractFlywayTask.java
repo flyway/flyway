@@ -588,6 +588,17 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     public VaultConfiguration vaultConfiguration;
 
+    /**
+     * The configuration for DAPR Secrets Store.
+     * You will need to configure the following fields:
+     * <ul>
+     *  <li>daprUrl: The REST API URL of your Dapr application sidecar - https://flywaydb.org/documentation/configuration/parameters/daprUrl</li>
+     *  <li>daprSecrets: A list of paths to secrets in Dapr that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/daprSecrets</li>
+     * </ul>
+     * <i>Flyway Teams only</i>
+     */
+    public DaprConfiguration daprConfiguration;
+
     public AbstractFlywayTask() {
         super();
         setGroup("Flyway");
@@ -790,6 +801,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         }
         if (vaultConfiguration != null){
             vaultConfiguration.extract(conf);
+        }
+        if (daprConfiguration != null){
+            daprConfiguration.extract(conf);
         }
 
         addConfigFromProperties(conf, getProject().getProperties());
