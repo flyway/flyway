@@ -120,6 +120,15 @@
             </includes>
         </dependencySet>
         <dependencySet>
+            <outputDirectory>lib/oracle_wallet</outputDirectory>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>com.oracle.database.security:oraclepki</include>
+                <include>com.oracle.database.security:osdt_cert</include>
+                <include>com.oracle.database.security:osdt_core</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
             <outputDirectory>lib/community</outputDirectory>
             <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
             <useTransitiveDependencies>false</useTransitiveDependencies>

@@ -99,6 +99,7 @@ public class ConfigUtils {
     public static final String ORACLE_SQLPLUS_WARN = "flyway.oracle.sqlplusWarn";
     public static final String ORACLE_KERBEROS_CONFIG_FILE = "flyway.oracle.kerberosConfigFile";
     public static final String ORACLE_KERBEROS_CACHE_FILE = "flyway.oracle.kerberosCacheFile";
+    public static final String ORACLE_WALLET_LOCATION = "flyway.oracle.walletLocation";
 
     // Command-line specific
     public static final String JAR_DIRS = "flyway.jarDirs";
@@ -317,6 +318,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_ORACLE_KERBEROS_CACHE_FILE".equals(key)) {
             return ORACLE_KERBEROS_CACHE_FILE;
+        }
+        if ("FLYWAY_ORACLE_WALLET_LOCATION".equals(key)) {
+            return ORACLE_WALLET_LOCATION;
         }
 
         // Command-line specific

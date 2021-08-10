@@ -121,6 +121,7 @@ public class ClassicConfiguration implements Configuration {
     private boolean oracleSqlplusWarn;
     private String oracleKerberosConfigFile = "";
     private String oracleKerberosCacheFile = "";
+    private String oracleWalletLocation;
     private boolean failOnMissingLocations = false;
     private final ClasspathClassScanner classScanner;
 
@@ -404,6 +405,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean getFailOnMissingLocations() {
         return failOnMissingLocations;
+    }
+
+    @Override
+    public String getOracleWalletLocation() {
+        return oracleWalletLocation;
     }
 
     @Override
@@ -1459,6 +1465,22 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * The location of your Oracle wallet, used to automatically sign in to your databases.
+     *
+     * <i>Flyway Teams only</i>
+     *
+     * @param oracleWalletLocation The path to your Oracle Wallet
+     */
+    public void setOracleWalletLocation(String oracleWalletLocation) {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.walletLocation");
+
+
+
+
+    }
+
+    /**
      * Whether Flyway should attempt to create the schemas specified in the schemas property.
      *
      * @param createSchemas @{code true} to attempt to create the schemas (default: {@code true})
@@ -1569,6 +1591,7 @@ public class ClassicConfiguration implements Configuration {
         setDataSource(configuration.getDataSource());
         setConnectRetries(configuration.getConnectRetries());
         setInitSql(configuration.getInitSql());
+
 
 
 
@@ -1899,6 +1922,10 @@ public class ClassicConfiguration implements Configuration {
         String oracleKerberosCacheFile = props.remove(ConfigUtils.ORACLE_KERBEROS_CACHE_FILE);
         if (oracleKerberosCacheFile != null) {
             setOracleKerberosCacheFile(oracleKerberosCacheFile);
+        }
+        String oracleWalletLocationProp = props.remove(ConfigUtils.ORACLE_WALLET_LOCATION);
+        if (oracleWalletLocationProp != null) {
+            setOracleWalletLocation(oracleWalletLocationProp);
         }
         String ignoreMigrationPatternsProp = props.remove(ConfigUtils.IGNORE_MIGRATION_PATTERNS);
         if (ignoreMigrationPatternsProp != null) {

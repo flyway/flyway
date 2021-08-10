@@ -637,4 +637,11 @@ public interface Configuration {
      * @return @{code true} to fail (default: {@code false})
      */
     boolean getFailOnMissingLocations();
+
+    /**
+     * The location of your Oracle wallet, used to automatically sign in to your databases.
+     *
+     * <i>Flyway Teams only</i>
+     */
+    String getOracleWalletLocation();
 }

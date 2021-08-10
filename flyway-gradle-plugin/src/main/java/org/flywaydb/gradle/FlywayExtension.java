@@ -502,6 +502,14 @@ public class FlywayExtension {
     public Boolean oracleSqlplusWarn;
 
     /**
+     * The location of your Oracle wallet, used to automatically sign in to your databases.
+     *
+     * <i>Flyway Teams only</i>
+     * <p>Also configurable with Gradle or System Property: ${flyway.oracle.walletLocation}</p>
+     */
+    public String oracleWalletLocation;
+
+    /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
      * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
      * to try out Flyway Teams Edition features free for 30 days.

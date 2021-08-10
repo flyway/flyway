@@ -364,6 +364,11 @@ public class FluentConfiguration implements Configuration {
         return config.getFailOnMissingLocations();
     }
 
+    @Override
+    public String getOracleWalletLocation() {
+        return config.getOracleWalletLocation();
+    }
+
     /**
      * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. The stream when be closing when Flyway finishes writing the output.
@@ -1181,6 +1186,18 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration oracleKerberosCacheFile(String oracleKerberosCacheFile) {
         config.setOracleKerberosCacheFile(oracleKerberosCacheFile);
+        return this;
+    }
+
+    /**
+     * The location of your Oracle wallet, used to automatically sign in to your databases.
+     *
+     * <i>Flyway Teams only</i>
+     *
+     * @param oracleWalletLocation The path to your Oracle Wallet
+     */
+    public FluentConfiguration oracleWalletLocation(String oracleWalletLocation) {
+        config.setOracleWalletLocation(oracleWalletLocation);
         return this;
     }
 
