@@ -15,25 +15,30 @@
  */
 package org.flywaydb.core.internal.resolver;
 
-import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.parser.ParsingContext;
+
 import org.flywaydb.core.internal.resolver.java.FixedJavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.java.ScanningJavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
-
+import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
-import org.flywaydb.core.internal.util.FeatureDetector;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Facility for retrieving and sorting the available migrations from the classpath through the various migration
@@ -43,13 +48,24 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * The migration resolvers to use internally.
      */
-    private final Collection<MigrationResolver> migrationResolvers = new ArrayList<>();
+    private Collection<MigrationResolver> migrationResolvers = new ArrayList<>();
+
     /**
      * The available migrations, sorted by version, newest first. An empty list is returned when no migrations can be
      * found.
      */
     private List<ResolvedMigration> availableMigrations;
 
+    /**
+     * Creates a new CompositeMigrationResolver.
+     *
+     * @param resourceProvider         The resource provider.
+     * @param classProvider            The class provider.
+     * @param configuration            The Flyway configuration.
+     * @param sqlScriptFactory         The SQL statement builder factory.
+     * @param customMigrationResolvers Custom Migration Resolvers.
+     * @param parsingContext           The parsing context
+     */
     public CompositeMigrationResolver(ResourceProvider resourceProvider,
                                       ClassProvider<JavaMigration> classProvider,
                                       Configuration configuration,
@@ -87,9 +103,16 @@ public class CompositeMigrationResolver implements MigrationResolver {
         return availableMigrations;
     }
 
+    /**
+     * Finds all available migrations using all migration resolvers (sql, java, ...).
+     *
+     * @return The available migrations, sorted by version, oldest first. An empty list is returned when no migrations
+     * can be found.
+     * @throws FlywayException when the available migrations have overlapping versions.
+     */
     private List<ResolvedMigration> doFindAvailableMigrations(Context context) throws FlywayException {
         List<ResolvedMigration> migrations = new ArrayList<>(collectMigrations(migrationResolvers, context));
-        migrations.sort(new ResolvedMigrationComparator());
+        Collections.sort(migrations, new ResolvedMigrationComparator());
 
         checkForIncompatibilities(migrations);
 
@@ -102,6 +125,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param migrationResolvers The migration resolvers to check.
      * @return All migrations.
      */
+    /* private -> for testing */
     static Collection<ResolvedMigration> collectMigrations(Collection<MigrationResolver> migrationResolvers, Context context) {
         Set<ResolvedMigration> migrations = new HashSet<>();
         for (MigrationResolver migrationResolver : migrationResolvers) {
@@ -116,6 +140,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param migrations The migrations to check.
      * @throws FlywayException when two different migration with the same version number are found.
      */
+    /* private -> for testing */
     static void checkForIncompatibilities(List<ResolvedMigration> migrations) {
     	ResolvedMigrationComparator resolvedMigrationComparator = new ResolvedMigrationComparator();
         // check for more than one migration with same version
@@ -123,11 +148,6 @@ public class CompositeMigrationResolver implements MigrationResolver {
             ResolvedMigration current = migrations.get(i);
             ResolvedMigration next = migrations.get(i + 1);
             if (resolvedMigrationComparator.compare(current, next) == 0) {
-
-
-
-
-
                 if (current.getVersion() != null) {
                     throw new FlywayException(String.format("Found more than one migration with version %s\nOffenders:\n-> %s (%s)\n-> %s (%s)",
                             current.getVersion(),
@@ -147,4 +167,5 @@ public class CompositeMigrationResolver implements MigrationResolver {
             }
         }
     }
+
 }

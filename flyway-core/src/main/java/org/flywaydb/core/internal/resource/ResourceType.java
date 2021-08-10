@@ -20,7 +20,6 @@ public enum ResourceType {
 
 
 
-
     REPEATABLE_MIGRATION,
     CALLBACK;
 
@@ -28,11 +27,10 @@ public enum ResourceType {
      * Whether the given resource type represents a resource that is versioned.
      */
     public static boolean isVersioned(ResourceType type) {
-        return type == ResourceType.MIGRATION
+        return (type == ResourceType.MIGRATION
 
 
 
-
-                ;
+            );
     }
 }

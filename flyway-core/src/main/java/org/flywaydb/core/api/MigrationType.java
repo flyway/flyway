@@ -15,57 +15,63 @@
  */
 package org.flywaydb.core.api;
 
+/**
+ * Type of migration.
+ */
 public enum MigrationType {
     /**
      * Schema creation migration.
      */
-    SCHEMA(true, false, false),
+    SCHEMA(true, false),
+
     /**
      * Baseline migration.
      */
-    BASELINE(true, false, false),
+    BASELINE(true, false),
+
     /**
      * Deleted migration
      */
-    DELETE(true, false, false),
+    DELETE(true, false),
+
     /**
      * SQL migrations.
      */
-    SQL(false, false, false),
-    /**
-     * SQL state scripts.
-     */
-    SQL_STATE_SCRIPT(false, false, true),
+    SQL(false, false),
+
     /**
      * Undo SQL migrations.
      */
-    UNDO_SQL(false, true, false),
+    UNDO_SQL(false, true),
+
     /**
      * JDBC Java-based migrations.
      */
-    JDBC(false, false, false),
-    /**
-     * JDBC Java-based state scripts.
-     */
-    JDBC_STATE_SCRIPT(false, false, true),
+    JDBC(false, false),
+
     /**
      * Undo JDBC java-based migrations.
      */
-    UNDO_JDBC(false, true, false),
+    UNDO_JDBC(false, true),
+
     /**
      * Spring JDBC Java-based migrations.
      *
      * @deprecated Will be removed in Flyway 7.0. Use JDBC instead.
      */
     @Deprecated
-    SPRING_JDBC(false, false, false),
+    SPRING_JDBC(false, false),
+
     /**
      * Undo Spring JDBC java-based migrations.
      *
      * @deprecated Will be removed in Flyway 7.0. Use UNDO_JDBC instead.
      */
     @Deprecated
-    UNDO_SPRING_JDBC(false, true, false),
+    UNDO_SPRING_JDBC(false, true),
+
+
+
 
 
 
@@ -79,20 +85,19 @@ public enum MigrationType {
     /**
      * Migrations using custom MigrationResolvers.
      */
-    CUSTOM(false, false, false),
+    CUSTOM(false, false),
+
     /**
      * Undo migrations using custom MigrationResolvers.
      */
-    UNDO_CUSTOM(false, true, false);
+    UNDO_CUSTOM(false, true);
 
     private final boolean synthetic;
     private final boolean undo;
-    private final boolean stateScript;
 
-    MigrationType(boolean synthetic, boolean undo, boolean stateScript) {
+    MigrationType(boolean synthetic, boolean undo) {
         this.synthetic = synthetic;
         this.undo = undo;
-        this.stateScript = stateScript;
     }
 
     /**
@@ -108,13 +113,5 @@ public enum MigrationType {
      */
     public boolean isUndo() {
         return undo;
-    }
-
-    /**
-     * @return Whether this is a state script, which represents all migrations with
-     * version <= current state script version.
-     */
-    public boolean isStateScript() {
-        return stateScript;
     }
 }

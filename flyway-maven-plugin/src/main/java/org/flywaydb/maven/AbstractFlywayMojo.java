@@ -232,16 +232,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String sqlMigrationPrefix;
 
     /**
-     * The file name prefix for state scripts. (default: S)
-     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to S1.1__My_description.sql
-     * <p>Also configurable with Maven or System Property: ${flyway.stateScriptPrefix}</p>
-     * <i>Flyway Teams only</i>
-     */
-    @Parameter(property = ConfigUtils.STATE_SCRIPT_PREFIX)
-    private String stateScriptPrefix;
-
-    /**
      * The file name prefix for undo SQL migrations. (default: U)
      * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
      * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
@@ -828,7 +818,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.DETECT_ENCODING, detectEncoding);
             putIfSet(conf, ConfigUtils.LOCK_RETRY_COUNT, lockRetryCount);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix);
-            putIfSet(conf, ConfigUtils.STATE_SCRIPT_PREFIX, stateScriptPrefix);
             putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator);

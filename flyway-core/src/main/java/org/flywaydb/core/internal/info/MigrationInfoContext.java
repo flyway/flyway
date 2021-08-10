@@ -35,7 +35,6 @@ public class MigrationInfoContext {
     public MigrationVersion baseline;
     public MigrationVersion lastResolved = MigrationVersion.EMPTY;
     public MigrationVersion lastApplied = MigrationVersion.EMPTY;
-    public MigrationVersion latestStateScript = MigrationVersion.EMPTY;
     public Map<String, Integer> latestRepeatableRuns = new HashMap<>();
 
     @Override
@@ -57,6 +56,7 @@ public class MigrationInfoContext {
         if (lastApplied != null ? !lastApplied.equals(that.lastApplied) : that.lastApplied != null) return false;
         if (cherryPick != null ? !cherryPick.equals(that.cherryPick) : that.cherryPick != null) return false;
         return latestRepeatableRuns.equals(that.latestRepeatableRuns);
+
     }
 
     @Override

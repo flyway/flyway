@@ -21,7 +21,6 @@ import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
-import org.flywaydb.core.internal.util.FeatureDetector;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -168,10 +167,6 @@ public class MigrationInfoImpl implements MigrationInfo {
                 if ((resolvedMigration.getVersion().compareTo(context.lastApplied) < 0) && !context.outOfOrder) {
                     return MigrationState.IGNORED;
                 }
-                if (resolvedMigration.getVersion().compareTo(context.latestStateScript) < 0 ||
-                        (resolvedMigration.getVersion().compareTo(context.latestStateScript) == 0 && !resolvedMigration.getType().isStateScript())) {
-                        return MigrationState.IGNORED;
-                }
             }
             return MigrationState.PENDING;
         }
@@ -183,12 +178,6 @@ public class MigrationInfoImpl implements MigrationInfo {
         if (MigrationType.BASELINE == appliedMigration.getType()) {
             return MigrationState.BASELINE;
         }
-
-
-
-
-
-
 
         if (resolvedMigration == null && isRepeatableLatest()) {
 

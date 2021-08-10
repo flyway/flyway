@@ -19,6 +19,9 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 
 import java.util.Comparator;
 
+/**
+* Comparator for ResolvedMigration.
+*/
 public class ResolvedMigrationComparator implements Comparator<ResolvedMigration> {
     @Override
     public int compare(ResolvedMigration o1, ResolvedMigration o2) {

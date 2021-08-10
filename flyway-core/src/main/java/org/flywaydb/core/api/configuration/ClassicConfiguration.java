@@ -79,7 +79,6 @@ public class ClassicConfiguration implements Configuration {
     private String placeholderPrefix = "${";
     private String placeholderSuffix = "}";
     private String sqlMigrationPrefix = "V";
-    private String stateScriptPrefix = "S";
     private String undoSqlMigrationPrefix = "U";
     private String repeatableSqlMigrationPrefix = "R";
     private ResourceProvider resourceProvider = null;
@@ -216,11 +215,6 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getSqlMigrationPrefix() {
         return sqlMigrationPrefix;
-    }
-
-    @Override
-    public String getStateScriptPrefix() {
-        return stateScriptPrefix;
     }
 
     @Override
@@ -1061,25 +1055,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Sets the file name prefix for state scripts.
-     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to S1.1__My_description.sql
-     * <i>Flyway Teams only</i>
-     *
-     * @param stateScriptPrefix The file name prefix for state scripts (default: S)
-     */
-    public void setStateScriptPrefix(String stateScriptPrefix) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("stateScriptPrefix");
-
-
-
-
-
-
-    }
-
-    /**
      * Sets the file name prefix for undo SQL migrations. (default: U)
      * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
      * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
@@ -1610,7 +1585,6 @@ public class ClassicConfiguration implements Configuration {
 
 
 
-
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
         setValidateMigrationNaming(configuration.isValidateMigrationNaming());
@@ -1748,10 +1722,6 @@ public class ClassicConfiguration implements Configuration {
         String undoSqlMigrationPrefixProp = props.remove(ConfigUtils.UNDO_SQL_MIGRATION_PREFIX);
         if (undoSqlMigrationPrefixProp != null) {
             setUndoSqlMigrationPrefix(undoSqlMigrationPrefixProp);
-        }
-        String stateScriptMigrationPrefixProp = props.remove(ConfigUtils.STATE_SCRIPT_PREFIX);
-        if (stateScriptMigrationPrefixProp != null) {
-            setStateScriptPrefix(stateScriptMigrationPrefixProp);
         }
         String repeatableSqlMigrationPrefixProp = props.remove(ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX);
         if (repeatableSqlMigrationPrefixProp != null) {

@@ -136,11 +136,6 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public String getStateScriptPrefix() {
-        return config.getStateScriptPrefix();
-    }
-
-    @Override
     public String getRepeatableSqlMigrationPrefix() {
         return config.getRepeatableSqlMigrationPrefix();
     }
@@ -826,19 +821,6 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration sqlMigrationPrefix(String sqlMigrationPrefix) {
         config.setSqlMigrationPrefix(sqlMigrationPrefix);
-        return this;
-    }
-
-    /**
-     * Sets the file name prefix for state scripts.
-     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to S1.1__My_description.sql
-     * <i>Flyway Teams only</i>
-     *
-     * @param stateScriptPrefix The file name prefix for state scripts (default: S)
-     */
-    public FluentConfiguration stateScriptPrefix(String stateScriptPrefix) {
-        config.setStateScriptPrefix(stateScriptPrefix);
         return this;
     }
 
