@@ -707,6 +707,18 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     protected DaprConfiguration daprConfiguration;
 
     /**
+     * The configuration for Google Cloud Secret Manager.
+     * You will need to configure the following fields:
+     * <ul>
+     *  <li>gcsmProject: The Project which contains your secrets - https://flywaydb.org/documentation/configuration/parameters/gcsmProject</li>
+     *  <li>gcsmSecrets: A list of secrets in GCSM that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/gcsmSecrets</li>
+     * </ul>
+     * <i>Flyway Teams only</i>
+     */
+    @Parameter
+    protected GcsmConfiguration gcsmConfiguration;
+
+    /**
      * Reference to the current project that includes the Flyway Maven plugin.
      */
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
@@ -877,6 +889,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             }
             if (daprConfiguration != null) {
                 daprConfiguration.extract(conf);
+            }
+            if (gcsmConfiguration != null) {
+                gcsmConfiguration.extract(conf);
             }
 
             conf.putAll(ConfigUtils.propertiesToMap(mavenProject.getProperties()));

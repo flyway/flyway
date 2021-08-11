@@ -16,6 +16,7 @@
 package org.flywaydb.gradle;
 
 import org.flywaydb.gradle.task.DaprConfiguration;
+import org.flywaydb.gradle.task.GcsmConfiguration;
 import org.flywaydb.gradle.task.VaultConfiguration;
 
 import java.util.Map;
@@ -565,4 +566,15 @@ public class FlywayExtension {
      * <i>Flyway Teams only</i>
      */
     public DaprConfiguration daprConfiguration;
+
+    /**
+     * The configuration for Google Cloud Secret Manager.
+     * You will need to configure the following fields:
+     * <ul>
+     *  <li>gcsmProject: The Project which contains your secrets - https://flywaydb.org/documentation/configuration/parameters/gcsmProject</li>
+     *  <li>gcsmSecrets: A list of secrets in GCSM that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/gcsmSecrets</li>
+     * </ul>
+     * <i>Flyway Teams only</i>
+     */
+    public GcsmConfiguration gcsmConfiguration;
 }

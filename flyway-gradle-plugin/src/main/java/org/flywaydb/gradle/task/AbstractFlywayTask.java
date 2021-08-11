@@ -598,6 +598,17 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     public DaprConfiguration daprConfiguration;
 
+    /**
+     * The configuration for Google Cloud Secret Manager.
+     * You will need to configure the following fields:
+     * <ul>
+     *  <li>gcsmProject: The Project which contains your secrets - https://flywaydb.org/documentation/configuration/parameters/gcsmProject</li>
+     *  <li>gcsmSecrets: A list of secrets in GCSM that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/gcsmSecrets</li>
+     * </ul>
+     * <i>Flyway Teams only</i>
+     */
+    public GcsmConfiguration gcsmConfiguration;
+
     public AbstractFlywayTask() {
         super();
         setGroup("Flyway");
@@ -801,8 +812,17 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         if (vaultConfiguration != null){
             vaultConfiguration.extract(conf);
         }
+        if (extension.daprConfiguration != null) {
+            extension.daprConfiguration.extract(conf);
+        }
         if (daprConfiguration != null){
             daprConfiguration.extract(conf);
+        }
+        if (extension.gcsmConfiguration != null) {
+            extension.gcsmConfiguration.extract(conf);
+        }
+        if (gcsmConfiguration != null) {
+            gcsmConfiguration.extract(conf);
         }
 
         addConfigFromProperties(conf, getProject().getProperties());
