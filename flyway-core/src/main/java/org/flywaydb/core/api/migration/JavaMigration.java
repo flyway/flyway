@@ -48,9 +48,7 @@ public interface JavaMigration {
     String getDescription();
 
     /**
-     * Computes the checksum of the migration.
-     *
-     * @return The checksum of the migration.
+     * @return The checksum of this migration.
      */
     Integer getChecksum();
 
@@ -62,7 +60,14 @@ public interface JavaMigration {
     boolean isUndo();
 
     /**
-     * Whether the execution should take place inside a transaction. Almost all implementation should return {@code true}.
+     * Whether this is a state script.
+     *
+     * @return {@code true} if it is, {@code false} if not.
+     */
+    boolean isStateScript();
+
+    /**
+     * Whether the execution should take place inside a transaction. Almost all implementations should return {@code true}.
      * This however makes it possible to execute certain migrations outside a transaction. This is useful for databases
      * like PostgreSQL and SQL Server where certain statement can only execute outside a transaction.
      *

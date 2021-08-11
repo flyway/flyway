@@ -105,6 +105,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
         Map<Pair<MigrationVersion, Boolean>, ResolvedMigration> resolvedVersioned = new TreeMap<>();
         Map<String, ResolvedMigration> resolvedRepeatable = new TreeMap<>();
+        ResolvedMigration pendingStateScript = null;
+        AppliedMigration appliedStateScript = null;
 
         // Separate resolved migrations into versioned and repeatable
         for (ResolvedMigration resolvedMigration : resolvedMigrations) {
@@ -113,12 +115,19 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 if (version.compareTo(context.lastResolved) > 0) {
                     context.lastResolved = version;
                 }
-                //noinspection RedundantConditionalExpression
-                resolvedVersioned.put(Pair.of(version,
+                if (resolvedMigration.getType().isStateScript() && version.compareTo(context.latestStateScript) > 0) {
 
 
 
-                                false), resolvedMigration);
+
+                } else {
+                    //noinspection RedundantConditionalExpression
+                    resolvedVersioned.put(Pair.of(version,
+
+
+
+                            false), resolvedMigration);
+                }
             } else {
                 resolvedRepeatable.put(resolvedMigration.getDescription(), resolvedMigration);
             }
@@ -183,8 +192,14 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
         // Update last applied and out of order states
         for (Pair<AppliedMigration, AppliedMigrationAttributes> av : appliedVersioned) {
-            MigrationVersion version = av.getLeft().getVersion();
+            AppliedMigration appliedMigration = av.getLeft();
+            MigrationVersion version = appliedMigration.getVersion();
             if (version != null) {
+
+
+
+
+
                 if (version.compareTo(context.lastApplied) > 0) {
                     if (av.getLeft().getType() != MigrationType.DELETE && !av.getRight().deleted
 
@@ -198,6 +213,16 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 }
             }
         }
+
+
+
+
+
+
+
+
+
+
 
         // Set target
         if (MigrationVersion.CURRENT == target) {
@@ -226,7 +251,14 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
         // Add all pending migrations to output list
         for (ResolvedMigration prv : pendingResolvedVersioned) {
+            if (prv.getVersion().compareTo(context.latestStateScript) <= 0) {
+                continue;
+            }
             migrationInfos1.add(new MigrationInfoImpl(prv, null, context, false, false, false));
+        }
+
+        if (pendingStateScript != null) {
+            migrationInfos1.add(new MigrationInfoImpl(pendingStateScript, null, context, false, false, false));
         }
 
         if (configuration.getFailOnMissingTarget() &&

@@ -27,11 +27,12 @@ import org.flywaydb.core.internal.util.Pair;
  * <li><strong>Versioned Migrations:</strong> V2__Add_new_table</li>
  * <li><strong>Undo Migrations:</strong> U2__Add_new_table</li>
  * <li><strong>Repeatable Migrations:</strong> R__Add_new_table</li>
+ * <li><strong>State scripts:</strong> S2__Add_new_table</li>
  * </ul>
  *
  * <p>The file name consists of the following parts:</p>
  * <ul>
- * <li><strong>Prefix:</strong> V for versioned migrations, U for undo migrations, R for repeatable migrations</li>
+ * <li><strong>Prefix:</strong> V for versioned migrations, U for undo migrations, R for repeatable migrations, S for state scripts</li>
  * <li><strong>Version:</strong> Underscores (automatically replaced by dots at runtime) separate as many parts as you like (Not for repeatable migrations)</li>
  * <li><strong>Separator:</strong> __ (two underscores)</li>
  * <li><strong>Description:</strong> Underscores (automatically replaced by spaces at runtime) separate the words</li>
@@ -47,31 +48,38 @@ public abstract class BaseJavaMigration implements JavaMigration {
 
 
 
+
     /**
      * Creates a new instance of a Java-based migration following Flyway's default naming convention.
      */
     public BaseJavaMigration() {
         String shortName = getClass().getSimpleName();
-        String prefix;
+        String prefix = null;
+
+
 
 
 
         boolean repeatable = shortName.startsWith("R");
-        if (shortName.startsWith("V") || repeatable
 
 
 
-        ) {
+
+
+
+
+        if (shortName.startsWith("V") || repeatable) {
             prefix = shortName.substring(0, 1);
-        } else {
-            throw new FlywayException("Invalid Java-based migration class name: " + getClass().getName()
-                    + " => ensure it starts with V" +
+        }
+        if (prefix == null) {
+            throw new FlywayException("Invalid Java-based migration class name: " + getClass().getName() +
+                    " => ensure it starts with V, R" +
 
 
 
-                    " or R," +
                     " or implement org.flywaydb.core.api.migration.JavaMigration directly for non-default naming");
         }
+
         Pair<MigrationVersion, String> info =
                 MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", new String[]{""}, repeatable);
         version = info.getLeft();
@@ -95,6 +103,16 @@ public abstract class BaseJavaMigration implements JavaMigration {
 
     @Override
     public boolean isUndo() {
+
+
+
+
+        return false;
+
+    }
+
+    @Override
+    public boolean isStateScript() {
 
 
 

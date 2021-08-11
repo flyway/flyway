@@ -167,6 +167,10 @@ public class MigrationInfoImpl implements MigrationInfo {
                 if ((resolvedMigration.getVersion().compareTo(context.lastApplied) < 0) && !context.outOfOrder) {
                     return MigrationState.IGNORED;
                 }
+                if (resolvedMigration.getVersion().compareTo(context.latestStateScript) < 0 ||
+                        (resolvedMigration.getVersion().compareTo(context.latestStateScript) == 0 && !resolvedMigration.getType().isStateScript())) {
+                        return MigrationState.IGNORED;
+                }
             }
             return MigrationState.PENDING;
         }
@@ -178,6 +182,12 @@ public class MigrationInfoImpl implements MigrationInfo {
         if (MigrationType.BASELINE == appliedMigration.getType()) {
             return MigrationState.BASELINE;
         }
+
+
+
+
+
+
 
         if (resolvedMigration == null && isRepeatableLatest()) {
 

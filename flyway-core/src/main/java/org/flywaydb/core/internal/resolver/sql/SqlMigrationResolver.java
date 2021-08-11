@@ -78,6 +78,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
+
         addMigrations(migrations, configuration.getRepeatableSqlMigrationPrefix(), suffixes,
                 true
 
@@ -174,7 +175,8 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-                            MigrationType.SQL,
+
+                    MigrationType.SQL,
                     resource.getAbsolutePathOnDisk(),
                     new SqlMigrationExecutor(sqlScriptExecutorFactory, sqlScript
 

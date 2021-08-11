@@ -20,9 +20,6 @@ import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.ClassUtils;
 
-/**
- * A resolved Java migration.
- */
 public class ResolvedJavaMigration extends ResolvedMigrationImpl {
     /**
      * Creates a new ResolvedJavaMigration based on this JavaMigration.
@@ -38,7 +35,8 @@ public class ResolvedJavaMigration extends ResolvedMigrationImpl {
 
 
 
-                        MigrationType.JDBC,
+
+                MigrationType.JDBC,
                 ClassUtils.getLocationOnDisk(javaMigration.getClass()),
                 new JavaMigrationExecutor(javaMigration)
         );
