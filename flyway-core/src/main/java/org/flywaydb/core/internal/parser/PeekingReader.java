@@ -276,8 +276,8 @@ public class PeekingReader extends FilterReader {
      * @param delimiter  The delimiting character.
      * @param selfEscape Whether the delimiter can escape itself by being present twice.
      */
-    public void swallowUntilExcludingWithEscape(char delimiter, boolean selfEscape) throws IOException {
-        swallowUntilExcludingWithEscape(delimiter, selfEscape, (char) 0);
+    public void swallowUntilIncludingWithEscape(char delimiter, boolean selfEscape) throws IOException {
+        swallowUntilIncludingWithEscape(delimiter, selfEscape, (char) 0);
     }
 
     /**
@@ -288,7 +288,7 @@ public class PeekingReader extends FilterReader {
      * @param selfEscape Whether the delimiter can escape itself by being present twice.
      * @param escape     A separate escape character.
      */
-    public void swallowUntilExcludingWithEscape(char delimiter, boolean selfEscape, char escape) throws IOException {
+    public void swallowUntilIncludingWithEscape(char delimiter, boolean selfEscape, char escape) throws IOException {
         do {
             int r = read();
             if (r == -1) {

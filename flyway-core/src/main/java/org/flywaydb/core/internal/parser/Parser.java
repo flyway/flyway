@@ -537,12 +537,12 @@ public abstract class Parser {
         }
         if (peek.startsWith("B'") || peek.startsWith("E'") || peek.startsWith("X'")) {
             reader.swallow(2);
-            reader.swallowUntilExcludingWithEscape('\'', true, '\\');
+            reader.swallowUntilIncludingWithEscape('\'', true, '\\');
             return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
         }
         if (peek.startsWith("U&'")) {
             reader.swallow(3);
-            reader.swallowUntilExcludingWithEscape('\'', true);
+            reader.swallowUntilIncludingWithEscape('\'', true);
             return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
         }
         if (isDelimiter(peek, context, col, colIgnoringWhitepace)) {
@@ -670,7 +670,7 @@ public abstract class Parser {
 
     protected Token handleStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
         reader.swallow();
-        reader.swallowUntilExcludingWithEscape('\'', true);
+        reader.swallowUntilIncludingWithEscape('\'', true);
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 

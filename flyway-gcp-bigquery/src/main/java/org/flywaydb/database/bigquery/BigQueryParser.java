@@ -38,7 +38,7 @@ public class BigQueryParser extends Parser {
         // https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#reserved_keywords
         return new HashSet<>(Arrays.asList(
                 "ALL", "AND", "ANY", "ARRAY", "AS", "ASC", "ASSERT_ROWS_MODIFIED", "AT",
-                "BETWEEN", "BY",
+                "BEGIN", "BETWEEN", "BY",
                 "CASE", "CAST", "COLLATE", "CONTAINS", "CREATE", "CROSS", "CUBE", "CURRENT",
                 "DEFAULT", "DEFINE", "DESC", "DISTINCT",
                 "ELSE", "END", "ENUM", "ESCAPE", "EXCEPT", "EXCLUDE", "EXISTS", "EXTRACT",
@@ -106,8 +106,17 @@ public class BigQueryParser extends Parser {
             reader.swallow(tripleQuote.length());
         } else {
             reader.swallow();
-            reader.swallowUntilExcludingWithEscape(singleQuote, false, '\\');
-            reader.swallow();
+            reader.swallowUntilIncludingWithEscape(singleQuote, false, '\\');
+        }
+    }
+
+    @Override
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
+        String keywordText = keyword.getText();
+        if ("BEGIN".equalsIgnoreCase(keywordText)) {
+            context.increaseBlockDepth(keywordText);
+        } else if ("END".equalsIgnoreCase(keywordText) && context.getBlockDepth() > 0) {
+            context.decreaseBlockDepth();
         }
     }
 }
