@@ -62,7 +62,7 @@ done
 set -- "${POSITIONAL[@]}"
 if [ -z "$FLYWAY_EDITION" ]; then
   CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/enterprise/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/gcp/*"
-  "$JAVA_CMD" $JAVA_ARGS $EXTRA_ARGS -cp "$CP" org.flywaydb.commandline.Main "$@" -checkLicence >/dev/null 2>/dev/null
+  "$JAVA_CMD" $JAVA_ARGS $EXTRA_ARGS -cp "$CP" org.flywaydb.commandline.Main "$@" -checkLicence -n >/dev/null 2>/dev/null
   ERROR_LEVEL=$?
   if [ $ERROR_LEVEL -eq 101 ]; then
     echo "----------------------------------------"
