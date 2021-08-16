@@ -236,6 +236,16 @@ public class FlywayExtension {
     public String placeholderSuffix;
 
     /**
+     * The prefix of every script placeholder.
+     */
+    public String scriptPlaceholderPrefix;
+
+    /**
+     * The suffix of every script placeholder.
+     */
+    public String scriptPlaceholderSuffix;
+
+    /**
      * The target version up to which Flyway should consider migrations.
      * Migrations with a higher version number will be ignored.
      * Special values:

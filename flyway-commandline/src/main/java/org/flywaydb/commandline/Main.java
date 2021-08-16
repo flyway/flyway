@@ -415,6 +415,8 @@ public class Main {
         LOG.info("placeholders                 : Placeholders to replace in sql migrations");
         LOG.info("placeholderPrefix            : Prefix of every placeholder");
         LOG.info("placeholderSuffix            : Suffix of every placeholder");
+        LOG.info("scriptPlaceholderPrefix      : Prefix of every script placeholder");
+        LOG.info("scriptPlaceholderSuffix      : Suffix of every script placeholder");
         LOG.info("lockRetryCount               : The maximum number of retries when trying to obtain a lock");
         LOG.info("jdbcProperties               : Properties to pass to the JDBC driver object");
         LOG.info("installedBy                  : Username that will be recorded in the schema history table");

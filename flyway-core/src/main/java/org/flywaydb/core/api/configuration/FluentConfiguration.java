@@ -131,6 +131,16 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public String getScriptPlaceholderPrefix() {
+        return config.getScriptPlaceholderPrefix();
+    }
+
+    @Override
+    public String getScriptPlaceholderSuffix() {
+        return config.getScriptPlaceholderSuffix();
+    }
+
+    @Override
     public String getSqlMigrationPrefix() {
         return config.getSqlMigrationPrefix();
     }
@@ -814,6 +824,27 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration placeholderSuffix(String placeholderSuffix) {
         config.setPlaceholderSuffix(placeholderSuffix);
+        return this;
+    }
+
+
+    /**
+     * Sets the prefix of every script placeholder.
+     *
+     * @param scriptPlaceholderPrefix The prefix of every placeholder. (default: FP__ )
+     */
+    public FluentConfiguration scriptPlaceholderPrefix(String scriptPlaceholderPrefix) {
+        config.setScriptPlaceholderPrefix(scriptPlaceholderPrefix);
+        return this;
+    }
+
+    /**
+     * Sets the suffix of every script placeholder.
+     *
+     * @param scriptPlaceholderSuffix The suffix of every script placeholder. (default: __ )
+     */
+    public FluentConfiguration scriptPlaceholderSuffix(String scriptPlaceholderSuffix) {
+        config.setScriptPlaceholderSuffix(scriptPlaceholderSuffix);
         return this;
     }
 

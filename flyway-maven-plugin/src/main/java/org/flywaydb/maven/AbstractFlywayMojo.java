@@ -463,6 +463,18 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String placeholderSuffix;
 
     /**
+     * The prefix of every script placeholder. (default: FP__ )
+     */
+    @Parameter(property = ConfigUtils.SCRIPT_PLACEHOLDER_PREFIX)
+    private String scriptPlaceholderPrefix;
+
+    /**
+     * The suffix of every script placeholder. (default: __ )
+     */
+    @Parameter(property = ConfigUtils.SCRIPT_PLACEHOLDER_SUFFIX)
+    private String scriptPlaceholderSuffix;
+
+    /**
      * An array of FlywayCallback implementations. (default: empty )
      * <p>Also configurable with Maven or System Property: ${flyway.callbacks}</p>
      */
@@ -864,6 +876,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_SUFFIX, placeholderSuffix);
+            putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_PREFIX, scriptPlaceholderPrefix);
+            putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_SUFFIX, scriptPlaceholderSuffix);
             putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate);
             putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate);
             putIfSet(conf, ConfigUtils.DRIVER, driver);

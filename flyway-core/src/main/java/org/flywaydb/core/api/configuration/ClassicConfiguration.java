@@ -78,6 +78,8 @@ public class ClassicConfiguration implements Configuration {
     private Map<String, String> placeholders = new HashMap<>();
     private String placeholderPrefix = "${";
     private String placeholderSuffix = "}";
+    private String scriptPlaceholderPrefix = "FP__";
+    private String scriptPlaceholderSuffix = "__";
     private String sqlMigrationPrefix = "V";
     private String stateScriptPrefix = "S";
     private String undoSqlMigrationPrefix = "U";
@@ -211,6 +213,16 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getPlaceholderSuffix() {
         return placeholderSuffix;
+    }
+
+    @Override
+    public String getScriptPlaceholderPrefix() {
+        return scriptPlaceholderPrefix;
+    }
+
+    @Override
+    public String getScriptPlaceholderSuffix() {
+        return scriptPlaceholderSuffix;
     }
 
     @Override
@@ -1038,6 +1050,18 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Sets the prefix of every script placeholder.
+     *
+     * @param scriptPlaceholderPrefix The prefix of every placeholder. (default: FP__ )
+     */
+    public void setScriptPlaceholderPrefix(String scriptPlaceholderPrefix) {
+        if (!StringUtils.hasLength(scriptPlaceholderPrefix)) {
+            throw new FlywayException("scriptPlaceholderPrefix cannot be empty!", ErrorCode.CONFIGURATION);
+        }
+        this.scriptPlaceholderPrefix = scriptPlaceholderPrefix;
+    }
+
+    /**
      * Sets the suffix of every placeholder.
      *
      * @param placeholderSuffix The suffix of every placeholder. (default: } )
@@ -1049,6 +1073,17 @@ public class ClassicConfiguration implements Configuration {
         this.placeholderSuffix = placeholderSuffix;
     }
 
+    /**
+     * Sets the suffix of every placeholder.
+     *
+     * @param scriptPlaceholderSuffix The suffix of every placeholder. (default: __ )
+     */
+    public void setScriptPlaceholderSuffix(String scriptPlaceholderSuffix) {
+        if (!StringUtils.hasLength(scriptPlaceholderSuffix)) {
+            throw new FlywayException("scriptPlaceholderSuffix cannot be empty!", ErrorCode.CONFIGURATION);
+        }
+        this.scriptPlaceholderSuffix = scriptPlaceholderSuffix;
+    }
     /**
      * Sets the file name prefix for sql migrations.
      * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
@@ -1625,6 +1660,8 @@ public class ClassicConfiguration implements Configuration {
         setPlaceholderReplacement(configuration.isPlaceholderReplacement());
         setPlaceholders(configuration.getPlaceholders());
         setPlaceholderSuffix(configuration.getPlaceholderSuffix());
+        setScriptPlaceholderPrefix(configuration.getScriptPlaceholderPrefix());
+        setScriptPlaceholderSuffix(configuration.getScriptPlaceholderSuffix());
         setRepeatableSqlMigrationPrefix(configuration.getRepeatableSqlMigrationPrefix());
         setResolvers(configuration.getResolvers());
         setDefaultSchema(configuration.getDefaultSchema());
@@ -1738,6 +1775,14 @@ public class ClassicConfiguration implements Configuration {
         String placeholderSuffixProp = props.remove(ConfigUtils.PLACEHOLDER_SUFFIX);
         if (placeholderSuffixProp != null) {
             setPlaceholderSuffix(placeholderSuffixProp);
+        }
+        String scriptPlaceholderPrefixProp = props.remove(ConfigUtils.SCRIPT_PLACEHOLDER_PREFIX);
+        if (scriptPlaceholderPrefixProp != null) {
+            setScriptPlaceholderPrefix(scriptPlaceholderPrefixProp);
+        }
+        String scriptPlaceholderSuffixProp = props.remove(ConfigUtils.SCRIPT_PLACEHOLDER_SUFFIX);
+        if (scriptPlaceholderSuffixProp != null) {
+            setScriptPlaceholderSuffix(scriptPlaceholderSuffixProp);
         }
         String sqlMigrationPrefixProp = props.remove(ConfigUtils.SQL_MIGRATION_PREFIX);
         if (sqlMigrationPrefixProp != null) {

@@ -223,6 +223,21 @@ public interface Configuration {
      */
     String getPlaceholderPrefix();
 
+
+    /**
+     * Retrieves the suffix of every script placeholder.
+     *
+     * @return The suffix of every script placeholder. (default: __ )
+     */
+    String getScriptPlaceholderSuffix();
+
+    /**
+     * Retrieves the prefix of every script placeholder.
+     *
+     * @return The prefix of every script placeholder. (default: FP__ )
+     */
+    String getScriptPlaceholderPrefix();
+
     /**
      * Retrieves the map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      *

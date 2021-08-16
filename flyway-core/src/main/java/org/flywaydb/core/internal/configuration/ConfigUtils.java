@@ -69,6 +69,8 @@ public class ConfigUtils {
     public static final String PLACEHOLDER_PREFIX = "flyway.placeholderPrefix";
     public static final String PLACEHOLDER_REPLACEMENT = "flyway.placeholderReplacement";
     public static final String PLACEHOLDER_SUFFIX = "flyway.placeholderSuffix";
+    public static final String SCRIPT_PLACEHOLDER_PREFIX = "flyway.scriptPlaceholderPrefix";
+    public static final String SCRIPT_PLACEHOLDER_SUFFIX = "flyway.scriptPlaceholderSuffix";
     public static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
     public static final String LOCK_RETRY_COUNT = "flyway.lockRetryCount";
     public static final String JDBC_PROPERTIES_PREFIX = "flyway.jdbcProperties.";
@@ -233,6 +235,12 @@ public class ConfigUtils {
         }
         if ("FLYWAY_PLACEHOLDER_SUFFIX".equals(key)) {
             return PLACEHOLDER_SUFFIX;
+        }
+        if ("FLYWAY_SCRIPT_PLACEHOLDER_PREFIX".equals(key)) {
+            return SCRIPT_PLACEHOLDER_PREFIX;
+        }
+        if ("FLYWAY_SCRIPT_PLACEHOLDER_SUFFIX".equals(key)) {
+            return SCRIPT_PLACEHOLDER_SUFFIX;
         }
         if (key.matches("FLYWAY_PLACEHOLDERS_.+")) {
             return PLACEHOLDERS_PROPERTY_PREFIX + key.substring("FLYWAY_PLACEHOLDERS_".length()).toLowerCase(Locale.ENGLISH);
