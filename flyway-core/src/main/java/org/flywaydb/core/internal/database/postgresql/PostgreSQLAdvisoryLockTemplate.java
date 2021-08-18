@@ -69,7 +69,8 @@ public class PostgreSQLAdvisoryLockTemplate {
             lock();
             return callable.call();
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to acquire PostgreSQL advisory lock", e);
+            rethrow = new FlywaySqlException("Unable to acquire PostgreSQL advisory lock", e);
+            throw rethrow;
         } catch (Exception e) {
             if (e instanceof RuntimeException) {
                 rethrow = (RuntimeException) e;
