@@ -49,7 +49,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
      * @param database     The database-specific support.
      * @param name         The name of the schema.
      */
-    CockroachDBSchema(JdbcTemplate jdbcTemplate, CockroachDBDatabase database, String name) {
+    public CockroachDBSchema(JdbcTemplate jdbcTemplate, CockroachDBDatabase database, String name) {
         super(jdbcTemplate, database, name);
         cockroachDB1 = !database.getVersion().isAtLeast("2");
         hasSchemaSupport = database.supportsSchemas();
