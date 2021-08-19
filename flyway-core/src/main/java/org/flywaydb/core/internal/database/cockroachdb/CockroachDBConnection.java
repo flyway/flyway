@@ -33,7 +33,7 @@ import java.util.Arrays;
 public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
     private static final Log LOG = LogFactory.getLog(CockroachDBConnection.class);
 
-    CockroachDBConnection(CockroachDBDatabase database, java.sql.Connection connection) {
+    protected CockroachDBConnection(CockroachDBDatabase database, java.sql.Connection connection) {
         super(database, connection);
     }
 
