@@ -284,6 +284,10 @@ public class DriverDataSource implements DataSource {
             return "com.edb.Driver";
         }
 
+        if (url.startsWith("jdbc:phoenix:thin")) {
+            return "org.apache.phoenix.queryserver.client.Driver";
+        }
+
         if (url.startsWith("jdbc:phoenix")) {
             return "org.apache.phoenix.jdbc.PhoenixDriver";
         }

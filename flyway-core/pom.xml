@@ -38,7 +38,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>0-SNAPSHOT</version>
+        <version>4.0.32</version>
     </parent>
     <artifactId>flyway-core</artifactId>
     <packaging>jar</packaging>
@@ -183,6 +183,11 @@
         <dependency>
             <groupId>org.apache.phoenix</groupId>
             <artifactId>phoenix-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.calcite.avatica</groupId>
+            <artifactId>avatica</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

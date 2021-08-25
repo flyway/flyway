@@ -139,6 +139,11 @@ public class DbSupportFactory {
             // Therefore no vendor string in search criteria
             return new SolidDbSupport(connection);
         }
+
+        if (databaseProductName.startsWith("Apache Phoenix")) {
+            return new PhoenixDbSupport(connection);
+        }
+
         if (databaseProductName.startsWith("Phoenix")) {
             return new PhoenixDbSupport(connection);
         }

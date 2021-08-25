@@ -138,6 +138,8 @@ public class SqlScript {
             try {
                 if (sqlStatement.isPgCopy()) {
                     dbSupport.executePgCopy(jdbcTemplate.getConnection(), sql);
+                } else if (dbSupport.getDbName() == "phoenix"){
+                    jdbcTemplate.executePhoenixStatement(sql);
                 } else {
                     jdbcTemplate.executeStatement(sql);
                 }

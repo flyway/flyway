@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -221,7 +221,7 @@ public abstract class MemSQLMigrationTestCase extends MigrationTestCase {
         jdbcTemplate.execute("CREATE INDEX `schema_version_s_idx` ON `schema_version` (`success`)");
     }
 
-    private void insertIntoFlyway3MetadataTable(JdbcTemplate jdbcTemplate, int versionRank, int installedRank, String version, String description, String type, String script, Integer checksum, String installedBy,
+    /*private void insertIntoFlyway3MetadataTable(JdbcTemplate jdbcTemplate, int versionRank, int installedRank, String version, String description, String type, String script, Integer checksum, String installedBy,
                                                 int executionTime, boolean success) throws SQLException {
         jdbcTemplate.execute("INSERT INTO " + dbSupport.quote("schema_version")
                         + " (" + dbSupport.quote("version_rank")
@@ -299,15 +299,15 @@ public abstract class MemSQLMigrationTestCase extends MigrationTestCase {
         assertEquals("0", migrationInfos[0].getVersion().toString());
 
         assertEquals("2.0", flyway.info().current().getVersion().toString());
-    }
+    }*/
 
     /**
      * Compares the DB checksum to the classpath checksum of this migration.
      *
      * @param migrationInfo
      *            The migration to check.
-     */
-    protected void assertChecksum(MigrationInfo migrationInfo) {
+     **/
+    /*protected void assertChecksum(MigrationInfo migrationInfo) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
                 dbSupport, new Scanner(Thread.currentThread().getContextClassLoader()),
                 new Location("migration/dbsupport/memsql/sql/others"),
@@ -476,5 +476,5 @@ public abstract class MemSQLMigrationTestCase extends MigrationTestCase {
             }
 
         }
-    }
+    }*/
 }

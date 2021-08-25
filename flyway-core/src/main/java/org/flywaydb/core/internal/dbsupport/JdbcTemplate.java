@@ -291,6 +291,36 @@ public class JdbcTemplate {
     }
 
     /**
+     * Executes this sql statement using an ordinary Statement for Phoenix thin client.
+     *
+     * @param sql The statement to execute.
+     * @throws SQLException when the execution failed.
+     */
+    public void executePhoenixStatement(String sql) throws SQLException {
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            boolean hasResults = false;
+            try {
+                hasResults = statement.execute(sql);
+            } finally {
+                @SuppressWarnings("ThrowableResultOfMethodCallIgnored") SQLWarning warning = statement.getWarnings();
+                while (warning != null) {
+                    if ("00000".equals(warning.getSQLState())) {
+                        LOG.info("DB: " + warning.getMessage());
+                    } else {
+                        LOG.warn("DB: " + warning.getMessage()
+                                + " (SQL State: " + warning.getSQLState() + " - Error Code: " + warning.getErrorCode() + ")");
+                    }
+                    warning = warning.getNextWarning();
+                }
+            }
+        } finally {
+            JdbcUtils.closeStatement(statement);
+        }
+    }
+
+    /**
      * Executes this update sql statement.
      *
      * @param sql    The statement to execute.
