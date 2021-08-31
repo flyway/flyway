@@ -42,7 +42,7 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT (SELECT 1 FROM information_schema.schemata WHERE schema_name=? LIMIT 1)", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT 1 FROM information_schema.schemata WHERE schema_name=? LIMIT 1", name) > 0;
     }
 
     @Override
