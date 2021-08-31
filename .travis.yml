@@ -10,4 +10,4 @@ env:
 install: skip
 
 script:
-  - docker run -it --rm -v "$PWD":/usr/src/flyway -w /usr/src/flyway maven:3-jdk-$JDK_VERSION mvn install -e
+  - docker run -it --rm -v "$PWD":/usr/src/flyway -w /usr/src/flyway maven:3-jdk-$JDK_VERSION mvn -T 1C install -e
