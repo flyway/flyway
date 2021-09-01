@@ -25,24 +25,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * MySQL implementation of Schema.
- */
 public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
-    /**
-     * Creates a new MySQL schema.
-     *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
-     */
+
     MySQLSchema(JdbcTemplate jdbcTemplate, MySQLDatabase database, String name) {
         super(jdbcTemplate, database, name);
     }
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT (SELECT 1 FROM information_schema.schemata WHERE schema_name=? LIMIT 1)", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(1) FROM information_schema.schemata WHERE schema_name=? LIMIT 1", name) > 0;
     }
 
     @Override
@@ -104,12 +95,6 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
         }
     }
 
-    /**
-     * Generate the statements to clean the events in this schema.
-     *
-     * @return The list of statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
     private List<String> cleanEvents() throws SQLException {
         List<String> eventNames =
                 jdbcTemplate.queryForStringList(
@@ -123,12 +108,6 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
         return statements;
     }
 
-    /**
-     * Generate the statements to clean the routines in this schema.
-     *
-     * @return The list of statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
     private List<String> cleanRoutines() throws SQLException {
         List<Map<String, String>> routineNames =
                 jdbcTemplate.queryForList(
@@ -144,12 +123,6 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
         return statements;
     }
 
-    /**
-     * Generate the statements to clean the views in this schema.
-     *
-     * @return The list of statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
     private List<String> cleanViews() throws SQLException {
         List<String> viewNames =
                 jdbcTemplate.queryForStringList(
@@ -162,12 +135,6 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
         return statements;
     }
 
-    /**
-     * Generate the statements to clean the sequences in this schema.
-     *
-     * @return The list of statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
     private List<String> cleanSequences() throws SQLException {
         List<String> names =
                 jdbcTemplate.queryForStringList(
