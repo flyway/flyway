@@ -48,7 +48,7 @@ public class BigQueryParser extends Parser {
                 "IF", "IGNORE", "IN", "INNER",
                 "INTERSECT", "INTERVAL", "INTO", "IS",
                 "JOIN",
-                "LATERAL", "LEFT", "LIKE", "LIMIT", "LOOKUP",
+                "LATERAL", "LEFT", "LIKE", "LIMIT", "LOOKUP", "LOOP",
                 "MERGE",
                 "NATURAL", "NEW", "NO",
                 "NOT", "NULL", "NULLS",
@@ -57,9 +57,9 @@ public class BigQueryParser extends Parser {
                 "PARTITION", "PRECEDING", "PROTO",
                 "RANGE", "RECURSIVE", "RESPECT", "RIGHT", "ROLLUP", "ROWS",
                 "SELECT", "SET", "SOME", "STRUCT",
-                "TABLESAMPLE", "THEN", "TO", "TREAT", "TRUE",
+                "TABLESAMPLE", "THEN", "TO", "TRANSACTION", "TREAT", "TRUE",
                 "UNBOUNDED", "UNION", "UNNEST", "USING",
-                "WHEN", "WHERE", "WINDOW", "WITH", "WITHIN"
+                "WHEN", "WHERE", "WHILE", "WINDOW", "WITH", "WITHIN"
         ));
     }
 
@@ -111,11 +111,38 @@ public class BigQueryParser extends Parser {
     }
 
     @Override
+    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
+        TokenType tokenType = token.getType();
+        if (TokenType.EOF.equals(tokenType) || TokenType.DELIMITER.equals(tokenType) || ";".equals(token.getText())) {
+            return true;
+        }
+
+        Token lastToken = getPreviousToken(tokens, context.getParensDepth());
+        if (lastToken != null && lastToken.getType() == TokenType.KEYWORD) {
+            return true;
+        }
+
+        return super.shouldAdjustBlockDepth(context, tokens, token);
+    }
+
+    @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
         String keywordText = keyword.getText();
+        int parensDepth = keyword.getParensDepth();
+
         if ("BEGIN".equalsIgnoreCase(keywordText)) {
             context.increaseBlockDepth(keywordText);
-        } else if ("END".equalsIgnoreCase(keywordText) && context.getBlockDepth() > 0) {
+        }
+
+        if (lastTokenIs(tokens, parensDepth, "BEGIN") &&
+                ("TRANSACTION".equalsIgnoreCase(keywordText) || ";".equalsIgnoreCase(keywordText))
+                && context.getBlockDepth() > 0) {
+            context.decreaseBlockDepth();
+        }
+
+        if (lastTokenIs(tokens, parensDepth, "END") &&
+                !"IF".equalsIgnoreCase(keywordText) && !"WHILE".equalsIgnoreCase(keywordText) && !"LOOP".equalsIgnoreCase(keywordText)
+                && context.getBlockDepth() > 0) {
             context.decreaseBlockDepth();
         }
     }
