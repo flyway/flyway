@@ -15,8 +15,6 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -26,30 +24,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * CockroachDB implementation of Schema.
- */
 public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTable> {
-    private static final Log LOG = LogFactory.getLog(CockroachDBSchema.class);
-
     /**
      * Is this CockroachDB 1.x.
      */
     final boolean cockroachDB1;
-
-    /**
-     * Does this database support schemas?
-     */
     final boolean hasSchemaSupport;
 
-    /**
-     * Creates a new CockroachDB schema.
-     *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
-     */
-    CockroachDBSchema(JdbcTemplate jdbcTemplate, CockroachDBDatabase database, String name) {
+    public CockroachDBSchema(JdbcTemplate jdbcTemplate, CockroachDBDatabase database, String name) {
         super(jdbcTemplate, database, name);
         cockroachDB1 = !database.getVersion().isAtLeast("2");
         hasSchemaSupport = database.supportsSchemas();
@@ -57,12 +39,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
 
     @Override
     protected boolean doExists() throws SQLException {
-        return new CockroachDBRetryingStrategy().execute(new SqlCallable<Boolean>() {
-            @Override
-            public Boolean call() throws SQLException {
-                return doExistsOnce();
-            }
-        });
+        return new CockroachDBRetryingStrategy().execute(this::doExistsOnce);
     }
 
     private boolean doExistsOnce() throws SQLException {
@@ -74,12 +51,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        return new CockroachDBRetryingStrategy().execute(new SqlCallable<Boolean>() {
-            @Override
-            public Boolean call() throws SQLException {
-                return doEmptyOnce();
-            }
-        });
+        return new CockroachDBRetryingStrategy().execute(this::doEmptyOnce);
     }
 
     private boolean doEmptyOnce() throws SQLException {
@@ -119,12 +91,9 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
 
     @Override
     protected void doCreate() throws SQLException {
-        new CockroachDBRetryingStrategy().execute(new SqlCallable<Integer>() {
-            @Override
-            public Integer call() throws SQLException {
-                doCreateOnce();
-                return null;
-            }
+        new CockroachDBRetryingStrategy().execute((SqlCallable<Integer>) () -> {
+            doCreateOnce();
+            return null;
         });
     }
 
@@ -138,12 +107,9 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
 
     @Override
     protected void doDrop() throws SQLException {
-        new CockroachDBRetryingStrategy().execute(new SqlCallable<Integer>() {
-            @Override
-            public Integer call() throws SQLException {
-                doDropOnce();
-                return null;
-            }
+        new CockroachDBRetryingStrategy().execute((SqlCallable<Integer>) () -> {
+            doDropOnce();
+            return null;
         });
     }
 
@@ -157,12 +123,9 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
 
     @Override
     protected void doClean() throws SQLException {
-        new CockroachDBRetryingStrategy().execute(new SqlCallable<Integer>() {
-            @Override
-            public Integer call() throws SQLException {
-                doCleanOnce();
-                return null;
-            }
+        new CockroachDBRetryingStrategy().execute((SqlCallable<Integer>) () -> {
+            doCleanOnce();
+            return null;
         });
     }
 
@@ -180,12 +143,6 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
         }
     }
 
-    /**
-     * Generates the statements for dropping the views in this schema.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
     private List<String> generateDropStatementsForViews() throws SQLException {
         List<String> names = hasSchemaSupport ?
                 jdbcTemplate.queryForStringList(
@@ -203,12 +160,6 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
         return statements;
     }
 
-    /**
-     * Generates the statements for dropping the sequences in this schema.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
     private List<String> generateDropStatementsForSequences() throws SQLException {
         List<String> names = hasSchemaSupport ?
                 jdbcTemplate.queryForStringList(
@@ -262,6 +213,4 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
     public Table getTable(String tableName) {
         return new CockroachDBTable(jdbcTemplate, database, this, tableName);
     }
-
-
 }

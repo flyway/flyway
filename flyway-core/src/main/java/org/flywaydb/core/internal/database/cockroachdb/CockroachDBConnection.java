@@ -27,13 +27,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * CockroachDB connection.
- */
 public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
     private static final Log LOG = LogFactory.getLog(CockroachDBConnection.class);
 
-    CockroachDBConnection(CockroachDBDatabase database, java.sql.Connection connection) {
+    public CockroachDBConnection(CockroachDBDatabase database, java.sql.Connection connection) {
         super(database, connection);
     }
 
@@ -67,7 +64,7 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
             // but in dry runs the produced script will be invalid and error when you run it.
             if (sp.contains("$user")) {
                 LOG.warn("Search path contains $user; removing...");
-                ArrayList<String> paths = new ArrayList(Arrays.asList(sp.split(",")));
+                ArrayList<String> paths = new ArrayList<>(Arrays.asList(sp.split(",")));
                 paths.remove("$user");
                 sp = String.join(",", paths);
             }
