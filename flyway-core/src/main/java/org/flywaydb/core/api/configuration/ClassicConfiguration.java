@@ -1399,8 +1399,11 @@ public class ClassicConfiguration implements Configuration {
     public void loadCallbackLocation(String path, boolean errorOnNotFound) {
         List<String> callbackClasses = classScanner.scanForType(path, Callback.class, errorOnNotFound);
         for (String callback : callbackClasses) {
-            Callback callbackObj = ClassUtils.instantiate(callback, classLoader);
-            this.callbacks.add(callbackObj);
+            Class<? extends Callback> callbackClass = ClassUtils.loadClass(Callback.class, callback, classLoader);
+            if (callbackClass != null) { // Filter out abstract classes
+                Callback callbackObj = ClassUtils.instantiate(callback, classLoader);
+                this.callbacks.add(callbackObj);
+            }
         }
     }
 
