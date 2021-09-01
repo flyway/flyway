@@ -26,7 +26,7 @@ public class HSQLDBParser extends Parser {
      * List of objects which can be dropped with IF EXISTS
      */
     private static final List<String> CONDITIONALLY_CREATABLE_OBJECTS = Arrays.asList(
-            "COLUMN", "CONSTRAINT", "INDEX", "PROCEDURE", "SCHEMA", "SEQUENCE", "TABLE", "VIEW"
+            "COLUMN", "CONSTRAINT", "FUNCTION", "INDEX", "PROCEDURE", "SCHEMA", "SEQUENCE", "TABLE", "VIEW"
     );
 
     public HSQLDBParser(Configuration configuration, ParsingContext parsingContext) {
