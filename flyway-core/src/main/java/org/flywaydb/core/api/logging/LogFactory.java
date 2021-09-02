@@ -59,7 +59,7 @@ public class LogFactory {
      *
      * @param logCreator The factory for implementation-specific loggers.
      */
-    public static void setLogCreator(LogCreator logCreator) {
+    public static synchronized void setLogCreator(LogCreator logCreator) {
         LogFactory.logCreator = logCreator;
     }
 
@@ -70,11 +70,11 @@ public class LogFactory {
      * @param fallbackLogCreator The factory for implementation-specific loggers to be used as a fallback when no other
      *                           suitable loggers were found.
      */
-    public static void setFallbackLogCreator(LogCreator fallbackLogCreator) {
+    public static synchronized void setFallbackLogCreator(LogCreator fallbackLogCreator) {
         LogFactory.fallbackLogCreator = fallbackLogCreator;
     }
 
-    public static void setConfiguration(Configuration configuration) {
+    public static synchronized void setConfiguration(Configuration configuration) {
         LogFactory.configuration = configuration;
         logCreator = null;
     }
@@ -85,7 +85,7 @@ public class LogFactory {
      * @param clazz The class to get the logger for.
      * @return The logger.
      */
-    public static Log getLog(Class<?> clazz) {
+    public static synchronized Log getLog(Class<?> clazz) {
         if (logCreator == null) {
             logCreator = getLogCreator(LogFactory.class.getClassLoader(), fallbackLogCreator);
         }

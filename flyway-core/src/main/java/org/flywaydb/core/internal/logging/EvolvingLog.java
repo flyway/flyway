@@ -28,7 +28,7 @@ public class EvolvingLog implements Log {
         this.clazz = clazz;
     }
 
-    private void updateLog() {
+    private synchronized void updateLog() {
         Log newLog = ((EvolvingLog)LogFactory.getLog(clazz)).getLog();
 
         if (log instanceof BufferedLog && !(newLog instanceof BufferedLog)) {
