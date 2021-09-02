@@ -279,6 +279,11 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public int getConnectRetriesInterval() {
+        return config.getConnectRetriesInterval();
+    }
+
+    @Override
     public String getInitSql() {
         return config.getInitSql();
     }
@@ -991,11 +996,23 @@ public class FluentConfiguration implements Configuration {
     /**
      * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
      * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     * The interval between retries doubles with each subsequent attempt.
      *
      * @param connectRetries The maximum number of retries (default: 0).
      */
     public FluentConfiguration connectRetries(int connectRetries) {
         config.setConnectRetries(connectRetries);
+        return this;
+    }
+
+    /**
+     * The maximum time between retries when attempting to connect to the database in seconds. This will cap the interval
+     * between connect retry to the value provided.
+     *
+     * @param connectRetriesInterval The maximum time between retries in seconds (default: 120).
+     */
+    public FluentConfiguration connectRetriesInterval(int connectRetriesInterval) {
+        config.setConnectRetriesInterval(connectRetriesInterval);
         return this;
     }
 

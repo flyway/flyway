@@ -83,10 +83,19 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
      * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     * The interval between retries doubles with each subsequent attempt.
      * (default: 0)
      * <p>Also configurable with Gradle or System Property: ${flyway.connectRetries}</p>
      */
     public int connectRetries;
+
+    /**
+     * The maximum time between retries when attempting to connect to the database in seconds. This will cap the interval
+     * between connect retry to the value provided.
+     * (default: 120)
+     * <p>Also configurable with Gradle or System Property: ${flyway.connectRetriesInterval}</p>
+     */
+    public int connectRetriesInterval;
 
     /**
      * The SQL statements to run to initialize a new database connection immediately after opening it.
@@ -763,6 +772,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.USER, user, extension.user);
         putIfSet(conf, ConfigUtils.PASSWORD, password, extension.password);
         putIfSet(conf, ConfigUtils.CONNECT_RETRIES, connectRetries, extension.connectRetries);
+        putIfSet(conf, ConfigUtils.CONNECT_RETRIES_INTERVAL, connectRetriesInterval, extension.connectRetriesInterval);
         putIfSet(conf, ConfigUtils.INIT_SQL, initSql, extension.initSql);
         putIfSet(conf, ConfigUtils.TABLE, table, extension.table);
         putIfSet(conf, ConfigUtils.TABLESPACE, tablespace, extension.tablespace);

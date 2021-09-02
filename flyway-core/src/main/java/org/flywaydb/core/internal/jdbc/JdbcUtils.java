@@ -40,11 +40,12 @@ public class JdbcUtils {
      *
      * @param dataSource     The dataSource to obtain the connection from.
      * @param connectRetries The maximum number of retries when attempting to connect to the database.
+     * @param connectRetriesInterval The maximum time between retries in seconds
      * @return The new connection.
      * @throws FlywayException when the connection could not be opened.
      */
-    public static Connection openConnection(DataSource dataSource, int connectRetries) throws FlywayException {
-        BackoffStrategy backoffStrategy = new BackoffStrategy(1, 2);
+    public static Connection openConnection(DataSource dataSource, int connectRetries, int connectRetriesInterval) throws FlywayException {
+        BackoffStrategy backoffStrategy = new BackoffStrategy(1, 2, connectRetriesInterval);
         int retries = 0;
         while (true) {
             try {

@@ -77,10 +77,19 @@ public interface Configuration {
     /**
      * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
      * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     * The interval between retries doubles with each subsequent attempt.
      *
      * @return The maximum number of retries when attempting to connect to the database. (default: 0)
      */
     int getConnectRetries();
+
+    /**
+     * The maximum time between retries when attempting to connect to the database in seconds. This will cap the interval
+     * between connect retry to the value provided.
+     * 
+     * @return The maximum time between retries in seconds (default: 120)
+     */
+    int getConnectRetriesInterval();
 
     /**
      * The SQL statements to run to initialize a new database connection immediately after opening it.

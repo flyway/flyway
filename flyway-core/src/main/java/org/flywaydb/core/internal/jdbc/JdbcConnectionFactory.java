@@ -38,6 +38,7 @@ public class JdbcConnectionFactory {
 
     private final DataSource dataSource;
     private final int connectRetries;
+    private final int connectRetriesInterval;
     private final Configuration configuration;
     private final DatabaseType databaseType;
     private final String jdbcUrl;
@@ -63,9 +64,10 @@ public class JdbcConnectionFactory {
     public JdbcConnectionFactory(DataSource dataSource, Configuration configuration, StatementInterceptor statementInterceptor) {
         this.dataSource = dataSource;
         this.connectRetries = configuration.getConnectRetries();
+        this.connectRetriesInterval = configuration.getConnectRetriesInterval();
         this.configuration = configuration;
 
-        firstConnection = JdbcUtils.openConnection(dataSource, connectRetries);
+        firstConnection = JdbcUtils.openConnection(dataSource, connectRetries, connectRetriesInterval);
         this.databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(firstConnection);
 
         final DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(firstConnection);
@@ -115,7 +117,7 @@ public class JdbcConnectionFactory {
     }
 
     public Connection openConnection() throws FlywayException {
-        Connection connection = firstConnection == null ? JdbcUtils.openConnection(dataSource, connectRetries) : firstConnection;
+        Connection connection = firstConnection == null ? JdbcUtils.openConnection(dataSource, connectRetries, connectRetriesInterval) : firstConnection;
         firstConnection = null;
 
         if (connectionInitializer != null) {

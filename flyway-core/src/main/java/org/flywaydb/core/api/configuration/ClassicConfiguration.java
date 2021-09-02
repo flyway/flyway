@@ -62,6 +62,7 @@ public class ClassicConfiguration implements Configuration {
     private String password;
     private DataSource dataSource;
     private int connectRetries;
+    private int connectRetriesInterval = 120;
     private String initSql;
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     private Locations locations = new Locations("db/migration");
@@ -363,6 +364,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public int getConnectRetries() {
         return connectRetries;
+    }
+
+    @Override
+    public int getConnectRetriesInterval() {
+        return connectRetriesInterval;
     }
 
     @Override
@@ -1274,6 +1280,7 @@ public class ClassicConfiguration implements Configuration {
     /**
      * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
      * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     * The interval between retries doubles with each subsequent attempt.
      *
      * @param connectRetries The maximum number of retries (default: 0).
      */
@@ -1282,6 +1289,19 @@ public class ClassicConfiguration implements Configuration {
             throw new FlywayException("Invalid number of connectRetries (must be 0 or greater): " + connectRetries, ErrorCode.CONFIGURATION);
         }
         this.connectRetries = connectRetries;
+    }
+
+    /**
+     * The maximum time between retries when attempting to connect to the database in seconds. This will cap the interval
+     * between connect retry to the value provided.
+     *
+     * @param connectRetriesInterval The maximum time between retries in seconds (default: 120).
+     */
+    public void setConnectRetriesInterval(int connectRetriesInterval) {
+        if (connectRetriesInterval < 0) {
+            throw new FlywayException("Invalid number for connectRetriesInterval (must be 0 or greater): " + connectRetriesInterval, ErrorCode.CONFIGURATION);
+        }
+        this.connectRetriesInterval = connectRetriesInterval;
     }
 
     /**
@@ -1650,6 +1670,7 @@ public class ClassicConfiguration implements Configuration {
         setCleanOnValidationError(configuration.isCleanOnValidationError());
         setDataSource(configuration.getDataSource());
         setConnectRetries(configuration.getConnectRetries());
+        setConnectRetriesInterval(configuration.getConnectRetriesInterval());
         setInitSql(configuration.getInitSql());
 
 
@@ -1782,6 +1803,10 @@ public class ClassicConfiguration implements Configuration {
         Integer connectRetriesProp = removeInteger(props, ConfigUtils.CONNECT_RETRIES);
         if (connectRetriesProp != null) {
             setConnectRetries(connectRetriesProp);
+        }
+        Integer connectRetriesIntervalProp = removeInteger(props, ConfigUtils.CONNECT_RETRIES_INTERVAL);
+        if (connectRetriesIntervalProp != null) {
+            setConnectRetriesInterval(connectRetriesIntervalProp);
         }
         String initSqlProp = props.remove(ConfigUtils.INIT_SQL);
         if (initSqlProp != null) {

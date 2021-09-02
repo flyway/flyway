@@ -45,6 +45,7 @@ public class ConfigUtils {
     public static final String CLEAN_DISABLED = "flyway.cleanDisabled";
     public static final String CLEAN_ON_VALIDATION_ERROR = "flyway.cleanOnValidationError";
     public static final String CONNECT_RETRIES = "flyway.connectRetries";
+    public static final String CONNECT_RETRIES_INTERVAL = "flyway.connectRetriesInterval";
     public static final String DEFAULT_SCHEMA = "flyway.defaultSchema";
     public static final String DRIVER = "flyway.driver";
     public static final String DRYRUN_OUTPUT = "flyway.dryRunOutput";
@@ -162,6 +163,11 @@ public class ConfigUtils {
         if ("FLYWAY_CONNECT_RETRIES".equals(key)) {
             return CONNECT_RETRIES;
         }
+
+        if ("FLYWAY_CONNECT_RETRIES_INTERVAL".equals(key)) {
+            return CONNECT_RETRIES_INTERVAL;
+        }
+
         if ("FLYWAY_DEFAULT_SCHEMA".equals(key)) {
             return DEFAULT_SCHEMA;
         }
