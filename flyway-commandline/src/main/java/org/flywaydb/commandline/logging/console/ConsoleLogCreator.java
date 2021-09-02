@@ -13,24 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.commandline;
+package org.flywaydb.commandline.logging.console;
 
+import org.flywaydb.commandline.CommandLineArguments;
 import org.flywaydb.commandline.CommandLineArguments.Color;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 
-/**
- * Log Creator for the Command-Line console.
- */
-class ConsoleLogCreator implements LogCreator {
+public class ConsoleLogCreator implements LogCreator {
     private final CommandLineArguments commandLineArguments;
 
-    /**
-     * Creates a new Console Log Creator.
-     *
-     * @param commandLineArguments The command line arguments.
-     */
-    ConsoleLogCreator(CommandLineArguments commandLineArguments) {
+    public ConsoleLogCreator(CommandLineArguments commandLineArguments) {
         this.commandLineArguments = commandLineArguments;
     }
 

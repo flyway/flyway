@@ -125,6 +125,7 @@ public class ClassicConfiguration implements Configuration {
     private String oracleKerberosCacheFile = "";
     private String oracleWalletLocation;
     private boolean failOnMissingLocations = false;
+    private String[] loggers = new String[] { "auto" };
     private final ClasspathClassScanner classScanner;
 
     public ClassicConfiguration() {
@@ -410,6 +411,11 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
+    public String[] getLoggers() {
+        return loggers;
+    }
+
+    @Override
     public Map<String, String> getJdbcProperties() {
         return jdbcProperties;
     }
@@ -642,6 +648,23 @@ public class ClassicConfiguration implements Configuration {
             installedBy = null;
         }
         this.installedBy = installedBy;
+    }
+
+    /**
+     * The loggers Flyway should use. Valid options are:
+     *
+     * <ul>
+     *     <li>auto: Auto detect the logger (default behavior)</li>
+     *     <li>console: Use stdout/stderr (only available when using the CLI)</li>
+     *     <li>slf4j2: Use the slf4j2 logger</li>
+     *     <li>log4j2: Use the log4j2 logger</li>
+     *     <li>apache-commons: Use the Apache Commons logger</li>
+     * </ul>
+     *
+     * Alternatively you can provide the fully qualified class name for any other logger to use that.
+     */
+    public void setLoggers(String... loggers) {
+        this.loggers = loggers;
     }
 
     /**
@@ -1618,6 +1641,7 @@ public class ClassicConfiguration implements Configuration {
      * Configure with the same values as this existing configuration.
      */
     public void configure(Configuration configuration) {
+        setLoggers(configuration.getLoggers());
         setBaselineDescription(configuration.getBaselineDescription());
         setBaselineOnMigrate(configuration.isBaselineOnMigrate());
         setBaselineVersion(configuration.getBaselineVersion());
@@ -1886,6 +1910,10 @@ public class ClassicConfiguration implements Configuration {
         String cherryPickProp = props.remove(ConfigUtils.CHERRY_PICK);
         if (cherryPickProp != null) {
             setCherryPick(StringUtils.tokenizeToStringArray(cherryPickProp, ","));
+        }
+        String loggersProp = props.remove(ConfigUtils.LOGGERS);
+        if (loggersProp != null) {
+            setLoggers(StringUtils.tokenizeToStringArray(loggersProp, ","));
         }
         Integer lockRetryCount = removeInteger(props, ConfigUtils.LOCK_RETRY_COUNT);
         if (lockRetryCount != null) {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.commandline;
+package org.flywaydb.core.internal.logging.multi;
 
 import org.flywaydb.core.api.logging.Log;
 
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Log implementation that forwards method calls to multiple implementations
  */
-class MultiLogger implements Log {
+public class MultiLogger implements Log {
 
     private final List<Log> logs;
 

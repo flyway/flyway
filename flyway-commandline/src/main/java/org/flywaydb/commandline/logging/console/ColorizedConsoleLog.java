@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.commandline;
+package org.flywaydb.commandline.logging.console;
 
 import org.flywaydb.core.api.logging.Log;
 import org.fusesource.jansi.Ansi;
@@ -22,10 +22,7 @@ import org.fusesource.jansi.AnsiConsole;
 
 import java.io.PrintStream;
 
-/**
- * Wrapper which adds color to a Console output.
- */
-class ColorizedConsoleLog implements Log {
+public class ColorizedConsoleLog implements Log {
     private final ConsoleLog log;
 
     public static void install(boolean force) {

@@ -18,13 +18,8 @@ package org.flywaydb.core.internal.logging.slf4j;
 import org.flywaydb.core.api.logging.Log;
 import org.slf4j.Logger;
 
-/**
- * Wrapper for a Slf4j logger.
- */
 public class Slf4jLog implements Log {
-    /**
-     * Slf4j Logger.
-     */
+
     private final Logger logger;
 
     /**

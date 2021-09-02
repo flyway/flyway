@@ -13,25 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.commandline;
+package org.flywaydb.commandline.logging.console;
 
 import org.flywaydb.core.api.logging.Log;
 
-/**
- * Console output for standard output and standard error.
- */
-class ConsoleLog implements Log {
+public class ConsoleLog implements Log {
  	public enum Level {
  		DEBUG, INFO, WARN
  	}
 	
     private final Level level;
 
-    /**
-     * Creates a new PrintStream Log.
-     *
-     * @param level the log level.
-     */
     public ConsoleLog(Level level) {
         this.level = level;
     }

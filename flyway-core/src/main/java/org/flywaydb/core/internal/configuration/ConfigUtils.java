@@ -95,6 +95,7 @@ public class ConfigUtils {
     public static final String VALIDATE_MIGRATION_NAMING = "flyway.validateMigrationNaming";
     public static final String CREATE_SCHEMAS = "flyway.createSchemas";
     public static final String FAIL_ON_MISSING_LOCATIONS = "flyway.failOnMissingLocations";
+    public static final String LOGGERS = "flyway.loggers";
 
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
@@ -291,6 +292,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_CHERRY_PICK".equals(key)) {
             return CHERRY_PICK;
+        }
+        if ("FLYWAY_LOGGERS".equals(key)) {
+            return LOGGERS;
         }
         if ("FLYWAY_UNDO_SQL_MIGRATION_PREFIX".equals(key)) {
             return UNDO_SQL_MIGRATION_PREFIX;

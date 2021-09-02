@@ -17,13 +17,8 @@ package org.flywaydb.core.internal.logging.apachecommons;
 
 import org.flywaydb.core.api.logging.Log;
 
-/**
- * Wrapper for an Apache Commons Logging logger.
- */
 public class ApacheCommonsLog implements Log {
-    /**
-     * Apache Commons Logging Logger.
-     */
+
     private final org.apache.commons.logging.Log logger;
 
     /**

@@ -17,7 +17,12 @@ package org.flywaydb.commandline;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.flywaydb.commandline.ConsoleLog.Level;
+import org.flywaydb.core.internal.logging.EvolvingLog;
+import org.flywaydb.core.internal.logging.buffered.BufferedLog;
+import org.flywaydb.core.internal.logging.multi.MultiLogCreator;
+import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
+import org.flywaydb.commandline.logging.console.ConsoleLogCreator;
+import org.flywaydb.commandline.logging.file.FileLogCreator;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -70,9 +75,7 @@ public class Main {
         }
 
         List<LogCreator> logCreators = new ArrayList<>();
-
         logCreators.add(new ConsoleLogCreator(commandLineArguments));
-
         if (commandLineArguments.isOutputFileSet()) {
             logCreators.add(new FileLogCreator(commandLineArguments));
         }
@@ -81,30 +84,9 @@ public class Main {
     }
 
     static void initLogging(CommandLineArguments commandLineArguments) {
-        LogCreator logCreator = getLogCreator(commandLineArguments);
-
-
-
-
-
-        LogFactory.setFallbackLogCreator(logCreator);
-
-
-
+        LogFactory.setFallbackLogCreator(getLogCreator(commandLineArguments));
         LOG = LogFactory.getLog(Main.class);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     public static void main(String[] args) {
         CommandLineArguments commandLineArguments = new CommandLineArguments(args);
@@ -202,7 +184,16 @@ public class Main {
                     LOG.error(getMessagesFromException(e));
                 }
             }
+            Log currentLog = ((EvolvingLog)LOG).getLog();
+            if (currentLog instanceof BufferedLog) {
+                ((BufferedLog)currentLog).flush(getLogCreator(commandLineArguments).createLogger(Main.class));
+            }
             System.exit(1);
+        } finally {
+            Log currentLog = ((EvolvingLog)LOG).getLog();
+            if (currentLog instanceof BufferedLog) {
+                ((BufferedLog)currentLog).flush(getLogCreator(commandLineArguments).createLogger(Main.class));
+            }
         }
     }
 

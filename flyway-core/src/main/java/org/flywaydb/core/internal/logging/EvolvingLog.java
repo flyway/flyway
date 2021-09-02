@@ -13,43 +13,67 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.logging.android;
+package org.flywaydb.core.internal.logging;
 
 import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 
-public class AndroidLog implements Log {
-    /**
-     * The tag in the Android logs.
-     */
-    private static final String TAG = "Flyway";
+public class EvolvingLog implements Log {
+    private Log log;
+    private final Class<?> clazz;
+
+    public EvolvingLog(Log log, Class<?> clazz) {
+        this.log = log;
+        this.clazz = clazz;
+    }
+
+    private void updateLog() {
+        Log newLog = ((EvolvingLog)LogFactory.getLog(clazz)).getLog();
+
+        if (log instanceof BufferedLog && !(newLog instanceof BufferedLog)) {
+            ((BufferedLog) log).flush(newLog);
+        }
+
+        log = newLog;
+    }
+
+    public Log getLog() {
+        return log;
+    }
 
     @Override
     public boolean isDebugEnabled() {
-        return android.util.Log.isLoggable(TAG, android.util.Log.DEBUG);
+        return log.isDebugEnabled();
     }
 
     @Override
     public void debug(String message) {
-        android.util.Log.d(TAG, message);
+        updateLog();
+        log.debug(message);
     }
 
     @Override
     public void info(String message) {
-        android.util.Log.i(TAG, message);
+        updateLog();
+        log.info(message);
     }
 
     @Override
     public void warn(String message) {
-        android.util.Log.w(TAG, message);
+        updateLog();
+        log.warn(message);
     }
 
     @Override
     public void error(String message) {
-        android.util.Log.e(TAG, message);
+        updateLog();
+        log.error(message);
     }
 
     @Override
     public void error(String message, Exception e) {
-        android.util.Log.e(TAG, message, e);
+        updateLog();
+        log.error(message, e);
     }
 }

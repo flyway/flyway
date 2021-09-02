@@ -19,9 +19,6 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.apache.logging.log4j.LogManager;
 
-/**
- * Log Creator for Log4j v2.
- */
 public class Log4j2LogCreator implements LogCreator {
     public Log createLogger(Class<?> clazz) {
         return new Log4j2Log(LogManager.getLogger(clazz.getName()));

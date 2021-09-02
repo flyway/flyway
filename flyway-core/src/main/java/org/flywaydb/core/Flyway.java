@@ -137,6 +137,8 @@ public class Flyway {
 
         // Load callbacks from default package
         this.configuration.loadCallbackLocation("db/callback", false);
+
+        LogFactory.setConfiguration(this.configuration);
     }
 
     /**

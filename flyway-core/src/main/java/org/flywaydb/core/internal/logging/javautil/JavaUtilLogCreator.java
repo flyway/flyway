@@ -20,9 +20,6 @@ import org.flywaydb.core.api.logging.LogCreator;
 
 import java.util.logging.Logger;
 
-/**
- * Log Creator for java.util.logging.
- */
 public class JavaUtilLogCreator implements LogCreator {
     public Log createLogger(Class<?> clazz) {
         return new JavaUtilLog(Logger.getLogger(clazz.getName()));

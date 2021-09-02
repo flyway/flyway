@@ -13,36 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.commandline;
+package org.flywaydb.core.internal.logging.buffered;
 
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Log creator for a MultiLog
- */
-class MultiLogCreator implements LogCreator {
-    private final List<LogCreator> logCreators;
-
-    MultiLogCreator(List<LogCreator> logCreators) {
-        this.logCreators = logCreators;
-    }
+public class BufferedLogCreator implements LogCreator {
+    private static final BufferedLog bufferedLog = new BufferedLog();
 
     @Override
     public Log createLogger(Class<?> clazz) {
-        List<Log> logs = new ArrayList<>();
-
-        for (LogCreator logCreator : logCreators) {
-            logs.add(logCreator.createLogger(clazz));
-        }
-
-        return new MultiLogger(logs);
-    }
-
-    static MultiLogCreator empty() {
-        return new MultiLogCreator(new ArrayList<>());
+        return bufferedLog;
     }
 }

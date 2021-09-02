@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.commandline;
+package org.flywaydb.commandline.logging.file;
 
+import org.flywaydb.commandline.CommandLineArguments;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
-import org.flywaydb.commandline.ConsoleLog.Level;
+import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,19 +27,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
-/**
- * Log Creator for logging to a file
- */
-class FileLogCreator implements LogCreator {
+public class FileLogCreator implements LogCreator {
     private final Level level;
     private final Path path;
 
-    /**
-     * Creates a new file Log Creator.
-     *
-     * @param commandLineArguments The command line arguments
-     */
-    FileLogCreator(CommandLineArguments commandLineArguments) {
+    public FileLogCreator(CommandLineArguments commandLineArguments) {
         String outputFilepath = "";
 
         if (commandLineArguments.isOutputFileSet()) {

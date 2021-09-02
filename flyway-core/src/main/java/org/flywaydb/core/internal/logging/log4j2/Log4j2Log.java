@@ -18,13 +18,8 @@ package org.flywaydb.core.internal.logging.log4j2;
 import org.apache.logging.log4j.Logger;
 import org.flywaydb.core.api.logging.Log;
 
-/**
- * Wrapper for a Log4j v2 logger.
- */
 public class Log4j2Log implements Log {
-    /**
-     * Log4j2 Logger.
-     */
+
     private final Logger logger;
 
     /**

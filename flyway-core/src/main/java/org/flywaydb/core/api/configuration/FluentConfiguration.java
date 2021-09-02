@@ -96,6 +96,11 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
+    public String[] getLoggers() {
+        return config.getLoggers();
+    }
+
+    @Override
     public MigrationVersion getTarget() {
         return config.getTarget();
     }
@@ -469,6 +474,24 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration installedBy(String installedBy) {
         config.setInstalledBy(installedBy);
+        return this;
+    }
+
+    /**
+     * The loggers Flyway should use. Valid options are:
+     *
+     * <ul>
+     *     <li>auto: Auto detect the logger (default behavior)</li>
+     *     <li>console: Use stdout/stderr (only available when using the CLI)</li>
+     *     <li>slf4j2: Use the slf4j2 logger</li>
+     *     <li>log4j2: Use the log4j2 logger</li>
+     *     <li>apache-commons: Use the Apache Commons logger</li>
+     * </ul>
+     *
+     * Alternatively you can provide the fully qualified class name for any other logger to use that.
+     */
+    public FluentConfiguration loggers(String... loggers) {
+        config.setLoggers(loggers);
         return this;
     }
 

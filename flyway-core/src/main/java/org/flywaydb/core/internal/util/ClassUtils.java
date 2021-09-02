@@ -30,18 +30,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-/**
- * Utility methods for dealing with classes.
- */
 public class ClassUtils {
     private static final Log LOG = LogFactory.getLog(ClassUtils.class);
 
-    /**
-     * Prevents instantiation.
-     */
-    private ClassUtils() {
-        // Do nothing
-    }
+    private ClassUtils() { }
 
     /**
      * Creates a new instance of this class.
@@ -82,7 +74,7 @@ public class ClassUtils {
     /**
      * Instantiate all these classes.
      *
-     * @param classes     A fully qualified class names to instantiate.
+     * @param classes     Fully qualified class names to instantiate.
      * @param classLoader The ClassLoader to use.
      * @param <T>         The common type for all classes.
      * @return The list of instances.

@@ -33,6 +33,8 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.logging.EvolvingLog;
+import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -328,6 +330,22 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     @Parameter
     private String[] cherryPick;
+
+    /**
+     * The loggers Flyway should use. Valid options are:
+     *
+     * <ul>
+     *     <li>auto: Auto detect the logger (default behavior)</li>
+     *     <li>console: Use stdout/stderr (only available when using the CLI)</li>
+     *     <li>slf4j2: Use the slf4j2 logger</li>
+     *     <li>log4j2: Use the log4j2 logger</li>
+     *     <li>apache-commons: Use the Apache Commons logger</li>
+     * </ul>
+     *
+     * Alternatively you can provide the fully qualified class name for any other logger to use that.
+     */
+    @Parameter
+    private String[] loggers;
 
     /**
      * Allows migrations to be run "out of order" (default: {@code false}).
@@ -789,15 +807,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     }
 
     public final void execute() throws MojoExecutionException {
-        LogFactory.setLogCreator(new MavenLogCreator(this));
+        LogFactory.setFallbackLogCreator(new MavenLogCreator(this));
         log = LogFactory.getLog(getClass());
 
-        if (getBooleanProperty(CONFIG_SKIP, skip)) {
-            log.info("Skipping Flyway execution");
-            return;
-        }
-
         try {
+            if (getBooleanProperty(CONFIG_SKIP, skip)) {
+                log.info("Skipping Flyway execution");
+                return;
+            }
+
             Set<String> classpathElements = new HashSet<>();
             classpathElements.addAll(mavenProject.getCompileClasspathElements());
             classpathElements.addAll(mavenProject.getRuntimeClasspathElements());
@@ -867,6 +885,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.OUTPUT_QUERY_RESULTS, outputQueryResults);
             putIfSet(conf, ConfigUtils.TARGET, target);
             putArrayIfSet(conf, ConfigUtils.CHERRY_PICK, cherryPick);
+            putArrayIfSet(conf, ConfigUtils.LOGGERS, loggers);
             putIfSet(conf, ConfigUtils.IGNORE_MISSING_MIGRATIONS, ignoreMissingMigrations);
             putIfSet(conf, ConfigUtils.IGNORE_IGNORED_MIGRATIONS, ignoreIgnoredMigrations);
             putIfSet(conf, ConfigUtils.IGNORE_PENDING_MIGRATIONS, ignorePendingMigrations);
@@ -926,10 +945,19 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             conf.putAll(ConfigUtils.loadConfigurationFromSecretsManagers(conf));
             removeMavenPluginSpecificPropertiesToAvoidWarnings(conf);
 
+            if (conf.getOrDefault(ConfigUtils.LOGGERS, "auto").equalsIgnoreCase("auto")) {
+                conf.put(ConfigUtils.LOGGERS, "maven");
+            }
+
             Flyway flyway = Flyway.configure(classLoader).configuration(conf).load();
             doExecute(flyway);
         } catch (Exception e) {
             throw new MojoExecutionException(e.toString(), ExceptionUtils.getRootCause(e));
+        } finally {
+            Log currentLog = ((EvolvingLog)log).getLog();
+            if (currentLog instanceof BufferedLog) {
+                ((BufferedLog)currentLog).flush(new MavenLog(this.getLog()));
+            }
         }
     }
 

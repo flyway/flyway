@@ -21,13 +21,8 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-/**
- * Wrapper for a java.util.Logger.
- */
 public class JavaUtilLog implements Log {
-    /**
-     * Java Util Logger.
-     */
+
     private final Logger logger;
 
     /**
@@ -66,13 +61,8 @@ public class JavaUtilLog implements Log {
 
     /**
      * Log the message at the specified level with the specified exception if any.
-     *
-     * @param level The level to log at.
-     * @param message The message to log.
-     * @param e The exception, if any.
      */
     private void log(Level level, String message, Exception e) {
-        // millis and thread are filled by the constructor
         LogRecord record = new LogRecord(level, message);
         record.setLoggerName(logger.getName());
         record.setThrown(e);

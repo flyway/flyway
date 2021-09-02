@@ -307,6 +307,21 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String[] cherryPick;
 
     /**
+     * The loggers Flyway should use. Valid options are:
+     *
+     * <ul>
+     *     <li>auto: Auto detect the logger (default behavior)</li>
+     *     <li>console: Use stdout/stderr (only available when using the CLI)</li>
+     *     <li>slf4j2: Use the slf4j2 logger</li>
+     *     <li>log4j2: Use the log4j2 logger</li>
+     *     <li>apache-commons: Use the Apache Commons logger</li>
+     * </ul>
+     *
+     * Alternatively you can provide the fully qualified class name for any other logger to use that.
+     */
+    public String[] loggers;
+
+    /**
      * An array of fully qualified FlywayCallback class implementations, or packages to scan for FlywayCallback implementations.
      */
     public String[] callbacks;
@@ -772,6 +787,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_SUFFIX, scriptPlaceholderSuffix, extension.scriptPlaceholderSuffix);
         putIfSet(conf, ConfigUtils.TARGET, target, extension.target);
         putIfSet(conf, ConfigUtils.CHERRY_PICK, StringUtils.arrayToCommaDelimitedString(cherryPick), StringUtils.arrayToCommaDelimitedString(extension.cherryPick));
+        putIfSet(conf, ConfigUtils.LOGGERS, StringUtils.arrayToCommaDelimitedString(loggers), StringUtils.arrayToCommaDelimitedString(extension.loggers));
         putIfSet(conf, ConfigUtils.OUT_OF_ORDER, outOfOrder, extension.outOfOrder);
         putIfSet(conf, ConfigUtils.SKIP_EXECUTING_MIGRATIONS, skipExecutingMigrations, extension.skipExecutingMigrations);
         putIfSet(conf, ConfigUtils.OUTPUT_QUERY_RESULTS, outputQueryResults, extension.outputQueryResults);

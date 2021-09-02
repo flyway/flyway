@@ -13,14 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.logging.slf4j;
+package org.flywaydb.core.internal.logging.multi;
 
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
-import org.slf4j.LoggerFactory;
 
-public class Slf4jLogCreator implements LogCreator {
+import java.util.ArrayList;
+import java.util.List;
+
+public class MultiLogCreator implements LogCreator {
+    private final List<LogCreator> logCreators;
+
+    public MultiLogCreator(List<LogCreator> logCreators) {
+        this.logCreators = logCreators;
+    }
+
+    @Override
     public Log createLogger(Class<?> clazz) {
-        return new Slf4jLog(LoggerFactory.getLogger(clazz.getName()));
+        List<Log> logs = new ArrayList<>();
+
+        for (LogCreator logCreator : logCreators) {
+            logs.add(logCreator.createLogger(clazz));
+        }
+
+        return new MultiLogger(logs);
+    }
+
+    public static MultiLogCreator empty() {
+        return new MultiLogCreator(new ArrayList<>());
     }
 }

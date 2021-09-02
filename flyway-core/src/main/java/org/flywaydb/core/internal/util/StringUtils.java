@@ -22,18 +22,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Various string-related utilities.
- */
 public class StringUtils {
     private static final String WHITESPACE_CHARS = " \t\n\f\r";
 
-    /**
-     * Prevents instantiation.
-     */
-    private StringUtils() {
-        // Do nothing.
-    }
+    private StringUtils() { }
 
     /**
      * Trims or pads (with spaces) this string, so it has this exact length.
@@ -143,7 +135,7 @@ public class StringUtils {
     }
 
     /**
-     * Replaces all occurrances of this originalToken in this string with this replacementToken.
+     * Replaces all occurrences of this originalToken in this string with this replacementToken.
      *
      * @param str              The string to process.
      * @param originalToken    The token to replace.
@@ -309,28 +301,7 @@ public class StringUtils {
     }
 
     /**
-     * Counts the number of occurrences of this token in this string.
-     *
-     * @param str   The string to analyse.
-     * @param token The token to look for.
-     * @return The number of occurrences.
-     */
-    public static int countOccurrencesOf(String str, String token) {
-        if (str == null || token == null || str.length() == 0 || token.length() == 0) {
-            return 0;
-        }
-        int count = 0;
-        int pos = 0;
-        int idx;
-        while ((idx = str.indexOf(token, pos)) != -1) {
-            ++count;
-            pos = idx + token.length();
-        }
-        return count;
-    }
-
-    /**
-     * Replace all occurences of a substring within a string with
+     * Replace all occurrences of a substring within a string with
      * another string.
      *
      * @param inString   String to examine
@@ -360,7 +331,7 @@ public class StringUtils {
 
     /**
      * Convenience method to return a Collection as a comma-delimited
-     * String. E.g. useful for {@code toString()} implementations.
+     * String. e.g. useful for {@code toString()} implementations.
      *
      * @param collection the Collection to analyse
      * @return The comma-delimited String.
@@ -393,24 +364,6 @@ public class StringUtils {
     }
 
     /**
-     * Trim leading whitespace from the given String.
-     *
-     * @param str the String to check
-     * @return the trimmed String
-     * @see java.lang.Character#isWhitespace
-     */
-    public static String trimLeadingWhitespace(String str) {
-        if (!hasLength(str)) {
-            return str;
-        }
-        StringBuilder buf = new StringBuilder(str);
-        while (buf.length() > 0 && Character.isWhitespace(buf.charAt(0))) {
-            buf.deleteCharAt(0);
-        }
-        return buf.toString();
-    }
-
-    /**
      * Trim any leading occurrence of this character from the given String.
      *
      * @param str       the String to check.
@@ -422,24 +375,6 @@ public class StringUtils {
         StringBuilder buf = new StringBuilder(str);
         while (buf.length() > 0 && character == buf.charAt(0)) {
             buf.deleteCharAt(0);
-        }
-        return buf.toString();
-    }
-
-    /**
-     * Trim trailing whitespace from the given String.
-     *
-     * @param str the String to check
-     * @return the trimmed String
-     * @see java.lang.Character#isWhitespace
-     */
-    public static String trimTrailingWhitespace(String str) {
-        if (!hasLength(str)) {
-            return str;
-        }
-        StringBuilder buf = new StringBuilder(str);
-        while (buf.length() > 0 && Character.isWhitespace(buf.charAt(buf.length() - 1))) {
-            buf.deleteCharAt(buf.length() - 1);
         }
         return buf.toString();
     }
@@ -522,7 +457,7 @@ public class StringUtils {
     }
 
     /**
-     * Checks whether this characters matches any of these characters.
+     * Checks whether this character matches any of these characters.
      *
      * @param c     The char to check.
      * @param chars The chars that should match.
@@ -538,7 +473,7 @@ public class StringUtils {
     }
 
     public static String getFileExtension(String path) {
-        String[] foldersSplit = path.split("[\\|/]");
+        String[] foldersSplit = path.split("[|/]");
         String fileNameAndExtension = foldersSplit[foldersSplit.length-1];
 
         String[] nameExtensionSplit = fileNameAndExtension.split("\\.");

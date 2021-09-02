@@ -18,76 +18,24 @@ package org.flywaydb.core.internal.util;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 
-/**
- * Detects whether certain features are available or not.
- */
 public final class FeatureDetector {
     private static final Log LOG = LogFactory.getLog(FeatureDetector.class);
 
-    /**
-     * The ClassLoader to use.
-     */
-    private ClassLoader classLoader;
+    private final ClassLoader classLoader;
+    private Boolean apacheCommonsLoggingAvailable;
+    private Boolean log4J2Available;
+    private Boolean slf4jAvailable;
+    private Boolean jbossVFSv2Available;
+    private Boolean jbossVFSv3Available;
+    private Boolean osgiFrameworkAvailable;
+    private Boolean androidAvailable;
+    private Boolean awsAvailable;
+    private Boolean gcsAvailable;
 
-    /**
-     * Creates a new FeatureDetector.
-     *
-     * @param classLoader The ClassLoader to use.
-     */
     public FeatureDetector(ClassLoader classLoader) {
         this.classLoader = classLoader;
     }
 
-    /**
-     * Flag indicating availability of the Apache Commons Logging.
-     */
-    private Boolean apacheCommonsLoggingAvailable;
-
-    /**
-     * Flag indicating the availability of Log4J v2
-     */
-    private Boolean log4J2Available;
-
-    /**
-     * Flag indicating availability of the Slf4j.
-     */
-    private Boolean slf4jAvailable;
-
-    /**
-     * Flag indicating availability of JBoss VFS v2.
-     */
-    private Boolean jbossVFSv2Available;
-
-    /**
-     * Flag indicating availability of JBoss VFS v3.
-     */
-    private Boolean jbossVFSv3Available;
-
-    /**
-     * Flag indicating availability of the OSGi framework classes.
-     */
-    private Boolean osgiFrameworkAvailable;
-
-    /**
-     * Flag indicating availability of the Android classes.
-     */
-    private Boolean androidAvailable;
-
-    /**
-     * Flag indicating availability of the AWS SDK classes.
-     */
-    private Boolean awsAvailable;
-
-    /**
-     * Flag indicating availability of the Google Cloud Storage SDK classes.
-     */
-    private Boolean gcsAvailable;
-
-    /**
-     * Checks whether Apache Commons Logging is available.
-     *
-     * @return {@code true} if it is, {@code false if it is not}
-     */
     public boolean isApacheCommonsLoggingAvailable() {
         if (apacheCommonsLoggingAvailable == null) {
             apacheCommonsLoggingAvailable = ClassUtils.isPresent("org.apache.commons.logging.Log", classLoader);
@@ -96,11 +44,6 @@ public final class FeatureDetector {
         return apacheCommonsLoggingAvailable;
     }
 
-    /**
-     * Checks whether Log4J 2 is available (without a SJF4J - Log4J2 bridge).
-     *
-     * @return {@code true} if it is, {@code false if it is not}
-     */
     public boolean isLog4J2Available() {
         if (log4J2Available == null) {
             log4J2Available = ClassUtils.isPresent("org.apache.logging.log4j.Logger", classLoader);
@@ -109,12 +52,6 @@ public final class FeatureDetector {
         return log4J2Available;
     }
 
-
-    /**
-     * Checks whether Slf4j is available.
-     *
-     * @return {@code true} if it is, {@code false if it is not}
-     */
     public boolean isSlf4jAvailable() {
         if (slf4jAvailable == null) {
             // We need to ensure there's an actual implementation; AWS SDK pulls in the Logger interface but doesn't
@@ -129,11 +66,6 @@ public final class FeatureDetector {
         return slf4jAvailable;
     }
 
-    /**
-     * Checks whether JBoss VFS v2 is available.
-     *
-     * @return {@code true} if it is, {@code false if it is not}
-     */
     public boolean isJBossVFSv2Available() {
         if (jbossVFSv2Available == null) {
             jbossVFSv2Available = ClassUtils.isPresent("org.jboss.virtual.VFS", classLoader);
@@ -143,11 +75,6 @@ public final class FeatureDetector {
         return jbossVFSv2Available;
     }
 
-    /**
-     * Checks whether JBoss VFS is available.
-     *
-     * @return {@code true} if it is, {@code false if it is not}
-     */
     public boolean isJBossVFSv3Available() {
         if (jbossVFSv3Available == null) {
             jbossVFSv3Available = ClassUtils.isPresent("org.jboss.vfs.VFS", classLoader);
@@ -157,11 +84,6 @@ public final class FeatureDetector {
         return jbossVFSv3Available;
     }
 
-    /**
-     * Checks if OSGi framework is available.
-     *
-     * @return {@code true} if it is, {@code false if it is not}
-     */
     public boolean isOsgiFrameworkAvailable() {
         if (osgiFrameworkAvailable == null) {
             // Use this class' classloader to detect the OSGi framework
@@ -173,11 +95,6 @@ public final class FeatureDetector {
         return osgiFrameworkAvailable;
     }
 
-    /**
-     * Checks if Android is available.
-     *
-     * @return {@code true} if it is, {@code false if it is not}
-     */
     public boolean isAndroidAvailable() {
         if (androidAvailable == null) {
             androidAvailable = "Android Runtime".equals(System.getProperty("java.runtime.name"));
@@ -186,11 +103,6 @@ public final class FeatureDetector {
         return androidAvailable;
     }
 
-    /**
-     * Checks if AWS is available.
-     *
-     * @return {@code true} if it is, {@code false if it is not}
-     */
     public boolean isAwsAvailable() {
         if (awsAvailable == null) {
             awsAvailable = ClassUtils.isPresent("software.amazon.awssdk.services.s3.S3Client", classLoader);
@@ -200,11 +112,6 @@ public final class FeatureDetector {
         return awsAvailable;
     }
 
-    /**
-     * Checks if GCS is available.
-     *
-     * @return {@code true} if it is, {@code false if it is not}
-     */
     public boolean isGCSAvailable() {
         if (gcsAvailable == null) {
             gcsAvailable = ClassUtils.isPresent("com.google.cloud.storage.Storage", classLoader);
@@ -216,7 +123,7 @@ public final class FeatureDetector {
 
     /**
      * Checks if the "experimental features" flag is set in the environment. You should not activate this flag
-     * outside of a development environment; features activated may be in development and/or undocumented.
+     * outside a development environment; features activated may be in development and/or undocumented.
      *
      * @return {@code true} if it is, {@code false} if it is not
      */

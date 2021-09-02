@@ -15,7 +15,7 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.commandline.ConsoleLog.Level;
+import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
@@ -26,9 +26,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-class CommandLineArguments {
+public class CommandLineArguments {
 
-    enum Color {
+    public enum Color {
         ALWAYS("always"),
         NEVER("never"),
         AUTO("auto");
@@ -120,7 +120,7 @@ class CommandLineArguments {
 
     private final String[] args;
 
-    CommandLineArguments(String[] args) {
+    public CommandLineArguments(String[] args) {
         this.args = args;
     }
 
@@ -185,7 +185,7 @@ class CommandLineArguments {
             if (isConfigurationArg(arg)) {
                 String configurationOptionName = getConfigurationOptionNameFromArg(arg);
 
-                if (!isConfigurationOptionIgnored(configurationOptionName)) {
+                if (!isConfigurationOptionCommandlineOnly(configurationOptionName)) {
                     configuration.put("flyway." + configurationOptionName, parseConfigurationOptionValueFromArg(arg));
                 }
             }
@@ -194,7 +194,7 @@ class CommandLineArguments {
         return configuration;
     }
 
-    private static boolean isConfigurationOptionIgnored(String configurationOptionName) {
+    private static boolean isConfigurationOptionCommandlineOnly(String configurationOptionName) {
         return OUTPUT_FILE.equals(configurationOptionName) ||
                 OUTPUT_TYPE.equals(configurationOptionName) ||
                 COLOR.equals(configurationOptionName) ||
@@ -216,7 +216,7 @@ class CommandLineArguments {
         return arg.startsWith("-") && arg.contains("=");
     }
 
-    void validate() {
+    public void validate() {
         for (String arg : args) {
             if (!isConfigurationArg(arg) && !VALID_OPERATIONS_AND_FLAGS.contains(arg)) {
                 throw new FlywayException("Invalid argument: " + arg);
@@ -234,33 +234,33 @@ class CommandLineArguments {
         }
     }
 
-    boolean shouldSuppressPrompt() {
+    public boolean shouldSuppressPrompt() {
         return isFlagSet(args, SUPPRESS_PROMPT_FLAG);
     }
 
-    boolean shouldPrintVersionAndExit() {
+    public boolean shouldPrintVersionAndExit() {
         return isFlagSet(args, PRINT_VERSION_AND_EXIT_FLAGS);
     }
 
-    boolean shouldCheckLicenseAndExit() {
+    public boolean shouldCheckLicenseAndExit() {
         return isFlagSet(args, CHECK_LICENCE);
     }
 
-    boolean shouldOutputJson() {
+    public boolean shouldOutputJson() {
         // The JSON_FLAG is deprecated and should be removed in v8
         // Not easy to warn about it as that needs to be injected into JSON
         return (isFlagSet(args, JSON_FLAG) || "json".equalsIgnoreCase(getArgumentValue(OUTPUT_TYPE, args)));
     }
 
-    boolean shouldWarnAboutDeprecatedFlag() {
+    public boolean shouldWarnAboutDeprecatedFlag() {
         return isFlagSet(args, JSON_FLAG);
     }
 
-    boolean shouldPrintUsage() {
+    public boolean shouldPrintUsage() {
         return (isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty()) && !isFlagSet(args, CHECK_LICENCE);
     }
 
-    Level getLogLevel() {
+    public Level getLogLevel() {
         if (isFlagSet(args, QUIET_FLAG)) {
             return Level.WARN;
         }
@@ -272,43 +272,43 @@ class CommandLineArguments {
         return Level.INFO;
     }
 
-    boolean hasOperation(String operation) {
+    public boolean hasOperation(String operation) {
         return getOperations().contains(operation);
     }
 
-    List<String> getOperations() {
+    public List<String> getOperations() {
         return getOperationsFromArgs(args);
     }
 
-    List<String> getConfigFiles() {
+    public List<String> getConfigFiles() {
         return getConfigFilesFromArgs(args);
     }
 
-    String getOutputFile() {
+    public String getOutputFile() {
         return getArgumentValue(OUTPUT_FILE, args);
     }
 
-    String getWorkingDirectory() {
+    public String getWorkingDirectory() {
         return getArgumentValue(WORKING_DIRECTORY, args);
     }
 
-    Date getInfoSinceDate() {
+    public Date getInfoSinceDate() {
         return parseDate(INFO_SINCE_DATE);
     }
 
-    Date getInfoUntilDate() {
+    public Date getInfoUntilDate() {
         return parseDate(INFO_UNTIL_DATE);
     }
 
-    MigrationVersion getInfoSinceVersion() {
+    public MigrationVersion getInfoSinceVersion() {
         return parseVersion(INFO_SINCE_VERSION);
     }
 
-    MigrationVersion getInfoUntilVersion() {
+    public MigrationVersion getInfoUntilVersion() {
         return parseVersion(INFO_UNTIL_VERSION);
     }
 
-    MigrationState getInfoOfState() {
+    public MigrationState getInfoOfState() {
         String stateStr = getArgumentValue(INFO_OF_STATE, args);
 
         if (!StringUtils.hasText(stateStr)) {
@@ -344,31 +344,31 @@ class CommandLineArguments {
         }
     }
 
-    boolean isOutputFileSet() {
+    public boolean isOutputFileSet() {
         return !getOutputFile().isEmpty();
     }
 
-    boolean isWorkingDirectorySet() {
+    public boolean isWorkingDirectorySet() {
         return !getWorkingDirectory().isEmpty();
     }
 
-    String getConfigFileEncoding() {
+    public String getConfigFileEncoding() {
         return getArgumentValue(CONFIG_FILE_ENCODING, args);
     }
 
-    boolean isConfigFileEncodingSet() {
+    public boolean isConfigFileEncodingSet() {
         return !getConfigFileEncoding().isEmpty();
     }
 
-    boolean skipCheckForUpdate() {
+    public boolean skipCheckForUpdate() {
         return isFlagSet(args, SKIP_CHECK_FOR_UPDATE_FLAG);
     }
 
-    Color getColor() {
+    public Color getColor() {
         return Color.fromString(getArgumentValue(COLOR, args));
     }
 
-    Map<String, String> getConfiguration() {
+    public Map<String, String> getConfiguration() {
         return getConfigurationFromArgs(args);
     }
 }
