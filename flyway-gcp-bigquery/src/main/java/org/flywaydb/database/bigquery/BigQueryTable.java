@@ -20,10 +20,6 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 public class BigQueryTable extends Table<BigQueryDatabase, BigQuerySchema> {
     private final InsertRowLock insertRowLock;
@@ -49,15 +45,11 @@ public class BigQueryTable extends Table<BigQueryDatabase, BigQuerySchema> {
 
     @Override
     protected void doLock() throws SQLException {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        cal.add(Calendar.MINUTE, -insertRowLock.lockTimeoutMins);
-        DateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-
         String updateLockStatement = "UPDATE " + this + " SET installed_on = now() WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
         String deleteExpiredLockStatement =
                 " DELETE FROM " + this +
                         " WHERE DESCRIPTION = 'flyway-lock'" +
-                        " AND installed_on < TIMESTAMP '" + timestampFormat.format(cal.getTime()) + "'";
+                        " AND installed_on < TIMESTAMP '?'";
 
         if (lockDepth == 0) {
             insertRowLock.doLock(database.getInsertStatement(this), updateLockStatement, deleteExpiredLockStatement, database.getBooleanTrue());

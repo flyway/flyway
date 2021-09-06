@@ -22,6 +22,9 @@ import org.flywaydb.core.internal.jdbc.Results;
 
 import java.math.BigInteger;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -38,7 +41,7 @@ public class InsertRowLock {
      */
     private final String tableLockString = getNextRandomString();
     private final JdbcTemplate jdbcTemplate;
-    public final int lockTimeoutMins;
+    private final int lockTimeoutMins;
     private final ScheduledExecutorService executor;
     private ScheduledFuture<?> scheduledFuture;
 
@@ -52,7 +55,7 @@ public class InsertRowLock {
         int retryCount = 0;
         while (true) {
             try {
-                jdbcTemplate.execute(deleteExpiredLockStatement);
+                jdbcTemplate.execute(generateDeleteExpiredLockStatement(deleteExpiredLockStatement));
                 if (insertLockingRow(insertStatementTemplate, booleanTrue)) {
                     scheduledFuture = startLockWatchingThread(String.format(updateLockStatement.replace("?", "%s"), tableLockString));
                     return;
@@ -69,6 +72,12 @@ public class InsertRowLock {
                 // Ignore - if interrupted, we still need to wait for lock to become available
             }
         }
+    }
+
+    private String generateDeleteExpiredLockStatement(String deleteExpiredLockStatementTemplate) {
+        LocalDateTime zonedDateTime = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(lockTimeoutMins);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        return String.format(deleteExpiredLockStatementTemplate.replace("?", "%s"), zonedDateTime.format(formatter));
     }
 
     private boolean insertLockingRow(String insertStatementTemplate, String booleanTrue) {

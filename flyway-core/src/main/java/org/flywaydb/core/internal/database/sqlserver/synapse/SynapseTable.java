@@ -38,11 +38,9 @@ public class SynapseTable extends SQLServerTable {
     protected void doLock() throws SQLException {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         Timestamp currentDateTime = new Timestamp(cal.getTime().getTime());
-        cal.add(Calendar.MINUTE, -insertRowLock.lockTimeoutMins);
-        Timestamp timeoutTimeAgo = new Timestamp(cal.getTime().getTime());
 
         String updateLockStatement = "UPDATE " + this + " SET installed_on = '" + currentDateTime + "' WHERE version = '?' AND description = 'flyway-lock'";
-        String deleteExpiredLockStatement = "DELETE FROM " + this + " WHERE description = 'flyway-lock' AND installed_on < '" + timeoutTimeAgo + "'";
+        String deleteExpiredLockStatement = "DELETE FROM " + this + " WHERE description = 'flyway-lock' AND installed_on < '?'";
 
         if (lockDepth == 0) {
             insertRowLock.doLock(database.getInsertStatement(this), updateLockStatement, deleteExpiredLockStatement, database.getBooleanTrue());
