@@ -66,8 +66,6 @@ public class CommandLineArguments {
     private static final String SUPPRESS_PROMPT_FLAG = "-n";
     private static final List<String> PRINT_VERSION_AND_EXIT_FLAGS = Arrays.asList( "-v", "--version" );
     private static final String CHECK_LICENCE = "-checkLicence";
-    // The JSON_FLAG is deprecated and should be removed in v8
-    private static final String JSON_FLAG = "-json";
     private static final List<String> PRINT_USAGE_FLAGS = Arrays.asList( "-?", "-h", "--help" );
     private static final String SKIP_CHECK_FOR_UPDATE_FLAG = "-skipCheckForUpdate";
     private static final String COMMUNITY_FLAG = "-community";
@@ -97,7 +95,6 @@ public class CommandLineArguments {
                 DEBUG_FLAG,
                 QUIET_FLAG,
                 SUPPRESS_PROMPT_FLAG,
-                JSON_FLAG,
                 SKIP_CHECK_FOR_UPDATE_FLAG,
                 COMMUNITY_FLAG,
                 ENTERPRISE_FLAG,
@@ -247,13 +244,7 @@ public class CommandLineArguments {
     }
 
     public boolean shouldOutputJson() {
-        // The JSON_FLAG is deprecated and should be removed in v8
-        // Not easy to warn about it as that needs to be injected into JSON
-        return (isFlagSet(args, JSON_FLAG) || "json".equalsIgnoreCase(getArgumentValue(OUTPUT_TYPE, args)));
-    }
-
-    public boolean shouldWarnAboutDeprecatedFlag() {
-        return isFlagSet(args, JSON_FLAG);
+        return "json".equalsIgnoreCase(getArgumentValue(OUTPUT_TYPE, args));
     }
 
     public boolean shouldPrintUsage() {

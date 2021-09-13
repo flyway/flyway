@@ -83,10 +83,9 @@ public class CommandResultFactory {
     public static ValidateResult createValidateResult(String databaseName, ErrorDetails validationError, int validationCount, List<ValidateOutput> invalidMigrations, List<String> warnings) {
         String flywayVersion = VersionPrinter.getVersion();
         boolean validationSuccessful = validationError == null;
-        String errorMessage = validationError == null ? null : validationError.errorMessage;
         List<ValidateOutput> invalidMigrationsList = invalidMigrations == null ? new ArrayList<>() : invalidMigrations;
 
-        return new ValidateResult(flywayVersion, databaseName, validationError, validationSuccessful, validationCount, invalidMigrationsList, warnings, errorMessage);
+        return new ValidateResult(flywayVersion, databaseName, validationError, validationSuccessful, validationCount, invalidMigrationsList, warnings);
     }
 
     public static RepairResult createRepairResult(String databaseName) {
@@ -112,7 +111,6 @@ public class CommandResultFactory {
                 migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
                 migrationInfo.getDescription(),
                 migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
-                migrationInfo.getInstalledOn() != null ? migrationInfo.getInstalledOn().toString() : "",
                 migrationInfo.getInstalledOn() != null ? migrationInfo.getInstalledOn().toInstant().toString() : "",
                 migrationInfo.getState().getDisplayName(),
                 getUndoableStatus(migrationInfo, undoableVersions),

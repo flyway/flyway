@@ -167,11 +167,6 @@ public class Main {
             }
 
             if (commandLineArguments.shouldOutputJson()) {
-                if (commandLineArguments.shouldWarnAboutDeprecatedFlag()) {
-                    String message = "Option -json is deprecated; use -outputType=json instead";
-                    LOG.warn(message);
-                    result.addWarning(message);
-                }
                 printJson(commandLineArguments, result);
             }
         } catch (Exception e) {
