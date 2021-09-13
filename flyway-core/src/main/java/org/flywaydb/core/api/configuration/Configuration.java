@@ -395,6 +395,8 @@ public interface Configuration {
     boolean isOutOfOrder();
 
     /**
+     * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
+     *
      * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
      * older deployment of the application that are no longer available in this version. For example: we have migrations
      * available on the classpath with versions 1.0 and 3.0. The schema history table indicates that a migration with version 2.0
@@ -409,6 +411,8 @@ public interface Configuration {
     boolean isIgnoreMissingMigrations();
 
     /**
+     * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
+     *
      * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
      * already migrated migrations in this version. For example: we have migrations available on the classpath with
      * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
@@ -423,6 +427,8 @@ public interface Configuration {
     boolean isIgnoreIgnoredMigrations();
 
     /**
+     * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
+     *
      * Ignore pending migrations when reading the schema history table. These are migrations that are available
      * but have not yet been applied. This can be useful for verifying that in-development migration changes
      * don't contain any validation-breaking changes of migrations that have already been applied to a production
@@ -433,6 +439,8 @@ public interface Configuration {
     boolean isIgnorePendingMigrations();
 
     /**
+     * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
+     *
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
