@@ -29,11 +29,7 @@ import java.sql.SQLException;
  * Redshift database.
  */
 public class RedshiftDatabase extends Database<RedshiftConnection> {
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
+
     public RedshiftDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }

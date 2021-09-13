@@ -33,13 +33,7 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
  */
 public class IgniteThinDatabase extends Database<IgniteThinConnection> {
 
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public IgniteThinDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
-        // TODO remove StatementInterceptor as that's enterprise-only
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 

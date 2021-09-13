@@ -58,9 +58,9 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     public void ensureSupported() {
         ensureDatabaseIsRecentEnough("15.7");
 
-        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("16.2", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("16.3", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("16.2");
+        recommendFlywayUpgradeIfNecessary("16.3");
     }
 
     @Override

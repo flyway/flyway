@@ -28,11 +28,7 @@ import java.sql.SQLException;
  * Informix database.
  */
 public class InformixDatabase extends Database<InformixConnection> {
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
+
     public InformixDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }

@@ -27,9 +27,7 @@ import java.sql.Connection;
  * SAP HANA database.
  */
 public class SAPHANADatabase extends Database<SAPHANAConnection> {
-    /**
-     * Creates a new instance.
-     */
+
     public SAPHANADatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }

@@ -40,9 +40,6 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
      */
     private final boolean quotedIdentifiersIgnoreCase;
 
-    /**
-     * Creates a new instance.
-     */
     public SnowflakeDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
 
