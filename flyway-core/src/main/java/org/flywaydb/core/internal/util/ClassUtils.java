@@ -177,7 +177,6 @@ public class ClassUtils {
     public static String getLocationOnDisk(Class<?> aClass) {
         ProtectionDomain protectionDomain = aClass.getProtectionDomain();
         if (protectionDomain == null) {
-            //Android
             return null;
         }
         CodeSource codeSource = protectionDomain.getCodeSource();

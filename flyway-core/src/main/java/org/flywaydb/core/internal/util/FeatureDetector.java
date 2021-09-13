@@ -28,7 +28,6 @@ public final class FeatureDetector {
     private Boolean jbossVFSv2Available;
     private Boolean jbossVFSv3Available;
     private Boolean osgiFrameworkAvailable;
-    private Boolean androidAvailable;
     private Boolean awsAvailable;
     private Boolean gcsAvailable;
 
@@ -93,14 +92,6 @@ public final class FeatureDetector {
         }
 
         return osgiFrameworkAvailable;
-    }
-
-    public boolean isAndroidAvailable() {
-        if (androidAvailable == null) {
-            androidAvailable = "Android Runtime".equals(System.getProperty("java.runtime.name"));
-        }
-
-        return androidAvailable;
     }
 
     public boolean isAwsAvailable() {

@@ -71,11 +71,6 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>android</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <optional>true</optional>
@@ -278,11 +273,6 @@
                             org.flywaydb.core.api.*;version=${project.version}
                         </Export-Package>
                         <Import-Package>
-                            android.content;version="[4.0.1.2,9)";resolution:=optional,
-                            android.content.pm;version="[4.0.1.2,9)";resolution:=optional,
-                            android.content.res;version="[4.0.1.2,9)";resolution:=optional,
-                            android.util;version="[4.0.1.2,9)";resolution:=optional,
-                            dalvik.system;version="[4.0.1.2,9)";resolution:=optional,
                             javax.sql,
                             org.apache.commons.logging;version="[1.1,2)";resolution:=optional,
                             org.jboss.vfs;version="[3.1.0,4)";resolution:=optional,

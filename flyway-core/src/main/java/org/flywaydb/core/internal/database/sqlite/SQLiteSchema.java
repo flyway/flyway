@@ -26,24 +26,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * SQLite implementation of Schema.
- */
 public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
     private static final Log LOG = LogFactory.getLog(SQLiteSchema.class);
 
-    private static final List<String> IGNORED_SYSTEM_TABLE_NAMES =
-            Arrays.asList("android_metadata", SQLiteTable.SQLITE_SEQUENCE);
+    private static final List<String> IGNORED_SYSTEM_TABLE_NAMES = Arrays.asList("android_metadata", SQLiteTable.SQLITE_SEQUENCE);
 
     private boolean foreignKeysEnabled;
 
-    /**
-     * Creates a new SQLite schema.
-     *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
-     */
     SQLiteSchema(JdbcTemplate jdbcTemplate, SQLiteDatabase database, String name) {
         super(jdbcTemplate, database, name);
     }
@@ -116,5 +105,7 @@ public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
         return new SQLiteTable(jdbcTemplate, database, this, tableName);
     }
 
-    public boolean getForeignKeysEnabled() { return foreignKeysEnabled; }
+    public boolean getForeignKeysEnabled() {
+        return foreignKeysEnabled;
+    }
 }

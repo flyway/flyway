@@ -60,9 +60,6 @@ public class SQLiteDatabaseType extends BaseDatabaseType {
         if (url.startsWith("jdbc:sqldroid:")) {
             return "org.sqldroid.SQLDroidDriver";
         }
-        if (new FeatureDetector(classLoader).isAndroidAvailable()) {
-            return "org.sqldroid.SQLDroidDriver";
-        }
         return "org.sqlite.JDBC";
     }
 
