@@ -98,7 +98,7 @@ public class Main {
 
             if (!commandLineArguments.shouldCheckLicenseAndExit() && commandLineArguments.shouldPrintVersionAndExit()) {
                 printVersion();
-                System.exit(0);
+                return;
             }
 
             if (commandLineArguments.hasOperation("help") || commandLineArguments.shouldPrintUsage()) {
