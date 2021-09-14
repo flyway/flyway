@@ -288,8 +288,9 @@ public interface Configuration {
 
     /**
      * Retrieves the name of the schema history table that will be used by Flyway.
-     * By default (single-schema mode) the schema history table is placed in the default schema for the connection provided by the datasource.
-     * When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first schema of the list.
+     * By default, (single-schema mode) the schema history table is placed in the default schema for the connection provided by the datasource.
+     * When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first schema of the list,
+     * or in the schema specified to <i>flyway.defaultSchema</i>.
      *
      * @return The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
      */
@@ -298,7 +299,7 @@ public interface Configuration {
     /**
      * The tablespace where to create the schema history table that will be used by Flyway.
      * If not specified, Flyway uses the default tablespace for the database connection.
-     * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply ignored for all others.
+     * This setting is only relevant for databases that do support the notion of tablespace. Its value is simply ignored for all others.
      *
      * @return The tablespace where to create the schema history table that will be used by Flyway.
      */
@@ -314,14 +315,14 @@ public interface Configuration {
      * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
      * </ul>
      *
-     * @return The schemas managed by Flyway. (default: The first schema specified in getSchemas(), and failing that the default schema for the database connection)
+     * @return The default schema managed by Flyway, which is where the schema history table will reside. (default: The first schema specified in getSchemas(), and failing that the default schema for the database connection)
      */
     String getDefaultSchema();
 
     /**
      * The schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
-     * the default schema for the database connection. If <i>defaultSchemaName</i> is not specified, then the first of
-     * this list also acts as default schema.
+     * the default schema for the database connection. If <i>defaultSchema</i> is not specified, then the first of
+     * this list also acts as the default schema.
      * <p>Consequences:</p>
      * <ul>
      * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>

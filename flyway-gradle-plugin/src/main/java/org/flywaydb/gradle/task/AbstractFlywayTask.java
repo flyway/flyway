@@ -106,9 +106,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     /**
      * The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
-     * By default (single-schema mode) the schema history table is placed in the default schema for the connection provided by the
-     * datasource. When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is
-     * placed in the first schema of the list.
+     * By default, (single-schema mode) the schema history table is placed in the default schema for the connection provided by the datasource.
+     * When the {@code flyway.schemas} property is set (multi-schema mode), the schema history table is placed in the first schema of the list,
+     * or in the schema specified to {@code flyway.defaultSchema}.
      * <p>Also configurable with Gradle or System Property: ${flyway.table}</p>
      */
     public String table;
@@ -123,9 +123,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String tablespace;
 
     /**
-     * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
-     * <i>schemas</i> is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the
-     * default schema for the database connection.
+     * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but <i>schemas</i>
+     * is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default schema for the
+     * database connection.
      * <p>Consequences:</p>
      * <ul>
      * <li>This schema will be the one containing the schema history table.</li>
@@ -136,7 +136,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String defaultSchema;
 
     /**
-     * Whether Flyway should attempt to create the schemas specified in the schemas property.
+     * Whether Flyway should attempt to create the schemas specified in the <i>schemas</i> property.
      */
     public Boolean createSchemas;
 

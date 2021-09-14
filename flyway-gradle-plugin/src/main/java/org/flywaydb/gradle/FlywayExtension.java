@@ -71,9 +71,9 @@ public class FlywayExtension {
 
     /**
      * The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
-     * By default (single-schema mode) the schema history table is placed in the default schema for the connection
-     * provided by the datasource. When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema
-     * history table is placed in the first schema of the list.
+     * By default, (single-schema mode) the schema history table is placed in the default schema for the connection provided by the datasource.
+     * When the {@code flyway.schemas} property is set (multi-schema mode), the schema history table is placed in the first schema of the list,
+     * or in the schema specified to {@code flyway.defaultSchema}.
      * <p>Also configurable with Gradle or System Property: ${flyway.table}</p>
      */
     public String table;
@@ -88,15 +88,15 @@ public class FlywayExtension {
     public String tablespace;
 
     /**
-     * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
-     * <i>schemas</i> is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the
-     * default schema for the database connection.
+     * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but <i>schemas</i>
+     * is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default schema for the
+     * database connection.
      * <p>Consequences:</p>
      * <ul>
      * <li>This schema will be the one containing the schema history table.</li>
      * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
      * </ul>
-     * <p>Also configurable with Maven or System Property: ${flyway.defaultSchema}</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.defaultSchema}</p>
      */
     public String defaultSchema;
 
@@ -110,7 +110,7 @@ public class FlywayExtension {
      * <li>The schemas will be cleaned in the order of this list.</li>
      * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
      * </ul>
-     * <p>Also configurable with Maven or System Property: ${flyway.schemas} (comma-separated list)</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.schemas} (comma-separated list)</p>
      */
     public String[] schemas;
 

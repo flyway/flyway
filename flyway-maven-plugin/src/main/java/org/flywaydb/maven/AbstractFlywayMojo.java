@@ -122,8 +122,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but <i>schemas</i>
-     * is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default schema
-     * for the database connection.
+     * is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default schema for the
+     * database connection.
      * <p>Consequences:</p>
      * <ul>
      * <li>This schema will be the one containing the schema history table.</li>
@@ -151,9 +151,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
-     * By default (single-schema mode) the schema history table is placed in the default schema for the connection
-     * provided by the datasource. When the {@code flyway.schemas} property is set (multi-schema mode), the
-     * schema history table is placed in the first schema of the list.
+     * By default, (single-schema mode) the schema history table is placed in the default schema for the connection provided by the datasource.
+     * When the {@code flyway.schemas} property is set (multi-schema mode), the schema history table is placed in the first schema of the list,
+     * or in the schema specified to {@code flyway.defaultSchema}.
      * <p>Also configurable with Maven or System Property: ${flyway.table}</p>
      */
     @Parameter(property = ConfigUtils.TABLE)
