@@ -135,6 +135,12 @@ public class Main {
             ConfigUtils.dumpConfiguration(config);
             filterProperties(config);
 
+
+
+
+
+
+
             if(!commandLineArguments.skipCheckForUpdate()) {
                 if (FeatureDetector.isRedgateUpdateCheckEnabled()) {
                     String message = RedgateUpdateChecker.getUpdateCheckMessage(config.get(ConfigUtils.URL));
@@ -147,12 +153,6 @@ public class Main {
             }
 
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
-
-
-
-
-
-
 
             OperationResultBase result;
             if (commandLineArguments.getOperations().size()==1) {
