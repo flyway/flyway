@@ -21,7 +21,7 @@ import java.io.Reader;
 
 public class RecordingReader extends FilterReader {
     private boolean paused;
-    private Recorder recorder;
+    private final Recorder recorder;
 
     RecordingReader(Recorder recorder, Reader in) {
         super(in);

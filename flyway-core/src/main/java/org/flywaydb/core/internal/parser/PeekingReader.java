@@ -26,7 +26,7 @@ public class PeekingReader extends FilterReader {
     private int[] peekBuffer = new int[256];
     private int peekMax = 0;
     private int peekBufferOffset = 0;
-    private boolean supportsPeekingMultipleLines = true;
+    private final boolean supportsPeekingMultipleLines;
 
     PeekingReader(Reader in, boolean supportsPeekingMultipleLines) {
         super(in);
@@ -204,26 +204,6 @@ public class PeekingReader extends FilterReader {
         return result.toString();
     }
 
-    /**
-     * Return the next non-whitespace character
-     * @return The character
-     */
-    public char peekNextNonWhitespace() throws IOException {
-        int i = 1;
-        String c = peek(i++, true);
-        String lastc = c;
-        while (c.trim().isEmpty()) {
-            c = peek(i++, true);
-            if (c.equals(lastc)) {
-                // if the peek is the same as the last peek, then dont loop forever, even if its still empty.
-                break;
-            }
-            lastc = c;
-        }
-
-        return c.charAt(c.length()-1);
-    }
-
     private void resizePeekBuffer(int newSize) {
         peekBuffer = Arrays.copyOf(peekBuffer, newSize + peekBufferOffset);
     }
@@ -351,6 +331,8 @@ public class PeekingReader extends FilterReader {
             if (c == delimiter) {
                 if (selfEscape && peek(delimiter)) {
                     result.append(delimiter);
+                    result.append(delimiter);
+                    read();
                     continue;
                 }
                 break;
@@ -424,30 +406,6 @@ public class PeekingReader extends FilterReader {
     }
 
     /**
-     * Reads all characters in this stream until the delimiting sequence is encountered.
-     *
-     * @param delimiterSequence The delimiting sequence.
-     * @return The string read, including the delimiting characters.
-     */
-    public String readUntilIncluding(String delimiterSequence) throws IOException {
-        StringBuilder result = new StringBuilder();
-
-        do {
-            int r = read();
-            if (r == -1) {
-                break;
-            }
-            char c = (char) r;
-
-            result.append(c);
-            if (result.toString().endsWith(delimiterSequence)) {
-                break;
-            }
-        } while (true);
-        return result.toString();
-    }
-
-    /**
      * Reads all characters in this stream as long as they can be part of a keyword.
      *
      * @param delimiter The current delimiter.
@@ -469,18 +427,6 @@ public class PeekingReader extends FilterReader {
             }
         } while (true);
         return result.toString();
-    }
-
-    /**
-     * Swallows all characters in this stream as long as they can be part of a numeric constant.
-     */
-    public void swallowNumeric() throws IOException {
-        do {
-            if (!peekNumeric()) {
-                return;
-            }
-            swallow();
-        } while (true);
     }
 
     /**
