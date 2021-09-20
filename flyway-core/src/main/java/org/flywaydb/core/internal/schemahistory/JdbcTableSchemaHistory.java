@@ -317,6 +317,10 @@ class JdbcTableSchemaHistory extends SchemaHistory {
         LOG.info("Repairing Schema History table for version " + version
                 + " (Description: " + description + ", Type: " + type + ", Checksum: " + checksum + ")  ...");
 
+        if (!database.supportsEmptyMigrationDescription() && "".equals(description)) {
+            description = NO_DESCRIPTION_MARKER;
+        }
+
         Object checksumObj = checksum == null ? JdbcNullTypes.IntegerNull : checksum;
 
         try {
