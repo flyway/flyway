@@ -493,6 +493,21 @@
                 <version>${version.aws-java-sdk}</version>
                 <optional>true</optional>
             </dependency>
+            <!-- Override transitive dependencies within S3 to deal with high priority CVEs. These two
+            can be removed when S3 fixes the issue (it has been unpatched since 2.16.15) -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec</artifactId>
+                <version>4.1.68.Final</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http</artifactId>
+                <version>4.1.60.Final</version>
+                <optional>true</optional>
+            </dependency>
+            <!-- end of S3 transitive overrides -->
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-storage</artifactId>
