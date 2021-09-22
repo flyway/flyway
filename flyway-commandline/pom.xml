@@ -159,6 +159,10 @@
             <artifactId>aws-secretsmanager-jdbc</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
 
 
 

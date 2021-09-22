@@ -191,6 +191,7 @@
         <version.junit>4.13.2</version.junit>
         <version.log4net2>2.14.1</version.log4net2>
         <version.logback>1.2.3</version.logback>
+        <version.lombok>1.18.20</version.lombok>
         <version.mariadb>2.7.2</version.mariadb>
         <version.maven>3.8.1</version.maven>
         <version.mockito>1.10.19</version.mockito>
@@ -603,6 +604,12 @@
                 <classifier>macos-x64</classifier>
                 <type>tar.gz</type>
             </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${version.lombok}</version>
+                <scope>provided</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -696,6 +703,13 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${version.lombok}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>
