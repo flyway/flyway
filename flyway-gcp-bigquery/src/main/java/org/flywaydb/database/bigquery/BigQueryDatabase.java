@@ -20,6 +20,7 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -29,6 +30,8 @@ import java.sql.SQLException;
  * Note: The necessary driver is not available via Maven. See flywaydb.org documentation for where to get it from.
  */
 public class BigQueryDatabase extends Database<BigQueryConnection> {
+    private static final long TEN_GB_DATASET_SIZE_LIMIT = 10L * 1024 * 1024 * 1024;
+
     public BigQueryDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
@@ -40,7 +43,22 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
 
     @Override
     public final void ensureSupported() {
-        // BigQuery version is always at latest and supported
+        long totalDatasetSize = 0;
+        for (String dataset : configuration.getSchemas()) {
+            totalDatasetSize += getDatasetSize(dataset);
+            if (totalDatasetSize > TEN_GB_DATASET_SIZE_LIMIT) {
+                throw new FlywayTeamsUpgradeRequiredException("GCP BigQuery with total dataset size over " + TEN_GB_DATASET_SIZE_LIMIT + " bytes");
+            }
+        }
+    }
+
+    private long getDatasetSize(String dataset) {
+        try {
+            return jdbcTemplate.queryForLong("select sum(size_bytes) from " + dataset + ".__TABLES__");
+        } catch (SQLException e) {
+            // Ignore the case when the query fails to execute
+            return 0;
+        }
     }
 
     @Override

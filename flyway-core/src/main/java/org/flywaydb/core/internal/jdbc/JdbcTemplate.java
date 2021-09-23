@@ -29,50 +29,25 @@ import java.util.Map;
  * Collection of utility methods for querying the DB. Inspired by Spring's JdbcTemplate.
  */
 public class JdbcTemplate {
-    /**
-     * The DB connection to use.
-     */
     protected final Connection connection;
-
     /**
      * The type to assign to a null value.
      */
     protected final int nullType;
 
-    /**
-     * Creates a new JdbcTemplate.
-     *
-     * @param connection The database connection to use.
-     */
     public JdbcTemplate(Connection connection) {
         this(connection, DatabaseTypeRegister.getDatabaseTypeForConnection(connection));
     }
 
-    /**
-     * Creates a new JdbcTemplate.
-     *
-     * @param connection The database connection to use.
-     */
     public JdbcTemplate(Connection connection, DatabaseType databaseType) {
         this.connection = connection;
         this.nullType = databaseType.getNullType();
     }
 
-    /**
-     * @return The DB connection to use.
-     */
     public Connection getConnection() {
         return connection;
     }
 
-    /**
-     * Executes this query with these parameters against this connection.
-     *
-     * @param query  The query to execute.
-     * @param params The query parameters.
-     * @return The query results.
-     * @throws SQLException when the query execution failed.
-     */
     public List<Map<String, String>> queryForList(String query, Object... params) throws SQLException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -98,14 +73,6 @@ public class JdbcTemplate {
         return result;
     }
 
-    /**
-     * Executes this query with these parameters against this connection.
-     *
-     * @param query  The query to execute.
-     * @param params The query parameters.
-     * @return The query results as a list of strings.
-     * @throws SQLException when the query execution failed.
-     */
     public List<String> queryForStringList(String query, String... params) throws SQLException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -127,14 +94,6 @@ public class JdbcTemplate {
         return result;
     }
 
-    /**
-     * Executes this query with these parameters against this connection.
-     *
-     * @param query  The query to execute.
-     * @param params The query parameters.
-     * @return The query result.
-     * @throws SQLException when the query execution failed.
-     */
     public int queryForInt(String query, String... params) throws SQLException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -153,14 +112,24 @@ public class JdbcTemplate {
         return result;
     }
 
-    /**
-     * Executes this query with these parameters against this connection.
-     *
-     * @param query  The query to execute.
-     * @param params The query parameters.
-     * @return The query result.
-     * @throws SQLException when the query execution failed.
-     */
+    public long queryForLong(String query, String... params) throws SQLException {
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+
+        long result;
+        try {
+            statement = prepareStatement(query, params);
+            resultSet = statement.executeQuery();
+            resultSet.next();
+            result = resultSet.getLong(1);
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+            JdbcUtils.closeStatement(statement);
+        }
+
+        return result;
+    }
+
     public boolean queryForBoolean(String query, String... params) throws SQLException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -179,14 +148,6 @@ public class JdbcTemplate {
         return result;
     }
 
-    /**
-     * Executes this query with these parameters against this connection.
-     *
-     * @param query  The query to execute.
-     * @param params The query parameters.
-     * @return The query result.
-     * @throws SQLException when the query execution failed.
-     */
     public String queryForString(String query, String... params) throws SQLException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -214,7 +175,6 @@ public class JdbcTemplate {
      * @param params The statement parameters.
      * @throws SQLException when the execution failed.
      */
-
     public void execute(String sql, Object... params) throws SQLException {
         PreparedStatement statement = null;
         try {
@@ -320,7 +280,6 @@ public class JdbcTemplate {
      * @param params The statement parameters.
      * @throws SQLException when the execution failed.
      */
-
     public void update(String sql, Object... params) throws SQLException {
         PreparedStatement statement = null;
         try {
@@ -339,7 +298,6 @@ public class JdbcTemplate {
      * @return The new prepared statement.
      * @throws SQLException when the statement could not be prepared.
      */
-
     protected PreparedStatement prepareStatement(String sql, Object[] params) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(sql);
         for (int i = 0; i < params.length; i++) {
@@ -374,7 +332,6 @@ public class JdbcTemplate {
      * @return The list of results.
      * @throws SQLException when the query failed to execute.
      */
-
     public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... params) throws SQLException {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
