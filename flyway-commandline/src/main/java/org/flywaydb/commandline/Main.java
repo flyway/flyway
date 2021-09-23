@@ -17,6 +17,7 @@ package org.flywaydb.commandline;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.flywaydb.commandline.extensibility.CommandLineExtension;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
@@ -157,11 +158,11 @@ public class Main {
             OperationResultBase result;
             if (commandLineArguments.getOperations().size()==1) {
                     String operation = commandLineArguments.getOperations().get(0);
-                    result = executeOperation(flyway, operation, commandLineArguments);
+                    result = executeOperation(flyway, operation, config, commandLineArguments);
                 } else {
                     result = new CompositeResult();
                     for (String operation : commandLineArguments.getOperations()) {
-                        OperationResultBase individualResult = executeOperation(flyway, operation, commandLineArguments);
+                        OperationResultBase individualResult = executeOperation(flyway, operation, config, commandLineArguments);
                         ((CompositeResult)result).individualResults.add(individualResult);
                 }
             }
@@ -233,7 +234,7 @@ public class Main {
         return condensedMessages.toString();
     }
 
-    private static OperationResultBase executeOperation(Flyway flyway, String operation, CommandLineArguments commandLineArguments) {
+    private static OperationResultBase executeOperation(Flyway flyway, String operation, Map<String, String> config, CommandLineArguments commandLineArguments) {
         OperationResultBase result = null;
         if ("clean".equals(operation)) {
             result = flyway.clean();
@@ -272,9 +273,20 @@ public class Main {
         } else if ("repair".equals(operation)) {
             result = flyway.repair();
         } else {
-            LOG.error("Invalid operation: " + operation);
-            printUsage();
-            System.exit(1);
+            boolean handled = false;
+            ServiceLoader<CommandLineExtension> loader = ServiceLoader.load(CommandLineExtension.class);
+            for (CommandLineExtension extension : loader) {
+                if (extension.handlesVerb(operation)) {
+                    result = extension.handle(operation, config);
+                    handled = true;
+                }
+            }
+
+            if (!handled) {
+                LOG.error("Invalid operation: " + operation);
+                printUsage();
+                System.exit(1);
+            }
         }
 
         return result;
@@ -447,6 +459,15 @@ public class Main {
         LOG.info("--help, -h, -?  : Print this usage info and exit");
         LOG.info("-community      : Run the Flyway Community Edition (default)");
         LOG.info("-teams          : Run the Flyway Teams Edition");
+        ServiceLoader<CommandLineExtension> loader = ServiceLoader.load(CommandLineExtension.class);
+        if (loader.iterator().hasNext()) {
+            LOG.info("");
+            LOG.info("Command-line extensions");
+            LOG.info("-----------------------");
+        }
+        for (CommandLineExtension extension : loader) {
+            LOG.info(extension.getUsage());
+        }
         LOG.info("");
         LOG.info("Example");
         LOG.info("-------");

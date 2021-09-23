@@ -15,6 +15,7 @@
  */
 package org.flywaydb.commandline;
 
+import org.flywaydb.commandline.extensibility.CommandLineExtension;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
@@ -215,7 +216,7 @@ public class CommandLineArguments {
 
     public void validate() {
         for (String arg : args) {
-            if (!isConfigurationArg(arg) && !VALID_OPERATIONS_AND_FLAGS.contains(arg)) {
+            if (!isConfigurationArg(arg) && !VALID_OPERATIONS_AND_FLAGS.contains(arg) && !isHandledByExtension(arg)) {
                 throw new FlywayException("Invalid argument: " + arg);
             }
         }
@@ -229,6 +230,16 @@ public class CommandLineArguments {
         if (!Color.isValid(colorArgumentValue)) {
             throw new FlywayException("'" + colorArgumentValue + "' is an invalid value for the -color option. Use 'always', 'never', or 'auto'.");
         }
+    }
+
+    private boolean isHandledByExtension(String arg) {
+        ServiceLoader<CommandLineExtension> loader = ServiceLoader.load(CommandLineExtension.class);
+        for (CommandLineExtension extension : loader) {
+            if (extension.handlesVerb(arg) || extension.handlesParameter(arg)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean shouldSuppressPrompt() {
