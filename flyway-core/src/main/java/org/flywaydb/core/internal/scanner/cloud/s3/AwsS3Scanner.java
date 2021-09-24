@@ -34,7 +34,7 @@ import java.util.*;
 
 public class AwsS3Scanner extends CloudScanner {
     private static final Log LOG = LogFactory.getLog(AwsS3Scanner.class);
-    private boolean throwOnMissingLocations;
+    private final boolean throwOnMissingLocations;
 
     /**
      * Creates a new AWS S3 scanner.
