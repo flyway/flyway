@@ -65,7 +65,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         if (isAzure()) {
             ensureDatabaseIsRecentEnough("11.0");
 
-            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("13.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("12.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
             recommendFlywayUpgradeIfNecessary("12.0");
         } else {
