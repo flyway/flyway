@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
@@ -27,9 +26,8 @@ import java.util.concurrent.Callable;
 /**
  * Spring-like template for executing with MySQL named locks.
  */
+@CustomLog
 public class MySQLNamedLockTemplate {
-    private static final Log LOG = LogFactory.getLog(MySQLNamedLockTemplate.class);
-
     /**
      * The connection for the named lock.
      */

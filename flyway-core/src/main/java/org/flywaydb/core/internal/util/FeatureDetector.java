@@ -15,12 +15,10 @@
  */
 package org.flywaydb.core.internal.util;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 
+@CustomLog
 public final class FeatureDetector {
-    private static final Log LOG = LogFactory.getLog(FeatureDetector.class);
-
     private final ClassLoader classLoader;
     private Boolean apacheCommonsLoggingAvailable;
     private Boolean log4J2Available;

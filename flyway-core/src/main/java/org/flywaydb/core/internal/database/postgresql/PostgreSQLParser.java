@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.*;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 
+@CustomLog
 public class PostgreSQLParser extends Parser {
     private static final Pattern COPY_FROM_STDIN_REGEX = Pattern.compile("^COPY( .*)? FROM STDIN");
     private static final Pattern CREATE_DATABASE_TABLESPACE_SUBSCRIPTION_REGEX = Pattern.compile("^(CREATE|DROP) (DATABASE|TABLESPACE|SUBSCRIPTION)");

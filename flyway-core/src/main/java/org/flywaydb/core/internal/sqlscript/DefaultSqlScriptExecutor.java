@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.callback.Warning;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Result;
@@ -32,9 +31,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@CustomLog
 public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
-    private static final Log LOG = LogFactory.getLog(DefaultSqlScriptExecutor.class);
-
     private final JdbcTemplate jdbcTemplate;
 
 

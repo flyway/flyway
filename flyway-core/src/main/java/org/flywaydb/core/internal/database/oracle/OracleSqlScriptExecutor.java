@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.logging.Log;
@@ -43,9 +44,8 @@ import java.util.List;
 import java.util.Locale;
 
 @SuppressWarnings("SqlResolve")
+@CustomLog
 public class OracleSqlScriptExecutor extends DefaultSqlScriptExecutor {
-
-
 
 
 

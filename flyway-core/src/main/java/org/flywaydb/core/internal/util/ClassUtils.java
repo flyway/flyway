@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -30,9 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
+@CustomLog
 public class ClassUtils {
-    private static final Log LOG = LogFactory.getLog(ClassUtils.class);
-
     private ClassUtils() { }
 
     /**

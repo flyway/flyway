@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.parser;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.resource.ResourceName;
@@ -40,9 +39,8 @@ import java.util.regex.Pattern;
 /**
  * The main parser all database-specific parsers derive from.
  */
+@CustomLog
 public abstract class Parser {
-    protected static final Log LOG = LogFactory.getLog(Parser.class);
-
 
 
 

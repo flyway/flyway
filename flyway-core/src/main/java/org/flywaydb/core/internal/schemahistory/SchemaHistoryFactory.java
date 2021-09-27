@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.schemahistory;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
@@ -35,8 +34,8 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+@CustomLog
 public class SchemaHistoryFactory {
-    private static final Log LOG = LogFactory.getLog(SchemaHistoryFactory.class);
 
     private SchemaHistoryFactory() {
         // Prevent instantiation

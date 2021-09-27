@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.command;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Event;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
@@ -32,9 +31,8 @@ import java.util.List;
 /**
  * Handles Flyway's automatic schema creation.
  */
+@CustomLog
 public class DbSchemas {
-    private static final Log LOG = LogFactory.getLog(DbSchemas.class);
-
     /**
      * The database connection to use for accessing the schema history table.
      */

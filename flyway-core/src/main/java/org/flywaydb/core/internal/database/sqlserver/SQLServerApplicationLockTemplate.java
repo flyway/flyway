@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
@@ -27,9 +26,8 @@ import java.util.concurrent.Callable;
 /**
  * Spring-like template for executing with SQL Server application locks.
  */
+@CustomLog
 public class SQLServerApplicationLockTemplate {
-    private static final Log LOG = LogFactory.getLog(SQLServerApplicationLockTemplate.class);
-
     private final SQLServerConnection connection;
     private final JdbcTemplate jdbcTemplate;
     private final String databaseName;

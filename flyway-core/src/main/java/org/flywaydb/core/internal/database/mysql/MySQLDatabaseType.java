@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.authentication.mysql.MySQLOptionFileReader;
@@ -32,6 +33,7 @@ import java.sql.Connection;
 import java.sql.Types;
 import java.util.Properties;
 
+@CustomLog
 public class MySQLDatabaseType extends BaseDatabaseType {
     private static final String MYSQL_LEGACY_JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";

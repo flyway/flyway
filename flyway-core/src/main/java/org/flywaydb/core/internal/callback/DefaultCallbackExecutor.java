@@ -20,8 +20,6 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.*;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
@@ -38,7 +36,6 @@ import java.util.concurrent.Callable;
  * Executes the callbacks for a specific event.
  */
 public class DefaultCallbackExecutor implements CallbackExecutor {
-    private static final Log LOG = LogFactory.getLog(DefaultCallbackExecutor.class);
 
     private final Configuration configuration;
     private final Database database;

@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.database.base;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
 import org.flywaydb.core.internal.database.DefaultExecutionStrategy;
@@ -39,9 +38,8 @@ import java.util.regex.Pattern;
 
 import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.getMetadataResource;
 
+@CustomLog
 public abstract class BaseDatabaseType implements DatabaseType {
-    protected static final Log LOG = LogFactory.getLog(BaseDatabaseType.class);
-
     // Don't grab semicolons and ampersands - they have special meaning in URLs
     private static final Pattern defaultJdbcCredentialsPattern = Pattern.compile("password=([^;&]*).*", Pattern.CASE_INSENSITIVE);
 

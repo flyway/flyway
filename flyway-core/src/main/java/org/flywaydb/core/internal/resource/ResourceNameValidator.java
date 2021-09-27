@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.resource;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -28,9 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@CustomLog
 public class ResourceNameValidator {
-    private static final Log LOG = LogFactory.getLog(ResourceNameValidator.class);
-
     /**
      * Validates the names of all SQL resources returned by the ResourceProvider
      * @param provider The ResourceProvider to validate

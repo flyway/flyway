@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.database.base;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
@@ -26,8 +25,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@CustomLog
 public abstract class Schema<D extends Database, T extends Table> {
-    private static final Log LOG = LogFactory.getLog(Schema.class);
     protected final JdbcTemplate jdbcTemplate;
     protected final D database;
     protected final String name;

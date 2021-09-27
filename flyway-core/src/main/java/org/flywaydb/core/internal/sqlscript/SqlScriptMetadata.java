@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
@@ -30,8 +29,8 @@ import java.util.Map;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
 import static org.flywaydb.core.internal.util.BooleanEvaluator.evaluateExpression;
 
+@CustomLog
 public class SqlScriptMetadata {
-    private static final Log LOG = LogFactory.getLog(SqlScriptMetadata.class);
     private static final String EXECUTE_IN_TRANSACTION = "executeInTransaction";
     private static final String ENCODING = "encoding";
     private static final String SHOULD_EXECUTE = "shouldExecute";

@@ -15,14 +15,13 @@
  */
 package org.flywaydb.core.internal.command;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.RepairResult;
 import org.flywaydb.core.api.resolver.MigrationResolver;
@@ -44,9 +43,8 @@ import java.util.concurrent.Callable;
 /**
  * Handles Flyway's repair command.
  */
+@CustomLog
 public class DbRepair {
-    private static final Log LOG = LogFactory.getLog(DbRepair.class);
-
     /**
      * The database connection to use for accessing the schema history table.
      */

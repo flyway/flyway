@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.strategy.BackoffStrategy;
@@ -30,8 +29,8 @@ import java.sql.*;
 /**
  * Utility class for dealing with jdbc connections.
  */
+@CustomLog
 public class JdbcUtils {
-    private static final Log LOG = LogFactory.getLog(JdbcUtils.class);
 
     private JdbcUtils() { }
 

@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.authentication.postgres;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.authentication.ExternalAuthFileReader;
 
 import java.io.File;
@@ -27,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+@CustomLog
 public class PgpassFileReader implements ExternalAuthFileReader {
-    private static final Log LOG = LogFactory.getLog(PgpassFileReader.class);
 
     @Override
     public List<String> getAllContents() {

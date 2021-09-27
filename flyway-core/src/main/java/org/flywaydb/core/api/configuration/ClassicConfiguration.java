@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.api.configuration;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
@@ -51,8 +50,8 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger
  * new FluentConfiguration isn't an easy fit, such as Spring XML bean configuration.
  * <p>This configuration can then be passed to Flyway using the <code>new Flyway(Configuration)</code> constructor.</p>
  */
+@CustomLog
 public class ClassicConfiguration implements Configuration {
-    private static final Log LOG = LogFactory.getLog(ClassicConfiguration.class);
 
     private List<ApiExtension> apiExtensions = new ArrayList<>();
 

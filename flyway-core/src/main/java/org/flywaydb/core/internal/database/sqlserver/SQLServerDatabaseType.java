@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
@@ -28,6 +29,7 @@ import java.sql.Connection;
 import java.sql.Types;
 import java.util.Properties;
 
+@CustomLog
 public class SQLServerDatabaseType extends BaseDatabaseType {
     @Override
     public String getName() {

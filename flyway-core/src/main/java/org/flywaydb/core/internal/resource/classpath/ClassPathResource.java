@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.resource.classpath;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.util.UrlUtils;
 
@@ -34,8 +33,8 @@ import java.util.Objects;
 
 
 
+@CustomLog
 public class ClassPathResource extends LoadableResource {
-    private static final Log LOG = LogFactory.getLog(ClassPathResource.class);
     private final String fileNameWithAbsolutePath;
     private final String fileNameWithRelativePath;
     private final ClassLoader classLoader;

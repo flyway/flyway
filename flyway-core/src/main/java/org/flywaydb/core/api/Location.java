@@ -15,9 +15,6 @@
  */
 package org.flywaydb.core.api;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,8 +23,6 @@ import java.util.regex.Pattern;
  * A location to load migrations from.
  */
 public final class Location implements Comparable<Location> {
-    private static final Log LOG = LogFactory.getLog(Location.class);
-
     /**
      * The prefix for classpath locations.
      */

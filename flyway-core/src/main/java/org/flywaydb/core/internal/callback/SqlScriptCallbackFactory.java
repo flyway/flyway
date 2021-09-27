@@ -15,14 +15,13 @@
  */
 package org.flywaydb.core.internal.callback;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.callback.Context;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
@@ -35,8 +34,8 @@ import java.util.*;
 /**
  * Callback factory, looking for SQL scripts (named like on the callback methods) inside the configured locations.
  */
+@CustomLog
 public class SqlScriptCallbackFactory {
-    private static final Log LOG = LogFactory.getLog(SqlScriptCallbackFactory.class);
 
     private final List<SqlScriptCallback> callbacks = new ArrayList<>();
 

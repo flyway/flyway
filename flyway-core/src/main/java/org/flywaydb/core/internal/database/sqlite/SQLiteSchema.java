@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -26,9 +25,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@CustomLog
 public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
-    private static final Log LOG = LogFactory.getLog(SQLiteSchema.class);
-
     private static final List<String> IGNORED_SYSTEM_TABLE_NAMES = Arrays.asList("android_metadata", SQLiteTable.SQLITE_SEQUENCE);
 
     private boolean foreignKeysEnabled;

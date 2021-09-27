@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.command;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Event;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.BaselineResult;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
@@ -31,8 +30,8 @@ import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 /**
  * Handles Flyway's baseline command.
  */
+@CustomLog
 public class DbBaseline {
-    private static final Log LOG = LogFactory.getLog(DbBaseline.class);
 
     /**
      * The schema history table.

@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.schemahistory;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.RepairOutput;
 import org.flywaydb.core.api.output.RepairResult;
@@ -45,9 +44,8 @@ import java.util.concurrent.Callable;
 /**
  * Supports reading and writing to the schema history table.
  */
+@CustomLog
 class JdbcTableSchemaHistory extends SchemaHistory {
-    private static final Log LOG = LogFactory.getLog(JdbcTableSchemaHistory.class);
-
     private final SqlScriptExecutorFactory sqlScriptExecutorFactory;
     private final SqlScriptFactory sqlScriptFactory;
 

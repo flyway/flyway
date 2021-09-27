@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
@@ -25,9 +24,8 @@ import java.sql.SQLException;
 /**
  * SQLite-specific table.
  */
+@CustomLog
 public class SQLiteTable extends Table<SQLiteDatabase, SQLiteSchema> {
-    private static final Log LOG = LogFactory.getLog(SQLiteTable.class);
-
     /**
      * SQLite system tables are undroppable.
      */

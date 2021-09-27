@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.scanner.classpath;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.util.IOUtils;
 
 import java.io.IOException;
@@ -31,8 +30,8 @@ import java.util.jar.JarFile;
 /**
  * ClassPathLocationScanner for jar files.
  */
+@CustomLog
 public class JarFileClassPathLocationScanner implements ClassPathLocationScanner {
-    private static final Log LOG = LogFactory.getLog(JarFileClassPathLocationScanner.class);
 
     /**
      * The separator that delimits the jar file name and the file inside the jar within a URL.

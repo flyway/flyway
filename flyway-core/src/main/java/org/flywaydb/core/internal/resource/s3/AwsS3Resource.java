@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.resource.s3;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.S3ClientFactory;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -30,9 +29,8 @@ import java.io.Reader;
 import java.nio.channels.Channels;
 import java.nio.charset.Charset;
 
+@CustomLog
 public class AwsS3Resource extends LoadableResource {
-    private static final Log LOG = LogFactory.getLog(AwsS3Resource.class);
-
     private final String bucketName;
     private final S3Object s3ObjectSummary;
     private final Charset encoding;

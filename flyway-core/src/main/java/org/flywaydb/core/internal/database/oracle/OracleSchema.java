@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
@@ -35,9 +34,8 @@ import static org.flywaydb.core.internal.database.oracle.OracleSchema.ObjectType
 /**
  * Oracle implementation of Schema.
  */
+@CustomLog
 public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
-    private static final Log LOG = LogFactory.getLog(OracleSchema.class);
-
     /**
      * Creates a new Oracle schema.
      *

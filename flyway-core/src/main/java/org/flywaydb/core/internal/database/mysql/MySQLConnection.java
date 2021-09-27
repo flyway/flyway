@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
@@ -28,9 +27,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+@CustomLog
 public class MySQLConnection extends Connection<MySQLDatabase> {
-    private static final Log LOG = LogFactory.getLog(MySQLConnection.class);
-
     private static final String USER_VARIABLES_TABLE_MARIADB = "information_schema.user_variables";
     private static final String USER_VARIABLES_TABLE_MYSQL = "performance_schema.user_variables_by_thread";
     private static final String FOREIGN_KEY_CHECKS = "foreign_key_checks";

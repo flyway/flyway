@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,9 +25,8 @@ import java.util.List;
 /**
  * Encapsulation of a location list.
  */
+@CustomLog
 public class Locations {
-    private static final Log LOG = LogFactory.getLog(Locations.class);
-
     /**
      * The backing list.
      */

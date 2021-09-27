@@ -15,6 +15,7 @@
  */
 package org.flywaydb.database.bigquery;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
@@ -31,6 +32,7 @@ import java.sql.Types;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+@CustomLog
 public class BigQueryDatabaseType extends BaseDatabaseType {
     private static final String BIGQUERY_JDBC42_DRIVER = "com.simba.googlebigquery.jdbc42.Driver";
     private static final String BIGQUERY_JDBC_DRIVER = "com.simba.googlebigquery.jdbc.Driver";

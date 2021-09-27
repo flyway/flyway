@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.jdbc.TransactionalExecutionTemplate;
 
 import java.sql.Connection;
@@ -28,9 +27,8 @@ import java.util.concurrent.Callable;
  * Spring-like template for executing transactions. Cockroach always operates with transaction isolation
  * level SERIALIZABLE and needs a retrying pattern.
  */
+@CustomLog
 public class CockroachRetryingTransactionalExecutionTemplate extends TransactionalExecutionTemplate {
-    private static final Log LOG = LogFactory.getLog(CockroachRetryingTransactionalExecutionTemplate.class);
-
     private static final String DEADLOCK_OR_TIMEOUT_ERROR_CODE = "40001";
     private static final int MAX_RETRIES = 50;
 

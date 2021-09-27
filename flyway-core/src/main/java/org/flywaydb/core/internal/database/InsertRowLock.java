@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.database;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Results;
 
@@ -31,8 +30,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+@CustomLog
 public class InsertRowLock {
-    private static final Log LOG = LogFactory.getLog(InsertRowLock.class);
     private static final Random random = new Random();
     private static final int NUM_THREADS = 2;
 

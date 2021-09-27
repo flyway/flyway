@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -27,9 +26,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+@CustomLog
 public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
-    private static final Log LOG = LogFactory.getLog(CockroachDBConnection.class);
-
     public CockroachDBConnection(CockroachDBDatabase database, java.sql.Connection connection) {
         super(database, connection);
     }

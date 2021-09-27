@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
@@ -48,8 +47,8 @@ import java.util.stream.Collectors;
  * Migration resolver for SQL files on the classpath. The SQL files must have names like
  * V1__Description.sql, V1_1__Description.sql, or R__description.sql.
  */
+@CustomLog
 public class SqlMigrationResolver implements MigrationResolver {
-    private static final Log LOG = LogFactory.getLog(SqlMigrationResolver.class);
     private final SqlScriptExecutorFactory sqlScriptExecutorFactory;
     private final ResourceProvider resourceProvider;
     private final SqlScriptFactory sqlScriptFactory;

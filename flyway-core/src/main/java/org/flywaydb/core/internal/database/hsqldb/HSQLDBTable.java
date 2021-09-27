@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.database.hsqldb;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
@@ -25,9 +24,8 @@ import java.sql.SQLException;
 /**
  * HSQLDB-specific table.
  */
+@CustomLog
 public class HSQLDBTable extends Table<HSQLDBDatabase, HSQLDBSchema> {
-    private static final Log LOG = LogFactory.getLog(HSQLDBTable.class);
-
 
 
 

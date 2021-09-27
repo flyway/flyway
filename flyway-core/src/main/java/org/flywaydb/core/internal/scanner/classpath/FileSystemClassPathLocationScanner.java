@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.scanner.classpath;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.util.UrlUtils;
 
 import java.io.File;
@@ -27,9 +26,8 @@ import java.util.TreeSet;
 /**
  * ClassPathLocationScanner for the file system.
  */
+@CustomLog
 public class FileSystemClassPathLocationScanner implements ClassPathLocationScanner {
-    private static final Log LOG = LogFactory.getLog(FileSystemClassPathLocationScanner.class);
-
     public Set<String> findResourceNames(String location, URL locationUrl) {
         String filePath = UrlUtils.toFilePath(locationUrl);
         File folder = new File(filePath);

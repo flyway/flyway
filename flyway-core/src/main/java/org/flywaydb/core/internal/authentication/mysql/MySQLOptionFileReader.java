@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.authentication.mysql;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.authentication.ExternalAuthFileReader;
 
 import javax.crypto.Cipher;
@@ -31,8 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+@CustomLog
 public class MySQLOptionFileReader implements ExternalAuthFileReader {
-    private static final Log LOG = LogFactory.getLog(MySQLOptionFileReader.class);
 
     public final List<String> optionFiles;
     private final List<String> encryptedOptionFiles;

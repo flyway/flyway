@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import lombok.CustomLog;
 import oracle.jdbc.OracleConnection;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.ResourceProvider;
@@ -40,6 +41,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+@CustomLog
 public class OracleDatabaseType extends BaseDatabaseType {
     // Oracle usernames/passwords can be 1-30 chars, can only contain alphanumerics and # _ $
     // The first (and only) capture group represents the password

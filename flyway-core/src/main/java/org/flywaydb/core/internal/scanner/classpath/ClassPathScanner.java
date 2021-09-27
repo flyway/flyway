@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.scanner.classpath;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
 import org.flywaydb.core.internal.scanner.LocationScannerCache;
@@ -40,9 +39,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
+@CustomLog
 public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
-    private static final Log LOG = LogFactory.getLog(ClassPathScanner.class);
-
     private final Class<I> implementedInterface;
     private final ClassLoader classLoader;
     private final Location location;

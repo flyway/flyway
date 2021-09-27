@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.command;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
@@ -23,8 +24,6 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.executor.MigrationExecutor;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.core.api.resolver.MigrationResolver;
@@ -45,8 +44,8 @@ import org.flywaydb.core.internal.util.TimeFormat;
 import java.sql.SQLException;
 import java.util.*;
 
+@CustomLog
 public class DbMigrate {
-    private static final Log LOG = LogFactory.getLog(DbMigrate.class);
 
     private final Database database;
     private final SchemaHistory schemaHistory;

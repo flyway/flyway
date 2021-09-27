@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.database;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
@@ -32,8 +31,8 @@ import java.util.ServiceLoader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@CustomLog
 public class DatabaseTypeRegister {
-    private static final Log LOG = LogFactory.getLog(DatabaseTypeRegister.class);
     private static final ClassLoader CLASS_LOADER = new DatabaseTypeRegister().getClass().getClassLoader();
 
     private static final List<DatabaseType> registeredDatabaseTypes = new ArrayList<>();

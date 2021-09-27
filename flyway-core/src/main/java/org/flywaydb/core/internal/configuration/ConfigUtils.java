@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.configuration;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.extensibility.ConfigurationProvider;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.util.FileCopyUtils;
@@ -31,9 +30,8 @@ import java.util.regex.Pattern;
 
 import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.isMultilineBooleanExpression;
 
+@CustomLog
 public class ConfigUtils {
-    private static final Log LOG = LogFactory.getLog(ConfigUtils.class);
-
     public static final String CONFIG_FILE_NAME = "flyway.conf";
     public static final String CONFIG_FILES = "flyway.configFiles";
     public static final String CONFIG_FILE_ENCODING = "flyway.configFileEncoding";

@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
@@ -30,9 +29,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+@CustomLog
 public class SybaseASEDatabase extends Database<SybaseASEConnection> {
-    private static final Log LOG = LogFactory.getLog(SybaseASEDatabase.class);
-
     private String databaseName = null;
     private boolean supportsMultiStatementTransactions = false;
 

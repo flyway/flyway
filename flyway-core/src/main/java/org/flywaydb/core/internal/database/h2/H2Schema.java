@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.database.h2;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -26,8 +25,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@CustomLog
 public class H2Schema extends Schema<H2Database, H2Table> {
-    private static final Log LOG = LogFactory.getLog(H2Schema.class);
     private final boolean requiresV2Metadata;
 
     H2Schema(JdbcTemplate jdbcTemplate, H2Database database, String name, boolean requiresV2Metadata) {

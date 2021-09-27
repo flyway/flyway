@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.resource.filesystem;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 
 
@@ -30,8 +29,8 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.StandardOpenOption;
 
+@CustomLog
 public class FileSystemResource extends LoadableResource {
-    private static final Log LOG = LogFactory.getLog(FileSystemResource.class);
 
 
 

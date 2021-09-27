@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.scanner.filesystem;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.filesystem.FileSystemResource;
 import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
@@ -30,8 +29,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
+@CustomLog
 public class FileSystemScanner {
-    private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
     private final Charset defaultEncoding;
     private final boolean detectEncoding;
     private final boolean throwOnMissingLocations;

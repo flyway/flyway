@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
 import org.flywaydb.core.internal.util.SqlCallable;
 
@@ -26,9 +25,8 @@ import java.sql.SQLException;
  * CockroachDB recommend the use of retries should we see a SQL error code 40001, which represents a lock wait timeout.
  * This class implements an appropriate retry pattern.
  */
+@CustomLog
 public class CockroachDBRetryingStrategy implements DatabaseExecutionStrategy {
-    private static final Log LOG = LogFactory.getLog(CockroachDBRetryingStrategy.class);
-
     private static final String DEADLOCK_OR_TIMEOUT_ERROR_CODE = "40001";
     private static final int MAX_RETRIES = 50;
 

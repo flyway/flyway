@@ -15,6 +15,7 @@
  */
 package org.flywaydb.database.spanner;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
@@ -28,6 +29,7 @@ import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import java.sql.Connection;
 import java.sql.Types;
 
+@CustomLog
 public class SpannerDatabaseType extends BaseDatabaseType {
     @Override
     public String getName() {

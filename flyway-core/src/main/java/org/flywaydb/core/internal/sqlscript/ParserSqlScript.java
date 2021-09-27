@@ -15,17 +15,15 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.parser.Parser;
 
 import java.util.*;
 
+@CustomLog
 public class ParserSqlScript implements SqlScript {
-    private static final Log LOG = LogFactory.getLog(ParserSqlScript.class);
-
     /**
      * The sql statements contained in this script.
      */

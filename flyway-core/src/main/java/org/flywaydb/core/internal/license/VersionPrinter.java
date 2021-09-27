@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.license;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.extensibility.FlywayExtension;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
@@ -25,8 +24,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ServiceLoader;
 
+@CustomLog
 public class VersionPrinter {
-    private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
     private static final ClassLoader CLASS_LOADER = new VersionPrinter().getClass().getClassLoader();
     public static final String VERSION = readVersion();
 

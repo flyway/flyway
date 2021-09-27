@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.command;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Event;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.CleanResult;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
@@ -31,8 +30,8 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 
+@CustomLog
 public class DbClean {
-    private static final Log LOG = LogFactory.getLog(DbClean.class);
 
     private final Schema[] schemas;
     private final Connection connection;

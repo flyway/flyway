@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.scanner;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.ResourceProvider;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
@@ -40,8 +39,8 @@ import java.util.*;
 /**
  * Scanner for Resources and Classes.
  */
+@CustomLog
 public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
-    private static final Log LOG = LogFactory.getLog(Scanner.class);
 
     private final List<LoadableResource> resources = new ArrayList<>();
     private final List<Class<? extends I>> classes = new ArrayList<>();

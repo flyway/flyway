@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.callback.Event;
@@ -22,7 +23,6 @@ import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.exception.FlywayValidateException;
-import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.*;
 import org.flywaydb.core.api.resolver.MigrationResolver;
@@ -49,9 +49,8 @@ import java.util.List;
  * </pre>
  * Note that a configured Flyway object is immutable. If you change the configuration you will end up creating a new Flyway object.
  */
+@CustomLog
 public class Flyway {
-    private static final Log LOG = LogFactory.getLog(Flyway.class);
-
     private final ClassicConfiguration configuration;
     private final FlywayExecutor flywayExecutor;
 

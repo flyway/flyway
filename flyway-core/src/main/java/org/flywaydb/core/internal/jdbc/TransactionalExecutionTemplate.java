@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 import java.sql.Connection;
@@ -27,9 +26,8 @@ import java.util.concurrent.Callable;
 /**
  * Spring-like template for executing transactions.
  */
+@CustomLog
 public class TransactionalExecutionTemplate implements ExecutionTemplate {
-    private static final Log LOG = LogFactory.getLog(TransactionalExecutionTemplate.class);
-
     /**
      * The connection to the database
      */

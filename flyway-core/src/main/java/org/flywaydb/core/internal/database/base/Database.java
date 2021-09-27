@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.database.base;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -41,9 +40,8 @@ import java.sql.SQLException;
 /**
  * Abstraction for database-specific functionality.
  */
+@CustomLog
 public abstract class Database<C extends Connection> implements Closeable {
-    private static final Log LOG = LogFactory.getLog(Database.class);
-
     protected final DatabaseType databaseType;
     protected final Configuration configuration;
     protected final StatementInterceptor statementInterceptor;

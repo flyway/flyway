@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.database.snowflake;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
@@ -31,9 +30,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+@CustomLog
 public class SnowflakeDatabase extends Database<SnowflakeConnection> {
-    private static final Log LOG = LogFactory.getLog(SnowflakeDatabase.class);
-
     /**
      * Whether quoted identifiers are treated in a case-insensitive way. Defaults to false. See
      * https://docs.snowflake.com/en/sql-reference/identifiers-syntax.html#controlling-case-using-the-quoted-identifiers-ignore-case-parameter

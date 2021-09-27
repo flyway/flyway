@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.scanner.classpath.jboss;
 
+import lombok.CustomLog;
 import org.flywaydb.core.internal.util.UrlUtils;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathLocationScanner;
 import org.jboss.vfs.VFS;
 import org.jboss.vfs.VirtualFile;
@@ -32,9 +31,8 @@ import java.util.TreeSet;
 /**
  * ClassPathLocationScanner for JBoss VFS v3.
  */
+@CustomLog
 public class JBossVFSv3ClassPathLocationScanner implements ClassPathLocationScanner {
-    private static final Log LOG = LogFactory.getLog(JBossVFSv3ClassPathLocationScanner.class);
-
     public Set<String> findResourceNames(String location, URL locationUrl) {
         String filePath = UrlUtils.toFilePath(locationUrl);
         String classPathRootOnDisk = filePath.substring(0, filePath.length() - location.length());

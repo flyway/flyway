@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.*;
@@ -60,6 +59,7 @@ import java.util.List;
 
 
 
+@CustomLog
 public class FlywayExecutor {
     public interface Command<T> {
         T execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
@@ -67,8 +67,6 @@ public class FlywayExecutor {
                   StatementInterceptor statementInterceptor
         );
     }
-
-    private static final Log LOG = LogFactory.getLog(FlywayExecutor.class);
 
     /**
      * Designed so we can fail fast if the configuration is invalid

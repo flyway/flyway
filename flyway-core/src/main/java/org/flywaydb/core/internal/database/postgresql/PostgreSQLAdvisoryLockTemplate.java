@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.strategy.RetryStrategy;
@@ -30,8 +29,8 @@ import java.util.concurrent.Callable;
 /**
  * Spring-like template for executing with PostgreSQL advisory locks.
  */
+@CustomLog
 public class PostgreSQLAdvisoryLockTemplate {
-    private static final Log LOG = LogFactory.getLog(PostgreSQLAdvisoryLockTemplate.class);
     private static final long LOCK_MAGIC_NUM =
             (0x46L << 40) // F
                     + (0x6CL << 32) // l

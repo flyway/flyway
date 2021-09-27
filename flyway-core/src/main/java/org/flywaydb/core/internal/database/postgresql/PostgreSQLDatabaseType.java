@@ -26,11 +26,13 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StringUtils;
+import lombok.CustomLog;
 
 import java.sql.Connection;
 import java.sql.Types;
 import java.util.Properties;
 
+@CustomLog
 public class PostgreSQLDatabaseType extends BaseDatabaseType {
 
 

@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.command;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.ErrorDetails;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.ValidateOutput;
 import org.flywaydb.core.api.output.ValidateResult;
@@ -46,9 +45,8 @@ import java.util.concurrent.Callable;
  *
  * @author Axel Fontaine
  */
+@CustomLog
 public class DbValidate {
-    private static final Log LOG = LogFactory.getLog(DbValidate.class);
-
     /**
      * The database schema history table.
      */
