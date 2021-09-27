@@ -197,13 +197,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String sqlMigrationPrefix;
 
     /**
-     * The file name prefix for state scripts. (default: S)
+     * The file name prefix for baseline migrations. (default: B)
      * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to S1.1__My_description.sql
+     * which using the defaults translates to B1.1__My_description.sql
      * <i>Flyway Teams only</i>
-     * <p>Also configurable with Gradle or System Property: ${flyway.stateScriptPrefix}</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.baselineMigrationPrefix}</p>
      */
-    public String stateScriptPrefix;
+    public String baselineMigrationPrefix;
 
     /**
      * The file name prefix for undo SQL migrations. (default: U)
@@ -787,7 +787,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion, extension.baselineVersion);
         putIfSet(conf, ConfigUtils.BASELINE_DESCRIPTION, baselineDescription, extension.baselineDescription);
         putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix, extension.sqlMigrationPrefix);
-        putIfSet(conf, ConfigUtils.STATE_SCRIPT_PREFIX, stateScriptPrefix, extension.stateScriptPrefix);
+        putIfSet(conf, ConfigUtils.BASELINE_MIGRATION_PREFIX, baselineMigrationPrefix, extension.baselineMigrationPrefix);
         putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix, extension.undoSqlMigrationPrefix);
         putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix, extension.repeatableSqlMigrationPrefix);
         putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator, extension.sqlMigrationSeparator);

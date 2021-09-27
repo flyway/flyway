@@ -29,7 +29,6 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
-import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Pair;
 
 import java.util.*;
@@ -105,8 +104,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
         Map<Pair<MigrationVersion, Boolean>, ResolvedMigration> resolvedVersioned = new TreeMap<>();
         Map<String, ResolvedMigration> resolvedRepeatable = new TreeMap<>();
-        ResolvedMigration pendingStateScript = null;
-        AppliedMigration appliedStateScript = null;
+        ResolvedMigration pendingBaselineMigration = null;
+        AppliedMigration appliedBaselineMigration = null;
 
         // Separate resolved migrations into versioned and repeatable
         for (ResolvedMigration resolvedMigration : resolvedMigrations) {
@@ -115,7 +114,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 if (version.compareTo(context.lastResolved) > 0) {
                     context.lastResolved = version;
                 }
-                if (resolvedMigration.getType().isStateScript() && version.compareTo(context.latestStateScript) > 0) {
+                if (resolvedMigration.getType().isBaselineMigration() && version.compareTo(context.latestBaselineMigration) > 0) {
 
 
 
@@ -251,14 +250,14 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
         // Add all pending migrations to output list
         for (ResolvedMigration prv : pendingResolvedVersioned) {
-            if (prv.getVersion().compareTo(context.latestStateScript) <= 0) {
+            if (prv.getVersion().compareTo(context.latestBaselineMigration) <= 0) {
                 continue;
             }
             migrationInfos1.add(new MigrationInfoImpl(prv, null, context, false, false, false));
         }
 
-        if (pendingStateScript != null) {
-            migrationInfos1.add(new MigrationInfoImpl(pendingStateScript, null, context, false, false, false));
+        if (pendingBaselineMigration != null) {
+            migrationInfos1.add(new MigrationInfoImpl(pendingBaselineMigration, null, context, false, false, false));
         }
 
         if (configuration.getFailOnMissingTarget() &&

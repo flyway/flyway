@@ -207,20 +207,11 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                         checksum = null;
                     }
 
-                    // Convert legacy types to their modern equivalent to avoid validation errors
-                    String type = rs.getString(columnOrdinalMap.get("type"));
-                    if ("SPRING_JDBC".equals(type)) {
-                        type = "JDBC";
-                    }
-                    if ("UNDO_SPRING_JDBC".equals(type)) {
-                        type = "UNDO_JDBC";
-                    }
-
                     return new AppliedMigration(
                             rs.getInt(columnOrdinalMap.get("installed_rank")),
                             rs.getString(columnOrdinalMap.get("version")) != null ? MigrationVersion.fromVersion(rs.getString(columnOrdinalMap.get("version"))) : null,
                             rs.getString(columnOrdinalMap.get("description")),
-                            MigrationType.valueOf(type),
+                            MigrationType.fromString(rs.getString(columnOrdinalMap.get("type"))),
                             rs.getString(columnOrdinalMap.get("script")),
                             checksum,
                             rs.getTimestamp(columnOrdinalMap.get("installed_on")),

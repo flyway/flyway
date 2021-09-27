@@ -33,9 +33,9 @@ public enum MigrationType {
      */
     SQL(false, false, false),
     /**
-     * SQL state scripts.
+     * SQL baseline migrations.
      */
-    SQL_STATE_SCRIPT(false, false, true),
+    SQL_BASELINE(false, false, true),
     /**
      * Undo SQL migrations.
      */
@@ -45,13 +45,17 @@ public enum MigrationType {
      */
     JDBC(false, false, false),
     /**
-     * JDBC Java-based state scripts.
+     * JDBC Java-based baseline migrations.
      */
-    JDBC_STATE_SCRIPT(false, false, true),
+    JDBC_BASELINE(false, false, true),
     /**
      * Undo JDBC java-based migrations.
      */
     UNDO_JDBC(false, true, false),
+
+
+
+
 
 
 
@@ -73,12 +77,29 @@ public enum MigrationType {
 
     private final boolean synthetic;
     private final boolean undo;
-    private final boolean stateScript;
+    private final boolean baseline;
 
-    MigrationType(boolean synthetic, boolean undo, boolean stateScript) {
+    MigrationType(boolean synthetic, boolean undo, boolean baseline) {
         this.synthetic = synthetic;
         this.undo = undo;
-        this.stateScript = stateScript;
+        this.baseline = baseline;
+    }
+
+    public static MigrationType fromString(String migrationType) {
+        // Convert legacy types to maintain compatibility
+        if ("SPRING_JDBC".equals(migrationType)) {
+            return JDBC;
+        }
+        if ("UNDO_SPRING_JDBC".equals(migrationType)) {
+            return UNDO_JDBC;
+        }
+        if ("SQL_STATE_SCRIPT".equals(migrationType)) {
+            return SQL_BASELINE;
+        }
+        if ("JDBC_STATE_SCRIPT".equals(migrationType)) {
+            return JDBC_BASELINE;
+        }
+        return valueOf(migrationType);
     }
 
     /**
@@ -97,10 +118,10 @@ public enum MigrationType {
     }
 
     /**
-     * @return Whether this is a state script, which represents all migrations with
-     * version <= current state script version.
+     * @return Whether this is a baseline migration, which represents all migrations with
+     * version <= current baseline migration version.
      */
-    public boolean isStateScript() {
-        return stateScript;
+    public boolean isBaselineMigration() {
+        return baseline;
     }
 }

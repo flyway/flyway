@@ -244,14 +244,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String sqlMigrationPrefix;
 
     /**
-     * The file name prefix for state scripts. (default: S)
+     * The file name prefix for baseline migrations. (default: B)
      * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to S1.1__My_description.sql
-     * <p>Also configurable with Maven or System Property: ${flyway.stateScriptPrefix}</p>
+     * which using the defaults translates to B1.1__My_description.sql
+     * <p>Also configurable with Maven or System Property: ${flyway.baselineMigrationPrefix}</p>
      * <i>Flyway Teams only</i>
      */
-    @Parameter(property = ConfigUtils.STATE_SCRIPT_PREFIX)
-    private String stateScriptPrefix;
+    @Parameter(property = ConfigUtils.BASELINE_MIGRATION_PREFIX)
+    private String baselineMigrationPrefix;
 
     /**
      * The file name prefix for undo SQL migrations. (default: U)
@@ -889,7 +889,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.DETECT_ENCODING, detectEncoding);
             putIfSet(conf, ConfigUtils.LOCK_RETRY_COUNT, lockRetryCount);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix);
-            putIfSet(conf, ConfigUtils.STATE_SCRIPT_PREFIX, stateScriptPrefix);
+            putIfSet(conf, ConfigUtils.BASELINE_MIGRATION_PREFIX, baselineMigrationPrefix);
             putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator);

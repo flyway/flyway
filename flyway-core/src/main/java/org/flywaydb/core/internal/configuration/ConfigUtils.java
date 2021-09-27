@@ -83,7 +83,7 @@ public class ConfigUtils {
     public static final String SQL_MIGRATION_PREFIX = "flyway.sqlMigrationPrefix";
     public static final String SQL_MIGRATION_SEPARATOR = "flyway.sqlMigrationSeparator";
     public static final String SQL_MIGRATION_SUFFIXES = "flyway.sqlMigrationSuffixes";
-    public static final String STATE_SCRIPT_PREFIX = "flyway.stateScriptPrefix";
+    public static final String BASELINE_MIGRATION_PREFIX = "flyway.baselineMigrationPrefix";
     public static final String STREAM = "flyway.stream";
     public static final String TABLE = "flyway.table";
     public static final String TABLESPACE = "flyway.tablespace";
@@ -281,8 +281,8 @@ public class ConfigUtils {
         if ("FLYWAY_SQL_MIGRATION_SUFFIXES".equals(key)) {
             return SQL_MIGRATION_SUFFIXES;
         }
-        if ("FLYWAY_STATE_SCRIPT_PREFIX".equals(key)) {
-            return STATE_SCRIPT_PREFIX;
+        if ("FLYWAY_BASELINE_MIGRATION_PREFIX".equals(key)) {
+            return BASELINE_MIGRATION_PREFIX;
         }
         if ("FLYWAY_STREAM".equals(key)) {
             return STREAM;
