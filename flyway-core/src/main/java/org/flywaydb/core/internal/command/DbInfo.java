@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.command;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.callback.Event;
@@ -28,6 +29,7 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 
 import java.util.Arrays;
 
+@RequiredArgsConstructor
 public class DbInfo {
     private final MigrationResolver migrationResolver;
     private final SchemaHistory schemaHistory;
@@ -35,17 +37,6 @@ public class DbInfo {
     private final Database database;
     private final CallbackExecutor callbackExecutor;
     private final Schema[] schemas;
-
-    public DbInfo(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                  Configuration configuration, Database database, CallbackExecutor callbackExecutor, Schema[] schemas) {
-
-        this.migrationResolver = migrationResolver;
-        this.schemaHistory = schemaHistory;
-        this.configuration = configuration;
-        this.database = database;
-        this.callbackExecutor = callbackExecutor;
-        this.schemas = schemas;
-    }
 
     public MigrationInfoService info() {
         callbackExecutor.onEvent(Event.BEFORE_INFO);

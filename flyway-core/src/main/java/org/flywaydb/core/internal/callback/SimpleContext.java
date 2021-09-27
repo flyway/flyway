@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.callback;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Context;
 import org.flywaydb.core.api.callback.Error;
@@ -75,16 +77,11 @@ public class SimpleContext implements Context {
         return operationResult;
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class SimpleStatement implements Statement {
         private final String sql;
         private final List<Warning> warnings;
         private final List<Error> errors;
-
-        private SimpleStatement(String sql, List<Warning> warnings, List<Error> errors) {
-            this.sql = sql;
-            this.warnings = warnings;
-            this.errors = errors;
-        }
 
         @Override
         public String getSql() {

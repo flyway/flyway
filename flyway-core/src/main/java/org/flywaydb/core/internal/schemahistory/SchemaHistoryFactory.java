@@ -16,6 +16,8 @@
 package org.flywaydb.core.internal.schemahistory;
 
 import lombok.CustomLog;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
@@ -35,11 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @CustomLog
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SchemaHistoryFactory {
-
-    private SchemaHistoryFactory() {
-        // Prevent instantiation
-    }
 
     public static SchemaHistory getSchemaHistory(Configuration configuration,
                                                  SqlScriptExecutorFactory sqlScriptExecutorFactory,

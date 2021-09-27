@@ -15,24 +15,14 @@
  */
 package org.flywaydb.core.internal.strategy;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class BackoffStrategy {
 
     private int current;
     private final int exponent;
     private final int interval;
-
-    /**
-     * Constructs an exponential backoff counter.
-     *
-     * @param initial   The initial integer to start the counter with
-     * @param exponent  The exponent by which to increase the counter value with on each call to {@link #next()}
-     * @param interval  The maximum time between retries in seconds
-     */
-    public BackoffStrategy(int initial, int exponent, int interval) {
-        this.current = initial;
-        this.exponent = exponent;
-        this.interval = interval;
-    }
 
     /**
      *

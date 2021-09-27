@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.resource.s3;
 
 import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.S3ClientFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
@@ -30,16 +31,11 @@ import java.nio.channels.Channels;
 import java.nio.charset.Charset;
 
 @CustomLog
+@RequiredArgsConstructor
 public class AwsS3Resource extends LoadableResource {
     private final String bucketName;
     private final S3Object s3ObjectSummary;
     private final Charset encoding;
-
-    public AwsS3Resource(String bucketName, S3Object s3ObjectSummary, Charset encoding) {
-        this.bucketName = bucketName;
-        this.s3ObjectSummary = s3ObjectSummary;
-        this.encoding = encoding;
-    }
 
     @Override
     public Reader read() {

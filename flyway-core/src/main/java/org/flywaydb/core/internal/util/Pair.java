@@ -15,11 +15,14 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.Arrays;
 
 /**
  * A simple pair of values.
  */
+@RequiredArgsConstructor(staticName="of")
 public class Pair<L, R> implements Comparable<Pair<L, R>> {
     /**
      * The left side of the pair.
@@ -30,22 +33,6 @@ public class Pair<L, R> implements Comparable<Pair<L, R>> {
      * The right side of the pair.
      */
     private final R right;
-
-    private Pair(L left, R right) {
-        this.left = left;
-        this.right = right;
-    }
-
-    /**
-     * Creates a new pair of these values.
-     *
-     * @param left  The left side of the pair.
-     * @param right The right side of the pair.
-     * @return The pair.
-     */
-    public static <L, R> Pair<L, R> of(L left, R right) {
-        return new Pair<L, R>(left, right);
-    }
 
     /**
      * @return The left side of the pair.

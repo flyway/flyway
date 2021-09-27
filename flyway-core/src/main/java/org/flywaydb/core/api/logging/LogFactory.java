@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.api.logging;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.apachecommons.ApacheCommonsLogCreator;
@@ -34,6 +36,7 @@ import java.util.List;
  * implementations should use this to obtain a logger that will work with any logging framework across all environments
  * (API, Maven, Gradle, CLI, etc.).
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LogFactory {
     /**
      * Factory for implementation-specific loggers.
@@ -44,8 +47,6 @@ public class LogFactory {
      */
     private static LogCreator fallbackLogCreator;
     private static Configuration configuration;
-
-    private LogFactory() { }
 
     /**
      * Sets the LogCreator that will be used. This will effectively override Flyway's default LogCreator auto-detection

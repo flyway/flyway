@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -22,10 +25,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StringUtils {
     private static final String WHITESPACE_CHARS = " \t\n\f\r";
-
-    private StringUtils() { }
 
     /**
      * Trims or pads (with spaces) this string, so it has this exact length.

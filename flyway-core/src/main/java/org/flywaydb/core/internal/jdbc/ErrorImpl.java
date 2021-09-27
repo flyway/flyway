@@ -15,26 +15,15 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.callback.Error;
 
+@RequiredArgsConstructor
 public class ErrorImpl implements Error {
     private final int code;
     private final String state;
     private final String message;
     private boolean handled;
-
-    /**
-     * An error that occurred while executing a statement.
-     *
-     * @param code    The error code.
-     * @param state   The error state.
-     * @param message The error message.
-     */
-    public ErrorImpl(int code, String state, String message) {
-        this.code = code;
-        this.state = state;
-        this.message = message;
-    }
 
     @Override
     public int getCode() {

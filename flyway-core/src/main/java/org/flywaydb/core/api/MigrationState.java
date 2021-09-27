@@ -15,9 +15,12 @@
  */
 package org.flywaydb.core.api;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * The state of a migration.
  */
+@RequiredArgsConstructor
 public enum MigrationState {
     /**
      * This migration has not been applied yet.
@@ -121,13 +124,6 @@ public enum MigrationState {
     private final boolean resolved;
     private final boolean applied;
     private final boolean failed;
-
-    MigrationState(String displayName, boolean resolved, boolean applied, boolean failed) {
-        this.displayName = displayName;
-        this.resolved = resolved;
-        this.applied = applied;
-        this.failed = failed;
-    }
 
     public String getDisplayName() {
         return displayName;

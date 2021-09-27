@@ -16,6 +16,10 @@
 package org.flywaydb.core.internal.scanner.classpath;
 
 import lombok.CustomLog;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.IOUtils;
 
 import java.io.IOException;
@@ -31,17 +35,13 @@ import java.util.jar.JarFile;
  * ClassPathLocationScanner for jar files.
  */
 @CustomLog
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class JarFileClassPathLocationScanner implements ClassPathLocationScanner {
 
     /**
      * The separator that delimits the jar file name and the file inside the jar within a URL.
      */
     private final String separator;
-
-    /**
-     * @param separator The separator that delimits the jar file name and the file inside the jar within a URL.
-     */
-    JarFileClassPathLocationScanner(String separator) { this.separator = separator; }
 
     public Set<String> findResourceNames(String location, URL locationUrl) {
         JarFile jarFile;

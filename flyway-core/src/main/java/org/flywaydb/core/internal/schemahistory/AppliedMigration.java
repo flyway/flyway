@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.schemahistory;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 
@@ -24,6 +25,7 @@ import java.util.Objects;
 /**
  * A migration applied to the database (maps to a row in the schema history table).
  */
+@RequiredArgsConstructor
 public class AppliedMigration implements Comparable<AppliedMigration> {
     /**
      * The order in which this migration was applied amongst all others. (For out of order detection)
@@ -74,35 +76,6 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
      * Flag indicating whether the migration was successful or not.
      */
     private final boolean success;
-
-    /**
-     * Creates a new applied migration. Only called from the RowMapper.
-     *
-     * @param installedRank The order in which this migration was applied amongst all others. (For out of order detection)
-     * @param version       The target version of this migration.
-     * @param description   The description of the migration.
-     * @param type          The type of migration (INIT, SQL, ...)
-     * @param script        The name of the script to execute for this migration, relative to its classpath location.
-     * @param checksum      The checksum of the migration. (Optional)
-     * @param installedOn   The timestamp when this migration was installed.
-     * @param installedBy   The user that installed this migration.
-     * @param executionTime The execution time (in millis) of this migration.
-     * @param success       Flag indicating whether the migration was successful or not.
-     */
-    public AppliedMigration(int installedRank, MigrationVersion version, String description,
-                     MigrationType type, String script, Integer checksum, Date installedOn,
-                     String installedBy, int executionTime, boolean success) {
-        this.installedRank = installedRank;
-        this.version = version;
-        this.description = description;
-        this.type = type;
-        this.script = script;
-        this.checksum = checksum;
-        this.installedOn = installedOn;
-        this.installedBy = installedBy;
-        this.executionTime = executionTime;
-        this.success = success;
-    }
 
     /**
      * @return The order in which this migration was applied amongst all others. (For out of order detection)

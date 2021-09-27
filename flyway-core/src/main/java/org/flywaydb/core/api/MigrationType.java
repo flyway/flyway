@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.api;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public enum MigrationType {
     /**
      * Schema creation migration.
@@ -78,12 +81,6 @@ public enum MigrationType {
     private final boolean synthetic;
     private final boolean undo;
     private final boolean baseline;
-
-    MigrationType(boolean synthetic, boolean undo, boolean baseline) {
-        this.synthetic = synthetic;
-        this.undo = undo;
-        this.baseline = baseline;
-    }
 
     public static MigrationType fromString(String migrationType) {
         // Convert legacy types to maintain compatibility

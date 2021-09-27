@@ -15,16 +15,14 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
  * Various abbreviation-related utilities.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AbbreviationUtils {
-    /**
-     * Prevents instantiation.
-     */
-    private AbbreviationUtils() {
-        // Do nothing.
-    }
 
     /**
      * Abbreviates this description to a length that will fit in the database.

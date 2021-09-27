@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
@@ -28,6 +30,7 @@ import java.sql.SQLException;
 /**
  * Database migration based on a sql file.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class SqlMigrationExecutor implements MigrationExecutor {
     private final SqlScriptExecutorFactory sqlScriptExecutorFactory;
 
@@ -45,18 +48,6 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      * Whether to batch SQL statements.
      */
     private final boolean batch;
-
-    /**
-     * Creates a new sql script migration based on this sql script.
-     *
-     * @param sqlScript The SQL script that will be executed.
-     */
-    SqlMigrationExecutor(SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScript sqlScript, boolean undo, boolean batch) {
-        this.sqlScriptExecutorFactory = sqlScriptExecutorFactory;
-        this.sqlScript = sqlScript;
-        this.undo = undo;
-        this.batch = batch;
-    }
 
     @Override
     public void execute(final Context context) throws SQLException {

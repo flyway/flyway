@@ -15,24 +15,17 @@
  */
 package org.flywaydb.core.internal.logging.javautil;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.logging.Log;
 
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+@RequiredArgsConstructor
 public class JavaUtilLog implements Log {
 
     private final Logger logger;
-
-    /**
-     * Creates a new wrapper around this logger.
-     *
-     * @param logger The original java.util Logger.
-     */
-    public JavaUtilLog(Logger logger) {
-        this.logger = logger;
-    }
 
     @Override
     public boolean isDebugEnabled() {

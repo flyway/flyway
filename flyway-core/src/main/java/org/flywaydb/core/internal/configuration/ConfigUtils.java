@@ -16,6 +16,8 @@
 package org.flywaydb.core.internal.configuration;
 
 import lombok.CustomLog;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.extensibility.ConfigurationProvider;
@@ -31,6 +33,7 @@ import java.util.regex.Pattern;
 import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.isMultilineBooleanExpression;
 
 @CustomLog
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConfigUtils {
     public static final String CONFIG_FILE_NAME = "flyway.conf";
     public static final String CONFIG_FILES = "flyway.configFiles";
@@ -108,8 +111,6 @@ public class ConfigUtils {
 
     // Gradle specific
     public static final String CONFIGURATIONS = "flyway.configurations";
-
-    private ConfigUtils() { }
 
     /**
      * Converts Flyway-specific environment variables to their matching properties.

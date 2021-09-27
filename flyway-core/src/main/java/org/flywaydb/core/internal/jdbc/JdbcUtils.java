@@ -16,6 +16,8 @@
 package org.flywaydb.core.internal.jdbc;
 
 import lombok.CustomLog;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -30,9 +32,8 @@ import java.sql.*;
  * Utility class for dealing with jdbc connections.
  */
 @CustomLog
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class JdbcUtils {
-
-    private JdbcUtils() { }
 
     /**
      * Opens a new connection from this dataSource.

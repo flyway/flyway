@@ -15,10 +15,11 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class IOUtils {
-
-    private IOUtils() { }
-
     /**
      * Closes this closeable and never fail while doing so.
      *

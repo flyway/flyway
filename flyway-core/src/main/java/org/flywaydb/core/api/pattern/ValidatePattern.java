@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.api.pattern;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
@@ -22,6 +24,7 @@ import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import java.util.Arrays;
 import java.util.List;
 
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ValidatePattern {
     private final String migrationType;
     private final String migrationState;
@@ -32,11 +35,6 @@ public class ValidatePattern {
             MigrationState.PENDING.getDisplayName().toLowerCase(),
             MigrationState.IGNORED.getDisplayName().toLowerCase(),
             MigrationState.FUTURE_SUCCESS.getDisplayName().toLowerCase());
-
-    private ValidatePattern(String migrationType, String migrationState) {
-        this.migrationType = migrationType;
-        this.migrationState = migrationState;
-    }
 
     public static ValidatePattern fromPattern(String pattern) {
         if (pattern == null) {

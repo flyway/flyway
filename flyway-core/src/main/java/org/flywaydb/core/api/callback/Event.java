@@ -15,9 +15,12 @@
  */
 package org.flywaydb.core.api.callback;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * The Flyway lifecycle events that can be handled in callbacks.
  */
+@RequiredArgsConstructor
 public enum Event {
     /**
      * Fired before clean is executed. This event will be fired in a separate transaction from the actual clean operation.
@@ -223,10 +226,6 @@ public enum Event {
     CREATE_SCHEMA("createSchema");
 
     private final String id;
-
-    Event(String id) {
-        this.id = id;
-    }
 
     /**
      * @return The id of an event. Examples: {@code beforeClean}, {@code afterEachMigrate}, ...

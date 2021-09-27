@@ -15,25 +15,15 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.callback.Warning;
 
+@RequiredArgsConstructor
 public class WarningImpl implements Warning {
     private final int code;
     private final String state;
     private final String message;
     private boolean handled;
-
-    /**
-     * An warning that occurred while executing a statement.
-     * @param code The warning code.
-     * @param state The warning state.
-     * @param message The warning message.
-     */
-    public WarningImpl(int code, String state, String message) {
-        this.code = code;
-        this.state = state;
-        this.message = message;
-    }
 
     @Override
     public int getCode() {

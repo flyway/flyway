@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.parser;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class Token {
     private final TokenType type;
     private final int pos;
@@ -23,16 +26,6 @@ public class Token {
     private final String text;
     private final String rawText;
     private final int parensDepth;
-
-    public Token(TokenType type, int pos, int line, int col, String text, String rawText, int parensDepth) {
-        this.type = type;
-        this.pos = pos;
-        this.line = line;
-        this.col = col;
-        this.text = text;
-        this.rawText = rawText;
-        this.parensDepth = parensDepth;
-    }
 
     public TokenType getType() {
         return type;

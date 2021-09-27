@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.api.output;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class InfoOutput {
     public String category;
     public String version;
@@ -26,27 +29,4 @@ public class InfoOutput {
     public String filepath;
     public String installedBy;
     public int executionTime;
-
-    public InfoOutput(
-            String category,
-            String version,
-            String description,
-            String type,
-            String installedOnUTC,
-            String state,
-            String undoable,
-            String filepath,
-            String installedBy,
-            int executionTime) {
-        this.category = category;
-        this.version = version;
-        this.description = description;
-        this.type = type;
-        this.installedOnUTC = installedOnUTC;
-        this.state = state;
-        this.undoable = undoable;
-        this.filepath = filepath;
-        this.installedBy = installedBy;
-        this.executionTime = executionTime;
-    }
 }

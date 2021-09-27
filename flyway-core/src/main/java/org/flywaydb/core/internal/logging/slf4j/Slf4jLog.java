@@ -15,21 +15,14 @@
  */
 package org.flywaydb.core.internal.logging.slf4j;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.logging.Log;
 import org.slf4j.Logger;
 
+@RequiredArgsConstructor
 public class Slf4jLog implements Log {
 
     private final Logger logger;
-
-    /**
-     * Creates a new wrapper around this logger.
-     *
-     * @param logger The original Slf4j Logger.
-     */
-    public Slf4jLog(Logger logger) {
-        this.logger = logger;
-    }
 
     @Override
     public boolean isDebugEnabled() {

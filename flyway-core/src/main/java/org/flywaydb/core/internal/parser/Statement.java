@@ -15,8 +15,12 @@
  */
 package org.flywaydb.core.internal.parser;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class Statement {
     private final int pos;
     private final int line;
@@ -24,15 +28,6 @@ class Statement {
     private final StatementType statementType;
     private final String sql;
     private final List<Token> tokens;
-
-    Statement(int pos, int line, int col, StatementType statementType, String sql, List<Token> tokens) {
-        this.pos = pos;
-        this.line = line;
-        this.col = col;
-        this.statementType = statementType;
-        this.sql = sql;
-        this.tokens = tokens;
-    }
 
     public int getPos() {
         return pos;

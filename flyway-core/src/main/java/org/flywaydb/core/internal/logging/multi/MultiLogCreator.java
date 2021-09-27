@@ -15,18 +15,16 @@
  */
 package org.flywaydb.core.internal.logging.multi;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 public class MultiLogCreator implements LogCreator {
     private final List<LogCreator> logCreators;
-
-    public MultiLogCreator(List<LogCreator> logCreators) {
-        this.logCreators = logCreators;
-    }
 
     @Override
     public Log createLogger(Class<?> clazz) {

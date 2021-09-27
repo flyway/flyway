@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.license.VersionPrinter;
 
@@ -27,6 +29,7 @@ import org.flywaydb.core.internal.license.VersionPrinter;
 
 
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FlywayDbWebsiteLinks {
     public static final String TRY_TEAMS_EDITION = "https://rd.gt/2VzHpkY";
     public static final String TRY_TEAMS_EDITION_DEFAULT_TRIAL = "https://rd.gt/3A4IWym";

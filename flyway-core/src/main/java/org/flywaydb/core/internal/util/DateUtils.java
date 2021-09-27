@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -23,12 +26,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DateUtils {
-    /**
-     * Prevents instantiation.
-     */
-    private DateUtils() {}
-
     /**
      * Formats this date in the standard ISO yyyy-MM-dd HH:mm:ss format.
      *

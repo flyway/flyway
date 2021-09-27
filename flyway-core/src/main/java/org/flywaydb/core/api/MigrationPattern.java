@@ -15,13 +15,11 @@
  */
 package org.flywaydb.core.api;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class MigrationPattern {
     private final String migrationName;
-
-    public MigrationPattern(String migrationName) {
-        this.migrationName = migrationName;
-
-    }
 
     public boolean matches(MigrationVersion version, String description) {
         if (version != null) {

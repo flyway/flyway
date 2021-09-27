@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.jdbc;
 
 import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
@@ -27,6 +28,7 @@ import java.util.concurrent.Callable;
  * Spring-like template for executing transactions.
  */
 @CustomLog
+@RequiredArgsConstructor
 public class TransactionalExecutionTemplate implements ExecutionTemplate {
     /**
      * The connection to the database
@@ -37,17 +39,6 @@ public class TransactionalExecutionTemplate implements ExecutionTemplate {
      * Whether to roll back the transaction when an exception is thrown.
      */
     private final boolean rollbackOnException;
-
-    /**
-     * Creates a new transaction template for this connection.
-     *
-     * @param connection          The connection for the transaction.
-     * @param rollbackOnException Whether to roll back the transaction when an exception is thrown.
-     */
-    public TransactionalExecutionTemplate(Connection connection, boolean rollbackOnException) {
-        this.connection = connection;
-        this.rollbackOnException = rollbackOnException;
-    }
 
     /**
      * Executes this callback within a transaction.

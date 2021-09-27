@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.api.output;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 
@@ -24,16 +26,12 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 public class ErrorOutput implements OperationResult {
+
+    @AllArgsConstructor(access = AccessLevel.PACKAGE)
     public static class ErrorOutputItem {
         public ErrorCode errorCode;
         public String message;
         public String stackTrace;
-
-        ErrorOutputItem(ErrorCode errorCode, String message, String stackTrace) {
-            this.errorCode = errorCode;
-            this.message = message;
-            this.stackTrace = stackTrace;
-        }
     }
 
     public ErrorOutputItem error;

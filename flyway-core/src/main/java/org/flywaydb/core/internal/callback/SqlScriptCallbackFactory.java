@@ -16,6 +16,8 @@
 package org.flywaydb.core.internal.callback;
 
 import lombok.CustomLog;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Callback;
@@ -90,20 +92,13 @@ public class SqlScriptCallbackFactory {
         return new ArrayList<>(callbacks);
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class SqlScriptCallback implements Callback, Comparable<SqlScriptCallback> {
         private final Event event;
         private final String description;
         private final SqlScriptExecutorFactory sqlScriptExecutorFactory;
         private final SqlScript sqlScript;
         private final boolean batch;
-
-        private SqlScriptCallback(Event event, String description, SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScript sqlScript, boolean batch) {
-            this.event = event;
-            this.description = description;
-            this.sqlScriptExecutorFactory = sqlScriptExecutorFactory;
-            this.sqlScript = sqlScript;
-            this.batch = batch;
-        }
 
         @Override
         public boolean supports(Event event, Context context) {

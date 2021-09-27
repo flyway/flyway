@@ -16,6 +16,8 @@
 package org.flywaydb.core.internal.license;
 
 import lombok.CustomLog;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.extensibility.FlywayExtension;
 import org.flywaydb.core.internal.util.FileCopyUtils;
@@ -25,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ServiceLoader;
 
 @CustomLog
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VersionPrinter {
     private static final ClassLoader CLASS_LOADER = new VersionPrinter().getClass().getClassLoader();
     public static final String VERSION = readVersion();
@@ -40,8 +43,6 @@ public class VersionPrinter {
 
 
             ;
-
-    private VersionPrinter() { }
 
     public static String getVersion() {
         return VERSION;

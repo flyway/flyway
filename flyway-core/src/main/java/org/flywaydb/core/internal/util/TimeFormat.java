@@ -15,17 +15,14 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
  * Formats execution times.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TimeFormat {
-    /**
-     * Prevent instantiation.
-     */
-    private TimeFormat() {
-        // Do nothing
-    }
-
     /**
      * Formats this execution time as minutes:seconds.millis. Ex.: 02:15.123s
      *

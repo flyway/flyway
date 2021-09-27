@@ -15,20 +15,13 @@
  */
 package org.flywaydb.core.internal.logging.apachecommons;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.logging.Log;
 
+@RequiredArgsConstructor
 public class ApacheCommonsLog implements Log {
 
     private final org.apache.commons.logging.Log logger;
-
-    /**
-     * Creates a new wrapper around this logger.
-     *
-     * @param logger The original Apache Commons Logging Logger.
-     */
-    public ApacheCommonsLog(org.apache.commons.logging.Log logger) {
-        this.logger = logger;
-    }
 
     @Override
     public boolean isDebugEnabled() {

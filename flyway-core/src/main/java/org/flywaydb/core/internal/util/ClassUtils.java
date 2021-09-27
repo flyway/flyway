@@ -16,6 +16,8 @@
 package org.flywaydb.core.internal.util;
 
 import lombok.CustomLog;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 
 import java.io.File;
@@ -30,8 +32,8 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 @CustomLog
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClassUtils {
-    private ClassUtils() { }
 
     /**
      * Creates a new instance of this class.

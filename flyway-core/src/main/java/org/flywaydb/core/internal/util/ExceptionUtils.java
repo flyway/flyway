@@ -15,12 +15,13 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.sql.SQLException;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ExceptionUtils {
-
-    private ExceptionUtils() {}
-
     /**
      * @return The root cause or the throwable itself if it doesn't have a cause.
      */

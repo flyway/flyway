@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.resolver;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.util.Pair;
@@ -24,13 +26,8 @@ import org.flywaydb.core.internal.util.StringUtils;
  * Parsing support for migrations that use the standard Flyway version + description embedding in their name. These
  * migrations have names like 1_2__Description .
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MigrationInfoHelper {
-    /**
-     * Prevents instantiation.
-     */
-    private MigrationInfoHelper() {
-        //Do nothing.
-    }
 
     /**
      * Extracts the schema version and the description from a migration name formatted as 1_2__Description.

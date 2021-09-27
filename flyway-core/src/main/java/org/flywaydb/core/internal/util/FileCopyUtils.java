@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,14 +30,8 @@ import java.nio.charset.Charset;
 /**
  * Utility class for copying files and their contents. Inspired by Spring's own.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileCopyUtils {
-    /**
-     * Prevent instantiation.
-     */
-    private FileCopyUtils() {
-        // Do nothing
-    }
-
     /**
      * Copy the contents of the given Reader into a String.
      * Closes the reader when done.

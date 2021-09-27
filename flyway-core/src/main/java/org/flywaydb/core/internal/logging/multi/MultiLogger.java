@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.logging.multi;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.logging.Log;
 
 import java.util.List;
@@ -22,13 +23,10 @@ import java.util.List;
 /**
  * Log implementation that forwards method calls to multiple implementations
  */
+@RequiredArgsConstructor
 public class MultiLogger implements Log {
 
     private final List<Log> logs;
-
-    public MultiLogger(List<Log> logs) {
-        this.logs = logs;
-    }
 
     @Override
     public boolean isDebugEnabled() {

@@ -15,18 +15,15 @@
  */
 package org.flywaydb.core.internal.logging;
 
+import lombok.AllArgsConstructor;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 
+@AllArgsConstructor
 public class EvolvingLog implements Log {
     private Log log;
     private final Class<?> clazz;
-
-    public EvolvingLog(Log log, Class<?> clazz) {
-        this.log = log;
-        this.clazz = clazz;
-    }
 
     private synchronized void updateLog() {
         Log newLog = ((EvolvingLog)LogFactory.getLog(clazz)).getLog();

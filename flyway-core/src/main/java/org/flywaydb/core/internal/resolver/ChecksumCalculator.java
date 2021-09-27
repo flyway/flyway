@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.resolver;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.util.BomFilter;
@@ -25,9 +27,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChecksumCalculator {
-    private ChecksumCalculator() { }
-
     /**
      * Calculates the checksum of these resources. The checksum is encoding and line-ending independent.
      *

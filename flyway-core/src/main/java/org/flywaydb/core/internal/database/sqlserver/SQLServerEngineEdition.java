@@ -15,11 +15,14 @@
  */
 package org.flywaydb.core.internal.database.sqlserver;
 
+import lombok.RequiredArgsConstructor;
+
 /*
  * SQL Server engine editions. Some restrict the functionality available. See
  * https://docs.microsoft.com/en-us/sql/t-sql/functions/serverproperty-transact-sql?view=sql-server-ver15
  * for details of what each edition supports.
  */
+@RequiredArgsConstructor
 public enum SQLServerEngineEdition {
     
     PERSONAL_DESKTOP(1),
@@ -32,10 +35,6 @@ public enum SQLServerEngineEdition {
     AZURE_SQL_EDGE(9);
 
     private final int code;
-
-    SQLServerEngineEdition(int code) {
-        this.code = code;
-    }
 
     public static SQLServerEngineEdition fromCode(int code) {
         for (SQLServerEngineEdition edition : values()) {
