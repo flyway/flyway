@@ -17,6 +17,7 @@ package org.flywaydb.core.api.configuration;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import software.amazon.awssdk.services.s3.S3Client;
 
 /**
@@ -25,11 +26,9 @@ import software.amazon.awssdk.services.s3.S3Client;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class S3ClientFactory {
-    private static S3Client client = null;
 
-    public static void setClient(S3Client customClient) {
-        client = customClient;
-    }
+    @Setter
+    private static S3Client client = null;
 
     public static S3Client getClient() {
         if (client != null) {

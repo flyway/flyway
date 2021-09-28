@@ -16,6 +16,9 @@
 package org.flywaydb.core.api.configuration;
 
 import lombok.CustomLog;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
@@ -51,10 +54,13 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger
  * <p>This configuration can then be passed to Flyway using the <code>new Flyway(Configuration)</code> constructor.</p>
  */
 @CustomLog
+@Getter(onMethod = @__({@Override}))
+@Setter
 public class ClassicConfiguration implements Configuration {
 
     private List<ApiExtension> apiExtensions = new ArrayList<>();
 
+    @Getter(AccessLevel.NONE)
     private String driver;
     private String url;
     private String user;
@@ -62,19 +68,89 @@ public class ClassicConfiguration implements Configuration {
     private DataSource dataSource;
     private int connectRetries;
     private int connectRetriesInterval = 120;
+    /**
+     * -- SETTER --
+     * The SQL statements to run to initialize a new database connection immediately after opening it.
+     *
+     * @param initSql The SQL statements. (default: {@code null})
+     */
     private String initSql;
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    @Setter(AccessLevel.NONE)
     private Locations locations = new Locations("db/migration");
+    /**
+     * -- SETTER --
+     * Sets the encoding of SQL migrations.
+     *
+     * @param encoding The encoding of SQL migrations. (default: UTF-8)
+     */
     private Charset encoding = StandardCharsets.UTF_8;
     private boolean detectEncoding = false;
-    private String defaultSchemaName = null;
-    private String[] schemaNames = {};
+    /**
+     * -- SETTER --
+     * Sets the default schema managed by Flyway. This schema name is case-sensitive. If not specified, but <i>schemas</i>
+     * is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default schema for the
+     * database connection.
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>This schema will be the one containing the schema history table.</li>
+     * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
+     * </ul>
+     *
+     * @param schema The default schema managed by Flyway, which is where the schema history table will reside.
+     */
+    private String defaultSchema = null;
+    /**
+     * -- SETTER --
+     * Sets the schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
+     * the default schema for the database connection. If <i>defaultSchema</i> is not specified, then the first of
+     * this list also acts as the default schema.
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
+     * <li>The schemas will be cleaned in the order of this list.</li>
+     * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
+     * </ul>
+     *
+     * @param schemas The schemas managed by Flyway. May not be {@code null}. Must contain at least one element.
+     */
+    private String[] schemas = {};
+    /**
+     * -- SETTER --
+     * Sets the name of the schema history table that will be used by Flyway.
+     * By default, (single-schema mode) the schema history table is placed in the default schema for the connection provided by the datasource.
+     * When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first schema of the list,
+     * or in the schema specified to <i>flyway.defaultSchema</i>.
+     *
+     * @param table The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
+     */
     private String table = "flyway_schema_history";
+    /**
+     * -- SETTER --
+     * Sets the tablespace where to create the schema history table that will be used by Flyway.
+     * If not specified, Flyway uses the default tablespace for the database connection.This setting is only relevant
+     * for databases that do support the notion of tablespaces. Its value is simply ignored for all others.
+     *
+     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway.
+     */
     private String tablespace;
     private MigrationVersion target;
     private boolean failOnMissingTarget = true;
+    @Setter(AccessLevel.NONE)
     private MigrationPattern[] cherryPick;
+    /**
+     * -- SETTER --
+     * Sets whether placeholders should be replaced.
+     *
+     * @param placeholderReplacement Whether placeholders should be replaced. (default: true)
+     */
     private boolean placeholderReplacement = true;
+    /**
+     * -- SETTER --
+     * Sets the placeholders to replace in SQL migration scripts.
+     *
+     * @param placeholders The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
+     */
     private Map<String, String> placeholders = new HashMap<>();
     private String placeholderPrefix = "${";
     private String placeholderSuffix = "}";
@@ -83,35 +159,196 @@ public class ClassicConfiguration implements Configuration {
     private String sqlMigrationPrefix = "V";
     private String baselineMigrationPrefix = "B";
     private String undoSqlMigrationPrefix = "U";
+    /**
+     * -- SETTER --
+     * Sets the file name prefix for repeatable sql migrations.
+     * Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to R__My_description.sql
+     *
+     * @param repeatableSqlMigrationPrefix The file name prefix for repeatable sql migrations (default: R)
+     */
     private String repeatableSqlMigrationPrefix = "R";
     private ResourceProvider resourceProvider = null;
     private ClassProvider<JavaMigration> javaMigrationClassProvider = null;
     private String sqlMigrationSeparator = "__";
+    @Setter(AccessLevel.NONE)
     private String[] sqlMigrationSuffixes = {".sql"};
     private JavaMigration[] javaMigrations = {};
+    /**
+     * -- SETTER --
+     * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
+     *
+     * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
+     * older deployment of the application that are no longer available in this version. For example: we have migrations
+     * available on the classpath with versions 1.0 and 3.0. The schema history table indicates that a migration with version 2.0
+     * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
+     * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
+     * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
+     * mark it as future instead.
+     *
+     * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
+     */
     private boolean ignoreMissingMigrations;
+    /**
+     * -- SETTER --
+     * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
+     *
+     * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
+     * already migrated migrations in this version. For example: we have migrations available on the classpath with
+     * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
+     * one was 2.0.0. But with the next release a new migration was added to version 1: 1.0.16. Such scenario is ignored
+     * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
+     * will not be reported by validate command. This is useful for situations where one must be able to deliver
+     * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
+     * development of older versions.
+     *
+     * @param ignoreIgnoredMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
+     */
     private boolean ignoreIgnoredMigrations;
+    /**
+     * -- SETTER --
+     * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
+     *
+     * Ignore pending migrations when reading the schema history table. These are migrations that are available
+     * but have not yet been applied. This can be useful for verifying that in-development migration changes
+     * don't contain any validation-breaking changes of migrations that have already been applied to a production
+     * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
+     *
+     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
+     */
     private boolean ignorePendingMigrations;
+    /**
+     * -- SETTER --
+     * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
+     *
+     * Whether to ignore future migrations when reading the schema history table. These are migrations that were performed by a
+     * newer deployment of the application that are not yet available in this version. For example: we have migrations
+     * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
+     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
+     * an older version of the application after the database has been migrated by a newer one.
+     *
+     * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
+     */
     private boolean ignoreFutureMigrations = true;
+    @Setter(AccessLevel.NONE)
     private ValidatePattern[] ignoreMigrationPatterns = new ValidatePattern[0];
+    /**
+     * -- SETTER --
+     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
+     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
+     *
+     * @param validateMigrationNaming {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
+     */
     private boolean validateMigrationNaming = false;
+    /**
+     * -- SETTER --
+     * Whether to automatically call validate or not when running migrate.
+     *
+     * @param validateOnMigrate {@code true} if validate should be called. {@code false} if not. (default: {@code true})
+     */
     private boolean validateOnMigrate = true;
+    /**
+     * -- SETTER --
+     * Whether to automatically call clean or not when a validation error occurs.
+     * This is exclusively intended as a convenience for development. even though we strongly recommend not to change
+     * migration scripts once they have been checked into SCM and run, this provides a way of dealing with this case in
+     * a smooth manner. The database will be wiped clean automatically, ensuring that the next migration will bring you
+     * back to the state checked into SCM.
+     * <b>Warning! Do not enable in production!</b>
+     *
+     * @param cleanOnValidationError {@code true} if clean should be called. {@code false} if not. (default: {@code false})
+     */
     private boolean cleanOnValidationError;
+    /**
+     * -- SETTER --
+     * Whether to disable clean.
+     * This is especially useful for production environments where running clean can be quite a career limiting move.
+     *
+     * @param cleanDisabled {@code true} to disable clean. {@code false} to leave it enabled.  (default: {@code false})
+     */
     private boolean cleanDisabled;
+    /**
+     * -- SETTER --
+     * Sets the version to tag an existing schema with when executing baseline.
+     *
+     * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
+     */
     private MigrationVersion baselineVersion = MigrationVersion.fromVersion("1");
+    /**
+     * -- SETTER --
+     * Sets the description to tag an existing schema with when executing baseline.
+     *
+     * @param baselineDescription The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
+     */
     private String baselineDescription = "<< Flyway Baseline >>";
+    /**
+     * -- SETTER --
+     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
+     * This schema will then be baselined with the {@code baselineVersion} before executing the migrations.
+     * Only migrations above {@code baselineVersion} will then be applied.
+     *
+     * This is useful for initial Flyway production deployments on projects with an existing DB.
+     *
+     * Be careful when enabling this as it removes the safety net that ensures
+     * Flyway does not migrate the wrong database in case of a configuration mistake!
+     *
+     * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
+     */
     private boolean baselineOnMigrate;
+    /**
+     * -- SETTER --
+     * Allows migrations to be run "out of order".
+     * If you already have versions 1 and 3 applied, and now a version 2 is found, it will be applied too instead of being ignored.
+     *
+     * @param outOfOrder {@code true} if outOfOrder migrations should be applied, {@code false} if not. (default: {@code false})
+     */
     private boolean outOfOrder;
     private boolean skipExecutingMigrations;
+    @Setter(AccessLevel.NONE)
     private final List<Callback> callbacks = new ArrayList<>();
+    /**
+     * -- SETTER
+     * Whether Flyway should skip the default callbacks. If true, only custom callbacks are used.
+     *
+     * @param skipDefaultCallbacks Whether default built-in callbacks should be skipped. <p>(default: false)</p>
+     */
     private boolean skipDefaultCallbacks;
     private MigrationResolver[] resolvers = new MigrationResolver[0];
+    /**
+     * -- SETTER --
+     * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
+     *
+     * @param skipDefaultResolvers Whether default built-in resolvers should be skipped. (default: false)
+     */
     private boolean skipDefaultResolvers;
+    /**
+     * -- SETTER --
+     * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
+     * automatically causes the entire affected migration to be run without a transaction.
+     *
+     * Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
+     * statements that do not run at all within a transaction.
+     * This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
+     * DDL statement was run within a transaction, the database will issue an implicit commit before and after
+     * its execution.
+     *
+     * @param mixed {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     */
     private boolean mixed;
+    /**
+     * -- SETTER --
+     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+     *
+     * @param group {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
+     */
     private boolean group;
     private String installedBy;
     private boolean createSchemas = true;
+    @Setter(AccessLevel.NONE)
     private String[] errorOverrides = new String[0];
+    @Setter(AccessLevel.NONE)
     private OutputStream dryRunOutput;
     private boolean stream;
     private boolean batch;
@@ -124,8 +361,16 @@ public class ClassicConfiguration implements Configuration {
     private String oracleKerberosConfigFile = "";
     private String oracleKerberosCacheFile = "";
     private String oracleWalletLocation;
+    /**
+     * -- SETTER --
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
+     *
+     * @return @{code true} to fail (default: {@code false})
+     */
     private boolean failOnMissingLocations = false;
+    @Setter(AccessLevel.NONE)
     private String[] loggers = new String[] { "auto" };
+    @Getter(AccessLevel.NONE)
     private final ClasspathClassScanner classScanner;
 
     public ClassicConfiguration() {
@@ -156,202 +401,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public Charset getEncoding() {
-        return encoding;
-    }
-
-    @Override
-    public boolean getDetectEncoding() {
-        return detectEncoding;
-    }
-
-    @Override
-    public String getDefaultSchema() { return defaultSchemaName; }
-
-    @Override
-    public String[] getSchemas() { return schemaNames; }
-
-    @Override
-    public String getTable() {
-        return table;
-    }
-
-    @Override
-    public String getTablespace() {
-        return tablespace;
-    }
-
-    @Override
-    public MigrationVersion getTarget() {
-        return target;
-    }
-
-    @Override
-    public boolean getFailOnMissingTarget() {
-        return failOnMissingTarget;
-    }
-
-    @Override
-    public MigrationPattern[] getCherryPick() {
-        return cherryPick;
-    }
-
-    @Override
-    public boolean isPlaceholderReplacement() {
-        return placeholderReplacement;
-    }
-
-    @Override
-    public Map<String, String> getPlaceholders() {
-        return placeholders;
-    }
-
-    @Override
-    public String getPlaceholderPrefix() {
-        return placeholderPrefix;
-    }
-
-    @Override
-    public String getPlaceholderSuffix() {
-        return placeholderSuffix;
-    }
-
-    @Override
-    public String getScriptPlaceholderPrefix() {
-        return scriptPlaceholderPrefix;
-    }
-
-    @Override
-    public String getScriptPlaceholderSuffix() {
-        return scriptPlaceholderSuffix;
-    }
-
-    @Override
-    public String getSqlMigrationPrefix() {
-        return sqlMigrationPrefix;
-    }
-
-    @Override
-    public String getBaselineMigrationPrefix() {
-        return baselineMigrationPrefix;
-    }
-
-    @Override
-    public String getRepeatableSqlMigrationPrefix() {
-        return repeatableSqlMigrationPrefix;
-    }
-
-    @Override
-    public String getSqlMigrationSeparator() {
-        return sqlMigrationSeparator;
-    }
-
-    @Override
-    public String[] getSqlMigrationSuffixes() {
-        return sqlMigrationSuffixes;
-    }
-
-    @Override
-    public JavaMigration[] getJavaMigrations() {
-        return javaMigrations;
-    }
-
-    @Override
-    public boolean isIgnoreMissingMigrations() {
-        return ignoreMissingMigrations;
-    }
-
-    @Override
-    public boolean isIgnoreIgnoredMigrations() {
-        return ignoreIgnoredMigrations;
-    }
-
-    @Override
-    public boolean isIgnorePendingMigrations() {
-        return ignorePendingMigrations;
-    }
-
-    @Override
-    public boolean isIgnoreFutureMigrations() {
-        return ignoreFutureMigrations;
-    }
-
-    @Override
-    public ValidatePattern[] getIgnoreMigrationPatterns() {
-        return ignoreMigrationPatterns;
-    }
-
-    @Override
-    public boolean isValidateMigrationNaming() {
-        return validateMigrationNaming;
-    }
-
-    @Override
-    public boolean isValidateOnMigrate() {
-        return validateOnMigrate;
-    }
-
-    @Override
-    public boolean isCleanOnValidationError() {
-        return cleanOnValidationError;
-    }
-
-    @Override
-    public boolean isCleanDisabled() {
-        return cleanDisabled;
-    }
-
-    @Override
-    public MigrationVersion getBaselineVersion() {
-        return baselineVersion;
-    }
-
-    @Override
-    public String getBaselineDescription() {
-        return baselineDescription;
-    }
-
-    @Override
-    public boolean isBaselineOnMigrate() {
-        return baselineOnMigrate;
-    }
-
-    @Override
-    public boolean isOutOfOrder() {
-        return outOfOrder;
-    }
-
-    @Override
-    public boolean isSkipExecutingMigrations() {
-        return skipExecutingMigrations;
-    }
-
-    @Override
-    public MigrationResolver[] getResolvers() {
-        return resolvers;
-    }
-
-    @Override
-    public boolean isSkipDefaultResolvers() {
-        return skipDefaultResolvers;
-    }
-
-    @Override
-    public String getUrl() {
-        return url;
-    }
-
-    @Override
-    public String getUser() {
-        return user;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
     public DataSource getDataSource() {
         if (dataSource == null &&
                 (StringUtils.hasLength(driver) || StringUtils.hasLength(user) || StringUtils.hasLength(password))) {
@@ -361,143 +410,8 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public int getConnectRetries() {
-        return connectRetries;
-    }
-
-    @Override
-    public int getConnectRetriesInterval() {
-        return connectRetriesInterval;
-    }
-
-    @Override
-    public String getInitSql() {
-        return initSql;
-    }
-
-    @Override
-    public ClassLoader getClassLoader() {
-        return classLoader;
-    }
-
-    @Override
-    public boolean isMixed() {
-        return mixed;
-    }
-
-    @Override
-    public String getInstalledBy() {
-        return installedBy;
-    }
-
-    @Override
-    public boolean isGroup() {
-        return group;
-    }
-
-    @Override
-    public String[] getErrorOverrides() {
-        return errorOverrides;
-    }
-
-    @Override
-    public OutputStream getDryRunOutput() {
-        return dryRunOutput;
-    }
-
-    @Override
-    public String getLicenseKey() {
-        return licenseKey;
-    }
-
-    @Override
-    public int getLockRetryCount() {
-        return lockRetryCount;
-    }
-
-    @Override
-    public String[] getLoggers() {
-        return loggers;
-    }
-
-    @Override
-    public Map<String, String> getJdbcProperties() {
-        return jdbcProperties;
-    }
-
-    @Override
-    public boolean getFailOnMissingLocations() {
-        return failOnMissingLocations;
-    }
-
-    @Override
-    public String getOracleWalletLocation() {
-        return oracleWalletLocation;
-    }
-
-    @Override
-    public boolean outputQueryResults() {
-        return outputQueryResults;
-    }
-
-    @Override
-    public ResourceProvider getResourceProvider() {
-        return resourceProvider;
-    }
-
-    @Override
-    public ClassProvider<JavaMigration> getJavaMigrationClassProvider() {
-        return javaMigrationClassProvider;
-    }
-
-    @Override
-    public boolean getCreateSchemas() {
-        return createSchemas;
-    }
-
-    @Override
-    public boolean isStream() {
-        return stream;
-    }
-
-    @Override
-    public boolean isBatch() {
-        return batch;
-    }
-
-    @Override
-    public String getUndoSqlMigrationPrefix() {
-        return undoSqlMigrationPrefix;
-    }
-
-    @Override
     public Callback[] getCallbacks() {
         return callbacks.toArray(new Callback[0]);
-    }
-
-    @Override
-    public boolean isSkipDefaultCallbacks() {
-        return skipDefaultCallbacks;
-    }
-
-    @Override
-    public boolean isOracleSqlplus() {
-        return oracleSqlplus;
-    }
-
-    @Override
-    public boolean isOracleSqlplusWarn() {
-        return oracleSqlplusWarn;
-    }
-
-    @Override
-    public String getOracleKerberosConfigFile() {
-        return oracleKerberosConfigFile;
-    }
-
-    @Override
-    public String getOracleKerberosCacheFile(){
-        return oracleKerberosCacheFile;
     }
 
     /**
@@ -634,14 +548,6 @@ public class ClassicConfiguration implements Configuration {
 
     }
 
-    /**
-     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
-     *
-     * @param group {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
-     */
-    public void setGroup(boolean group) {
-        this.group = group;
-    }
 
     /**
      * The username that will be recorded in the schema history table as having applied the migration.
@@ -673,88 +579,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
-     * automatically causes the entire affected migration to be run without a transaction.
-     *
-     * Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
-     * statements that do not run at all within a transaction.
-     * This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
-     * DDL statement was run within a transaction, the database will issue an implicit commit before and after
-     * its execution.
-     *
-     * @param mixed {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
-     */
-    public void setMixed(boolean mixed) {
-        this.mixed = mixed;
-    }
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
-     *
-     * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
-     * older deployment of the application that are no longer available in this version. For example: we have migrations
-     * available on the classpath with versions 1.0 and 3.0. The schema history table indicates that a migration with version 2.0
-     * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
-     * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
-     * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
-     * mark it as future instead.
-     *
-     * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
-     */
-    public void setIgnoreMissingMigrations(boolean ignoreMissingMigrations) {
-        this.ignoreMissingMigrations = ignoreMissingMigrations;
-    }
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
-     *
-     * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
-     * already migrated migrations in this version. For example: we have migrations available on the classpath with
-     * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
-     * one was 2.0.0. But with the next release a new migration was added to version 1: 1.0.16. Such scenario is ignored
-     * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
-     * will not be reported by validate command. This is useful for situations where one must be able to deliver
-     * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
-     * development of older versions.
-     *
-     * @param ignoreIgnoredMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
-     */
-    public void setIgnoreIgnoredMigrations(boolean ignoreIgnoredMigrations) {
-        this.ignoreIgnoredMigrations = ignoreIgnoredMigrations;
-    }
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
-     *
-     * Ignore pending migrations when reading the schema history table. These are migrations that are available
-     * but have not yet been applied. This can be useful for verifying that in-development migration changes
-     * don't contain any validation-breaking changes of migrations that have already been applied to a production
-     * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
-     *
-     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
-     */
-    public void setIgnorePendingMigrations(boolean ignorePendingMigrations) {
-        this.ignorePendingMigrations = ignorePendingMigrations;
-    }
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
-     *
-     * Whether to ignore future migrations when reading the schema history table. These are migrations that were performed by a
-     * newer deployment of the application that are not yet available in this version. For example: we have migrations
-     * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
-     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
-     * an older version of the application after the database has been migrated by a newer one.
-     *
-     * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
-     */
-    public void setIgnoreFutureMigrations(boolean ignoreFutureMigrations) {
-        this.ignoreFutureMigrations = ignoreFutureMigrations;
-    }
-
-    /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations.
      * Each pattern is of the form <migration_type>:<migration_state>
      * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
@@ -779,49 +603,6 @@ public class ClassicConfiguration implements Configuration {
 
 
 
-    }
-
-    /**
-     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
-     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
-     *
-     * @param validateMigrationNaming {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
-     */
-    public void setValidateMigrationNaming(boolean validateMigrationNaming) {
-        this.validateMigrationNaming = validateMigrationNaming;
-    }
-
-    /**
-     * Whether to automatically call validate or not when running migrate.
-     *
-     * @param validateOnMigrate {@code true} if validate should be called. {@code false} if not. (default: {@code true})
-     */
-    public void setValidateOnMigrate(boolean validateOnMigrate) {
-        this.validateOnMigrate = validateOnMigrate;
-    }
-
-    /**
-     * Whether to automatically call clean or not when a validation error occurs.
-     * This is exclusively intended as a convenience for development. even though we strongly recommend not to change
-     * migration scripts once they have been checked into SCM and run, this provides a way of dealing with this case in
-     * a smooth manner. The database will be wiped clean automatically, ensuring that the next migration will bring you
-     * back to the state checked into SCM.
-     * <b>Warning! Do not enable in production!</b>
-     *
-     * @param cleanOnValidationError {@code true} if clean should be called. {@code false} if not. (default: {@code false})
-     */
-    public void setCleanOnValidationError(boolean cleanOnValidationError) {
-        this.cleanOnValidationError = cleanOnValidationError;
-    }
-
-    /**
-     * Whether to disable clean.
-     * This is especially useful for production environments where running clean can be quite a career limiting move.
-     *
-     * @param cleanDisabled {@code true} to disable clean. {@code false} to leave it enabled.  (default: {@code false})
-     */
-    public void setCleanDisabled(boolean cleanDisabled) {
-        this.cleanDisabled = cleanDisabled;
     }
 
     /**
@@ -853,15 +634,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Sets the encoding of SQL migrations.
-     *
-     * @param encoding The encoding of SQL migrations. (default: UTF-8)
-     */
-    public void setEncoding(Charset encoding) {
-        this.encoding = encoding;
-    }
-
-    /**
      * Whether Flyway should try to automatically detect SQL migration file encoding
      *
      * @param detectEncoding {@code true} to enable auto detection, {@code false} otherwise
@@ -883,62 +655,6 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setEncodingAsString(String encoding) {
         this.encoding = Charset.forName(encoding);
-    }
-
-    /**
-     * Sets the default schema managed by Flyway. This schema name is case-sensitive. If not specified, but <i>schemas</i>
-     * is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default schema for the
-     * database connection.
-     * <p>Consequences:</p>
-     * <ul>
-     * <li>This schema will be the one containing the schema history table.</li>
-     * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
-     * </ul>
-     *
-     * @param schema The default schema managed by Flyway, which is where the schema history table will reside.
-     */
-    public void setDefaultSchema(String schema) {
-        this.defaultSchemaName = schema;
-    }
-
-    /**
-     * Sets the schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
-     * the default schema for the database connection. If <i>defaultSchema</i> is not specified, then the first of
-     * this list also acts as the default schema.
-     * <p>Consequences:</p>
-     * <ul>
-     * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
-     * <li>The schemas will be cleaned in the order of this list.</li>
-     * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
-     * </ul>
-     *
-     * @param schemas The schemas managed by Flyway. May not be {@code null}. Must contain at least one element.
-     */
-    public void setSchemas(String... schemas) {
-        this.schemaNames = schemas;
-    }
-
-    /**
-     * Sets the name of the schema history table that will be used by Flyway.
-     * By default, (single-schema mode) the schema history table is placed in the default schema for the connection provided by the datasource.
-     * When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first schema of the list,
-     * or in the schema specified to <i>flyway.defaultSchema</i>.
-     *
-     * @param table The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
-     */
-    public void setTable(String table) {
-        this.table = table;
-    }
-
-    /**
-     * Sets the tablespace where to create the schema history table that will be used by Flyway.
-     * If not specified, Flyway uses the default tablespace for the database connection.This setting is only relevant
-     * for databases that do support the notion of tablespaces. Its value is simply ignored for all others.
-     *
-     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway.
-     */
-    public void setTablespace(String tablespace) {
-        this.tablespace = tablespace;
     }
 
     /**
@@ -992,10 +708,6 @@ public class ClassicConfiguration implements Configuration {
             setFailOnMissingTarget(true);
             setTarget(MigrationVersion.fromVersion(target));
         }
-    }
-
-    private void setFailOnMissingTarget(boolean failOnMissingTarget) {
-        this.failOnMissingTarget = failOnMissingTarget;
     }
 
     /**
@@ -1053,24 +765,6 @@ public class ClassicConfiguration implements Configuration {
 
 
 
-    }
-
-    /**
-     * Sets whether placeholders should be replaced.
-     *
-     * @param placeholderReplacement Whether placeholders should be replaced. (default: true)
-     */
-    public void setPlaceholderReplacement(boolean placeholderReplacement) {
-        this.placeholderReplacement = placeholderReplacement;
-    }
-
-    /**
-     * Sets the placeholders to replace in SQL migration scripts.
-     *
-     * @param placeholders The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
-     */
-    public void setPlaceholders(Map<String, String> placeholders) {
-        this.placeholders = placeholders;
     }
 
     /**
@@ -1218,17 +912,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Sets the file name prefix for repeatable sql migrations.
-     * Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to R__My_description.sql
-     *
-     * @param repeatableSqlMigrationPrefix The file name prefix for repeatable sql migrations (default: R)
-     */
-    public void setRepeatableSqlMigrationPrefix(String repeatableSqlMigrationPrefix) {
-        this.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix;
-    }
-
-    /**
      * Sets the file name separator for sql migrations.
      * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
      * which using the defaults translates to V1_1__My_description.sql
@@ -1312,65 +995,12 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * The SQL statements to run to initialize a new database connection immediately after opening it.
-     *
-     * @param initSql The SQL statements. (default: {@code null})
-     */
-    public void setInitSql(String initSql) {
-        this.initSql = initSql;
-    }
-
-    /**
-     * Sets the version to tag an existing schema with when executing baseline.
-     *
-     * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
-     */
-    public void setBaselineVersion(MigrationVersion baselineVersion) {
-        this.baselineVersion = baselineVersion;
-    }
-
-    /**
      * Sets the version to tag an existing schema with when executing baseline.
      *
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
      */
     public void setBaselineVersionAsString(String baselineVersion) {
         this.baselineVersion = MigrationVersion.fromVersion(baselineVersion);
-    }
-
-    /**
-     * Sets the description to tag an existing schema with when executing baseline.
-     *
-     * @param baselineDescription The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
-     */
-    public void setBaselineDescription(String baselineDescription) {
-        this.baselineDescription = baselineDescription;
-    }
-
-    /**
-     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
-     * This schema will then be baselined with the {@code baselineVersion} before executing the migrations.
-     * Only migrations above {@code baselineVersion} will then be applied.
-     *
-     * This is useful for initial Flyway production deployments on projects with an existing DB.
-     *
-     * Be careful when enabling this as it removes the safety net that ensures
-     * Flyway does not migrate the wrong database in case of a configuration mistake!
-     *
-     * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
-     */
-    public void setBaselineOnMigrate(boolean baselineOnMigrate) {
-        this.baselineOnMigrate = baselineOnMigrate;
-    }
-
-    /**
-     * Allows migrations to be run "out of order".
-     * If you already have versions 1 and 3 applied, and now a version 2 is found, it will be applied too instead of being ignored.
-     *
-     * @param outOfOrder {@code true} if outOfOrder migrations should be applied, {@code false} if not. (default: {@code false})
-     */
-    public void setOutOfOrder(boolean outOfOrder) {
-        this.outOfOrder = outOfOrder;
     }
 
     /**
@@ -1458,15 +1088,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Whether Flyway should skip the default callbacks. If true, only custom callbacks are used.
-     *
-     * @param skipDefaultCallbacks Whether default built-in callbacks should be skipped. <p>(default: false)</p>
-     */
-    public void setSkipDefaultCallbacks(boolean skipDefaultCallbacks) {
-        this.skipDefaultCallbacks = skipDefaultCallbacks;
-    }
-
-    /**
      * Sets custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      *
      * @param resolvers The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
@@ -1483,15 +1104,6 @@ public class ClassicConfiguration implements Configuration {
     public void setResolversAsClassNames(String... resolvers) {
         List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolvers, classLoader);
         setResolvers(resolverList.toArray(new MigrationResolver[resolvers.length]));
-    }
-
-    /**
-     * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
-     *
-     * @param skipDefaultResolvers Whether default built-in resolvers should be skipped. (default: false)
-     */
-    public void setSkipDefaultResolvers(boolean skipDefaultResolvers) {
-        this.skipDefaultResolvers = skipDefaultResolvers;
     }
 
     /**
@@ -1619,32 +1231,6 @@ public class ClassicConfiguration implements Configuration {
 
     }
 
-    public void setResourceProvider(ResourceProvider resourceProvider) {
-        this.resourceProvider = resourceProvider;
-    }
-
-    public void setJavaMigrationClassProvider(ClassProvider<JavaMigration> javaMigrationClassProvider) {
-        this.javaMigrationClassProvider = javaMigrationClassProvider;
-    }
-
-    public void setLockRetryCount(int lockRetryCount) {
-        this.lockRetryCount = lockRetryCount;
-    }
-
-    /**
-     * Whether to fail if a location specified in the flyway.locations option doesn't exist
-     *
-     * @return @{code true} to fail (default: {@code false})
-     */
-    public void setFailOnMissingLocations(boolean failOnMissingLocations) {
-        this.failOnMissingLocations = failOnMissingLocations;
-    }
-
-    @Override
-    public List<ApiExtension> getApiExtensions() {
-        return apiExtensions;
-    }
-
     @Override
     public <T extends ApiExtension> T getExtensionConfiguration(Class<T> clazz) {
         for (ApiExtension apiExtension : apiExtensions) {
@@ -1729,13 +1315,13 @@ public class ClassicConfiguration implements Configuration {
         setTable(configuration.getTable());
         setTablespace(configuration.getTablespace());
         setTarget(configuration.getTarget());
-        setFailOnMissingTarget(configuration.getFailOnMissingTarget());
+        setFailOnMissingTarget(configuration.isFailOnMissingTarget());
         setValidateOnMigrate(configuration.isValidateOnMigrate());
         setResourceProvider(configuration.getResourceProvider());
         setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
-        setShouldCreateSchemas(configuration.getCreateSchemas());
+        setShouldCreateSchemas(configuration.isCreateSchemas());
         setLockRetryCount(configuration.getLockRetryCount());
-        setFailOnMissingLocations(configuration.getFailOnMissingLocations());
+        setFailOnMissingLocations(configuration.isFailOnMissingLocations());
 
         url = configuration.getUrl();
         user = configuration.getUser();

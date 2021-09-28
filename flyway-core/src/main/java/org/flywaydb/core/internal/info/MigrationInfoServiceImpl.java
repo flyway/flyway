@@ -260,7 +260,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             migrationInfos1.add(new MigrationInfoImpl(pendingBaselineMigration, null, context, false, false, false));
         }
 
-        if (configuration.getFailOnMissingTarget() &&
+        if (configuration.isFailOnMissingTarget() &&
                 target != null &&
                 target != MigrationVersion.CURRENT &&
                 target != MigrationVersion.LATEST &&

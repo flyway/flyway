@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.license;
 
+import lombok.Getter;
+
+@Getter
 public enum Edition {
     COMMUNITY("Community"),
     PRO("Teams"),
@@ -28,10 +31,6 @@ public enum Edition {
 
     Edition(String name) {
         this.description = "Flyway " + name + " Edition";
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     @Override

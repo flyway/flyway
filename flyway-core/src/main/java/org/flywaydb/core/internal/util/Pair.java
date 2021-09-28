@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.util;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 
 import java.util.Arrays;
 
@@ -23,30 +24,19 @@ import java.util.Arrays;
  * A simple pair of values.
  */
 @RequiredArgsConstructor(staticName="of")
+@Getter
 public class Pair<L, R> implements Comparable<Pair<L, R>> {
     /**
      * The left side of the pair.
+     * @return The left side of the pair.
      */
     private final L left;
 
     /**
      * The right side of the pair.
-     */
-    private final R right;
-
-    /**
-     * @return The left side of the pair.
-     */
-    public L getLeft() {
-        return left;
-    }
-
-    /**
      * @return The right side of the pair.
      */
-    public R getRight() {
-        return right;
-    }
+    private final R right;
 
     @Override
     public boolean equals(Object o) {

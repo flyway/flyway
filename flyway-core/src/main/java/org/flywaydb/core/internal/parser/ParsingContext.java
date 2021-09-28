@@ -16,19 +16,18 @@
 package org.flywaydb.core.internal.parser;
 
 import lombok.CustomLog;
+import lombok.Getter;
+import lombok.Setter;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.resource.ResourceName;
 
-import java.sql.SQLException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 
 @CustomLog
 public class ParsingContext {
@@ -40,20 +39,11 @@ public class ParsingContext {
     private static final String WORKING_DIRECTORY_PLACEHOLDER = "flyway:workingDirectory";
     private static final String TABLE_PLACEHOLDER = "flyway:table";
 
+    @Getter
     private final Map<String, String> placeholders = new HashMap<>();
+    @Getter
+    @Setter
     private Database database;
-
-    public Map<String, String> getPlaceholders() {
-        return placeholders;
-    }
-
-    private void setDatabase(Database database) {
-        this.database = database;
-    }
-
-    public Database getDatabase() {
-        return database;
-    }
 
     public void populate(Database database, Configuration configuration) {
         setDatabase(database);

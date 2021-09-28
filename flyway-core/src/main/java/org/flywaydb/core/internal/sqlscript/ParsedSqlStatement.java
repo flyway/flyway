@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import lombok.Getter;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Results;
 
@@ -22,22 +23,14 @@ import org.flywaydb.core.internal.jdbc.Results;
  * A sql statement from a script that can be executed at once against a database.
  */
 public class ParsedSqlStatement implements SqlStatement {
+    @Getter
     private final int pos;
+    @Getter
     private final int line;
+    @Getter
     private final int col;
+    @Getter(onMethod = @__(@Override))
     private final String sql;
-
-    public int getPos() {
-        return pos;
-    }
-
-    public int getLine() {
-        return line;
-    }
-
-    public int getCol() {
-        return col;
-    }
 
     /**
      * The delimiter of the statement.
@@ -45,6 +38,7 @@ public class ParsedSqlStatement implements SqlStatement {
     private final Delimiter delimiter;
 
     private final boolean canExecuteInTransaction;
+
 
 
 
@@ -76,11 +70,6 @@ public class ParsedSqlStatement implements SqlStatement {
     }
 
     @Override
-    public final String getSql() {
-        return sql;
-    }
-
-    @Override
     public String getDelimiter() {
         return delimiter.toString();
     }
@@ -89,11 +78,6 @@ public class ParsedSqlStatement implements SqlStatement {
     public boolean canExecuteInTransaction() {
         return canExecuteInTransaction;
     }
-
-
-
-
-
 
 
 

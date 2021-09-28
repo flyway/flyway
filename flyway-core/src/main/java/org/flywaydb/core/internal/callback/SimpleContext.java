@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.callback;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Context;
 import org.flywaydb.core.api.callback.Error;
@@ -28,8 +29,10 @@ import org.flywaydb.core.internal.database.base.Connection;
 
 import java.util.List;
 
+@Getter(onMethod = @__(@Override))
 public class SimpleContext implements Context {
     private final Configuration configuration;
+    @Getter(AccessLevel.NONE)
     private final Connection connection;
     private final MigrationInfo migrationInfo;
     private final Statement statement;
@@ -53,49 +56,15 @@ public class SimpleContext implements Context {
     }
 
     @Override
-    public Configuration getConfiguration() {
-        return configuration;
-    }
-
-    @Override
     public java.sql.Connection getConnection() {
         return connection.getJdbcConnection();
     }
 
-    @Override
-    public MigrationInfo getMigrationInfo() {
-        return migrationInfo;
-    }
-
-    @Override
-    public Statement getStatement() {
-        return statement;
-    }
-
-    @Override
-    public OperationResult getOperationResult() {
-        return operationResult;
-    }
-
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Getter(onMethod = @__(@Override))
     private static class SimpleStatement implements Statement {
         private final String sql;
         private final List<Warning> warnings;
         private final List<Error> errors;
-
-        @Override
-        public String getSql() {
-            return sql;
-        }
-
-        @Override
-        public List<Warning> getWarnings() {
-            return warnings;
-        }
-
-        @Override
-        public List<Error> getErrors() {
-            return errors;
-        }
     }
 }

@@ -16,8 +16,10 @@
 package org.flywaydb.core.api;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 
 @RequiredArgsConstructor
+@Getter
 public enum MigrationType {
     /**
      * Schema creation migration.
@@ -78,9 +80,20 @@ public enum MigrationType {
      */
     UNDO_CUSTOM(false, true, false);
 
+    /**
+     * @return Whether this is a synthetic migration type, which is only ever present in the schema history table,
+     * but never discovered by migration resolvers.
+     */
     private final boolean synthetic;
+    /**
+     * @return Whether this is an undo migration, which has undone an earlier migration present in the schema history table.
+     */
     private final boolean undo;
-    private final boolean baseline;
+    /**
+     * @return Whether this is a baseline migration, which represents all migrations with
+     * version <= current baseline migration version.
+     */
+    private final boolean baselineMigration;
 
     public static MigrationType fromString(String migrationType) {
         // Convert legacy types to maintain compatibility
@@ -97,28 +110,5 @@ public enum MigrationType {
             return JDBC_BASELINE;
         }
         return valueOf(migrationType);
-    }
-
-    /**
-     * @return Whether this is a synthetic migration type, which is only ever present in the schema history table,
-     * but never discovered by migration resolvers.
-     */
-    public boolean isSynthetic() {
-        return synthetic;
-    }
-
-    /**
-     * @return Whether this is an undo migration, which has undone an earlier migration present in the schema history table.
-     */
-    public boolean isUndo() {
-        return undo;
-    }
-
-    /**
-     * @return Whether this is a baseline migration, which represents all migrations with
-     * version <= current baseline migration version.
-     */
-    public boolean isBaselineMigration() {
-        return baseline;
     }
 }

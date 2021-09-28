@@ -77,7 +77,7 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public boolean getDetectEncoding() { return config.getDetectEncoding(); }
+    public boolean isDetectEncoding() { return config.isDetectEncoding(); }
 
     @Override
     public String getDefaultSchema() { return config.getDefaultSchema(); }
@@ -106,8 +106,8 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public boolean getFailOnMissingTarget() {
-        return config.getFailOnMissingTarget();
+    public boolean isFailOnMissingTarget() {
+        return config.isFailOnMissingTarget();
     }
 
     @Override
@@ -360,13 +360,13 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public boolean outputQueryResults() {
-        return config.outputQueryResults();
+    public boolean isOutputQueryResults() {
+        return config.isOutputQueryResults();
     }
 
     @Override
-    public boolean getCreateSchemas() {
-        return config.getCreateSchemas();
+    public boolean isCreateSchemas() {
+        return config.isCreateSchemas();
     }
 
     @Override
@@ -380,8 +380,8 @@ public class FluentConfiguration implements Configuration {
     }
 
     @Override
-    public boolean getFailOnMissingLocations() {
-        return config.getFailOnMissingLocations();
+    public boolean isFailOnMissingLocations() {
+        return config.isFailOnMissingLocations();
     }
 
     @Override

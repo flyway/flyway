@@ -275,7 +275,7 @@ public interface Configuration {
     /**
      * Whether to fail if no migration with the configured target version exists (default: {@code true})
      */
-    boolean getFailOnMissingTarget();
+    boolean isFailOnMissingTarget();
 
     /**
      * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
@@ -347,7 +347,7 @@ public interface Configuration {
      * @return {@code true} to enable auto detection, {@code false} otherwise
      * <i>Flyway Teams only</i>
      */
-    boolean getDetectEncoding();
+    boolean isDetectEncoding();
 
     /**
      * Retrieves the locations to scan recursively for migrations.
@@ -627,7 +627,7 @@ public interface Configuration {
      *
      * @return {@code true} to output the results table (default: {@code true})
      */
-    boolean outputQueryResults();
+    boolean isOutputQueryResults();
 
     /**
      * Retrieves the custom ResourceProvider to be used to look up resources. If not set, the default strategy will be used.
@@ -648,7 +648,7 @@ public interface Configuration {
      *
      * @return @{code true} to attempt to create the schemas (default: {@code true})
      */
-    boolean getCreateSchemas();
+    boolean isCreateSchemas();
 
     /**
      * The maximum number of retries when trying to obtain a lock. -1 indicates attempting to repeat indefinitely.
@@ -669,7 +669,7 @@ public interface Configuration {
      *
      * @return @{code true} to fail (default: {@code false})
      */
-    boolean getFailOnMissingLocations();
+    boolean isFailOnMissingLocations();
 
     /**
      * The location of your Oracle wallet, used to automatically sign in to your databases.

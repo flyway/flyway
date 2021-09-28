@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -36,14 +39,37 @@ import java.util.logging.Logger;
 /**
  * YAGNI: The simplest DataSource implementation that works for Flyway.
  */
+@Getter
 public class DriverDataSource implements DataSource {
+    /**
+     * @return the JDBC Driver instance to use.
+     */
     private Driver driver;
+    /**
+     * @return the JDBC URL to use for connecting through the Driver.
+     */
     private final String url;
+    @Getter(AccessLevel.NONE)
     private final DatabaseType type;
+    /**
+     * @return the JDBC user to use for connecting through the Driver.
+     */
     private final String user;
+    /**
+     * @return the JDBC password to use for connecting through the Driver.
+     */
     private final String password;
+    @Getter(AccessLevel.NONE)
     private final Properties defaultProperties;
+    /**
+     * @return The additional properties to pass to a JDBC connection.
+     */
     private final Map<String, String> additionalProperties;
+    /**
+     * @param autoCommit Whether connection should have auto commit activated or not. Default: {@code true}
+     * @return Whether connection should have auto commit activated or not. Default: {@code true}
+     */
+    @Setter
     private boolean autoCommit = true;
 
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password) throws FlywayException {
@@ -187,41 +213,6 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * @return the JDBC Driver instance to use.
-     */
-    public Driver getDriver() {
-        return this.driver;
-    }
-
-    /**
-     * @return the JDBC URL to use for connecting through the Driver.
-     */
-    public String getUrl() {
-        return this.url;
-    }
-
-    /**
-     * @return the JDBC user to use for connecting through the Driver.
-     */
-    public String getUser() {
-        return this.user;
-    }
-
-    /**
-     * @return the JDBC password to use for connecting through the Driver.
-     */
-    public String getPassword() {
-        return this.password;
-    }
-
-    /**
-     * @return The additional properties to pass to a JDBC connection.
-     */
-    public Map<String, String> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
-
-    /**
      * This implementation delegates to {@code getConnectionFromDriver},
      * using the default user and password of this DataSource.
      *
@@ -271,20 +262,6 @@ public class DriverDataSource implements DataSource {
         }
         connection.setAutoCommit(autoCommit);
         return connection;
-    }
-
-    /**
-     * @return Whether connection should have auto commit activated or not. Default: {@code true}
-     */
-    public boolean isAutoCommit() {
-        return autoCommit;
-    }
-
-    /**
-     * @param autoCommit Whether connection should have auto commit activated or not. Default: {@code true}
-     */
-    public void setAutoCommit(boolean autoCommit) {
-        this.autoCommit = autoCommit;
     }
 
     public void shutdownDatabase() {

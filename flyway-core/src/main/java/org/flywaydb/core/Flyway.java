@@ -154,7 +154,7 @@ public class Flyway {
                             }
                         }
                     } else {
-                        if (configuration.getCreateSchemas()) {
+                        if (configuration.isCreateSchemas()) {
                             new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(false);
                         } else if(!schemas[0].exists()) {
                             LOG.warn("The configuration option 'createSchemas' is false.\n" +
@@ -297,7 +297,7 @@ public class Flyway {
             public BaselineResult execute(MigrationResolver migrationResolver,
                                           SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
                                           StatementInterceptor statementInterceptor) {
-                if (configuration.getCreateSchemas()) {
+                if (configuration.isCreateSchemas()) {
                     new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(true);
                 } else {
                     LOG.warn("The configuration option 'createSchemas' is false.\n" +

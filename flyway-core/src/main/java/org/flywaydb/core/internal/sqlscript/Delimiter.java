@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import lombok.Getter;
+
 /**
  * Represents a sql statement delimiter.
  */
@@ -32,7 +34,9 @@ public class Delimiter {
 
     /**
      * The actual delimiter string.
+     * @return The actual delimiter string.
      */
+    @Getter
     private final String delimiter;
 
     /**
@@ -63,13 +67,6 @@ public class Delimiter {
 
 
 
-    }
-
-    /**
-     * @return The actual delimiter string.
-     */
-    public String getDelimiter() {
-        return delimiter;
     }
 
     /**

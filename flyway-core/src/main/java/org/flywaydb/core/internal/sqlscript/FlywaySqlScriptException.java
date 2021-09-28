@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import lombok.Getter;
 import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
@@ -24,7 +25,17 @@ import java.sql.SQLException;
  * This specific exception thrown when Flyway encounters a problem in SQL script
  */
 public class FlywaySqlScriptException extends FlywaySqlException {
+    /**
+     * @return The resource containing the failed statement.
+     */
+    @Getter
     private final Resource resource;
+    /**
+     * Returns the failed statement in SQL script.
+     *
+     * @return The failed statement.
+     */
+    @Getter
     private final SqlStatement statement;
 
     /**
@@ -38,13 +49,6 @@ public class FlywaySqlScriptException extends FlywaySqlException {
         super(resource == null ? "Script failed" : "Migration " + resource.getFilename() + " failed", sqlException);
         this.resource = resource;
         this.statement = statement;
-    }
-
-    /**
-     * @return The resource containing the failed statement.
-     */
-    public Resource getResource() {
-        return resource;
     }
 
     /**
@@ -63,15 +67,6 @@ public class FlywaySqlScriptException extends FlywaySqlException {
      */
     public String getStatement() {
         return statement == null ? "" : statement.getSql();
-    }
-
-    /**
-     * Returns the failed statement in SQL script.
-     *
-     * @return The failed statement.
-     */
-    public SqlStatement getSqlStatement() {
-        return statement;
     }
 
     @Override

@@ -15,32 +15,22 @@
  */
 package org.flywaydb.core.internal.parser;
 
+import lombok.Getter;
+
 public class PositionTracker {
+    @Getter
     private int pos = 0;
+    @Getter
     private int line = 1;
+    @Getter
     private int col = 1;
+    @Getter
     private int colIgnoringWhitespace = 1;
 
     private int markPos = 0;
     private int markLine = 1;
     private int markCol = 1;
     private int markColIgnoringWhitespace = 1;
-
-    public int getPos() {
-        return pos;
-    }
-
-    public int getLine() {
-        return line;
-    }
-
-    public int getCol() {
-        return col;
-    }
-
-    public int getColIgnoringWhitespace() {
-        return colIgnoringWhitespace;
-    }
 
     public void nextPos() {
         pos++;

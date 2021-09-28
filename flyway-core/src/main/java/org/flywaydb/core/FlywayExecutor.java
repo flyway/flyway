@@ -245,11 +245,11 @@ public class FlywayExecutor {
                         Arrays.asList(configuration.getLocations()),
                         configuration.getClassLoader(),
                         configuration.getEncoding(),
-                        configuration.getDetectEncoding(),
+                        configuration.isDetectEncoding(),
                         stream,
                         resourceNameCache,
                         locationScannerCache,
-                        configuration.getFailOnMissingLocations()
+                        configuration.isFailOnMissingLocations()
                 );
                 // set the defaults
                 resourceProvider = scanner;

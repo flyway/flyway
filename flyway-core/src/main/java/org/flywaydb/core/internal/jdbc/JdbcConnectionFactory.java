@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.jdbc;
 
 import lombok.CustomLog;
+import lombok.Getter;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.DatabaseType;
@@ -38,13 +39,18 @@ public class JdbcConnectionFactory {
     private final int connectRetries;
     private final int connectRetriesInterval;
     private final Configuration configuration;
+    @Getter
     private final DatabaseType databaseType;
+    @Getter
     private final String jdbcUrl;
+    @Getter
     private final String driverInfo;
+    @Getter
     private final String productName;
 
     private Connection firstConnection;
     private ConnectionInitializer connectionInitializer;
+
 
 
 
@@ -94,25 +100,6 @@ public class JdbcConnectionFactory {
 
 
 
-
-
-
-
-    public DatabaseType getDatabaseType() {
-        return databaseType;
-    }
-
-    public String getJdbcUrl() {
-        return jdbcUrl;
-    }
-
-    public String getDriverInfo() {
-        return driverInfo;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
 
     public Connection openConnection() throws FlywayException {
         Connection connection = firstConnection == null ? JdbcUtils.openConnection(dataSource, connectRetries, connectRetriesInterval) : firstConnection;

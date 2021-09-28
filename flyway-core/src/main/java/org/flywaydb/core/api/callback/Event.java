@@ -16,6 +16,7 @@
 package org.flywaydb.core.api.callback;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 
 /**
  * The Flyway lifecycle events that can be handled in callbacks.
@@ -225,14 +226,11 @@ public enum Event {
      */
     CREATE_SCHEMA("createSchema");
 
-    private final String id;
-
     /**
      * @return The id of an event. Examples: {@code beforeClean}, {@code afterEachMigrate}, ...
      */
-    public String getId() {
-        return id;
-    }
+    @Getter
+    private final String id;
 
     /**
      * Retrieves the event with this id.

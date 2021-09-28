@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.resolver;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.executor.MigrationExecutor;
@@ -25,6 +27,7 @@ import java.util.Objects;
 /**
  * A migration available on the classpath.
  */
+@Getter(onMethod = @__(@Override))
 public class ResolvedMigrationImpl implements ResolvedMigration {
     /**
      * The name of the script to execute for this migration, relative to its classpath location.
@@ -34,6 +37,7 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
      * The equivalent checksum of the migration. For versioned migrations, this is the same as the checksum.
      * For repeatable migrations, it is the checksum calculated prior to placeholder replacement.
      */
+    @Getter(AccessLevel.NONE)
     private final Integer equivalentChecksum;
     private final Integer checksum;
     private final MigrationVersion version;
@@ -58,38 +62,8 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     public void validate() { }
 
     @Override
-    public MigrationVersion getVersion() {
-        return version;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public String getScript() {
-        return script;
-    }
-
-    @Override
     public Integer getChecksum() {
         return checksum == null ? equivalentChecksum : checksum;
-    }
-
-    @Override
-    public MigrationType getType() {
-        return type;
-    }
-
-    @Override
-    public String getPhysicalLocation() {
-        return physicalLocation;
-    }
-
-    @Override
-    public MigrationExecutor getExecutor() {
-        return executor;
     }
 
     public int compareTo(ResolvedMigrationImpl o) {

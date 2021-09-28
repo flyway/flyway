@@ -15,11 +15,14 @@
  */
 package org.flywaydb.core.api;
 
+import lombok.Getter;
+
 /**
  * Exception thrown when Flyway encounters a problem.
  */
 public class FlywayException extends RuntimeException {
 
+    @Getter
     private ErrorCode errorCode = ErrorCode.ERROR;
 
     /**
@@ -78,9 +81,5 @@ public class FlywayException extends RuntimeException {
      */
     public FlywayException() {
         super();
-    }
-
-    public ErrorCode getErrorCode() {
-        return errorCode;
     }
 }
