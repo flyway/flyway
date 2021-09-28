@@ -228,6 +228,9 @@ public class DbRepair {
     }
 
     private boolean descriptionUpdateNeeded(ResolvedMigration resolved, AppliedMigration applied) {
+        if (!database.supportsEmptyMigrationDescription() && "".equals(resolved.getDescription())) {
+            return !Objects.equals(SchemaHistory.NO_DESCRIPTION_MARKER, applied.getDescription());
+        }
         return !Objects.equals(resolved.getDescription(), applied.getDescription());
     }
 
