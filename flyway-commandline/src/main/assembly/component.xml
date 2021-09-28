@@ -139,8 +139,14 @@
                 <include>org.flywaydb:flyway-gcp-spanner</include>
                 <include>org.flywaydb:flyway-community-db-support</include>
                 <include>org.flywaydb:flyway-vault-integration</include>
+                <include>org.flywaydb:flyway-dapr-integration</include>
+                <include>org.flywaydb:flyway-gcsm-integration</include>
             </includes>
         </dependencySet>
+
+
+
+
 
 
 
