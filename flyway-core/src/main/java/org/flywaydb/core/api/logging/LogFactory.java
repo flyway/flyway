@@ -17,7 +17,6 @@ package org.flywaydb.core.api.logging;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.Synchronized;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.logging.EvolvingLog;
@@ -42,7 +41,15 @@ import java.util.List;
 public class LogFactory {
     /**
      * Factory for implementation-specific loggers.
-     * -- SETTER --
+     */
+    private static volatile LogCreator logCreator;
+    /**
+     * The factory for implementation-specific loggers to be used as a fallback when no other suitable loggers were found.
+     */
+    private static LogCreator fallbackLogCreator;
+    private static Configuration configuration;
+
+    /**
      * Sets the LogCreator that will be used. This will effectively override Flyway's default LogCreator auto-detection
      * logic and force Flyway to always use this LogCreator regardless of which log libraries are present on the
      * classpath.
@@ -53,20 +60,22 @@ public class LogFactory {
      *
      * @param logCreator The factory for implementation-specific loggers.
      */
-    @Setter(onMethod = @__(@Synchronized))
-    private static volatile LogCreator logCreator;
+    @Synchronized
+    public static void setLogCreator(LogCreator logCreator) {
+        LogFactory.logCreator = logCreator;
+    }
+
     /**
-     * The factory for implementation-specific loggers to be used as a fallback when no other suitable loggers were found.
-     * -- SETTER --
      * Sets the fallback LogCreator. This LogCreator will be used as a fallback solution when the default LogCreator
      * auto-detection logic fails to detect a suitable LogCreator based on the log libraries present on the classpath.
      *
      * @param fallbackLogCreator The factory for implementation-specific loggers to be used as a fallback when no other
      *                           suitable loggers were found.
      */
-    @Setter(onMethod = @__(@Synchronized))
-    private static LogCreator fallbackLogCreator;
-    private static Configuration configuration;
+    @Synchronized
+    public static void setFallbackLogCreator(LogCreator fallbackLogCreator) {
+        LogFactory.fallbackLogCreator = fallbackLogCreator;
+    }
 
     @Synchronized
     public static void setConfiguration(Configuration configuration) {
@@ -96,7 +105,7 @@ public class LogFactory {
 
         String[] loggers = configuration.getLoggers();
         List<LogCreator> logCreators = new ArrayList<>();
-        
+
         for (String logger : loggers) {
             switch (logger.toLowerCase()) {
                 case "auto":

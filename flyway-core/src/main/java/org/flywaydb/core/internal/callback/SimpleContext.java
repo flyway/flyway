@@ -29,7 +29,7 @@ import org.flywaydb.core.internal.database.base.Connection;
 
 import java.util.List;
 
-@Getter(onMethod = @__(@Override))
+@Getter
 public class SimpleContext implements Context {
     private final Configuration configuration;
     @Getter(AccessLevel.NONE)
@@ -61,7 +61,7 @@ public class SimpleContext implements Context {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    @Getter(onMethod = @__(@Override))
+    @Getter
     private static class SimpleStatement implements Statement {
         private final String sql;
         private final List<Warning> warnings;

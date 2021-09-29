@@ -29,7 +29,7 @@ public class ParsedSqlStatement implements SqlStatement {
     private final int line;
     @Getter
     private final int col;
-    @Getter(onMethod = @__(@Override))
+    @Getter
     private final String sql;
 
     /**

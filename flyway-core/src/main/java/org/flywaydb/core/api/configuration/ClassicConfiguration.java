@@ -54,7 +54,7 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger
  * <p>This configuration can then be passed to Flyway using the <code>new Flyway(Configuration)</code> constructor.</p>
  */
 @CustomLog
-@Getter(onMethod = @__({@Override}))
+@Getter
 @Setter
 public class ClassicConfiguration implements Configuration {
 

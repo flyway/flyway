@@ -21,11 +21,11 @@ import lombok.Setter;
 import org.flywaydb.core.api.callback.Warning;
 
 @RequiredArgsConstructor
-@Getter(onMethod = @__(@Override))
+@Getter
 public class WarningImpl implements Warning {
     private final int code;
     private final String state;
     private final String message;
-    @Setter(onMethod = @__(@Override))
+    @Setter
     private boolean handled;
 }
