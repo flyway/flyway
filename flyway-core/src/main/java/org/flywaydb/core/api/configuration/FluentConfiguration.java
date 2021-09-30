@@ -15,13 +15,12 @@
  */
 package org.flywaydb.core.api.configuration;
 
+import lombok.experimental.Delegate;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
-import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.extensibility.ApiExtension;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
 
@@ -29,7 +28,6 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -38,6 +36,8 @@ import java.util.Properties;
  * This configuration can be passed to Flyway using the <code>new Flyway(Configuration)</code> constructor.
  */
 public class FluentConfiguration implements Configuration {
+
+    @Delegate(types = Configuration.class)
     private final ClassicConfiguration config;
 
     public FluentConfiguration() {
@@ -64,329 +64,6 @@ public class FluentConfiguration implements Configuration {
     public FluentConfiguration configuration(Configuration configuration) {
         config.configure(configuration);
         return this;
-    }
-
-    @Override
-    public Location[] getLocations() {
-        return config.getLocations();
-    }
-
-    @Override
-    public Charset getEncoding() {
-        return config.getEncoding();
-    }
-
-    @Override
-    public boolean isDetectEncoding() { return config.isDetectEncoding(); }
-
-    @Override
-    public String getDefaultSchema() { return config.getDefaultSchema(); }
-
-    @Override
-    public String[] getSchemas() { return config.getSchemas(); }
-
-    @Override
-    public String getTable() {
-        return config.getTable();
-    }
-
-    @Override
-    public String getTablespace() {
-        return config.getTablespace();
-    }
-
-    @Override
-    public String[] getLoggers() {
-        return config.getLoggers();
-    }
-
-    @Override
-    public MigrationVersion getTarget() {
-        return config.getTarget();
-    }
-
-    @Override
-    public boolean isFailOnMissingTarget() {
-        return config.isFailOnMissingTarget();
-    }
-
-    @Override
-    public MigrationPattern[] getCherryPick() {
-        return config.getCherryPick();
-    }
-
-    @Override
-    public boolean isPlaceholderReplacement() {
-        return config.isPlaceholderReplacement();
-    }
-
-    @Override
-    public Map<String, String> getPlaceholders() {
-        return config.getPlaceholders();
-    }
-
-    @Override
-    public String getPlaceholderPrefix() {
-        return config.getPlaceholderPrefix();
-    }
-
-    @Override
-    public String getPlaceholderSuffix() {
-        return config.getPlaceholderSuffix();
-    }
-
-    @Override
-    public String getScriptPlaceholderPrefix() {
-        return config.getScriptPlaceholderPrefix();
-    }
-
-    @Override
-    public String getScriptPlaceholderSuffix() {
-        return config.getScriptPlaceholderSuffix();
-    }
-
-    @Override
-    public String getSqlMigrationPrefix() {
-        return config.getSqlMigrationPrefix();
-    }
-
-    @Override
-    public String getBaselineMigrationPrefix() {
-        return config.getBaselineMigrationPrefix();
-    }
-
-    @Override
-    public String getRepeatableSqlMigrationPrefix() {
-        return config.getRepeatableSqlMigrationPrefix();
-    }
-
-    @Override
-    public String getSqlMigrationSeparator() {
-        return config.getSqlMigrationSeparator();
-    }
-
-    @Override
-    public String[] getSqlMigrationSuffixes() {
-        return config.getSqlMigrationSuffixes();
-    }
-
-    @Override
-    public JavaMigration[] getJavaMigrations() {
-        return config.getJavaMigrations();
-    }
-
-    @Override
-    public boolean isIgnoreMissingMigrations() {
-        return config.isIgnoreMissingMigrations();
-    }
-
-    @Override
-    public boolean isIgnoreIgnoredMigrations() {
-        return config.isIgnoreIgnoredMigrations();
-    }
-
-    @Override
-    public boolean isIgnorePendingMigrations() {
-        return config.isIgnorePendingMigrations();
-    }
-
-    @Override
-    public boolean isIgnoreFutureMigrations() {
-        return config.isIgnoreFutureMigrations();
-    }
-
-    @Override
-    public ValidatePattern[] getIgnoreMigrationPatterns() {
-        return config.getIgnoreMigrationPatterns();
-    }
-
-    @Override
-    public boolean isValidateMigrationNaming() { return config.isValidateMigrationNaming(); }
-
-    @Override
-    public boolean isValidateOnMigrate() {
-        return config.isValidateOnMigrate();
-    }
-
-    @Override
-    public boolean isCleanOnValidationError() {
-        return config.isCleanOnValidationError();
-    }
-
-    @Override
-    public boolean isCleanDisabled() {
-        return config.isCleanDisabled();
-    }
-
-    @Override
-    public MigrationVersion getBaselineVersion() {
-        return config.getBaselineVersion();
-    }
-
-    @Override
-    public String getBaselineDescription() {
-        return config.getBaselineDescription();
-    }
-
-    @Override
-    public boolean isBaselineOnMigrate() {
-        return config.isBaselineOnMigrate();
-    }
-
-    @Override
-    public boolean isOutOfOrder() {
-        return config.isOutOfOrder();
-    }
-
-    @Override
-    public boolean isSkipExecutingMigrations() {
-        return config.isSkipExecutingMigrations();
-    }
-
-    @Override
-    public MigrationResolver[] getResolvers() {
-        return config.getResolvers();
-    }
-
-    @Override
-    public boolean isSkipDefaultResolvers() {
-        return config.isSkipDefaultResolvers();
-    }
-
-    @Override
-    public String getUrl() {
-        return config.getUrl();
-    }
-
-    @Override
-    public String getUser() {
-        return config.getUser();
-    }
-
-    @Override
-    public String getPassword() {
-        return config.getPassword();
-    }
-
-    @Override
-    public DataSource getDataSource() {
-        return config.getDataSource();
-    }
-
-    @Override
-    public int getConnectRetries() {
-        return config.getConnectRetries();
-    }
-
-    @Override
-    public int getConnectRetriesInterval() {
-        return config.getConnectRetriesInterval();
-    }
-
-    @Override
-    public String getInitSql() {
-        return config.getInitSql();
-    }
-
-    @Override
-    public ClassLoader getClassLoader() {
-        return config.getClassLoader();
-    }
-
-    @Override
-    public boolean isMixed() {
-        return config.isMixed();
-    }
-
-    @Override
-    public String getInstalledBy() {
-        return config.getInstalledBy();
-    }
-
-    @Override
-    public boolean isGroup() {
-        return config.isGroup();
-    }
-
-    @Override
-    public String[] getErrorOverrides() {
-        return config.getErrorOverrides();
-    }
-
-    @Override
-    public OutputStream getDryRunOutput() {
-        return config.getDryRunOutput();
-    }
-
-    @Override
-    public boolean isStream() {
-        return config.isStream();
-    }
-
-    @Override
-    public boolean isBatch() {
-        return config.isBatch();
-    }
-
-    @Override
-    public boolean isOracleSqlplus() {
-        return config.isOracleSqlplus();
-    }
-
-    @Override
-    public boolean isOracleSqlplusWarn() {
-        return config.isOracleSqlplusWarn();
-    }
-
-    @Override
-    public String getOracleKerberosConfigFile() { return config.getOracleKerberosConfigFile(); }
-
-    @Override
-    public String getOracleKerberosCacheFile() { return config.getOracleKerberosCacheFile(); }
-
-    @Override
-    public String getLicenseKey() {
-        return config.getLicenseKey();
-    }
-
-    @Override
-    public ResourceProvider getResourceProvider() {
-        return config.getResourceProvider();
-    }
-
-    @Override
-    public ClassProvider<JavaMigration> getJavaMigrationClassProvider() {
-        return config.getJavaMigrationClassProvider();
-    }
-
-    @Override
-    public boolean isOutputQueryResults() {
-        return config.isOutputQueryResults();
-    }
-
-    @Override
-    public boolean isCreateSchemas() {
-        return config.isCreateSchemas();
-    }
-
-    @Override
-    public int getLockRetryCount() {
-        return config.getLockRetryCount();
-    }
-
-    @Override
-    public Map<String, String> getJdbcProperties() {
-        return config.getJdbcProperties();
-    }
-
-    @Override
-    public boolean isFailOnMissingLocations() {
-        return config.isFailOnMissingLocations();
-    }
-
-    @Override
-    public String getOracleWalletLocation() {
-        return config.getOracleWalletLocation();
     }
 
     /**
@@ -913,11 +590,6 @@ public class FluentConfiguration implements Configuration {
         return this;
     }
 
-    @Override
-    public String getUndoSqlMigrationPrefix() {
-        return config.getUndoSqlMigrationPrefix();
-    }
-
     /**
      * Sets the file name prefix for undo SQL migrations. (default: U)
      * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
@@ -1107,21 +779,6 @@ public class FluentConfiguration implements Configuration {
     public FluentConfiguration skipExecutingMigrations(boolean skipExecutingMigrations) {
         config.setSkipExecutingMigrations(skipExecutingMigrations);
         return this;
-    }
-
-    /**
-     * Gets the callbacks for lifecycle notifications.
-     *
-     * @return The callbacks for lifecycle notifications. An empty array if none. (default: none)
-     */
-    @Override
-    public Callback[] getCallbacks() {
-        return config.getCallbacks();
-    }
-
-    @Override
-    public boolean isSkipDefaultCallbacks() {
-        return config.isSkipDefaultCallbacks();
     }
 
     /**
@@ -1414,15 +1071,5 @@ public class FluentConfiguration implements Configuration {
     public FluentConfiguration failOnMissingLocations(boolean failOnMissingLocations) {
         config.setFailOnMissingLocations(failOnMissingLocations);
         return this;
-    }
-
-    @Override
-    public List<ApiExtension> getApiExtensions() {
-        return config.getApiExtensions();
-    }
-
-    @Override
-    public <T extends ApiExtension> T getExtensionConfiguration(Class<T> clazz) {
-        return config.getExtensionConfiguration(clazz);
     }
 }
