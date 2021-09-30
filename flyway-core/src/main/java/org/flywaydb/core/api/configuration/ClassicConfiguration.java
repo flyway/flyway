@@ -189,6 +189,7 @@ public class ClassicConfiguration implements Configuration {
      *
      * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
      */
+    @Deprecated
     private boolean ignoreMissingMigrations;
     /**
      * -- SETTER --
@@ -205,6 +206,7 @@ public class ClassicConfiguration implements Configuration {
      *
      * @param ignoreIgnoredMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
+    @Deprecated
     private boolean ignoreIgnoredMigrations;
     /**
      * -- SETTER --
@@ -217,6 +219,7 @@ public class ClassicConfiguration implements Configuration {
      *
      * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
+    @Deprecated
     private boolean ignorePendingMigrations;
     /**
      * -- SETTER --
@@ -231,6 +234,7 @@ public class ClassicConfiguration implements Configuration {
      *
      * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
      */
+    @Deprecated
     private boolean ignoreFutureMigrations = true;
     @Setter(AccessLevel.NONE)
     private ValidatePattern[] ignoreMigrationPatterns = new ValidatePattern[0];
@@ -309,7 +313,7 @@ public class ClassicConfiguration implements Configuration {
     @Setter(AccessLevel.NONE)
     private final List<Callback> callbacks = new ArrayList<>();
     /**
-     * -- SETTER
+     * -- SETTER --
      * Whether Flyway should skip the default callbacks. If true, only custom callbacks are used.
      *
      * @param skipDefaultCallbacks Whether default built-in callbacks should be skipped. <p>(default: false)</p>

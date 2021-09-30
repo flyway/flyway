@@ -30,12 +30,7 @@ public class FlywaySqlScriptException extends FlywaySqlException {
      */
     @Getter
     private final Resource resource;
-    /**
-     * Returns the failed statement in SQL script.
-     *
-     * @return The failed statement.
-     */
-    @Getter
+
     private final SqlStatement statement;
 
     /**

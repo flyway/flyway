@@ -531,6 +531,7 @@ public class FluentConfiguration implements Configuration {
      *
      * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
      */
+    @Deprecated
     public FluentConfiguration ignoreMissingMigrations(boolean ignoreMissingMigrations) {
         config.setIgnoreMissingMigrations(ignoreMissingMigrations);
         return this;
@@ -550,6 +551,7 @@ public class FluentConfiguration implements Configuration {
      *
      * @param ignoreIgnoredMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
+    @Deprecated
     public FluentConfiguration ignoreIgnoredMigrations(boolean ignoreIgnoredMigrations) {
         config.setIgnoreIgnoredMigrations(ignoreIgnoredMigrations);
         return this;
@@ -565,6 +567,7 @@ public class FluentConfiguration implements Configuration {
      *
      * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
+    @Deprecated
     public FluentConfiguration ignorePendingMigrations(boolean ignorePendingMigrations) {
         config.setIgnorePendingMigrations(ignorePendingMigrations);
         return this;
@@ -582,6 +585,7 @@ public class FluentConfiguration implements Configuration {
      *
      * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
      */
+    @Deprecated
     public FluentConfiguration ignoreFutureMigrations(boolean ignoreFutureMigrations) {
         config.setIgnoreFutureMigrations(ignoreFutureMigrations);
         return this;

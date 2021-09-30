@@ -409,6 +409,7 @@ public interface Configuration {
      *
      * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
      */
+    @Deprecated
     boolean isIgnoreMissingMigrations();
 
     /**
@@ -425,6 +426,7 @@ public interface Configuration {
      *
      * @return {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
+    @Deprecated
     boolean isIgnoreIgnoredMigrations();
 
     /**
@@ -437,6 +439,7 @@ public interface Configuration {
      *
      * @return {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
+    @Deprecated
     boolean isIgnorePendingMigrations();
 
     /**
@@ -451,6 +454,7 @@ public interface Configuration {
      *
      * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
      */
+    @Deprecated
     boolean isIgnoreFutureMigrations();
 
     /**
