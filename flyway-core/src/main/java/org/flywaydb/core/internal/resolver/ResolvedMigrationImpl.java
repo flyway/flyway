@@ -27,7 +27,7 @@ import java.util.Objects;
 /**
  * A migration available on the classpath.
  */
-@Getter
+@Getter(onMethod = @__(@Override))
 public class ResolvedMigrationImpl implements ResolvedMigration {
     /**
      * The name of the script to execute for this migration, relative to its classpath location.
