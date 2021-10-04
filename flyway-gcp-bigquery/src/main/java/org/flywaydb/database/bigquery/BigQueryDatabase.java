@@ -20,7 +20,9 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
+import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
@@ -43,11 +45,13 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
 
     @Override
     public final void ensureSupported() {
-        long totalDatasetSize = 0;
-        for (String dataset : configuration.getSchemas()) {
-            totalDatasetSize += getDatasetSize(dataset);
-            if (totalDatasetSize > TEN_GB_DATASET_SIZE_LIMIT) {
-                throw new FlywayTeamsUpgradeRequiredException("GCP BigQuery with total dataset size over " + TEN_GB_DATASET_SIZE_LIMIT + " bytes");
+        if (VersionPrinter.EDITION == Edition.COMMUNITY) {
+            long totalDatasetSize = 0;
+            for (String dataset : configuration.getSchemas()) {
+                totalDatasetSize += getDatasetSize(dataset);
+                if (totalDatasetSize > TEN_GB_DATASET_SIZE_LIMIT) {
+                    throw new FlywayTeamsUpgradeRequiredException("GCP BigQuery with total dataset size over " + TEN_GB_DATASET_SIZE_LIMIT + " bytes");
+                }
             }
         }
     }
