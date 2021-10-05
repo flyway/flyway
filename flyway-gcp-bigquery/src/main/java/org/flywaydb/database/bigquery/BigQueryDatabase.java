@@ -15,6 +15,7 @@
  */
 package org.flywaydb.database.bigquery;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
@@ -23,16 +24,21 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
 import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
 
 /**
  * Note: The necessary driver is not available via Maven. See flywaydb.org documentation for where to get it from.
  */
+@CustomLog
 public class BigQueryDatabase extends Database<BigQueryConnection> {
     private static final long TEN_GB_DATASET_SIZE_LIMIT = 10L * 1024 * 1024 * 1024;
+    private static final long NINE_GB_DATASET_SIZE = 9L * 1024 * 1024 * 1024;
 
     public BigQueryDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
@@ -49,11 +55,41 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
             long totalDatasetSize = 0;
             for (String dataset : configuration.getSchemas()) {
                 totalDatasetSize += getDatasetSize(dataset);
-                if (totalDatasetSize > TEN_GB_DATASET_SIZE_LIMIT) {
-                    throw new FlywayTeamsUpgradeRequiredException("GCP BigQuery with total dataset size over " + TEN_GB_DATASET_SIZE_LIMIT + " bytes");
-                }
+            }
+
+            String byteCount = humanReadableByteCountSI(totalDatasetSize);
+
+            if (totalDatasetSize > TEN_GB_DATASET_SIZE_LIMIT) {
+                throw new FlywayTeamsUpgradeRequiredException("Google BigQuery databases that exceed the 10 GB dataset size limit (Calculated size: " + byteCount + ")");
+            }
+
+            String usageLimitMessage =
+                    "Google BigQuery databases have a 10 GB dataset size limit in Flyway " +
+                            Edition.COMMUNITY + ".\n" +
+                            "You have used " + byteCount + " / 10 GB\n" +
+                            "Consider upgrading to Flyway " + Edition.ENTERPRISE + " for unlimited usage: " +
+                            FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_BIG_QUERY;
+
+            if (totalDatasetSize >= NINE_GB_DATASET_SIZE) {
+                LOG.warn(usageLimitMessage);
+            } else {
+                LOG.info(usageLimitMessage);
             }
         }
+    }
+
+    // From https://programming.guide/java/formatting-byte-size-to-human-readable-format.html
+    // The most copied StackOverflow answer of all time!
+    private String humanReadableByteCountSI(long bytes) {
+        if (-1000 < bytes && bytes < 1000) {
+            return bytes + " B";
+        }
+        CharacterIterator ci = new StringCharacterIterator("kMGTPE");
+        while (bytes <= -999_950 || bytes >= 999_950) {
+            bytes /= 1000;
+            ci.next();
+        }
+        return String.format("%.1f %cB", bytes / 1000.0, ci.current());
     }
 
     private long getDatasetSize(String dataset) {
