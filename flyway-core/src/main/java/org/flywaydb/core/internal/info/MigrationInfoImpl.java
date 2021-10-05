@@ -340,6 +340,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
+
                 && (MigrationState.SUPERSEDED != state)
                 && (!context.missing || (MigrationState.MISSING_SUCCESS != state && MigrationState.MISSING_FAILED != state))
                 && (!context.future || (MigrationState.FUTURE_SUCCESS != state && MigrationState.FUTURE_FAILED != state))) {
@@ -380,6 +381,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         if (resolvedMigration != null && appliedMigration != null
                 && getType() != MigrationType.DELETE
+
 
 
 
