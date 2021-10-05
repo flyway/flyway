@@ -32,13 +32,15 @@ import java.sql.SQLException;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 
+import static org.flywaydb.core.internal.util.DataUnits.GIGABYTE;
+
 /**
  * Note: The necessary driver is not available via Maven. See flywaydb.org documentation for where to get it from.
  */
 @CustomLog
 public class BigQueryDatabase extends Database<BigQueryConnection> {
-    private static final long TEN_GB_DATASET_SIZE_LIMIT = 10L * 1024 * 1024 * 1024;
-    private static final long NINE_GB_DATASET_SIZE = 9L * 1024 * 1024 * 1024;
+    private static final long TEN_GB_DATASET_SIZE_LIMIT = GIGABYTE.toBytes(10);
+    private static final long NINE_GB_DATASET_SIZE = GIGABYTE.toBytes(9);
 
     public BigQueryDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);

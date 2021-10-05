@@ -29,6 +29,8 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.StandardOpenOption;
 
+import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
+
 @CustomLog
 public class FileSystemResource extends LoadableResource {
 

@@ -54,6 +54,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
+
 
 
 
@@ -327,8 +329,8 @@ public class FlywayExecutor {
         long total = runtime.totalMemory();
         long used = total - free;
 
-        long totalMB = total / (1024 * 1024);
-        long usedMB = used / (1024 * 1024);
+        long totalMB = MEGABYTE.fromByte(total);
+        long usedMB = MEGABYTE.fromByte(used);
         LOG.debug("Memory usage: " + usedMB + " of " + totalMB + "M");
     }
 }
