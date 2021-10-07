@@ -100,6 +100,7 @@ public class SpannerDatabaseType extends BaseDatabaseType {
         LOG.info("Experiencing performance issues while using GCP Spanner?");
         LOG.info("Find out how Flyway Teams improves performance with batching at " +
                 FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_CLOUD_SPANNER);
+        LOG.info("");
 
     }
 }

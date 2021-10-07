@@ -45,7 +45,6 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
 
     @Override
     protected boolean doEmpty() throws SQLException {
-
         try (Connection c = database.getNewRawConnection()){
             Statement s = c.createStatement();
             s.close();
@@ -92,7 +91,7 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
                     jdbcTemplate.execute("DROP INDEX " + index);
                 }
             }
-            statements.add("DROP TABLE " + table.toString());
+            statements.add("DROP TABLE " + table);
         }
 
 

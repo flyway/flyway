@@ -20,12 +20,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum DataUnits {
 
-    BYTE(1),
-    KILOBYTE(1024),
-    MEGABYTE(1024 * 1024),
-    GIGABYTE(1024 * 1024 * 1024);
+    BYTE(1, "B"),
+    KILOBYTE(1024, "kB"),
+    MEGABYTE(1024 * 1024, "MB"),
+    GIGABYTE(1024 * 1024 * 1024, "GB");
 
     private final long factor;
+    private final String suffix;
 
     /**
      * Returns the number of bytes for your number of data units
@@ -41,7 +42,14 @@ public enum DataUnits {
      * @param bytes Number of bytes to convert to data units
      * @return Number of bytes in data units
      */
-    public long fromByte(long bytes){
+    public long fromBytes(long bytes){
         return bytes / factor;
+    }
+
+    /**
+     * @return The specified bytes as a human-readable string normalized to this unit
+     */
+    public String toHumanReadableString(long bytes) {
+        return fromBytes(bytes) + " " + suffix;
     }
 }

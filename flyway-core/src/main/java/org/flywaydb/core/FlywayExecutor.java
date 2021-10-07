@@ -329,8 +329,8 @@ public class FlywayExecutor {
         long total = runtime.totalMemory();
         long used = total - free;
 
-        long totalMB = MEGABYTE.fromByte(total);
-        long usedMB = MEGABYTE.fromByte(used);
+        long totalMB = MEGABYTE.fromBytes(total);
+        long usedMB = MEGABYTE.fromBytes(used);
         LOG.debug("Memory usage: " + usedMB + " of " + totalMB + "M");
     }
 }

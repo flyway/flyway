@@ -15,15 +15,27 @@
  */
 package org.flywaydb.database.spanner;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.license.Edition;
+import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
+import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
+import static org.flywaydb.core.internal.util.DataUnits.GIGABYTE;
+
+@CustomLog
 public class SpannerDatabase extends Database<SpannerConnection> {
+    private static final long ONE_G_FIELD_LIMIT = GIGABYTE.toBytes(1);
+
     public SpannerDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
@@ -36,6 +48,34 @@ public class SpannerDatabase extends Database<SpannerConnection> {
     @Override
     public void ensureSupported() {
         recommendFlywayUpgradeIfNecessaryForMajorVersion("1.0");
+        if (VersionPrinter.EDITION == Edition.COMMUNITY) {
+            long numberOfFields = getNumberOfFields();
+            if (numberOfFields > ONE_G_FIELD_LIMIT) {
+                throw new FlywayTeamsUpgradeRequiredException("A GCP Spanner database that exceeds the " + ONE_G_FIELD_LIMIT +
+                        " field count limit (Calculated field count: " + numberOfFields + ")");
+            }
+
+            String usageLimitMessage = "GCP Spanner databases have a " + ONE_G_FIELD_LIMIT + " field count limit in " + Edition.COMMUNITY + ".\n" +
+                    "You have used " + numberOfFields + " / " + ONE_G_FIELD_LIMIT + "\n" +
+                    "Consider upgrading to " + Edition.ENTERPRISE + " for unlimited usage: " + FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_CLOUD_SPANNER;
+
+            LOG.info(usageLimitMessage);
+        }
+    }
+
+    private long getNumberOfFields() {
+        long totalNumberOfFields = 0;
+        try {
+            ResultSet tablesRs = getJdbcMetaData().getTables("", "", null, null);
+            while (tablesRs.next()) {
+                String tableName = tablesRs.getString("TABLE_NAME");
+                long rows = jdbcTemplate.queryForLong("SELECT COUNT(*) FROM " + tableName);
+                long cols = jdbcTemplate.queryForLong("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS " +
+                        "WHERE TABLE_NAME=?", tableName);
+                totalNumberOfFields += rows*cols;
+            }
+        } catch (SQLException ignored) {}
+        return totalNumberOfFields;
     }
 
     @Override

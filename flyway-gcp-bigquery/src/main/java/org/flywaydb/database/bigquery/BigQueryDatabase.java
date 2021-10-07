@@ -28,9 +28,8 @@ import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
 
 import static org.flywaydb.core.internal.util.DataUnits.GIGABYTE;
 
@@ -39,8 +38,8 @@ import static org.flywaydb.core.internal.util.DataUnits.GIGABYTE;
  */
 @CustomLog
 public class BigQueryDatabase extends Database<BigQueryConnection> {
-    private static final long TEN_GB_DATASET_SIZE_LIMIT = GIGABYTE.toBytes(10);
-    private static final long NINE_GB_DATASET_SIZE = GIGABYTE.toBytes(9);
+    private static final long TEN_GB_DATABASE_SIZE_LIMIT = GIGABYTE.toBytes(10);
+    private static final long NINE_GB_DATABASE_SIZE = GIGABYTE.toBytes(9);
 
     public BigQueryDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
@@ -54,25 +53,17 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
     @Override
     public final void ensureSupported() {
         if (VersionPrinter.EDITION == Edition.COMMUNITY) {
-            long totalDatasetSize = 0;
-            for (String dataset : configuration.getSchemas()) {
-                totalDatasetSize += getDatasetSize(dataset);
+            long databaseSize = getDatabaseSize();
+            if (databaseSize > TEN_GB_DATABASE_SIZE_LIMIT) {
+                throw new FlywayTeamsUpgradeRequiredException("A Google BigQuery database that exceeds the 10 GB database size limit " +
+                        "(Calculated size: " + GIGABYTE.toHumanReadableString(databaseSize) + ")");
             }
 
-            String byteCount = humanReadableByteCountSI(totalDatasetSize);
+            String usageLimitMessage = "Google BigQuery databases have a 10 GB database size limit in " + Edition.COMMUNITY + ".\n" +
+                    "You have used " + GIGABYTE.toHumanReadableString(databaseSize) + " / 10 GB\n" +
+                    "Consider upgrading to " + Edition.ENTERPRISE + " for unlimited usage: " + FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_BIG_QUERY;
 
-            if (totalDatasetSize > TEN_GB_DATASET_SIZE_LIMIT) {
-                throw new FlywayTeamsUpgradeRequiredException("Google BigQuery databases that exceed the 10 GB dataset size limit (Calculated size: " + byteCount + ")");
-            }
-
-            String usageLimitMessage =
-                    "Google BigQuery databases have a 10 GB dataset size limit in Flyway " +
-                            Edition.COMMUNITY + ".\n" +
-                            "You have used " + byteCount + " / 10 GB\n" +
-                            "Consider upgrading to Flyway " + Edition.ENTERPRISE + " for unlimited usage: " +
-                            FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_BIG_QUERY;
-
-            if (totalDatasetSize >= NINE_GB_DATASET_SIZE) {
+            if (databaseSize >= NINE_GB_DATABASE_SIZE) {
                 LOG.warn(usageLimitMessage);
             } else {
                 LOG.info(usageLimitMessage);
@@ -80,27 +71,15 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
         }
     }
 
-    // From https://programming.guide/java/formatting-byte-size-to-human-readable-format.html
-    // The most copied StackOverflow answer of all time!
-    private String humanReadableByteCountSI(long bytes) {
-        if (-1000 < bytes && bytes < 1000) {
-            return bytes + " B";
-        }
-        CharacterIterator ci = new StringCharacterIterator("kMGTPE");
-        while (bytes <= -999_950 || bytes >= 999_950) {
-            bytes /= 1000;
-            ci.next();
-        }
-        return String.format("%.1f %cB", bytes / 1000.0, ci.current());
-    }
-
-    private long getDatasetSize(String dataset) {
+    private long getDatabaseSize() {
+        long totalDatabaseSize = 0;
         try {
-            return jdbcTemplate.queryForLong("select sum(size_bytes) from " + dataset + ".__TABLES__");
-        } catch (SQLException e) {
-            // Ignore the case when the query fails to execute
-            return 0;
-        }
+            ResultSet schemaRs = getJdbcMetaData().getSchemas();
+            while (schemaRs.next()) {
+                totalDatabaseSize += jdbcTemplate.queryForLong("select sum(size_bytes) from " + schemaRs.getString("TABLE_SCHEM") + ".__TABLES__");
+            }
+        } catch (SQLException ignored) {}
+        return totalDatabaseSize;
     }
 
     @Override
