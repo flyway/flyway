@@ -15,38 +15,13 @@
  */
 package org.flywaydb.maven;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Delegate;
 import org.flywaydb.core.api.logging.Log;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class MavenLog implements Log {
-
+    @Delegate(types = Log.class)
     private final org.apache.maven.plugin.logging.Log logger;
-
-    MavenLog(org.apache.maven.plugin.logging.Log logger) {
-        this.logger = logger;
-    }
-
-    @Override
-    public boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
-    }
-
-    public void debug(String message) {
-        logger.debug(message);
-    }
-
-    public void info(String message) {
-        logger.info(message);
-    }
-
-    public void warn(String message) {
-        logger.warn(message);
-    }
-
-    public void error(String message) {
-        logger.error(message);
-    }
-
-    public void error(String message, Exception e) {
-        logger.error(message, e);
-    }
 }

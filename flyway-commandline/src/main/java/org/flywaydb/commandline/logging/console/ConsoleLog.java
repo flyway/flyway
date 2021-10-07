@@ -15,18 +15,16 @@
  */
 package org.flywaydb.commandline.logging.console;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.logging.Log;
 
+@RequiredArgsConstructor
 public class ConsoleLog implements Log {
  	public enum Level {
  		DEBUG, INFO, WARN
  	}
 	
     private final Level level;
-
-    public ConsoleLog(Level level) {
-        this.level = level;
-    }
 
     @Override
     public boolean isDebugEnabled() {

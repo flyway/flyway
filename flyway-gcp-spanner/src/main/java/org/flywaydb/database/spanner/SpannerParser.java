@@ -15,16 +15,17 @@
  */
 package org.flywaydb.database.spanner;
 
-import java.util.List;
+import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.Token;
 
+import java.util.List;
+
+@CustomLog
 public class SpannerParser extends Parser {
-    private static final Log LOG = LogFactory.getLog(SpannerParser.class);
+
     public SpannerParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration,parsingContext, 3);
     }

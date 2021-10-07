@@ -15,10 +15,14 @@
  */
 package org.flywaydb.maven;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 
 import java.util.Map;
 
+@Getter
+@Setter
 public class VaultConfiguration {
     public static final String VAULT_URL = "flyway.vault.url";
     public static final String VAULT_TOKEN = "flyway.vault.token";
@@ -32,29 +36,5 @@ public class VaultConfiguration {
         ConfigUtils.putIfSet(conf, VAULT_URL, vaultUrl);
         ConfigUtils.putIfSet(conf, VAULT_TOKEN, vaultToken);
         ConfigUtils.putArrayIfSet(conf, VAULT_SECRETS, vaultSecrets);
-    }
-
-    public String getVaultUrl() {
-        return vaultUrl;
-    }
-
-    public void setVaultUrl(String vaultUrl) {
-        this.vaultUrl = vaultUrl;
-    }
-
-    public String getVaultToken() {
-        return vaultToken;
-    }
-
-    public void setVaultToken(String vaultToken) {
-        this.vaultToken = vaultToken;
-    }
-
-    public String[] getVaultSecrets() {
-        return vaultSecrets;
-    }
-
-    public void setVaultSecrets(String[] vaultSecrets) {
-        this.vaultSecrets = vaultSecrets;
     }
 }

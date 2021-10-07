@@ -15,6 +15,7 @@
  */
 package org.flywaydb.commandline.logging.file;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
@@ -26,15 +27,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+@RequiredArgsConstructor
 public class FileLog implements Log {
 
     private final Path path;
     private final Level level;
-
-    public FileLog(Path path, Level level) {
-        this.path = path;
-        this.level = level;
-    }
 
     @Override
     public boolean isDebugEnabled() {

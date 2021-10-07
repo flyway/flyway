@@ -17,8 +17,10 @@ package org.flywaydb.commandline;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.AccessLevel;
+import lombok.Cleanup;
+import lombok.CustomLog;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.internal.license.VersionPrinter;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -33,6 +35,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@CustomLog
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RedgateUpdateChecker {
 
     private static class UpdateCheckResponse {
@@ -41,7 +45,6 @@ public class RedgateUpdateChecker {
 
     private static final String UPDATE_CHECK_ENDPOINT = "https://repo.flywaydb.org/update-check";
     private static final String REDGATE_SERVER_ADDRESS = "https://repo.flywaydb.org";
-    private static final Log LOG = LogFactory.getLog(RedgateUpdateChecker.class);
 
     public static String getUpdateCheckMessage(String jdbcUrl) {
         String message = "";
@@ -51,10 +54,8 @@ public class RedgateUpdateChecker {
             return message;
         }
 
-        HttpsURLConnection connection = null;
-
         try {
-            connection = (HttpsURLConnection) new URL(UPDATE_CHECK_ENDPOINT).openConnection();
+            @Cleanup(value = "disconnect") HttpsURLConnection connection = (HttpsURLConnection) new URL(UPDATE_CHECK_ENDPOINT).openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json; utf-8");
             connection.setRequestProperty("Accept", "application/json");
@@ -76,21 +77,15 @@ public class RedgateUpdateChecker {
 
         } catch (Exception e) {
             LOG.debug("Failed to perform update check: " + e.getMessage());
-        } finally {
-            if(connection != null) {
-                connection.disconnect();
-            }
         }
 
         return message;
     }
 
     private static boolean isRedgateServerReachable() {
-        HttpsURLConnection connection = null;
-
         try {
             HttpsURLConnection.setFollowRedirects(false);
-            connection = (HttpsURLConnection) new URL(REDGATE_SERVER_ADDRESS).openConnection();
+            @Cleanup(value = "disconnect") HttpsURLConnection connection = (HttpsURLConnection) new URL(REDGATE_SERVER_ADDRESS).openConnection();
 
             connection.setRequestMethod("HEAD");
             connection.setConnectTimeout(1000);
@@ -98,10 +93,6 @@ public class RedgateUpdateChecker {
             return (connection.getResponseCode() == HttpsURLConnection.HTTP_OK);
         } catch (IOException e) {
             return false;
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
         }
     }
 

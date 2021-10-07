@@ -15,6 +15,7 @@
  */
 package org.flywaydb.commandline;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.commandline.extensibility.CommandLineExtension;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
@@ -27,18 +28,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@RequiredArgsConstructor
 public class CommandLineArguments {
 
+    @RequiredArgsConstructor
     public enum Color {
         ALWAYS("always"),
         NEVER("never"),
         AUTO("auto");
 
         private final String value;
-
-        Color(String value) {
-            this.value = value;
-        }
 
         public static Color fromString(String value) {
             if (value.isEmpty()) {
@@ -117,10 +116,6 @@ public class CommandLineArguments {
     }
 
     private final String[] args;
-
-    public CommandLineArguments(String[] args) {
-        this.args = args;
-    }
 
     private static boolean isFlagSet(String[] args, String flag) {
         for (String arg : args) {

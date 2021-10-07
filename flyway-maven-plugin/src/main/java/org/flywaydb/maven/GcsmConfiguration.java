@@ -15,10 +15,14 @@
  */
 package org.flywaydb.maven;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 
 import java.util.Map;
 
+@Getter
+@Setter
 public class GcsmConfiguration {
     public static final String GCSM_PROJECT = "flyway.gcsm.project";
     public static final String GCSM_SECRETS = "flyway.gcsm.secrets";
@@ -29,21 +33,5 @@ public class GcsmConfiguration {
     public void extract(Map<String, String> conf) {
         ConfigUtils.putIfSet(conf, GCSM_PROJECT, gcsmProject);
         ConfigUtils.putArrayIfSet(conf, GCSM_SECRETS, gcsmSecrets);
-    }
-
-    public String getGcsmProject() {
-        return gcsmProject;
-    }
-
-    public void setGcsmProject(String gcsmProject) {
-        this.gcsmProject = gcsmProject;
-    }
-
-    public String[] getGcsmSecrets() {
-        return gcsmSecrets;
-    }
-
-    public void setGcsmSecrets(String[] gcsmSecrets) {
-        this.gcsmSecrets = gcsmSecrets;
     }
 }

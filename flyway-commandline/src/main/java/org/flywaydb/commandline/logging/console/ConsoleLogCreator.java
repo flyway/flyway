@@ -15,17 +15,15 @@
  */
 package org.flywaydb.commandline.logging.console;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.commandline.CommandLineArguments;
 import org.flywaydb.commandline.CommandLineArguments.Color;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 
+@RequiredArgsConstructor
 public class ConsoleLogCreator implements LogCreator {
     private final CommandLineArguments commandLineArguments;
-
-    public ConsoleLogCreator(CommandLineArguments commandLineArguments) {
-        this.commandLineArguments = commandLineArguments;
-    }
 
     public Log createLogger(Class<?> clazz) {
         ConsoleLog log = new ConsoleLog(commandLineArguments.getLogLevel());

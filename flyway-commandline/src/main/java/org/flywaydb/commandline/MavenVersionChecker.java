@@ -16,9 +16,11 @@
 package org.flywaydb.commandline;
 
 import com.google.gson.Gson;
+import lombok.AccessLevel;
+import lombok.Cleanup;
+import lombok.CustomLog;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
@@ -28,6 +30,8 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
 
+@CustomLog
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MavenVersionChecker {
     private static class MavenResponse {
         public MavenDoc[] docs;
@@ -45,7 +49,6 @@ public class MavenVersionChecker {
     }
 
     private static final String FLYWAY_URL = "https://search.maven.org/solrsearch/select?q=a:flyway-core";
-    private static final Log LOG = LogFactory.getLog(MavenVersionChecker.class);
 
     private static boolean canConnectToMaven() {
         try {
@@ -57,15 +60,13 @@ public class MavenVersionChecker {
     }
 
     public static void checkForVersionUpdates() {
-        HttpsURLConnection connection = null;
-
         if (!canConnectToMaven()) {
             return;
         }
 
         try {
             URL url = new URL(FLYWAY_URL);
-            connection = (HttpsURLConnection) url.openConnection();
+            @Cleanup(value = "disconnect") HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
 
             StringBuilder response = new StringBuilder();
@@ -99,12 +100,6 @@ public class MavenVersionChecker {
                 LOG.warn("This version of Flyway is out of date. Upgrade to Flyway " + latest + ": "
                         + FlywayDbWebsiteLinks.STAYING_UP_TO_DATE + "\n");
             }
-        } catch (Exception e) {
-            // Ignored
-        } finally {
-            if(connection != null) {
-                connection.disconnect();
-            }
-        }
+        } catch (Exception ignored) {}
     }
 }

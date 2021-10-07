@@ -15,10 +15,14 @@
  */
 package org.flywaydb.gradle.task;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 
 import java.util.Map;
 
+@Getter
+@Setter
 public class DaprConfiguration {
     public static final String DAPR_URL = "flyway.dapr.url";
     public static final String DAPR_SECRETS = "flyway.dapr.secrets";
@@ -29,21 +33,5 @@ public class DaprConfiguration {
     public void extract(Map<String, String> conf) {
         ConfigUtils.putIfSet(conf, DAPR_URL, daprUrl);
         ConfigUtils.putArrayIfSet(conf, DAPR_SECRETS, daprSecrets);
-    }
-
-    public String getDaprUrl() {
-        return daprUrl;
-    }
-
-    public void setDaprUrl(String daprUrl) {
-        this.daprUrl = daprUrl;
-    }
-
-    public String[] getDaprSecrets() {
-        return daprSecrets;
-    }
-
-    public void setDaprSecrets(String[] daprSecrets) {
-        this.daprSecrets = daprSecrets;
     }
 }
