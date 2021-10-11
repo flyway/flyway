@@ -31,7 +31,7 @@ import org.flywaydb.core.Flyway;
         threadSafe = true)
 public class CleanMojo extends AbstractFlywayMojo {
     @Override
-    protected void doExecute(Flyway flyway) throws Exception {
+    protected void doExecute(Flyway flyway) {
         flyway.clean();
     }
 }

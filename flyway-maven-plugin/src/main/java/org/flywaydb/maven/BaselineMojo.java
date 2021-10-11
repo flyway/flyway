@@ -29,7 +29,7 @@ import org.flywaydb.core.Flyway;
         threadSafe = true)
 public class BaselineMojo extends AbstractFlywayMojo {
     @Override
-    protected void doExecute(Flyway flyway) throws Exception {
+    protected void doExecute(Flyway flyway) {
         flyway.baseline();
     }
 }

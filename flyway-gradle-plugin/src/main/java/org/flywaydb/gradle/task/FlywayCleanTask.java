@@ -25,7 +25,6 @@ public class FlywayCleanTask extends AbstractFlywayTask {
 
     @Override
     protected Object run(Flyway flyway) {
-        flyway.clean();
-        return null;
+        return flyway.clean();
     }
 }

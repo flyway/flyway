@@ -25,7 +25,6 @@ public class FlywayBaselineTask extends AbstractFlywayTask {
 
     @Override
     protected Object run(Flyway flyway) {
-        flyway.baseline();
-        return null;
+        return flyway.baseline();
     }
 }

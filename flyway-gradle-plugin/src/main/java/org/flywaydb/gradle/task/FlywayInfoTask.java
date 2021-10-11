@@ -34,6 +34,6 @@ public class FlywayInfoTask extends AbstractFlywayTask {
         MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
         System.out.println("Schema version: " + currentSchemaVersion);
         System.out.println(MigrationInfoDumper.dumpToAsciiTable(info.all()));
-        return null;
+        return info;
     }
 }

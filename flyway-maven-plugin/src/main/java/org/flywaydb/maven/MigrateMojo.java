@@ -31,7 +31,7 @@ import org.flywaydb.core.api.MigrationInfo;
         threadSafe = true)
 public class MigrateMojo extends AbstractFlywayMojo {
     @Override
-    protected void doExecute(Flyway flyway) throws Exception {
+    protected void doExecute(Flyway flyway) {
         flyway.migrate();
 
         MigrationInfo current = flyway.info().current();
