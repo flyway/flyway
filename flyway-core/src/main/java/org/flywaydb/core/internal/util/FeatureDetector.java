@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.util;
 
 import lombok.CustomLog;
+import org.flywaydb.core.internal.license.VersionPrinter;
 
 @CustomLog
 public final class FeatureDetector {
@@ -129,25 +130,6 @@ public final class FeatureDetector {
 
 
 
-
-        return false;
-    }
-
-    public static boolean isRedgateUpdateCheckEnabled() {
-        String value = null;
-
-        try {
-            value = System.getenv("FLYWAY_REDGATE_UPDATE_CHECK");
-
-            if (value != null) {
-                LOG.debug("FLYWAY_REDGATE_UPDATE_CHECK: " + value);
-                return Boolean.parseBoolean(value);
-            }
-
-        } catch (IllegalArgumentException e) {
-            LOG.debug("FLYWAY_REDGATE_UPDATE_CHECK has an illegal value: " + value);
-            throw e;
-        }
 
         return false;
     }

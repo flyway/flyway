@@ -45,10 +45,7 @@ import org.flywaydb.core.internal.license.FlywayTrialExpiredException;
 import org.flywaydb.core.internal.license.VersionPrinter;
 
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
-import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.*;
 
 import java.io.Console;
 import java.io.File;
@@ -143,11 +140,8 @@ public class Main {
 
 
             if(!commandLineArguments.skipCheckForUpdate()) {
-                if (FeatureDetector.isRedgateUpdateCheckEnabled()) {
-                    String message = RedgateUpdateChecker.getUpdateCheckMessage(config.get(ConfigUtils.URL));
-                    if (!message.isEmpty()) {
-                        LOG.info(message);
-                    }
+                if (RedgateUpdateChecker.isEnabled()) {
+                    RedgateUpdateChecker.checkForVersionUpdates(config.get(ConfigUtils.URL));
                 } else {
                     MavenVersionChecker.checkForVersionUpdates();
                 }

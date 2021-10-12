@@ -21,159 +21,93 @@ import lombok.AccessLevel;
 import lombok.Cleanup;
 import lombok.CustomLog;
 import lombok.NoArgsConstructor;
+import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.util.MachineFingerprintUtils;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.time.Instant;
 
 @CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@ExtensionMethod(StringUtils.class)
 public class RedgateUpdateChecker {
+    private static final String PLATFORM_URL_ROOT = getRoot();
+    private static final String USAGE_CHECKER_ENDPOINT = "/usage-checker";
+    private static final String CFU_ENDPOINT = "/flyway/cfu/api/v0/cfu";
 
-    private static class UpdateCheckResponse {
-        public String message;
+    public static boolean isEnabled() {
+        boolean flag = Boolean.parseBoolean(System.getenv("FLYWAY_REDGATE_UPDATE_CHECK"));
+        return flag && usageChecker("flyway-cfu", VersionPrinter.getVersion());
     }
 
-    private static final String UPDATE_CHECK_ENDPOINT = "https://repo.flywaydb.org/update-check";
-    private static final String REDGATE_SERVER_ADDRESS = "https://repo.flywaydb.org";
-
-    public static String getUpdateCheckMessage(String jdbcUrl) {
-        String message = "";
-
-        if (!isRedgateServerReachable()) {
-            LOG.debug("Could not reach Redgate server for update check.");
-            return message;
+    public static void checkForVersionUpdates(String jdbcUrl) {
+        String message = cfu(jdbcUrl);
+        if (message.hasText()) {
+            LOG.info(message);
         }
-
-        try {
-            @Cleanup(value = "disconnect") HttpsURLConnection connection = (HttpsURLConnection) new URL(UPDATE_CHECK_ENDPOINT).openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json; utf-8");
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setDoOutput(true);
-
-            String jsonPayload = getJsonPayload(jdbcUrl);
-            putJsonInConnectionRequestBody(connection, jsonPayload);
-
-            StringBuilder response = new StringBuilder();
-
-            try(BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    response.append(line).append('\r');
-                }
-            }
-
-            message = new Gson().fromJson(response.toString(), UpdateCheckResponse.class).message;
-
-        } catch (Exception e) {
-            LOG.debug("Failed to perform update check: " + e.getMessage());
-        }
-
-        return message;
     }
 
-    private static boolean isRedgateServerReachable() {
+    private static boolean usageChecker(String clientName, String clientVersion) {
         try {
-            HttpsURLConnection.setFollowRedirects(false);
-            @Cleanup(value = "disconnect") HttpsURLConnection connection = (HttpsURLConnection) new URL(REDGATE_SERVER_ADDRESS).openConnection();
-
-            connection.setRequestMethod("HEAD");
+            String url = PLATFORM_URL_ROOT + USAGE_CHECKER_ENDPOINT + String.format("?client_name=%s&client_version=%s", clientName, clientVersion);
+            @Cleanup(value = "disconnect") HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
+            connection.setRequestMethod("GET");
             connection.setConnectTimeout(1000);
-
-            return (connection.getResponseCode() == HttpsURLConnection.HTTP_OK);
-        } catch (IOException e) {
+            try (BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                return Boolean.parseBoolean(rd.readLine());
+            }
+        } catch (Exception e) {
             return false;
         }
     }
 
-    private static void putJsonInConnectionRequestBody(HttpsURLConnection connection, String jsonPayload) throws IOException {
-        try(OutputStream os = connection.getOutputStream()) {
-            byte[] input = jsonPayload.getBytes(StandardCharsets.UTF_8);
-            os.write(input, 0, input.length);
+    private static String cfu(String jdbcUrl) {
+        try {
+            @Cleanup(value = "disconnect") HttpsURLConnection connection = (HttpsURLConnection) new URL(PLATFORM_URL_ROOT + CFU_ENDPOINT).openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json; utf-8");
+            connection.setDoOutput(true);
+
+            try(OutputStream os = connection.getOutputStream()) {
+                byte[] input = getJsonPayload(jdbcUrl).getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            StringBuilder response = new StringBuilder();
+            try(BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                String line;
+                while ((line = rd.readLine()) != null) {
+                    response.append(line).append('\n');
+                }
+            }
+            response.deleteCharAt(response.length()-1);
+
+            return response.toString();
+        } catch (Exception e) {
+            LOG.debug("Failed to perform update check: " + e.getMessage());
+            return "";
         }
+    }
+
+    private static String getRoot() {
+        String root = System.getenv("REDGATE_PLATFORM_URL");
+        return root.hasText() ? root : "https://www.redgate-platform.com";
     }
 
     private static String getJsonPayload(String jdbcUrl) throws Exception {
-        String version = VersionPrinter.getVersion();
         String operatingSystem = System.getProperty("os.name");
         JsonObject json = new JsonObject();
-        json.addProperty("currentVersion", version);
+        json.addProperty("currentVersion", VersionPrinter.getVersion());
         json.addProperty("operatingSystem", operatingSystem);
-        json.addProperty("fingerprint", getFingerprint(operatingSystem, jdbcUrl));
+        json.addProperty("fingerprint", MachineFingerprintUtils.getFingerprint(operatingSystem, jdbcUrl, System.getProperty("user.dir")));
+        json.addProperty("timeStamp", Instant.now().toString());
         return new Gson().toJson(json);
-    }
-
-    private static String getFingerprint(String operatingSystem, String jdbcUrl) throws Exception {
-        if (isEmpty(operatingSystem) || isEmpty(jdbcUrl)) {
-            throw new Exception("All parameters required for getFingerprint - operatingSystem: " + isEmpty(operatingSystem) + ", jdbcUrl: " + isEmpty(jdbcUrl));
-        }
-
-        byte[] hashedId = operatingSystem.getBytes(StandardCharsets.UTF_8);
-        hashedId = getHashed(operatingSystem.getBytes(StandardCharsets.UTF_8), hashedId);
-        hashedId = getHashed(jdbcUrl.getBytes(StandardCharsets.UTF_8), hashedId);
-        hashedId = getHashed(System.getProperty("user.dir").getBytes(StandardCharsets.UTF_8), hashedId);
-
-        List<byte[]> hardwareAddresses = getHardwareAddresses();
-
-        if (hardwareAddresses.size() == 0) {
-            throw new Exception("No hardware addresses found when creating fingerprint");
-        }
-
-        for (byte[] hardwareAddress : hardwareAddresses) {
-            hashedId = getHashed(hardwareAddress, hashedId);
-        }
-
-        return hashToString(hashedId);
-    }
-
-    private static List<byte[]> getHardwareAddresses() throws SocketException {
-        Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-
-        // This can be null, ignore IntelliJ's suggestion
-        if (networkInterfaces == null) {
-            return new ArrayList<>();
-        }
-
-        return Collections.list(networkInterfaces)
-                .stream()
-                .map(RedgateUpdateChecker::extractHardwareAddress)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    private static byte[] extractHardwareAddress(NetworkInterface networkInterface) {
-        try {
-            return networkInterface.getHardwareAddress();
-        } catch (SocketException e) {
-            return null;
-        }
-    }
-
-    private static boolean isEmpty(String s) {
-        return s == null || s.trim().isEmpty();
-    }
-
-    private static byte[] getHashed(byte[] salt, byte[] digest) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("SHA-512");
-        md.update(salt);
-        return md.digest(digest);
-    }
-
-    private static String hashToString(byte[] hashedId) {
-        String[] hexadecimal = new String[hashedId.length];
-        for (int i = 0; i < hexadecimal.length; i++) {
-            hexadecimal[i] = String.format("%02X", hashedId[i]);
-        }
-        return String.join("", hexadecimal);
     }
 }
