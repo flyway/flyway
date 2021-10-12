@@ -22,6 +22,7 @@ import org.flywaydb.core.api.resource.LoadableResource;
 
 
 import org.flywaydb.core.internal.util.BomStrippingReader;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.io.*;
 import java.nio.channels.Channels;
@@ -73,6 +74,7 @@ public class FileSystemResource extends LoadableResource {
     @Override
     public Reader read() {
         Charset charSet = encoding;
+
 
 
 

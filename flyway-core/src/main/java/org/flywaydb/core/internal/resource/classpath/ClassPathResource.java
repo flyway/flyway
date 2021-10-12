@@ -19,6 +19,7 @@ import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.resource.LoadableResource;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.UrlUtils;
 
 import java.io.*;
@@ -118,6 +119,7 @@ public class ClassPathResource extends LoadableResource {
         }
 
         Charset charset = encoding;
+
 
 
 
