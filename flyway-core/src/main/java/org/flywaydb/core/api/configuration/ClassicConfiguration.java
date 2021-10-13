@@ -590,23 +590,13 @@ public class ClassicConfiguration implements Configuration {
      * <i>Flyway Teams only</i>
      */
     public void setIgnoreMigrationPatterns(String... ignoreMigrationPatterns) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("ignoreMigrationPatterns");
-
-
-
-
-
-
+        this.ignoreMigrationPatterns = Arrays.stream(ignoreMigrationPatterns)
+                .map(ValidatePattern::fromPattern)
+                .toArray(ValidatePattern[]::new);
     }
 
     private void setIgnoreMigrationPatterns(ValidatePattern[] ignoreMigrationPatterns) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("ignoreMigrationPatterns");
-
-
-
-
+        this.ignoreMigrationPatterns = ignoreMigrationPatterns;
     }
 
     /**
@@ -1288,10 +1278,10 @@ public class ClassicConfiguration implements Configuration {
 
 
 
-
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
         setValidateMigrationNaming(configuration.isValidateMigrationNaming());
+        setIgnoreMigrationPatterns(configuration.getIgnoreMigrationPatterns());
         setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
         setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
         setIgnoreIgnoredMigrations(configuration.isIgnoreIgnoredMigrations());

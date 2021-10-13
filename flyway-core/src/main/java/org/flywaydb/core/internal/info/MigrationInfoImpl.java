@@ -314,11 +314,9 @@ public class MigrationInfoImpl implements MigrationInfo {
             return null;
         }
 
-
-
-
-
-
+        if (Arrays.stream(context.ignorePatterns).anyMatch(p -> p.matchesMigration(getVersion() != null, state))) {
+            return null;
+        }
 
         if (state.isFailed() && (!context.future || MigrationState.FUTURE_FAILED != state)) {
             if (getVersion() == null) {
