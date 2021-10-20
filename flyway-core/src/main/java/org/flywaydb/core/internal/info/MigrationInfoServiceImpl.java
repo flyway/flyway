@@ -493,15 +493,15 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     /**
      * @return The failed migrations. An empty array if none.
      */
-    public MigrationInfo[] failed() {
-        List<MigrationInfo> failedMigrations = new ArrayList<>();
-        for (MigrationInfo migrationInfo : migrationInfos) {
+    public MigrationInfoImpl[] failed() {
+        List<MigrationInfoImpl> failedMigrations = new ArrayList<>();
+        for (MigrationInfoImpl migrationInfo : migrationInfos) {
             if (migrationInfo.getState().isFailed()) {
                 failedMigrations.add(migrationInfo);
             }
         }
 
-        return failedMigrations.toArray(new MigrationInfo[0]);
+        return failedMigrations.toArray(new MigrationInfoImpl[0]);
     }
 
     /**

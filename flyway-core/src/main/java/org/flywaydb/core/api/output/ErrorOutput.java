@@ -19,6 +19,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.command.DbMigrate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -56,6 +57,10 @@ public class ErrorOutput implements OperationResult {
                 ErrorCode.FAULT,
                 message == null ? "Fault occurred" : message,
                 getStackTrace(exception));
+    }
+
+    public static MigrateErrorResult fromMigrateException(DbMigrate.FlywayMigrateException exception) {
+        return exception.getErrorResult();
     }
 
     private static String getStackTrace(Exception exception) {

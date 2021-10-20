@@ -24,6 +24,7 @@ public class MigrateResult extends OperationResultBase {
     public String schemaName;
     public List<MigrateOutput> migrations;
     public int migrationsExecuted;
+    public boolean success;
 
     public MigrateResult(String flywayVersion,
                          String database,
@@ -33,5 +34,19 @@ public class MigrateResult extends OperationResultBase {
         this.schemaName = schemaName;
         this.migrations = new ArrayList<>();
         this.operation = "migrate";
+        this.success = true;
+    }
+
+    MigrateResult(MigrateResult migrateResult) {
+        this.flywayVersion = migrateResult.flywayVersion;
+        this.database = migrateResult.database;
+        this.schemaName = migrateResult.schemaName;
+        this.migrations = migrateResult.migrations;
+        this.operation = migrateResult.operation;
+        this.success = migrateResult.success;
+        this.migrationsExecuted = migrateResult.migrationsExecuted;
+        this.initialSchemaVersion = migrateResult.initialSchemaVersion;
+        this.targetSchemaVersion = migrateResult.targetSchemaVersion;
+        this.warnings = migrateResult.warnings;
     }
 }

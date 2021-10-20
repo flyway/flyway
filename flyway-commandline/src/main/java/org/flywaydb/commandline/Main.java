@@ -19,6 +19,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.flywaydb.commandline.extensibility.CommandLineExtension;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
+import org.flywaydb.core.api.output.*;
+import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.logging.multi.MultiLogCreator;
@@ -164,27 +166,36 @@ public class Main {
             if (commandLineArguments.shouldOutputJson()) {
                 printJson(commandLineArguments, result);
             }
+        } catch (DbMigrate.FlywayMigrateException e) {
+            MigrateErrorResult errorResult = ErrorOutput.fromMigrateException(e);
+            printError(commandLineArguments, e, errorResult);
+            System.exit(1);
         } catch (Exception e) {
-            if (commandLineArguments.shouldOutputJson()) {
-                ErrorOutput errorOutput = ErrorOutput.fromException(e);
-                printJson(commandLineArguments, errorOutput);
-            } else {
-                if (commandLineArguments.getLogLevel() == Level.DEBUG) {
-                    LOG.error("Unexpected error", e);
-                } else {
-                    LOG.error(getMessagesFromException(e));
-                }
-            }
-            Log currentLog = ((EvolvingLog)LOG).getLog();
-            if (currentLog instanceof BufferedLog) {
-                ((BufferedLog)currentLog).flush(getLogCreator(commandLineArguments).createLogger(Main.class));
-            }
+            ErrorOutput errorOutput = ErrorOutput.fromException(e);
+            printError(commandLineArguments, e, errorOutput);
             System.exit(1);
         } finally {
-            Log currentLog = ((EvolvingLog)LOG).getLog();
-            if (currentLog instanceof BufferedLog) {
-                ((BufferedLog)currentLog).flush(getLogCreator(commandLineArguments).createLogger(Main.class));
+            flushLog(commandLineArguments);
+        }
+    }
+
+    private static void printError(CommandLineArguments commandLineArguments, Exception e, OperationResult errorResult) {
+        if (commandLineArguments.shouldOutputJson()) {
+                printJson(commandLineArguments, errorResult);
+        } else {
+            if (commandLineArguments.getLogLevel() == Level.DEBUG) {
+                LOG.error("Unexpected error", e);
+            } else {
+                LOG.error(getMessagesFromException(e));
             }
+        }
+        flushLog(commandLineArguments);
+    }
+
+    private static void flushLog(CommandLineArguments commandLineArguments) {
+        Log currentLog = ((EvolvingLog) LOG).getLog();
+        if (currentLog instanceof BufferedLog) {
+            ((BufferedLog) currentLog).flush(getLogCreator(commandLineArguments).createLogger(Main.class));
         }
     }
 

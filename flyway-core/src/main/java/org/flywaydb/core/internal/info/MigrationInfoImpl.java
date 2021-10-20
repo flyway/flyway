@@ -442,6 +442,10 @@ public class MigrationInfoImpl implements MigrationInfo {
                 migrationIdentifier, applied, resolved);
     }
 
+    public boolean canExecuteInTransaction() {
+        return resolvedMigration != null && resolvedMigration.getExecutor().canExecuteInTransaction();
+    }
+
 
 
 

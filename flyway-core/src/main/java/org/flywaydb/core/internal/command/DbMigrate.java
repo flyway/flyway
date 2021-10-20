@@ -16,16 +16,14 @@
 package org.flywaydb.core.internal.command;
 
 import lombok.CustomLog;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationState;
-import org.flywaydb.core.api.MigrationVersion;
+import lombok.Getter;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.executor.Context;
-import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.MigrateResult;
+import org.flywaydb.core.api.output.MigrateErrorResult;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
@@ -138,6 +136,9 @@ public class DbMigrate {
                     ? migrateGroup(firstRun)
                     // Otherwise acquire the lock now. The lock will be released at the end of each migration.
                     : schemaHistory.lock(() -> migrateGroup(firstRun));
+
+            migrateResult.migrationsExecuted += count;
+
             total += count;
             if (count == 0) {
                 // No further migrations available
@@ -203,17 +204,18 @@ public class DbMigrate {
             }
         }
 
-        MigrationInfo[] failed = infoService.failed();
+        MigrationInfoImpl[] failed = infoService.failed();
         if (failed.length > 0) {
             if ((failed.length == 1)
                     && (failed[0].getState() == MigrationState.FUTURE_FAILED)
                     && configuration.isIgnoreFutureMigrations()) {
                 LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
             } else {
+                final boolean inTransaction = failed[0].canExecuteInTransaction();
                 if (failed[0].getVersion() == null) {
-                    throw new FlywayException("Schema " + schema + " contains a failed repeatable migration (" + doQuote(failed[0].getDescription()) + ") !");
+                    throw new FlywayMigrateException(failed[0], "Schema " + schema + " contains a failed repeatable migration (" + doQuote(failed[0].getDescription()) + ") !", inTransaction, migrateResult);
                 }
-                throw new FlywayException("Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " !");
+                throw new FlywayMigrateException(failed[0], "Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " !", inTransaction, migrateResult);
             }
         }
 
@@ -274,8 +276,9 @@ public class DbMigrate {
                 doMigrateGroup(group, stopWatch, skipExecutingMigrations, false);
             }
         } catch (FlywayMigrateException e) {
-            MigrationInfoImpl migration = e.getMigration();
-            String failedMsg = "Migration of " + toMigrationText(migration, e.isOutOfOrder()) + " failed!";
+            MigrationInfo migration = e.getMigration();
+
+            String failedMsg = "Migration of " + toMigrationText(migration, e.isExecutableInTransaction(), e.isOutOfOrder()) + " failed!";
             if (database.supportsDdlTransactions() && executeGroupInTransaction) {
                 LOG.error(failedMsg + " Changes successfully rolled back.");
             } else {
@@ -284,7 +287,7 @@ public class DbMigrate {
                 stopWatch.stop();
                 int executionTime = (int) stopWatch.getTotalTimeMillis();
                 schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(),
-                        migration.getType(), migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, false);
+                        migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, false);
             }
             throw e;
         }
@@ -305,12 +308,14 @@ public class DbMigrate {
             }
 
             if (!configuration.isMixed() && executeGroupInTransaction != inTransaction) {
-                throw new FlywayException(
+                throw new FlywayMigrateException(entry.getKey(),
                         "Detected both transactional and non-transactional migrations within the same migration group"
                                 + " (even though mixed is false). First offending migration: "
                                 + doQuote((resolvedMigration.getVersion() == null ? "" : resolvedMigration.getVersion())
                                 + (StringUtils.hasLength(resolvedMigration.getDescription()) ? " " + resolvedMigration.getDescription() : ""))
-                                + (inTransaction ? "" : " [non-transactional]"));
+                                + (inTransaction ? "" : " [non-transactional]"),
+                        inTransaction,
+                        migrateResult);
             }
 
             executeGroupInTransaction &= inTransaction;
@@ -336,7 +341,7 @@ public class DbMigrate {
             final MigrationInfoImpl migration = entry.getKey();
             boolean isOutOfOrder = entry.getValue();
 
-            final String migrationText = toMigrationText(migration, isOutOfOrder);
+            final String migrationText = toMigrationText(migration, migration.canExecuteInTransaction(), isOutOfOrder);
 
             stopWatch.start();
 
@@ -374,10 +379,10 @@ public class DbMigrate {
                         appliedResolvedMigrations.add(migration.getResolvedMigration());
                     } catch (FlywayException e) {
                         callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
-                        throw new FlywayMigrateException(migration, isOutOfOrder, e);
+                        throw new FlywayMigrateException(migration, isOutOfOrder, e, migration.canExecuteInTransaction(), migrateResult);
                     } catch (SQLException e) {
                         callbackExecutor.onEachMigrateOrUndoEvent(Event.AFTER_EACH_MIGRATE_ERROR);
-                        throw new FlywayMigrateException(migration, isOutOfOrder, e);
+                        throw new FlywayMigrateException(migration, isOutOfOrder, e, migration.canExecuteInTransaction(), migrateResult);
                     }
 
                     LOG.debug("Successfully completed migration of " + migrationText);
@@ -397,17 +402,16 @@ public class DbMigrate {
         }
     }
 
-    private String toMigrationText(MigrationInfoImpl migration, boolean isOutOfOrder) {
-        final MigrationExecutor migrationExecutor = migration.getResolvedMigration().getExecutor();
+    private String toMigrationText(MigrationInfo migration, boolean canExecuteInTransaction, boolean isOutOfOrder) {
         final String migrationText;
         if (migration.getVersion() != null) {
             migrationText = "schema " + schema + " to version " + doQuote(migration.getVersion()
                     + (StringUtils.hasLength(migration.getDescription()) ? " - " + migration.getDescription() : ""))
                     + (isOutOfOrder ? " [out of order]" : "")
-                    + (migrationExecutor.canExecuteInTransaction() ? "" : " [non-transactional]");
+                    + (canExecuteInTransaction ? "" : " [non-transactional]");
         } else {
             migrationText = "schema " + schema + " with repeatable migration " + doQuote(migration.getDescription())
-                    + (migrationExecutor.canExecuteInTransaction() ? "" : " [non-transactional]");
+                    + (canExecuteInTransaction ? "" : " [non-transactional]");
         }
         return migrationText;
     }
@@ -416,28 +420,35 @@ public class DbMigrate {
         return "\"" + text + "\"";
     }
 
+    @Getter
     public static class FlywayMigrateException extends FlywayException {
-        private final MigrationInfoImpl migration;
+        private final MigrationInfo migration;
+        private final boolean executableInTransaction;
         private final boolean outOfOrder;
+        private final MigrateErrorResult errorResult;
 
-        FlywayMigrateException(MigrationInfoImpl migration, boolean outOfOrder, SQLException e) {
+        FlywayMigrateException(MigrationInfo migration, boolean outOfOrder, SQLException e, boolean canExecuteInTransaction, MigrateResult partialResult) {
             super(ExceptionUtils.toMessage(e), e);
             this.migration = migration;
             this.outOfOrder = outOfOrder;
+            this.executableInTransaction = canExecuteInTransaction;
+            this.errorResult = new MigrateErrorResult(partialResult, this);
         }
 
-        FlywayMigrateException(MigrationInfoImpl migration, boolean outOfOrder, FlywayException e) {
+        FlywayMigrateException(MigrationInfo migration, String message, boolean canExecuteInTransaction, MigrateResult partialResult) {
+            super(message);
+            this.outOfOrder = false;
+            this.migration = migration;
+            this.executableInTransaction = canExecuteInTransaction;
+            this.errorResult = new MigrateErrorResult(partialResult, this);
+        }
+
+        FlywayMigrateException(MigrationInfo migration, boolean outOfOrder, FlywayException e, boolean canExecuteInTransaction, MigrateResult partialResult) {
             super(e.getMessage(), e);
             this.migration = migration;
             this.outOfOrder = outOfOrder;
-        }
-
-        public MigrationInfoImpl getMigration() {
-            return migration;
-        }
-
-        public boolean isOutOfOrder() {
-            return outOfOrder;
+            this.executableInTransaction = canExecuteInTransaction;
+            this.errorResult = new MigrateErrorResult(partialResult, this);
         }
     }
 }
