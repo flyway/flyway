@@ -43,8 +43,7 @@ public class RedgateUpdateChecker {
     private static final String CFU_ENDPOINT = "/flyway/cfu/api/v0/cfu";
 
     public static boolean isEnabled() {
-        boolean flag = Boolean.parseBoolean(System.getenv("FLYWAY_REDGATE_UPDATE_CHECK"));
-        return flag && usageChecker("flyway-cfu", VersionPrinter.getVersion());
+        return usageChecker("flyway-cfu", VersionPrinter.getVersion());
     }
 
     public static void checkForVersionUpdates(String jdbcUrl) {
