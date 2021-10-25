@@ -61,7 +61,7 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
             // illegal in the corresponding SET query. Normally this simply results in an exception which we skip over,
             // but in dry runs the produced script will be invalid and error when you run it.
             if (sp.contains("$user")) {
-                LOG.warn("Search path contains $user; removing...");
+                LOG.debug("Search path contains $user; removing...");
                 ArrayList<String> paths = new ArrayList<>(Arrays.asList(sp.split(",")));
                 paths.remove("$user");
                 sp = String.join(",", paths);
