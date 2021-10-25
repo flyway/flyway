@@ -237,6 +237,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
 
 
+
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("5.1");
@@ -244,7 +245,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
             ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.3", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-            recommendFlywayUpgradeIfNecessary("10.5");
+            recommendFlywayUpgradeIfNecessary("10.6");
         } else {
 
             ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("8.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
