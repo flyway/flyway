@@ -570,7 +570,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     }
 
     public void setAllSchemasEmpty(Schema[] schemas) {
-        allSchemasEmpty = Arrays.stream(schemas).allMatch(Schema::empty);
+        allSchemasEmpty = Arrays.stream(schemas).filter(Schema::exists).allMatch(Schema::empty);
     }
 
     @Override
