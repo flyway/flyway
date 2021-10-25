@@ -20,6 +20,7 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
+import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -276,6 +277,16 @@ public class FluentConfiguration implements Configuration {
      * <i>Flyway Teams only</i>
      */
     public FluentConfiguration ignoreMigrationPatterns(String... ignoreMigrationPatterns) {
+        config.setIgnoreMigrationPatterns(ignoreMigrationPatterns);
+        return this;
+    }
+
+    /**
+     * Ignore migrations that match this array of ValidatePatterns when validating migrations.
+     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * <i>Flyway Teams only</i>
+     */
+    public FluentConfiguration ignoreMigrationPatterns(ValidatePattern... ignoreMigrationPatterns) {
         config.setIgnoreMigrationPatterns(ignoreMigrationPatterns);
         return this;
     }

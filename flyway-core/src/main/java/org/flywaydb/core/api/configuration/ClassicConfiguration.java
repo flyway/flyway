@@ -595,7 +595,12 @@ public class ClassicConfiguration implements Configuration {
                 .toArray(ValidatePattern[]::new);
     }
 
-    private void setIgnoreMigrationPatterns(ValidatePattern[] ignoreMigrationPatterns) {
+    /**
+     * Ignore migrations that match this array of ValidatePatterns when validating migrations.
+     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * <i>Flyway Teams only</i>
+     */
+    public void setIgnoreMigrationPatterns(ValidatePattern... ignoreMigrationPatterns) {
         this.ignoreMigrationPatterns = ignoreMigrationPatterns;
     }
 
