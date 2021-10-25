@@ -45,7 +45,7 @@ public class BigQueryTable extends Table<BigQueryDatabase, BigQuerySchema> {
 
     @Override
     protected void doLock() throws SQLException {
-        String updateLockStatement = "UPDATE " + this + " SET installed_on = now() WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
+        String updateLockStatement = "UPDATE " + this + " SET installed_on = CURRENT_TIMESTAMP() WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
         String deleteExpiredLockStatement =
                 " DELETE FROM " + this +
                         " WHERE DESCRIPTION = 'flyway-lock'" +
