@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.Types;
@@ -99,6 +100,20 @@ public class SQLServerDatabaseType extends BaseDatabaseType {
     @Override
     public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {
         props.put("applicationName", APPLICATION_NAME);
+    }
+
+    @Override
+    public void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader) {
+
+
+
+
+
+
+
+
+
+
     }
 
     @Override

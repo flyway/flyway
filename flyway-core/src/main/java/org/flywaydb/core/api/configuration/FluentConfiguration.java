@@ -919,6 +919,19 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * When connecting to a Kerberos service to authenticate, the path to the Kerberos config file.
+     * <i>Flyway Teams only</i>
+     *
+     * @param kerberosConfigFile The path to the Kerberos config file
+     */
+    public FluentConfiguration kerberosConfigFile(String kerberosConfigFile) {
+        config.setKerberosConfigFile(kerberosConfigFile);
+        return this;
+    }
+
+    /**
+     * @deprecated Will be removed in V9. Please use {@link #kerberosConfigFile(String)}
+     *
      * When authenticating to Oracle via Kerberos, the location of the Kerberos <code>krb5.conf</code> file
      * <i>Flyway Teams only</i>
      *
@@ -937,6 +950,17 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration oracleKerberosCacheFile(String oracleKerberosCacheFile) {
         config.setOracleKerberosCacheFile(oracleKerberosCacheFile);
+        return this;
+    }
+
+    /**
+     * When SQL Server needs to connect to a Kerberos service to authenticate, the path to the Kerberos login file.
+     * <i>Flyway Teams only</i>
+     *
+     * @param sqlServerKerberosLoginFile The path to the Kerberos login file
+     */
+    public FluentConfiguration sqlServerKerberosLoginFile(String sqlServerKerberosLoginFile) {
+        config.setSqlServerKerberosLoginFile(sqlServerKerberosLoginFile);
         return this;
     }
 

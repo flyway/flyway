@@ -362,8 +362,10 @@ public class ClassicConfiguration implements Configuration {
     private Map<String, String> jdbcProperties;
     private boolean oracleSqlplus;
     private boolean oracleSqlplusWarn;
+    private String kerberosConfigFile = "";
     private String oracleKerberosConfigFile = "";
     private String oracleKerberosCacheFile = "";
+    private String sqlServerKerberosLoginFile = "";
     private String oracleWalletLocation;
     /**
      * -- SETTER --
@@ -1136,6 +1138,8 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * @deprecated Will be removed in V9. Please use {@link #setKerberosConfigFile(String)}
+     *
      * When Oracle needs to connect to a Kerberos service to authenticate, the location of the Kerberos configuration.
      * <i>Flyway Teams only</i>
      */
@@ -1155,6 +1159,32 @@ public class ClassicConfiguration implements Configuration {
     public void setOracleKerberosCacheFile(String oracleKerberosCacheFile) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.kerberosCacheFile");
+
+
+
+
+    }
+
+    /**
+     * When SQL Server needs to connect to a Kerberos service to authenticate, the path to the Kerberos login file.
+     * <i>Flyway Teams only</i>
+     */
+    public void setSqlServerKerberosLoginFile(String sqlServerKerberosLoginFile) {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("sqlServer.kerberosLoginFile");
+
+
+
+
+    }
+
+    /**
+     * When connecting to a Kerberos service to authenticate, the path to the Kerberos config file.
+     * <i>Flyway Teams only</i>
+     */
+    public void setKerberosConfigFile(String kerberosConfigFile) {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("kerberosConfigFile");
 
 
 
@@ -1264,6 +1294,8 @@ public class ClassicConfiguration implements Configuration {
         setConnectRetries(configuration.getConnectRetries());
         setConnectRetriesInterval(configuration.getConnectRetriesInterval());
         setInitSql(configuration.getInitSql());
+
+
 
 
 
@@ -1606,6 +1638,10 @@ public class ClassicConfiguration implements Configuration {
         if (createSchemasProp != null) {
             setShouldCreateSchemas(createSchemasProp);
         }
+        String kerberosConfigFile = props.remove(ConfigUtils.KERBEROS_CONFIG_FILE);
+        if (kerberosConfigFile != null) {
+            setKerberosConfigFile(kerberosConfigFile);
+        }
         String oracleKerberosConfigFile = props.remove(ConfigUtils.ORACLE_KERBEROS_CONFIG_FILE);
         if (oracleKerberosConfigFile != null) {
             setOracleKerberosConfigFile(oracleKerberosConfigFile);
@@ -1613,6 +1649,10 @@ public class ClassicConfiguration implements Configuration {
         String oracleKerberosCacheFile = props.remove(ConfigUtils.ORACLE_KERBEROS_CACHE_FILE);
         if (oracleKerberosCacheFile != null) {
             setOracleKerberosCacheFile(oracleKerberosCacheFile);
+        }
+        String sqlServerKerberosLoginFile = props.remove(ConfigUtils.SQL_SERVER_KERBEROS_LOGIN_FILE);
+        if (sqlServerKerberosLoginFile != null) {
+            setSqlServerKerberosLoginFile(sqlServerKerberosLoginFile);
         }
         String oracleWalletLocationProp = props.remove(ConfigUtils.ORACLE_WALLET_LOCATION);
         if (oracleWalletLocationProp != null) {

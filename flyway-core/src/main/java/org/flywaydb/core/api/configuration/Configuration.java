@@ -609,9 +609,21 @@ public interface Configuration {
      */
     boolean isOracleSqlplusWarn();
 
+    /**
+     * The path to the Kerberos config file.
+     * <i>Flyway Teams only</i>
+     */
+    String getKerberosConfigFile();
+
     String getOracleKerberosConfigFile();
 
     String getOracleKerberosCacheFile();
+
+    /**
+     * The path to the SQL Server Kerberos login file.
+     * <i>Flyway Teams only</i>
+     */
+    String getSqlServerKerberosLoginFile();
 
     /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
