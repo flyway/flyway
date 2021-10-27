@@ -466,6 +466,7 @@ public class FluentConfiguration implements Configuration {
      * <ul>
      * <li>{@code current}: Designates the current version of the schema</li>
      * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code next}: The next version of the schema, as defined by the first pending migration</li>
      * </ul>
      * Defaults to {@code latest}.
      */

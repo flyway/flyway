@@ -16,7 +16,6 @@
 package org.flywaydb.core.internal.util;
 
 import lombok.CustomLog;
-import org.flywaydb.core.internal.license.VersionPrinter;
 
 @CustomLog
 public final class FeatureDetector {
@@ -109,28 +108,5 @@ public final class FeatureDetector {
         }
 
         return gcsAvailable;
-    }
-
-    /**
-     * Checks if the "experimental features" flag is set in the environment. You should not activate this flag
-     * outside a development environment; features activated may be in development and/or undocumented.
-     *
-     * @return {@code true} if it is, {@code false} if it is not
-     */
-    public static boolean areExperimentalFeaturesEnabled() {
-
-
-
-
-
-
-
-
-
-
-
-
-
-        return false;
     }
 }

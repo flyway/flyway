@@ -134,6 +134,18 @@ public class ClassicConfiguration implements Configuration {
      * @param tablespace The tablespace where to create the schema history table that will be used by Flyway.
      */
     private String tablespace;
+    /**
+     * -- SETTER --
+     * Sets the target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored.
+     * Special values:
+     * <ul>
+     * <li>{@code current}: Designates the current version of the schema</li>
+     * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code next}: The next version of the schema, as defined by the first pending migration</li>
+     * </ul>
+     * Defaults to {@code latest}.
+     */
     private MigrationVersion target;
     private boolean failOnMissingTarget = true;
     @Setter(AccessLevel.NONE)
@@ -665,29 +677,7 @@ public class ClassicConfiguration implements Configuration {
      * <ul>
      * <li>{@code current}: Designates the current version of the schema</li>
      * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
-     * </ul>
-     * Defaults to {@code latest}.
-     */
-    public void setTarget(MigrationVersion target) {
-        if (!FeatureDetector.areExperimentalFeaturesEnabled() && target == MigrationVersion.NEXT) {
-
-
-
-
-
-             throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("target=next");
-
-        }
-        this.target = target;
-    }
-
-    /**
-     * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored.
-     * Special values:
-     * <ul>
-     * <li>{@code current}: Designates the current version of the schema</li>
-     * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code next}: The next version of the schema, as defined by the first pending migration</li>
      * <li>
      *     &lt;version&gt;? (end with a '?'): Instructs Flyway not to fail if the target version doesn't exist.
      *     In this case, Flyway will go up to but not beyond the specified target

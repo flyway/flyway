@@ -297,6 +297,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * <ul>
      * <li>{@code current}: Designates the current version of the schema</li>
      * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code next}: The next version of the schema, as defined by the first pending migration</li>
      * <li>
      *     &lt;version&gt;? (end with a '?'): Instructs Flyway not to fail if the target version doesn't exist.
      *     In this case, Flyway will go up to but not beyond the specified target
