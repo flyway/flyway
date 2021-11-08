@@ -181,7 +181,7 @@ public class Main {
 
     private static void printError(CommandLineArguments commandLineArguments, Exception e, OperationResult errorResult) {
         if (commandLineArguments.shouldOutputJson()) {
-                printJson(commandLineArguments, errorResult);
+            printJson(commandLineArguments, errorResult);
         } else {
             if (commandLineArguments.getLogLevel() == Level.DEBUG) {
                 LOG.error("Unexpected error", e);
@@ -511,8 +511,7 @@ public class Main {
 
             // see javadoc of listFiles(): null if given path is not a real directory
             if (files == null) {
-                LOG.error("Directory for Java Migrations not found: " + dirName);
-                System.exit(1);
+                throw new FlywayException("Directory for Java Migrations not found: " + dirName);
             }
 
             jarFiles.addAll(Arrays.asList(files));
