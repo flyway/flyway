@@ -40,6 +40,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 
+import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGINS_PREFIX;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
 /**
@@ -640,38 +641,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public boolean failOnMissingLocations;
 
     /**
-     * The configuration for Vault secrets manager.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>vaultUrl: The REST API URL of your Vault server - https://flywaydb.org/documentation/configuration/parameters/vaultUrl</li>
-     *  <li>vaultToken: The Vault token required to access your secrets - https://flywaydb.org/documentation/configuration/parameters/vaultToken</li>
-     *  <li>vaultSecrets: A list of paths to secrets in Vault that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/vaultSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
+     * The configuration for plugins
+     * You will need to configure this with the key and value specific to your plugin
      */
-    public VaultConfiguration vaultConfiguration;
-
-    /**
-     * The configuration for DAPR Secrets Store.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>daprUrl: The REST API URL of your Dapr application sidecar - https://flywaydb.org/documentation/configuration/parameters/daprUrl</li>
-     *  <li>daprSecrets: A list of paths to secrets in Dapr that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/daprSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
-     */
-    public DaprConfiguration daprConfiguration;
-
-    /**
-     * The configuration for Google Cloud Secret Manager.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>gcsmProject: The Project which contains your secrets - https://flywaydb.org/documentation/configuration/parameters/gcsmProject</li>
-     *  <li>gcsmSecrets: A list of secrets in GCSM that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/gcsmSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
-     */
-    public GcsmConfiguration gcsmConfiguration;
+    public Map<String, String> pluginConfiguration;
 
     public AbstractFlywayTask() {
         super();
@@ -878,31 +851,35 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             }
         }
 
-        if (extension.vaultConfiguration != null){
-            extension.vaultConfiguration.extract(conf);
-        }
-        if (vaultConfiguration != null){
-            vaultConfiguration.extract(conf);
-        }
-        if (extension.daprConfiguration != null) {
-            extension.daprConfiguration.extract(conf);
-        }
-        if (daprConfiguration != null){
-            daprConfiguration.extract(conf);
-        }
-        if (extension.gcsmConfiguration != null) {
-            extension.gcsmConfiguration.extract(conf);
-        }
-        if (gcsmConfiguration != null) {
-            gcsmConfiguration.extract(conf);
-        }
+        conf.putAll(getPluginConfiguration(pluginConfiguration, extension.pluginConfiguration));
 
         addConfigFromProperties(conf, getProject().getProperties());
         addConfigFromProperties(conf, loadConfigurationFromConfigFiles(getWorkingDirectory(), envVars));
         addConfigFromProperties(conf, envVars);
         addConfigFromProperties(conf, System.getProperties());
-        conf.putAll(ConfigUtils.loadConfigurationFromSecretsManagers(conf));
         removeGradlePluginSpecificPropertiesToAvoidWarnings(conf);
+
+        return conf;
+    }
+
+    public Map<String, String> getPluginConfiguration(Map<String, String> pluginConfiguration, Map<String, String> extensionPluginConfiguration) {
+        Map<String, String> conf = new HashMap<>();
+
+        if (pluginConfiguration == null && extensionPluginConfiguration == null) {
+            return conf;
+        }
+
+        String camelCaseRegex = "(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])";
+        if (extensionPluginConfiguration != null) {
+            for (String key : extensionPluginConfiguration.keySet()) {
+                conf.put(FLYWAY_PLUGINS_PREFIX + String.join(".", key.split(camelCaseRegex)).toLowerCase(), extensionPluginConfiguration.get(key));
+            }
+        }
+        if (pluginConfiguration != null) {
+            for (String key : pluginConfiguration.keySet()) {
+                conf.put(FLYWAY_PLUGINS_PREFIX + String.join(".", key.split(camelCaseRegex)).toLowerCase(), pluginConfiguration.get(key));
+            }
+        }
 
         return conf;
     }

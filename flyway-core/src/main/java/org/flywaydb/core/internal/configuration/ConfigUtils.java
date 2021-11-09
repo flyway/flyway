@@ -15,13 +15,14 @@
  */
 package org.flywaydb.core.internal.configuration;
 
-import lombok.CustomLog;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.extensibility.ConfigurationProvider;
+import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -115,6 +116,9 @@ public class ConfigUtils {
 
     // Gradle specific
     public static final String CONFIGURATIONS = "flyway.configurations";
+
+    // Plugin specific
+    public static final String FLYWAY_PLUGINS_PREFIX = "flyway.plugins.";
 
     /**
      * Converts Flyway-specific environment variables to their matching properties.
@@ -362,9 +366,8 @@ public class ConfigUtils {
             return CONFIGURATIONS;
         }
 
-        ServiceLoader<ConfigurationProvider> loader = ServiceLoader.load(ConfigurationProvider.class);
-        for (ConfigurationProvider configurationProvider : loader) {
-            String configurationParameter = configurationProvider.getConfigurationParameterFromEnvironmentVariable(key);
+        for (ConfigurationExtension configurationExtension : PluginRegister.getConfigurationExtensions()) {
+            String configurationParameter = configurationExtension.getConfigurationParameterFromEnvironmentVariable(key);
             if (configurationParameter != null) {
                 return configurationParameter;
             }
@@ -517,28 +520,6 @@ public class ConfigUtils {
         return propertiesToMap(properties);
     }
 
-    public static Map<String, String> loadConfigurationFromSecretsManagers(Map<String, String> config) {
-        Map<String, String> secretsManagerConfiguration = new HashMap<>();
-        ConfigurationProvider currentConfigurationProvider = null;
-
-        try {
-            ServiceLoader<ConfigurationProvider> loader = ServiceLoader.load(ConfigurationProvider.class);
-            for (ConfigurationProvider configurationProvider : loader) {
-                currentConfigurationProvider = configurationProvider;
-                if (configurationProvider.isConfigured(config)) {
-                    secretsManagerConfiguration.putAll(configurationProvider.getConfiguration(config));
-                }
-            }
-        } catch (Exception e) {
-            if (currentConfigurationProvider == null) {
-                throw new FlywayException("Unable to read configuration from a configuration provider: " + e.getMessage());
-            }
-            throw new FlywayException("Unable to read configuration from " + currentConfigurationProvider.getClass().getName() + ": " + e.getMessage());
-        }
-
-        return secretsManagerConfiguration;
-    }
-
     static String expandEnvironmentVariables(String value, Map<String, String> environmentVariables) {
         Pattern pattern = Pattern.compile("\\$\\{([A-Za-z0-9_]+)}");
         Matcher matcher = pattern.matcher(value);
@@ -670,7 +651,7 @@ public class ConfigUtils {
     public static void checkConfigurationForUnrecognisedProperties(Map<String, String> config, String prefix) {
         ArrayList<String> unknownFlywayProperties = new ArrayList<>();
         for (String key : config.keySet()) {
-            if (prefix == null || key.startsWith(prefix)) {
+            if (prefix == null || (key.startsWith(prefix) && !key.startsWith(FLYWAY_PLUGINS_PREFIX))) {
                 unknownFlywayProperties.add(key);
             }
         }

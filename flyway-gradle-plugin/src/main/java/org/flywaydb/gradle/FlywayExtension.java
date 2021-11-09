@@ -15,10 +15,6 @@
  */
 package org.flywaydb.gradle;
 
-import org.flywaydb.gradle.task.DaprConfiguration;
-import org.flywaydb.gradle.task.GcsmConfiguration;
-import org.flywaydb.gradle.task.VaultConfiguration;
-
 import java.util.Map;
 
 /**
@@ -609,36 +605,8 @@ public class FlywayExtension {
     public Boolean failOnMissingLocations;
 
     /**
-     * The configuration for Vault secrets manager.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>vaultUrl: The REST API URL of your Vault server - https://flywaydb.org/documentation/configuration/parameters/vaultUrl</li>
-     *  <li>vaultToken: The Vault token required to access your secrets - https://flywaydb.org/documentation/configuration/parameters/vaultToken</li>
-     *  <li>vaultSecrets: A list of paths to secrets in Vault that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/vaultSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
+     * The configuration for plugins
+     * You will need to configure this with the key and value specific to your plugin
      */
-    public VaultConfiguration vaultConfiguration;
-
-    /**
-     * The configuration for DAPR Secrets Store.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>daprUrl: The REST API URL of your Dapr application sidecar - https://flywaydb.org/documentation/configuration/parameters/daprUrl</li>
-     *  <li>daprSecrets: A list of paths to secrets in Dapr that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/daprSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
-     */
-    public DaprConfiguration daprConfiguration;
-
-    /**
-     * The configuration for Google Cloud Secret Manager.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>gcsmProject: The Project which contains your secrets - https://flywaydb.org/documentation/configuration/parameters/gcsmProject</li>
-     *  <li>gcsmSecrets: A list of secrets in GCSM that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/gcsmSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
-     */
-    public GcsmConfiguration gcsmConfiguration;
+    public Map<String, String> pluginConfiguration;
 }

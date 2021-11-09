@@ -41,8 +41,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.io.File;
 import java.util.*;
 
-import static org.flywaydb.core.internal.configuration.ConfigUtils.putArrayIfSet;
-import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.*;
 
 /**
  * Common base class for all mojos with all common attributes.
@@ -755,41 +754,11 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     protected Settings settings;
 
     /**
-     * The configuration for Vault secrets manager.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>vaultUrl: The REST API URL of your Vault server - https://flywaydb.org/documentation/configuration/parameters/vaultUrl</li>
-     *  <li>vaultToken: The Vault token required to access your secrets - https://flywaydb.org/documentation/configuration/parameters/vaultToken</li>
-     *  <li>vaultSecrets: A list of paths to secrets in Vault that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/vaultSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
+     * The configuration for plugins
+     * You will need to configure this with the key and value specific to your plugin
      */
     @Parameter
-    protected VaultConfiguration vaultConfiguration;
-
-    /**
-     * The configuration for DAPR Secrets Store.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>daprUrl: The REST API URL of your Dapr application sidecar - https://flywaydb.org/documentation/configuration/parameters/daprUrl</li>
-     *  <li>daprSecrets: A list of paths to secrets in Dapr that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/daprSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
-     */
-    @Parameter
-    protected DaprConfiguration daprConfiguration;
-
-    /**
-     * The configuration for Google Cloud Secret Manager.
-     * You will need to configure the following fields:
-     * <ul>
-     *  <li>gcsmProject: The Project which contains your secrets - https://flywaydb.org/documentation/configuration/parameters/gcsmProject</li>
-     *  <li>gcsmSecrets: A list of secrets in GCSM that contain Flyway configurations - https://flywaydb.org/documentation/configuration/parameters/gcsmSecrets</li>
-     * </ul>
-     * <i>Flyway Teams only</i>
-     */
-    @Parameter
-    protected GcsmConfiguration gcsmConfiguration;
+    private Map<String, String> pluginConfiguration;
 
     /**
      * Reference to the current project that includes the Flyway Maven plugin.
@@ -965,21 +934,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 }
             }
 
-            if (vaultConfiguration != null){
-                vaultConfiguration.extract(conf);
-            }
-            if (daprConfiguration != null) {
-                daprConfiguration.extract(conf);
-            }
-            if (gcsmConfiguration != null) {
-                gcsmConfiguration.extract(conf);
-            }
+            conf.putAll(getPluginConfiguration(pluginConfiguration));
 
             conf.putAll(ConfigUtils.propertiesToMap(mavenProject.getProperties()));
             conf.putAll(loadConfigurationFromConfigFiles(workDir, envVars));
             conf.putAll(envVars);
             conf.putAll(ConfigUtils.propertiesToMap(System.getProperties()));
-            conf.putAll(ConfigUtils.loadConfigurationFromSecretsManagers(conf));
             removeMavenPluginSpecificPropertiesToAvoidWarnings(conf);
 
             if (conf.getOrDefault(ConfigUtils.LOGGERS, "auto").equalsIgnoreCase("auto")) {
@@ -996,6 +956,21 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 ((BufferedLog)currentLog).flush(new MavenLog(this.getLog()));
             }
         }
+    }
+
+    public Map<String, String> getPluginConfiguration(Map<String, String> pluginConfiguration) {
+        Map<String, String> conf = new HashMap<>();
+
+        if (pluginConfiguration == null) {
+            return conf;
+        }
+
+        String camelCaseRegex = "(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])";
+        for (String key : pluginConfiguration.keySet()) {
+            conf.put(FLYWAY_PLUGINS_PREFIX + String.join(".", key.split(camelCaseRegex)).toLowerCase(), pluginConfiguration.get(key));
+        }
+
+        return conf;
     }
 
     /**

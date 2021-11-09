@@ -18,51 +18,19 @@ package org.flywaydb.core.internal.database;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
-
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.ServiceLoader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @CustomLog
 public class DatabaseTypeRegister {
-    private static final ClassLoader CLASS_LOADER = new DatabaseTypeRegister().getClass().getClassLoader();
-
-    private static final List<DatabaseType> registeredDatabaseTypes = new ArrayList<>();
-    private static boolean hasRegisteredDatabaseTypes = false;
-
-    private static void registerDatabaseTypes() {
-        synchronized (registeredDatabaseTypes) {
-            if (hasRegisteredDatabaseTypes) {
-                return;
-            }
-
-            registeredDatabaseTypes.clear();
-
-
-
-
-
-
-            ServiceLoader<DatabaseType> loader = ServiceLoader.load(DatabaseType.class, CLASS_LOADER);
-            for (DatabaseType dt : loader) {
-                registeredDatabaseTypes.add(dt);
-            }
-
-            // Sort by preference order
-            Collections.sort(registeredDatabaseTypes);
-
-            hasRegisteredDatabaseTypes = true;
-        }
-    }
-
     public static DatabaseType getDatabaseTypeForUrl(String url) {
         List<DatabaseType> typesAcceptingUrl = getDatabaseTypesForUrl(url);
 
@@ -83,13 +51,9 @@ public class DatabaseTypeRegister {
     }
 
     private static List<DatabaseType> getDatabaseTypesForUrl(String url) {
-        if (!hasRegisteredDatabaseTypes) {
-            registerDatabaseTypes();
-        }
-
         List<DatabaseType> typesAcceptingUrl = new ArrayList<>();
 
-        for (DatabaseType type : registeredDatabaseTypes) {
+        for (DatabaseType type : PluginRegister.getDatabaseTypes()) {
             if (type.handlesJDBCUrl(url)) {
                 typesAcceptingUrl.add(type);
             }
@@ -123,15 +87,11 @@ public class DatabaseTypeRegister {
     }
 
     public static DatabaseType getDatabaseTypeForConnection(Connection connection) {
-        if (!hasRegisteredDatabaseTypes) {
-            registerDatabaseTypes();
-        }
-
         DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);
         String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
         String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
 
-        for (DatabaseType type : registeredDatabaseTypes) {
+        for (DatabaseType type : PluginRegister.getDatabaseTypes()) {
             if (type.handlesDatabaseProductNameAndVersion(databaseProductName, databaseProductVersion, connection)) {
                 return type;
             }

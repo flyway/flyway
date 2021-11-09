@@ -13,25 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.gradle.task;
-
-import lombok.Getter;
-import lombok.Setter;
-import org.flywaydb.core.internal.configuration.ConfigUtils;
+package org.flywaydb.core.extensibility;
 
 import java.util.Map;
 
-@Getter
-@Setter
-public class DaprConfiguration {
-    public static final String DAPR_URL = "flyway.dapr.url";
-    public static final String DAPR_SECRETS = "flyway.dapr.secrets";
-
-    private String daprUrl;
-    private String[] daprSecrets;
-
-    public void extract(Map<String, String> conf) {
-        ConfigUtils.putIfSet(conf, DAPR_URL, daprUrl);
-        ConfigUtils.putArrayIfSet(conf, DAPR_SECRETS, daprSecrets);
-    }
+public interface ConfigurationExtension {
+    void extractParametersFromConfiguration(Map<String, String> configuration);
+    String getConfigurationParameterFromEnvironmentVariable(String environmentVariable);
 }

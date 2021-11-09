@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.api.configuration;
 
-import lombok.CustomLog;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
 import org.flywaydb.core.api.*;
@@ -24,15 +24,16 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.extensibility.ApiExtension;
+import org.flywaydb.core.extensibility.ConfigurationExtension;
+import org.flywaydb.core.extensibility.ConfigurationProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.license.Edition;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.license.Edition;
 
 import javax.sql.DataSource;
 import java.io.*;
@@ -57,9 +58,6 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger
 @Getter(onMethod = @__({@Override}))
 @Setter
 public class ClassicConfiguration implements Configuration {
-
-    private List<ApiExtension> apiExtensions = new ArrayList<>();
-
     @Getter(AccessLevel.NONE)
     private String driver;
     private String url;
@@ -1250,25 +1248,6 @@ public class ClassicConfiguration implements Configuration {
 
     }
 
-    @Override
-    public <T extends ApiExtension> T getExtensionConfiguration(Class<T> clazz) {
-        for (ApiExtension apiExtension : apiExtensions) {
-            if (clazz.isInstance(apiExtension)) {
-                return (T) apiExtension;
-            }
-        }
-
-        ServiceLoader<ApiExtension> loader = ServiceLoader.load(ApiExtension.class);
-        for (ApiExtension apiExtension : loader) {
-            if (clazz.isInstance(apiExtension)) {
-                apiExtensions.add(apiExtension);
-                return (T) apiExtension;
-            }
-        }
-
-        throw new FlywayException("Requested extension of type " + clazz.getName() + " but none found.");
-    }
-
     /**
      * Configure with the same values as this existing configuration.
      */
@@ -1348,18 +1327,7 @@ public class ClassicConfiguration implements Configuration {
         user = configuration.getUser();
         password = configuration.getPassword();
 
-        apiExtensions = configuration.getApiExtensions();
-
-        Map<String, String> extensionConfiguration = new HashMap<>();
-        for (ApiExtension apiExtension : apiExtensions) {
-            try {
-                extensionConfiguration.putAll(apiExtension.getConfiguration());
-            } catch (Exception e) {
-                throw new FlywayException("Unable to read configuration from " + apiExtension.getClass().getName() + ": " + e.getMessage());
-            }
-        }
-
-        this.configure(extensionConfiguration);
+        configureFromConfigurationProviders();
     }
 
     /**
@@ -1386,12 +1354,8 @@ public class ClassicConfiguration implements Configuration {
         // Make copy to prevent removing elements from the original.
         props = new HashMap<>(props);
 
-        for (ApiExtension apiExtension : apiExtensions) {
-            try {
-                props.putAll(apiExtension.getConfiguration());
-            } catch (Exception e) {
-                throw new FlywayException("Unable to read configuration from " + apiExtension.getClass().getName() + ": " + e.getMessage());
-            }
+        for (ConfigurationExtension configurationExtension : PluginRegister.getConfigurationExtensions()) {
+            configurationExtension.extractParametersFromConfiguration(props);
         }
 
         String driverProp = props.remove(ConfigUtils.DRIVER);
@@ -1674,6 +1638,19 @@ public class ClassicConfiguration implements Configuration {
         }
 
         ConfigUtils.checkConfigurationForUnrecognisedProperties(props, "flyway.");
+    }
+
+    private void configureFromConfigurationProviders() {
+        Map<String, String> config = new HashMap<>();
+        for (ConfigurationProvider configurationProvider : PluginRegister.getConfigurationProviders()) {
+            ConfigurationExtension configurationExtension = PluginRegister.getConfigurationExtension(configurationProvider.getConfigurationExtensionClass());
+            try {
+                config.putAll(configurationProvider.getConfiguration(configurationExtension));
+            } catch (Exception e) {
+                throw new FlywayException("Unable to read configuration from " + configurationProvider.getClass().getName() + ": " + e.getMessage());
+            }
+        }
+        configure(config);
     }
 
     private Map<String, String> getPropertiesUnderNamespace(Map<String, String> properties, Map<String, String> current, String namespace) {

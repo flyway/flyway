@@ -16,7 +16,5 @@
 package org.flywaydb.core.extensibility;
 
 public interface FlywayExtension {
-
     String getDescription();
-
 }

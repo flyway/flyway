@@ -17,8 +17,7 @@ package org.flywaydb.core.extensibility;
 
 import java.util.Map;
 
-public interface ConfigurationProvider {
-    boolean isConfigured(Map<String, String> configuration);
-    String getConfigurationParameterFromEnvironmentVariable(String environmentVariable);
-    Map<String, String> getConfiguration(Map<String, String> currentConfiguration) throws Exception;
+public interface ConfigurationProvider<T extends ConfigurationExtension> {
+    Map<String, String> getConfiguration(T configurationExtension) throws Exception;
+    Class<? extends ConfigurationExtension> getConfigurationExtensionClass();
 }

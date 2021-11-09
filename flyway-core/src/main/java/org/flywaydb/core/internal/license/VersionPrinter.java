@@ -20,16 +20,15 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.extensibility.FlywayExtension;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ServiceLoader;
 
 @CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VersionPrinter {
-    private static final ClassLoader CLASS_LOADER = new VersionPrinter().getClass().getClassLoader();
     public static final String VERSION = readVersion();
 
     public static final Edition EDITION =
@@ -58,8 +57,7 @@ public class VersionPrinter {
     }
 
     private static void printExtensionVersions() {
-        ServiceLoader<FlywayExtension> loader = ServiceLoader.load(FlywayExtension.class, CLASS_LOADER);
-        for (FlywayExtension extension : loader) {
+        for (FlywayExtension extension : PluginRegister.getFlywayExtensions()) {
             LOG.debug( ">\t" + extension.getDescription());
         }
     }
