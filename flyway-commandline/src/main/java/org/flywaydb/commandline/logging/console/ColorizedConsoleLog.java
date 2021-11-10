@@ -79,6 +79,13 @@ public class ColorizedConsoleLog implements Log {
         reset(System.err);
     }
 
+    @Override
+    public void notice(String message) {
+        colorize(System.out, Color.BLUE);
+        this.log.notice(message);
+        reset(System.out);
+    }
+
     private void colorize(PrintStream stream, Color color) {
         stream.print(Ansi.ansi().fg(color));
     }

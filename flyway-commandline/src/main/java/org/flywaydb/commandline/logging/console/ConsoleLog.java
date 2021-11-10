@@ -43,6 +43,10 @@ public class ConsoleLog implements Log {
 	    }
     }
 
+    public void notice(String message) {
+        System.out.println(message);
+    }
+
     public void warn(String message) {
         System.out.println("WARNING: " + message);
     }

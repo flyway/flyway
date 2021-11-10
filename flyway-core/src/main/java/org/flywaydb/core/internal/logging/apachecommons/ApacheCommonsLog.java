@@ -47,4 +47,6 @@ public class ApacheCommonsLog implements Log {
     public void error(String message, Exception e) {
         logger.error(message, e);
     }
+
+    public void notice(String message) { }
 }

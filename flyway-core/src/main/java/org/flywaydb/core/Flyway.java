@@ -245,6 +245,8 @@ public class Flyway {
 
                 callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
 
+                LOG.notice("Automate migration testing for Database CI with Flyway Hub. Visit https://flywaydb.org/get-started-with-hub");
+
                 if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
                     throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
                 }

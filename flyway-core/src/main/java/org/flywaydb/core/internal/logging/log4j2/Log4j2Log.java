@@ -44,4 +44,6 @@ public class Log4j2Log implements Log {
     public void error(String message, Exception e) {
         logger.error(message, e);
     }
+
+    public void notice(String message) { }
 }

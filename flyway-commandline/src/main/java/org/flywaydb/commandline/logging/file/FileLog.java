@@ -72,6 +72,8 @@ public class FileLog implements Log {
         writeLogMessage(stackTrace);
     }
 
+    public void notice(String message) { }
+
     private void writeLogMessage(String prefix, String message) {
         String logMessage = prefix + ": " + message;
         writeLogMessage(logMessage);

@@ -54,6 +54,11 @@ public class BufferedLog implements Log {
         bufferedLogMessages.add(new BufferedLogMessage(message, Level.ERROR, e));
     }
 
+    @Override
+    public void notice(String message){
+        bufferedLogMessages.add(new BufferedLogMessage(message, Level.NOTICE));
+    }
+
     public void flush(Log target) {
         synchronized (bufferedLogMessages) {
             for (BufferedLog.BufferedLogMessage message : bufferedLogMessages) {
@@ -66,6 +71,9 @@ public class BufferedLog implements Log {
                         break;
                     case WARN:
                         target.warn(message.message);
+                        break;
+                    case NOTICE:
+                        target.notice(message.message);
                         break;
                     case ERROR:
                         if (message.e == null) {
@@ -97,6 +105,6 @@ public class BufferedLog implements Log {
     }
 
     public enum Level {
-        DEBUG, INFO, WARN, ERROR
+        DEBUG, INFO, WARN, ERROR, NOTICE
     }
 }

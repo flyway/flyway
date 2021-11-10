@@ -73,4 +73,10 @@ public class EvolvingLog implements Log {
         updateLog();
         log.error(message, e);
     }
+
+    @Override
+    public void notice(String message) {
+        updateLog();
+        log.notice(message);
+    }
 }

@@ -23,4 +23,5 @@ public interface Log {
     void warn(String message);
     void error(String message);
     void error(String message, Exception e);
+    void notice(String message);
 }

@@ -73,4 +73,11 @@ public class MultiLogger implements Log {
             log.error(message, e);
         }
     }
+
+    @Override
+    public void notice(String message) {
+        for (Log log : logs) {
+            log.notice(message);
+        }
+    }
 }
