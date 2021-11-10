@@ -48,13 +48,13 @@ public class ExasolParser extends Parser {
     }
 
     @Override
-    protected boolean isDelimiter(final String peek, final ParserContext context, final int col) {
+    protected boolean isDelimiter(String peek, ParserContext context, int col, int colIgnoringWhitepace) {
 
         if (context.getStatementType().equals(SCRIPT)) {
             return peek.startsWith(SCRIPT_DELIMITER);
         }
 
-        return super.isDelimiter(peek, context, col);
+        return super.isDelimiter(peek, context, col, colIgnoringWhitepace);
     }
 
     @Override
