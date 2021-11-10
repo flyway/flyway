@@ -61,25 +61,22 @@ public class SchemaHistoryFactory {
     }
 
     public static SchemaHistory getSchemaHistory(Configuration configuration) {
-        JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(
-                configuration.getDataSource(),
-                configuration,
-                null);
+        JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
+        final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
+        Database database = databaseType.createDatabase(configuration, true, jdbcConnectionFactory, null);
+
+        return getSchemaHistory(configuration, database);
+    }
+
+    public static SchemaHistory getSchemaHistory(Configuration configuration, Database database) {
+        JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
 
         final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
         final ParsingContext parsingContext = new ParsingContext();
         final SqlScriptFactory sqlScriptFactory = databaseType.createSqlScriptFactory(configuration, parsingContext);
 
         final SqlScriptExecutorFactory noCallbackSqlScriptExecutorFactory = databaseType.createSqlScriptExecutorFactory(
-                jdbcConnectionFactory,
-                NoopCallbackExecutor.INSTANCE,
-                null);
-
-        Database database = databaseType.createDatabase(
-                configuration,
-                true,
-                jdbcConnectionFactory,
-                null);
+                jdbcConnectionFactory, NoopCallbackExecutor.INSTANCE, null);
 
         Pair<Schema, List<Schema>> schemas = prepareSchemas(configuration, database);
         Schema defaultSchema = schemas.getLeft();
