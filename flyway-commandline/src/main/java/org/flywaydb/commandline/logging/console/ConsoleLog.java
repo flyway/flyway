@@ -44,7 +44,9 @@ public class ConsoleLog implements Log {
     }
 
     public void notice(String message) {
-        System.out.println(message);
+        if (level.compareTo(Level.INFO) <= 0) {
+            System.out.println(message);
+        }
     }
 
     public void warn(String message) {
