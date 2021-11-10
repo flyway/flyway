@@ -32,12 +32,12 @@ public class MariaDBParser extends MySQLParser {
     }
 
     @Override
-    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context) {
+    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context, PeekingReader reader) {
         if (BEGIN_NOT_ATOMIC_REGEX.matcher(simplifiedStatement).matches()) {
             return BEGIN_NOT_ATOMIC_STATEMENT;
         }
 
-        return super.detectStatementType(simplifiedStatement, context);
+        return super.detectStatementType(simplifiedStatement, context, reader);
     }
 
     @Override

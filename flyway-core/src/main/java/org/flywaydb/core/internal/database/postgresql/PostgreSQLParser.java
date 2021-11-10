@@ -90,12 +90,12 @@ public class PostgreSQLParser extends Parser {
     }
 
     @Override
-    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context) {
+    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context, PeekingReader reader) {
         if (COPY_FROM_STDIN_REGEX.matcher(simplifiedStatement).matches()) {
             return COPY;
         }
 
-        return super.detectStatementType(simplifiedStatement, context);
+        return super.detectStatementType(simplifiedStatement, context, reader);
     }
 
     @Override
