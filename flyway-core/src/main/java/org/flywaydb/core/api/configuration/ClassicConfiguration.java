@@ -1354,7 +1354,7 @@ public class ClassicConfiguration implements Configuration {
         // Make copy to prevent removing elements from the original.
         props = new HashMap<>(props);
 
-        for (ConfigurationExtension configurationExtension : PluginRegister.getConfigurationExtensions()) {
+        for (ConfigurationExtension configurationExtension : PluginRegister.getPlugins(ConfigurationExtension.class)) {
             configurationExtension.extractParametersFromConfiguration(props);
         }
 
@@ -1642,8 +1642,8 @@ public class ClassicConfiguration implements Configuration {
 
     private void configureFromConfigurationProviders() {
         Map<String, String> config = new HashMap<>();
-        for (ConfigurationProvider configurationProvider : PluginRegister.getConfigurationProviders()) {
-            ConfigurationExtension configurationExtension = PluginRegister.getConfigurationExtension(configurationProvider.getConfigurationExtensionClass());
+        for (ConfigurationProvider configurationProvider : PluginRegister.getPlugins(ConfigurationProvider.class)) {
+            ConfigurationExtension configurationExtension = (ConfigurationExtension) PluginRegister.getPlugin(configurationProvider.getConfigurationExtensionClass());
             try {
                 config.putAll(configurationProvider.getConfiguration(configurationExtension));
             } catch (Exception e) {

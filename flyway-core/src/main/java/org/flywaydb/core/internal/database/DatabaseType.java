@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.database;
 
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.Plugin;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.parser.Parser;
@@ -33,7 +34,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-public interface DatabaseType extends Comparable<DatabaseType> {
+public interface DatabaseType extends Plugin, Comparable<DatabaseType> {
     /**
      * @return The human-readable name for this database type.
      */

@@ -366,7 +366,7 @@ public class ConfigUtils {
             return CONFIGURATIONS;
         }
 
-        for (ConfigurationExtension configurationExtension : PluginRegister.getConfigurationExtensions()) {
+        for (ConfigurationExtension configurationExtension : PluginRegister.getPlugins(ConfigurationExtension.class)) {
             String configurationParameter = configurationExtension.getConfigurationParameterFromEnvironmentVariable(key);
             if (configurationParameter != null) {
                 return configurationParameter;

@@ -15,6 +15,6 @@
  */
 package org.flywaydb.core.extensibility;
 
-public interface PluginMetadata {
+public interface PluginMetadata extends Plugin {
     String getDescription();
 }

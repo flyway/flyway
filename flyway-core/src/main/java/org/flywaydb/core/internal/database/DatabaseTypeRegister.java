@@ -28,9 +28,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @CustomLog
 public class DatabaseTypeRegister {
+
+    private static final List<DatabaseType> SORTED_DATABASE_TYPES = PluginRegister.getPlugins(DatabaseType.class).stream().sorted().collect(Collectors.toList());
+
     public static DatabaseType getDatabaseTypeForUrl(String url) {
         List<DatabaseType> typesAcceptingUrl = getDatabaseTypesForUrl(url);
 
@@ -53,7 +57,7 @@ public class DatabaseTypeRegister {
     private static List<DatabaseType> getDatabaseTypesForUrl(String url) {
         List<DatabaseType> typesAcceptingUrl = new ArrayList<>();
 
-        for (DatabaseType type : PluginRegister.getDatabaseTypes()) {
+        for (DatabaseType type : SORTED_DATABASE_TYPES) {
             if (type.handlesJDBCUrl(url)) {
                 typesAcceptingUrl.add(type);
             }
@@ -91,7 +95,7 @@ public class DatabaseTypeRegister {
         String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
         String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
 
-        for (DatabaseType type : PluginRegister.getDatabaseTypes()) {
+        for (DatabaseType type : SORTED_DATABASE_TYPES) {
             if (type.handlesDatabaseProductNameAndVersion(databaseProductName, databaseProductVersion, connection)) {
                 return type;
             }

@@ -57,7 +57,7 @@ public class VersionPrinter {
     }
 
     private static void printExtensionVersions() {
-        for (PluginMetadata plugin : PluginRegister.getFlywayExtensions()) {
+        for (PluginMetadata plugin : PluginRegister.getPlugins(PluginMetadata.class)) {
             LOG.debug( ">\t" + plugin.getDescription());
         }
     }
