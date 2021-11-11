@@ -16,13 +16,13 @@
 package org.flywaydb.community.database;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.extensibility.FlywayExtension;
+import org.flywaydb.core.extensibility.PluginMetadata;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public class CommunityDatabaseExtension implements FlywayExtension {
+public class CommunityDatabaseExtension implements PluginMetadata {
     public String getDescription() {
         return "Community-contributed database support extension " + readVersion() + " by Redgate";
     }

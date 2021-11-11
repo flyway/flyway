@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.ConfigurationProvider;
-import org.flywaydb.core.extensibility.FlywayExtension;
+import org.flywaydb.core.extensibility.PluginMetadata;
 import org.flywaydb.core.internal.database.DatabaseType;
 
 
@@ -36,77 +36,76 @@ import java.util.ServiceLoader;
 public class PluginRegister {
 
     private static final ClassLoader CLASS_LOADER = new PluginRegister().getClass().getClassLoader();
-    private static final List<FlywayExtension> registeredFlywayExtensions = new ArrayList<>();
-    private static final List<DatabaseType> registeredDatabaseTypes = new ArrayList<>();
-    private static final List<ConfigurationProvider> registeredConfigurationProviders = new ArrayList<>();
-    private static final List<ConfigurationExtension> registeredConfigurationExtensions = new ArrayList<>();
+    private static final List<PluginMetadata> REGISTERED_PLUGIN_METADATA = new ArrayList<>();
+    private static final List<DatabaseType> REGISTERED_DATABASE_TYPES = new ArrayList<>();
+    private static final List<ConfigurationProvider> REGISTERED_CONFIGURATION_PROVIDERS = new ArrayList<>();
+    private static final List<ConfigurationExtension> REGISTERED_CONFIGURATION_EXTENSIONS = new ArrayList<>();
     private static boolean hasRegisteredPlugins = false;
 
     public static void registerPlugins() {
-        synchronized (registeredDatabaseTypes) {
+        synchronized (REGISTERED_DATABASE_TYPES) {
             if (hasRegisteredPlugins) {
                 return;
             }
 
-            for(FlywayExtension flywayExtensionPlugin : ServiceLoader.load(FlywayExtension.class, CLASS_LOADER)) {
-                registeredFlywayExtensions.add(flywayExtensionPlugin);
-                LOG.debug("Adding FlywayExtensions:" + flywayExtensionPlugin.getClass().getName());
+            for(PluginMetadata pluginMetadata : ServiceLoader.load(PluginMetadata.class, CLASS_LOADER)) {
+                REGISTERED_PLUGIN_METADATA.add(pluginMetadata);
+                LOG.debug("Adding Plugin: " + pluginMetadata.getClass().getName());
             }
 
             for(DatabaseType databaseTypePlugin : ServiceLoader.load(DatabaseType.class, CLASS_LOADER)) {
-                registeredDatabaseTypes.add(databaseTypePlugin);
-                LOG.debug("Adding DB:" + databaseTypePlugin.getClass().getName());
+                REGISTERED_DATABASE_TYPES.add(databaseTypePlugin);
+                LOG.debug("Adding DB: " + databaseTypePlugin.getClass().getName());
             }
 
 
 
-
-            Collections.sort(registeredDatabaseTypes);
+            Collections.sort(REGISTERED_DATABASE_TYPES);
 
             for(ConfigurationProvider configurationProviderPlugin : ServiceLoader.load(ConfigurationProvider.class, CLASS_LOADER)) {
-                registeredConfigurationProviders.add(configurationProviderPlugin);
-                LOG.debug("Adding ConfigurationProvider:" + configurationProviderPlugin.getClass().getName());
+                REGISTERED_CONFIGURATION_PROVIDERS.add(configurationProviderPlugin);
+                LOG.debug("Adding ConfigurationProvider: " + configurationProviderPlugin.getClass().getName());
             }
 
             for(ConfigurationExtension configurationExtensionPlugin : ServiceLoader.load(ConfigurationExtension.class, CLASS_LOADER)) {
-                registeredConfigurationExtensions.add(configurationExtensionPlugin);
-                LOG.debug("Adding ConfigurationExtension:" + configurationExtensionPlugin.getClass().getName());
+                REGISTERED_CONFIGURATION_EXTENSIONS.add(configurationExtensionPlugin);
+                LOG.debug("Adding ConfigurationExtension: " + configurationExtensionPlugin.getClass().getName());
             }
 
             hasRegisteredPlugins = true;
         }
     }
 
-    public static List<FlywayExtension> getFlywayExtensions() {
+    public static List<PluginMetadata> getFlywayExtensions() {
         if (!hasRegisteredPlugins) {
             registerPlugins();
         }
-        return registeredFlywayExtensions;
+        return REGISTERED_PLUGIN_METADATA;
     }
 
     public static List<DatabaseType> getDatabaseTypes() {
         if (!hasRegisteredPlugins) {
             registerPlugins();
         }
-        return registeredDatabaseTypes;
+        return REGISTERED_DATABASE_TYPES;
     }
 
     public static List<ConfigurationProvider> getConfigurationProviders() {
         if (!hasRegisteredPlugins) {
             registerPlugins();
         }
-        return registeredConfigurationProviders;
+        return REGISTERED_CONFIGURATION_PROVIDERS;
     }
 
     public static List<ConfigurationExtension> getConfigurationExtensions() {
         if (!hasRegisteredPlugins) {
             registerPlugins();
         }
-        return registeredConfigurationExtensions;
+        return REGISTERED_CONFIGURATION_EXTENSIONS;
     }
 
     public static <T extends ConfigurationExtension> T getConfigurationExtension(Class<T> clazz) {
-        for (ConfigurationExtension configurationExtension : registeredConfigurationExtensions) {
+        for (ConfigurationExtension configurationExtension : REGISTERED_CONFIGURATION_EXTENSIONS) {
             if (clazz.isInstance(configurationExtension)) {
                 return (T) configurationExtension;
             }

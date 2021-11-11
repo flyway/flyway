@@ -19,7 +19,7 @@ import lombok.CustomLog;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.extensibility.FlywayExtension;
+import org.flywaydb.core.extensibility.PluginMetadata;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
@@ -57,8 +57,8 @@ public class VersionPrinter {
     }
 
     private static void printExtensionVersions() {
-        for (FlywayExtension extension : PluginRegister.getFlywayExtensions()) {
-            LOG.debug( ">\t" + extension.getDescription());
+        for (PluginMetadata plugin : PluginRegister.getFlywayExtensions()) {
+            LOG.debug( ">\t" + plugin.getDescription());
         }
     }
 
