@@ -71,6 +71,11 @@
 
 
 
+
+
+
+
+
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
@@ -352,6 +357,13 @@
                                             <groupId>org.flywaydb.enterprise</groupId>
                                             <artifactId>flyway-gcp-spanner</artifactId>
                                             <version>${flyway-gcp-spanner.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.enterprise</groupId>
+                                            <artifactId>flyway-extensibility-commons</artifactId>
+                                            <version>${project.version}</version>
                                             <type>jar</type>
                                             <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
                                         </artifactItem>

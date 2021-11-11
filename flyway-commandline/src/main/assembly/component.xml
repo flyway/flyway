@@ -138,13 +138,12 @@
                 <include>org.flywaydb:flyway-gcp-bigquery</include>
                 <include>org.flywaydb:flyway-gcp-spanner</include>
                 <include>org.flywaydb:flyway-community-db-support</include>
+                <include>org.flywaydb:flyway-extensibility-commons</include>
                 <include>org.flywaydb:flyway-vault-integration</include>
                 <include>org.flywaydb:flyway-dapr-integration</include>
                 <include>org.flywaydb:flyway-gcsm-integration</include>
             </includes>
         </dependencySet>
-
-
 
 
 
