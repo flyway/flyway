@@ -41,13 +41,16 @@ public class SAPHANADatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:sap:") || url.startsWith("jdbc:p6spy:sap:");
+        return url.startsWith("jdbc:sap:") || url.startsWith("jdbc:p6spy:sap:") || url.startsWith("jdbc:otel:sap:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:sap:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:sap:")) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
         return "com.sap.db.jdbc.Driver";
     }

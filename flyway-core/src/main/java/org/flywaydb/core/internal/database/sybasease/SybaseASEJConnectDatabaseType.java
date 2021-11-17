@@ -41,13 +41,17 @@ public class SybaseASEJConnectDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:sybase:") || url.startsWith("jdbc:p6spy:sybase:");
+        return url.startsWith("jdbc:sybase:") || url.startsWith("jdbc:p6spy:sybase:")
+                || url.startsWith("jdbc:otel:sybase:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:sybase:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:sybase:")) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
         return "com.sybase.jdbc4.jdbc.SybDriver";
     }

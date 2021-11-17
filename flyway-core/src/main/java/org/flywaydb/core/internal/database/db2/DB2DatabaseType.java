@@ -41,13 +41,16 @@ public class DB2DatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:db2:") || url.startsWith("jdbc:p6spy:db2:");
+        return url.startsWith("jdbc:db2:") || url.startsWith("jdbc:p6spy:db2:") || url.startsWith("jdbc:otel:db2:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:db2:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:db2:")) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
         return "com.ibm.db2.jcc.DB2Driver";
     }

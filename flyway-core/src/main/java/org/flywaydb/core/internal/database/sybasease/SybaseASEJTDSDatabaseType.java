@@ -41,13 +41,16 @@ public class SybaseASEJTDSDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:jtds:") || url.startsWith("jdbc:p6spy:jtds:");
+        return url.startsWith("jdbc:jtds:") || url.startsWith("jdbc:p6spy:jtds:") || url.startsWith("jdbc:otel:jtds:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:jtds:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:jtds:")) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
         return "net.sourceforge.jtds.jdbc.Driver";
     }

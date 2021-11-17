@@ -35,7 +35,8 @@ public class YugabyteDBDatabaseType extends PostgreSQLDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        return url.startsWith("jdbc:postgresql:") || url.startsWith("jdbc:p6spy:postgresql:");
+        return url.startsWith("jdbc:postgresql:") || url.startsWith("jdbc:p6spy:postgresql:")
+                || url.startsWith("jdbc:otel:postgresql:");
     }
 
     @Override

@@ -67,7 +67,8 @@ public class OracleDatabaseType extends BaseDatabaseType {
             throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbc-secretsmanager");
 
         }
-        return url.startsWith("jdbc:oracle") || url.startsWith("jdbc:p6spy:oracle");
+        return url.startsWith("jdbc:oracle") || url.startsWith("jdbc:p6spy:oracle")
+                || url.startsWith("jdbc:otel:oracle");
     }
 
     @Override
@@ -84,6 +85,9 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
         if (url.startsWith("jdbc:p6spy:oracle:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:oracle:")) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
         return "oracle.jdbc.OracleDriver";
     }

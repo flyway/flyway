@@ -49,13 +49,17 @@ public class SQLiteDatabaseType extends BaseDatabaseType {
     @Override
     public boolean handlesJDBCUrl(String url) {
         return url.startsWith("jdbc:sqlite:") || url.startsWith("jdbc:sqldroid:") ||
-               url.startsWith("jdbc:p6spy:sqlite:") || url.startsWith("jdbc:p6spy:sqldroid:");
+               url.startsWith("jdbc:p6spy:sqlite:") || url.startsWith("jdbc:p6spy:sqldroid:") ||
+                url.startsWith("jdbc:otel:sqlite:") || url.startsWith("jdbc:otel:sqldroid:");
     }
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
         if (url.startsWith("jdbc:p6spy:sqlite:") || url.startsWith("jdbc:p6spy:sqldroid:")) {
             return "com.p6spy.engine.spy.P6SpyDriver";
+        }
+        if (url.startsWith("jdbc:otel:sqlite:") || url.startsWith("jdbc:otel:sqldroid:")) {
+            return "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver";
         }
         if (url.startsWith("jdbc:sqldroid:")) {
             return "org.sqldroid.SQLDroidDriver";
