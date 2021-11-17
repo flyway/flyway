@@ -23,6 +23,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.*;
+
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
 import org.flywaydb.core.internal.configuration.ConfigurationValidator;
 import org.flywaydb.core.internal.database.DatabaseType;
@@ -127,6 +128,12 @@ public class FlywayExecutor {
         final Pair<ResourceProvider, ClassProvider<JavaMigration>> resourceProviderClassProviderPair = createResourceAndClassProviders(scannerRequired);
         final ResourceProvider resourceProvider = resourceProviderClassProviderPair.getLeft();
         final ClassProvider<JavaMigration> classProvider = resourceProviderClassProviderPair.getRight();
+        final ParsingContext parsingContext = new ParsingContext();
+
+
+
+
+
 
         if (configuration.isValidateMigrationNaming()) {
             resourceNameValidator.validateSQLMigrationNaming(resourceProvider, configuration);
@@ -136,7 +143,6 @@ public class FlywayExecutor {
                 configuration.getDataSource(), configuration, statementInterceptor);
 
         final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
-        final ParsingContext parsingContext = new ParsingContext();
         final SqlScriptFactory sqlScriptFactory = databaseType.createSqlScriptFactory(configuration, parsingContext);
         RetryStrategy.setNumberOfRetries(configuration.getLockRetryCount());
 

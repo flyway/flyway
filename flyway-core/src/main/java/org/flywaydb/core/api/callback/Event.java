@@ -224,7 +224,12 @@ public enum Event {
     /**
      * Fired before any non-existent schemas are created.
      */
-    CREATE_SCHEMA("createSchema");
+    CREATE_SCHEMA("createSchema"),
+    /**
+     * Fired before a connection is created. These must be arbitrary scripts only (e.g. ps1, cmd, sh etc.)
+     * <p><i>Flyway Teams Edition only</i></p>
+     */
+    BEFORE_CONNECT("beforeConnect");
 
     /**
      * @return The id of an event. Examples: {@code beforeClean}, {@code afterEachMigrate}, ...

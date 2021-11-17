@@ -38,12 +38,20 @@ public class SimpleContext implements Context {
     private final Statement statement;
     private final OperationResult operationResult;
 
-    SimpleContext(Configuration configuration, Connection connection, MigrationInfo migrationInfo, OperationResult operationResult) {
+    public SimpleContext(Configuration configuration) {
+        this.configuration = configuration;
+        this.connection = null;
+        this.migrationInfo = null;
+        this.statement = null;
+        this.operationResult = null;
+    }
+
+    public SimpleContext(Configuration configuration, Connection connection, MigrationInfo migrationInfo, OperationResult operationResult) {
         this.configuration = configuration;
         this.connection = connection;
         this.migrationInfo = migrationInfo;
-        this.operationResult = operationResult;
         this.statement = null;
+        this.operationResult = operationResult;
     }
 
     public SimpleContext(Configuration configuration, Connection connection, MigrationInfo migrationInfo,
@@ -51,13 +59,13 @@ public class SimpleContext implements Context {
         this.configuration = configuration;
         this.connection = connection;
         this.migrationInfo = migrationInfo;
-        this.operationResult = null;
         this.statement = new SimpleStatement(sql, warnings, errors);
+        this.operationResult = null;
     }
 
     @Override
     public java.sql.Connection getConnection() {
-        return connection.getJdbcConnection();
+        return connection == null ? null : connection.getJdbcConnection();
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
