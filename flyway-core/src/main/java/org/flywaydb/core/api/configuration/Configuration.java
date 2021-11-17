@@ -20,12 +20,10 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.extensibility.ConfigurationExtension;
 
 import javax.sql.DataSource;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Map;
 
 public interface Configuration {

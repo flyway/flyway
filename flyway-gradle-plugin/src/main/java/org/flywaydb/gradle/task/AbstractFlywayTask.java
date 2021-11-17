@@ -257,7 +257,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * Placeholders to replace in SQL migrations.
      */
     public Map<Object, Object> placeholders;
-    
+
     /**
      * Properties to pass to the JDBC driver object.
      *
@@ -663,7 +663,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             }
 
             addConfigurationArtifacts(determineConfigurations(envVars), extraURLs);
-            
+
             ClassLoader classLoader = new URLClassLoader(
                     extraURLs.toArray(new URL[0]),
                     getProject().getBuildscript().getClassLoader());

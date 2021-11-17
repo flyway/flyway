@@ -23,16 +23,17 @@ import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CustomLog
 public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     protected final String databaseName;
 
     /**
-     * SQL server object types for which we support automatic clean-up. Those types can be used in conjunction with the
+     * SQL Server object types for which we support automatic clean-up. These types can be used in conjunction with the
      * {@code sys.objects} catalog. The full list of object types is available in the
-     * <a href="https://msdn.microsoft.com/en-us/library/ms190324.aspx">MSDN documentation</a> (see the {@code type}
-     * column description.)
+     * <a href="https://msdn.microsoft.com/en-us/library/ms190324.aspx">MSDN documentation</a>
+     * (see the {@code type} column description.)
      */
     protected enum ObjectType {
         /**
@@ -138,12 +139,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         }
     }
 
-    /**
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param databaseName The database name.
-     * @param name         The name of the schema.
-     */
     public SQLServerSchema(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, String name) {
         super(jdbcTemplate, database, name);
         this.databaseName = databaseName;
@@ -163,14 +158,13 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         if (empty) {
             int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM " +
                     "( " +
-                    "SELECT t.name FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id" +
-                    " WHERE t.is_user_defined = 1 AND s.name = ? " +
+                    "SELECT t.name FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id " +
+                    "WHERE t.is_user_defined = 1 AND s.name = ? " +
                     "Union " +
                     "SELECT name FROM sys.assemblies WHERE is_user_defined=1" +
                     ") R", name);
             empty = objectCount == 0;
         }
-
         return empty;
     }
 
@@ -214,10 +208,8 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
 
     private List<String> getCleanStatementsBeforeFirstTableDrop(List<DBObject> tables) throws SQLException {
         List<String> statements = new ArrayList<>();
-
         statements.addAll(cleanTriggers());
         statements.addAll(cleanForeignKeys(tables));
-
         return statements;
     }
 
@@ -249,6 +241,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         statements.addAll(cleanSynonyms());
         statements.addAll(cleanRules());
         statements.addAll(cleanObjects("DEFAULT", ObjectType.DEFAULT_CONSTRAINT));
+        statements.addAll(cleanXmlSchemaCollections());
 
 
 
@@ -273,9 +266,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     private void dropTablesIgnoringErrors(SQLServerTable[] allTables) {
         try {
             dropTables(allTables);
-        } catch (Exception e) {
-            // Ignored
-        }
+        } catch (Exception ignored) {}
     }
 
     private void executeIgnoringDependencyErrors(String statement) {
@@ -301,7 +292,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
      * Query objects with any of the given types and parent (if non-null).
      *
      * @param parent The parent object or {@code null} if unspecified.
-     * @param types  the object types to be queried.
+     * @param types  The object types to be queried.
      * @return The found objects.
      * @throws SQLException when the retrieval failed.
      */
@@ -311,9 +302,8 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
                 "ON obj.object_id = eps.major_id " +
                 "AND eps.class = 1 " +    // Class 1 = objects and columns (we are only interested in objects).
                 "AND eps.minor_id = 0 " + // Minor ID, always 0 for objects.
-                "AND eps.name='microsoft_database_tools_support' " + // Select all objects generated from MS database
-                // tools.
-                "WHERE SCHEMA_NAME(obj.schema_id) = '" + name + "'  " +
+                "AND eps.name='microsoft_database_tools_support' " + // Select all objects generated from MS database tools.
+                "WHERE SCHEMA_NAME(obj.schema_id) = '" + name + "' " +
                 "AND eps.major_id IS NULL " + // Left Excluding JOIN (we are only interested in user defined entries).
                 "AND obj.is_ms_shipped = 0 " + // Make sure we do not return anything MS shipped.
                 "AND obj.type IN (" // Select the object types.
@@ -330,24 +320,21 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         }
         query.append(")");
 
+        // Apply the parent selection if one was given.
         if (parent != null) {
-            // Apply the parent selection if one was given.
             query.append(" AND obj.parent_object_id = ").append(parent.objectId);
         }
 
         query.append(" order by create_date desc, object_id desc");
 
-        return jdbcTemplate.query(query.toString(), rs ->
-                new DBObject(rs.getLong("object_id"), rs.getString("name")));
+        return jdbcTemplate.query(query.toString(), rs -> new DBObject(rs.getLong("object_id"), rs.getString("name")));
     }
 
     private List<String> cleanPrimaryKeys(List<DBObject> tables) throws SQLException {
         List<String> statements = new ArrayList<>();
         for (DBObject table : tables) {
-            List<DBObject> pks = queryDBObjectsWithParent(table, ObjectType.PRIMARY_KEY);
-            for (DBObject pk : pks) {
-                statements.add("ALTER TABLE " + database.quote(name, table.name) + " DROP CONSTRAINT " +
-                        database.quote(pk.name));
+            for (DBObject pk : queryDBObjectsWithParent(table, ObjectType.PRIMARY_KEY)) {
+                statements.add("ALTER TABLE " + database.quote(name, table.name) + " DROP CONSTRAINT " + database.quote(pk.name));
             }
         }
         return statements;
@@ -356,18 +343,14 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     private List<String> cleanForeignKeys(List<DBObject> tables) throws SQLException {
         List<String> statements = new ArrayList<>();
         for (DBObject table : tables) {
-            List<DBObject> fks = queryDBObjectsWithParent(table, ObjectType.FOREIGN_KEY, ObjectType.CHECK_CONSTRAINT);
-            for (DBObject fk : fks) {
-                statements.add("ALTER TABLE " + database.quote(name, table.name) + " DROP CONSTRAINT " +
-                        database.quote(fk.name));
+            for (DBObject fk : queryDBObjectsWithParent(table, ObjectType.FOREIGN_KEY, ObjectType.CHECK_CONSTRAINT)) {
+                statements.add("ALTER TABLE " + database.quote(name, table.name) + " DROP CONSTRAINT " + database.quote(fk.name));
             }
         }
         return statements;
     }
 
     /**
-     * Cleans the computed columns in this schema.
-     *
      * @param tables The tables to be cleaned.
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
@@ -376,8 +359,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         List<String> statements = new ArrayList<>();
         for (DBObject table : tables) {
             String tableName = database.quote(name, table.name);
-            List<String> columns = jdbcTemplate.queryForStringList(
-                    "SELECT name FROM sys.computed_columns WHERE object_id=OBJECT_ID(N'" + tableName + "')");
+            List<String> columns = jdbcTemplate.queryForStringList("" +
+                    "SELECT name " +
+                    "FROM sys.computed_columns " +
+                    "WHERE object_id=OBJECT_ID(N'" + tableName + "')");
             for (String column : columns) {
                 statements.add("ALTER TABLE " + tableName + " DROP COLUMN " + database.quote(column));
             }
@@ -386,8 +371,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     }
 
     /**
-     * Cleans the indexes in this schema.
-     *
      * @param tables The tables to be cleaned.
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
@@ -396,12 +379,10 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         List<String> statements = new ArrayList<>();
         for (DBObject table : tables) {
             String tableName = database.quote(name, table.name);
-            List<String> indexes = jdbcTemplate.queryForStringList(
-                    "SELECT name FROM sys.indexes" +
-                            " WHERE object_id=OBJECT_ID(N'" + tableName + "')" +
-                            " AND is_primary_key = 0" +
-                            " AND is_unique_constraint = 0" +
-                            " AND name IS NOT NULL");
+            List<String> indexes = jdbcTemplate.queryForStringList("" +
+                    "SELECT name FROM sys.indexes " +
+                    "WHERE object_id=OBJECT_ID(N'" + tableName + "') " +
+                    "AND is_primary_key = 0 AND is_unique_constraint = 0 AND name IS NOT NULL");
             for (String index : indexes) {
                 statements.add("DROP INDEX " + database.quote(index) + " ON " + tableName);
             }
@@ -410,8 +391,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     }
 
     /**
-     * Cleans the default constraints in this schema.
-     *
      * @param tables The tables to be cleaned.
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
@@ -420,18 +399,16 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         List<String> statements = new ArrayList<>();
         for (DBObject table : tables) {
             String tableName = database.quote(name, table.name);
-            List<String> indexes = jdbcTemplate.queryForStringList(
-                    "SELECT i.name FROM sys.indexes i" +
-                            " JOIN sys.index_columns ic on i.index_id = ic.index_id" +
-                            " JOIN sys.columns c ON ic.column_id = c.column_id AND i.object_id = c.object_id" +
-                            " WHERE i.object_id=OBJECT_ID(N'" + tableName + "')" +
-                            " AND is_primary_key = 0" +
-                            " AND is_unique_constraint = 1" +
-                            " AND i.name IS NOT NULL" +
-                            " GROUP BY i.name" +
-                            // We can't delete the unique ROWGUIDCOL constraint from a table which has a FILESTREAM column.
-                            // It will auto-delete when the table is dropped.
-                            " HAVING MAX(CAST(is_rowguidcol AS INT)) = 0 OR MAX(CAST(is_filestream AS INT)) = 0");
+            List<String> indexes = jdbcTemplate.queryForStringList("" +
+                    "SELECT i.name FROM sys.indexes i " +
+                    "JOIN sys.index_columns ic on i.index_id = ic.index_id " +
+                    "JOIN sys.columns c ON ic.column_id = c.column_id AND i.object_id = c.object_id " +
+                    "WHERE i.object_id=OBJECT_ID(N'" + tableName + "') " +
+                    "AND is_primary_key = 0 AND is_unique_constraint = 1 AND i.name IS NOT NULL " +
+                    "GROUP BY i.name " +
+                    // We can't delete the unique ROWGUIDCOL constraint from a table which has a FILESTREAM column.
+                    // It will auto-delete when the table is dropped.
+                    "HAVING MAX(CAST(is_rowguidcol AS INT)) = 0 OR MAX(CAST(is_filestream AS INT)) = 0");
             for (String index : indexes) {
                 statements.add("ALTER TABLE " + tableName + " DROP CONSTRAINT " + database.quote(index));
             }
@@ -440,17 +417,14 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     }
 
     /**
-     * Cleans the unique constraints in this schema.
-     *
-     * @param tables the tables to be cleaned.
+     * @param tables The tables to be cleaned.
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanUniqueConstraints(List<DBObject> tables) throws SQLException {
         List<String> statements = new ArrayList<>();
         for (DBObject table : tables) {
-            List<DBObject> dfs = queryDBObjectsWithParent(table, ObjectType.DEFAULT_CONSTRAINT);
-            for (DBObject df : dfs) {
+            for (DBObject df : queryDBObjectsWithParent(table, ObjectType.DEFAULT_CONSTRAINT)) {
                 statements.add("ALTER TABLE " + database.quote(name, table.name) + " DROP CONSTRAINT " + database.quote(df.name));
             }
         }
@@ -458,29 +432,24 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     }
 
     /**
-     * Cleans the triggers in this schema.
-     *
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
     protected List<String> cleanTriggers() throws SQLException {
         List<String> statements = new ArrayList<>();
-
         if (database.supportsTriggers()) {
-            List<String> triggerNames = jdbcTemplate.queryForStringList("SELECT * FROM sys.triggers" +
-                            " WHERE is_ms_shipped=0 AND parent_id=0 AND parent_class_desc='DATABASE'");
-
+            List<String> triggerNames = jdbcTemplate.queryForStringList("" +
+                    "SELECT * " +
+                    "FROM sys.triggers " +
+                    "WHERE is_ms_shipped=0 AND parent_id=0 AND parent_class_desc='DATABASE'");
             for (String triggerName : triggerNames) {
                 statements.add("DROP TRIGGER " + database.quote(triggerName) + " ON DATABASE");
             }
         }
-
         return statements;
     }
 
     /**
-     * Cleans the synonyms in this schema.
-     *
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
@@ -493,8 +462,6 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     }
 
     /**
-     * Cleans the rules in this schema.
-     *
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
@@ -506,35 +473,29 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         return statements;
     }
 
+    private List<String> cleanXmlSchemaCollections() throws SQLException {
+        List<String> xscNames = jdbcTemplate.queryForStringList("SELECT name FROM sys.xml_schema_collections WHERE schema_id = SCHEMA_ID(?)", name);
+        return xscNames.stream().map(xscName -> "DROP XML SCHEMA COLLECTION " + database.quote(name, xscName)).collect(Collectors.toList());
+    }
+
     /**
-     * Cleans the objects of these types in this schema.
-     *
      * @param dropQualifier The type of DROP statement to issue.
      * @param objectTypes   The type of objects to drop.
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
     protected List<String> cleanObjects(String dropQualifier, ObjectType... objectTypes) throws SQLException {
-        List<String> statements = new ArrayList<>();
-        List<DBObject> dbObjects = queryDBObjects(objectTypes);
-        for (DBObject dbObject : dbObjects) {
-            statements.add("DROP " + dropQualifier + " " + database.quote(name, dbObject.name));
-        }
-        return statements;
+        return queryDBObjects(objectTypes).stream()
+                .map(dbObject -> "DROP " + dropQualifier + " " + database.quote(name, dbObject.name))
+                .collect(Collectors.toList());
     }
 
     @Override
     protected SQLServerTable[] doAllTables() throws SQLException {
-        List<String> tableNames = new ArrayList<>();
-        for (DBObject table : queryDBObjects(ObjectType.USER_TABLE)) {
-            tableNames.add(table.name);
-        }
+        return queryDBObjects(ObjectType.USER_TABLE).stream()
+                .map(table -> new SQLServerTable(jdbcTemplate, database, databaseName, this, table.name))
+                .toArray(SQLServerTable[]::new);
 
-        SQLServerTable[] tables = new SQLServerTable[tableNames.size()];
-        for (int i = 0; i < tableNames.size(); i++) {
-            tables[i] = new SQLServerTable(jdbcTemplate, database, databaseName, this, tableNames.get(i));
-        }
-        return tables;
     }
 
     @Override

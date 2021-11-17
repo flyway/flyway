@@ -405,4 +405,8 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @throws SQLException when the clean failed.
      */
     protected void doCleanPostSchemas(Schema[] schemas) throws SQLException { }
+
+    public Schema[] getAllSchemas() {
+        throw new UnsupportedOperationException("Getting all schemas not supported for " + getDatabaseType().getName());
+    }
 }

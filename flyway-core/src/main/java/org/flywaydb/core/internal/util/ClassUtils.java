@@ -15,11 +15,12 @@
  */
 package org.flywaydb.core.internal.util;
 
-import lombok.CustomLog;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 
+import java.beans.Expression;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -49,6 +50,16 @@ public class ClassUtils {
     public static synchronized <T> T instantiate(String className, ClassLoader classLoader) {
         try {
             return (T) Class.forName(className, true, classLoader).getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new FlywayException("Unable to instantiate class " + className + " : " + e.getMessage(), e);
+        }
+    }
+
+    @SuppressWarnings({"unchecked"})
+    // Must be synchronized for the Maven Parallel Junit runner to work
+    public static synchronized <T> T instantiate(String className, ClassLoader classLoader, Object... params) {
+        try {
+            return (T) new Expression(Class.forName(className, false, classLoader), "new", params).getValue();
         } catch (Exception e) {
             throw new FlywayException("Unable to instantiate class " + className + " : " + e.getMessage(), e);
         }

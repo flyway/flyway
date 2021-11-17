@@ -82,7 +82,6 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         if (isAzure()) {
             return "Azure v" + getVersion().getMajorAsString();
         }
-
         if (getVersion().isAtLeast("8")) {
             if ("8".equals(getVersion().getMajorAsString())) {
                 return "2000";
@@ -145,12 +144,6 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         return "0";
     }
 
-    /**
-     * Escapes this identifier, so it can be safely used in sql queries.
-     *
-     * @param identifier The identifier to escaped.
-     * @return The escaped version.
-     */
     private String escapeIdentifier(String identifier) {
         return StringUtils.replaceAll(identifier, "]", "]]");
     }
@@ -172,9 +165,8 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
     @Override
     public String getRawCreateScript(Table table, boolean baseline) {
-        String filegroup = isAzure() || configuration.getTablespace() == null
-                ? ""
-                : " ON \"" + configuration.getTablespace() + "\"";
+        String filegroup = isAzure() || configuration.getTablespace() == null ?
+                "" : " ON \"" + configuration.getTablespace() + "\"";
 
         return "CREATE TABLE " + table + " (\n" +
                 "    [installed_rank] INT NOT NULL,\n" +
@@ -194,84 +186,52 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
                 "GO\n";
     }
 
-    /**
-     * @return Whether this is a SQL Azure database.
-     */
     boolean isAzure() {
         return getMainConnection().isAzureConnection();
     }
 
-    /**
-     * @return The database engine edition.
-     */
     SQLServerEngineEdition getEngineEdition() {
         return getMainConnection().getEngineEdition();
     }
 
-    /**
-     * @return Whether this database supports temporal tables
-     */
     boolean supportsTemporalTables() {
-        // SQL Server 2016+, or Azure  (which has different versioning)
+        // SQL Server 2016+, or Azure (which has different versioning)
         return isAzure() || getVersion().isAtLeast("13.0");
     }
 
-    /**
-     * @return Whether this database supports partitions
-     */
     protected boolean supportsPartitions() {
-        return isAzure()
-                || SQLServerEngineEdition.ENTERPRISE.equals(getEngineEdition())
-                || getVersion().isAtLeast("13");
+        return isAzure() || SQLServerEngineEdition.ENTERPRISE.equals(getEngineEdition()) || getVersion().isAtLeast("13");
     }
 
-    /**
-     * @return Whether this database supports sequences
-     */
     protected boolean supportsSequences() {
         return getVersion().isAtLeast("11");
     }
 
-    /**
-     * @return Whether this database supports synonyms
-     */
     protected boolean supportsSynonyms() {
         return true;
     }
 
-    /**
-     * @return Whether this database supports rules
-     */
     protected boolean supportsRules() {
         return true;
     }
 
-    /**
-     * @return Whether this database supports types
-     */
     protected boolean supportsTypes() {
         return true;
     }
 
-    /**
-     * @return Whether this database supports triggers
-     */
     protected boolean supportsTriggers() {
         return true;
     }
 
-    /**
-     * @return Whether this database supports assemblies
-     */
     protected boolean supportsAssemblies() {
         return true;
     }
 
     /**
-     * Cleans all the objects in this database that need to be done after cleaning schemas.
+     * Cleans all the objects in this database that need to be cleaned after cleaning schemas.
      *
-     * @throws SQLException when the clean failed.
      * @param schemas The list of schemas managed by Flyway
+     * @throws SQLException when the clean failed.
      */
     @Override
     protected void doCleanPostSchemas(Schema[] schemas) throws SQLException {
@@ -279,7 +239,6 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
             for (String statement : cleanPartitionSchemes()) {
                 jdbcTemplate.execute(statement);
             }
-
             for (String statement : cleanPartitionFunctions()) {
                 jdbcTemplate.execute(statement);
             }
@@ -299,8 +258,6 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     /**
-     * Cleans the user-defined types in this database.
-     *
      * @param schemas The list of schemas managed by Flyway
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
@@ -308,29 +265,23 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     private List<String> cleanTypes(Schema[] schemas) throws SQLException {
         List<String> statements = new ArrayList<>();
         String schemaList = Arrays.stream(schemas).map(s -> "'" + s.getName() + "'").collect(Collectors.joining(","));
-
-        List<Map<String, String>> typesAndSchemas = jdbcTemplate.queryForList(
-                "SELECT t.name as type_name, s.name as schema_name" +
-                        " FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id" +
-                        " WHERE t.is_user_defined = 1 AND s.name IN (" + schemaList + ")");
-
+        List<Map<String, String>> typesAndSchemas = jdbcTemplate.queryForList("" +
+                "SELECT t.name as type_name, s.name as schema_name " +
+                "FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id " +
+                "WHERE t.is_user_defined = 1 AND s.name IN (" + schemaList + ")");
         for (Map<String, String> typeAndSchema : typesAndSchemas) {
             statements.add("DROP TYPE " + quote(typeAndSchema.get("schema_name"), typeAndSchema.get("type_name")));
         }
-
         return statements;
     }
 
     /**
-     * Cleans the Partition Schemes in this database.
-     *
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanPartitionSchemes() throws SQLException {
-        List<String> partitionSchemeNames =
-                jdbcTemplate.queryForStringList("SELECT name FROM sys.partition_schemes");
         List<String> statements = new ArrayList<>();
+        List<String> partitionSchemeNames = jdbcTemplate.queryForStringList("SELECT name FROM sys.partition_schemes");
         for (String partitionSchemeName : partitionSchemeNames) {
             statements.add("DROP PARTITION SCHEME " + quote(partitionSchemeName));
         }
@@ -338,34 +289,25 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     /**
-     * Cleans the CLR assemblies in this database.
-     *
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanAssemblies() throws SQLException {
         List<String> statements = new ArrayList<>();
-
-        List<String> assemblyNames =
-                jdbcTemplate.queryForStringList("SELECT * FROM sys.assemblies WHERE is_user_defined=1");
-
+        List<String> assemblyNames = jdbcTemplate.queryForStringList("SELECT * FROM sys.assemblies WHERE is_user_defined=1");
         for (String assemblyName : assemblyNames) {
             statements.add("DROP ASSEMBLY " + quote(assemblyName));
         }
-
         return statements;
     }
 
     /**
-     * Cleans the Partition Functions in this database.
-     *
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanPartitionFunctions() throws SQLException {
-        List<String> partitionFunctionNames =
-                jdbcTemplate.queryForStringList("SELECT name FROM sys.partition_functions");
         List<String> statements = new ArrayList<>();
+        List<String> partitionFunctionNames = jdbcTemplate.queryForStringList("SELECT name FROM sys.partition_functions");
         for (String partitionFunctionName : partitionFunctionNames) {
             statements.add("DROP PARTITION FUNCTION " + quote(partitionFunctionName));
         }

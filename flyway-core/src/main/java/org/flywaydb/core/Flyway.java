@@ -16,6 +16,7 @@
 package org.flywaydb.core;
 
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.callback.Event;
@@ -26,6 +27,7 @@ import org.flywaydb.core.api.exception.FlywayValidateException;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.*;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.internal.FlywayTeamsObjectResolver;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.database.base.Database;
@@ -50,6 +52,7 @@ import java.util.List;
  * Note that a configured Flyway object is immutable. If you change the configuration you will end up creating a new Flyway object.
  */
 @CustomLog
+@ExtensionMethod(FlywayTeamsObjectResolver.class)
 public class Flyway {
     private final ClassicConfiguration configuration;
     private final FlywayExecutor flywayExecutor;
@@ -373,7 +376,7 @@ public class Flyway {
     }
 
     private CleanResult doClean(Database database, SchemaHistory schemaHistory, Schema[] schemas, CallbackExecutor callbackExecutor) {
-        return new DbClean(database, schemaHistory, schemas, callbackExecutor, configuration.isCleanDisabled()).clean();
+        return DbClean.class.resolve(database, schemaHistory, schemas, callbackExecutor, configuration).clean();
     }
 
     private ValidateResult doValidate(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory,

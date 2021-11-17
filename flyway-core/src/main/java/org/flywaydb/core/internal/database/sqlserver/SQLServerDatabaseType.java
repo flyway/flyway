@@ -16,10 +16,12 @@
 package org.flywaydb.core.internal.database.sqlserver;
 
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.FlywayTeamsObjectResolver;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.parser.Parser;
@@ -31,6 +33,7 @@ import java.sql.Types;
 import java.util.Properties;
 
 @CustomLog
+@ExtensionMethod(FlywayTeamsObjectResolver.class)
 public class SQLServerDatabaseType extends BaseDatabaseType {
     @Override
     public String getName() {
@@ -89,7 +92,7 @@ public class SQLServerDatabaseType extends BaseDatabaseType {
 
     @Override
     public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
-        return new SQLServerDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
+        return SQLServerDatabase.class.resolve(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override

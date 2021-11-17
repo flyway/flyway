@@ -39,7 +39,6 @@ import java.util.List;
 @CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SchemaHistoryFactory {
-
     public static SchemaHistory getSchemaHistory(Configuration configuration,
                                                  SqlScriptExecutorFactory sqlScriptExecutorFactory,
                                                  SqlScriptFactory sqlScriptFactory,
