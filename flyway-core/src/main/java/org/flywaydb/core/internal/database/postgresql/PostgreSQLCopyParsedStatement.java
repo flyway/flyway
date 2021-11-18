@@ -54,7 +54,7 @@ public class PostgreSQLCopyParsedStatement extends ParsedSqlStatement {
 
 
 
-        );
+             );
         this.copyData = copyData;
     }
 
@@ -63,7 +63,7 @@ public class PostgreSQLCopyParsedStatement extends ParsedSqlStatement {
 
 
 
-    ) {
+                          ) {
         // #2355: Use reflection to ensure this works in cases where the PostgreSQL driver classes were loaded in a
         //        child URLClassLoader instead of the system classloader.
         Object baseConnection;

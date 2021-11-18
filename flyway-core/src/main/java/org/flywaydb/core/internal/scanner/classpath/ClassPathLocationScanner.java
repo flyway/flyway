@@ -25,7 +25,7 @@ public interface ClassPathLocationScanner {
     /**
      * Finds the resource names below this location on the classpath under this locationUrl.
      *
-     * @param location    The system-independent location on the classpath.
+     * @param location The system-independent location on the classpath.
      * @param locationUrl The system-specific physical location URL.
      * @return The system-independent names of the resources on the classpath.
      */

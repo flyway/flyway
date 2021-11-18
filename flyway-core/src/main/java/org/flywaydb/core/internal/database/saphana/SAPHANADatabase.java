@@ -45,6 +45,7 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
 
 
 
+
     @Override
     public void ensureSupported() {
 

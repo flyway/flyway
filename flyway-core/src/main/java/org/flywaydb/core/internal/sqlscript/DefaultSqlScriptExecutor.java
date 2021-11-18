@@ -68,9 +68,9 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
     public DefaultSqlScriptExecutor(JdbcTemplate jdbcTemplate,
-            CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
-            StatementInterceptor statementInterceptor
-    ) {
+                                    CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
+                                    StatementInterceptor statementInterceptor
+                                   ) {
         this.jdbcTemplate = jdbcTemplate;
 
 
@@ -144,7 +144,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-                    + "SQL: " + sqlStatement.getSql());
+                              + "SQL: " + sqlStatement.getSql());
         }
     }
 
@@ -211,7 +211,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-        );
+                                              );
         if (results.getException() != null) {
 
 
@@ -233,14 +233,14 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-        );
+                     );
     }
 
     protected void handleResults(Results results
 
 
 
-    ) {
+                                ) {
         for (Result result : results.getResults()) {
             long updateCount = result.getUpdateCount();
             if (updateCount != -1) {
@@ -257,9 +257,9 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-                result.getColumns() != null) {
+                        result.getColumns() != null) {
             LOG.info(new AsciiTable(result.getColumns(), result.getData(),
-                    true, "", "No rows returned").render());
+                                    true, "", "No rows returned").render());
         }
     }
 
@@ -288,7 +288,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
                     LOG.info("DB: " + warning.getMessage());
                 } else {
                     LOG.warn("DB: " + warning.getMessage()
-                            + " (SQL State: " + warning.getState() + " - Error Code: " + warning.getCode() + ")");
+                                     + " (SQL State: " + warning.getState() + " - Error Code: " + warning.getCode() + ")");
                 }
 
 

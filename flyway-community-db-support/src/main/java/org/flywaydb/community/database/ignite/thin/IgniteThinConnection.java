@@ -16,6 +16,7 @@
 package org.flywaydb.community.database.ignite.thin;
 
 import java.sql.SQLException;
+
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 

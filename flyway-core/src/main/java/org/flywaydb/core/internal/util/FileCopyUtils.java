@@ -71,7 +71,7 @@ public class FileCopyUtils {
      * Copy the contents of the given InputStream into a new String based on this encoding.
      * Closes the stream when done.
      *
-     * @param in       the stream to copy from
+     * @param in the stream to copy from
      * @param encoding The encoding to use.
      * @return The new String.
      * @throws IOException in case of I/O errors
@@ -86,7 +86,7 @@ public class FileCopyUtils {
      * Copy the contents of the given Reader to the given Writer.
      * Closes both when done.
      *
-     * @param in  the Reader to copy from
+     * @param in the Reader to copy from
      * @param out the Writer to copy to
      * @throws IOException in case of I/O errors
      */
@@ -108,7 +108,7 @@ public class FileCopyUtils {
      * Copy the contents of the given InputStream to the given OutputStream.
      * Closes both streams when done.
      *
-     * @param in  the stream to copy from
+     * @param in the stream to copy from
      * @param out the stream to copy to
      * @return the number of bytes copied
      * @throws IOException in case of I/O errors

@@ -107,8 +107,8 @@ public class JarFileClassPathLocationScanner implements ClassPathLocationScanner
     /**
      * Finds all the resource names contained in this directory within this jar file.
      *
-     * @param jarFile  The jar file.
-     * @param prefix   The prefix to ignore within the jar file.
+     * @param jarFile The jar file.
+     * @param prefix The prefix to ignore within the jar file.
      * @param location The location to look under.
      * @return The resource names.
      */

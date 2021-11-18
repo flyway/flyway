@@ -134,7 +134,7 @@ public class MySQLParser extends Parser {
         }
 
         // if the previous keyword was not inside some brackets, it's not the function
-        if (tokens.get(tokens.size()-1).getParensDepth() != delimiter.getParensDepth()+1) {
+        if (tokens.get(tokens.size() - 1).getParensDepth() != delimiter.getParensDepth() + 1) {
             return false;
         }
 

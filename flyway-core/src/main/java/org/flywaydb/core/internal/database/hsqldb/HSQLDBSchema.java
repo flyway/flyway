@@ -31,8 +31,8 @@ public class HSQLDBSchema extends Schema<HSQLDBDatabase, HSQLDBTable> {
      * Creates a new Hsql schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
-     * @param name         The name of the schema.
+     * @param database The database-specific support.
+     * @param name The name of the schema.
      */
     HSQLDBSchema(JdbcTemplate jdbcTemplate, HSQLDBDatabase database, String name) {
         super(jdbcTemplate, database, name);

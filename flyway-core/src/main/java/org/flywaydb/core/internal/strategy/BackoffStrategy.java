@@ -25,7 +25,6 @@ public class BackoffStrategy {
     private final int interval;
 
     /**
-     *
      * @return The current value of the counter and immediately updates it with the next value
      */
     public int next() {
@@ -35,7 +34,6 @@ public class BackoffStrategy {
     }
 
     /**
-     *
      * @return The current value of the counter without updating it
      */
     public int peek() {

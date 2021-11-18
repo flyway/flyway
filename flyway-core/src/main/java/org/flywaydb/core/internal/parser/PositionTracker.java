@@ -47,12 +47,12 @@ public class PositionTracker {
     public void linefeed() {
         line++;
         col = 1;
-        colIgnoringWhitespace=1;
+        colIgnoringWhitespace = 1;
     }
 
     public void carriageReturn() {
         col = 1;
-        colIgnoringWhitespace=1;
+        colIgnoringWhitespace = 1;
     }
 
     public void mark() {

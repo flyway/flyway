@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
+
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;

@@ -33,10 +33,10 @@ public class FlywayValidateTask extends AbstractFlywayTask {
     public FlywayValidateTask() {
         super();
         setDescription("Validate applied migrations against resolved ones (on the filesystem or classpath) " +
-                "to detect accidental changes that may prevent the schema(s) from being recreated exactly. " +
-                "Validation fails if differences in migration names, types or checksums are found, " +
-                "versions have been applied that aren\"t resolved locally anymore or " +
-                "versions have been resolved that haven\"t been applied yet");
+                               "to detect accidental changes that may prevent the schema(s) from being recreated exactly. " +
+                               "Validation fails if differences in migration names, types or checksums are found, " +
+                               "versions have been applied that aren\"t resolved locally anymore or " +
+                               "versions have been resolved that haven\"t been applied yet");
     }
 
     @Override

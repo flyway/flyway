@@ -52,6 +52,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
 
 
 
+
     @Override
     public void ensureSupported() {
         ensureDatabaseIsRecentEnough("15.7");
@@ -149,7 +150,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     public boolean supportsMultiStatementTransactions() {
         if (supportsMultiStatementTransactions) {
             LOG.debug("ddl in tran was found to be true at some point during execution." +
-                    "Therefore multi statement transaction support is assumed.");
+                              "Therefore multi statement transaction support is assumed.");
             return true;
         }
 

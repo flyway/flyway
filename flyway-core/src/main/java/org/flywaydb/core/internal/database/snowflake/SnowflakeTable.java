@@ -35,7 +35,9 @@ public class SnowflakeTable extends Table<SnowflakeDatabase, SnowflakeSchema> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        if (!schema.exists()) return false;
+        if (!schema.exists()) {
+            return false;
+        }
 
         String sql = "SHOW TABLES LIKE '" + name + "' IN SCHEMA " + database.quote(schema.getName());
         List<Boolean> results = jdbcTemplate.query(sql, new RowMapper<Boolean>() {

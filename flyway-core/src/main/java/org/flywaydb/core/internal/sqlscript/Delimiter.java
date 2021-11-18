@@ -34,6 +34,7 @@ public class Delimiter {
 
     /**
      * The actual delimiter string.
+     *
      * @return The actual delimiter string.
      */
     @Getter
@@ -54,14 +55,14 @@ public class Delimiter {
     /**
      * Creates a new delimiter.
      *
-     * @param delimiter   The actual delimiter string.
+     * @param delimiter The actual delimiter string.
      * @param aloneOnLine Whether the delimiter sits alone on a new line or not.
      */
     public Delimiter(String delimiter, boolean aloneOnLine
 
 
 
-    ) {
+                    ) {
         this.delimiter = delimiter;
         this.aloneOnLine = aloneOnLine;
 
@@ -88,7 +89,6 @@ public class Delimiter {
         return returnValue;
     }
 
-
     @Override
     public String toString() {
         return (aloneOnLine ? "\n" : "") + delimiter;
@@ -96,8 +96,12 @@ public class Delimiter {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Delimiter delimiter1 = (Delimiter) o;
 

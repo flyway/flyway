@@ -37,8 +37,14 @@ public class RepairResult extends OperationResultBase {
     }
 
     public void setRepairActions(DbRepair.CompletedRepairActions completedRepairActions) {
-        if (completedRepairActions.removedFailedMigrations) repairActions.add(completedRepairActions.removedMessage());
-        if (completedRepairActions.deletedMissingMigrations) repairActions.add(completedRepairActions.deletedMessage());
-        if (completedRepairActions.alignedAppliedMigrationChecksums) repairActions.add(completedRepairActions.alignedMessage());
+        if (completedRepairActions.removedFailedMigrations) {
+            repairActions.add(completedRepairActions.removedMessage());
+        }
+        if (completedRepairActions.deletedMissingMigrations) {
+            repairActions.add(completedRepairActions.deletedMessage());
+        }
+        if (completedRepairActions.alignedAppliedMigrationChecksums) {
+            repairActions.add(completedRepairActions.alignedMessage());
+        }
     }
 }

@@ -38,7 +38,7 @@ public class BomStrippingReader extends FilterReader {
     @Override
     public int read() throws IOException {
         int c = super.read();
-        if (c != EMPTY_STREAM && BomFilter.isBom((char)c)) {
+        if (c != EMPTY_STREAM && BomFilter.isBom((char) c)) {
             // Skip BOM
             return super.read();
         }

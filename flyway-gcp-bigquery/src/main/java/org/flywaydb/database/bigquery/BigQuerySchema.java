@@ -52,8 +52,8 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
         // The TABLES table contains one record for each table, view, materialized view, and external table.
         return doExists() &&
                 (jdbcTemplate.queryForInt("SELECT COUNT(table_name) FROM " + database.quote(name) + ".INFORMATION_SCHEMA.TABLES")
-                + jdbcTemplate.queryForInt("SELECT COUNT(routine_name) FROM " + database.quote(name) + ".INFORMATION_SCHEMA.ROUTINES")
-                == 0);
+                        + jdbcTemplate.queryForInt("SELECT COUNT(routine_name) FROM " + database.quote(name) + ".INFORMATION_SCHEMA.ROUTINES")
+                        == 0);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
                         // Search for all functions
                         "SELECT routine_name FROM " + database.quote(name) + ".INFORMATION_SCHEMA.ROUTINES WHERE routine_type=?",
                         objType
-                );
+                                               );
         List<String> statements = new ArrayList<>();
         for (String objName : objNames) {
             statements.add("DROP " + objType + " IF EXISTS " + database.quote(name, objName));
@@ -124,7 +124,7 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
                         // Search for all views
                         "SELECT table_name FROM " + database.quote(name) + ".INFORMATION_SCHEMA.TABLES WHERE table_type=?",
                         type
-                );
+                                               );
         List<String> statements = new ArrayList<>();
         for (String domainName : names) {
             statements.add("DROP " + objType + " IF EXISTS " + database.quote(name, domainName));
@@ -138,7 +138,7 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
         List<String> tableNames =
                 jdbcTemplate.queryForStringList(
                         "SELECT table_name FROM " + database.quote(name) + ".INFORMATION_SCHEMA.TABLES WHERE table_type='BASE TABLE'"
-                );
+                                               );
         BigQueryTable[] tables = new BigQueryTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new BigQueryTable(jdbcTemplate, database, this, tableNames.get(i));

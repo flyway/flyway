@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public enum SQLServerEngineEdition {
-    
+
     PERSONAL_DESKTOP(1),
     STANDARD(2),
     ENTERPRISE(3),

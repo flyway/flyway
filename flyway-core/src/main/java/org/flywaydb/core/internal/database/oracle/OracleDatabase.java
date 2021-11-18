@@ -68,6 +68,7 @@ public class OracleDatabase extends Database<OracleConnection> {
 
 
 
+
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("10");
@@ -153,7 +154,7 @@ public class OracleDatabase extends Database<OracleConnection> {
      * optimized to return the first row and because the client never fetches more than 1 row despite the fetch size
      * value.
      *
-     * @param query  The query to check.
+     * @param query The query to check.
      * @param params The query parameters.
      * @return {@code true} if the query returns rows, {@code false} if not.
      * @throws SQLException when the query execution failed.
@@ -170,7 +171,7 @@ public class OracleDatabase extends Database<OracleConnection> {
      */
     boolean isPrivOrRoleGranted(String name) throws SQLException {
         return queryReturnsRows("SELECT 1 FROM SESSION_PRIVS WHERE PRIVILEGE = ? UNION ALL " +
-                "SELECT 1 FROM SESSION_ROLES WHERE ROLE = ?", name, name);
+                                        "SELECT 1 FROM SESSION_ROLES WHERE ROLE = ?", name, name);
     }
 
     /**
@@ -178,13 +179,13 @@ public class OracleDatabase extends Database<OracleConnection> {
      * through a role) or not.
      *
      * @param owner the schema name, unquoted case-sensitive.
-     * @param name  the data dictionary view name to check, unquoted case-sensitive.
+     * @param name the data dictionary view name to check, unquoted case-sensitive.
      * @return {@code true} if it is accessible, {@code false} if not.
      * @throws SQLException if the check failed.
      */
     private boolean isDataDictViewAccessible(String owner, String name) throws SQLException {
         return queryReturnsRows("SELECT * FROM ALL_TAB_PRIVS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?" +
-                " AND PRIVILEGE = 'SELECT'", owner, name);
+                                        " AND PRIVILEGE = 'SELECT'", owner, name);
     }
 
     /**
@@ -219,7 +220,7 @@ public class OracleDatabase extends Database<OracleConnection> {
      */
     private Set<String> getAvailableOptions() throws SQLException {
         return new HashSet<>(getMainConnection().getJdbcTemplate()
-                .queryForStringList("SELECT PARAMETER FROM V$OPTION WHERE VALUE = 'TRUE'"));
+                                     .queryForStringList("SELECT PARAMETER FROM V$OPTION WHERE VALUE = 'TRUE'"));
     }
 
     /**
@@ -301,7 +302,7 @@ public class OracleDatabase extends Database<OracleConnection> {
                 "WK_TEST", "WKSYS", "WKPROXY", // Oracle Ultra Search
                 "ODM", "ODM_MTR", "DMSYS", // Oracle Data Mining
                 "TSMSYS" // Transparent Session Migration
-        ));
+                                                        ));
 
 
 
@@ -309,15 +310,15 @@ public class OracleDatabase extends Database<OracleConnection> {
 
 
         result.addAll(getMainConnection().getJdbcTemplate().queryForStringList("SELECT USERNAME FROM ALL_USERS " +
-                        "WHERE REGEXP_LIKE(USERNAME, '^(APEX|FLOWS)_\\d+$')" +
+                                                                                       "WHERE REGEXP_LIKE(USERNAME, '^(APEX|FLOWS)_\\d+$')" +
 
 
 
-                                " OR ORACLE_MAINTAINED = 'Y'"
+                                                                                               " OR ORACLE_MAINTAINED = 'Y'"
 
 
 
-        ));
+                                                                              ));
 
 
 

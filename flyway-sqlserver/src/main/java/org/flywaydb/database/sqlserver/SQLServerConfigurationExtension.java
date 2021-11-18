@@ -39,7 +39,7 @@ public class SQLServerConfigurationExtension implements ConfigurationExtension {
     public void extractParametersFromConfiguration(Map<String, String> configuration) {
         if (configuration.containsKey(KERBEROS_LOGIN_FILE_DEPRECATED)) {
             LOG.warn("The '" + KERBEROS_LOGIN_FILE_DEPRECATED + "' parameter has been deprecated, and will be replaced with '" + KERBEROS_LOGIN_FILE + "'." +
-                    " Update your configuration to use the new names.");
+                             " Update your configuration to use the new names.");
             kerberosLoginFile = getProperty(configuration, KERBEROS_LOGIN_FILE_DEPRECATED, kerberosLoginFile);
         } else {
             kerberosLoginFile = getProperty(configuration, KERBEROS_LOGIN_FILE, kerberosLoginFile);

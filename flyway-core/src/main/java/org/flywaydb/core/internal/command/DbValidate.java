@@ -90,13 +90,13 @@ public class DbValidate {
     /**
      * Creates a new database validator.
      *
-     * @param database          The DB support for the connection.
-     * @param schemaHistory     The database schema history table.
-     * @param schema            The schema containing the schema history table.
+     * @param database The DB support for the connection.
+     * @param schemaHistory The database schema history table.
+     * @param schema The schema containing the schema history table.
      * @param migrationResolver The migration resolver.
-     * @param configuration     The current configuration.
-     * @param pending           Whether pending migrations are allowed.
-     * @param callbackExecutor  The callback executor.
+     * @param configuration The current configuration.
+     * @param pending Whether pending migrations are allowed.
+     * @param callbackExecutor The callback executor.
      */
     public DbValidate(Database database, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
                       Configuration configuration, boolean pending, CallbackExecutor callbackExecutor) {
@@ -137,18 +137,18 @@ public class DbValidate {
         stopWatch.start();
 
         Pair<Integer, List<ValidateOutput>> result = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
-                database).execute(new Callable<Pair<Integer, List<ValidateOutput>>>() {
+                                                                                                      database).execute(new Callable<Pair<Integer, List<ValidateOutput>>>() {
             @Override
             public Pair<Integer, List<ValidateOutput>> call() {
                 MigrationInfoServiceImpl migrationInfoService =
                         new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
-                                configuration.getTarget(),
-                                configuration.isOutOfOrder(),
-                                configuration.getCherryPick(),
-                                pending,
-                                configuration.isIgnoreMissingMigrations(),
-                                configuration.isIgnoreIgnoredMigrations(),
-                                configuration.isIgnoreFutureMigrations());
+                                                     configuration.getTarget(),
+                                                     configuration.isOutOfOrder(),
+                                                     configuration.getCherryPick(),
+                                                     pending,
+                                                     configuration.isIgnoreMissingMigrations(),
+                                                     configuration.isIgnoreIgnoredMigrations(),
+                                                     configuration.isIgnoreFutureMigrations());
 
                 migrationInfoService.refresh();
 
@@ -168,10 +168,10 @@ public class DbValidate {
             count = result.getLeft();
             if (count == 1) {
                 LOG.info(String.format("Successfully validated 1 migration (execution time %s)",
-                        TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                                       TimeFormat.format(stopWatch.getTotalTimeMillis())));
             } else {
                 LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
-                        count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                                       count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
 
                 if (count == 0) {
                     String noMigrationsWarning = "No migrations found. Are your locations set up correctly?";

@@ -28,17 +28,17 @@ public class ResolvedJavaMigration extends ResolvedMigrationImpl {
      */
     public ResolvedJavaMigration(JavaMigration javaMigration) {
         super(javaMigration.getVersion(),
-                javaMigration.getDescription(),
-                javaMigration.getClass().getName(),
-                javaMigration.getChecksum(),
-                null,
+              javaMigration.getDescription(),
+              javaMigration.getClass().getName(),
+              javaMigration.getChecksum(),
+              null,
 
 
 
 
-                MigrationType.JDBC,
-                ClassUtils.getLocationOnDisk(javaMigration.getClass()),
-                new JavaMigrationExecutor(javaMigration)
-        );
+                              MigrationType.JDBC,
+              ClassUtils.getLocationOnDisk(javaMigration.getClass()),
+              new JavaMigrationExecutor(javaMigration)
+             );
     }
 }

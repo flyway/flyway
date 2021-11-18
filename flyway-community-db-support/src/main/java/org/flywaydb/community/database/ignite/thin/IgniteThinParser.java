@@ -18,6 +18,7 @@ package org.flywaydb.community.database.ignite.thin;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParserContext;

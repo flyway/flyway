@@ -208,7 +208,7 @@ public class OracleParser extends Parser {
 
 
             , ParsingContext parsingContext
-    ) {
+                       ) {
         super(configuration, parsingContext, 3);
 
 
@@ -249,7 +249,7 @@ public class OracleParser extends Parser {
 
 
 
-    ) throws IOException {
+                                                ) throws IOException {
 
 
 
@@ -311,12 +311,12 @@ public class OracleParser extends Parser {
         }
 
         return super.createStatement(reader, recorder, statementPos, statementLine, statementCol,
-                nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
-                statementType, canExecuteInTransaction, delimiter, sql
+                                     nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
+                                     statementType, canExecuteInTransaction, delimiter, sql
 
 
 
-        );
+                                    );
     }
 
     @Override
@@ -339,7 +339,7 @@ public class OracleParser extends Parser {
                 || DECLARE_BEGIN_REGEX.matcher(simplifiedStatement).matches()) {
             try {
                 String wrappedKeyword = " WRAPPED";
-                if(!reader.peek(wrappedKeyword.length()).equalsIgnoreCase(wrappedKeyword)) {
+                if (!reader.peek(wrappedKeyword.length()).equalsIgnoreCase(wrappedKeyword)) {
                     return PLSQL_STATEMENT;
                 }
             } catch (IOException e) {
@@ -405,7 +405,7 @@ public class OracleParser extends Parser {
     @Override
     protected void adjustDelimiter(ParserContext context, StatementType statementType) {
         if (statementType == PLSQL_STATEMENT || statementType == PLSQL_VIEW_STATEMENT || statementType == PLSQL_JAVA_STATEMENT
-            || statementType == PLSQL_PACKAGE_BODY_STATEMENT) {
+                || statementType == PLSQL_PACKAGE_BODY_STATEMENT) {
             context.setDelimiter(PLSQL_DELIMITER);
 
 
@@ -503,7 +503,7 @@ public class OracleParser extends Parser {
                 || (CONTROL_FLOW_KEYWORDS.contains(keywordText) && !precedingEndAttachesToThisKeyword(tokens, parensDepth, context, keyword))
                 || ("TRIGGER".equals(keywordText) && lastTokenIs(tokens, parensDepth, "COMPOUND"))
                 || (context.getBlockDepth() == 0 && (
-                        doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_BODY_REGEX) ||
+                doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_BODY_REGEX) ||
                         doTokensMatchPattern(tokens, keyword, PLSQL_PACKAGE_DEFINITION_REGEX) ||
                         doTokensMatchPattern(tokens, keyword, PLSQL_TYPE_BODY_REGEX)))
         ) {
@@ -528,8 +528,8 @@ public class OracleParser extends Parser {
         //      END LOOP
         // the first END does *not* attach to the subsequent LOOP. The same is possible with $IF ... $END constructions
         return lastTokenIs(tokens, parensDepth, "END") &&
-               lastTokenIsOnLine(tokens, parensDepth, keyword.getLine()) &&
-               keyword.getText().equals(context.getLastClosedBlockInitiator());
+                lastTokenIsOnLine(tokens, parensDepth, keyword.getLine()) &&
+                keyword.getText().equals(context.getLastClosedBlockInitiator());
     }
 
     @Override
@@ -539,7 +539,7 @@ public class OracleParser extends Parser {
             ArrayList<String> tokenStrings = new ArrayList<>();
             tokenStrings.add(current.getText());
 
-            for (int i = previousTokens.size()-1; i >= 0; i--) {
+            for (int i = previousTokens.size() - 1; i >= 0; i--) {
                 Token prevToken = previousTokens.get(i);
                 if (prevToken.getType() == TokenType.KEYWORD) {
                     tokenStrings.add(prevToken.getText());
@@ -547,7 +547,7 @@ public class OracleParser extends Parser {
             }
 
             StringBuilder builder = new StringBuilder();
-            for (int i = tokenStrings.size()-1; i >= 0; i--) {
+            for (int i = tokenStrings.size() - 1; i >= 0; i--) {
                 builder.append(tokenStrings.get(i));
                 if (i != 0) {
                     builder.append(" ");

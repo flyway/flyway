@@ -108,7 +108,7 @@ public class SchemaHistoryFactory {
             Schema currentSchema = database.getMainConnection().getCurrentSchema();
             if (currentSchema == null) {
                 throw new FlywayException("Unable to determine schema for the schema history table." +
-                        " Set a default schema for the connection or specify one using the defaultSchema property!");
+                                                  " Set a default schema for the connection or specify one using the defaultSchema property!");
             }
             schemas.add(currentSchema);
         } else {

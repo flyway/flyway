@@ -28,15 +28,18 @@ public interface CommandLineExtension {
      * @return Whether this extension handles the specified verb
      */
     boolean handlesVerb(String verb);
+
     /**
      * @param parameter The parameter to check is handled
      * @return Whether this extension handles the specified parameter
      */
     boolean handlesParameter(String parameter);
+
     /**
      * @return The text to inject into 'flyway -help' to indicate how this extension is intended to be used
      */
     String getUsage();
+
     /**
      * @param verb The verb to handle
      * @param config The configuration provided to Flyway

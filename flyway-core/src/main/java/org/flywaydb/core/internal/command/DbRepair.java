@@ -83,10 +83,10 @@ public class DbRepair {
     /**
      * Creates a new DbRepair.
      *
-     * @param database          The database-specific support.
+     * @param database The database-specific support.
      * @param migrationResolver The migration resolver.
-     * @param schemaHistory     The schema history table.
-     * @param callbackExecutor  The callback executor.
+     * @param schemaHistory The schema history table.
+     * @param callbackExecutor The callback executor.
      */
     public DbRepair(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
                     CallbackExecutor callbackExecutor, Configuration configuration) {
@@ -97,7 +97,7 @@ public class DbRepair {
         this.configuration = configuration;
 
         this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
-                MigrationVersion.LATEST, true, configuration.getCherryPick(), true, true, true, true);
+                                                                 MigrationVersion.LATEST, true, configuration.getCherryPick(), true, true, true, true);
 
         this.repairResult = CommandResultFactory.createRepairResult(database.getCatalog());
     }
@@ -130,7 +130,7 @@ public class DbRepair {
             stopWatch.stop();
 
             LOG.info("Successfully repaired schema history table " + schemaHistory + " (execution time "
-                    + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
+                             + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
             if (repairActions.deletedMissingMigrations) {
                 LOG.info("Please ensure the previous contents of the deleted migrations are removed from the database, or moved into an existing migration.");
             }
@@ -219,8 +219,8 @@ public class DbRepair {
 
     private boolean updateNeeded(ResolvedMigration resolved, AppliedMigration applied) {
         return checksumUpdateNeeded(resolved, applied)
-        || descriptionUpdateNeeded(resolved, applied)
-        || typeUpdateNeeded(resolved, applied);
+                || descriptionUpdateNeeded(resolved, applied)
+                || typeUpdateNeeded(resolved, applied);
     }
 
     private boolean checksumUpdateNeeded(ResolvedMigration resolved, AppliedMigration applied) {

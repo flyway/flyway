@@ -48,5 +48,5 @@ public class TiDBConnection extends MySQLConnection {
     }
 
     @Override
-    protected boolean canUseNamedLockTemplate() { return false; }
+    protected boolean canUseNamedLockTemplate() {return false;}
 }

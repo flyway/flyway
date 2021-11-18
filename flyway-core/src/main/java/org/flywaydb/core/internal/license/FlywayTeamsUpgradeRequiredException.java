@@ -25,6 +25,6 @@ import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 public class FlywayTeamsUpgradeRequiredException extends FlywayException {
     public FlywayTeamsUpgradeRequiredException(String feature) {
         super(Edition.ENTERPRISE + " upgrade required: " + feature + " is not supported by " + Edition.COMMUNITY + "\n" +
-                "Try " + Edition.ENTERPRISE + " for free: " + FlywayDbWebsiteLinks.TRY_TEAMS_EDITION);
+                      "Try " + Edition.ENTERPRISE + " for free: " + FlywayDbWebsiteLinks.TRY_TEAMS_EDITION);
     }
 }

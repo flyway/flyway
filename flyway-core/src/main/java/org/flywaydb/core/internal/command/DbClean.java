@@ -134,7 +134,7 @@ public class DbClean {
             });
             stopWatch.stop();
             LOG.info(String.format("Successfully dropped pre-schema database level objects (execution time %s)",
-                    TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                                   TimeFormat.format(stopWatch.getTotalTimeMillis())));
         } catch (FlywaySqlException e) {
             LOG.debug(e.getMessage());
             LOG.warn("Unable to drop pre-schema database level objects");
@@ -155,7 +155,7 @@ public class DbClean {
             });
             stopWatch.stop();
             LOG.info(String.format("Successfully dropped post-schema database level objects (execution time %s)",
-                    TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                                   TimeFormat.format(stopWatch.getTotalTimeMillis())));
         } catch (FlywaySqlException e) {
             LOG.debug(e.getMessage());
             LOG.warn("Unable to drop post-schema database level objects");
@@ -176,7 +176,7 @@ public class DbClean {
 
             stopWatch.stop();
             LOG.info(String.format("Successfully dropped schema %s (execution time %s)",
-                    schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                                   schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
         } catch (FlywaySqlException e) {
             LOG.debug(e.getMessage());
             LOG.warn("Unable to drop schema " + schema + ". It was cleaned instead.");
@@ -189,7 +189,8 @@ public class DbClean {
             if (dropSchemas) {
                 try {
                     cleanSchema(schema);
-                } catch (FlywayException ignored) {}
+                } catch (FlywayException ignored) {
+                }
             } else {
                 cleanSchema(schema);
                 if (cleanResult != null) {
@@ -206,7 +207,7 @@ public class DbClean {
         doCleanSchema(schema);
         stopWatch.stop();
         LOG.info(String.format("Successfully cleaned schema %s (execution time %s)",
-                schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                               schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 
     protected void doCleanSchema(Schema schema) {

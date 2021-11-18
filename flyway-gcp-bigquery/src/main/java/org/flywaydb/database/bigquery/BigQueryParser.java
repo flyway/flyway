@@ -60,7 +60,7 @@ public class BigQueryParser extends Parser {
                 "TABLESAMPLE", "THEN", "TO", "TRANSACTION", "TREAT", "TRUE",
                 "UNBOUNDED", "UNION", "UNNEST", "USING",
                 "WHEN", "WHERE", "WHILE", "WINDOW", "WITH", "WITHIN"
-        ));
+                                          ));
     }
 
     @Override

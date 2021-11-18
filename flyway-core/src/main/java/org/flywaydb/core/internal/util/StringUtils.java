@@ -32,7 +32,7 @@ public class StringUtils {
     /**
      * Trims or pads (with spaces) this string, so it has this exact length.
      *
-     * @param str    The string to adjust. {@code null} is treated as an empty string.
+     * @param str The string to adjust. {@code null} is treated as an empty string.
      * @param length The exact length to reach.
      * @return The adjusted string.
      */
@@ -43,8 +43,8 @@ public class StringUtils {
     /**
      * Trims or pads this string, so it has this exact length.
      *
-     * @param str     The string to adjust. {@code null} is treated as an empty string.
-     * @param length  The exact length to reach.
+     * @param str The string to adjust. {@code null} is treated as an empty string.
+     * @param length The exact length to reach.
      * @param padChar The padding character.
      * @return The adjusted string.
      */
@@ -69,8 +69,8 @@ public class StringUtils {
     /**
      * Trims or pads this string, so it has this exact length.
      *
-     * @param str     The string to adjust. {@code null} is treated as an empty string.
-     * @param length  The exact length to reach.
+     * @param str The string to adjust. {@code null} is treated as an empty string.
+     * @param length The exact length to reach.
      * @param padChar The padding character.
      * @return The adjusted string.
      */
@@ -120,7 +120,7 @@ public class StringUtils {
      * Returns the first n characters from this string, where n = count. If the string is shorter, the entire string
      * will be returned. If the string is longer, it will be truncated.
      *
-     * @param str   The string to parse.
+     * @param str The string to parse.
      * @param count The amount of characters to return.
      * @return The first n characters from this string, where n = count.
      */
@@ -139,8 +139,8 @@ public class StringUtils {
     /**
      * Replaces all occurrences of this originalToken in this string with this replacementToken.
      *
-     * @param str              The string to process.
-     * @param originalToken    The token to replace.
+     * @param str The string to process.
+     * @param originalToken The token to replace.
      * @param replacementToken The replacement.
      * @return The transformed str.
      */
@@ -172,7 +172,7 @@ public class StringUtils {
      * Turns this string array in one delimited string.
      *
      * @param delimiter The delimiter to use.
-     * @param strings   The array to process.
+     * @param strings The array to process.
      * @return The new delimited string. An empty string if {@code strings} is empty. {@code null} if strings is {@code null}.
      */
     public static String arrayToDelimitedString(String delimiter, Object[] strings) {
@@ -203,7 +203,7 @@ public class StringUtils {
     /**
      * Splits this string into an array using these delimiters.
      *
-     * @param str        The string to split.
+     * @param str The string to split.
      * @param delimiters The delimiters to use.
      * @return The resulting array.
      */
@@ -218,7 +218,7 @@ public class StringUtils {
     /**
      * Splits this string into a collection using these delimiters.
      *
-     * @param str        The string to split.
+     * @param str The string to split.
      * @param delimiters The delimiters to use.
      * @return The resulting array.
      */
@@ -261,8 +261,8 @@ public class StringUtils {
     /**
      * Splits this string into a collection using this delimiter and this group delimiter.
      *
-     * @param str                The string to split.
-     * @param delimiterChar      The delimiter to use.
+     * @param str The string to split.
+     * @param delimiterChar The delimiter to use.
      * @param groupDelimiterChar The character to use to delimit groups.
      * @return The resulting array.
      */
@@ -306,7 +306,7 @@ public class StringUtils {
      * Replace all occurrences of a substring within a string with
      * another string.
      *
-     * @param inString   String to examine
+     * @param inString String to examine
      * @param oldPattern String to replace
      * @param newPattern String to insert
      * @return a String with the replacements
@@ -347,7 +347,7 @@ public class StringUtils {
      * String. E.g. useful for {@code toString()} implementations.
      *
      * @param collection the Collection to analyse
-     * @param delimiter  The delimiter.
+     * @param delimiter The delimiter.
      * @return The delimited String.
      */
     public static String collectionToDelimitedString(Collection<?> collection, String delimiter) {
@@ -368,7 +368,7 @@ public class StringUtils {
     /**
      * Trim any leading occurrence of this character from the given String.
      *
-     * @param str       the String to check.
+     * @param str the String to check.
      * @param character The character to trim.
      * @return the trimmed String
      * @see java.lang.Character#isWhitespace
@@ -384,8 +384,8 @@ public class StringUtils {
     /**
      * Checks whether this strings both begins with this prefix and ends withs either of these suffixes.
      *
-     * @param str      The string to check.
-     * @param prefix   The prefix.
+     * @param str The string to check.
+     * @param prefix The prefix.
      * @param suffixes The suffixes.
      * @return {@code true} if it does, {@code false} if not.
      */
@@ -404,7 +404,7 @@ public class StringUtils {
     /**
      * Wrap this string every lineSize characters.
      *
-     * @param str      The string to wrap.
+     * @param str The string to wrap.
      * @param lineSize The maximum size of each line.
      * @return The wrapped string.
      */
@@ -426,7 +426,7 @@ public class StringUtils {
     /**
      * Wrap this string at the word boundary at or below lineSize characters.
      *
-     * @param str      The string to wrap.
+     * @param str The string to wrap.
      * @param lineSize The maximum size of each line.
      * @return The word-wrapped string.
      */
@@ -461,7 +461,7 @@ public class StringUtils {
     /**
      * Checks whether this character matches any of these characters.
      *
-     * @param c     The char to check.
+     * @param c The char to check.
      * @param chars The chars that should match.
      * @return {@code true} if it does, {@code false if not}.
      */
@@ -476,13 +476,13 @@ public class StringUtils {
 
     public static String getFileExtension(String path) {
         String[] foldersSplit = path.split("[|/]");
-        String fileNameAndExtension = foldersSplit[foldersSplit.length-1];
+        String fileNameAndExtension = foldersSplit[foldersSplit.length - 1];
 
         String[] nameExtensionSplit = fileNameAndExtension.split("\\.");
         if (nameExtensionSplit.length < 2) {
             return "";
         }
 
-        return nameExtensionSplit[nameExtensionSplit.length-1];
+        return nameExtensionSplit[nameExtensionSplit.length - 1];
     }
 }

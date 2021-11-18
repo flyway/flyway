@@ -40,8 +40,8 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
      * Creates a new Oracle schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
-     * @param name         The name of the schema.
+     * @param database The database-specific support.
+     * @param name The name of the schema.
      */
     OracleSchema(JdbcTemplate jdbcTemplate, OracleDatabase database, String name) {
         super(jdbcTemplate, database, name);
@@ -78,7 +78,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
     @Override
     protected void doCreate() throws SQLException {
         jdbcTemplate.execute("CREATE USER " + database.quote(name) + " IDENTIFIED BY "
-                + database.quote("FFllyywwaayy00!!"));
+                                     + database.quote("FFllyywwaayy00!!"));
         jdbcTemplate.execute("GRANT RESOURCE TO " + database.quote(name));
         jdbcTemplate.execute("GRANT UNLIMITED TABLESPACE TO " + database.quote(name));
     }
@@ -92,7 +92,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
     protected void doClean() throws SQLException {
         if (isSystem()) {
             throw new FlywayException("Clean not supported on Oracle for system schema " + database.quote(name) + "! " +
-                    "It must not be changed in any way except by running an Oracle-supplied script!");
+                                              "It must not be changed in any way except by running an Oracle-supplied script!");
         }
 
         // Disable FBA for schema tables.
@@ -163,7 +163,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
                 // Undocumented types, print warning if found
                 ASSEMBLY,
                 JAVA_DATA
-        );
+                                                           );
 
         for (ObjectType objectType : objectTypesToClean) {
             if (objectTypeNames.contains(objectType.getName())) {
@@ -191,7 +191,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
 
         if (!dbaViewAccessible && !isDefaultSchemaForUser()) {
             LOG.warn("Unable to check and disable Flashback Archive for tables in schema " + database.quote(name) +
-                    " by user \"" + database.doGetCurrentUser() + "\": DBA_FLASHBACK_ARCHIVE_TABLES is not accessible");
+                             " by user \"" + database.doGetCurrentUser() + "\": DBA_FLASHBACK_ARCHIVE_TABLES is not accessible");
             return;
         }
 
@@ -216,7 +216,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
 
         if (oracle18orNewer) {
             while (database.queryReturnsRows("SELECT TABLE_NAME FROM ALL_TABLES WHERE OWNER = ?\n"
-                    + " AND TABLE_NAME LIKE 'SYS_FBA_DDL_COLMAP_%'", name)) {
+                                                     + " AND TABLE_NAME LIKE 'SYS_FBA_DDL_COLMAP_%'", name)) {
                 try {
                     LOG.debug("Actively waiting for Flashback colmap cleanup");
                     Thread.sleep(1000);
@@ -250,7 +250,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
 
         if (!isDefaultSchemaForUser()) {
             LOG.warn("Unable to clean Oracle Locator metadata for schema " + database.quote(name) +
-                    " by user \"" + database.doGetCurrentUser() + "\": unsupported operation");
+                             " by user \"" + database.doGetCurrentUser() + "\": unsupported operation");
             return;
         }
 
@@ -275,7 +275,6 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
         return new OracleTable(jdbcTemplate, database, this, tableName);
     }
 
-
     /**
      * Oracle object types.
      */
@@ -291,47 +290,47 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
 
                 StringBuilder tablesQuery = new StringBuilder();
                 tablesQuery.append("WITH TABLES AS (\n" +
-                        "  SELECT TABLE_NAME, OWNER\n" +
-                        "  FROM ALL_TABLES\n" +
-                        "  WHERE OWNER = ?\n" +
-                        "    AND (IOT_TYPE IS NULL OR IOT_TYPE NOT LIKE '%OVERFLOW%')\n" +
-                        "    AND NESTED != 'YES'\n" +
-                        "    AND SECONDARY != 'Y'\n");
+                                           "  SELECT TABLE_NAME, OWNER\n" +
+                                           "  FROM ALL_TABLES\n" +
+                                           "  WHERE OWNER = ?\n" +
+                                           "    AND (IOT_TYPE IS NULL OR IOT_TYPE NOT LIKE '%OVERFLOW%')\n" +
+                                           "    AND NESTED != 'YES'\n" +
+                                           "    AND SECONDARY != 'Y'\n");
 
                 if (xmlDbAvailable) {
                     tablesQuery.append("  UNION ALL\n" +
-                            "  SELECT TABLE_NAME, OWNER\n" +
-                            "  FROM ALL_XML_TABLES\n" +
-                            "  WHERE OWNER = ?\n" +
-                            // ALL_XML_TABLES shows objects in RECYCLEBIN, ignore them
-                            "    AND TABLE_NAME NOT LIKE 'BIN$________________________$_'\n");
+                                               "  SELECT TABLE_NAME, OWNER\n" +
+                                               "  FROM ALL_XML_TABLES\n" +
+                                               "  WHERE OWNER = ?\n" +
+                                               // ALL_XML_TABLES shows objects in RECYCLEBIN, ignore them
+                                               "    AND TABLE_NAME NOT LIKE 'BIN$________________________$_'\n");
                 }
 
                 tablesQuery.append(")\n" +
-                        "SELECT t.TABLE_NAME\n" +
-                        "FROM TABLES t\n");
+                                           "SELECT t.TABLE_NAME\n" +
+                                           "FROM TABLES t\n");
 
                 // Reference partitioned tables should be dropped in child-to-parent order.
                 if (referencePartitionedTablesExist) {
                     tablesQuery.append("  LEFT JOIN ALL_PART_TABLES pt\n" +
-                            "    ON t.OWNER = pt.OWNER\n" +
-                            "   AND t.TABLE_NAME = pt.TABLE_NAME\n" +
-                            "   AND pt.PARTITIONING_TYPE = 'REFERENCE'\n" +
-                            "  LEFT JOIN ALL_CONSTRAINTS fk\n" +
-                            "    ON pt.OWNER = fk.OWNER\n" +
-                            "   AND pt.TABLE_NAME = fk.TABLE_NAME\n" +
-                            "   AND pt.REF_PTN_CONSTRAINT_NAME = fk.CONSTRAINT_NAME\n" +
-                            "   AND fk.CONSTRAINT_TYPE = 'R'\n" +
-                            "  LEFT JOIN ALL_CONSTRAINTS puk\n" +
-                            "    ON fk.R_OWNER = puk.OWNER\n" +
-                            "   AND fk.R_CONSTRAINT_NAME = puk.CONSTRAINT_NAME\n" +
-                            "   AND puk.CONSTRAINT_TYPE IN ('P', 'U')\n" +
-                            "  LEFT JOIN TABLES p\n" +
-                            "    ON puk.OWNER = p.OWNER\n" +
-                            "   AND puk.TABLE_NAME = p.TABLE_NAME\n" +
-                            "START WITH p.TABLE_NAME IS NULL\n" +
-                            "CONNECT BY PRIOR t.TABLE_NAME = p.TABLE_NAME\n" +
-                            "ORDER BY LEVEL DESC");
+                                               "    ON t.OWNER = pt.OWNER\n" +
+                                               "   AND t.TABLE_NAME = pt.TABLE_NAME\n" +
+                                               "   AND pt.PARTITIONING_TYPE = 'REFERENCE'\n" +
+                                               "  LEFT JOIN ALL_CONSTRAINTS fk\n" +
+                                               "    ON pt.OWNER = fk.OWNER\n" +
+                                               "   AND pt.TABLE_NAME = fk.TABLE_NAME\n" +
+                                               "   AND pt.REF_PTN_CONSTRAINT_NAME = fk.CONSTRAINT_NAME\n" +
+                                               "   AND fk.CONSTRAINT_TYPE = 'R'\n" +
+                                               "  LEFT JOIN ALL_CONSTRAINTS puk\n" +
+                                               "    ON fk.R_OWNER = puk.OWNER\n" +
+                                               "   AND fk.R_CONSTRAINT_NAME = puk.CONSTRAINT_NAME\n" +
+                                               "   AND puk.CONSTRAINT_TYPE IN ('P', 'U')\n" +
+                                               "  LEFT JOIN TABLES p\n" +
+                                               "    ON puk.OWNER = p.OWNER\n" +
+                                               "   AND puk.TABLE_NAME = p.TABLE_NAME\n" +
+                                               "START WITH p.TABLE_NAME IS NULL\n" +
+                                               "CONNECT BY PRIOR t.TABLE_NAME = p.TABLE_NAME\n" +
+                                               "ORDER BY LEVEL DESC");
                 }
 
                 int n = 1 + (xmlDbAvailable ? 1 : 0);
@@ -349,7 +348,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
                 return jdbcTemplate.queryForStringList(
                         "SELECT QUEUE_TABLE FROM ALL_QUEUE_TABLES WHERE OWNER = ?",
                         schema.getName()
-                );
+                                                      );
             }
 
             @Override
@@ -365,7 +364,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
                 return jdbcTemplate.queryForStringList(
                         "SELECT MASTER FROM ALL_MVIEW_LOGS WHERE LOG_OWNER = ?",
                         schema.getName()
-                );
+                                                      );
             }
 
             @Override
@@ -383,7 +382,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
                                 //" AND INDEX_NAME NOT LIKE 'SYS_C%'"+
                                 " AND INDEX_TYPE NOT LIKE '%DOMAIN%'",
                         schema.getName()
-                );
+                                                      );
             }
         },
 
@@ -394,7 +393,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
                 return jdbcTemplate.queryForStringList(
                         "SELECT INDEX_NAME FROM ALL_INDEXES WHERE OWNER = ? AND INDEX_TYPE LIKE '%DOMAIN%'",
                         schema.getName()
-                );
+                                                      );
             }
         },
 
@@ -420,7 +419,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
                 return jdbcTemplate.queryForStringList(
                         "SELECT DIMENSION_NAME FROM ALL_DIMENSIONS WHERE OWNER = ?",
                         schema.getName()
-                );
+                                                      );
             }
         },
 
@@ -442,7 +441,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
                 return jdbcTemplate.queryForStringList(
                         "SELECT NAMESPACE FROM " + database.dbaOrAll("CONTEXT") + " WHERE SCHEMA = ?",
                         schema.getName()
-                );
+                                                      );
             }
 
             @Override
@@ -475,7 +474,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
                 return jdbcTemplate.queryForStringList(
                         "SELECT QUAL_SCHEMA_URL FROM " + database.dbaOrAll("XML_SCHEMAS") + " WHERE OWNER = ?",
                         schema.getName()
-                );
+                                                      );
             }
 
             @Override
@@ -592,7 +591,6 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
             }
         },
 
-
         /*** Below are unsupported object types. They should be dropped explicitly in callbacks if used. ***/
 
         // Database links and credentials, contain sensitive information (password) and hence not always can be re-created.
@@ -608,7 +606,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
                 return jdbcTemplate.queryForStringList(
                         "SELECT DB_LINK FROM " + database.dbaOrAll("DB_LINKS") + " WHERE OWNER = ?",
                         schema.getName()
-                );
+                                                      );
             }
 
             @Override
@@ -741,12 +739,11 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
             return jdbcTemplate.queryForStringList(
                     "SELECT DISTINCT OBJECT_NAME FROM ALL_OBJECTS WHERE OWNER = ? AND OBJECT_TYPE = ?",
                     schema.getName(), this.getName()
-            );
+                                                  );
         }
 
         /**
          * Generates the drop statement for the specified object.
-         *
          */
         public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDatabase database, OracleSchema schema, String objectName) {
             return "DROP " + this.getName() + " " + database.quote(schema.getName(), objectName) +
@@ -863,7 +860,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
                     MEASURE_FOLDER.getName(),
                     ASSEMBLY.getName(),
                     JAVA_DATA.getName()
-            ));
+                                                     ));
 
             return !existingTypeNames.isEmpty();
         }

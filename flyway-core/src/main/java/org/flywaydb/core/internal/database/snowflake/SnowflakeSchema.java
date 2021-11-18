@@ -29,8 +29,8 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase, SnowflakeTable> {
      * Creates a new Snowflake schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
+     * @param database The database-specific support.
+     * @param name The name of the schema.
      */
     SnowflakeSchema(JdbcTemplate jdbcTemplate, SnowflakeDatabase database, String name) {
         super(jdbcTemplate, database, name);
@@ -93,7 +93,7 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase, SnowflakeTable> {
             @Override
             public SnowflakeTable mapRow(ResultSet rs) throws SQLException {
                 String tableName = rs.getString("name");
-                return (SnowflakeTable)getTable(tableName);
+                return (SnowflakeTable) getTable(tableName);
             }
         });
         return tables.toArray(new SnowflakeTable[0]);
@@ -103,7 +103,6 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase, SnowflakeTable> {
     public Table getTable(String tableName) {
         return new SnowflakeTable(jdbcTemplate, database, this, tableName);
     }
-
 
     private List<String> generateDropStatements(final String objectType) throws SQLException {
         return jdbcTemplate.query("SHOW " + objectType + "S IN SCHEMA " + database.quote(name), rs -> {

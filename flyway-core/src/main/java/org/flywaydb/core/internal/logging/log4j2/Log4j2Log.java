@@ -29,7 +29,7 @@ public class Log4j2Log implements Log {
         return logger.isDebugEnabled();
     }
 
-    public void debug(String message) { logger.debug(message); }
+    public void debug(String message) {logger.debug(message);}
 
     public void info(String message) {
         logger.info(message);
@@ -39,11 +39,11 @@ public class Log4j2Log implements Log {
         logger.warn(message);
     }
 
-    public void error(String message) { logger.error(message); }
+    public void error(String message) {logger.error(message);}
 
     public void error(String message, Exception e) {
         logger.error(message, e);
     }
 
-    public void notice(String message) { }
+    public void notice(String message) {}
 }

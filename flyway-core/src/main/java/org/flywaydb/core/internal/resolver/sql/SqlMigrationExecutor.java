@@ -66,7 +66,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
 
 
-        sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection() , undo, batch, outputQueryResults).execute(sqlScript);
+        sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection(), undo, batch, outputQueryResults).execute(sqlScript);
     }
 
     @Override

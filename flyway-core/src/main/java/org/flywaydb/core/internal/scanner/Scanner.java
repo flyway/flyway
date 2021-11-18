@@ -64,7 +64,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
             boolean throwOnMissingLocations) {
         FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding, stream, detectEncoding, throwOnMissingLocations);
 
-        FeatureDetector detector =  new FeatureDetector(classLoader);
+        FeatureDetector detector = new FeatureDetector(classLoader);
         boolean aws = detector.isAwsAvailable();
         boolean gcs = detector.isGCSAvailable();
         long cloudMigrationCount = 0;
@@ -143,7 +143,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     /**
      * Returns all known resources starting with the specified prefix and ending with any of the specified suffixes.
      *
-     * @param prefix   The prefix of the resource names to match.
+     * @param prefix The prefix of the resource names to match.
      * @param suffixes The suffixes of the resource names to match.
      * @return The resources that were found.
      */

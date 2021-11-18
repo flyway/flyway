@@ -27,10 +27,10 @@ public class HSQLDBParser extends Parser {
      */
     private static final List<String> CONDITIONALLY_CREATABLE_OBJECTS = Arrays.asList(
             "COLUMN", "CONSTRAINT", "FUNCTION", "INDEX", "PROCEDURE", "SCHEMA", "SEQUENCE", "TABLE", "VIEW"
-    );
+                                                                                     );
 
     public HSQLDBParser(Configuration configuration, ParsingContext parsingContext) {
-        super(configuration, parsingContext,2);
+        super(configuration, parsingContext, 2);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class HSQLDBParser extends Parser {
                 "VALUE", "VALUES", "VAR_POP", "VAR_SAMP", "VARBINARY", "VARCHAR", "VARYING", "VIEW",
                 "WHEN", "WHENEVER", "WHERE", "WIDTH_BUCKET", "WINDOW", "WITH", "WITHIN", "WITHOUT", "WHILE",
                 "YEAR"
-        ));
+                                          ));
     }
 
     @Override

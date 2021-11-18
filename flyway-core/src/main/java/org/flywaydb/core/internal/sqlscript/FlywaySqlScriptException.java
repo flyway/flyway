@@ -36,8 +36,8 @@ public class FlywaySqlScriptException extends FlywaySqlException {
     /**
      * Creates new instance of FlywaySqlScriptException.
      *
-     * @param resource     The resource containing the failed statement.
-     * @param statement    The failed SQL statement.
+     * @param resource The resource containing the failed statement.
+     * @param statement The failed SQL statement.
      * @param sqlException Cause of the problem.
      */
     public FlywaySqlScriptException(Resource resource, SqlStatement statement, SQLException sqlException) {

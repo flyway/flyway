@@ -51,7 +51,7 @@ public class FileLogCreator implements LogCreator {
     private static void prepareOutputFile(Path path) {
         try {
             Files.write(path, "".getBytes(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-        } catch(IOException exception) {
+        } catch (IOException exception) {
             throw new FlywayException("Could not initialize log file at " + path + ".", exception);
         }
     }

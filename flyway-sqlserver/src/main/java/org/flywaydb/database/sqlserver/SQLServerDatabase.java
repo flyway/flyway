@@ -60,6 +60,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
 
 
+
     @Override
     public final void ensureSupported() {
         if (isAzure()) {
@@ -266,9 +267,9 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         List<String> statements = new ArrayList<>();
         String schemaList = Arrays.stream(schemas).map(s -> "'" + s.getName() + "'").collect(Collectors.joining(","));
         List<Map<String, String>> typesAndSchemas = jdbcTemplate.queryForList("" +
-                "SELECT t.name as type_name, s.name as schema_name " +
-                "FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id " +
-                "WHERE t.is_user_defined = 1 AND s.name IN (" + schemaList + ")");
+                                                                                      "SELECT t.name as type_name, s.name as schema_name " +
+                                                                                      "FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id " +
+                                                                                      "WHERE t.is_user_defined = 1 AND s.name IN (" + schemaList + ")");
         for (Map<String, String> typeAndSchema : typesAndSchemas) {
             statements.add("DROP TYPE " + quote(typeAndSchema.get("schema_name"), typeAndSchema.get("type_name")));
         }

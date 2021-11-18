@@ -56,7 +56,7 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
             long databaseSize = getDatabaseSize();
             if (databaseSize > TEN_GB_DATABASE_SIZE_LIMIT) {
                 throw new FlywayTeamsUpgradeRequiredException("A Google BigQuery database that exceeds the 10 GB database size limit " +
-                        "(Calculated size: " + GIGABYTE.toHumanReadableString(databaseSize) + ")");
+                                                                      "(Calculated size: " + GIGABYTE.toHumanReadableString(databaseSize) + ")");
             }
 
             String usageLimitMessage = "Google BigQuery databases have a 10 GB database size limit in " + Edition.COMMUNITY + ".\n" +
@@ -78,7 +78,8 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
             while (schemaRs.next()) {
                 totalDatabaseSize += jdbcTemplate.queryForLong("select sum(size_bytes) from " + schemaRs.getString("TABLE_SCHEM") + ".__TABLES__");
             }
-        } catch (SQLException ignored) {}
+        } catch (SQLException ignored) {
+        }
         return totalDatabaseSize;
     }
 

@@ -238,7 +238,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
                 urls = classLoader.getResources(location.getRootPath() + "/flyway.location");
                 if (!urls.hasMoreElements()) {
                     LOG.error("Unable to resolve location " + location + " (ClassLoader: " + classLoader + ")"
-                            + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
+                                      + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
                 }
                 while (urls.hasMoreElements()) {
                     URL url = urls.nextElement();
@@ -246,7 +246,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
                 }
             } catch (IOException e) {
                 LOG.error("Unable to resolve location " + location + " (ClassLoader: " + classLoader + ")"
-                        + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
+                                  + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
             }
         } else {
             Enumeration<URL> urls;

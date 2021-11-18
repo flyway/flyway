@@ -27,7 +27,7 @@ import java.util.List;
 public class SpannerParser extends Parser {
 
     public SpannerParser(Configuration configuration, ParsingContext parsingContext) {
-        super(configuration,parsingContext, 3);
+        super(configuration, parsingContext, 3);
     }
 
     @Override

@@ -24,7 +24,7 @@ public class UndoResult extends OperationResultBase {
     public String schemaName;
     public List<UndoOutput> undoneMigrations;
     public int migrationsUndone;
-        
+
     public UndoResult(String flywayVersion, String database, String schemaName) {
         this.flywayVersion = flywayVersion;
         this.database = database;

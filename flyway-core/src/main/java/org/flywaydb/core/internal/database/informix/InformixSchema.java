@@ -30,8 +30,8 @@ public class InformixSchema extends Schema<InformixDatabase, InformixTable> {
      * Creates a new Informix schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
+     * @param database The database-specific support.
+     * @param name The name of the schema.
      */
     InformixSchema(JdbcTemplate jdbcTemplate, InformixDatabase database, String name) {
         super(jdbcTemplate, database, name);
@@ -59,12 +59,12 @@ public class InformixSchema extends Schema<InformixDatabase, InformixTable> {
     @Override
     protected void doClean() throws SQLException {
         List<String> procedures = jdbcTemplate.queryForStringList("SELECT t.procname FROM \"informix\".sysprocedures AS t" +
-                " WHERE t.owner=? AND t.mode='O' AND t.externalname IS NULL" +
-                " AND t.procname NOT IN (" +
-                // Exclude Informix TimeSeries procs
-                " 'tscontainerusage', 'tscontainertotalused', 'tscontainertotalpages'," +
-                " 'tscontainernelems', 'tscontainerpctused', 'tsl_flushstatus', 'tsmakenullstamp'" +
-                ")", name);
+                                                                          " WHERE t.owner=? AND t.mode='O' AND t.externalname IS NULL" +
+                                                                          " AND t.procname NOT IN (" +
+                                                                          // Exclude Informix TimeSeries procs
+                                                                          " 'tscontainerusage', 'tscontainertotalused', 'tscontainertotalpages'," +
+                                                                          " 'tscontainernelems', 'tscontainerpctused', 'tsl_flushstatus', 'tsmakenullstamp'" +
+                                                                          ")", name);
         for (String procedure : procedures) {
             jdbcTemplate.execute("DROP PROCEDURE " + procedure);
         }
@@ -74,8 +74,8 @@ public class InformixSchema extends Schema<InformixDatabase, InformixTable> {
         }
 
         List<String> sequences = jdbcTemplate.queryForStringList("SELECT t.tabname FROM \"informix\".systables AS t" +
-                " WHERE owner=? AND t.tabid > 99 AND t.tabtype='Q'" +
-                " AND t.tabname NOT IN ('iot_data_seq')", name);
+                                                                         " WHERE owner=? AND t.tabid > 99 AND t.tabtype='Q'" +
+                                                                         " AND t.tabname NOT IN ('iot_data_seq')", name);
         for (String sequence : sequences) {
             jdbcTemplate.execute("DROP SEQUENCE " + sequence);
         }
@@ -93,13 +93,13 @@ public class InformixSchema extends Schema<InformixDatabase, InformixTable> {
     @Override
     protected InformixTable[] doAllTables() throws SQLException {
         return findTables("SELECT t.tabname FROM \"informix\".systables AS t" +
-                " WHERE owner=? AND t.tabid > 99 AND t.tabtype='T'" +
-                " AND t.tabname NOT IN (" +
-                // Exclude Informix TimeSeries tables
-                " 'calendarpatterns', 'calendartable'," +
-                " 'tscontainertable', 'tscontainerwindowtable', 'tsinstancetable', " +
-                " 'tscontainerusageactivewindowvti', 'tscontainerusagedormantwindowvti'" +
-                ")", name);
+                                  " WHERE owner=? AND t.tabid > 99 AND t.tabtype='T'" +
+                                  " AND t.tabname NOT IN (" +
+                                  // Exclude Informix TimeSeries tables
+                                  " 'calendarpatterns', 'calendartable'," +
+                                  " 'tscontainertable', 'tscontainerwindowtable', 'tsinstancetable', " +
+                                  " 'tscontainerusageactivewindowvti', 'tscontainerusagedormantwindowvti'" +
+                                  ")", name);
     }
 
     @Override

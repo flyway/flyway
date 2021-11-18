@@ -140,7 +140,7 @@ public class Main {
 
 
 
-            if(!commandLineArguments.skipCheckForUpdate()) {
+            if (!commandLineArguments.skipCheckForUpdate()) {
                 if (RedgateUpdateChecker.isEnabled()) {
                     RedgateUpdateChecker.checkForVersionUpdates(config.get(ConfigUtils.URL));
                 } else {
@@ -151,14 +151,14 @@ public class Main {
             Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
 
             OperationResultBase result;
-            if (commandLineArguments.getOperations().size()==1) {
-                    String operation = commandLineArguments.getOperations().get(0);
-                    result = executeOperation(flyway, operation, config, commandLineArguments);
-                } else {
-                    result = new CompositeResult();
-                    for (String operation : commandLineArguments.getOperations()) {
-                        OperationResultBase individualResult = executeOperation(flyway, operation, config, commandLineArguments);
-                        ((CompositeResult)result).individualResults.add(individualResult);
+            if (commandLineArguments.getOperations().size() == 1) {
+                String operation = commandLineArguments.getOperations().get(0);
+                result = executeOperation(flyway, operation, config, commandLineArguments);
+            } else {
+                result = new CompositeResult();
+                for (String operation : commandLineArguments.getOperations()) {
+                    OperationResultBase individualResult = executeOperation(flyway, operation, config, commandLineArguments);
+                    ((CompositeResult) result).individualResults.add(individualResult);
                 }
             }
 
@@ -620,7 +620,6 @@ public class Main {
             }
             return configFiles;
         }
-
 
         for (String file : commandLineArguments.getConfigFiles()) {
             configFiles.add(new File(workingDirectory, file));

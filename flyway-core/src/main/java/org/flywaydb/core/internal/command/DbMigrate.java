@@ -165,8 +165,8 @@ public class DbMigrate {
     private Integer migrateGroup(boolean firstRun) {
         MigrationInfoServiceImpl infoService =
                 new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
-                        configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
-                        true, true, true, true);
+                                             configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
+                                             true, true, true, true);
         infoService.refresh();
 
         MigrationInfo current = infoService.current();
@@ -190,14 +190,14 @@ public class DbMigrate {
             Collections.reverse(resolved);
             if (resolved.isEmpty()) {
                 LOG.error("Schema " + schema + " has version " + currentSchemaVersion
-                        + ", but no migration could be resolved in the configured locations !");
+                                  + ", but no migration could be resolved in the configured locations !");
             } else {
                 for (MigrationInfo migrationInfo : resolved) {
                     // Only consider versioned migrations
                     if (migrationInfo.getVersion() != null) {
                         LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion
-                                + ") that is newer than the latest available migration ("
-                                + migrationInfo.getVersion() + ") !");
+                                         + ") that is newer than the latest available migration ("
+                                         + migrationInfo.getVersion() + ") !");
                         break;
                     }
                 }
@@ -257,7 +257,7 @@ public class DbMigrate {
         String migrationText = (migrationSuccessCount == 1) ? "migration" : "migrations";
 
         LOG.info("Successfully applied " + migrationSuccessCount + " " + migrationText + " to schema " + schema
-                + targetText + " (execution time " + TimeFormat.format(executionTime) + ")");
+                         + targetText + " (execution time " + TimeFormat.format(executionTime) + ")");
     }
 
     /**
@@ -287,7 +287,7 @@ public class DbMigrate {
                 stopWatch.stop();
                 int executionTime = (int) stopWatch.getTotalTimeMillis();
                 schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(),
-                        migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, false);
+                                                  migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, false);
             }
             throw e;
         }
@@ -309,13 +309,13 @@ public class DbMigrate {
 
             if (!configuration.isMixed() && executeGroupInTransaction != inTransaction) {
                 throw new FlywayMigrateException(entry.getKey(),
-                        "Detected both transactional and non-transactional migrations within the same migration group"
-                                + " (even though mixed is false). First offending migration: "
-                                + doQuote((resolvedMigration.getVersion() == null ? "" : resolvedMigration.getVersion())
-                                + (StringUtils.hasLength(resolvedMigration.getDescription()) ? " " + resolvedMigration.getDescription() : ""))
-                                + (inTransaction ? "" : " [non-transactional]"),
-                        inTransaction,
-                        migrateResult);
+                                                 "Detected both transactional and non-transactional migrations within the same migration group"
+                                                         + " (even though mixed is false). First offending migration: "
+                                                         + doQuote((resolvedMigration.getVersion() == null ? "" : resolvedMigration.getVersion())
+                                                                           + (StringUtils.hasLength(resolvedMigration.getDescription()) ? " " + resolvedMigration.getDescription() : ""))
+                                                         + (inTransaction ? "" : " [non-transactional]"),
+                                                 inTransaction,
+                                                 migrateResult);
             }
 
             executeGroupInTransaction &= inTransaction;
@@ -398,7 +398,7 @@ public class DbMigrate {
             migrateResult.migrations.add(CommandResultFactory.createMigrateOutput(migration, executionTime));
 
             schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(), migration.getType(),
-                    migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
+                                              migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
         }
     }
 
@@ -406,7 +406,7 @@ public class DbMigrate {
         final String migrationText;
         if (migration.getVersion() != null) {
             migrationText = "schema " + schema + " to version " + doQuote(migration.getVersion()
-                    + (StringUtils.hasLength(migration.getDescription()) ? " - " + migration.getDescription() : ""))
+                                                                                  + (StringUtils.hasLength(migration.getDescription()) ? " - " + migration.getDescription() : ""))
                     + (isOutOfOrder ? " [out of order]" : "")
                     + (canExecuteInTransaction ? "" : " [non-transactional]");
         } else {

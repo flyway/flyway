@@ -35,7 +35,7 @@ public class CockroachRetryingTransactionalExecutionTemplate extends Transaction
     /**
      * Creates a new transaction template for this connection.
      *
-     * @param connection          The connection for the transaction.
+     * @param connection The connection for the transaction.
      * @param rollbackOnException Whether to roll back the transaction when an exception is thrown.
      */
     CockroachRetryingTransactionalExecutionTemplate(Connection connection, boolean rollbackOnException) {

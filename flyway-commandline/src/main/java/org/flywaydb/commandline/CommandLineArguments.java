@@ -86,7 +86,7 @@ public class CommandLineArguments {
     private static final Set<String> COMMAND_LINE_ONLY_OPTIONS = new HashSet<>(Arrays.asList(
             OUTPUT_FILE, OUTPUT_TYPE, COLOR, WORKING_DIRECTORY, INFO_SINCE_DATE,
             INFO_UNTIL_DATE, INFO_SINCE_VERSION, INFO_UNTIL_VERSION, INFO_OF_STATE
-    ));
+                                                                                            ));
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
@@ -111,7 +111,7 @@ public class CommandLineArguments {
                 "undo",
                 "baseline",
                 "repair"
-        ));
+                                                                       ));
         operationsAndFlags.addAll(PRINT_VERSION_AND_EXIT_FLAGS);
         operationsAndFlags.addAll(PRINT_USAGE_FLAGS);
         return operationsAndFlags;
@@ -316,8 +316,8 @@ public class CommandLineArguments {
             return DATE_FORMAT.parse(dateStr);
         } catch (ParseException e) {
             throw new FlywayException("'" + dateStr + "' is an invalid value for the " + argument + " option. " +
-                    "The expected format is 'dd/mm/yyyy hh:mm', like '13/10/2020 16:30'. " +
-                    "See the Flyway documentation for help: " + FlywayDbWebsiteLinks.FILTER_INFO_OUTPUT);
+                                              "The expected format is 'dd/mm/yyyy hh:mm', like '13/10/2020 16:30'. " +
+                                              "See the Flyway documentation for help: " + FlywayDbWebsiteLinks.FILTER_INFO_OUTPUT);
         }
     }
 

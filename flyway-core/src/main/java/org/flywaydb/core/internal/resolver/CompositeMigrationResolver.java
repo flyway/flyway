@@ -56,10 +56,10 @@ public class CompositeMigrationResolver implements MigrationResolver {
                                       SqlScriptFactory sqlScriptFactory,
                                       ParsingContext parsingContext,
                                       MigrationResolver... customMigrationResolvers
-    ) {
+                                     ) {
         if (!configuration.isSkipDefaultResolvers()) {
             migrationResolvers.add(new SqlMigrationResolver(resourceProvider, sqlScriptExecutorFactory, sqlScriptFactory,
-                    configuration, parsingContext));
+                                                            configuration, parsingContext));
             migrationResolvers.add(new ScanningJavaMigrationResolver(classProvider, configuration));
 
 
@@ -116,7 +116,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @throws FlywayException when two different migration with the same version number are found.
      */
     static void checkForIncompatibilities(List<ResolvedMigration> migrations) {
-    	ResolvedMigrationComparator resolvedMigrationComparator = new ResolvedMigrationComparator();
+        ResolvedMigrationComparator resolvedMigrationComparator = new ResolvedMigrationComparator();
         // check for more than one migration with same version
         for (int i = 0; i < migrations.size() - 1; i++) {
             ResolvedMigration current = migrations.get(i);
@@ -129,20 +129,20 @@ public class CompositeMigrationResolver implements MigrationResolver {
 
                 if (current.getVersion() != null) {
                     throw new FlywayException(String.format("Found more than one migration with version %s\nOffenders:\n-> %s (%s)\n-> %s (%s)",
-                            current.getVersion(),
-                            current.getPhysicalLocation(),
-                            current.getType(),
-                            next.getPhysicalLocation(),
-                            next.getType()),
-                    ErrorCode.DUPLICATE_VERSIONED_MIGRATION);
+                                                            current.getVersion(),
+                                                            current.getPhysicalLocation(),
+                                                            current.getType(),
+                                                            next.getPhysicalLocation(),
+                                                            next.getType()),
+                                              ErrorCode.DUPLICATE_VERSIONED_MIGRATION);
                 }
                 throw new FlywayException(String.format("Found more than one repeatable migration with description %s\nOffenders:\n-> %s (%s)\n-> %s (%s)",
-                        current.getDescription(),
-                        current.getPhysicalLocation(),
-                        current.getType(),
-                        next.getPhysicalLocation(),
-                        next.getType()),
-                        ErrorCode.DUPLICATE_REPEATABLE_MIGRATION);
+                                                        current.getDescription(),
+                                                        current.getPhysicalLocation(),
+                                                        current.getType(),
+                                                        next.getPhysicalLocation(),
+                                                        next.getType()),
+                                          ErrorCode.DUPLICATE_REPEATABLE_MIGRATION);
             }
         }
     }

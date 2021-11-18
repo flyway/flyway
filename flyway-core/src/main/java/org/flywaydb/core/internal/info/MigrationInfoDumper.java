@@ -48,7 +48,7 @@ public class MigrationInfoDumper {
 
 
 
-        );
+                                            );
 
         List<List<String>> rows = new ArrayList<>();
         for (MigrationInfo migrationInfo : migrationInfos) {
@@ -62,7 +62,7 @@ public class MigrationInfoDumper {
 
 
 
-            );
+                                            );
             rows.add(row);
         }
 

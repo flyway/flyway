@@ -49,5 +49,5 @@ public class Slf4jLog implements Log {
         logger.error(message, e);
     }
 
-    public void notice(String message) { }
+    public void notice(String message) {}
 }

@@ -29,9 +29,9 @@ public class SybaseASETable extends Table<SybaseASEDatabase, SybaseASESchema> {
      * Creates a new SAP ASE table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param schema       The schema this table lives in.
-     * @param name         The name of the table.
+     * @param database The database-specific support.
+     * @param schema The schema this table lives in.
+     * @param name The name of the table.
      */
     SybaseASETable(JdbcTemplate jdbcTemplate, SybaseASEDatabase database, SybaseASESchema schema, String name) {
         super(jdbcTemplate, database, schema, name);

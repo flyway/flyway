@@ -47,9 +47,9 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
      * Creates a new callback executor.
      *
      * @param configuration The configuration.
-     * @param database      The database.
-     * @param schema        The current schema to use for the connection.
-     * @param callbacks     The callbacks to execute.
+     * @param database The database.
+     * @param schema The current schema to use for the connection.
+     * @param callbacks The callbacks to execute.
      */
     public DefaultCallbackExecutor(Configuration configuration, Database database, Schema schema, Collection<Callback> callbacks) {
         this.configuration = configuration;

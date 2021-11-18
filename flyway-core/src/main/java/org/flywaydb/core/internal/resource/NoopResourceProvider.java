@@ -35,7 +35,7 @@ public enum NoopResourceProvider implements ResourceProvider {
     /**
      * Retrieve all resources whose name begins with this prefix and ends with any of these suffixes.
      *
-     * @param prefix   The prefix.
+     * @param prefix The prefix.
      * @param suffixes The suffixes.
      * @return The matching resources.
      */

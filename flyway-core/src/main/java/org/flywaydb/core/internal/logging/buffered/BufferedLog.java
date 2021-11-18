@@ -55,7 +55,7 @@ public class BufferedLog implements Log {
     }
 
     @Override
-    public void notice(String message){
+    public void notice(String message) {
         bufferedLogMessages.add(new BufferedLogMessage(message, Level.NOTICE));
     }
 

@@ -47,6 +47,7 @@ public final class Location implements Comparable<Location> {
 
     /**
      * The prefix part of the location. Can be either classpath: or filesystem:.
+     *
      * @return The prefix part of the location. Can be either classpath: or filesystem:.
      */
     @Getter
@@ -59,6 +60,7 @@ public final class Location implements Comparable<Location> {
 
     /**
      * The first folder in the path. This will equal rawPath if the path does not contain any wildcards
+     *
      * @return The root part of the path part of the location.
      */
     @Getter
@@ -104,7 +106,7 @@ public final class Location implements Comparable<Location> {
             }
         } else if (!isAwsS3() && !isGCS()) {
             throw new FlywayException("Unknown prefix for location (should be one of filesystem:, classpath:, gcs:, or s3:): "
-                    + normalizedDescriptor);
+                                              + normalizedDescriptor);
         }
 
         if (rawPath.endsWith(File.separator)) {
@@ -209,6 +211,7 @@ public final class Location implements Comparable<Location> {
     /**
      * Returns the path relative to this location. If the location path contains wildcards, the returned path will be relative
      * to the last non-wildcard folder in the path.
+     *
      * @return the path relative to this location
      */
     public String getPathRelativeToThis(String path) {
@@ -303,8 +306,12 @@ public final class Location implements Comparable<Location> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Location location = (Location) o;
 

@@ -67,23 +67,23 @@ public class SqlMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations(Context context) {
         List<ResolvedMigration> migrations = new ArrayList<>();
         String[] suffixes = configuration.getSqlMigrationSuffixes();
-        
+
         addMigrations(migrations, configuration.getSqlMigrationPrefix(), suffixes,
-                false
+                      false
 
 
 
-        );
+                     );
 
 
 
 
         addMigrations(migrations, configuration.getRepeatableSqlMigrationPrefix(), suffixes,
-                true
+                      true
 
 
 
-        );
+                     );
 
         migrations.sort(new ResolvedMigrationComparator());
         return migrations;
@@ -100,13 +100,16 @@ public class SqlMigrationResolver implements MigrationResolver {
                 }
 
                 @Override
-                public String getAbsolutePath() { return loadableResource.getAbsolutePath(); }
+                public String getAbsolutePath() {return loadableResource.getAbsolutePath();}
+
                 @Override
-                public String getAbsolutePathOnDisk() { return loadableResource.getAbsolutePathOnDisk(); }
+                public String getAbsolutePathOnDisk() {return loadableResource.getAbsolutePathOnDisk();}
+
                 @Override
-                public String getFilename() { return loadableResource.getFilename(); }
+                public String getFilename() {return loadableResource.getFilename();}
+
                 @Override
-                public String getRelativePath() { return loadableResource.getRelativePath(); }
+                public String getRelativePath() {return loadableResource.getRelativePath();}
             };
 
             list.add(placeholderReplacingLoadableResource);
@@ -136,7 +139,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-    ){
+                              ) {
         ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
 
         for (LoadableResource resource : resourceProvider.getResources(prefix, suffixes)) {
@@ -175,18 +178,18 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-                    MigrationType.SQL,
+                                    MigrationType.SQL,
                     resource.getAbsolutePathOnDisk(),
                     new SqlMigrationExecutor(sqlScriptExecutorFactory, sqlScript
 
 
 
 
-                             , false, false
+                                              , false, false
 
                     )) {
                 @Override
-                public void validate() { }
+                public void validate() {}
             });
         }
     }

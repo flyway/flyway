@@ -42,6 +42,7 @@ public class RetryStrategy {
 
     /**
      * Set the number of retries that are to be attempted before giving up.
+     *
      * @param retries The number of retries to attempt. To try forever, use -1.
      */
     public static void setNumberOfRetries(int retries) {
@@ -69,10 +70,9 @@ public class RetryStrategy {
      * - an InterruptedException happens
      * - the number of retries is exceeded.
      *
-     * @param callable               The callable to retry
-     * @param interruptionMessage    The message to relay if interruption happens
+     * @param callable The callable to retry
+     * @param interruptionMessage The message to relay if interruption happens
      * @param retriesExceededMessage The message to relay if the number of retries is exceeded
-     *
      * @throws SQLException
      */
     public void doWithRetries(SqlCallable<Boolean> callable, String interruptionMessage, String retriesExceededMessage) throws SQLException {

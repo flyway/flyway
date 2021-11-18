@@ -19,5 +19,6 @@ import java.util.Map;
 
 public interface ConfigurationExtension extends Plugin {
     void extractParametersFromConfiguration(Map<String, String> configuration);
+
     String getConfigurationParameterFromEnvironmentVariable(String environmentVariable);
 }

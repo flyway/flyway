@@ -35,5 +35,5 @@ public class TiDBDatabase extends MySQLDatabase {
     }
 
     @Override
-    protected boolean isCreateTableAsSelectAllowed() { return false;}
+    protected boolean isCreateTableAsSelectAllowed() {return false;}
 }

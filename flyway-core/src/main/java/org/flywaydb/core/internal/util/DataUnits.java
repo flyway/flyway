@@ -30,19 +30,21 @@ public enum DataUnits {
 
     /**
      * Returns the number of bytes for your number of data units
+     *
      * @param units Number of data units to convert to bytes
      * @return Number of bytes in data units
      */
-    public long toBytes(long units){
+    public long toBytes(long units) {
         return units * factor;
     }
 
     /**
      * Returns the number of data units for your number of bytes
+     *
      * @param bytes Number of bytes to convert to data units
      * @return Number of bytes in data units
      */
-    public long fromBytes(long bytes){
+    public long fromBytes(long bytes) {
         return bytes / factor;
     }
 

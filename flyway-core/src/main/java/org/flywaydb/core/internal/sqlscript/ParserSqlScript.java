@@ -54,9 +54,9 @@ public class ParserSqlScript implements SqlScript {
     /**
      * Creates a new sql script from this source.
      *
-     * @param resource         The sql script resource.
+     * @param resource The sql script resource.
      * @param metadataResource The sql script metadata resource.
-     * @param mixed            Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * @param mixed Whether to allow mixing transactional and non-transactional statements within the same migration.
      */
     public ParserSqlScript(Parser parser, LoadableResource resource, LoadableResource metadataResource, boolean mixed) {
         this.resource = resource;
@@ -107,7 +107,7 @@ public class ParserSqlScript implements SqlScript {
 
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
-                            + (sqlStatement.canExecuteInTransaction() ? "" : " [non-transactional]"));
+                                      + (sqlStatement.canExecuteInTransaction() ? "" : " [non-transactional]"));
                 }
             }
         }

@@ -40,22 +40,48 @@ public class MigrationInfoContext {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         MigrationInfoContext that = (MigrationInfoContext) o;
 
-        if (outOfOrder != that.outOfOrder) return false;
-        if (pending != that.pending) return false;
-        if (missing != that.missing) return false;
-        if (ignored != that.ignored) return false;
-        if (future != that.future) return false;
-        if (target != null ? !target.equals(that.target) : that.target != null) return false;
-        if (schema != null ? !schema.equals(that.schema) : that.schema != null) return false;
-        if (baseline != null ? !baseline.equals(that.baseline) : that.baseline != null) return false;
-        if (lastResolved != null ? !lastResolved.equals(that.lastResolved) : that.lastResolved != null) return false;
-        if (lastApplied != null ? !lastApplied.equals(that.lastApplied) : that.lastApplied != null) return false;
-        if (cherryPick != null ? !cherryPick.equals(that.cherryPick) : that.cherryPick != null) return false;
+        if (outOfOrder != that.outOfOrder) {
+            return false;
+        }
+        if (pending != that.pending) {
+            return false;
+        }
+        if (missing != that.missing) {
+            return false;
+        }
+        if (ignored != that.ignored) {
+            return false;
+        }
+        if (future != that.future) {
+            return false;
+        }
+        if (target != null ? !target.equals(that.target) : that.target != null) {
+            return false;
+        }
+        if (schema != null ? !schema.equals(that.schema) : that.schema != null) {
+            return false;
+        }
+        if (baseline != null ? !baseline.equals(that.baseline) : that.baseline != null) {
+            return false;
+        }
+        if (lastResolved != null ? !lastResolved.equals(that.lastResolved) : that.lastResolved != null) {
+            return false;
+        }
+        if (lastApplied != null ? !lastApplied.equals(that.lastApplied) : that.lastApplied != null) {
+            return false;
+        }
+        if (cherryPick != null ? !cherryPick.equals(that.cherryPick) : that.cherryPick != null) {
+            return false;
+        }
         return latestRepeatableRuns.equals(that.latestRepeatableRuns);
     }
 

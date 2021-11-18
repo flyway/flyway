@@ -26,6 +26,7 @@ import java.sql.SQLException;
 
 
 
+
 public class SnowflakeConnection extends Connection<SnowflakeDatabase> {
 
     private final String originalRole;
@@ -45,7 +46,7 @@ public class SnowflakeConnection extends Connection<SnowflakeDatabase> {
         jdbcTemplate.execute("USE ROLE " + database.doQuote(originalRole));
     }
 
-     @Override
+    @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         String schemaName = jdbcTemplate.queryForString("SELECT CURRENT_SCHEMA()");
         return (schemaName != null) ? schemaName : "PUBLIC";

@@ -42,7 +42,9 @@ public class DatabaseTypeRegister {
             if (typesAcceptingUrl.size() > 1) {
                 StringBuilder builder = new StringBuilder();
                 for (DatabaseType type : typesAcceptingUrl) {
-                    if (builder.length() > 0) builder.append(", ");
+                    if (builder.length() > 0) {
+                        builder.append(", ");
+                    }
                     builder.append(type.getName());
                 }
 

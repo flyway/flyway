@@ -21,8 +21,8 @@ import org.flywaydb.core.internal.database.DatabaseType;
 public class FlywayEditionUpgradeRequiredException extends FlywayException {
     public FlywayEditionUpgradeRequiredException(Edition edition, DatabaseType databaseType, String version) {
         super(edition + " or " + databaseType.getName() + " upgrade required: " + databaseType.getName() + " " + version
-                + " is no longer supported by " + VersionPrinter.EDITION + ","
-                + " but still supported by " + edition + ".");
+                      + " is no longer supported by " + VersionPrinter.EDITION + ","
+                      + " but still supported by " + edition + ".");
     }
 
     public FlywayEditionUpgradeRequiredException(Edition required, Edition current, String feature) {

@@ -49,7 +49,7 @@ public class PlainExecutionTemplate implements ExecutionTemplate {
             }
 
             if (e instanceof RuntimeException) {
-                throw (RuntimeException)e;
+                throw (RuntimeException) e;
             }
 
             throw new FlywayException(e);

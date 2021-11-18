@@ -44,7 +44,7 @@ public class ResourceName {
      */
     public static ResourceName invalid(String message) {
         return new ResourceName(null, null, null, null, null,
-                null, false, message);
+                                null, false, message);
     }
 
     /**

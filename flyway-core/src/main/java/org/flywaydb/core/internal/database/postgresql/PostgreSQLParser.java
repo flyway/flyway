@@ -56,19 +56,19 @@ public class PostgreSQLParser extends Parser {
 
 
 
-    ) throws IOException {
+                                                ) throws IOException {
         if (statementType == COPY) {
             return new PostgreSQLCopyParsedStatement(nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
-                    sql.substring(nonCommentPartPos - statementPos),
-                    readCopyData(reader, recorder));
+                                                     sql.substring(nonCommentPartPos - statementPos),
+                                                     readCopyData(reader, recorder));
         }
         return super.createStatement(reader, recorder, statementPos, statementLine, statementCol,
-                nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
-                statementType, canExecuteInTransaction, delimiter, sql
+                                     nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
+                                     statementType, canExecuteInTransaction, delimiter, sql
 
 
 
-        );
+                                    );
     }
 
     private String readCopyData(PeekingReader reader, Recorder recorder) throws IOException {
@@ -115,7 +115,7 @@ public class PostgreSQLParser extends Parser {
         } catch (Exception e) {
             LOG.debug("Unable to determine database version: " + e.getMessage());
         }
-        
+
         if (isDBVerUnder12 && ALTER_TYPE_ADD_VALUE_REGEX.matcher(simplifiedStatement).matches()) {
             return false;
         }

@@ -64,7 +64,7 @@ public class InsertRowLock {
                     LOG.debug("Waiting for lock on Flyway schema history table");
                 } else {
                     LOG.error("Waiting for lock on Flyway schema history table. Application may be deadlocked. Lock row may require manual removal " +
-                            "from the schema history table.");
+                                      "from the schema history table.");
                 }
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
@@ -81,16 +81,16 @@ public class InsertRowLock {
 
     private boolean insertLockingRow(String insertStatementTemplate, String booleanTrue) {
         String insertStatement = String.format(insertStatementTemplate.replace("?", "%s"),
-                -100,
-                "'" + tableLockString + "'",
-                "'flyway-lock'",
-                "''",
-                "''",
-                0,
-                "''",
-                0,
-                booleanTrue
-        );
+                                               -100,
+                                               "'" + tableLockString + "'",
+                                               "'flyway-lock'",
+                                               "''",
+                                               "''",
+                                               0,
+                                               "''",
+                                               0,
+                                               booleanTrue
+                                              );
 
         // Insert the locking row - the primary key-ness of 'installed_rank' will prevent us having two
         Results results = jdbcTemplate.executeStatement(insertStatement);
@@ -105,7 +105,7 @@ public class InsertRowLock {
         jdbcTemplate.execute(deleteLockStatement);
     }
 
-    private String getNextRandomString(){
+    private String getNextRandomString() {
         return new BigInteger(128, random).toString(16);
     }
 

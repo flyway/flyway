@@ -48,8 +48,8 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
      * Finds all the resource names contained in this file system folder.
      *
      * @param classPathRootOnDisk The location of the classpath root on disk, with a trailing slash.
-     * @param scanRootLocation    The root location of the scan on the classpath, without leading or trailing slashes.
-     * @param folder              The folder to look for resources under on disk.
+     * @param scanRootLocation The root location of the scan on the classpath, without leading or trailing slashes.
+     * @param folder The folder to look for resources under on disk.
      * @return The resource names;
      */
     /*private -> for testing*/
@@ -82,7 +82,7 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
      * Converts this file into a resource name on the classpath.
      *
      * @param classPathRootOnDisk The location of the classpath root on disk, with a trailing slash.
-     * @param file                The file.
+     * @param file The file.
      * @return The resource name on the classpath.
      */
     private String toResourceNameOnClasspath(String classPathRootOnDisk, File file) {

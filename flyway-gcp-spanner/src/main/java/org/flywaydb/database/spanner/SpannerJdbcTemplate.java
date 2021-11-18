@@ -40,7 +40,7 @@ public class SpannerJdbcTemplate extends JdbcTemplate {
                 statement.setInt(i + 1, (Integer) params[i]);
             } else if (params[i] instanceof Boolean) {
                 statement.setBoolean(i + 1, (Boolean) params[i]);
-            } else if (params[i] instanceof String){
+            } else if (params[i] instanceof String) {
                 statement.setString(i + 1, params[i].toString());
             } else if (params[i] == JdbcNullTypes.StringNull) {
                 statement.setNull(i + 1, Types.NVARCHAR);

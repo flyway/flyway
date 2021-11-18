@@ -72,7 +72,7 @@ public class FileLog implements Log {
         writeLogMessage(stackTrace);
     }
 
-    public void notice(String message) { }
+    public void notice(String message) {}
 
     private void writeLogMessage(String prefix, String message) {
         String logMessage = prefix + ": " + message;
@@ -82,7 +82,7 @@ public class FileLog implements Log {
     private void writeLogMessage(String logMessage) {
         try {
             Files.write(path, (logMessage + "\n").getBytes(), StandardOpenOption.APPEND, StandardOpenOption.WRITE);
-        } catch(IOException exception) {
+        } catch (IOException exception) {
             throw new FlywayException("Could not write to file at " + path + ".", exception);
         }
     }

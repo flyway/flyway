@@ -74,19 +74,19 @@ public class RedgateUpdateChecker {
             connection.setRequestProperty("Content-Type", "application/json; utf-8");
             connection.setDoOutput(true);
 
-            try(OutputStream os = connection.getOutputStream()) {
+            try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = getJsonPayload(jdbcUrl).getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
 
             StringBuilder response = new StringBuilder();
-            try(BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            try (BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                 String line;
                 while ((line = rd.readLine()) != null) {
                     response.append(line).append('\n');
                 }
             }
-            response.deleteCharAt(response.length()-1);
+            response.deleteCharAt(response.length() - 1);
 
             return response.toString();
         } catch (Exception e) {

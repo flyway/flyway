@@ -52,7 +52,7 @@ public class ParsedSqlStatement implements SqlStatement {
 
 
 
-    ) {
+                             ) {
         this.pos = pos;
         this.line = line;
         this.col = col;
@@ -91,7 +91,7 @@ public class ParsedSqlStatement implements SqlStatement {
 
 
 
-    ) {
+                          ) {
         return jdbcTemplate.executeStatement(sql);
     }
 }

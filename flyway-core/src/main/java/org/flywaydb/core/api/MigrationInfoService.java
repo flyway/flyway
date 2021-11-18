@@ -38,6 +38,7 @@ public interface MigrationInfoService extends InfoOutputProvider {
 
 
 
+
     /**
      * Retrieves the information of the current applied migration, if any.
      *

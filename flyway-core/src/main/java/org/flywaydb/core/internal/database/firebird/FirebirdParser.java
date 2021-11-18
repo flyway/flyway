@@ -58,7 +58,6 @@ public class FirebirdParser extends Parser {
         return (firstChar == 'q' || firstChar == 'Q') && peek.charAt(1) == '\'';
     }
 
-
     @Override
     protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
         reader.swallow(2);

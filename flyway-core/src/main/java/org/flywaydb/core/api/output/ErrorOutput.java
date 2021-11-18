@@ -45,7 +45,7 @@ public class ErrorOutput implements OperationResult {
         String message = exception.getMessage();
 
         if (exception instanceof FlywayException) {
-            FlywayException flywayException = (FlywayException)exception;
+            FlywayException flywayException = (FlywayException) exception;
 
             return new ErrorOutput(
                     flywayException.getErrorCode(),

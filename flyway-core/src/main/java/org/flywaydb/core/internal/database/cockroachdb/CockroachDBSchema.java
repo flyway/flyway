@@ -43,7 +43,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
     }
 
     private boolean doExistsOnce() throws SQLException {
-        if ( hasSchemaSupport ) {
+        if (hasSchemaSupport) {
             return jdbcTemplate.queryForBoolean("SELECT EXISTS ( SELECT 1 FROM information_schema.schemata WHERE schema_name=? )", name);
         }
         return jdbcTemplate.queryForBoolean("SELECT EXISTS ( SELECT 1 FROM pg_database WHERE datname=? )", name);
@@ -57,35 +57,35 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
     private boolean doEmptyOnce() throws SQLException {
         if (cockroachDB1) {
             return !jdbcTemplate.queryForBoolean("SELECT EXISTS (" +
-                    "  SELECT 1" +
-                    "  FROM information_schema.tables" +
-                    "  WHERE table_schema=?" +
-                    "  AND table_type='BASE TABLE'" +
-                    ")", name);
+                                                         "  SELECT 1" +
+                                                         "  FROM information_schema.tables" +
+                                                         "  WHERE table_schema=?" +
+                                                         "  AND table_type='BASE TABLE'" +
+                                                         ")", name);
         } else if (!hasSchemaSupport) {
             return !jdbcTemplate.queryForBoolean("SELECT EXISTS (" +
-                    "  SELECT 1" +
-                    "  FROM information_schema.tables " +
-                    "  WHERE table_catalog=?" +
-                    "  AND table_schema='public'" +
-                    "  AND table_type='BASE TABLE'" +
-                    " UNION ALL" +
-                    "  SELECT 1" +
-                    "  FROM information_schema.sequences " +
-                    "  WHERE sequence_catalog=?" +
-                    "  AND sequence_schema='public'" +
-                    ")", name, name);
+                                                         "  SELECT 1" +
+                                                         "  FROM information_schema.tables " +
+                                                         "  WHERE table_catalog=?" +
+                                                         "  AND table_schema='public'" +
+                                                         "  AND table_type='BASE TABLE'" +
+                                                         " UNION ALL" +
+                                                         "  SELECT 1" +
+                                                         "  FROM information_schema.sequences " +
+                                                         "  WHERE sequence_catalog=?" +
+                                                         "  AND sequence_schema='public'" +
+                                                         ")", name, name);
         } else {
             return !jdbcTemplate.queryForBoolean("SELECT EXISTS (" +
-                    "  SELECT 1" +
-                    "  FROM information_schema.tables " +
-                    "  WHERE table_schema=?" +
-                    "  AND table_type='BASE TABLE'" +
-                    " UNION ALL" +
-                    "  SELECT 1" +
-                    "  FROM information_schema.sequences " +
-                    "  WHERE sequence_schema=?" +
-                    ")", name, name);
+                                                         "  SELECT 1" +
+                                                         "  FROM information_schema.tables " +
+                                                         "  WHERE table_schema=?" +
+                                                         "  AND table_type='BASE TABLE'" +
+                                                         " UNION ALL" +
+                                                         "  SELECT 1" +
+                                                         "  FROM information_schema.sequences " +
+                                                         "  WHERE sequence_schema=?" +
+                                                         ")", name, name);
         }
     }
 
@@ -98,7 +98,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
     }
 
     protected void doCreateOnce() throws SQLException {
-        if ( hasSchemaSupport ) {
+        if (hasSchemaSupport) {
             jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS " + database.quote(name));
         } else {
             jdbcTemplate.execute("CREATE DATABASE IF NOT EXISTS " + database.quote(name));
@@ -114,7 +114,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
     }
 
     protected void doDropOnce() throws SQLException {
-        if ( hasSchemaSupport ) {
+        if (hasSchemaSupport) {
             jdbcTemplate.execute("DROP SCHEMA IF EXISTS " + database.quote(name) + " CASCADE");
         } else {
             jdbcTemplate.execute("DROP DATABASE IF EXISTS " + database.quote(name));

@@ -55,15 +55,23 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * Create a MigrationVersion from a version String.
      *
      * @param version The version String. The value {@code current} will be interpreted as MigrationVersion.CURRENT,
-     *                a marker for the latest version that has been applied to the database.
+     * a marker for the latest version that has been applied to the database.
      * @return The MigrationVersion
      */
     @SuppressWarnings("ConstantConditions")
     public static MigrationVersion fromVersion(String version) {
-        if ("current".equalsIgnoreCase(version)) return CURRENT;
-        if ("next".equalsIgnoreCase(version)) return NEXT;
-        if ("latest".equalsIgnoreCase(version) || LATEST.getVersion().equals(version)) return LATEST;
-        if (version == null) return EMPTY;
+        if ("current".equalsIgnoreCase(version)) {
+            return CURRENT;
+        }
+        if ("next".equalsIgnoreCase(version)) {
+            return NEXT;
+        }
+        if ("latest".equalsIgnoreCase(version) || LATEST.getVersion().equals(version)) {
+            return LATEST;
+        }
+        if (version == null) {
+            return EMPTY;
+        }
         return new MigrationVersion(version);
     }
 
@@ -71,7 +79,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * Creates a Version using this version string.
      *
      * @param version The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
-     *                means that this version refers to an empty schema.
+     * means that this version refers to an empty schema.
      */
     private MigrationVersion(String version) {
         String normalizedVersion = version.replace('_', '.');
@@ -80,8 +88,8 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     }
 
     /**
-     * @param version     The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
-     *                    means that this version refers to an empty schema.
+     * @param version The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
+     * means that this version refers to an empty schema.
      * @param displayText The alternative text to display instead of the version number.
      */
     private MigrationVersion(BigInteger version, String displayText) {
@@ -99,15 +107,23 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @return Numeric version as String
      */
     public String getVersion() {
-        if (this.equals(EMPTY)) return null;
-        if (this.equals(LATEST)) return Long.toString(Long.MAX_VALUE);
+        if (this.equals(EMPTY)) {
+            return null;
+        }
+        if (this.equals(LATEST)) {
+            return Long.toString(Long.MAX_VALUE);
+        }
         return displayText;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         MigrationVersion version1 = (MigrationVersion) o;
 
@@ -180,8 +196,11 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         }
 
         if (this == EMPTY) {
-            if (o == EMPTY) return 0;
-            else return -1;
+            if (o == EMPTY) {
+                return 0;
+            } else {
+                return -1;
+            }
         }
 
         if (this == CURRENT) {
@@ -189,8 +208,11 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         }
 
         if (this == LATEST) {
-            if (o == LATEST) return 0;
-            else return 1;
+            if (o == LATEST) {
+                return 0;
+            } else {
+                return 1;
+            }
         }
 
         if (o == EMPTY) {

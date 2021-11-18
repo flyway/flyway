@@ -57,19 +57,19 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
     protected boolean doExistsOnce() throws SQLException {
         if (schema.cockroachDB1) {
             return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
-                    "   SELECT 1\n" +
-                    "   FROM   information_schema.tables \n" +
-                    "   WHERE  table_schema = ?\n" +
-                    "   AND    table_name = ?\n" +
-                    ")", schema.getName(), name);
+                                                        "   SELECT 1\n" +
+                                                        "   FROM   information_schema.tables \n" +
+                                                        "   WHERE  table_schema = ?\n" +
+                                                        "   AND    table_name = ?\n" +
+                                                        ")", schema.getName(), name);
         } else if (!schema.hasSchemaSupport) {
             return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
-                    "   SELECT 1\n" +
-                    "   FROM   information_schema.tables \n" +
-                    "   WHERE  table_catalog = ?\n" +
-                    "   AND    table_schema = 'public'\n" +
-                    "   AND    table_name = ?\n" +
-                    ")", schema.getName(), name);
+                                                        "   SELECT 1\n" +
+                                                        "   FROM   information_schema.tables \n" +
+                                                        "   WHERE  table_catalog = ?\n" +
+                                                        "   AND    table_schema = 'public'\n" +
+                                                        "   AND    table_name = ?\n" +
+                                                        ")", schema.getName(), name);
         } else {
             // There is a bug in CockroachDB v20.2.0-beta.* which causes the string equality operator to not work as
             // expected, therefore we apply a workaround using the like operator.
@@ -78,7 +78,7 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
                     "   SELECT 1\n" +
                     "   FROM   information_schema.tables \n" +
                     "   WHERE  table_schema = ?\n" +
-                    "   AND    table_name like '%"+name+"%' and length(table_name) = length(?)\n" +
+                    "   AND    table_name like '%" + name + "%' and length(table_name) = length(?)\n" +
                     ")";
             return jdbcTemplate.queryForBoolean(sql, schema.getName(), name);
         }
@@ -89,8 +89,8 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
         String updateLockStatement = "UPDATE " + this + " SET installed_on = now() WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
         String deleteExpiredLockStatement =
                 " DELETE FROM " + this +
-                " WHERE DESCRIPTION = 'flyway-lock'" +
-                " AND installed_on < TIMESTAMP '?'";
+                        " WHERE DESCRIPTION = 'flyway-lock'" +
+                        " AND installed_on < TIMESTAMP '?'";
 
         if (lockDepth == 0) {
             insertRowLock.doLock(database.getInsertStatement(this), updateLockStatement, deleteExpiredLockStatement, database.getBooleanTrue());

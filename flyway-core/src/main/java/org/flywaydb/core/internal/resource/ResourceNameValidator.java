@@ -31,6 +31,7 @@ import java.util.List;
 public class ResourceNameValidator {
     /**
      * Validates the names of all SQL resources returned by the ResourceProvider
+     *
      * @param provider The ResourceProvider to validate
      * @param configuration The configuration to use
      */

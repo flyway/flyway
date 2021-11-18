@@ -88,7 +88,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         return false;
     }
 
-   static boolean isRunningInGTIDConsistencyMode(JdbcTemplate jdbcTemplate) {
+    static boolean isRunningInGTIDConsistencyMode(JdbcTemplate jdbcTemplate) {
         try {
             String gtidConsistency = jdbcTemplate.queryForString("SELECT @@GLOBAL.ENFORCE_GTID_CONSISTENCY");
             if ("ON".equals(gtidConsistency)) {
@@ -214,6 +214,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         }
         throw new FlywayException("Unable to determine version from '" + versionString + "'");
     }
+
 
 
 

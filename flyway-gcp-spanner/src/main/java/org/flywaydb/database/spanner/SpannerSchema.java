@@ -44,10 +44,10 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        try (Connection c = database.getNewRawConnection()){
+        try (Connection c = database.getNewRawConnection()) {
             Statement s = c.createStatement();
             s.close();
-            try(ResultSet tables = c.getMetaData().getTables("", "", null, null)){
+            try (ResultSet tables = c.getMetaData().getTables("", "", null, null)) {
                 return !tables.next();
             }
         }
@@ -67,7 +67,7 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
     protected void doClean() throws SQLException {
         List<String> statements = new ArrayList<>();
 
-        for (String[] foreignKeyAndTable: doAllForeignKeys()) {
+        for (String[] foreignKeyAndTable : doAllForeignKeys()) {
             String foreignKey = foreignKeyAndTable[0];
             String table = foreignKeyAndTable[1];
             statements.add("ALTER TABLE " + table + " DROP CONSTRAINT " + foreignKey);
@@ -85,7 +85,7 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
         statements.clear();
 
         for (Table table : doAllTables()) {
-            for (String index: doAllIndexes(table)) {
+            for (String index : doAllIndexes(table)) {
                 if (!index.equalsIgnoreCase("PRIMARY_KEY")) {
                     jdbcTemplate.execute("DROP INDEX " + index);
                 }
@@ -111,7 +111,7 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
         ResultSet tablesRs = c.getMetaData().getTables("", "", null, null);
         while (tablesRs.next()) {
             tablesList.add(new SpannerTable(jdbcTemplate, database, this,
-                    tablesRs.getString("TABLE_NAME")));
+                                            tablesRs.getString("TABLE_NAME")));
         }
         tablesRs.close();
 
@@ -123,11 +123,11 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
         List<String[]> foreignKeyAndTableList = new ArrayList<>();
 
         Results foreignKeyRs = jdbcTemplate.executeStatement("SELECT CONSTRAINT_NAME, TABLE_NAME " +
-                "FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS " +
-                "WHERE CONSTRAINT_TYPE='FOREIGN KEY'");
+                                                                     "FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS " +
+                                                                     "WHERE CONSTRAINT_TYPE='FOREIGN KEY'");
 
-        for (Result result: foreignKeyRs.getResults()) {
-            for (List<String> row: result.getData()) {
+        for (Result result : foreignKeyRs.getResults()) {
+            for (List<String> row : result.getData()) {
                 String[] foreignKeyAndTable = {row.get(0), row.get(1)};
                 foreignKeyAndTableList.add(foreignKeyAndTable);
             }

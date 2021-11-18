@@ -289,8 +289,8 @@ public abstract class Database<C extends Connection> implements Closeable {
      * Retrieves the script used to create the schema history table.
      *
      * @param sqlScriptFactory The factory used to create the SQL script.
-     * @param table            The table to create.
-     * @param baseline         Whether to include the creation of a baseline marker.
+     * @param table The table to create.
+     * @param baseline Whether to include the creation of a baseline marker.
      */
     public final SqlScript getCreateScript(SqlScriptFactory sqlScriptFactory, Table table, boolean baseline) {
         return sqlScriptFactory.createSqlScript(new StringResource(getRawCreateScript(table, baseline)), false, null);
@@ -315,16 +315,16 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     public final String getBaselineStatement(Table table) {
         return String.format(getInsertStatement(table).replace("?", "%s"),
-                1,
-                "'" + configuration.getBaselineVersion() + "'",
-                "'" + AbbreviationUtils.abbreviateDescription(configuration.getBaselineDescription()) + "'",
-                "'" + MigrationType.BASELINE + "'",
-                "'" + AbbreviationUtils.abbreviateScript(configuration.getBaselineDescription()) + "'",
-                "NULL",
-                "'" + installedBy + "'",
-                0,
-                getBooleanTrue()
-        );
+                             1,
+                             "'" + configuration.getBaselineVersion() + "'",
+                             "'" + AbbreviationUtils.abbreviateDescription(configuration.getBaselineDescription()) + "'",
+                             "'" + MigrationType.BASELINE + "'",
+                             "'" + AbbreviationUtils.abbreviateScript(configuration.getBaselineDescription()) + "'",
+                             "NULL",
+                             "'" + installedBy + "'",
+                             0,
+                             getBooleanTrue()
+                            );
     }
 
     public String getSelectStatement(Table table) {
@@ -363,9 +363,9 @@ public abstract class Database<C extends Connection> implements Closeable {
         return databaseType;
     }
 
-    public boolean supportsEmptyMigrationDescription() { return true; }
+    public boolean supportsEmptyMigrationDescription() {return true;}
 
-    public boolean supportsMultiStatementTransactions() { return true; }
+    public boolean supportsMultiStatementTransactions() {return true;}
 
     /**
      * Cleans all the objects in this database that need to be cleaned before each schema.
@@ -383,7 +383,7 @@ public abstract class Database<C extends Connection> implements Closeable {
      *
      * @throws SQLException when the clean failed.
      */
-    protected void doCleanPreSchemas() throws SQLException { }
+    protected void doCleanPreSchemas() throws SQLException {}
 
     /**
      * Cleans all the objects in this database that need to be cleaned after each schema.
@@ -404,7 +404,7 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @param schemas The list of schemas managed by Flyway.
      * @throws SQLException when the clean failed.
      */
-    protected void doCleanPostSchemas(Schema[] schemas) throws SQLException { }
+    protected void doCleanPostSchemas(Schema[] schemas) throws SQLException {}
 
     public Schema[] getAllSchemas() {
         throw new UnsupportedOperationException("Getting all schemas not supported for " + getDatabaseType().getName());

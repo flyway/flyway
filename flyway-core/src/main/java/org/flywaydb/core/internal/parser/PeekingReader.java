@@ -142,7 +142,7 @@ public class PeekingReader extends FilterReader {
     }
 
     private boolean isKeywordPart(int r, ParserContext context) {
-        return r != -1 && ((char) r == '_' || (char) r == '$' || Character.isLetterOrDigit((char) r) || context.isLetter((char)r));
+        return r != -1 && ((char) r == '_' || (char) r == '$' || Character.isLetterOrDigit((char) r) || context.isLetter((char) r));
     }
 
     /**
@@ -253,7 +253,7 @@ public class PeekingReader extends FilterReader {
      * Swallows all characters in this stream until this delimiting character has been encountered, taking into account
      * this escape character for the delimiting character.
      *
-     * @param delimiter  The delimiting character.
+     * @param delimiter The delimiting character.
      * @param selfEscape Whether the delimiter can escape itself by being present twice.
      */
     public void swallowUntilIncludingWithEscape(char delimiter, boolean selfEscape) throws IOException {
@@ -264,9 +264,9 @@ public class PeekingReader extends FilterReader {
      * Swallows all characters in this stream until this delimiting character has been encountered, taking into account
      * this escape character for the delimiting character.
      *
-     * @param delimiter  The delimiting character.
+     * @param delimiter The delimiting character.
      * @param selfEscape Whether the delimiter can escape itself by being present twice.
-     * @param escape     A separate escape character.
+     * @param escape A separate escape character.
      */
     public void swallowUntilIncludingWithEscape(char delimiter, boolean selfEscape, char escape) throws IOException {
         do {
@@ -293,7 +293,7 @@ public class PeekingReader extends FilterReader {
      * Reads all characters in this stream until this delimiting character has been encountered, taking into account
      * this escape character for the delimiting character.
      *
-     * @param delimiter  The delimiting character.
+     * @param delimiter The delimiting character.
      * @param selfEscape Whether the delimiter can escape itself by being present twice.
      * @return The string read, without the delimiting character.
      */
@@ -305,9 +305,9 @@ public class PeekingReader extends FilterReader {
      * Reads all characters in this stream until this delimiting character has been encountered, taking into account
      * this escape character for the delimiting character.
      *
-     * @param delimiter  The delimiting character.
+     * @param delimiter The delimiting character.
      * @param selfEscape Whether the delimiter can escape itself by being present twice.
-     * @param escape     A separate escape character.
+     * @param escape A separate escape character.
      * @return The string read, without the delimiting character.
      */
     public String readUntilExcludingWithEscape(char delimiter, boolean selfEscape, char escape) throws IOException {

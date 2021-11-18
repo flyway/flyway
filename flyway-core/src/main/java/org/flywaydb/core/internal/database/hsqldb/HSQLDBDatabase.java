@@ -53,6 +53,7 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
 
 
 
+
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("1.8");

@@ -29,7 +29,7 @@ public class FlywayException extends RuntimeException {
      * Creates a new FlywayException with this message, cause, and error code.
      *
      * @param message The exception message.
-     * @param cause   The exception cause.
+     * @param cause The exception cause.
      * @param errorCode The error code.
      */
     public FlywayException(String message, Throwable cause, ErrorCode errorCode) {
@@ -52,7 +52,7 @@ public class FlywayException extends RuntimeException {
      * Creates a new FlywayException with this message and this cause.
      *
      * @param message The exception message.
-     * @param cause   The exception cause.
+     * @param cause The exception cause.
      */
     public FlywayException(String message, Throwable cause) {
         super(message, cause);
@@ -61,7 +61,7 @@ public class FlywayException extends RuntimeException {
     /**
      * Creates a new FlywayException with this cause. For use in subclasses that override getMessage().
      *
-     * @param cause   The exception cause.
+     * @param cause The exception cause.
      */
     public FlywayException(Throwable cause) {
         super(cause);

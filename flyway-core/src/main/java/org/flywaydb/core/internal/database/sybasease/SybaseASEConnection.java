@@ -26,7 +26,6 @@ public class SybaseASEConnection extends Connection<SybaseASEDatabase> {
         super(database, connection);
     }
 
-
     @Override
     public Schema getSchema(String name) {
         //Sybase does not support schemas, nor changing users on the fly. Always return the same dummy schema.

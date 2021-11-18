@@ -111,7 +111,7 @@ public class FileSystemScanner {
      * Finds all the resource names contained in this file system folder.
      *
      * @param scanRootLocation The root location of the scan on disk.
-     * @param folder           The folder to look for resources under on disk.
+     * @param folder The folder to look for resources under on disk.
      * @return The resource names;
      */
     private Set<String> findResourceNamesFromFileSystem(String scanRootLocation, File folder) {

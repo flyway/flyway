@@ -30,8 +30,8 @@ public class FirebirdSchema extends Schema<FirebirdDatabase, FirebirdTable> {
      * Creates a new Firebird schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
+     * @param database The database-specific support.
+     * @param name The name of the schema.
      */
     public FirebirdSchema(JdbcTemplate jdbcTemplate, FirebirdDatabase database, String name) {
         super(jdbcTemplate, database, name);
@@ -49,47 +49,47 @@ public class FirebirdSchema extends Schema<FirebirdDatabase, FirebirdTable> {
         // database == schema, check content of database
         // Check for all object types except custom collations and roles
         return 0 == jdbcTemplate.queryForInt("select count(*)\n" +
-                "from (\n" +
-                "  -- views and tables\n" +
-                "  select RDB$RELATION_NAME AS OBJECT_NAME\n" +
-                "  from RDB$RELATIONS\n" +
-                "  where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
-                "  union all\n" +
-                "  -- stored procedures\n" +
-                "  select RDB$PROCEDURE_NAME\n" +
-                "  from RDB$PROCEDURES\n" +
-                "  where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
-                "  union all\n" +
-                "  -- triggers\n" +
-                "  select RDB$TRIGGER_NAME\n" +
-                "  from RDB$TRIGGERS\n" +
-                "  where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
-                "  union all\n" +
-                "  -- functions\n" +
-                "  select RDB$FUNCTION_NAME\n" +
-                "  from RDB$FUNCTIONS\n" +
-                "  where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
-                "  union all\n" +
-                "  -- sequences\n" +
-                "  select RDB$GENERATOR_NAME\n" +
-                "  from RDB$GENERATORS\n" +
-                "  where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
-                "  union all\n" +
-                "  -- exceptions\n" +
-                "  select RDB$EXCEPTION_NAME\n" +
-                "  from RDB$EXCEPTIONS\n" +
-                "  where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
-                "  union all\n" +
-                "  -- domains\n" +
-                "  select RDB$FIELD_NAME\n" +
-                "  from RDB$FIELDS\n" +
-                "  where RDB$FIELD_NAME not starting with 'RDB$'\n" +
-                "  and (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
-                "union all\n" +
-                "-- packages\n" +
-                "select RDB$PACKAGE_NAME\n" +
-                "from RDB$PACKAGES\n" +
-                "where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)) a");
+                                                     "from (\n" +
+                                                     "  -- views and tables\n" +
+                                                     "  select RDB$RELATION_NAME AS OBJECT_NAME\n" +
+                                                     "  from RDB$RELATIONS\n" +
+                                                     "  where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
+                                                     "  union all\n" +
+                                                     "  -- stored procedures\n" +
+                                                     "  select RDB$PROCEDURE_NAME\n" +
+                                                     "  from RDB$PROCEDURES\n" +
+                                                     "  where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
+                                                     "  union all\n" +
+                                                     "  -- triggers\n" +
+                                                     "  select RDB$TRIGGER_NAME\n" +
+                                                     "  from RDB$TRIGGERS\n" +
+                                                     "  where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
+                                                     "  union all\n" +
+                                                     "  -- functions\n" +
+                                                     "  select RDB$FUNCTION_NAME\n" +
+                                                     "  from RDB$FUNCTIONS\n" +
+                                                     "  where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
+                                                     "  union all\n" +
+                                                     "  -- sequences\n" +
+                                                     "  select RDB$GENERATOR_NAME\n" +
+                                                     "  from RDB$GENERATORS\n" +
+                                                     "  where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
+                                                     "  union all\n" +
+                                                     "  -- exceptions\n" +
+                                                     "  select RDB$EXCEPTION_NAME\n" +
+                                                     "  from RDB$EXCEPTIONS\n" +
+                                                     "  where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
+                                                     "  union all\n" +
+                                                     "  -- domains\n" +
+                                                     "  select RDB$FIELD_NAME\n" +
+                                                     "  from RDB$FIELDS\n" +
+                                                     "  where RDB$FIELD_NAME not starting with 'RDB$'\n" +
+                                                     "  and (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)\n" +
+                                                     "union all\n" +
+                                                     "-- packages\n" +
+                                                     "select RDB$PACKAGE_NAME\n" +
+                                                     "from RDB$PACKAGES\n" +
+                                                     "where (RDB$SYSTEM_FLAG is null or RDB$SYSTEM_FLAG = 0)) a");
     }
 
     @Override
@@ -116,7 +116,7 @@ public class FirebirdSchema extends Schema<FirebirdDatabase, FirebirdTable> {
             jdbcTemplate.execute(dropViewStmt);
         }
 
-        for (String dropConstraintStmt: generateDropConstraintStatements()) {
+        for (String dropConstraintStmt : generateDropConstraintStatements()) {
             jdbcTemplate.execute(dropConstraintStmt);
         }
 
@@ -142,18 +142,18 @@ public class FirebirdSchema extends Schema<FirebirdDatabase, FirebirdTable> {
 
     private List<String> generateDropConstraintStatements() throws SQLException {
         return jdbcTemplate.query(
-                    "select RDB$RELATION_NAME, RDB$CONSTRAINT_NAME\n" +
-                            "from RDB$RELATION_CONSTRAINTS\n" +
-                            "where RDB$RELATION_NAME NOT LIKE 'RDB$%'\n" +
-                            "and RDB$CONSTRAINT_TYPE='FOREIGN KEY'",
-                    new RowMapper<String>() {
-                        @Override
-                        public String mapRow(ResultSet rs) throws SQLException {
-                            String tableName = rs.getString(1);
-                            String constraintName = rs.getString(2);
-                            return "ALTER TABLE " + tableName + " DROP CONSTRAINT " + constraintName;
-                        }
-                    });
+                "select RDB$RELATION_NAME, RDB$CONSTRAINT_NAME\n" +
+                        "from RDB$RELATION_CONSTRAINTS\n" +
+                        "where RDB$RELATION_NAME NOT LIKE 'RDB$%'\n" +
+                        "and RDB$CONSTRAINT_TYPE='FOREIGN KEY'",
+                new RowMapper<String>() {
+                    @Override
+                    public String mapRow(ResultSet rs) throws SQLException {
+                        String tableName = rs.getString(1);
+                        String constraintName = rs.getString(2);
+                        return "ALTER TABLE " + tableName + " DROP CONSTRAINT " + constraintName;
+                    }
+                });
     }
 
     private List<String> generateDropPackageStatements() throws SQLException {

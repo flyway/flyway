@@ -48,7 +48,7 @@ public class PostgreSQLAdvisoryLockTemplate {
     /**
      * Creates a new advisory lock template for this connection.
      *
-     * @param jdbcTemplate  The jdbcTemplate for the connection.
+     * @param jdbcTemplate The jdbcTemplate for the connection.
      * @param discriminator A number to discriminate between locks.
      */
     PostgreSQLAdvisoryLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {
@@ -85,15 +85,15 @@ public class PostgreSQLAdvisoryLockTemplate {
     private void lock() throws SQLException {
         RetryStrategy strategy = new RetryStrategy();
         strategy.doWithRetries(this::tryLock,
-                "Interrupted while attempting to acquire PostgreSQL advisory lock",
-                "Number of retries exceeded while attempting to acquire PostgreSQL advisory lock. " +
-                        "Configure the number of retries with the 'lockRetryCount' configuration option: " +
-                        FlywayDbWebsiteLinks.LOCK_RETRY_COUNT);
+                               "Interrupted while attempting to acquire PostgreSQL advisory lock",
+                               "Number of retries exceeded while attempting to acquire PostgreSQL advisory lock. " +
+                                       "Configure the number of retries with the 'lockRetryCount' configuration option: " +
+                                       FlywayDbWebsiteLinks.LOCK_RETRY_COUNT);
     }
 
     private boolean tryLock() throws SQLException {
         List<Boolean> results = jdbcTemplate.query("SELECT pg_try_advisory_lock(" + lockNum + ")",
-                rs -> rs.getBoolean("pg_try_advisory_lock"));
+                                                   rs -> rs.getBoolean("pg_try_advisory_lock"));
         return results.size() == 1 && results.get(0);
     }
 

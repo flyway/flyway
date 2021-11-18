@@ -62,7 +62,7 @@ public class LogFactory {
      * auto-detection logic fails to detect a suitable LogCreator based on the log libraries present on the classpath.
      *
      * @param fallbackLogCreator The factory for implementation-specific loggers to be used as a fallback when no other
-     *                           suitable loggers were found.
+     * suitable loggers were found.
      */
     @Setter(onMethod = @__(@Synchronized))
     private static LogCreator fallbackLogCreator;
@@ -96,7 +96,7 @@ public class LogFactory {
 
         String[] loggers = configuration.getLoggers();
         List<LogCreator> logCreators = new ArrayList<>();
-        
+
         for (String logger : loggers) {
             switch (logger.toLowerCase()) {
                 case "auto":

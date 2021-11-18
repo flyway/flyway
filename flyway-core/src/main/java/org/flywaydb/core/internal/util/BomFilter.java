@@ -20,6 +20,7 @@ public class BomFilter {
 
     /**
      * Determine if this char is a UTF-8 Byte Order Mark
+     *
      * @param c The char to check
      * @return Whether this char is a UTF-8 Byte Order Mark
      */
@@ -29,6 +30,7 @@ public class BomFilter {
 
     /**
      * Removes the UTF-8 Byte Order Mark from the start of a string if present.
+     *
      * @param s The string
      * @return The string without a Byte Order Mark at the start
      */
@@ -37,10 +39,10 @@ public class BomFilter {
             return s;
         }
 
-       if (isBom(s.charAt(0))) {
-           return s.substring(1);
-       }
+        if (isBom(s.charAt(0))) {
+            return s.substring(1);
+        }
 
-       return s;
+        return s;
     }
 }

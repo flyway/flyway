@@ -59,7 +59,7 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         this.executor = executor;
     }
 
-    public void validate() { }
+    public void validate() {}
 
     @Override
     public Integer getChecksum() {
@@ -73,16 +73,30 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ResolvedMigrationImpl migration = (ResolvedMigrationImpl) o;
 
-        if (checksum != null ? !checksum.equals(migration.checksum) : migration.checksum != null) return false;
-        if (equivalentChecksum != null ? !equivalentChecksum.equals(migration.equivalentChecksum) : migration.equivalentChecksum != null) return false;
-        if (description != null ? !description.equals(migration.description) : migration.description != null) return false;
-        if (script != null ? !script.equals(migration.script) : migration.script != null) return false;
-        if (type != migration.type) return false;
+        if (checksum != null ? !checksum.equals(migration.checksum) : migration.checksum != null) {
+            return false;
+        }
+        if (equivalentChecksum != null ? !equivalentChecksum.equals(migration.equivalentChecksum) : migration.equivalentChecksum != null) {
+            return false;
+        }
+        if (description != null ? !description.equals(migration.description) : migration.description != null) {
+            return false;
+        }
+        if (script != null ? !script.equals(migration.script) : migration.script != null) {
+            return false;
+        }
+        if (type != migration.type) {
+            return false;
+        }
         return Objects.equals(version, migration.version);
     }
 

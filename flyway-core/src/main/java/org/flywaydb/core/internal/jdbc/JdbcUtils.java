@@ -38,7 +38,7 @@ public class JdbcUtils {
     /**
      * Opens a new connection from this dataSource.
      *
-     * @param dataSource     The dataSource to obtain the connection from.
+     * @param dataSource The dataSource to obtain the connection from.
      * @param connectRetries The maximum number of retries when attempting to connect to the database.
      * @param connectRetriesInterval The maximum time between retries in seconds
      * @return The new connection.
@@ -53,18 +53,18 @@ public class JdbcUtils {
             } catch (SQLException e) {
                 if ("08S01".equals(e.getSQLState()) && e.getMessage().contains("This driver is not configured for integrated authentication")) {
                     throw new FlywaySqlException("Unable to obtain connection from database"
-                            + getDataSourceInfo(dataSource) + ": " + e.getMessage() + "\nTo setup integrated authentication see " +
-                            FlywayDbWebsiteLinks.WINDOWS_AUTH, e);
+                                                         + getDataSourceInfo(dataSource) + ": " + e.getMessage() + "\nTo setup integrated authentication see " +
+                                                         FlywayDbWebsiteLinks.WINDOWS_AUTH, e);
                 } else if (e.getSQLState() == null && e.getMessage().contains("MSAL4J")) {
                     throw new FlywaySqlException("Unable to obtain connection from database"
-                            + getDataSourceInfo(dataSource) + ": " + e.getMessage() +
-                            "\nYou need to install some extra drivers in order for interactive authentication to work." +
-                            "\nFor instructions, see " + FlywayDbWebsiteLinks.AZURE_ACTIVE_DIRECTORY, e);
+                                                         + getDataSourceInfo(dataSource) + ": " + e.getMessage() +
+                                                         "\nYou need to install some extra drivers in order for interactive authentication to work." +
+                                                         "\nFor instructions, see " + FlywayDbWebsiteLinks.AZURE_ACTIVE_DIRECTORY, e);
                 }
 
                 if (++retries > connectRetries) {
                     throw new FlywaySqlException("Unable to obtain connection from database"
-                            + getDataSourceInfo(dataSource) + ": " + e.getMessage(), e);
+                                                         + getDataSourceInfo(dataSource) + ": " + e.getMessage(), e);
                 }
                 Throwable rootCause = ExceptionUtils.getRootCause(e);
                 String msg = "Connection error: " + e.getMessage();
@@ -76,7 +76,7 @@ public class JdbcUtils {
                     Thread.sleep(backoffStrategy.next() * 1000);
                 } catch (InterruptedException e1) {
                     throw new FlywaySqlException("Unable to obtain connection from database"
-                            + getDataSourceInfo(dataSource) + ": " + e.getMessage(), e);
+                                                         + getDataSourceInfo(dataSource) + ": " + e.getMessage(), e);
                 }
             }
         }

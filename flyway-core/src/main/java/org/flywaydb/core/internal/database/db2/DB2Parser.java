@@ -55,7 +55,7 @@ public class DB2Parser extends Parser {
                 ("BEGIN".equals(keyword.getText()) && (!"ROW".equals(previousKeyword) || previousPreviousToken == null || "EACH".equals(previousPreviousToken)))
                         // Control flow keywords increase depth
                         || CONTROL_FLOW_KEYWORDS.contains(keyword.getText())
-                       ) {
+        ) {
             // But not END IF and END WHILE
             if (!previousTokenIsKeyword || !"END".equals(previousKeyword)) {
                 context.increaseBlockDepth(keyword.getText());

@@ -447,7 +447,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
      * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
-     *{@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
+     * {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
      */
     public Boolean validateMigrationNaming;
 
@@ -1029,7 +1029,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * Converts this file name into a file, adjusting relative paths if necessary to make them relative to the pom.
      *
-     * @param workingDirectory  The working directory to use.
+     * @param workingDirectory The working directory to use.
      * @param fileName The name of the file, relative or absolute.
      * @return The resulting file.
      */
@@ -1074,7 +1074,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * Collect error messages from the stack trace.
      *
      * @param throwable Throwable instance from which the message should be built.
-     * @param message   The message to which the error message will be appended.
+     * @param message The message to which the error message will be appended.
      * @return A String containing the composed messages.
      */
     private String collectMessages(Throwable throwable, String message) {

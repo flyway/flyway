@@ -25,7 +25,7 @@ public class BooleanEvaluator {
      * and combinations of those using ( ) (precedence), && (AND), || (OR)
      *
      * @param expression The string containing the boolean expression.
-     * @return           The boolean value the expression evaluates to.
+     * @return The boolean value the expression evaluates to.
      */
     public static boolean evaluateExpression(String expression) {
         while (expression.contains("(")) {

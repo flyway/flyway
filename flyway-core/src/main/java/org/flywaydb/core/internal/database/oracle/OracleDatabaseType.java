@@ -123,9 +123,9 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
     @Override
     public SqlScriptExecutorFactory createSqlScriptExecutorFactory(JdbcConnectionFactory jdbcConnectionFactory,
-            final CallbackExecutor callbackExecutor,
-            final StatementInterceptor statementInterceptor
-    ) {
+                                                                   final CallbackExecutor callbackExecutor,
+                                                                   final StatementInterceptor statementInterceptor
+                                                                  ) {
 
 
 
@@ -134,7 +134,7 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
         return new SqlScriptExecutorFactory() {
             @Override
-            public SqlScriptExecutor createSqlScriptExecutor(Connection connection , boolean undo, boolean batch, boolean outputQueryResults) {
+            public SqlScriptExecutor createSqlScriptExecutor(Connection connection, boolean undo, boolean batch, boolean outputQueryResults) {
 
 
 

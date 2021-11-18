@@ -196,6 +196,7 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
      * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
      *
      * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
@@ -206,8 +207,6 @@ public class FluentConfiguration implements Configuration {
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
      * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
      * mark it as future instead.
-     *
-     * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
      */
     @Deprecated
     public FluentConfiguration ignoreMissingMigrations(boolean ignoreMissingMigrations) {
@@ -216,6 +215,7 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * @param ignoreIgnoredMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
      *
      * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
@@ -226,8 +226,6 @@ public class FluentConfiguration implements Configuration {
      * will not be reported by validate command. This is useful for situations where one must be able to deliver
      * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
      * development of older versions.
-     *
-     * @param ignoreIgnoredMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
     @Deprecated
     public FluentConfiguration ignoreIgnoredMigrations(boolean ignoreIgnoredMigrations) {
@@ -236,14 +234,13 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
      *
      * Ignore pending migrations when reading the schema history table. These are migrations that are available
      * but have not yet been applied. This can be useful for verifying that in-development migration changes
      * don't contain any validation-breaking changes of migrations that have already been applied to a production
      * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
-     *
-     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
     @Deprecated
     public FluentConfiguration ignorePendingMigrations(boolean ignorePendingMigrations) {
@@ -252,6 +249,7 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
      * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
      *
      * Whether to ignore future migrations when reading the schema history table. These are migrations that were performed by a
@@ -260,8 +258,6 @@ public class FluentConfiguration implements Configuration {
      * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
      * an older version of the application after the database has been migrated by a newer one.
-     *
-     * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
      */
     @Deprecated
     public FluentConfiguration ignoreFutureMigrations(boolean ignoreFutureMigrations) {
@@ -297,7 +293,7 @@ public class FluentConfiguration implements Configuration {
      *
      * @param validateMigrationNaming {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
      */
-    public FluentConfiguration validateMigrationNaming(boolean validateMigrationNaming){
+    public FluentConfiguration validateMigrationNaming(boolean validateMigrationNaming) {
         config.setValidateMigrationNaming(validateMigrationNaming);
         return this;
     }
@@ -452,7 +448,7 @@ public class FluentConfiguration implements Configuration {
      * If not specified, Flyway uses the default tablespace for the database connection.
      * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply ignored for all others.
      *
-     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway. 
+     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway.
      */
     public FluentConfiguration tablespace(String tablespace) {
         config.setTablespace(tablespace);
@@ -555,7 +551,6 @@ public class FluentConfiguration implements Configuration {
         config.setPlaceholderSuffix(placeholderSuffix);
         return this;
     }
-
 
     /**
      * Sets the prefix of every script placeholder.
@@ -680,8 +675,8 @@ public class FluentConfiguration implements Configuration {
     /**
      * Sets the datasource to use. Must have the necessary privileges to execute DDL.
      *
-     * @param url      The JDBC URL of the database.
-     * @param user     The user of the database.
+     * @param url The JDBC URL of the database.
+     * @param user The user of the database.
      * @param password The password of the database.
      */
     public FluentConfiguration dataSource(String url, String user, String password) {
@@ -892,7 +887,7 @@ public class FluentConfiguration implements Configuration {
      *
      * @param jdbcProperties The properties to pass to the JDBC driver object
      */
-    public FluentConfiguration jdbcProperties(Map<String,String> jdbcProperties) {
+    public FluentConfiguration jdbcProperties(Map<String, String> jdbcProperties) {
         config.setJdbcProperties(jdbcProperties);
         return this;
     }
@@ -931,12 +926,11 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * @param oracleKerberosConfigFile The Kerberos config file path.
      * @deprecated Will be removed in V9. Please use {@link #kerberosConfigFile(String)}
      *
      * When authenticating to Oracle via Kerberos, the location of the Kerberos <code>krb5.conf</code> file
      * <i>Flyway Teams only</i>
-     *
-     * @param oracleKerberosConfigFile The Kerberos config file path.
      */
     public FluentConfiguration oracleKerberosConfigFile(String oracleKerberosConfigFile) {
         config.setOracleKerberosConfigFile(oracleKerberosConfigFile);

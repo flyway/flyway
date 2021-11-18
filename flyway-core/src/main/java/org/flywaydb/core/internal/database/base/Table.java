@@ -30,9 +30,9 @@ public abstract class Table<D extends Database, S extends Schema> extends Schema
 
     /**
      * @param jdbcTemplate The JDBC template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param schema       The schema this table lives in.
-     * @param name         The name of the table.
+     * @param database The database-specific support.
+     * @param schema The schema this table lives in.
+     * @param name The name of the table.
      */
     public Table(JdbcTemplate jdbcTemplate, D database, S schema, String name) {
         super(jdbcTemplate, database, schema, name);
@@ -56,11 +56,10 @@ public abstract class Table<D extends Database, S extends Schema> extends Schema
     /**
      * Checks whether the database contains a table matching the given criteria.
      *
-     * @param catalog    The catalog where the table resides. (optional)
-     * @param schema     The schema where the table resides. (optional)
-     * @param table      The name of the table. (optional)
+     * @param catalog The catalog where the table resides. (optional)
+     * @param schema The schema where the table resides. (optional)
+     * @param table The name of the table. (optional)
      * @param tableTypes The types of table to look for (e.g. TABLE). (optional)
-     *
      * @throws SQLException when the check failed.
      */
     protected boolean exists(Schema catalog, Schema schema, String table, String... tableTypes) throws SQLException {
@@ -132,5 +131,5 @@ public abstract class Table<D extends Database, S extends Schema> extends Schema
      *
      * @throws SQLException when this table in this schema could not be unlocked.
      */
-    protected void doUnlock() throws SQLException { }
+    protected void doUnlock() throws SQLException {}
 }

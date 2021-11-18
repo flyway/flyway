@@ -152,17 +152,17 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     @Override
     protected boolean doEmpty() throws SQLException {
         boolean empty = queryDBObjects(ObjectType.SCALAR_FUNCTION, ObjectType.AGGREGATE,
-                ObjectType.CLR_SCALAR_FUNCTION, ObjectType.CLR_TABLE_VALUED_FUNCTION, ObjectType.TABLE_VALUED_FUNCTION,
-                ObjectType.STORED_PROCEDURE, ObjectType.CLR_STORED_PROCEDURE, ObjectType.USER_TABLE,
-                ObjectType.SYNONYM, ObjectType.SEQUENCE_OBJECT, ObjectType.FOREIGN_KEY, ObjectType.VIEW).isEmpty();
+                                       ObjectType.CLR_SCALAR_FUNCTION, ObjectType.CLR_TABLE_VALUED_FUNCTION, ObjectType.TABLE_VALUED_FUNCTION,
+                                       ObjectType.STORED_PROCEDURE, ObjectType.CLR_STORED_PROCEDURE, ObjectType.USER_TABLE,
+                                       ObjectType.SYNONYM, ObjectType.SEQUENCE_OBJECT, ObjectType.FOREIGN_KEY, ObjectType.VIEW).isEmpty();
         if (empty) {
             int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM " +
-                    "( " +
-                    "SELECT t.name FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id " +
-                    "WHERE t.is_user_defined = 1 AND s.name = ? " +
-                    "Union " +
-                    "SELECT name FROM sys.assemblies WHERE is_user_defined=1" +
-                    ") R", name);
+                                                               "( " +
+                                                               "SELECT t.name FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id " +
+                                                               "WHERE t.is_user_defined = 1 AND s.name = ? " +
+                                                               "Union " +
+                                                               "SELECT name FROM sys.assemblies WHERE is_user_defined=1" +
+                                                               ") R", name);
             empty = objectCount == 0;
         }
         return empty;
@@ -224,11 +224,11 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         statements.addAll(cleanObjects("PROCEDURE", ObjectType.STORED_PROCEDURE, ObjectType.CLR_STORED_PROCEDURE));
         statements.addAll(cleanObjects("VIEW", ObjectType.VIEW));
         statements.addAll(cleanObjects("FUNCTION",
-                ObjectType.SCALAR_FUNCTION,
-                ObjectType.CLR_SCALAR_FUNCTION,
-                ObjectType.CLR_TABLE_VALUED_FUNCTION,
-                ObjectType.TABLE_VALUED_FUNCTION,
-                ObjectType.INLINED_TABLE_FUNCTION));
+                                       ObjectType.SCALAR_FUNCTION,
+                                       ObjectType.CLR_SCALAR_FUNCTION,
+                                       ObjectType.CLR_TABLE_VALUED_FUNCTION,
+                                       ObjectType.TABLE_VALUED_FUNCTION,
+                                       ObjectType.INLINED_TABLE_FUNCTION));
 
         return statements;
     }
@@ -266,7 +266,8 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
     private void dropTablesIgnoringErrors(SQLServerTable[] allTables) {
         try {
             dropTables(allTables);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     private void executeIgnoringDependencyErrors(String statement) {
@@ -292,21 +293,21 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
      * Query objects with any of the given types and parent (if non-null).
      *
      * @param parent The parent object or {@code null} if unspecified.
-     * @param types  The object types to be queried.
+     * @param types The object types to be queried.
      * @return The found objects.
      * @throws SQLException when the retrieval failed.
      */
     private List<DBObject> queryDBObjectsWithParent(DBObject parent, ObjectType... types) throws SQLException {
         StringBuilder query = new StringBuilder("SELECT obj.object_id, obj.name FROM sys.objects AS obj " +
-                "LEFT JOIN sys.extended_properties AS eps " +
-                "ON obj.object_id = eps.major_id " +
-                "AND eps.class = 1 " +    // Class 1 = objects and columns (we are only interested in objects).
-                "AND eps.minor_id = 0 " + // Minor ID, always 0 for objects.
-                "AND eps.name='microsoft_database_tools_support' " + // Select all objects generated from MS database tools.
-                "WHERE SCHEMA_NAME(obj.schema_id) = '" + name + "' " +
-                "AND eps.major_id IS NULL " + // Left Excluding JOIN (we are only interested in user defined entries).
-                "AND obj.is_ms_shipped = 0 " + // Make sure we do not return anything MS shipped.
-                "AND obj.type IN (" // Select the object types.
+                                                        "LEFT JOIN sys.extended_properties AS eps " +
+                                                        "ON obj.object_id = eps.major_id " +
+                                                        "AND eps.class = 1 " +    // Class 1 = objects and columns (we are only interested in objects).
+                                                        "AND eps.minor_id = 0 " + // Minor ID, always 0 for objects.
+                                                        "AND eps.name='microsoft_database_tools_support' " + // Select all objects generated from MS database tools.
+                                                        "WHERE SCHEMA_NAME(obj.schema_id) = '" + name + "' " +
+                                                        "AND eps.major_id IS NULL " + // Left Excluding JOIN (we are only interested in user defined entries).
+                                                        "AND obj.is_ms_shipped = 0 " + // Make sure we do not return anything MS shipped.
+                                                        "AND obj.type IN (" // Select the object types.
         );
 
         // Build the types IN clause.
@@ -360,9 +361,9 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         for (DBObject table : tables) {
             String tableName = database.quote(name, table.name);
             List<String> columns = jdbcTemplate.queryForStringList("" +
-                    "SELECT name " +
-                    "FROM sys.computed_columns " +
-                    "WHERE object_id=OBJECT_ID(N'" + tableName + "')");
+                                                                           "SELECT name " +
+                                                                           "FROM sys.computed_columns " +
+                                                                           "WHERE object_id=OBJECT_ID(N'" + tableName + "')");
             for (String column : columns) {
                 statements.add("ALTER TABLE " + tableName + " DROP COLUMN " + database.quote(column));
             }
@@ -380,9 +381,9 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         for (DBObject table : tables) {
             String tableName = database.quote(name, table.name);
             List<String> indexes = jdbcTemplate.queryForStringList("" +
-                    "SELECT name FROM sys.indexes " +
-                    "WHERE object_id=OBJECT_ID(N'" + tableName + "') " +
-                    "AND is_primary_key = 0 AND is_unique_constraint = 0 AND name IS NOT NULL");
+                                                                           "SELECT name FROM sys.indexes " +
+                                                                           "WHERE object_id=OBJECT_ID(N'" + tableName + "') " +
+                                                                           "AND is_primary_key = 0 AND is_unique_constraint = 0 AND name IS NOT NULL");
             for (String index : indexes) {
                 statements.add("DROP INDEX " + database.quote(index) + " ON " + tableName);
             }
@@ -400,15 +401,15 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         for (DBObject table : tables) {
             String tableName = database.quote(name, table.name);
             List<String> indexes = jdbcTemplate.queryForStringList("" +
-                    "SELECT i.name FROM sys.indexes i " +
-                    "JOIN sys.index_columns ic on i.index_id = ic.index_id " +
-                    "JOIN sys.columns c ON ic.column_id = c.column_id AND i.object_id = c.object_id " +
-                    "WHERE i.object_id=OBJECT_ID(N'" + tableName + "') " +
-                    "AND is_primary_key = 0 AND is_unique_constraint = 1 AND i.name IS NOT NULL " +
-                    "GROUP BY i.name " +
-                    // We can't delete the unique ROWGUIDCOL constraint from a table which has a FILESTREAM column.
-                    // It will auto-delete when the table is dropped.
-                    "HAVING MAX(CAST(is_rowguidcol AS INT)) = 0 OR MAX(CAST(is_filestream AS INT)) = 0");
+                                                                           "SELECT i.name FROM sys.indexes i " +
+                                                                           "JOIN sys.index_columns ic on i.index_id = ic.index_id " +
+                                                                           "JOIN sys.columns c ON ic.column_id = c.column_id AND i.object_id = c.object_id " +
+                                                                           "WHERE i.object_id=OBJECT_ID(N'" + tableName + "') " +
+                                                                           "AND is_primary_key = 0 AND is_unique_constraint = 1 AND i.name IS NOT NULL " +
+                                                                           "GROUP BY i.name " +
+                                                                           // We can't delete the unique ROWGUIDCOL constraint from a table which has a FILESTREAM column.
+                                                                           // It will auto-delete when the table is dropped.
+                                                                           "HAVING MAX(CAST(is_rowguidcol AS INT)) = 0 OR MAX(CAST(is_filestream AS INT)) = 0");
             for (String index : indexes) {
                 statements.add("ALTER TABLE " + tableName + " DROP CONSTRAINT " + database.quote(index));
             }
@@ -439,9 +440,9 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         List<String> statements = new ArrayList<>();
         if (database.supportsTriggers()) {
             List<String> triggerNames = jdbcTemplate.queryForStringList("" +
-                    "SELECT * " +
-                    "FROM sys.triggers " +
-                    "WHERE is_ms_shipped=0 AND parent_id=0 AND parent_class_desc='DATABASE'");
+                                                                                "SELECT * " +
+                                                                                "FROM sys.triggers " +
+                                                                                "WHERE is_ms_shipped=0 AND parent_id=0 AND parent_class_desc='DATABASE'");
             for (String triggerName : triggerNames) {
                 statements.add("DROP TRIGGER " + database.quote(triggerName) + " ON DATABASE");
             }
@@ -480,7 +481,7 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
 
     /**
      * @param dropQualifier The type of DROP statement to issue.
-     * @param objectTypes   The type of objects to drop.
+     * @param objectTypes The type of objects to drop.
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */

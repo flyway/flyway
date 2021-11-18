@@ -25,15 +25,24 @@ import java.util.Map;
 
 public interface StatementInterceptor {
     void init(Database database, Table table);
+
     void schemaHistoryTableCreate(boolean baseline);
+
     void schemaHistoryTableInsert(AppliedMigration appliedMigration);
+
     void close();
+
     void sqlScript(LoadableResource resource);
+
     void sqlStatement(SqlStatement statement);
 
     void interceptCommand(String command);
+
     void interceptStatement(String sql);
+
     void interceptPreparedStatement(String sql, Map<Integer, Object> params);
+
     void interceptCallableStatement(String sql);
+
     void schemaHistoryTableDeleteFailed(Table table, AppliedMigration appliedMigration);
 }

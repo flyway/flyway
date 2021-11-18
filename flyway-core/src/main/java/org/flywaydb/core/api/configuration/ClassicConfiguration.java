@@ -186,6 +186,8 @@ public class ClassicConfiguration implements Configuration {
     private JavaMigration[] javaMigrations = {};
     /**
      * -- SETTER --
+     *
+     * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
      * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
      *
      * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
@@ -196,13 +198,13 @@ public class ClassicConfiguration implements Configuration {
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
      * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
      * mark it as future instead.
-     *
-     * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
      */
     @Deprecated
     private boolean ignoreMissingMigrations;
     /**
      * -- SETTER --
+     *
+     * @param ignoreIgnoredMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
      *
      * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
@@ -213,26 +215,26 @@ public class ClassicConfiguration implements Configuration {
      * will not be reported by validate command. This is useful for situations where one must be able to deliver
      * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
      * development of older versions.
-     *
-     * @param ignoreIgnoredMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
     @Deprecated
     private boolean ignoreIgnoredMigrations;
     /**
      * -- SETTER --
+     *
+     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
      *
      * Ignore pending migrations when reading the schema history table. These are migrations that are available
      * but have not yet been applied. This can be useful for verifying that in-development migration changes
      * don't contain any validation-breaking changes of migrations that have already been applied to a production
      * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
-     *
-     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
     @Deprecated
     private boolean ignorePendingMigrations;
     /**
      * -- SETTER --
+     *
+     * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
      * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
      *
      * Whether to ignore future migrations when reading the schema history table. These are migrations that were performed by a
@@ -241,8 +243,6 @@ public class ClassicConfiguration implements Configuration {
      * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
      * an older version of the application after the database has been migrated by a newer one.
-     *
-     * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
      */
     @Deprecated
     private boolean ignoreFutureMigrations = true;
@@ -384,7 +384,7 @@ public class ClassicConfiguration implements Configuration {
      */
     private boolean failOnMissingLocations = false;
     @Setter(AccessLevel.NONE)
-    private String[] loggers = new String[] { "auto" };
+    private String[] loggers = new String[] {"auto"};
     @Getter(AccessLevel.NONE)
     private final ClasspathClassScanner classScanner;
 
@@ -563,7 +563,6 @@ public class ClassicConfiguration implements Configuration {
 
     }
 
-
     /**
      * The username that will be recorded in the schema history table as having applied the migration.
      *
@@ -734,6 +733,8 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+
+
     }
 
     /**
@@ -802,6 +803,7 @@ public class ClassicConfiguration implements Configuration {
         }
         this.scriptPlaceholderSuffix = scriptPlaceholderSuffix;
     }
+
     /**
      * Sets the file name prefix for sql migrations.
      * SQL migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
@@ -944,8 +946,8 @@ public class ClassicConfiguration implements Configuration {
      * Sets the datasource to use. Must have the necessary privileges to execute DDL.
      * To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.
      *
-     * @param url      The JDBC URL of the database.
-     * @param user     The user of the database.
+     * @param url The JDBC URL of the database.
+     * @param user The user of the database.
      * @param password The password of the database.
      */
     public void setDataSource(String url, String user, String password) {
@@ -1612,9 +1614,9 @@ public class ClassicConfiguration implements Configuration {
                 StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
             Map<String, String> jdbcPropertiesFromProps =
                     getPropertiesUnderNamespace(
-                    props,
-                    getPlaceholders(),
-                    ConfigUtils.JDBC_PROPERTIES_PREFIX);
+                            props,
+                            getPlaceholders(),
+                            ConfigUtils.JDBC_PROPERTIES_PREFIX);
 
             setDataSource(new DriverDataSource(classLoader, driver, url, user, password, this, jdbcPropertiesFromProps));
         }

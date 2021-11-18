@@ -52,7 +52,7 @@ public class SpannerDatabase extends Database<SpannerConnection> {
             long numberOfFields = getNumberOfFields();
             if (numberOfFields > ONE_G_FIELD_LIMIT) {
                 throw new FlywayTeamsUpgradeRequiredException("A GCP Spanner database that exceeds the " + ONE_G_FIELD_LIMIT +
-                        " field count limit (Calculated field count: " + numberOfFields + ")");
+                                                                      " field count limit (Calculated field count: " + numberOfFields + ")");
             }
 
             String usageLimitMessage = "GCP Spanner databases have a " + ONE_G_FIELD_LIMIT + " field count limit in " + Edition.COMMUNITY + ".\n" +
@@ -71,10 +71,11 @@ public class SpannerDatabase extends Database<SpannerConnection> {
                 String tableName = tablesRs.getString("TABLE_NAME");
                 long rows = jdbcTemplate.queryForLong("SELECT COUNT(*) FROM " + tableName);
                 long cols = jdbcTemplate.queryForLong("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS " +
-                        "WHERE TABLE_NAME=?", tableName);
-                totalNumberOfFields += rows*cols;
+                                                              "WHERE TABLE_NAME=?", tableName);
+                totalNumberOfFields += rows * cols;
             }
-        } catch (SQLException ignored) {}
+        } catch (SQLException ignored) {
+        }
         return totalNumberOfFields;
     }
 

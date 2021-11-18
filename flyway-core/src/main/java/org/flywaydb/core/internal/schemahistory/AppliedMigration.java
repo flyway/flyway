@@ -150,20 +150,42 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
     @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         AppliedMigration that = (AppliedMigration) o;
 
-        if (executionTime != that.executionTime) return false;
-        if (installedRank != that.installedRank) return false;
-        if (success != that.success) return false;
-        if (checksum != null ? !checksum.equals(that.checksum) : that.checksum != null) return false;
-        if (!description.equals(that.description)) return false;
-        if (installedBy != null ? !installedBy.equals(that.installedBy) : that.installedBy != null) return false;
-        if (installedOn != null ? !installedOn.equals(that.installedOn) : that.installedOn != null) return false;
-        if (!script.equals(that.script)) return false;
-        if (type != that.type) return false;
+        if (executionTime != that.executionTime) {
+            return false;
+        }
+        if (installedRank != that.installedRank) {
+            return false;
+        }
+        if (success != that.success) {
+            return false;
+        }
+        if (checksum != null ? !checksum.equals(that.checksum) : that.checksum != null) {
+            return false;
+        }
+        if (!description.equals(that.description)) {
+            return false;
+        }
+        if (installedBy != null ? !installedBy.equals(that.installedBy) : that.installedBy != null) {
+            return false;
+        }
+        if (installedOn != null ? !installedOn.equals(that.installedOn) : that.installedOn != null) {
+            return false;
+        }
+        if (!script.equals(that.script)) {
+            return false;
+        }
+        if (type != that.type) {
+            return false;
+        }
         return Objects.equals(version, that.version);
     }
 

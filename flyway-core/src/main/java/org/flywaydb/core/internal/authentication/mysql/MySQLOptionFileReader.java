@@ -40,7 +40,7 @@ public class MySQLOptionFileReader implements ExternalAuthFileReader {
         optionFiles = new ArrayList<>();
         encryptedOptionFiles = new ArrayList<>();
     }
-    
+
     @Override
     public List<String> getAllContents() {
         List<String> fileContents = new ArrayList<>();
@@ -66,6 +66,7 @@ public class MySQLOptionFileReader implements ExternalAuthFileReader {
 
         return fileContents;
     }
+
 
 
 

@@ -28,9 +28,9 @@ public abstract class SchemaObject<D extends Database, S extends Schema> {
 
     /**
      * @param jdbcTemplate The JDBC template to access the DB.
-     * @param database     The database-specific support.
-     * @param schema       The schema the object lives in.
-     * @param name         The name of the object.
+     * @param database The database-specific support.
+     * @param schema The schema the object lives in.
+     * @param name The name of the object.
      */
     SchemaObject(JdbcTemplate jdbcTemplate, D database, S schema, String name) {
         this.name = name;

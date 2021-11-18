@@ -47,7 +47,7 @@ public interface Error {
      * Sets whether this error has already been handled.
      *
      * @param handled {@code true} if this error has already be handled or {@code false} if it should flow via the
-     *                default error handler.
+     * default error handler.
      */
     void setHandled(boolean handled);
 }

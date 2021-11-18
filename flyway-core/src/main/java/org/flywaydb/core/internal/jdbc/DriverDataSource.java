@@ -92,15 +92,15 @@ public class DriverDataSource implements DataSource {
     /**
      * Creates a new DriverDataSource.
      *
-     * @param classLoader           The ClassLoader to use.
-     * @param driverClass           The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
-     * @param url                   The JDBC URL to use for connecting through the Driver. (required)
-     * @param user                  The JDBC user to use for connecting through the Driver.
-     * @param password              The JDBC password to use for connecting through the Driver.
-     * @param configuration         The Flyway configuration
-     * @param defaultProperties     Default values of properties to pass to the connection (can be overridden by {@code additionalProperties})
-     * @param additionalProperties  The properties to pass to the connection.
-     * @throws FlywayException      when the datasource could not be created.
+     * @param classLoader The ClassLoader to use.
+     * @param driverClass The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
+     * @param url The JDBC URL to use for connecting through the Driver. (required)
+     * @param user The JDBC user to use for connecting through the Driver.
+     * @param password The JDBC password to use for connecting through the Driver.
+     * @param configuration The Flyway configuration
+     * @param defaultProperties Default values of properties to pass to the connection (can be overridden by {@code additionalProperties})
+     * @param additionalProperties The properties to pass to the connection.
+     * @throws FlywayException when the datasource could not be created.
      */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, Configuration configuration, Properties defaultProperties,
                             Map<String, String> additionalProperties) throws FlywayException {
@@ -113,7 +113,7 @@ public class DriverDataSource implements DataSource {
                 throw new FlywayException("Unable to autodetect JDBC driver for url: " + DatabaseTypeRegister.redactJdbcUrl(url));
             }
 
-            driverClass =  type.getDriverClass(url, classLoader);
+            driverClass = type.getDriverClass(url, classLoader);
         }
 
         if (additionalProperties != null) {
@@ -136,9 +136,9 @@ public class DriverDataSource implements DataSource {
                     extendedError = "\r\n" + extendedError;
                 }
                 throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass
-                        + " => Check whether the jar file is present"
-                        + extendedError, e,
-                        ErrorCode.JDBC_DRIVER);
+                                                  + " => Check whether the jar file is present"
+                                                  + extendedError, e,
+                                          ErrorCode.JDBC_DRIVER);
             }
             try {
                 this.driver = ClassUtils.instantiate(backupDriverClass, classLoader);

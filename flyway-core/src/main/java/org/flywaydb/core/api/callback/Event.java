@@ -239,6 +239,7 @@ public enum Event {
 
     /**
      * Retrieves the event with this id.
+     *
      * @param id The id.
      * @return The event. {@code null} if not found.
      */

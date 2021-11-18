@@ -34,14 +34,14 @@ public class SpannerTable extends Table<SpannerDatabase, SpannerSchema> {
         try (Connection c = database.getNewRawConnection()) {
             Statement s = c.createStatement();
             s.close();
-            try(ResultSet tables = c.getMetaData().getTables("", "", this.name, null)){
+            try (ResultSet tables = c.getMetaData().getTables("", "", this.name, null)) {
                 return tables.next();
             }
         }
     }
 
     @Override
-    protected void doLock() { }
+    protected void doLock() {}
 
     @Override
     protected void doDrop() throws SQLException {

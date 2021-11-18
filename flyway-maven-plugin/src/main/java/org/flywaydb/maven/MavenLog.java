@@ -25,7 +25,7 @@ public class MavenLog implements Log {
     @Delegate(types = Log.class, excludes = ExcludeNotice.class)
     private final org.apache.maven.plugin.logging.Log logger;
 
-    public void notice(String message) { }
+    public void notice(String message) {}
 }
 
 interface ExcludeNotice {

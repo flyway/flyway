@@ -86,9 +86,9 @@ public class FileSystemResource extends LoadableResource {
 
         try {
             return Channels.newReader(FileChannel.open(file.toPath(), StandardOpenOption.READ), charSet.newDecoder(), 4096);
-        } catch (IOException e){
+        } catch (IOException e) {
             LOG.debug("Unable to load filesystem resource" + file.getPath() + " using FileChannel.open." +
-                    " Falling back to FileInputStream implementation. Exception message: " + e.getMessage());
+                              " Falling back to FileInputStream implementation. Exception message: " + e.getMessage());
         }
 
         try {

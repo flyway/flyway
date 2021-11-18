@@ -18,6 +18,7 @@ package org.flywaydb.community.database.ignite.thin;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Schema;

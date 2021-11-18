@@ -39,7 +39,7 @@ public class SpannerConnection extends Connection<SpannerDatabase> {
     }
 
     @Override
-    public <T> T lock(Table table, Callable<T> callable)  {
+    public <T> T lock(Table table, Callable<T> callable) {
         try {
             return callable.call();
         } catch (Exception e) {

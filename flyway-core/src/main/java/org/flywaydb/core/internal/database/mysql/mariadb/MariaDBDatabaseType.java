@@ -48,7 +48,7 @@ public class MariaDBDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesJDBCUrl(String url) {
-        if (url.startsWith("jdbc-secretsmanager:mariadb:") ) {
+        if (url.startsWith("jdbc-secretsmanager:mariadb:")) {
 
 
 

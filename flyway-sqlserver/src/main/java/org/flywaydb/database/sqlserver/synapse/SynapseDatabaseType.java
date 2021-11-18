@@ -52,8 +52,7 @@ public class SynapseDatabaseType extends SQLServerDatabaseType {
                 SQLServerEngineEdition engineEdition = SQLServerEngineEdition.fromCode(getJdbcTemplate(connection).queryForInt(
                         "SELECT SERVERPROPERTY('engineedition')"));
                 return engineEdition == SQLServerEngineEdition.SQL_DATA_WAREHOUSE;
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new FlywaySqlException("Unable to determine database engine edition.'", e);
             }
         }

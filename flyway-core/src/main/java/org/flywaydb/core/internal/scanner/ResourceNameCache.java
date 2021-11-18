@@ -28,15 +28,15 @@ public class ResourceNameCache {
      */
     private final Map<ClassPathLocationScanner, Map<URL, Set<String>>> resourceNameCache = new HashMap<>();
 
-    public void put(ClassPathLocationScanner classPathLocationScanner, Map<URL, Set<String>> map){
+    public void put(ClassPathLocationScanner classPathLocationScanner, Map<URL, Set<String>> map) {
         resourceNameCache.put(classPathLocationScanner, map);
     }
 
-    public void put(ClassPathLocationScanner classPathLocationScanner, URL resolvedUrl, Set<String> names){
+    public void put(ClassPathLocationScanner classPathLocationScanner, URL resolvedUrl, Set<String> names) {
         resourceNameCache.get(classPathLocationScanner).put(resolvedUrl, names);
     }
 
-    public Set<String> get(ClassPathLocationScanner classPathLocationScanner, URL resolvedUrl){
+    public Set<String> get(ClassPathLocationScanner classPathLocationScanner, URL resolvedUrl) {
         return resourceNameCache.get(classPathLocationScanner).get(resolvedUrl);
     }
 }

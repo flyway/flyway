@@ -57,9 +57,9 @@ public class DateUtils {
     /**
      * Create a new date with this year, month and day.
      *
-     * @param year  The year.
+     * @param year The year.
      * @param month The month (1-12).
-     * @param day   The day (1-31).
+     * @param day The day (1-31).
      * @return The date.
      */
     public static Date toDate(int year, int month, int day) {
@@ -83,10 +83,10 @@ public class DateUtils {
 
     public static Date addDaysToDate(Date fromDate, int days) {
         return Date.from(fromDate.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate()
-                .plusDays(days)
-                .atStartOfDay(ZoneId.systemDefault())
-                .toInstant());
+                                 .atZone(ZoneId.systemDefault())
+                                 .toLocalDate()
+                                 .plusDays(days)
+                                 .atStartOfDay(ZoneId.systemDefault())
+                                 .toInstant());
     }
 }

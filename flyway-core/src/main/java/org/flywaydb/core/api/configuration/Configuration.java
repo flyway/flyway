@@ -74,7 +74,7 @@ public interface Configuration {
     /**
      * The maximum time between retries when attempting to connect to the database in seconds. This will cap the interval
      * between connect retry to the value provided.
-     * 
+     *
      * @return The maximum time between retries in seconds (default: 120)
      */
     int getConnectRetriesInterval();
@@ -220,7 +220,6 @@ public interface Configuration {
      */
     String getPlaceholderPrefix();
 
-
     /**
      * Retrieves the suffix of every script placeholder.
      *
@@ -244,7 +243,7 @@ public interface Configuration {
 
     /**
      * Gets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
      * <li>{@code current}: Designates the current version of the schema</li>
@@ -385,6 +384,7 @@ public interface Configuration {
     boolean isOutOfOrder();
 
     /**
+     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
      * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
      *
      * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
@@ -395,13 +395,12 @@ public interface Configuration {
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
      * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
      * mark it as future instead.
-     *
-     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
      */
     @Deprecated
     boolean isIgnoreMissingMigrations();
 
     /**
+     * @return {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
      *
      * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
@@ -412,26 +411,24 @@ public interface Configuration {
      * will not be reported by validate command. This is useful for situations where one must be able to deliver
      * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
      * development of older versions.
-     *
-     * @return {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
     @Deprecated
     boolean isIgnoreIgnoredMigrations();
 
     /**
+     * @return {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
      *
      * Ignore pending migrations when reading the schema history table. These are migrations that are available
      * but have not yet been applied. This can be useful for verifying that in-development migration changes
      * don't contain any validation-breaking changes of migrations that have already been applied to a production
      * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
-     *
-     * @return {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
     @Deprecated
     boolean isIgnorePendingMigrations();
 
     /**
+     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
      * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
      *
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
@@ -440,8 +437,6 @@ public interface Configuration {
      * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
      * an older version of the application after the database has been migrated by a newer one.
-     *
-     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
      */
     @Deprecated
     boolean isIgnoreFutureMigrations();

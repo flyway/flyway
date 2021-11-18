@@ -54,7 +54,7 @@ public class MavenVersionChecker {
         try {
             InetAddress address = InetAddress.getByName("maven.org");
             return address.isReachable(500);
-        } catch(Exception e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -71,7 +71,7 @@ public class MavenVersionChecker {
 
             StringBuilder response = new StringBuilder();
 
-            try(BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            try (BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                 String line;
                 while ((line = rd.readLine()) != null) {
                     response.append(line).append('\r');
@@ -98,8 +98,9 @@ public class MavenVersionChecker {
 
             if (current.compareTo(latest) < 0) {
                 LOG.warn("This version of Flyway is out of date. Upgrade to Flyway " + latest + ": "
-                        + FlywayDbWebsiteLinks.STAYING_UP_TO_DATE + "\n");
+                                 + FlywayDbWebsiteLinks.STAYING_UP_TO_DATE + "\n");
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 }

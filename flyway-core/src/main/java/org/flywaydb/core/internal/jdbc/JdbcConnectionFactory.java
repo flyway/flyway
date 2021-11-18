@@ -61,9 +61,9 @@ public class JdbcConnectionFactory {
      * Creates a new JDBC connection factory. This automatically opens a first connection which can be obtained via
      * a call to getConnection and which must be closed again to avoid leaking it.
      *
-     * @param dataSource                 The DataSource to obtain the connection from.
-     * @param configuration              The Flyway configuration.
-     * @param statementInterceptor       The statement interceptor. {@code null} if none.
+     * @param dataSource The DataSource to obtain the connection from.
+     * @param configuration The Flyway configuration.
+     * @param statementInterceptor The statement interceptor. {@code null} if none.
      */
     public JdbcConnectionFactory(DataSource dataSource, Configuration configuration, StatementInterceptor statementInterceptor) {
         this.dataSource = dataSource;

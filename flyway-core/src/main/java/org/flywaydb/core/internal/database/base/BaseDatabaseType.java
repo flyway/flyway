@@ -94,6 +94,7 @@ public abstract class BaseDatabaseType implements DatabaseType {
     /**
      * A regex that identifies credentials in the JDBC URL, where they conform to a pattern specific to this database.
      * The first captured group should represent the password text, so that it can be redacted if necessary.
+     *
      * @return The URL regex.
      */
     public Pattern getJDBCCredentialsPattern() {
@@ -141,7 +142,7 @@ public abstract class BaseDatabaseType implements DatabaseType {
         String intendedCurrentSchema = configuration.getDefaultSchema();
         if (!database.supportsChangingCurrentSchema() && intendedCurrentSchema != null) {
             LOG.warn(databaseProductName + " does not support setting the schema for the current session. " +
-                    "Default schema will NOT be changed to " + intendedCurrentSchema + " !");
+                             "Default schema will NOT be changed to " + intendedCurrentSchema + " !");
         }
 
         return database;
@@ -153,7 +154,7 @@ public abstract class BaseDatabaseType implements DatabaseType {
 
     public SqlScriptFactory createSqlScriptFactory(final Configuration configuration, final ParsingContext parsingContext) {
         return (resource, mixed, resourceProvider) -> new ParserSqlScript(createParser(configuration, resourceProvider, parsingContext),
-                resource, getMetadataResource(resourceProvider, resource), mixed);
+                                                                          resource, getMetadataResource(resourceProvider, resource), mixed);
     }
 
     public SqlScriptExecutorFactory createSqlScriptExecutorFactory(final JdbcConnectionFactory jdbcConnectionFactory,
@@ -168,7 +169,7 @@ public abstract class BaseDatabaseType implements DatabaseType {
         final DatabaseType thisRef = this;
 
         return (connection, undo, batch, outputQueryResults) -> new DefaultSqlScriptExecutor(new JdbcTemplate(connection, thisRef),
-                callbackExecutor, undo, finalSupportsBatch && batch, outputQueryResults, statementInterceptor);
+                                                                                             callbackExecutor, undo, finalSupportsBatch && batch, outputQueryResults, statementInterceptor);
     }
 
     public DatabaseExecutionStrategy createExecutionStrategy(java.sql.Connection connection) {
@@ -208,21 +209,21 @@ public abstract class BaseDatabaseType implements DatabaseType {
      * Set the default connection properties for this database. These can be overridden by
      * {@code setConfigConnectionProps} and {@code setOverridingConnectionProps}.
      *
-     * @param url         The JDBC url.
-     * @param props       The properties to write to.
+     * @param url The JDBC url.
+     * @param props The properties to write to.
      * @param classLoader The classLoader to use.
      */
-    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) { }
+    public void setDefaultConnectionProps(String url, Properties props, ClassLoader classLoader) {}
 
     /**
      * Set any necessary connection properties based on Flyway's configuration. These can be overridden by
      * {@code setOverridingConnectionProps}.
      *
-     * @param config      The Flyway configuration to read properties from.
-     * @param props       The properties to write to.
+     * @param config The Flyway configuration to read properties from.
+     * @param props The properties to write to.
      * @param classLoader The classLoader to use.
      */
-    public void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader) { }
+    public void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader) {}
 
     /**
      * These will override anything set by {@code setDefaultConnectionProps} and {@code setConfigConnectionProps} and
@@ -230,12 +231,12 @@ public abstract class BaseDatabaseType implements DatabaseType {
      *
      * @param props The properties to write to.
      */
-    public void setOverridingConnectionProps(Map<String, String> props) { }
+    public void setOverridingConnectionProps(Map<String, String> props) {}
 
     /**
      * Only applicable to embedded databases that require this.
      */
-    public void shutdownDatabase(String url, Driver driver) { }
+    public void shutdownDatabase(String url, Driver driver) {}
 
     /**
      * Detects whether a user is required from configuration. This may not be the case if the driver supports
@@ -269,5 +270,5 @@ public abstract class BaseDatabaseType implements DatabaseType {
         return "";
     }
 
-    public void printMessages() { }
+    public void printMessages() {}
 }

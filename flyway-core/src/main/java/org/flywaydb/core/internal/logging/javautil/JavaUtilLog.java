@@ -52,7 +52,7 @@ public class JavaUtilLog implements Log {
         log(Level.SEVERE, message, e);
     }
 
-    public void notice(String message) { }
+    public void notice(String message) {}
 
     /**
      * Log the message at the specified level with the specified exception if any.

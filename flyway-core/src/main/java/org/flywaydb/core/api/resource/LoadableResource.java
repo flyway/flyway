@@ -37,6 +37,7 @@ public abstract class LoadableResource implements Resource, Comparable<LoadableR
 
 
 
+
     @Override
     public int compareTo(LoadableResource o) {
         return getRelativePath().compareTo(o.getRelativePath());

@@ -123,8 +123,8 @@ public class Flyway {
     public MigrateResult migrate() throws FlywayException {
         return flywayExecutor.execute(new FlywayExecutor.Command<MigrateResult>() {
             public MigrateResult execute(MigrationResolver migrationResolver,
-                                   SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
-                                   StatementInterceptor statementInterceptor) {
+                                         SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
+                                         StatementInterceptor statementInterceptor) {
                 if (configuration.isValidateOnMigrate()) {
                     ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor, true);
                     if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
@@ -151,19 +151,19 @@ public class Flyway {
                             // Second check for MySQL which is sometimes flaky otherwise
                             if (!schemaHistory.exists()) {
                                 throw new FlywayException("Found non-empty schema(s) "
-                                        + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
-                                        + " but no schema history table. Use baseline()"
-                                        + " or set baselineOnMigrate to true to initialize the schema history table.");
+                                                                  + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
+                                                                  + " but no schema history table. Use baseline()"
+                                                                  + " or set baselineOnMigrate to true to initialize the schema history table.");
                             }
                         }
                     } else {
                         if (configuration.isCreateSchemas()) {
                             new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(false);
-                        } else if(!schemas[0].exists()) {
+                        } else if (!schemas[0].exists()) {
                             LOG.warn("The configuration option 'createSchemas' is false.\n" +
-                                    "However, the schema history table still needs a schema to reside in.\n" +
-                                    "You must manually create a schema for the schema history table to reside in.\n" +
-                                    "See https://flywaydb.org/documentation/concepts/migrations.html#the-createschemas-option-and-the-schema-history-table");
+                                             "However, the schema history table still needs a schema to reside in.\n" +
+                                             "You must manually create a schema for the schema history table to reside in.\n" +
+                                             "See https://flywaydb.org/documentation/concepts/migrations.html#the-createschemas-option-and-the-schema-history-table");
                         }
 
                         schemaHistory.create(false);
@@ -193,7 +193,7 @@ public class Flyway {
                                                 final Database database, final Schema[] schemas, CallbackExecutor callbackExecutor,
                                                 StatementInterceptor statementInterceptor) {
                 MigrationInfoService migrationInfoService = new DbInfo(migrationResolver, schemaHistory, configuration, database,
-                        callbackExecutor, schemas).info();
+                                                                       callbackExecutor, schemas).info();
 
                 callbackExecutor.onOperationFinishEvent(Event.AFTER_INFO_OPERATION_FINISH, migrationInfoService.getInfoResult());
 
@@ -244,7 +244,7 @@ public class Flyway {
                                 Schema[] schemas, CallbackExecutor callbackExecutor,
                                 StatementInterceptor statementInterceptor) {
                 ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
-                        configuration.isIgnorePendingMigrations());
+                                                           configuration.isIgnorePendingMigrations());
 
                 callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
 
@@ -280,7 +280,7 @@ public class Flyway {
                                           Schema[] schemas, CallbackExecutor callbackExecutor,
                                           StatementInterceptor statementInterceptor) {
                 ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
-                        configuration.isIgnorePendingMigrations());
+                                                           configuration.isIgnorePendingMigrations());
 
                 callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
 
@@ -306,9 +306,9 @@ public class Flyway {
                     new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(true);
                 } else {
                     LOG.warn("The configuration option 'createSchemas' is false.\n" +
-                            "Even though Flyway is configured not to create any schemas, the schema history table still needs a schema to reside in.\n" +
-                            "You must manually create a schema for the schema history table to reside in.\n" +
-                            "See http://flywaydb.org/documentation/migrations#the-createschemas-option-and-the-schema-history-table");
+                                     "Even though Flyway is configured not to create any schemas, the schema history table still needs a schema to reside in.\n" +
+                                     "You must manually create a schema for the schema history table to reside in.\n" +
+                                     "See http://flywaydb.org/documentation/migrations#the-createschemas-option-and-the-schema-history-table");
                 }
 
                 BaselineResult baselineResult = doBaseline(schemaHistory, callbackExecutor, database);
@@ -382,7 +382,7 @@ public class Flyway {
     private ValidateResult doValidate(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
                                       Schema[] schemas, CallbackExecutor callbackExecutor, boolean ignorePending) {
         ValidateResult validateResult = new DbValidate(database, schemaHistory, schemas[0], migrationResolver,
-                configuration, ignorePending, callbackExecutor).validate();
+                                                       configuration, ignorePending, callbackExecutor).validate();
 
         if (!validateResult.validationSuccessful && configuration.isCleanOnValidationError()) {
             doClean(database, schemaHistory, schemas, callbackExecutor);
@@ -393,6 +393,6 @@ public class Flyway {
 
     private BaselineResult doBaseline(SchemaHistory schemaHistory, CallbackExecutor callbackExecutor, Database database) {
         return new DbBaseline(schemaHistory, configuration.getBaselineVersion(), configuration.getBaselineDescription(),
-                callbackExecutor, database).baseline();
+                              callbackExecutor, database).baseline();
     }
 }

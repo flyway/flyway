@@ -33,9 +33,9 @@ public class SynapseSchema extends SQLServerSchema {
      * Creates a new Synapse schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
+     * @param database The database-specific support.
      * @param databaseName The database name.
-     * @param name         The name of the schema.
+     * @param name The name of the schema.
      */
     SynapseSchema(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, String name) {
         super(jdbcTemplate, database, databaseName, name);

@@ -36,6 +36,7 @@ public class H2Database extends Database<H2Connection> {
      * A dummy script marker used in Oracle mode, where a marker row is inserted with no corresponding script.
      */
     private static final String DUMMY_SCRIPT_NAME = "<< history table creation script >>";
+
     /**
      * The compatibility modes supported by H2. See http://h2database.com/html/features.html#compatibility
      */
@@ -85,13 +86,15 @@ public class H2Database extends Database<H2Connection> {
                 : "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'MODE'";
         try {
             String mode = getMainConnection().getJdbcTemplate().queryForString(query);
-            if (mode == null || "".equals(mode))
+            if (mode == null || "".equals(mode)) {
                 return CompatibilityMode.REGULAR;
+            }
             return CompatibilityMode.valueOf(mode);
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine H2 compatibility mode", e);
         }
     }
+
 
 
 
@@ -163,8 +166,9 @@ public class H2Database extends Database<H2Connection> {
         // As H2 supports a null user, we use a dummy value when required.
         String user = getMainConnection().getJdbcTemplate().queryForString("SELECT USER()");
 
-        if (compatibilityMode == CompatibilityMode.Oracle && (user == null || "".equals(user)))
+        if (compatibilityMode == CompatibilityMode.Oracle && (user == null || "".equals(user))) {
             return DEFAULT_USER;
+        }
         return user;
     }
 

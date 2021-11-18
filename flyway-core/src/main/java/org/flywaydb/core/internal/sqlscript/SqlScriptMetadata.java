@@ -65,7 +65,7 @@ public class SqlScriptMetadata {
         return executeInTransaction;
     }
 
-    public String encoding() { return encoding; }
+    public String encoding() {return encoding;}
 
     public boolean shouldExecute() {
         return shouldExecute;

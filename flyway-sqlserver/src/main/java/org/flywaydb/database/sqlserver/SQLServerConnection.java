@@ -43,24 +43,22 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
         try {
             azure = "SQL Azure".equals(getJdbcTemplate().queryForString(
                     "SELECT CAST(SERVERPROPERTY('edition') AS VARCHAR)"));
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine database edition.'", e);
         }
 
         try {
             engineEdition = SQLServerEngineEdition.fromCode(getJdbcTemplate().queryForInt(
                     "SELECT SERVERPROPERTY('engineedition')"));
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine database engine edition.'", e);
         }
 
         try {
             originalAnsiNulls = azure ? null :
                     jdbcTemplate.queryForString("DECLARE @ANSI_NULLS VARCHAR(3) = 'OFF';\n" +
-                            "IF ( (32 & @@OPTIONS) = 32 ) SET @ANSI_NULLS = 'ON';\n" +
-                            "SELECT @ANSI_NULLS AS ANSI_NULLS;");
+                                                        "IF ( (32 & @@OPTIONS) = 32 ) SET @ANSI_NULLS = 'ON';\n" +
+                                                        "SELECT @ANSI_NULLS AS ANSI_NULLS;");
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine ANSI NULLS state", e);
         }
@@ -71,7 +69,6 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
             jdbcTemplate.execute("USE " + database.quote(databaseName));
         }
     }
-
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
@@ -96,7 +93,7 @@ public class SQLServerConnection extends Connection<SQLServerDatabase> {
         return new SQLServerApplicationLockTemplate(this, jdbcTemplate, originalDatabaseName, table.toString().hashCode()).execute(callable);
     }
 
-    public Boolean isAzureConnection() { return azure; }
+    public Boolean isAzureConnection() {return azure;}
 
-    public SQLServerEngineEdition getEngineEdition() { return engineEdition; }
+    public SQLServerEngineEdition getEngineEdition() {return engineEdition;}
 }

@@ -171,7 +171,7 @@ public class JdbcTemplate {
     /**
      * Executes this sql statement using a PreparedStatement.
      *
-     * @param sql    The statement to execute.
+     * @param sql The statement to execute.
      * @param params The statement parameters.
      * @throws SQLException when the execution failed.
      */
@@ -216,13 +216,11 @@ public class JdbcTemplate {
             String state = warning.getSQLState();
             String message = warning.getMessage();
 
-            if (state == null)
-            {
+            if (state == null) {
                 state = "";
             }
 
-            if (message == null)
-            {
+            if (message == null) {
                 message = "";
             }
 
@@ -276,7 +274,7 @@ public class JdbcTemplate {
     /**
      * Executes this update sql statement.
      *
-     * @param sql    The statement to execute.
+     * @param sql The statement to execute.
      * @param params The statement parameters.
      * @throws SQLException when the execution failed.
      */
@@ -293,7 +291,7 @@ public class JdbcTemplate {
     /**
      * Creates a new prepared statement for this sql with these params.
      *
-     * @param sql    The sql to execute.
+     * @param sql The sql to execute.
      * @param params The params.
      * @return The new prepared statement.
      * @throws SQLException when the statement could not be prepared.
@@ -307,7 +305,7 @@ public class JdbcTemplate {
                 statement.setInt(i + 1, (Integer) params[i]);
             } else if (params[i] instanceof Boolean) {
                 statement.setBoolean(i + 1, (Boolean) params[i]);
-            } else if (params[i] instanceof String){
+            } else if (params[i] instanceof String) {
                 statement.setString(i + 1, params[i].toString());
             } else if (params[i] == JdbcNullTypes.StringNull) {
                 statement.setNull(i + 1, nullType);
@@ -317,7 +315,7 @@ public class JdbcTemplate {
                 statement.setNull(i + 1, nullType);
             } else {
                 throw new FlywayException("Unhandled object of type '" + params[i].getClass().getName() + "'. " +
-                        "Please contact support or leave an issue on GitHub.");
+                                                  "Please contact support or leave an issue on GitHub.");
             }
         }
         return statement;
@@ -326,9 +324,9 @@ public class JdbcTemplate {
     /**
      * Executes this query and map the results using this row mapper.
      *
-     * @param sql       The query to execute.
+     * @param sql The query to execute.
      * @param rowMapper The row mapper to use.
-     * @param <T>       The type of the result objects.
+     * @param <T> The type of the result objects.
      * @return The list of results.
      * @throws SQLException when the query failed to execute.
      */

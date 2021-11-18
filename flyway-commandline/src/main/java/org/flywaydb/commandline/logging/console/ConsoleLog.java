@@ -20,10 +20,10 @@ import org.flywaydb.core.api.logging.Log;
 
 @RequiredArgsConstructor
 public class ConsoleLog implements Log {
- 	public enum Level {
- 		DEBUG, INFO, WARN
- 	}
-	
+    public enum Level {
+        DEBUG, INFO, WARN
+    }
+
     private final Level level;
 
     @Override
@@ -38,9 +38,9 @@ public class ConsoleLog implements Log {
     }
 
     public void info(String message) {
-    	if (level.compareTo(Level.INFO) <= 0) {
+        if (level.compareTo(Level.INFO) <= 0) {
             System.out.println(message);
-	    }
+        }
     }
 
     public void notice(String message) {

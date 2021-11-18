@@ -45,7 +45,7 @@ public class CommandResultFactory {
 
         MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
         MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
-        String schemaVersion =  schemaVersionToOutput.getVersion();
+        String schemaVersion = schemaVersionToOutput.getVersion();
 
         return new InfoResult(
                 flywayVersion,
@@ -97,7 +97,7 @@ public class CommandResultFactory {
         try {
             return database.getCatalog();
         } catch (Exception e) {
-            try(Connection connection = configuration.getDataSource().getConnection()) {
+            try (Connection connection = configuration.getDataSource().getConnection()) {
                 String catalog = connection.getCatalog();
                 return catalog != null ? catalog : "";
             } catch (Exception e1) {
@@ -108,24 +108,24 @@ public class CommandResultFactory {
 
     public static InfoOutput createInfoOutput(Set<MigrationVersion> undoableVersions, MigrationInfo migrationInfo) {
         return new InfoOutput(getCategory(migrationInfo),
-                migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
-                migrationInfo.getDescription(),
-                migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
-                migrationInfo.getInstalledOn() != null ? migrationInfo.getInstalledOn().toInstant().toString() : "",
-                migrationInfo.getState().getDisplayName(),
-                getUndoableStatus(migrationInfo, undoableVersions),
-                migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
-                migrationInfo.getInstalledBy() != null ? migrationInfo.getInstalledBy() : "",
-                migrationInfo.getExecutionTime() != null ? migrationInfo.getExecutionTime() : 0);
+                              migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
+                              migrationInfo.getDescription(),
+                              migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
+                              migrationInfo.getInstalledOn() != null ? migrationInfo.getInstalledOn().toInstant().toString() : "",
+                              migrationInfo.getState().getDisplayName(),
+                              getUndoableStatus(migrationInfo, undoableVersions),
+                              migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
+                              migrationInfo.getInstalledBy() != null ? migrationInfo.getInstalledBy() : "",
+                              migrationInfo.getExecutionTime() != null ? migrationInfo.getExecutionTime() : 0);
     }
 
     public static MigrateOutput createMigrateOutput(MigrationInfo migrationInfo, int executionTime) {
         return new MigrateOutput(getCategory(migrationInfo),
-                migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
-                migrationInfo.getDescription(),
-                migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
-                migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
-                executionTime);
+                                 migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
+                                 migrationInfo.getDescription(),
+                                 migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
+                                 migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
+                                 executionTime);
     }
 
     public static UndoOutput createUndoOutput(ResolvedMigration migrationInfo, int executionTime) {
@@ -152,7 +152,7 @@ public class CommandResultFactory {
     }
 
     public static RepairOutput createRepairOutput(AppliedMigration am) {
-        return new RepairOutput(am.getVersion() != null ? am.getVersion().getVersion(): "", am.getDescription(), "");
+        return new RepairOutput(am.getVersion() != null ? am.getVersion().getVersion() : "", am.getDescription(), "");
     }
 
     private static String getUndoableStatus(MigrationInfo migrationInfo, Set<MigrationVersion> undoableVersions) {
@@ -194,8 +194,14 @@ public class CommandResultFactory {
     }
 
     private static String getCategory(MigrationInfo migrationInfo) {
-        if (migrationInfo.getType().isSynthetic()) return "";
-        if (migrationInfo.getVersion() == null) return "Repeatable";
+        if (migrationInfo.getType().isSynthetic()) {
+            return "";
+        }
+        if (migrationInfo.getVersion() == null) {
+            return "Repeatable";
+        }
+
+
 
 
 

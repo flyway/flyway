@@ -389,8 +389,8 @@ public class ConfigUtils {
     /**
      * Loads the configuration from this configuration file.
      *
-     * @param configFile    The configuration file to load.
-     * @param encoding      The encoding of the configuration file.
+     * @param configFile The configuration file to load.
+     * @param encoding The encoding of the configuration file.
      * @param failIfMissing Whether to fail if the file is missing.
      * @return The properties from the configuration file. An empty Map if none.
      * @throws FlywayException When the configuration file could not be loaded.
@@ -433,7 +433,7 @@ public class ConfigUtils {
                     // Prepend the first character to the rest of the string
                     // This is a char, represented as an int, so we cast to a char
                     // which is implicitly converted to an string
-                    String configurationString = (char)firstCharacter + FileCopyUtils.copyToString(bufferedReader);
+                    String configurationString = (char) firstCharacter + FileCopyUtils.copyToString(bufferedReader);
                     Map<String, String> configurationFromStandardInput = loadConfigurationFromString(configurationString);
 
                     if (configurationFromStandardInput.isEmpty()) {
@@ -478,9 +478,9 @@ public class ConfigUtils {
             // if the line ends in a \\, then it may be a multiline property
             if (replacedLine.endsWith("\\\\")) {
                 // if we aren't the last line
-                if (i < lines.length-1) {
+                if (i < lines.length - 1) {
                     // look ahead to see if the next line is a blank line, a property, or another multiline
-                    String nextLine = lines[i+1];
+                    String nextLine = lines[i + 1];
                     boolean restoreMultilineDelimiter = false;
                     if (nextLine.isEmpty()) {
                         // blank line
@@ -497,7 +497,7 @@ public class ConfigUtils {
 
                     if (restoreMultilineDelimiter) {
                         // it's a multiline property, so restore the original single slash
-                        replacedLine = replacedLine.substring(0, replacedLine.length()-2) + "\\";
+                        replacedLine = replacedLine.substring(0, replacedLine.length() - 2) + "\\";
                     }
                 }
             }
@@ -543,7 +543,7 @@ public class ConfigUtils {
      * Puts this property in the config if it has been set in any of these values.
      *
      * @param config The config.
-     * @param key    The property name.
+     * @param key The property name.
      * @param values The values to try. The first non-null value will be set.
      */
     public static void putIfSet(Map<String, String> config, String key, Object... values) {
@@ -559,7 +559,7 @@ public class ConfigUtils {
      * Puts this property in the config if it has been set in any of these values.
      *
      * @param config The config.
-     * @param key    The property name.
+     * @param key The property name.
      * @param values The values to try. The first non-null value will be set.
      */
     public static void putArrayIfSet(Map<String, String> config, String key, String[]... values) {
@@ -573,7 +573,7 @@ public class ConfigUtils {
 
     /**
      * @param config The config.
-     * @param key    The property name.
+     * @param key The property name.
      * @return The property value as a boolean if it exists, otherwise {@code null}.
      * @throws FlywayException when the property value is not a valid boolean.
      */
@@ -584,14 +584,14 @@ public class ConfigUtils {
         }
         if (!"true".equals(value) && !"false".equals(value)) {
             throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value,
-                    ErrorCode.CONFIGURATION);
+                                      ErrorCode.CONFIGURATION);
         }
         return Boolean.valueOf(value);
     }
 
     /**
      * @param config The config.
-     * @param key    The property name.
+     * @param key The property name.
      * @return The property value as an integer if it exists, otherwise {@code null}.
      * @throws FlywayException When the property value is not a valid integer.
      */
@@ -604,7 +604,7 @@ public class ConfigUtils {
             return Integer.valueOf(value);
         } catch (NumberFormatException e) {
             throw new FlywayException("Invalid value for " + key + " (should be an integer): " + value,
-                    ErrorCode.CONFIGURATION);
+                                      ErrorCode.CONFIGURATION);
         }
     }
 
@@ -635,10 +635,10 @@ public class ConfigUtils {
     }
 
     /**
-     *  Checks the configuration for any unrecognised properties remaining after expected ones have been consumed.
+     * Checks the configuration for any unrecognised properties remaining after expected ones have been consumed.
      *
-     *  @param config The configured properties.
-     *  @param prefix The expected prefix for Flyway configuration parameters. {@code null} if none.
+     * @param config The configured properties.
+     * @param prefix The expected prefix for Flyway configuration parameters. {@code null} if none.
      */
     public static void checkConfigurationForUnrecognisedProperties(Map<String, String> config, String prefix) {
         ArrayList<String> unknownFlywayProperties = new ArrayList<>();
@@ -651,8 +651,8 @@ public class ConfigUtils {
         if (!unknownFlywayProperties.isEmpty()) {
             String property = (unknownFlywayProperties.size() == 1) ? "property" : "properties";
             String message = String.format("Unknown configuration %s: %s",
-                    property,
-                    StringUtils.arrayToCommaDelimitedString(unknownFlywayProperties.toArray()));
+                                           property,
+                                           StringUtils.arrayToCommaDelimitedString(unknownFlywayProperties.toArray()));
             throw new FlywayException(message, ErrorCode.CONFIGURATION);
         }
     }

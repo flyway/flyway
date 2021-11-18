@@ -67,10 +67,12 @@ public interface CallbackExecutor {
 
 
 
+
     /**
      * Executes the callbacks for an operation finish event.
-     * @param event             The event to handle.
-     * @param operationResult   The operation result.
+     *
+     * @param event The event to handle.
+     * @param operationResult The operation result.
      */
     void onOperationFinishEvent(Event event, OperationResult operationResult);
 }

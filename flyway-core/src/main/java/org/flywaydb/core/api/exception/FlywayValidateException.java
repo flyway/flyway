@@ -26,7 +26,7 @@ public class FlywayValidateException extends FlywayException {
 
     public FlywayValidateException(ErrorDetails errorDetails, String allValidateMessages) {
         super("Validate failed: " + errorDetails.errorMessage + "\n" + allValidateMessages +
-                "\nNeed more flexibility with validation rules? Learn more: " + FlywayDbWebsiteLinks.CUSTOM_VALIDATE_RULES, errorDetails.errorCode);
+                      "\nNeed more flexibility with validation rules? Learn more: " + FlywayDbWebsiteLinks.CUSTOM_VALIDATE_RULES, errorDetails.errorCode);
     }
 
 }

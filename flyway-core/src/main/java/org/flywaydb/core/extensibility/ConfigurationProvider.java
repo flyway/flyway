@@ -19,5 +19,6 @@ import java.util.Map;
 
 public interface ConfigurationProvider<T extends ConfigurationExtension> extends Plugin {
     Map<String, String> getConfiguration(T configurationExtension) throws Exception;
+
     Class<? extends ConfigurationExtension> getConfigurationExtensionClass();
 }

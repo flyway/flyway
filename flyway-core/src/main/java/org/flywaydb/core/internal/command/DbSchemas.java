@@ -61,8 +61,8 @@ public class DbSchemas {
     /**
      * Creates a new DbSchemas.
      *
-     * @param database      The database to use.
-     * @param schemas       The schemas managed by Flyway.
+     * @param database The database to use.
+     * @param schemas The schemas managed by Flyway.
      * @param schemaHistory The schema history table.
      */
     public DbSchemas(Database database, Schema[] schemas, SchemaHistory schemaHistory, CallbackExecutor callbackExecutor) {
@@ -89,7 +89,7 @@ public class DbSchemas {
                         if (!schema.exists()) {
                             if (schema.getName() == null) {
                                 throw new FlywayException("Unable to determine schema for the schema history table." +
-                                        " Set a default schema for the connection or specify one using the defaultSchema property!");
+                                                                  " Set a default schema for the connection or specify one using the defaultSchema property!");
                             }
                             LOG.debug("Creating schema: " + schema);
                             schema.create();

@@ -833,7 +833,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                     }
                 }
             } else {
-                locations = new String[]{
+                locations = new String[] {
                         Location.FILESYSTEM_PREFIX + workDir.getAbsolutePath() + "/src/main/resources/db/migration"
                 };
             }
@@ -943,9 +943,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         } catch (Exception e) {
             throw new MojoExecutionException(e.toString(), ExceptionUtils.getRootCause(e));
         } finally {
-            Log currentLog = ((EvolvingLog)log).getLog();
+            Log currentLog = ((EvolvingLog) log).getLog();
             if (currentLog instanceof BufferedLog) {
-                ((BufferedLog)currentLog).flush(new MavenLog(this.getLog()));
+                ((BufferedLog) currentLog).flush(new MavenLog(this.getLog()));
             }
         }
     }
@@ -1004,7 +1004,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * Converts this file name into a file, adjusting relative paths if necessary to make them relative to the pom.
      *
-     * @param workDir  The working directory to use.
+     * @param workDir The working directory to use.
      * @param fileName The name of the file, relative or absolute.
      * @return The resulting file.
      */

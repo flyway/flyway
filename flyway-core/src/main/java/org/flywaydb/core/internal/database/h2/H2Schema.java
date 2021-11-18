@@ -52,7 +52,7 @@ public class H2Schema extends Schema<H2Database, H2Table> {
     @Override
     protected void doDrop() throws SQLException {
         jdbcTemplate.execute("DROP SCHEMA " + database.quote(name)
-                + (database.supportsDropSchemaCascade ? " CASCADE" : ""));
+                                     + (database.supportsDropSchemaCascade ? " CASCADE" : ""));
     }
 
     @Override
@@ -89,7 +89,7 @@ public class H2Schema extends Schema<H2Database, H2Table> {
                 }
             } else {
                 LOG.error("Unable to drop DOMAIN objects in schema " + database.quote(name)
-                        + " due to H2 bug! (More info: http://code.google.com/p/h2database/issues/detail?id=306)");
+                                  + " due to H2 bug! (More info: http://code.google.com/p/h2database/issues/detail?id=306)");
             }
         }
     }
@@ -97,7 +97,7 @@ public class H2Schema extends Schema<H2Database, H2Table> {
     /**
      * Generate the statements for dropping all the objects of this type in this schema.
      *
-     * @param objectType  The type of object to drop (Sequence, constant, ...)
+     * @param objectType The type of object to drop (Sequence, constant, ...)
      * @param objectNames The names of the objects to drop.
      * @return The list of statements.
      */
@@ -115,7 +115,7 @@ public class H2Schema extends Schema<H2Database, H2Table> {
     /**
      * Generate the statements for dropping all the objects of this type in the current schema.
      *
-     * @param objectType  The type of object to drop (Sequence, constant, ...)
+     * @param objectType The type of object to drop (Sequence, constant, ...)
      * @param objectNames The names of the objects to drop.
      * @return The list of statements.
      */
@@ -144,7 +144,7 @@ public class H2Schema extends Schema<H2Database, H2Table> {
     /**
      * List the names of the objects of this type in this schema.
      *
-     * @param objectType  The type of objects to list (Sequence, constant, ...)
+     * @param objectType The type of objects to list (Sequence, constant, ...)
      * @param querySuffix Suffix to append to the query to find the objects to list.
      * @return The names of the objects.
      * @throws java.sql.SQLException when the object names could not be listed.
@@ -158,7 +158,6 @@ public class H2Schema extends Schema<H2Database, H2Table> {
 
         return jdbcTemplate.queryForStringList(query, name);
     }
-
 
     @Override
     public Table getTable(String tableName) {

@@ -46,7 +46,7 @@ public class SqlScriptCallbackFactory {
      *
      * @param resourceProvider The resource provider.
      * @param sqlScriptFactory The SQL statement factory.
-     * @param configuration    The Flyway configuration.
+     * @param configuration The Flyway configuration.
      */
     public SqlScriptCallbackFactory(ResourceProvider resourceProvider,
                                     SqlScriptExecutorFactory sqlScriptExecutorFactory,
@@ -70,9 +70,9 @@ public class SqlScriptCallbackFactory {
                 SqlScript existing = callbacksFound.get(name);
                 if (existing != null) {
                     throw new FlywayException("Found more than 1 SQL callback script called " + name + "!\n" +
-                            "Offenders:\n" +
-                            "-> " + existing.getResource().getAbsolutePathOnDisk() + "\n" +
-                            "-> " + resource.getAbsolutePathOnDisk());
+                                                      "Offenders:\n" +
+                                                      "-> " + existing.getResource().getAbsolutePathOnDisk() + "\n" +
+                                                      "-> " + resource.getAbsolutePathOnDisk());
                 }
                 SqlScript sqlScript = sqlScriptFactory.createSqlScript(resource, configuration.isMixed(), resourceProvider);
                 callbacksFound.put(name, sqlScript);
@@ -118,8 +118,8 @@ public class SqlScriptCallbackFactory {
             }
 
             LOG.info("Executing SQL callback: " + event.getId()
-                    + (description == null ? "" : " - " + description)
-                    + (sqlScript.executeInTransaction() ? "" : " [non-transactional]"));
+                             + (description == null ? "" : " - " + description)
+                             + (sqlScript.executeInTransaction() ? "" : " [non-transactional]"));
 
             boolean outputQueryResults = false;
 

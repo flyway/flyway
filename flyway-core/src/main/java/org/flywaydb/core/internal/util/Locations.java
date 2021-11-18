@@ -84,7 +84,7 @@ public class Locations {
     /**
      * Retrieves this location's parent within this list, if any.
      *
-     * @param location       The location to check.
+     * @param location The location to check.
      * @param finalLocations The list to search.
      * @return The parent location. {@code null} if none.
      */

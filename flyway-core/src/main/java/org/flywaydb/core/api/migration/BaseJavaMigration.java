@@ -73,15 +73,15 @@ public abstract class BaseJavaMigration implements JavaMigration {
         }
         if (prefix == null) {
             throw new FlywayException("Invalid Java-based migration class name: " + getClass().getName() +
-                    " => ensure it starts with V, R" +
+                                              " => ensure it starts with V, R" +
 
 
 
-                    " or implement org.flywaydb.core.api.migration.JavaMigration directly for non-default naming");
+                                              " or implement org.flywaydb.core.api.migration.JavaMigration directly for non-default naming");
         }
 
         Pair<MigrationVersion, String> info =
-                MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", new String[]{""}, repeatable);
+                MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", new String[] {""}, repeatable);
         version = info.getLeft();
         description = info.getRight();
     }

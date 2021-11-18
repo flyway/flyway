@@ -38,7 +38,7 @@ public class MySQLNamedLockTemplate {
     /**
      * Creates a new named lock template for this connection.
      *
-     * @param jdbcTemplate  The jdbcTemplate for the connection.
+     * @param jdbcTemplate The jdbcTemplate for the connection.
      * @param discriminator A number to discriminate between locks.
      */
     MySQLNamedLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {

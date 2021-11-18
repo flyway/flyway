@@ -118,10 +118,10 @@ public abstract class Parser {
         PeekingReader peekingReader =
                 new PeekingReader(
                         new RecordingReader(recorder,
-                                new PositionTrackingReader(tracker, replacePlaceholders(
-                                        new BomStrippingReader(
-                                                new UnboundedReadAheadReader(
-                                                        new BufferedReader(resource.read(), 4096)))))),
+                                            new PositionTrackingReader(tracker, replacePlaceholders(
+                                                    new BomStrippingReader(
+                                                            new UnboundedReadAheadReader(
+                                                                    new BufferedReader(resource.read(), 4096)))))),
                         supportsPeekingMultipleLines());
 
         return new ParserSqlStatementIterator(peekingReader, resource, recorder, tracker, context);
@@ -189,7 +189,7 @@ public abstract class Parser {
                     if (!tokens.isEmpty() && nonCommentPartPos >= 0) {
                         String sql = recorder.stop();
                         throw new FlywayException("Delimiter changed inside statement at line " + statementLine +
-                                " col " + statementCol + ": " + sql);
+                                                          " col " + statementCol + ": " + sql);
                     }
 
                     context.setDelimiter(new Delimiter(token.getText(), false
@@ -238,15 +238,15 @@ public abstract class Parser {
 
                     if (TokenType.EOF == tokenType && (parensDepth > 0 || blockDepth > 0)) {
                         throw new FlywayException("Incomplete statement at line " + statementLine +
-                                " col " + statementCol + ": " + sql);
+                                                          " col " + statementCol + ": " + sql);
                     }
                     return createStatement(reader, recorder, statementPos, statementLine, statementCol,
-                            nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
-                            statementType, canExecuteInTransaction, context.getDelimiter(), sql.trim()
+                                           nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
+                                           statementType, canExecuteInTransaction, context.getDelimiter(), sql.trim()
 
 
 
-                    );
+                                          );
                 }
 
                 if (tokens.isEmpty() || tokens.stream().allMatch(t -> t.getType() == TokenType.BLANK_LINES || t.getType() == TokenType.COMMENT)) {
@@ -304,7 +304,7 @@ public abstract class Parser {
         } catch (Exception e) {
             IOUtils.close(reader);
             throw new FlywayException("Unable to parse statement in " + resource.getAbsolutePath()
-                    + " at line " + statementLine + " col " + statementCol + ". See " + FlywayDbWebsiteLinks.KNOWN_PARSER_LIMITATIONS + " for more information: " + e.getMessage(), e);
+                                              + " at line " + statementLine + " col " + statementCol + ". See " + FlywayDbWebsiteLinks.KNOWN_PARSER_LIMITATIONS + " for more information: " + e.getMessage(), e);
         }
     }
 
@@ -315,7 +315,7 @@ public abstract class Parser {
     /**
      * Whether the current set of tokens should be discarded.
      *
-     * @param token              The latest token.
+     * @param token The latest token.
      * @param nonCommentPartSeen Whether a non-comment part has already been seen.
      * @return {@code true} if it should, {@code false} if not.
      */
@@ -335,7 +335,7 @@ public abstract class Parser {
      *
      * @param statementType The statement type.
      */
-    protected void adjustDelimiter(ParserContext context, StatementType statementType) { }
+    protected void adjustDelimiter(ParserContext context, StatementType statementType) {}
 
     /**
      * @return The cutoff point in terms of number of tokens after which a statement can no longer be non-transactional.
@@ -344,7 +344,7 @@ public abstract class Parser {
         return 10;
     }
 
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException { }
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {}
 
     protected int getLastKeywordIndex(List<Token> tokens) {
         return getLastKeywordIndex(tokens, tokens.size());
@@ -361,7 +361,7 @@ public abstract class Parser {
     }
 
     protected static Token getPreviousToken(List<Token> tokens, int parensDepth) {
-        for (int i = tokens.size()-1; i >= 0; i--) {
+        for (int i = tokens.size() - 1; i >= 0; i--) {
             Token previousToken = tokens.get(i);
 
             // Only consider tokens at the same parenthesis depth
@@ -405,7 +405,7 @@ public abstract class Parser {
         ArrayList<String> tokenStrings = new ArrayList<>();
         tokenStrings.add(current.getText());
 
-        for (int i = previousTokens.size()-1; i >= 0; i--) {
+        for (int i = previousTokens.size() - 1; i >= 0; i--) {
             Token prevToken = previousTokens.get(i);
             if (prevToken.getParensDepth() != current.getParensDepth()) {
                 break;
@@ -417,7 +417,7 @@ public abstract class Parser {
         }
 
         StringBuilder builder = new StringBuilder();
-        for (int i = tokenStrings.size()-1; i >= 0; i--) {
+        for (int i = tokenStrings.size() - 1; i >= 0; i--) {
             builder.append(tokenStrings.get(i));
             if (i != 0) {
                 builder.append(" ");
@@ -435,9 +435,9 @@ public abstract class Parser {
 
 
 
-    ) throws IOException {
+                                                ) throws IOException {
         return new ParsedSqlStatement(statementPos, statementLine, statementCol,
-                sql, delimiter, canExecuteInTransaction
+                                      sql, delimiter, canExecuteInTransaction
 
 
 
@@ -649,10 +649,10 @@ public abstract class Parser {
 
     private List<Token> discardBlankLines(List<Token> tokens) {
         List<Token> nonBlankLinesTokens = new ArrayList<>(tokens);
-        while(nonBlankLinesTokens.get(0).getType() == TokenType.BLANK_LINES) {
+        while (nonBlankLinesTokens.get(0).getType() == TokenType.BLANK_LINES) {
             nonBlankLinesTokens.remove(0);
         }
-        while(nonBlankLinesTokens.get(nonBlankLinesTokens.size() - 1).getType() == TokenType.BLANK_LINES) {
+        while (nonBlankLinesTokens.get(nonBlankLinesTokens.size() - 1).getType() == TokenType.BLANK_LINES) {
             nonBlankLinesTokens.remove(nonBlankLinesTokens.size() - 1);
         }
         return nonBlankLinesTokens;

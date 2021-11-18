@@ -55,7 +55,6 @@ public enum MigrationState {
      *
      * This migration was applied against this DB, but it is not available locally.
      * This usually results from multiple older migration files being consolidated into a single one.
-     *
      */
     MISSING_SUCCESS("Missing", false, true, false),
     /**
@@ -88,7 +87,6 @@ public enum MigrationState {
      *
      * This migration succeeded, but it was applied out of order.
      * Rerunning the entire migration history might produce different results!
-     *
      */
     OUT_OF_ORDER("Out of Order", true, true, false),
     /**
@@ -97,7 +95,6 @@ public enum MigrationState {
      * This migration has been applied against the DB, but it is not available locally.
      * Its version is higher than the highest version available locally.
      * It was most likely successfully installed by a future version of this deployable.
-     *
      */
     FUTURE_SUCCESS("Future", false, true, false),
     /**
@@ -106,7 +103,6 @@ public enum MigrationState {
      * This migration has been applied against the DB, but it is not available locally.
      * Its version is higher than the highest version available locally.
      * It most likely failed during the installation of a future version of this deployable.
-     *
      */
     FUTURE_FAILED("Failed (Future)", false, true, true),
     /**

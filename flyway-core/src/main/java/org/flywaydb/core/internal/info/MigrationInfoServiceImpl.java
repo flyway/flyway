@@ -57,15 +57,15 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
     /**
      * @param migrationResolver The migration resolver for available migrations.
-     * @param schemaHistory     The schema history table for applied migrations.
-     * @param configuration     The current configuration.
-     * @param target            The target version up to which to retrieve the info.
-     * @param outOfOrder        Allows migrations to be run "out of order".
-     * @param cherryPick        The migrations to consider when migration.
-     * @param pending           Whether pending migrations are allowed.
-     * @param missing           Whether missing migrations are allowed.
-     * @param ignored           Whether ignored migrations are allowed.
-     * @param future            Whether future migrations are allowed.
+     * @param schemaHistory The schema history table for applied migrations.
+     * @param configuration The current configuration.
+     * @param target The target version up to which to retrieve the info.
+     * @param outOfOrder Allows migrations to be run "out of order".
+     * @param cherryPick The migrations to consider when migration.
+     * @param pending Whether pending migrations are allowed.
+     * @param missing Whether missing migrations are allowed.
+     * @param ignored Whether ignored migrations are allowed.
+     * @param future Whether future migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver,
                                     SchemaHistory schemaHistory, Database database, final Configuration configuration,
@@ -125,7 +125,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
 
 
-                            false), resolvedMigration);
+                                                          false), resolvedMigration);
                 }
             } else {
                 resolvedRepeatable.put(resolvedMigration.getDescription(), resolvedMigration);
@@ -159,7 +159,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
 
 
-         // Split applied into version and repeatable, and update state from synthetic migrations
+        // Split applied into version and repeatable, and update state from synthetic migrations
         List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedVersioned = new ArrayList<>();
         List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedRepeatable = new ArrayList<>();
         for (AppliedMigration appliedMigration : appliedMigrations) {
@@ -308,7 +308,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
             // If latest run is the same rank, its not pending
             if (!av.getRight().deleted && av.getLeft().getType() != MigrationType.DELETE
-                   && resolvedMigration != null && rank == latestRank && resolvedMigration.checksumMatches(appliedRepeatableMigration.getChecksum())) {
+                    && resolvedMigration != null && rank == latestRank && resolvedMigration.checksumMatches(appliedRepeatableMigration.getChecksum())) {
                 pendingResolvedRepeatable.remove(resolvedMigration);
             }
 
@@ -356,7 +356,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     /**
      * Marks the latest applied migration with this version as deleted.
      *
-     * @param version          The version.
+     * @param version The version.
      * @param appliedVersioned The applied migrations.
      */
     private void markAsDeleted(MigrationVersion version, List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedVersioned) {
@@ -365,7 +365,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             if (!av.getLeft().getType().isSynthetic() && version.equals(av.getLeft().getVersion())) {
                 if (av.getRight().deleted) {
                     throw new FlywayException("Corrupted schema history: multiple delete entries for version " + version,
-                            ErrorCode.DUPLICATE_DELETED_MIGRATION);
+                                              ErrorCode.DUPLICATE_DELETED_MIGRATION);
                 } else {
                     av.getRight().deleted = true;
                     return;
@@ -373,6 +373,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             }
         }
     }
+
 
 
 
@@ -537,6 +538,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
         return outOfOrderMigrations.toArray(new MigrationInfo[0]);
     }
+
 
 
 

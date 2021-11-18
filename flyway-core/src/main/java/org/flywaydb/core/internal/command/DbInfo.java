@@ -45,8 +45,8 @@ public class DbInfo {
         try {
             migrationInfoService =
                     new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
-                            configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
-                            true, true, true, true);
+                                                 configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
+                                                 true, true, true, true);
             migrationInfoService.refresh();
             migrationInfoService.setAllSchemasEmpty(schemas);
         } catch (FlywayException e) {

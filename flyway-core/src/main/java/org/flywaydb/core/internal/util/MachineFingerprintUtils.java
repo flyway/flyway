@@ -29,13 +29,13 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MachineFingerprintUtils {
     public static String getFingerprint(String... salts) throws Exception {
-        if(salts == null || salts.length == 0 || Arrays.stream(salts).noneMatch(StringUtils::hasText)) {
+        if (salts == null || salts.length == 0 || Arrays.stream(salts).noneMatch(StringUtils::hasText)) {
             throw new Exception("All parameters required for getFingerprint");
         }
 
         byte[] hashedId = salts[0].getBytes(StandardCharsets.UTF_8);
-        for(String salt : salts) {
-            hashedId = getHashed(salt.getBytes(StandardCharsets.UTF_8),hashedId);
+        for (String salt : salts) {
+            hashedId = getHashed(salt.getBytes(StandardCharsets.UTF_8), hashedId);
         }
 
         List<byte[]> hardwareAddresses = getHardwareAddresses();

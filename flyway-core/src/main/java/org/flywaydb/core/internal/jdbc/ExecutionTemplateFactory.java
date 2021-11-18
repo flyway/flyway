@@ -51,7 +51,7 @@ public class ExecutionTemplateFactory {
     /**
      * Creates a new execution template for this connection, which attempts to get exclusive access to the table
      *
-     * @param connection          The connection for execution.
+     * @param connection The connection for execution.
      * @param database The database
      */
     public static ExecutionTemplate createTableExclusiveExecutionTemplate(Connection connection, Table table, Database database) {
@@ -65,7 +65,7 @@ public class ExecutionTemplateFactory {
     /**
      * Creates a new transactional execution template for this connection.
      *
-     * @param connection          The connection for execution.
+     * @param connection The connection for execution.
      * @param rollbackOnException Whether to attempt to roll back when an exception is thrown.
      */
     private static ExecutionTemplate createTransactionalExecutionTemplate(Connection connection, boolean rollbackOnException, DatabaseType databaseType) {

@@ -33,8 +33,8 @@ public abstract class Schema<D extends Database, T extends Table> {
 
     /**
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
+     * @param database The database-specific support.
+     * @param name The name of the schema.
      */
     public Schema(JdbcTemplate jdbcTemplate, D database, String name) {
         this.jdbcTemplate = jdbcTemplate;
@@ -219,8 +219,12 @@ public abstract class Schema<D extends Database, T extends Table> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Schema schema = (Schema) o;
         return name.equals(schema.name);
