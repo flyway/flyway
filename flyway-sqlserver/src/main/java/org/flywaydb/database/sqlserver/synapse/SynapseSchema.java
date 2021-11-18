@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.sqlserver.synapse;
+package org.flywaydb.database.sqlserver.synapse;
 
+import org.flywaydb.database.sqlserver.SQLServerDatabase;
+import org.flywaydb.database.sqlserver.SQLServerSchema;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.database.sqlserver.SQLServerDatabase;
-import org.flywaydb.core.internal.database.sqlserver.SQLServerSchema;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;

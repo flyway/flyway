@@ -593,12 +593,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String kerberosConfigFile;
 
     /**
-     * When SQL Server needs to connect to a Kerberos service to authenticate, the path to the Kerberos login file.
-     * <i>Flyway Teams only</i>
-     */
-    public String sqlServerKerberosLoginFile;
-
-    /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
      * Request your <a href="https://flywaydb.org/download/">Flyway trial license key</a>
      * to try out Flyway Teams Edition features free for 30 days.
@@ -824,7 +818,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS_WARN, oracleSqlplusWarn, extension.oracleSqlplusWarn);
         putIfSet(conf, ConfigUtils.ORACLE_WALLET_LOCATION, oracleWalletLocation, extension.oracleWalletLocation);
 
-        putIfSet(conf, ConfigUtils.SQL_SERVER_KERBEROS_LOGIN_FILE, sqlServerKerberosLoginFile, extension.sqlServerKerberosLoginFile);
         putIfSet(conf, ConfigUtils.KERBEROS_CONFIG_FILE, kerberosConfigFile, extension.kerberosConfigFile);
 
         putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey, extension.licenseKey);

@@ -16,4 +16,4 @@
 /**
  * Private API. No compatibility guarantees provided.
  */
-package org.flywaydb.core.internal.database.sqlserver;
+package org.flywaydb.database.sqlserver;

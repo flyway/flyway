@@ -69,6 +69,8 @@
         <module>flyway-commandline</module>
         <module>flyway-gcp-bigquery</module>
         <module>flyway-gcp-spanner</module>
+        <module>flyway-sqlserver</module>
+
 
 
 

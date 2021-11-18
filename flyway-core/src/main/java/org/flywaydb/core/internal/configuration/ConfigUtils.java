@@ -108,9 +108,6 @@ public class ConfigUtils {
     public static final String ORACLE_KERBEROS_CACHE_FILE = "flyway.oracle.kerberosCacheFile";
     public static final String ORACLE_WALLET_LOCATION = "flyway.oracle.walletLocation";
 
-    // SQLServer-specific
-    public static final String SQL_SERVER_KERBEROS_LOGIN_FILE = "flyway.sqlServer.kerberosLoginFile";
-
     // Command-line specific
     public static final String JAR_DIRS = "flyway.jarDirs";
 
@@ -349,11 +346,6 @@ public class ConfigUtils {
         }
         if ("FLYWAY_ORACLE_WALLET_LOCATION".equals(key)) {
             return ORACLE_WALLET_LOCATION;
-        }
-
-        //SQLServer-specific
-        if ("FLYWAY_SQL_SERVER_KERBEROS_LOGIN_FILE".equals(key)) {
-            return SQL_SERVER_KERBEROS_LOGIN_FILE;
         }
 
         // Command-line specific

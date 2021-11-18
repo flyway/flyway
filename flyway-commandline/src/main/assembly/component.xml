@@ -142,8 +142,11 @@
                 <include>org.flywaydb:flyway-vault-integration</include>
                 <include>org.flywaydb:flyway-dapr-integration</include>
                 <include>org.flywaydb:flyway-gcsm-integration</include>
+                <include>org.flywaydb:flyway-sqlserver</include>
             </includes>
         </dependencySet>
+
+
 
 
 

@@ -609,12 +609,6 @@ public interface Configuration {
     String getOracleKerberosCacheFile();
 
     /**
-     * The path to the SQL Server Kerberos login file.
-     * <i>Flyway Teams only</i>
-     */
-    String getSqlServerKerberosLoginFile();
-
-    /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
      * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
      * to try out Flyway Teams Edition features free for 30 days.

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.sqlserver;
+package org.flywaydb.database.sqlserver;
 
 import lombok.RequiredArgsConstructor;
 

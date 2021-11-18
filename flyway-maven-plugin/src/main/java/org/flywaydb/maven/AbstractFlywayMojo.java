@@ -682,13 +682,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String kerberosConfigFile;
 
     /**
-     * When SQL Server needs to connect to a Kerberos service to authenticate, the path to the Kerberos login file.
-     * <i>Flyway Teams only</i>
-     */
-    @Parameter(property = ConfigUtils.SQL_SERVER_KERBEROS_LOGIN_FILE)
-    private String sqlServerKerberosLoginFile;
-
-    /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
      * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
      * to try out Flyway Teams Edition features free for 30 days.
@@ -915,7 +908,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS_WARN, oracleSqlplusWarn);
             putIfSet(conf, ConfigUtils.ORACLE_WALLET_LOCATION, oracleWalletLocation);
 
-            putIfSet(conf, ConfigUtils.SQL_SERVER_KERBEROS_LOGIN_FILE, sqlServerKerberosLoginFile);
             putIfSet(conf, ConfigUtils.KERBEROS_CONFIG_FILE, kerberosConfigFile);
 
             putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey);

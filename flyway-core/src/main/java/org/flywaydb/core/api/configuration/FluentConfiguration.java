@@ -955,17 +955,6 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * When SQL Server needs to connect to a Kerberos service to authenticate, the path to the Kerberos login file.
-     * <i>Flyway Teams only</i>
-     *
-     * @param sqlServerKerberosLoginFile The path to the Kerberos login file
-     */
-    public FluentConfiguration sqlServerKerberosLoginFile(String sqlServerKerberosLoginFile) {
-        config.setSqlServerKerberosLoginFile(sqlServerKerberosLoginFile);
-        return this;
-    }
-
-    /**
      * The location of your Oracle wallet, used to automatically sign in to your databases.
      *
      * <i>Flyway Teams only</i>

@@ -375,7 +375,6 @@ public class ClassicConfiguration implements Configuration {
     private String kerberosConfigFile = "";
     private String oracleKerberosConfigFile = "";
     private String oracleKerberosCacheFile = "";
-    private String sqlServerKerberosLoginFile = "";
     private String oracleWalletLocation;
     /**
      * -- SETTER --
@@ -1154,19 +1153,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * When SQL Server needs to connect to a Kerberos service to authenticate, the path to the Kerberos login file.
-     * <i>Flyway Teams only</i>
-     */
-    public void setSqlServerKerberosLoginFile(String sqlServerKerberosLoginFile) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("sqlServer.kerberosLoginFile");
-
-
-
-
-    }
-
-    /**
      * When connecting to a Kerberos service to authenticate, the path to the Kerberos config file.
      * <i>Flyway Teams only</i>
      */
@@ -1263,7 +1249,6 @@ public class ClassicConfiguration implements Configuration {
         setConnectRetries(configuration.getConnectRetries());
         setConnectRetriesInterval(configuration.getConnectRetriesInterval());
         setInitSql(configuration.getInitSql());
-
 
 
 
@@ -1604,10 +1589,7 @@ public class ClassicConfiguration implements Configuration {
         if (oracleKerberosCacheFile != null) {
             setOracleKerberosCacheFile(oracleKerberosCacheFile);
         }
-        String sqlServerKerberosLoginFile = props.remove(ConfigUtils.SQL_SERVER_KERBEROS_LOGIN_FILE);
-        if (sqlServerKerberosLoginFile != null) {
-            setSqlServerKerberosLoginFile(sqlServerKerberosLoginFile);
-        }
+
         String oracleWalletLocationProp = props.remove(ConfigUtils.ORACLE_WALLET_LOCATION);
         if (oracleWalletLocationProp != null) {
             setOracleWalletLocation(oracleWalletLocationProp);
