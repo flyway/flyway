@@ -180,7 +180,7 @@
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
         <version.gcs>1.113.13</version.gcs>
         <version.gradle>6.1.1</version.gradle>
-        <version.gson>2.8.6</version.gson>
+        <version.gson>2.8.9</version.gson>
         <version.h2>1.4.200</version.h2>
         <version.hsqldb>2.6.0</version.hsqldb>
         <version.ignite>2.9.0</version.ignite>
