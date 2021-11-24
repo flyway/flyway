@@ -37,6 +37,7 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
@@ -162,10 +163,10 @@ public class DbRepair {
             }
 
             AppliedMigration applied = migrationInfoImpl.getAppliedMigration();
-
             MigrationState state = migrationInfoImpl.getState();
-            if (state == MigrationState.MISSING_SUCCESS || state == MigrationState.MISSING_FAILED
-                    || state == MigrationState.FUTURE_SUCCESS || state == MigrationState.FUTURE_FAILED) {
+            boolean isMigrationMissing = state == MigrationState.MISSING_SUCCESS || state == MigrationState.MISSING_FAILED || state == MigrationState.FUTURE_SUCCESS || state == MigrationState.FUTURE_FAILED;
+            boolean isMigrationIgnored = Arrays.stream(configuration.getIgnoreMigrationPatterns()).anyMatch(p -> p.matchesMigration(migrationInfoImpl.getVersion() != null, state));
+            if (isMigrationMissing && !isMigrationIgnored) {
                 schemaHistory.delete(applied);
                 removed = true;
                 repairResult.migrationsDeleted.add(CommandResultFactory.createRepairOutput(migrationInfo));
