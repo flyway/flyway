@@ -16,3 +16,4 @@ org.flywaydb.core.internal.database.sqlite.SQLiteDatabaseType
 org.flywaydb.core.internal.database.sybasease.SybaseASEJConnectDatabaseType
 org.flywaydb.core.internal.database.sybasease.SybaseASEJTDSDatabaseType
 org.flywaydb.core.internal.database.base.TestContainersDatabaseType
+org.flywaydb.core.internal.database.clickhouse.ClickHouseDatabaseType
