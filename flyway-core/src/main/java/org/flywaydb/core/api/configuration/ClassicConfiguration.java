@@ -313,6 +313,13 @@ public class ClassicConfiguration implements Configuration {
     private boolean baselineOnMigrate;
     private String clickhouseClusterName;
     private String zookeeperUrl;
+    /**
+     * -- SETTER --
+     * Allows migrations to be run "out of order".
+     * If you already have versions 1 and 3 applied, and now a version 2 is found, it will be applied too instead of being ignored.
+     *
+     * @param outOfOrder {@code true} if outOfOrder migrations should be applied, {@code false} if not. (default: {@code false})
+     */
     private boolean outOfOrder;
     private boolean skipExecutingMigrations;
     @Setter(AccessLevel.NONE)
@@ -688,7 +695,12 @@ public class ClassicConfiguration implements Configuration {
      * Defaults to {@code latest}.
      */
     public void setTargetAsString(String target) {
-        this.target = MigrationVersion.fromVersion(target);
+        if (target.endsWith("?")) {
+            throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("failOnMissingTarget");
+        } else {
+            setFailOnMissingTarget(true);
+            setTarget(MigrationVersion.fromVersion(target));
+        }
     }
 
     /**
