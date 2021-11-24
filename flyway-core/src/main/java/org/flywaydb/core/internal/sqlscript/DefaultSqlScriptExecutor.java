@@ -33,7 +33,7 @@ import java.util.List;
 
 @CustomLog
 public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
-    private final JdbcTemplate jdbcTemplate;
+    protected final JdbcTemplate jdbcTemplate;
 
 
 
