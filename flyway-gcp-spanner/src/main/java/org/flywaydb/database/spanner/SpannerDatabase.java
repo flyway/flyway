@@ -134,11 +134,28 @@ public class SpannerDatabase extends Database<SpannerConnection> {
                 "    script STRING(1000) NOT NULL,\n" +
                 "    checksum INT64,\n" +
                 "    installed_by STRING(100) NOT NULL,\n" +
-                "    installed_on TIMESTAMP OPTIONS (allow_commit_timestamp=true),\n" +
+                "    installed_on TIMESTAMP NOT NULL OPTIONS (allow_commit_timestamp=true),\n" +
                 "    execution_time INT64 NOT NULL,\n" +
                 "    success BOOL NOT NULL\n" +
                 ") PRIMARY KEY (installed_rank DESC);\n" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "") +
                 "CREATE INDEX " + table.getName() + "_s_idx ON " + table.getName() + " (success);";
+    }
+
+    @Override
+    public String getInsertStatement(Table table) {
+        return "INSERT INTO " + table
+                + " (" + quote("installed_rank")
+                + ", " + quote("version")
+                + ", " + quote("description")
+                + ", " + quote("type")
+                + ", " + quote("script")
+                + ", " + quote("checksum")
+                + ", " + quote("installed_by")
+                + ", " + quote("installed_on")
+                + ", " + quote("execution_time")
+                + ", " + quote("success")
+                + ")"
+                + " VALUES (?, ?, ?, ?, ?, ?, ?, PENDING_COMMIT_TIMESTAMP(), ?, ?)";
     }
 }
