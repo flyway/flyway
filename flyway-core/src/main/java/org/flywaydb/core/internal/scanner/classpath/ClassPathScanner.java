@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package org.flywaydb.core.internal.scanner.classpath;
 
+import lombok.CustomLog;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
 import org.flywaydb.core.internal.scanner.LocationScannerCache;
@@ -26,6 +26,7 @@ import org.flywaydb.core.internal.scanner.classpath.jboss.JBossVFSv2UrlResolver;
 import org.flywaydb.core.internal.scanner.classpath.jboss.JBossVFSv3ClassPathLocationScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
+import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.UrlUtils;
 
 import java.io.IOException;
@@ -38,72 +39,46 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
-/**
- * ClassPath scanner.
- */
+@CustomLog
 public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
-    private static final Log LOG = LogFactory.getLog(ClassPathScanner.class);
-
     private final Class<I> implementedInterface;
-    /**
-     * The ClassLoader for loading migrations on the classpath.
-     */
     private final ClassLoader classLoader;
     private final Location location;
-
-    private final Set<LoadableResource> resources = new TreeSet<>();
-
+    private final Set<LoadableResource> resources = new HashSet<>();
     /**
      * Cache location lookups.
      */
     private final Map<Location, List<URL>> locationUrlCache = new HashMap<>();
-
     /**
      * Cache location scanners.
      */
     private final LocationScannerCache locationScannerCache;
-
     /**
      * Cache resource names.
      */
     private final ResourceNameCache resourceNameCache;
-
     /**
-     * Whether to show an error if the location was not found. Used to suppress errors when we scan built in Flyway paths.
+     * Whether to throw an exception if a location was not found.
      */
-    private final boolean errorOnNotFound;
+    private final boolean throwOnMissingLocations;
 
-    /**
-     * Creates a new Classpath scanner.
-     *
-     * @param classLoader The ClassLoader for loading migrations on the classpath.
-     */
-    public ClassPathScanner(Class<I> implementedInterface, ClassLoader classLoader, Charset encoding, Location location,
-                            ResourceNameCache resourceNameCache,
-                            LocationScannerCache locationScannerCache) {
-        this(implementedInterface, classLoader, encoding, location, resourceNameCache, locationScannerCache, true);
-    }
-
-    /**
-     * Creates a new Classpath scanner.
-     *
-     * @param classLoader The ClassLoader for loading migrations on the classpath.
-     */
     public ClassPathScanner(Class<I> implementedInterface, ClassLoader classLoader, Charset encoding, Location location,
                             ResourceNameCache resourceNameCache,
                             LocationScannerCache locationScannerCache,
-                            boolean errorOnNotFound) {
+                            boolean throwOnMissingLocations) {
         this.implementedInterface = implementedInterface;
         this.classLoader = classLoader;
         this.location = location;
         this.resourceNameCache = resourceNameCache;
         this.locationScannerCache = locationScannerCache;
-        this.errorOnNotFound = errorOnNotFound;
+        this.throwOnMissingLocations = throwOnMissingLocations;
 
         LOG.debug("Scanning for classpath resources at '" + location + "' ...");
-        for (String resourceName : findResourceNames()) {
-            resources.add(new ClassPathResource(location, resourceName, classLoader, encoding));
-            LOG.debug("Found resource: " + resourceName);
+        for (Pair<String, String> resourceNameAndParentURL : findResourceNamesAndParentURLs()) {
+            String resourceName = resourceNameAndParentURL.getLeft();
+            String parentURL = resourceNameAndParentURL.getRight();
+            resources.add(new ClassPathResource(location, resourceName, classLoader, encoding, parentURL));
+            LOG.debug("Found resource: " + resourceNameAndParentURL.getLeft());
         }
     }
 
@@ -144,14 +119,8 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         return nameWithDots.substring(0, (nameWithDots.length() - ".class".length()));
     }
 
-    /**
-     * Finds the resources names present at this location and below on the classpath starting with this prefix and
-     * ending with this suffix.
-     *
-     * @return The resource names.
-     */
-    private Set<String> findResourceNames() {
-        Set<String> resourceNames = new TreeSet<>();
+    private Set<Pair<String, String>> findResourceNamesAndParentURLs() {
+        Set<Pair<String, String>> resourceNamesAndParentURLs = new TreeSet<>();
 
         List<URL> locationUrls = getLocationUrlsForPath(location);
         for (URL locationUrl : locationUrls) {
@@ -178,7 +147,9 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
                     }
                 }
 
-                resourceNames.addAll(filteredNames);
+                for (String filteredName : filteredNames) {
+                    resourceNamesAndParentURLs.add(Pair.of(filteredName, resolvedUrl.getPath()));
+                }
             }
         }
 
@@ -217,7 +188,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
                                 String entryName = entries.nextElement().getName();
                                 if (entryName.startsWith(location.getRootPath())) {
                                     locationResolved = true;
-                                    resourceNames.add(entryName);
+                                    resourceNamesAndParentURLs.add(Pair.of(entryName, url.getPath()));
                                 }
                             }
                         } finally {
@@ -233,14 +204,16 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         }
 
         if (!locationResolved) {
-            if (errorOnNotFound) {
-                LOG.error("Unable to resolve location " + location + ".");
+            String message = "Unable to resolve location " + location + ".";
+
+            if (throwOnMissingLocations) {
+                throw new FlywayException(message);
             } else {
-                LOG.debug("Unable to resolve location " + location + ".");
+                LOG.debug(message);
             }
         }
 
-        return resourceNames;
+        return resourceNamesAndParentURLs;
     }
 
     /**
@@ -265,7 +238,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
                 urls = classLoader.getResources(location.getRootPath() + "/flyway.location");
                 if (!urls.hasMoreElements()) {
                     LOG.error("Unable to resolve location " + location + " (ClassLoader: " + classLoader + ")"
-                            + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
+                                      + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
                 }
                 while (urls.hasMoreElements()) {
                     URL url = urls.nextElement();
@@ -273,7 +246,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
                 }
             } catch (IOException e) {
                 LOG.error("Unable to resolve location " + location + " (ClassLoader: " + classLoader + ")"
-                        + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
+                                  + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
             }
         } else {
             Enumeration<URL> urls;

@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.database.hsqldb;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
@@ -25,9 +24,8 @@ import java.sql.SQLException;
 /**
  * HSQLDB-specific table.
  */
+@CustomLog
 public class HSQLDBTable extends Table<HSQLDBDatabase, HSQLDBSchema> {
-    private static final Log LOG = LogFactory.getLog(HSQLDBTable.class);
-
 
 
 
@@ -39,9 +37,9 @@ public class HSQLDBTable extends Table<HSQLDBDatabase, HSQLDBSchema> {
      * Creates a new Hsql table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param schema       The schema this table lives in.
-     * @param name         The name of the table.
+     * @param database The database-specific support.
+     * @param schema The schema this table lives in.
+     * @param name The name of the table.
      */
     HSQLDBTable(JdbcTemplate jdbcTemplate, HSQLDBDatabase database, HSQLDBSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);

@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,17 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Error;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
+import org.flywaydb.core.internal.jdbc.*;
+import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
+import lombok.AccessLevel;
+import lombok.Getter;
 
 
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.core.internal.jdbc.*;
-import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.AsciiTable;
@@ -43,6 +44,8 @@ import java.util.List;
 import java.util.Locale;
 
 @SuppressWarnings("SqlResolve")
+@CustomLog
+@Getter
 public class OracleSqlScriptExecutor extends DefaultSqlScriptExecutor {
 
 
@@ -65,50 +68,10 @@ public class OracleSqlScriptExecutor extends DefaultSqlScriptExecutor {
 
 
     public OracleSqlScriptExecutor(JdbcTemplate jdbcTemplate,
-            CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
-            StatementInterceptor statementInterceptor
-    ) {
-        super(jdbcTemplate, callbackExecutor, undo, batch, outputQueryResults, statementInterceptor
-        );
+                                   CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
+                                   StatementInterceptor statementInterceptor) {
+        super(jdbcTemplate, callbackExecutor, undo, batch, outputQueryResults, statementInterceptor);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

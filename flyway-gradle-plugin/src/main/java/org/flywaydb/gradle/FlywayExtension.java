@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,10 +45,19 @@ public class FlywayExtension {
     /**
      * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
      * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     * The interval between retries doubles with each subsequent attempt.
      * (default: 0)
      * <p>Also configurable with Gradle or System Property: ${flyway.connectRetries}</p>
      */
     public int connectRetries;
+
+    /**
+     * The maximum time between retries when attempting to connect to the database in seconds. This will cap the interval
+     * between connect retry to the value provided.
+     * (default: 120)
+     * <p>Also configurable with Gradle or System Property: ${flyway.connectRetriesInterval}</p>
+     */
+    public int connectRetriesInterval;
 
     /**
      * The SQL statements to run to initialize a new database connection immediately after opening it. (default: {@code null})
@@ -58,9 +67,9 @@ public class FlywayExtension {
 
     /**
      * The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
-     * By default (single-schema mode) the schema history table is placed in the default schema for the connection
-     * provided by the datasource. When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema
-     * history table is placed in the first schema of the list.
+     * By default, (single-schema mode) the schema history table is placed in the default schema for the connection provided by the datasource.
+     * When the {@code flyway.schemas} property is set (multi-schema mode), the schema history table is placed in the first schema of the list,
+     * or in the schema specified to {@code flyway.defaultSchema}.
      * <p>Also configurable with Gradle or System Property: ${flyway.table}</p>
      */
     public String table;
@@ -75,15 +84,15 @@ public class FlywayExtension {
     public String tablespace;
 
     /**
-     * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but
-     * <i>schemas</i> is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the
-     * default schema for the database connection.
+     * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but <i>schemas</i>
+     * is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default schema for the
+     * database connection.
      * <p>Consequences:</p>
      * <ul>
      * <li>This schema will be the one containing the schema history table.</li>
      * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
      * </ul>
-     * <p>Also configurable with Maven or System Property: ${flyway.defaultSchema}</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.defaultSchema}</p>
      */
     public String defaultSchema;
 
@@ -97,7 +106,7 @@ public class FlywayExtension {
      * <li>The schemas will be cleaned in the order of this list.</li>
      * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
      * </ul>
-     * <p>Also configurable with Maven or System Property: ${flyway.schemas} (comma-separated list)</p>
+     * <p>Also configurable with Gradle or System Property: ${flyway.schemas} (comma-separated list)</p>
      */
     public String[] schemas;
 
@@ -144,6 +153,15 @@ public class FlywayExtension {
     public String sqlMigrationPrefix;
 
     /**
+     * The file name prefix for baseline migrations. (default: B)
+     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to B1.1__My_description.sql
+     * <i>Flyway Teams only</i>
+     * <p>Also configurable with Gradle or System Property: ${flyway.baselineMigrationPrefix}</p>
+     */
+    public String baselineMigrationPrefix;
+
+    /**
      * The file name prefix for undo SQL migrations. (default: U)
      * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
      * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
@@ -184,6 +202,13 @@ public class FlywayExtension {
     public String encoding;
 
     /**
+     * Whether Flyway should try to automatically detect SQL migration file encoding
+     * <i>Flyway Teams only</i>
+     * <p>Also configurable with Gradle or System Property: ${flyway.detectEncoding}</p>
+     */
+    public Boolean detectEncoding;
+
+    /**
      * The maximum number of retries when trying to obtain a lock. (default: 50)
      */
     public Integer lockRetryCount;
@@ -216,12 +241,28 @@ public class FlywayExtension {
     public String placeholderSuffix;
 
     /**
+     * The prefix of every script placeholder.
+     */
+    public String scriptPlaceholderPrefix;
+
+    /**
+     * The suffix of every script placeholder.
+     */
+    public String scriptPlaceholderSuffix;
+
+    /**
      * The target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
-     * <li>{@code current}: designates the current version of the schema</li>
-     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code current}: Designates the current version of the schema</li>
+     * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code next}: The next version of the schema, as defined by the first pending migration</li>
+     * <li>
+     *     &lt;version&gt;? (end with a '?'): Instructs Flyway not to fail if the target version doesn't exist.
+     *     In this case, Flyway will go up to but not beyond the specified target
+     *     (default: fail if the target version doesn't exist) <i>Flyway Teams only</i>
+     * </li>
      * </ul>
      * Defaults to {@code latest}.
      */
@@ -234,6 +275,21 @@ public class FlywayExtension {
      * <i>Flyway Teams only</i>
      */
     public String[] cherryPick;
+
+    /**
+     * The loggers Flyway should use. Valid options are:
+     *
+     * <ul>
+     *     <li>auto: Auto detect the logger (default behavior)</li>
+     *     <li>console: Use stdout/stderr (only available when using the CLI)</li>
+     *     <li>slf4j2: Use the slf4j2 logger</li>
+     *     <li>log4j2: Use the log4j2 logger</li>
+     *     <li>apache-commons: Use the Apache Commons logger</li>
+     * </ul>
+     *
+     * Alternatively you can provide the fully qualified class name for any other logger to use that.
+     */
+    public String[] loggers;
 
     /**
      * An array of fully qualified FlywayCallback class implementations, or packages to scan for FlywayCallback implementations.
@@ -284,6 +340,8 @@ public class FlywayExtension {
     public Boolean cleanOnValidationError;
 
     /**
+     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
+     *
      * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
      * older deployment of the application that are no longer available in this version. For example: we have migrations
      * available on the classpath with versions 1.0 and 3.0. The schema history table indicates that a migration with version 2.0
@@ -297,6 +355,8 @@ public class FlywayExtension {
     public Boolean ignoreMissingMigrations;
 
     /**
+     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
+     *
      * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
      * already migrated migrations in this version. For example: we have migrations available on the classpath with
      * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
@@ -310,6 +370,8 @@ public class FlywayExtension {
     public Boolean ignoreIgnoredMigrations;
 
     /**
+     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
+     *
      * Ignore pending migrations when reading the schema history table. These are migrations that are available
      * but have not yet been applied. This can be useful for verifying that in-development migration changes
      * don't contain any validation-breaking changes of migrations that have already been applied to a production
@@ -320,6 +382,8 @@ public class FlywayExtension {
     public Boolean ignorePendingMigrations;
 
     /**
+     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
+     *
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
@@ -478,6 +542,20 @@ public class FlywayExtension {
     public Boolean oracleSqlplusWarn;
 
     /**
+     * The location of your Oracle wallet, used to automatically sign in to your databases.
+     *
+     * <i>Flyway Teams only</i>
+     * <p>Also configurable with Gradle or System Property: ${flyway.oracle.walletLocation}</p>
+     */
+    public String oracleWalletLocation;
+
+    /**
+     * When connecting to a Kerberos service to authenticate, the path to the Kerberos config file.
+     * <i>Flyway Teams only</i>
+     */
+    public String kerberosConfigFile;
+
+    /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
      * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
      * to try out Flyway Teams Edition features free for 30 days.
@@ -514,30 +592,15 @@ public class FlywayExtension {
     public Boolean createSchemas;
 
     /**
-     * The REST API URL of your Vault server, including the API version.
-     * Currently only supports API version v1.
-     * Example: http://localhost:8200/v1/
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
      *
-     * <i>Flyway Teams only</i>
+     * @return @{code true} to fail (default: {@code false})
      */
-    public String vaultUrl;
+    public Boolean failOnMissingLocations;
+
     /**
-     * The Vault token required to access your secrets.
-     *
-     * <i>Flyway Teams only</i>
+     * The configuration for plugins
+     * You will need to configure this with the key and value specific to your plugin
      */
-    public String vaultToken;
-    /**
-     * A comma-separated list of paths to secrets in Vault that contain Flyway configurations. This
-     * must start with the name of the engine and end with the name of the secret.
-     * The resulting form is '{engine_name}/{path}/{to}/{secret_name}'.
-     *
-     * If multiple secrets specify the same configuration parameter, then the last
-     * secret takes precedence.
-     *
-     * Example: secret/data/flyway/flywayConfig
-     *
-     * <i>Flyway Teams only</i>
-     */
-    public String[] vaultSecrets;
+    public Map<String, String> pluginConfiguration;
 }

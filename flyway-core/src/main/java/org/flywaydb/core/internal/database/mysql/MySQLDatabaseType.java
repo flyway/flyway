@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.authentication.mysql.MySQLOptionFileReader;
@@ -32,6 +33,7 @@ import java.sql.Connection;
 import java.sql.Types;
 import java.util.Properties;
 
+@CustomLog
 public class MySQLDatabaseType extends BaseDatabaseType {
     private static final String MYSQL_LEGACY_JDBC_DRIVER = "com.mysql.jdbc.Driver";
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
@@ -61,7 +63,7 @@ public class MySQLDatabaseType extends BaseDatabaseType {
 
         }
         return url.startsWith("jdbc:mysql:") || url.startsWith("jdbc:google:") ||
-               url.startsWith("jdbc:p6spy:mysql:") || url.startsWith("jdbc:p6spy:google:");
+                url.startsWith("jdbc:p6spy:mysql:") || url.startsWith("jdbc:p6spy:google:");
     }
 
     @Override
@@ -89,8 +91,8 @@ public class MySQLDatabaseType extends BaseDatabaseType {
 
         if (ClassUtils.isPresent(MARIADB_JDBC_DRIVER, classLoader)) {
             LOG.warn("You are attempting to connect to a MySQL database using the MariaDB driver." +
-                    " This is known to cause issues." +
-                    " An upgrade to Oracle's MySQL JDBC driver is highly recommended.");
+                             " This is known to cause issues." +
+                             " An upgrade to Oracle's MySQL JDBC driver is highly recommended.");
             return MARIADB_JDBC_DRIVER;
         }
 

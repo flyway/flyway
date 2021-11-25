@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,11 @@
  */
 package org.flywaydb.core.internal.parser;
 
+import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+
+@RequiredArgsConstructor
+@Getter
 public class Token {
     private final TokenType type;
     private final int pos;
@@ -23,42 +28,4 @@ public class Token {
     private final String text;
     private final String rawText;
     private final int parensDepth;
-
-    public Token(TokenType type, int pos, int line, int col, String text, String rawText, int parensDepth) {
-        this.type = type;
-        this.pos = pos;
-        this.line = line;
-        this.col = col;
-        this.text = text;
-        this.rawText = rawText;
-        this.parensDepth = parensDepth;
-    }
-
-    public TokenType getType() {
-        return type;
-    }
-
-    public int getPos() {
-        return pos;
-    }
-
-    public int getLine() {
-        return line;
-    }
-
-    public int getCol() {
-        return col;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public String getRawText() {
-        return rawText;
-    }
-
-    public int getParensDepth() {
-        return parensDepth;
-    }
 }

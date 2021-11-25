@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,15 +25,24 @@ import java.util.Map;
 
 public interface StatementInterceptor {
     void init(Database database, Table table);
+
     void schemaHistoryTableCreate(boolean baseline);
+
     void schemaHistoryTableInsert(AppliedMigration appliedMigration);
+
     void close();
+
     void sqlScript(LoadableResource resource);
+
     void sqlStatement(SqlStatement statement);
 
     void interceptCommand(String command);
+
     void interceptStatement(String sql);
+
     void interceptPreparedStatement(String sql, Map<Integer, Object> params);
+
     void interceptCallableStatement(String sql);
+
     void schemaHistoryTableDeleteFailed(Table table, AppliedMigration appliedMigration);
 }

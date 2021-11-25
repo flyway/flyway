@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,10 +161,14 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
-                if (context.target != null && resolvedMigration.getVersion().compareTo(context.target) > 0) {
+                if (context.target != null && context.target != MigrationVersion.NEXT && resolvedMigration.getVersion().compareTo(context.target) > 0) {
                     return MigrationState.ABOVE_TARGET;
                 }
                 if ((resolvedMigration.getVersion().compareTo(context.lastApplied) < 0) && !context.outOfOrder) {
+                    return MigrationState.IGNORED;
+                }
+                if (resolvedMigration.getVersion().compareTo(context.latestBaselineMigration) < 0 ||
+                        (resolvedMigration.getVersion().compareTo(context.latestBaselineMigration) == 0 && !resolvedMigration.getType().isBaselineMigration())) {
                     return MigrationState.IGNORED;
                 }
             }
@@ -178,6 +182,14 @@ public class MigrationInfoImpl implements MigrationInfo {
         if (MigrationType.BASELINE == appliedMigration.getType()) {
             return MigrationState.BASELINE;
         }
+
+
+
+
+
+
+
+
 
         if (resolvedMigration == null && isRepeatableLatest()) {
 
@@ -302,11 +314,9 @@ public class MigrationInfoImpl implements MigrationInfo {
             return null;
         }
 
-
-
-
-
-
+        if (Arrays.stream(context.ignorePatterns).anyMatch(p -> p.matchesMigration(getVersion() != null, state))) {
+            return null;
+        }
 
         if (state.isFailed() && (!context.future || MigrationState.FUTURE_FAILED != state)) {
             if (getVersion() == null) {
@@ -325,6 +335,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         if ((resolvedMigration == null)
                 && !appliedMigration.getType().isSynthetic()
+
 
 
 
@@ -371,6 +382,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
 
 
+
         ) {
             String migrationIdentifier = appliedMigration.getVersion() == null ?
                     // Repeatable migrations
@@ -380,20 +392,20 @@ public class MigrationInfoImpl implements MigrationInfo {
             if (getVersion() == null || getVersion().compareTo(context.baseline) > 0) {
                 if (resolvedMigration.getType() != appliedMigration.getType()) {
                     String mismatchMessage = createMismatchMessage("type", migrationIdentifier,
-                            appliedMigration.getType(), resolvedMigration.getType());
+                                                                   appliedMigration.getType(), resolvedMigration.getType());
                     return new ErrorDetails(ErrorCode.TYPE_MISMATCH, mismatchMessage);
                 }
                 if (resolvedMigration.getVersion() != null
                         || (context.pending && MigrationState.OUTDATED != state && MigrationState.SUPERSEDED != state)) {
                     if (!resolvedMigration.checksumMatches(appliedMigration.getChecksum())) {
                         String mismatchMessage = createMismatchMessage("checksum", migrationIdentifier,
-                                appliedMigration.getChecksum(), resolvedMigration.getChecksum());
+                                                                       appliedMigration.getChecksum(), resolvedMigration.getChecksum());
                         return new ErrorDetails(ErrorCode.CHECKSUM_MISMATCH, mismatchMessage);
                     }
                 }
                 if (descriptionMismatch(resolvedMigration, appliedMigration)) {
                     String mismatchMessage = createMismatchMessage("description", migrationIdentifier,
-                            appliedMigration.getDescription(), resolvedMigration.getDescription());
+                                                                   appliedMigration.getDescription(), resolvedMigration.getDescription());
                     return new ErrorDetails(ErrorCode.DESCRIPTION_MISMATCH, mismatchMessage);
                 }
             }
@@ -424,10 +436,14 @@ public class MigrationInfoImpl implements MigrationInfo {
 
     private String createMismatchMessage(String mismatch, String migrationIdentifier, Object applied, Object resolved) {
         return String.format("Migration " + mismatch + " mismatch for migration %s\n" +
-                        "-> Applied to database : %s\n" +
-                        "-> Resolved locally    : %s" +
-                ". Either revert the changes to the migration, or run repair to update the schema history.",
-                migrationIdentifier, applied, resolved);
+                                     "-> Applied to database : %s\n" +
+                                     "-> Resolved locally    : %s" +
+                                     ". Either revert the changes to the migration, or run repair to update the schema history.",
+                             migrationIdentifier, applied, resolved);
+    }
+
+    public boolean canExecuteInTransaction() {
+        return resolvedMigration != null && resolvedMigration.getExecutor().canExecuteInTransaction();
     }
 
 
@@ -440,9 +456,6 @@ public class MigrationInfoImpl implements MigrationInfo {
 
     @Override
     public int compareTo(MigrationInfo o) {
-
-
-
 
 
 
@@ -462,16 +475,6 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
         if (state.isApplied() && oState == MigrationState.BELOW_BASELINE) {
             return 1;
-        }
-
-        // Allow interleaving ignored versioned migrations with applied versioned migrations
-        if (getVersion() != null && o.getVersion() != null) {
-            if (state == MigrationState.IGNORED && oState.isApplied()) {
-                return compareVersion(o);
-            }
-            if (state.isApplied() && oState == MigrationState.IGNORED) {
-                return compareVersion(o);
-            }
         }
 
         // Sort installed before pending
@@ -520,13 +523,21 @@ public class MigrationInfoImpl implements MigrationInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         MigrationInfoImpl that = (MigrationInfoImpl) o;
 
-        if (!Objects.equals(appliedMigration, that.appliedMigration)) return false;
-        if (!context.equals(that.context)) return false;
+        if (!Objects.equals(appliedMigration, that.appliedMigration)) {
+            return false;
+        }
+        if (!context.equals(that.context)) {
+            return false;
+        }
         return Objects.equals(resolvedMigration, that.resolvedMigration);
     }
 

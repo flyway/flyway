@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,14 @@
  */
 package org.flywaydb.core.internal.resource.filesystem;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
+
+
 import org.flywaydb.core.internal.util.BomStrippingReader;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.io.*;
 import java.nio.channels.Channels;
@@ -28,12 +30,11 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.StandardOpenOption;
 
-/**
- * A resource on the filesystem.
- */
+import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
+
+@CustomLog
 public class FileSystemResource extends LoadableResource {
 
-    private static final Log LOG = LogFactory.getLog(FileSystemResource.class);
 
 
 
@@ -41,45 +42,30 @@ public class FileSystemResource extends LoadableResource {
 
 
 
-
-
-    /**
-     * The location of the resource on the filesystem.
-     */
     private final File file;
     private final String relativePath;
     private final Charset encoding;
+    private final boolean detectEncoding;
 
-
-
-
-    /**
-     * Creates a new ClassPathResource.
-     *
-     * @param fileNameWithPath The path and filename of the resource on the filesystem.
-     */
     public FileSystemResource(Location location, String fileNameWithPath, Charset encoding, boolean stream) {
+        this(location, fileNameWithPath, encoding, false, stream);
+    }
+
+    public FileSystemResource(Location location, String fileNameWithPath, Charset encoding, boolean detectEncoding, boolean stream) {
         this.file = new File(new File(fileNameWithPath).getPath());
         this.relativePath = location == null ? file.getPath() : location.getPathRelativeToThis(file.getPath()).replace("\\", "/");
         this.encoding = encoding;
+        this.detectEncoding = detectEncoding;
 
 
 
     }
 
-    /**
-     * @return The location of the resource on the filesystem.
-     */
     @Override
     public String getAbsolutePath() {
         return file.getPath();
     }
 
-    /**
-     * Retrieves the location of this resource on disk.
-     *
-     * @return The location of this resource on disk.
-     */
     @Override
     public String getAbsolutePathOnDisk() {
         return file.getAbsolutePath();
@@ -87,17 +73,28 @@ public class FileSystemResource extends LoadableResource {
 
     @Override
     public Reader read() {
+        Charset charSet = encoding;
+
+
+
+
+
+
+
+
+
+
         try {
-            return Channels.newReader(FileChannel.open(file.toPath(), StandardOpenOption.READ), encoding.newDecoder(), 4096);
-        } catch (IOException e){
+            return Channels.newReader(FileChannel.open(file.toPath(), StandardOpenOption.READ), charSet.newDecoder(), 4096);
+        } catch (IOException e) {
             LOG.debug("Unable to load filesystem resource" + file.getPath() + " using FileChannel.open." +
-                    " Falling back to FileInputStream implementation. Exception message: " + e.getMessage());
+                              " Falling back to FileInputStream implementation. Exception message: " + e.getMessage());
         }
 
         try {
-            return new BufferedReader(new BomStrippingReader(new InputStreamReader(new FileInputStream(file), encoding)));
+            return new BufferedReader(new BomStrippingReader(new InputStreamReader(new FileInputStream(file), charSet)));
         } catch (IOException e) {
-            throw new FlywayException("Unable to load filesystem resource: " + file.getPath() + " (encoding: " + encoding + ")", e);
+            throw new FlywayException("Unable to load filesystem resource: " + file.getPath() + " (encoding: " + charSet + ")", e);
         }
     }
 

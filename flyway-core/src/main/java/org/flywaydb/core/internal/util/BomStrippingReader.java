@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class BomStrippingReader extends FilterReader {
     @Override
     public int read() throws IOException {
         int c = super.read();
-        if (c != EMPTY_STREAM && BomFilter.isBom((char)c)) {
+        if (c != EMPTY_STREAM && BomFilter.isBom((char) c)) {
             // Skip BOM
             return super.read();
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import org.flywaydb.core.Flyway;
         threadSafe = true)
 public class ValidateMojo extends AbstractFlywayMojo {
     @Override
-    protected void doExecute(Flyway flyway) throws Exception {
+    protected void doExecute(Flyway flyway) {
         flyway.validate();
     }
 }

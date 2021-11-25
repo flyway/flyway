@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -26,30 +24,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * CockroachDB implementation of Schema.
- */
 public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTable> {
-    private static final Log LOG = LogFactory.getLog(CockroachDBSchema.class);
-
     /**
      * Is this CockroachDB 1.x.
      */
     final boolean cockroachDB1;
-
-    /**
-     * Does this database support schemas?
-     */
     final boolean hasSchemaSupport;
 
-    /**
-     * Creates a new CockroachDB schema.
-     *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
-     */
-    CockroachDBSchema(JdbcTemplate jdbcTemplate, CockroachDBDatabase database, String name) {
+    public CockroachDBSchema(JdbcTemplate jdbcTemplate, CockroachDBDatabase database, String name) {
         super(jdbcTemplate, database, name);
         cockroachDB1 = !database.getVersion().isAtLeast("2");
         hasSchemaSupport = database.supportsSchemas();
@@ -57,16 +39,11 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
 
     @Override
     protected boolean doExists() throws SQLException {
-        return new CockroachDBRetryingStrategy().execute(new SqlCallable<Boolean>() {
-            @Override
-            public Boolean call() throws SQLException {
-                return doExistsOnce();
-            }
-        });
+        return new CockroachDBRetryingStrategy().execute(this::doExistsOnce);
     }
 
     private boolean doExistsOnce() throws SQLException {
-        if ( hasSchemaSupport ) {
+        if (hasSchemaSupport) {
             return jdbcTemplate.queryForBoolean("SELECT EXISTS ( SELECT 1 FROM information_schema.schemata WHERE schema_name=? )", name);
         }
         return jdbcTemplate.queryForBoolean("SELECT EXISTS ( SELECT 1 FROM pg_database WHERE datname=? )", name);
@@ -74,62 +51,54 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        return new CockroachDBRetryingStrategy().execute(new SqlCallable<Boolean>() {
-            @Override
-            public Boolean call() throws SQLException {
-                return doEmptyOnce();
-            }
-        });
+        return new CockroachDBRetryingStrategy().execute(this::doEmptyOnce);
     }
 
     private boolean doEmptyOnce() throws SQLException {
         if (cockroachDB1) {
             return !jdbcTemplate.queryForBoolean("SELECT EXISTS (" +
-                    "  SELECT 1" +
-                    "  FROM information_schema.tables" +
-                    "  WHERE table_schema=?" +
-                    "  AND table_type='BASE TABLE'" +
-                    ")", name);
+                                                         "  SELECT 1" +
+                                                         "  FROM information_schema.tables" +
+                                                         "  WHERE table_schema=?" +
+                                                         "  AND table_type='BASE TABLE'" +
+                                                         ")", name);
         } else if (!hasSchemaSupport) {
             return !jdbcTemplate.queryForBoolean("SELECT EXISTS (" +
-                    "  SELECT 1" +
-                    "  FROM information_schema.tables " +
-                    "  WHERE table_catalog=?" +
-                    "  AND table_schema='public'" +
-                    "  AND table_type='BASE TABLE'" +
-                    " UNION ALL" +
-                    "  SELECT 1" +
-                    "  FROM information_schema.sequences " +
-                    "  WHERE sequence_catalog=?" +
-                    "  AND sequence_schema='public'" +
-                    ")", name, name);
+                                                         "  SELECT 1" +
+                                                         "  FROM information_schema.tables " +
+                                                         "  WHERE table_catalog=?" +
+                                                         "  AND table_schema='public'" +
+                                                         "  AND table_type='BASE TABLE'" +
+                                                         " UNION ALL" +
+                                                         "  SELECT 1" +
+                                                         "  FROM information_schema.sequences " +
+                                                         "  WHERE sequence_catalog=?" +
+                                                         "  AND sequence_schema='public'" +
+                                                         ")", name, name);
         } else {
             return !jdbcTemplate.queryForBoolean("SELECT EXISTS (" +
-                    "  SELECT 1" +
-                    "  FROM information_schema.tables " +
-                    "  WHERE table_schema=?" +
-                    "  AND table_type='BASE TABLE'" +
-                    " UNION ALL" +
-                    "  SELECT 1" +
-                    "  FROM information_schema.sequences " +
-                    "  WHERE sequence_schema=?" +
-                    ")", name, name);
+                                                         "  SELECT 1" +
+                                                         "  FROM information_schema.tables " +
+                                                         "  WHERE table_schema=?" +
+                                                         "  AND table_type='BASE TABLE'" +
+                                                         " UNION ALL" +
+                                                         "  SELECT 1" +
+                                                         "  FROM information_schema.sequences " +
+                                                         "  WHERE sequence_schema=?" +
+                                                         ")", name, name);
         }
     }
 
     @Override
     protected void doCreate() throws SQLException {
-        new CockroachDBRetryingStrategy().execute(new SqlCallable<Integer>() {
-            @Override
-            public Integer call() throws SQLException {
-                doCreateOnce();
-                return null;
-            }
+        new CockroachDBRetryingStrategy().execute((SqlCallable<Integer>) () -> {
+            doCreateOnce();
+            return null;
         });
     }
 
     protected void doCreateOnce() throws SQLException {
-        if ( hasSchemaSupport ) {
+        if (hasSchemaSupport) {
             jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS " + database.quote(name));
         } else {
             jdbcTemplate.execute("CREATE DATABASE IF NOT EXISTS " + database.quote(name));
@@ -138,17 +107,14 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
 
     @Override
     protected void doDrop() throws SQLException {
-        new CockroachDBRetryingStrategy().execute(new SqlCallable<Integer>() {
-            @Override
-            public Integer call() throws SQLException {
-                doDropOnce();
-                return null;
-            }
+        new CockroachDBRetryingStrategy().execute((SqlCallable<Integer>) () -> {
+            doDropOnce();
+            return null;
         });
     }
 
     protected void doDropOnce() throws SQLException {
-        if ( hasSchemaSupport ) {
+        if (hasSchemaSupport) {
             jdbcTemplate.execute("DROP SCHEMA IF EXISTS " + database.quote(name) + " CASCADE");
         } else {
             jdbcTemplate.execute("DROP DATABASE IF EXISTS " + database.quote(name));
@@ -157,12 +123,9 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
 
     @Override
     protected void doClean() throws SQLException {
-        new CockroachDBRetryingStrategy().execute(new SqlCallable<Integer>() {
-            @Override
-            public Integer call() throws SQLException {
-                doCleanOnce();
-                return null;
-            }
+        new CockroachDBRetryingStrategy().execute((SqlCallable<Integer>) () -> {
+            doCleanOnce();
+            return null;
         });
     }
 
@@ -180,12 +143,6 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
         }
     }
 
-    /**
-     * Generates the statements for dropping the views in this schema.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
     private List<String> generateDropStatementsForViews() throws SQLException {
         List<String> names = hasSchemaSupport ?
                 jdbcTemplate.queryForStringList(
@@ -203,12 +160,6 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
         return statements;
     }
 
-    /**
-     * Generates the statements for dropping the sequences in this schema.
-     *
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
     private List<String> generateDropStatementsForSequences() throws SQLException {
         List<String> names = hasSchemaSupport ?
                 jdbcTemplate.queryForStringList(
@@ -262,6 +213,4 @@ public class CockroachDBSchema extends Schema<CockroachDBDatabase, CockroachDBTa
     public Table getTable(String tableName) {
         return new CockroachDBTable(jdbcTemplate, database, this, tableName);
     }
-
-
 }

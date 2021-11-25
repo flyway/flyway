@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,46 +15,52 @@
  */
 package org.flywaydb.core.internal.resource.classpath;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.resource.LoadableResource;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.UrlUtils;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
+import java.util.Enumeration;
+import java.util.Objects;
 
-/**
- * A resource on the classpath.
- */
+
+
+
+
+
+@CustomLog
 public class ClassPathResource extends LoadableResource {
-    /**
-     * The fileNameWithAbsolutePath of the resource on the classpath.
-     */
     private final String fileNameWithAbsolutePath;
     private final String fileNameWithRelativePath;
-
-    /**
-     * The ClassLoader to use.
-     */
     private final ClassLoader classLoader;
     private final Charset encoding;
+    private final boolean detectEncoding;
+    private final String parentURL;
 
-    /**
-     * Creates a new ClassPathResource.
-     *
-     * @param fileNameWithAbsolutePath The path and filename of the resource on the classpath.
-     * @param classLoader              The ClassLoader to use.
-     */
     public ClassPathResource(Location location, String fileNameWithAbsolutePath, ClassLoader classLoader,
                              Charset encoding) {
+        this(location, fileNameWithAbsolutePath, classLoader, encoding, false, "");
+    }
+
+    public ClassPathResource(Location location, String fileNameWithAbsolutePath, ClassLoader classLoader,
+                             Charset encoding, String parentURL) {
+        this(location, fileNameWithAbsolutePath, classLoader, encoding, false, parentURL);
+    }
+
+    public ClassPathResource(Location location, String fileNameWithAbsolutePath, ClassLoader classLoader,
+                             Charset encoding, Boolean detectEncoding, String parentURL) {
         this.fileNameWithAbsolutePath = fileNameWithAbsolutePath;
         this.fileNameWithRelativePath = location == null ? fileNameWithAbsolutePath : location.getPathRelativeToThis(fileNameWithAbsolutePath);
         this.classLoader = classLoader;
         this.encoding = encoding;
+        this.detectEncoding = detectEncoding;
+        this.parentURL = parentURL;
     }
 
     @Override
@@ -76,20 +82,55 @@ public class ClassPathResource extends LoadableResource {
         return new File(UrlUtils.decodeURL(url.getPath())).getAbsolutePath();
     }
 
-    /**
-     * @return The url of this resource.
-     */
     private URL getUrl() {
-        return classLoader.getResource(fileNameWithAbsolutePath);
+        try {
+            Enumeration<URL> urls = classLoader.getResources(fileNameWithAbsolutePath);
+            while (urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                if (url.getPath() != null && url.getPath().contains(parentURL)) {
+                    return url;
+                }
+            }
+        } catch (IOException e) {
+            throw new FlywayException(e);
+        }
+
+        return null;
     }
 
     @Override
     public Reader read() {
-        InputStream inputStream = classLoader.getResourceAsStream(fileNameWithAbsolutePath);
+        InputStream inputStream = null;
+        try {
+            Enumeration<URL> urls = classLoader.getResources(fileNameWithAbsolutePath);
+            while (urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                if (url.getPath() != null && url.getPath().contains(parentURL)) {
+                    inputStream = url.openStream();
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            throw new FlywayException(e);
+        }
+
         if (inputStream == null) {
             throw new FlywayException("Unable to obtain inputstream for resource: " + fileNameWithAbsolutePath);
         }
-        return new InputStreamReader(inputStream, encoding.newDecoder());
+
+        Charset charset = encoding;
+
+
+
+
+
+
+
+
+
+
+
+        return new InputStreamReader(inputStream, charset.newDecoder());
     }
 
     @Override
@@ -103,16 +144,20 @@ public class ClassPathResource extends LoadableResource {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ClassPathResource that = (ClassPathResource) o;
 
-        return fileNameWithAbsolutePath.equals(that.fileNameWithAbsolutePath);
+        return fileNameWithAbsolutePath.equals(that.fileNameWithAbsolutePath) && parentURL.equals(that.parentURL);
     }
 
     @Override
     public int hashCode() {
-        return fileNameWithAbsolutePath.hashCode();
+        return Objects.hash(fileNameWithAbsolutePath, parentURL);
     }
 }

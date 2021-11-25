@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.database.base;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
@@ -26,16 +25,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@CustomLog
 public abstract class Schema<D extends Database, T extends Table> {
-    private static final Log LOG = LogFactory.getLog(Schema.class);
     protected final JdbcTemplate jdbcTemplate;
     protected final D database;
     protected final String name;
 
     /**
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
+     * @param database The database-specific support.
+     * @param name The name of the schema.
      */
     public Schema(JdbcTemplate jdbcTemplate, D database, String name) {
         this.jdbcTemplate = jdbcTemplate;
@@ -220,8 +219,12 @@ public abstract class Schema<D extends Database, T extends Table> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Schema schema = (Schema) o;
         return name.equals(schema.name);

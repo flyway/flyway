@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 package org.flywaydb.core.internal.resource.s3;
 
+import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.S3ClientFactory;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -30,18 +30,12 @@ import java.io.Reader;
 import java.nio.channels.Channels;
 import java.nio.charset.Charset;
 
+@CustomLog
+@RequiredArgsConstructor
 public class AwsS3Resource extends LoadableResource {
-    private static final Log LOG = LogFactory.getLog(AwsS3Resource.class);
-
     private final String bucketName;
     private final S3Object s3ObjectSummary;
     private final Charset encoding;
-
-    public AwsS3Resource(String bucketName, S3Object s3ObjectSummary, Charset encoding) {
-        this.bucketName = bucketName;
-        this.s3ObjectSummary = s3ObjectSummary;
-        this.encoding = encoding;
-    }
 
     @Override
     public Reader read() {

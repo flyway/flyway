@@ -1,6 +1,6 @@
 <!--
 
-    Copyright © Red Gate Software Ltd 2010-2021
+    Copyright (C) Red Gate Software Ltd 2010-2021
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -120,14 +120,70 @@
             </includes>
         </dependencySet>
         <dependencySet>
+            <outputDirectory>lib/oracle_wallet</outputDirectory>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>com.oracle.database.security:oraclepki</include>
+                <include>com.oracle.database.security:osdt_cert</include>
+                <include>com.oracle.database.security:osdt_core</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
             <outputDirectory>lib/community</outputDirectory>
             <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                 <include>org.flywaydb:flyway-core</include>
                 <include>org.flywaydb:flyway-commandline</include>
-                <!-- add at V8: com.boxfuse.flyway-master:flyway-community-db-support -->
+                <include>org.flywaydb:flyway-gcp-bigquery</include>
+                <include>org.flywaydb:flyway-gcp-spanner</include>
+                <include>org.flywaydb:flyway-community-db-support</include>
+                <include>org.flywaydb:flyway-extensibility-commons</include>
+                <include>org.flywaydb:flyway-vault-integration</include>
+                <include>org.flywaydb:flyway-dapr-integration</include>
+                <include>org.flywaydb:flyway-gcsm-integration</include>
+                <include>org.flywaydb:flyway-sqlserver</include>
             </includes>
+        </dependencySet>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <dependencySet>
+            <outputDirectory>drivers/gcp</outputDirectory>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>com.google.cloud:google-cloud-spanner-jdbc</include>
+            </includes>
+            <excludes>
+                <exclude>commons-logging:commons-logging</exclude>
+            </excludes>
         </dependencySet>
         <dependencySet>
             <outputDirectory>drivers</outputDirectory>

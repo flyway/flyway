@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class SQLiteDatabaseType extends BaseDatabaseType {
     @Override
     public boolean handlesJDBCUrl(String url) {
         return url.startsWith("jdbc:sqlite:") || url.startsWith("jdbc:sqldroid:") ||
-               url.startsWith("jdbc:p6spy:sqlite:") || url.startsWith("jdbc:p6spy:sqldroid:");
+                url.startsWith("jdbc:p6spy:sqlite:") || url.startsWith("jdbc:p6spy:sqldroid:");
     }
 
     @Override
@@ -58,9 +58,6 @@ public class SQLiteDatabaseType extends BaseDatabaseType {
             return "com.p6spy.engine.spy.P6SpyDriver";
         }
         if (url.startsWith("jdbc:sqldroid:")) {
-            return "org.sqldroid.SQLDroidDriver";
-        }
-        if (new FeatureDetector(classLoader).isAndroidAvailable()) {
             return "org.sqldroid.SQLDroidDriver";
         }
         return "org.sqlite.JDBC";

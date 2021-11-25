@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
-import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
@@ -29,19 +28,10 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-
-/**
- * CockroachDB database.
- */
 public class CockroachDBDatabase extends Database<CockroachDBConnection> {
 
     private final MigrationVersion determinedVersion;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public CockroachDBDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
         this.determinedVersion = rawDetermineVersion();
@@ -64,10 +54,11 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
 
 
 
+
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("1.1");
-        recommendFlywayUpgradeIfNecessary("20.2");
+        recommendFlywayUpgradeIfNecessary("21.1");
     }
 
     @Override
@@ -89,7 +80,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     }
 
     private MigrationVersion rawDetermineVersion() {
-        String version = null;
+        String version;
         try {
             // Use rawMainJdbcConnection to avoid infinite recursion.
             JdbcTemplate template = new JdbcTemplate(rawMainJdbcConnection);
@@ -112,15 +103,8 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
         return determinedVersion;
     }
 
-    /**
-     * @return Whether this database supports schemas
-     */
     boolean supportsSchemas() {
         return getVersion().isAtLeast("20.2");
-    }
-
-    public String getDbName() {
-        return "cockroachdb";
     }
 
     @Override

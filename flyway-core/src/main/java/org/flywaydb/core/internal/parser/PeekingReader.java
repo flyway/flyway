@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ public class PeekingReader extends FilterReader {
     private int[] peekBuffer = new int[256];
     private int peekMax = 0;
     private int peekBufferOffset = 0;
-    private boolean supportsPeekingMultipleLines = true;
+    private final boolean supportsPeekingMultipleLines;
 
     PeekingReader(Reader in, boolean supportsPeekingMultipleLines) {
         super(in);
@@ -142,7 +142,7 @@ public class PeekingReader extends FilterReader {
     }
 
     private boolean isKeywordPart(int r, ParserContext context) {
-        return r != -1 && ((char) r == '_' || (char) r == '$' || Character.isLetterOrDigit((char) r) || context.isLetter((char)r));
+        return r != -1 && ((char) r == '_' || (char) r == '$' || Character.isLetterOrDigit((char) r) || context.isLetter((char) r));
     }
 
     /**
@@ -204,26 +204,6 @@ public class PeekingReader extends FilterReader {
         return result.toString();
     }
 
-    /**
-     * Return the next non-whitespace character
-     * @return The character
-     */
-    public char peekNextNonWhitespace() throws IOException {
-        int i = 1;
-        String c = peek(i++, true);
-        String lastc = c;
-        while (c.trim().isEmpty()) {
-            c = peek(i++, true);
-            if (c.equals(lastc)) {
-                // if the peek is the same as the last peek, then dont loop forever, even if its still empty.
-                break;
-            }
-            lastc = c;
-        }
-
-        return c.charAt(c.length()-1);
-    }
-
     private void resizePeekBuffer(int newSize) {
         peekBuffer = Arrays.copyOf(peekBuffer, newSize + peekBufferOffset);
     }
@@ -273,22 +253,22 @@ public class PeekingReader extends FilterReader {
      * Swallows all characters in this stream until this delimiting character has been encountered, taking into account
      * this escape character for the delimiting character.
      *
-     * @param delimiter  The delimiting character.
+     * @param delimiter The delimiting character.
      * @param selfEscape Whether the delimiter can escape itself by being present twice.
      */
-    public void swallowUntilExcludingWithEscape(char delimiter, boolean selfEscape) throws IOException {
-        swallowUntilExcludingWithEscape(delimiter, selfEscape, (char) 0);
+    public void swallowUntilIncludingWithEscape(char delimiter, boolean selfEscape) throws IOException {
+        swallowUntilIncludingWithEscape(delimiter, selfEscape, (char) 0);
     }
 
     /**
      * Swallows all characters in this stream until this delimiting character has been encountered, taking into account
      * this escape character for the delimiting character.
      *
-     * @param delimiter  The delimiting character.
+     * @param delimiter The delimiting character.
      * @param selfEscape Whether the delimiter can escape itself by being present twice.
-     * @param escape     A separate escape character.
+     * @param escape A separate escape character.
      */
-    public void swallowUntilExcludingWithEscape(char delimiter, boolean selfEscape, char escape) throws IOException {
+    public void swallowUntilIncludingWithEscape(char delimiter, boolean selfEscape, char escape) throws IOException {
         do {
             int r = read();
             if (r == -1) {
@@ -313,7 +293,7 @@ public class PeekingReader extends FilterReader {
      * Reads all characters in this stream until this delimiting character has been encountered, taking into account
      * this escape character for the delimiting character.
      *
-     * @param delimiter  The delimiting character.
+     * @param delimiter The delimiting character.
      * @param selfEscape Whether the delimiter can escape itself by being present twice.
      * @return The string read, without the delimiting character.
      */
@@ -325,9 +305,9 @@ public class PeekingReader extends FilterReader {
      * Reads all characters in this stream until this delimiting character has been encountered, taking into account
      * this escape character for the delimiting character.
      *
-     * @param delimiter  The delimiting character.
+     * @param delimiter The delimiting character.
      * @param selfEscape Whether the delimiter can escape itself by being present twice.
-     * @param escape     A separate escape character.
+     * @param escape A separate escape character.
      * @return The string read, without the delimiting character.
      */
     public String readUntilExcludingWithEscape(char delimiter, boolean selfEscape, char escape) throws IOException {
@@ -351,6 +331,8 @@ public class PeekingReader extends FilterReader {
             if (c == delimiter) {
                 if (selfEscape && peek(delimiter)) {
                     result.append(delimiter);
+                    result.append(delimiter);
+                    read();
                     continue;
                 }
                 break;
@@ -424,30 +406,6 @@ public class PeekingReader extends FilterReader {
     }
 
     /**
-     * Reads all characters in this stream until the delimiting sequence is encountered.
-     *
-     * @param delimiterSequence The delimiting sequence.
-     * @return The string read, including the delimiting characters.
-     */
-    public String readUntilIncluding(String delimiterSequence) throws IOException {
-        StringBuilder result = new StringBuilder();
-
-        do {
-            int r = read();
-            if (r == -1) {
-                break;
-            }
-            char c = (char) r;
-
-            result.append(c);
-            if (result.toString().endsWith(delimiterSequence)) {
-                break;
-            }
-        } while (true);
-        return result.toString();
-    }
-
-    /**
      * Reads all characters in this stream as long as they can be part of a keyword.
      *
      * @param delimiter The current delimiter.
@@ -457,7 +415,7 @@ public class PeekingReader extends FilterReader {
         StringBuilder result = new StringBuilder();
         do {
             boolean isDelimiter = delimiter != null &&
-                    (result.length() == 0 || !delimiter.isAloneOnLine()) &&
+                    (result.length() == 0 || !delimiter.shouldBeAloneOnLine()) &&
                     peek(delimiter.getDelimiter());
 
             boolean shouldAppend = !isDelimiter && peekKeywordPart(context);
@@ -469,18 +427,6 @@ public class PeekingReader extends FilterReader {
             }
         } while (true);
         return result.toString();
-    }
-
-    /**
-     * Swallows all characters in this stream as long as they can be part of a numeric constant.
-     */
-    public void swallowNumeric() throws IOException {
-        do {
-            if (!peekNumeric()) {
-                return;
-            }
-            swallow();
-        } while (true);
     }
 
     /**

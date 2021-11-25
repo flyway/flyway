@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,14 @@
  */
 package org.flywaydb.core.internal.parser;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+
 import java.util.List;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@Getter
 class Statement {
     private final int pos;
     private final int line;
@@ -24,37 +30,4 @@ class Statement {
     private final StatementType statementType;
     private final String sql;
     private final List<Token> tokens;
-
-    Statement(int pos, int line, int col, StatementType statementType, String sql, List<Token> tokens) {
-        this.pos = pos;
-        this.line = line;
-        this.col = col;
-        this.statementType = statementType;
-        this.sql = sql;
-        this.tokens = tokens;
-    }
-
-    public int getPos() {
-        return pos;
-    }
-
-    public int getLine() {
-        return line;
-    }
-
-    public int getCol() {
-        return col;
-    }
-
-    public StatementType getStatementType() {
-        return statementType;
-    }
-
-    public String getSql() {
-        return sql;
-    }
-
-    public List<Token> getTokens() {
-        return tokens;
-    }
 }

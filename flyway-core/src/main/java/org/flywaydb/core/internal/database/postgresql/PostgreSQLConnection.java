@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import java.util.concurrent.Callable;
 public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
     private final String originalRole;
 
-    PostgreSQLConnection(PostgreSQLDatabase database, java.sql.Connection connection) {
+    protected PostgreSQLConnection(PostgreSQLDatabase database, java.sql.Connection connection) {
         super(database, connection);
 
         try {
@@ -54,7 +54,7 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
 
         if (!StringUtils.hasText(currentSchema) && !StringUtils.hasText(searchPath)) {
             throw new FlywayException("Unable to determine current schema as search_path is empty. " +
-                    "Set the current schema in currentSchema parameter of the JDBC URL or in Flyway's schemas property.");
+                                              "Set the current schema in currentSchema parameter of the JDBC URL or in Flyway's schemas property.");
         }
 
         String schema = StringUtils.hasText(currentSchema) ? currentSchema : searchPath;

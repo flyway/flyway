@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,9 +25,8 @@ import java.util.List;
 /**
  * Encapsulation of a location list.
  */
+@CustomLog
 public class Locations {
-    private static final Log LOG = LogFactory.getLog(Locations.class);
-
     /**
      * The backing list.
      */
@@ -86,7 +84,7 @@ public class Locations {
     /**
      * Retrieves this location's parent within this list, if any.
      *
-     * @param location       The location to check.
+     * @param location The location to check.
      * @param finalLocations The list to search.
      * @return The parent location. {@code null} if none.
      */

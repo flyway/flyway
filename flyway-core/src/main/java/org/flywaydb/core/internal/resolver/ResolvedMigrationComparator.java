@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,6 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 
 import java.util.Comparator;
 
-/**
-* Comparator for ResolvedMigration.
-*/
 public class ResolvedMigrationComparator implements Comparator<ResolvedMigration> {
     @Override
     public int compare(ResolvedMigration o1, ResolvedMigration o2) {

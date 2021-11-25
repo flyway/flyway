@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,14 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
  * Formats execution times.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TimeFormat {
-    /**
-     * Prevent instantiation.
-     */
-    private TimeFormat() {
-        // Do nothing
-    }
-
     /**
      * Formats this execution time as minutes:seconds.millis. Ex.: 02:15.123s
      *

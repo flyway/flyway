@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,6 @@ public class FlywayInfoTask extends AbstractFlywayTask {
         MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
         System.out.println("Schema version: " + currentSchemaVersion);
         System.out.println(MigrationInfoDumper.dumpToAsciiTable(info.all()));
-        return null;
+        return info;
     }
 }

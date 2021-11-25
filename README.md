@@ -8,7 +8,7 @@
 Simple, focused and powerful.
 
 #### Works on
-Windows, macOS, Linux, Docker, Java and Android
+Windows, macOS, Linux, Docker and Java
 
 #### Supported build tools
 Maven and Gradle

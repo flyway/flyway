@@ -61,7 +61,29 @@ while [[ $# -gt 0 ]]; do
 done
 set -- "${POSITIONAL[@]}"
 if [ -z "$FLYWAY_EDITION" ]; then
-  FLYWAY_EDITION=community
+  CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/enterprise/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/gcp/*"
+  "$JAVA_CMD" $JAVA_ARGS $EXTRA_ARGS -cp "$CP" org.flywaydb.commandline.Main "$@" -checkLicence -n >/dev/null 2>/dev/null
+  ERROR_LEVEL=$?
+  if [ $ERROR_LEVEL -eq 101 ]; then
+    echo "----------------------------------------"
+    echo "Your Flyway Teams License has expired; falling back to Community Edition. To force Teams Edition, please specify '-teams'. Please contact sales at sales@flywaydb.org to renew your license."
+    echo "----------------------------------------"
+  fi
+  if [ $ERROR_LEVEL -eq 102 ]; then
+    echo "----------------------------------------"
+    echo "Your Flyway Teams Trial License has expired; falling back to Community Edition. Please contact sales at sales@flywaydb.org to purchase a licence, extend your Flyway Teams trial license via https://flywaydb.org/download/teams?ref=expiredTrial or specify -community to downgrade and stop this message appearing."
+    echo "----------------------------------------"
+  fi
+  if [ $ERROR_LEVEL -eq 103 ]; then
+    echo "----------------------------------------"
+    echo "A Flyway Teams License was found but is unreadable; falling back to Community Edition. Please contact sales at sales@flywaydb.org to purchase a valid license, request a Flyway Teams trial license via https://flywaydb.org/download/teams?ref=invalidLicense or remove the 'licenseKey' configuration parameter to stop this message appearing."
+    echo "----------------------------------------"
+  fi
+  if [ $ERROR_LEVEL -eq 0 ]; then
+    FLYWAY_EDITION=enterprise
+  else
+    FLYWAY_EDITION=community
+  fi
 fi
 if [ "$FLYWAY_EDITION" == "pro" ] || [ "$FLYWAY_EDITION" == "teams" ]; then
   FLYWAY_EDITION=enterprise
@@ -72,7 +94,7 @@ if ! [[ "$FLYWAY_EDITION" =~ ^(community|pro|enterprise|teams|\[edition\])$ ]]; 
     exit 1
 fi
 
-CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/$FLYWAY_EDITION/*:$INSTALLDIR/drivers/*"
+CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/oracle_wallet/*:$INSTALLDIR/lib/$FLYWAY_EDITION/*:$INSTALLDIR/drivers/*:$INSTALLDIR/drivers/gcp/*"
 
 EXTRA_ARGS=
 if $linux; then

@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class SybaseASEParser extends Parser {
     }
 
     @Override
-    protected boolean isDelimiter(String peek, ParserContext context, int col) {
+    protected boolean isDelimiter(String peek, ParserContext context, int col, int colIgnoringWhitepace) {
         return peek.length() >= 2
                 && (peek.charAt(0) == 'G' || peek.charAt(0) == 'g')
                 && (peek.charAt(1) == 'O' || peek.charAt(1) == 'o')

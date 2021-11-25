@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,16 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+
 import java.util.List;
 
+@RequiredArgsConstructor
+@Getter
 public class Result {
     private final long updateCount;
     private final List<String> columns;
     private final List<List<String>> data;
     private final String sql;
-
-    public Result(long updateCount, List<String> columns, List<List<String>> data, String sql) {
-        this.updateCount = updateCount;
-        this.columns = columns;
-        this.data = data;
-        this.sql = sql;
-    }
-
-    public long getUpdateCount() {
-        return updateCount;
-    }
-
-    public List<String> getColumns() {
-        return columns;
-    }
-
-    public List<List<String>> getData() {
-        return data;
-    }
-
-    public String getSql() {
-        return sql;
-    }
 }

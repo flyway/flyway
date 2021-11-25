@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
      * Creates a new DB2 schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
+     * @param database The database-specific support.
+     * @param name The name of the schema.
      */
     DB2Schema(JdbcTemplate jdbcTemplate, DB2Database database, String name) {
         super(jdbcTemplate, database, name);
@@ -43,25 +43,25 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
     @Override
     protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT count(*) from ("
-                + "SELECT 1 FROM syscat.schemata WHERE schemaname=?"
-                + ")", name) > 0;
+                                                + "SELECT 1 FROM syscat.schemata WHERE schemaname=?"
+                                                + ")", name) > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
         return jdbcTemplate.queryForInt("select count(*) from ("
-                + "select 1 from syscat.tables where tabschema = ? "
-                + "union "
-                + "select 1 from syscat.views where viewschema = ? "
-                + "union "
-                + "select 1 from syscat.sequences where seqschema = ? "
-                + "union "
-                + "select 1 from syscat.indexes where indschema = ? "
-                + "union "
-                + "select 1 from syscat.routines where ROUTINESCHEMA = ? "
-                + "union "
-                + "select 1 from syscat.triggers where trigschema = ? "
-                + ")", name, name, name, name, name, name) == 0;
+                                                + "select 1 from syscat.tables where tabschema = ? "
+                                                + "union "
+                                                + "select 1 from syscat.views where viewschema = ? "
+                                                + "union "
+                                                + "select 1 from syscat.sequences where seqschema = ? "
+                                                + "union "
+                                                + "select 1 from syscat.indexes where indschema = ? "
+                                                + "union "
+                                                + "select 1 from syscat.routines where ROUTINESCHEMA = ? "
+                                                + "union "
+                                                + "select 1 from syscat.triggers where trigschema = ? "
+                                                + ")", name, name, name, name, name, name) == 0;
     }
 
     @Override
@@ -208,9 +208,8 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
     private List<String> generateDropStatementsForModules() throws SQLException {
         String dropSeqGenQuery =
                 "select MODULENAME from syscat.modules where MODULESCHEMA = '"
-                + name
-                + "' and OWNERTYPE='U'";
-
+                        + name
+                        + "' and OWNERTYPE='U'";
 
         return buildDropStatements("DROP MODULE", dropSeqGenQuery);
     }
@@ -218,7 +217,7 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
     /**
      * Generates DROP statements for this type of table, representing this type of object in this schema.
      *
-     * @param tableType  The type of table (Can be T, V, S, ...).
+     * @param tableType The type of table (Can be T, V, S, ...).
      * @param objectType The type of object.
      * @return The drop statements.
      * @throws SQLException when the statements could not be generated.
@@ -233,7 +232,7 @@ public class DB2Schema extends Schema<DB2Database, DB2Table> {
      * Builds the drop statements for database objects in this schema.
      *
      * @param dropPrefix The drop command for the database object (e.g. 'drop table').
-     * @param query      The query to get all present database objects
+     * @param query The query to get all present database objects
      * @return The statements.
      * @throws SQLException when the drop statements could not be built.
      */

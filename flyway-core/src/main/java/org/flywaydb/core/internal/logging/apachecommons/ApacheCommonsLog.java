@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,13 @@
  */
 package org.flywaydb.core.internal.logging.apachecommons;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.logging.Log;
 
-/**
- * Wrapper for an Apache Commons Logging logger.
- */
+@RequiredArgsConstructor
 public class ApacheCommonsLog implements Log {
-    /**
-     * Apache Commons Logging Logger.
-     */
-    private final org.apache.commons.logging.Log logger;
 
-    /**
-     * Creates a new wrapper around this logger.
-     *
-     * @param logger The original Apache Commons Logging Logger.
-     */
-    public ApacheCommonsLog(org.apache.commons.logging.Log logger) {
-        this.logger = logger;
-    }
+    private final org.apache.commons.logging.Log logger;
 
     @Override
     public boolean isDebugEnabled() {
@@ -59,4 +47,6 @@ public class ApacheCommonsLog implements Log {
     public void error(String message, Exception e) {
         logger.error(message, e);
     }
+
+    public void notice(String message) {}
 }

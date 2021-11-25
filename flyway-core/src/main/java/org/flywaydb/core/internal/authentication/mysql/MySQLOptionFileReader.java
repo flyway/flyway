@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.authentication.mysql;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.authentication.ExternalAuthFileReader;
 
 import javax.crypto.Cipher;
@@ -31,8 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+@CustomLog
 public class MySQLOptionFileReader implements ExternalAuthFileReader {
-    private static final Log LOG = LogFactory.getLog(MySQLOptionFileReader.class);
 
     public final List<String> optionFiles;
     private final List<String> encryptedOptionFiles;
@@ -41,7 +40,7 @@ public class MySQLOptionFileReader implements ExternalAuthFileReader {
         optionFiles = new ArrayList<>();
         encryptedOptionFiles = new ArrayList<>();
     }
-    
+
     @Override
     public List<String> getAllContents() {
         List<String> fileContents = new ArrayList<>();
@@ -67,6 +66,7 @@ public class MySQLOptionFileReader implements ExternalAuthFileReader {
 
         return fileContents;
     }
+
 
 
 

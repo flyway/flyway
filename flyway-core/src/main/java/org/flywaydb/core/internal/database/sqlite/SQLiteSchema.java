@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -26,24 +25,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * SQLite implementation of Schema.
- */
+@CustomLog
 public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
-    private static final Log LOG = LogFactory.getLog(SQLiteSchema.class);
-
-    private static final List<String> IGNORED_SYSTEM_TABLE_NAMES =
-            Arrays.asList("android_metadata", SQLiteTable.SQLITE_SEQUENCE);
+    private static final List<String> IGNORED_SYSTEM_TABLE_NAMES = Arrays.asList("android_metadata", SQLiteTable.SQLITE_SEQUENCE);
 
     private boolean foreignKeysEnabled;
 
-    /**
-     * Creates a new SQLite schema.
-     *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
-     */
     SQLiteSchema(JdbcTemplate jdbcTemplate, SQLiteDatabase database, String name) {
         super(jdbcTemplate, database, name);
     }
@@ -116,5 +103,7 @@ public class SQLiteSchema extends Schema<SQLiteDatabase, SQLiteTable> {
         return new SQLiteTable(jdbcTemplate, database, this, tableName);
     }
 
-    public boolean getForeignKeysEnabled() { return foreignKeysEnabled; }
+    public boolean getForeignKeysEnabled() {
+        return foreignKeysEnabled;
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,10 +65,19 @@ public interface Configuration {
     /**
      * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
      * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     * The interval between retries doubles with each subsequent attempt.
      *
      * @return The maximum number of retries when attempting to connect to the database. (default: 0)
      */
     int getConnectRetries();
+
+    /**
+     * The maximum time between retries when attempting to connect to the database in seconds. This will cap the interval
+     * between connect retry to the value provided.
+     *
+     * @return The maximum time between retries in seconds (default: 120)
+     */
+    int getConnectRetriesInterval();
 
     /**
      * The SQL statements to run to initialize a new database connection immediately after opening it.
@@ -143,6 +152,18 @@ public interface Configuration {
     String getSqlMigrationPrefix();
 
     /**
+     * The file name prefix for baseline migrations.
+     * Baseline migrations represent all migrations with version <= current baseline migration version
+     * while keeping older migrations if needed for upgrading older deployments
+     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to B1.1__My_description.sql
+     * <i>Flyway Teams only</i>
+     *
+     * @return The file name prefix for baseline migration. (default: B)
+     */
+    String getBaselineMigrationPrefix();
+
+    /**
      * The file name prefix for undo SQL migrations.
      * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
      * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
@@ -214,6 +235,20 @@ public interface Configuration {
     String getPlaceholderPrefix();
 
     /**
+     * Retrieves the suffix of every script placeholder.
+     *
+     * @return The suffix of every script placeholder. (default: __ )
+     */
+    String getScriptPlaceholderSuffix();
+
+    /**
+     * Retrieves the prefix of every script placeholder.
+     *
+     * @return The prefix of every script placeholder. (default: FP__ )
+     */
+    String getScriptPlaceholderPrefix();
+
+    /**
      * Retrieves the map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      *
      * @return The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
@@ -222,17 +257,27 @@ public interface Configuration {
 
     /**
      * Gets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
-     * <li>{@code current}: designates the current version of the schema</li>
-     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code current}: Designates the current version of the schema</li>
+     * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code next}: The next version of the schema, as defined by the first pending migration</li>
+     * <li>
+     *     &lt;version&gt;? (end with a '?'): Instructs Flyway not to fail if the target version doesn't exist.
+     *     In this case, Flyway will go up to but not beyond the specified target
+     *     (default: fail if the target version doesn't exist) <i>Flyway Teams only</i>
+     * </li>
      * </ul>
-     * Defaults to {@code latest}.
      *
      * @return The target version up to which Flyway should consider migrations. Defaults to {@code latest}
      */
     MigrationVersion getTarget();
+
+    /**
+     * Whether to fail if no migration with the configured target version exists (default: {@code true})
+     */
+    boolean isFailOnMissingTarget();
 
     /**
      * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
@@ -245,8 +290,9 @@ public interface Configuration {
 
     /**
      * Retrieves the name of the schema history table that will be used by Flyway.
-     * By default (single-schema mode) the schema history table is placed in the default schema for the connection provided by the datasource.
-     * When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first schema of the list.
+     * By default, (single-schema mode) the schema history table is placed in the default schema for the connection provided by the datasource.
+     * When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first schema of the list,
+     * or in the schema specified to <i>flyway.defaultSchema</i>.
      *
      * @return The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
      */
@@ -255,7 +301,7 @@ public interface Configuration {
     /**
      * The tablespace where to create the schema history table that will be used by Flyway.
      * If not specified, Flyway uses the default tablespace for the database connection.
-     * This setting is only relevant for databases that do support the notion of tablespaces. Its value is simply ignored for all others.
+     * This setting is only relevant for databases that do support the notion of tablespace. Its value is simply ignored for all others.
      *
      * @return The tablespace where to create the schema history table that will be used by Flyway.
      */
@@ -271,14 +317,14 @@ public interface Configuration {
      * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
      * </ul>
      *
-     * @return The schemas managed by Flyway. (default: The first schema specified in getSchemas(), and failing that the default schema for the database connection)
+     * @return The default schema managed by Flyway, which is where the schema history table will reside. (default: The first schema specified in getSchemas(), and failing that the default schema for the database connection)
      */
     String getDefaultSchema();
 
     /**
      * The schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
-     * the default schema for the database connection. If <i>defaultSchemaName</i> is not specified, then the first of
-     * this list also acts as default schema.
+     * the default schema for the database connection. If <i>defaultSchema</i> is not specified, then the first of
+     * this list also acts as the default schema.
      * <p>Consequences:</p>
      * <ul>
      * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
@@ -296,6 +342,14 @@ public interface Configuration {
      * @return The encoding of Sql migrations. (default: UTF-8)
      */
     Charset getEncoding();
+
+    /**
+     * Whether Flyway should try to automatically detect SQL migration file encoding
+     *
+     * @return {@code true} to enable auto detection, {@code false} otherwise
+     * <i>Flyway Teams only</i>
+     */
+    boolean isDetectEncoding();
 
     /**
      * Retrieves the locations to scan recursively for migrations.
@@ -344,6 +398,9 @@ public interface Configuration {
     boolean isOutOfOrder();
 
     /**
+     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
+     * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
+     *
      * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
      * older deployment of the application that are no longer available in this version. For example: we have migrations
      * available on the classpath with versions 1.0 and 3.0. The schema history table indicates that a migration with version 2.0
@@ -352,12 +409,14 @@ public interface Configuration {
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
      * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
      * mark it as future instead.
-     *
-     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
      */
+    @Deprecated
     boolean isIgnoreMissingMigrations();
 
     /**
+     * @return {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
+     * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
+     *
      * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
      * already migrated migrations in this version. For example: we have migrations available on the classpath with
      * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
@@ -366,31 +425,34 @@ public interface Configuration {
      * will not be reported by validate command. This is useful for situations where one must be able to deliver
      * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
      * development of older versions.
-     *
-     * @return {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
+    @Deprecated
     boolean isIgnoreIgnoredMigrations();
 
     /**
+     * @return {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
+     * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
+     *
      * Ignore pending migrations when reading the schema history table. These are migrations that are available
      * but have not yet been applied. This can be useful for verifying that in-development migration changes
      * don't contain any validation-breaking changes of migrations that have already been applied to a production
      * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
-     *
-     * @return {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
      */
+    @Deprecated
     boolean isIgnorePendingMigrations();
 
     /**
+     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
+     * @deprecated Will remove in Flyway V9. Use {@code getIgnoreMigrationPatterns} instead.
+     *
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
      * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
      * an older version of the application after the database has been migrated by a newer one.
-     *
-     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
      */
+    @Deprecated
     boolean isIgnoreFutureMigrations();
 
     /**
@@ -545,6 +607,12 @@ public interface Configuration {
      */
     boolean isOracleSqlplusWarn();
 
+    /**
+     * The path to the Kerberos config file.
+     * <i>Flyway Teams only</i>
+     */
+    String getKerberosConfigFile();
+
     String getOracleKerberosConfigFile();
 
     String getOracleKerberosCacheFile();
@@ -567,7 +635,7 @@ public interface Configuration {
      *
      * @return {@code true} to output the results table (default: {@code true})
      */
-    boolean outputQueryResults();
+    boolean isOutputQueryResults();
 
     /**
      * Retrieves the custom ResourceProvider to be used to look up resources. If not set, the default strategy will be used.
@@ -588,7 +656,7 @@ public interface Configuration {
      *
      * @return @{code true} to attempt to create the schemas (default: {@code true})
      */
-    boolean getCreateSchemas();
+    boolean isCreateSchemas();
 
     /**
      * The maximum number of retries when trying to obtain a lock. -1 indicates attempting to repeat indefinitely.
@@ -605,38 +673,31 @@ public interface Configuration {
     Map<String, String> getJdbcProperties();
 
     /**
-     * The REST API URL of your Vault server, including the API version.
-     * Currently only supports API version v1.
-     * Example: http://localhost:8200/v1/
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
      *
-     * <i>Flyway Teams only</i>
-     *
-     * @return The REST API URL of your Vault server
+     * @return @{code true} to fail (default: {@code false})
      */
-    String getVaultUrl();
+    boolean isFailOnMissingLocations();
 
     /**
-     * The Vault token required to access your secrets.
+     * The location of your Oracle wallet, used to automatically sign in to your databases.
      *
      * <i>Flyway Teams only</i>
-     *
-     * @return The Vault token required to access your secrets
      */
-    String getVaultToken();
+    String getOracleWalletLocation();
 
     /**
-     * A comma-separated list of paths to secrets in Vault that contain Flyway configurations. This
-     * must start with the name of the engine and end with the name of the secret.
-     * The resulting form is '{engine_name}/{path}/{to}/{secret_name}'.
+     * The loggers Flyway should use. Valid options are:
      *
-     * If multiple secrets specify the same configuration parameter, then the last
-     * secret takes precedence.
+     * <ul>
+     *     <li>auto: Auto detect the logger (default behavior)</li>
+     *     <li>console: Use stdout/stderr (only available when using the CLI)</li>
+     *     <li>slf4j2: Use the slf4j2 logger</li>
+     *     <li>log4j2: Use the log4j2 logger</li>
+     *     <li>apache-commons: Use the Apache Commons logger</li>
+     * </ul>
      *
-     * Example: secret/data/flyway/flywayConfig
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @return A list of paths to secrets in Vault
+     * Alternatively you can provide the fully qualified class name for any other logger to use that.
      */
-    String[] getVaultSecrets();
+    String[] getLoggers();
 }

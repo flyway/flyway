@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,55 +15,25 @@
  */
 package org.flywaydb.core.internal.database;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
-
-
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.ServiceLoader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+@CustomLog
 public class DatabaseTypeRegister {
-    private static final Log LOG = LogFactory.getLog(DatabaseTypeRegister.class);
 
-    private static final List<DatabaseType> registeredDatabaseTypes = new ArrayList<>();
-    private static boolean hasRegisteredDatabaseTypes = false;
-
-    private static void registerDatabaseTypes() {
-        synchronized (registeredDatabaseTypes) {
-            if (hasRegisteredDatabaseTypes) {
-                return;
-            }
-
-            registeredDatabaseTypes.clear();
-
-
-
-
-
-
-
-            ServiceLoader<DatabaseType> loader = ServiceLoader.load(DatabaseType.class);
-            for (DatabaseType dt : loader) {
-                registeredDatabaseTypes.add(dt);
-            }
-
-            // Sort by preference order
-            Collections.sort(registeredDatabaseTypes);
-
-            hasRegisteredDatabaseTypes = true;
-        }
-    }
+    private static final List<DatabaseType> SORTED_DATABASE_TYPES = PluginRegister.getPlugins(DatabaseType.class).stream().sorted().collect(Collectors.toList());
 
     public static DatabaseType getDatabaseTypeForUrl(String url) {
         List<DatabaseType> typesAcceptingUrl = getDatabaseTypesForUrl(url);
@@ -72,7 +42,9 @@ public class DatabaseTypeRegister {
             if (typesAcceptingUrl.size() > 1) {
                 StringBuilder builder = new StringBuilder();
                 for (DatabaseType type : typesAcceptingUrl) {
-                    if (builder.length() > 0) builder.append(", ");
+                    if (builder.length() > 0) {
+                        builder.append(", ");
+                    }
                     builder.append(type.getName());
                 }
 
@@ -85,13 +57,9 @@ public class DatabaseTypeRegister {
     }
 
     private static List<DatabaseType> getDatabaseTypesForUrl(String url) {
-        if (!hasRegisteredDatabaseTypes) {
-            registerDatabaseTypes();
-        }
-
         List<DatabaseType> typesAcceptingUrl = new ArrayList<>();
 
-        for (DatabaseType type : registeredDatabaseTypes) {
+        for (DatabaseType type : SORTED_DATABASE_TYPES) {
             if (type.handlesJDBCUrl(url)) {
                 typesAcceptingUrl.add(type);
             }
@@ -125,15 +93,11 @@ public class DatabaseTypeRegister {
     }
 
     public static DatabaseType getDatabaseTypeForConnection(Connection connection) {
-        if (!hasRegisteredDatabaseTypes) {
-            registerDatabaseTypes();
-        }
-
         DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(connection);
         String databaseProductName = JdbcUtils.getDatabaseProductName(databaseMetaData);
         String databaseProductVersion = JdbcUtils.getDatabaseProductVersion(databaseMetaData);
 
-        for (DatabaseType type : registeredDatabaseTypes) {
+        for (DatabaseType type : SORTED_DATABASE_TYPES) {
             if (type.handlesDatabaseProductNameAndVersion(databaseProductName, databaseProductVersion, connection)) {
                 return type;
             }

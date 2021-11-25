@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,7 @@ public abstract class SchemaHistory {
      * including the ones in the schema history table.
      * </p>
      *
-     * @param repairResult           The result object containing which failed migrations were removed.
+     * @param repairResult The result object containing which failed migrations were removed.
      * @param migrationPatternFilter The migration patterns to filter by.
      */
     public abstract boolean removeFailedMigrations(RepairResult repairResult, MigrationPattern[] migrationPatternFilter);
@@ -122,7 +122,7 @@ public abstract class SchemaHistory {
      */
     public final void addSchemasMarker(Schema[] schemas) {
         addAppliedMigration(null, "<< Flyway Schema Creation >>",
-                MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true);
+                            MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true);
     }
 
     /**
@@ -135,17 +135,17 @@ public abstract class SchemaHistory {
         return !appliedMigrations.isEmpty() && appliedMigrations.get(0).getType() == MigrationType.SCHEMA;
     }
 
-
     /**
      * Updates this applied migration to match this resolved migration.
      *
-     * @param appliedMigration  The applied migration to update.
+     * @param appliedMigration The applied migration to update.
      * @param resolvedMigration The resolved migration to source the new values from.
      */
     public abstract void update(AppliedMigration appliedMigration, ResolvedMigration resolvedMigration);
 
     /**
      * Update the schema history to mark this migration as DELETED
+     *
      * @param appliedMigration The applied migration to mark as DELETED
      */
     public abstract void delete(AppliedMigration appliedMigration);
@@ -160,13 +160,13 @@ public abstract class SchemaHistory {
     /**
      * Records a new applied migration.
      *
-     * @param version       The target version of this migration.
-     * @param description   The description of the migration.
-     * @param type          The type of migration (BASELINE, SQL, ...)
-     * @param script        The name of the script to execute for this migration, relative to its classpath location.
-     * @param checksum      The checksum of the migration. (Optional)
+     * @param version The target version of this migration.
+     * @param description The description of the migration.
+     * @param type The type of migration (BASELINE, SQL, ...)
+     * @param script The name of the script to execute for this migration, relative to its classpath location.
+     * @param checksum The checksum of the migration. (Optional)
      * @param executionTime The execution time (in millis) of this migration.
-     * @param success       Flag indicating whether the migration was successful or not.
+     * @param success Flag indicating whether the migration was successful or not.
      */
     public final void addAppliedMigration(MigrationVersion version, String description, MigrationType type,
                                           String script, Integer checksum, int executionTime, boolean success) {

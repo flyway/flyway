@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,14 +30,8 @@ import java.nio.charset.Charset;
 /**
  * Utility class for copying files and their contents. Inspired by Spring's own.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileCopyUtils {
-    /**
-     * Prevent instantiation.
-     */
-    private FileCopyUtils() {
-        // Do nothing
-    }
-
     /**
      * Copy the contents of the given Reader into a String.
      * Closes the reader when done.
@@ -74,7 +71,7 @@ public class FileCopyUtils {
      * Copy the contents of the given InputStream into a new String based on this encoding.
      * Closes the stream when done.
      *
-     * @param in       the stream to copy from
+     * @param in the stream to copy from
      * @param encoding The encoding to use.
      * @return The new String.
      * @throws IOException in case of I/O errors
@@ -89,7 +86,7 @@ public class FileCopyUtils {
      * Copy the contents of the given Reader to the given Writer.
      * Closes both when done.
      *
-     * @param in  the Reader to copy from
+     * @param in the Reader to copy from
      * @param out the Writer to copy to
      * @throws IOException in case of I/O errors
      */
@@ -111,7 +108,7 @@ public class FileCopyUtils {
      * Copy the contents of the given InputStream to the given OutputStream.
      * Closes both streams when done.
      *
-     * @param in  the stream to copy from
+     * @param in the stream to copy from
      * @param out the stream to copy to
      * @return the number of bytes copied
      * @throws IOException in case of I/O errors

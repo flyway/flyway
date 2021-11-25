@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class FirebirdDatabaseType extends BaseDatabaseType {
     @Override
     public boolean handlesJDBCUrl(String url) {
         return url.startsWith("jdbc:firebird:") || url.startsWith("jdbc:firebirdsql:") ||
-               url.startsWith("jdbc:p6spy:firebird:") || url.startsWith("jdbc:p6spy:firebirdsql:");
+                url.startsWith("jdbc:p6spy:firebird:") || url.startsWith("jdbc:p6spy:firebirdsql:");
     }
 
     @Override

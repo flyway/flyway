@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,10 +67,12 @@ public interface CallbackExecutor {
 
 
 
+
     /**
      * Executes the callbacks for an operation finish event.
-     * @param event             The event to handle.
-     * @param operationResult   The operation result.
+     *
+     * @param event The event to handle.
+     * @param operationResult The operation result.
      */
     void onOperationFinishEvent(Event event, OperationResult operationResult);
 }

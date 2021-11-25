@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ public class FirebirdDatabase extends Database<FirebirdConnection> {
     /**
      * Creates a new FirebirdDatabase instance with this JdbcTemplate.
      *
-     * @param configuration      The Flyway configuration.
+     * @param configuration The Flyway configuration.
      */
     public FirebirdDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
@@ -36,8 +36,9 @@ public class FirebirdDatabase extends Database<FirebirdConnection> {
 
     @Override
     protected FirebirdConnection doGetConnection(Connection connection) {
-        return new FirebirdConnection( this, connection);
+        return new FirebirdConnection(this, connection);
     }
+
 
 
 

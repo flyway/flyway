@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ public class RedshiftSchema extends Schema<RedshiftDatabase, RedshiftTable> {
      * Creates a new PostgreSQL schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
-     * @param name         The name of the schema.
+     * @param database The database-specific support.
+     * @param name The name of the schema.
      */
     RedshiftSchema(JdbcTemplate jdbcTemplate, RedshiftDatabase database, String name) {
         super(jdbcTemplate, database, name);
@@ -48,9 +48,9 @@ public class RedshiftSchema extends Schema<RedshiftDatabase, RedshiftTable> {
     @Override
     protected boolean doEmpty() throws SQLException {
         return !jdbcTemplate.queryForBoolean("SELECT EXISTS (   SELECT 1\n" +
-                "   FROM   pg_catalog.pg_class c\n" +
-                "   JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
-                "   WHERE  n.nspname = ?)", name);
+                                                     "   FROM   pg_catalog.pg_class c\n" +
+                                                     "   JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
+                                                     "   WHERE  n.nspname = ?)", name);
     }
 
     @Override
@@ -87,24 +87,24 @@ public class RedshiftSchema extends Schema<RedshiftDatabase, RedshiftTable> {
     /**
      * Generates the statements for dropping the routines in this schema.
      *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
      * @kind The kind of object: f for functions, a for aggregate functions, p for procedures
      * @objType The type of object for the DROP statement; FUNCTION or PROCEDURE
      * @cascade CASCADE if required, blank if not.
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> generateDropStatementsForRoutines(char kind, String objType, String cascade) throws SQLException {
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
-                // Search for all functions
+                        // Search for all functions
                         "SELECT proname, oidvectortypes(proargtypes) AS args "
                                 + "FROM pg_proc_info INNER JOIN pg_namespace ns ON (pg_proc_info.pronamespace = ns.oid) "
-                // that don't depend on an extension
-                        + "LEFT JOIN pg_depend dep ON dep.objid = pg_proc_info.prooid AND dep.deptype = 'e' "
-                        + "WHERE pg_proc_info.proisagg = false AND pg_proc_info.prokind = '" + kind + "' "
-                        + "AND ns.nspname = ? AND dep.objid IS NULL",
+                                // that don't depend on an extension
+                                + "LEFT JOIN pg_depend dep ON dep.objid = pg_proc_info.prooid AND dep.deptype = 'e' "
+                                + "WHERE pg_proc_info.proisagg = false AND pg_proc_info.prokind = '" + kind + "' "
+                                + "AND ns.nspname = ? AND dep.objid IS NULL",
                         name
-                );
+                                         );
 
         List<String> statements = new ArrayList<>();
         for (Map<String, String> row : rows) {
@@ -122,12 +122,12 @@ public class RedshiftSchema extends Schema<RedshiftDatabase, RedshiftTable> {
     private List<String> generateDropStatementsForViews() throws SQLException {
         List<String> viewNames =
                 jdbcTemplate.queryForStringList(
-                // Search for all views
-                "SELECT relname FROM pg_catalog.pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace" +
-                        // that don't depend on an extension
-                        " LEFT JOIN pg_depend dep ON dep.objid = c.oid AND dep.deptype = 'e'" +
-                        " WHERE c.relkind = 'v' AND  n.nspname = ? AND dep.objid IS NULL",
-                name);
+                        // Search for all views
+                        "SELECT relname FROM pg_catalog.pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace" +
+                                // that don't depend on an extension
+                                " LEFT JOIN pg_depend dep ON dep.objid = c.oid AND dep.deptype = 'e'" +
+                                " WHERE c.relkind = 'v' AND  n.nspname = ? AND dep.objid IS NULL",
+                        name);
         List<String> statements = new ArrayList<>();
         for (String domainName : viewNames) {
             statements.add("DROP VIEW IF EXISTS " + database.quote(name, domainName) + " CASCADE");
@@ -147,7 +147,7 @@ public class RedshiftSchema extends Schema<RedshiftDatabase, RedshiftTable> {
                                 //that are real tables (as opposed to views)
                                 " AND table_type='BASE TABLE'",
                         name
-                );
+                                               );
         //Views and child tables are excluded as they are dropped with the parent table when using cascade.
 
         RedshiftTable[] tables = new RedshiftTable[tableNames.size()];

@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,6 @@ import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.SqlCallable;
 
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 /**
  * CockroachDB-specific table.
@@ -36,14 +32,6 @@ import java.util.TimeZone;
 public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSchema> {
     private final InsertRowLock insertRowLock;
 
-    /**
-     * Creates a new CockroachDB table.
-     *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param schema       The schema this table lives in.
-     * @param name         The name of the table.
-     */
     CockroachDBTable(JdbcTemplate jdbcTemplate, CockroachDBDatabase database, CockroachDBSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
         this.insertRowLock = new InsertRowLock(jdbcTemplate, 10);
@@ -51,12 +39,9 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
 
     @Override
     protected void doDrop() throws SQLException {
-        new CockroachDBRetryingStrategy().execute(new SqlCallable<Integer>() {
-            @Override
-            public Integer call() throws SQLException {
-                doDropOnce();
-                return null;
-            }
+        new CockroachDBRetryingStrategy().execute((SqlCallable<Integer>) () -> {
+            doDropOnce();
+            return null;
         });
     }
 
@@ -66,30 +51,25 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
 
     @Override
     protected boolean doExists() throws SQLException {
-        return new CockroachDBRetryingStrategy().execute(new SqlCallable<Boolean>() {
-            @Override
-            public Boolean call() throws SQLException {
-                return doExistsOnce();
-            }
-        });
+        return new CockroachDBRetryingStrategy().execute(this::doExistsOnce);
     }
 
     protected boolean doExistsOnce() throws SQLException {
         if (schema.cockroachDB1) {
             return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
-                    "   SELECT 1\n" +
-                    "   FROM   information_schema.tables \n" +
-                    "   WHERE  table_schema = ?\n" +
-                    "   AND    table_name = ?\n" +
-                    ")", schema.getName(), name);
+                                                        "   SELECT 1\n" +
+                                                        "   FROM   information_schema.tables \n" +
+                                                        "   WHERE  table_schema = ?\n" +
+                                                        "   AND    table_name = ?\n" +
+                                                        ")", schema.getName(), name);
         } else if (!schema.hasSchemaSupport) {
             return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
-                    "   SELECT 1\n" +
-                    "   FROM   information_schema.tables \n" +
-                    "   WHERE  table_catalog = ?\n" +
-                    "   AND    table_schema = 'public'\n" +
-                    "   AND    table_name = ?\n" +
-                    ")", schema.getName(), name);
+                                                        "   SELECT 1\n" +
+                                                        "   FROM   information_schema.tables \n" +
+                                                        "   WHERE  table_catalog = ?\n" +
+                                                        "   AND    table_schema = 'public'\n" +
+                                                        "   AND    table_name = ?\n" +
+                                                        ")", schema.getName(), name);
         } else {
             // There is a bug in CockroachDB v20.2.0-beta.* which causes the string equality operator to not work as
             // expected, therefore we apply a workaround using the like operator.
@@ -98,7 +78,7 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
                     "   SELECT 1\n" +
                     "   FROM   information_schema.tables \n" +
                     "   WHERE  table_schema = ?\n" +
-                    "   AND    table_name like '%"+name+"%' and length(table_name) = length(?)\n" +
+                    "   AND    table_name like '%" + name + "%' and length(table_name) = length(?)\n" +
                     ")";
             return jdbcTemplate.queryForBoolean(sql, schema.getName(), name);
         }
@@ -106,15 +86,11 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
 
     @Override
     protected void doLock() throws SQLException {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        cal.add(Calendar.MINUTE, -insertRowLock.lockTimeoutMins);
-        DateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-
         String updateLockStatement = "UPDATE " + this + " SET installed_on = now() WHERE version = '?' AND DESCRIPTION = 'flyway-lock'";
         String deleteExpiredLockStatement =
                 " DELETE FROM " + this +
-                " WHERE DESCRIPTION = 'flyway-lock'" +
-                " AND installed_on < TIMESTAMP '" + timestampFormat.format(cal.getTime()) + "'";
+                        " WHERE DESCRIPTION = 'flyway-lock'" +
+                        " AND installed_on < TIMESTAMP '?'";
 
         if (lockDepth == 0) {
             insertRowLock.doLock(database.getInsertStatement(this), updateLockStatement, deleteExpiredLockStatement, database.getBooleanTrue());

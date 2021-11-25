@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,6 @@ import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.ClassUtils;
 
-/**
- * A resolved Java migration.
- */
 public class ResolvedJavaMigration extends ResolvedMigrationImpl {
     /**
      * Creates a new ResolvedJavaMigration based on this JavaMigration.
@@ -31,16 +28,17 @@ public class ResolvedJavaMigration extends ResolvedMigrationImpl {
      */
     public ResolvedJavaMigration(JavaMigration javaMigration) {
         super(javaMigration.getVersion(),
-                javaMigration.getDescription(),
-                javaMigration.getClass().getName(),
-                javaMigration.getChecksum(),
-                null,
+              javaMigration.getDescription(),
+              javaMigration.getClass().getName(),
+              javaMigration.getChecksum(),
+              null,
 
 
 
-                        MigrationType.JDBC,
-                ClassUtils.getLocationOnDisk(javaMigration.getClass()),
-                new JavaMigrationExecutor(javaMigration)
-        );
+
+                              MigrationType.JDBC,
+              ClassUtils.getLocationOnDisk(javaMigration.getClass()),
+              new JavaMigrationExecutor(javaMigration)
+             );
     }
 }

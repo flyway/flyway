@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ public class DerbySchema extends Schema<DerbyDatabase, DerbyTable> {
      * Creates a new Derby schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database    The database-specific support.
-     * @param name         The name of the schema.
+     * @param database The database-specific support.
+     * @param name The name of the schema.
      */
     public DerbySchema(JdbcTemplate jdbcTemplate, DerbyDatabase database, String name) {
         super(jdbcTemplate, database, name);
@@ -95,9 +95,9 @@ public class DerbySchema extends Schema<DerbyDatabase, DerbyTable> {
      */
     private List<String> generateDropStatementsForConstraints() throws SQLException {
         List<Map<String, String>> results = jdbcTemplate.queryForList("SELECT c.constraintname, t.tablename FROM sys.sysconstraints c" +
-                " INNER JOIN sys.systables t ON c.tableid = t.tableid" +
-                " INNER JOIN sys.sysschemas s ON c.schemaid = s.schemaid" +
-                " WHERE c.type = 'F' AND s.schemaname = ?", name);
+                                                                              " INNER JOIN sys.systables t ON c.tableid = t.tableid" +
+                                                                              " INNER JOIN sys.sysschemas s ON c.schemaid = s.schemaid" +
+                                                                              " WHERE c.type = 'F' AND s.schemaname = ?", name);
 
         List<String> statements = new ArrayList<>();
         for (Map<String, String> result : results) {
@@ -112,8 +112,8 @@ public class DerbySchema extends Schema<DerbyDatabase, DerbyTable> {
     /**
      * Generate the statements for dropping all the objects of this type in this schema.
      *
-     * @param objectType          The type of object to drop (Sequence, constant, ...)
-     * @param objectNames         The names of the objects to drop.
+     * @param objectType The type of object to drop (Sequence, constant, ...)
+     * @param objectNames The names of the objects to drop.
      * @param dropStatementSuffix Suffix to append to the statement for dropping the objects.
      * @return The list of statements.
      */
@@ -142,7 +142,7 @@ public class DerbySchema extends Schema<DerbyDatabase, DerbyTable> {
     /**
      * List the names of the objects of this type in this schema.
      *
-     * @param objectType  The type of objects to list (Sequence, constant, ...)
+     * @param objectType The type of objects to list (Sequence, constant, ...)
      * @param querySuffix Suffix to append to the query to find the objects to list.
      * @return The names of the objects.
      * @throws SQLException when the object names could not be listed.

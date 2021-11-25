@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,24 +25,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * MySQL implementation of Schema.
- */
 public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
-    /**
-     * Creates a new MySQL schema.
-     *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
-     */
+
     MySQLSchema(JdbcTemplate jdbcTemplate, MySQLDatabase database, String name) {
         super(jdbcTemplate, database, name);
     }
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT (SELECT 1 FROM information_schema.schemata WHERE schema_name=? LIMIT 1)", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(1) FROM information_schema.schemata WHERE schema_name=? LIMIT 1", name) > 0;
     }
 
     @Override
@@ -53,17 +44,17 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
         }
 
         return jdbcTemplate.queryForInt("SELECT SUM(found) FROM ("
-                        + "(SELECT 1 as found FROM information_schema.tables WHERE table_schema=?) UNION ALL "
-                        + "(SELECT 1 as found FROM information_schema.views WHERE table_schema=? LIMIT 1) UNION ALL "
-                        + "(SELECT 1 as found FROM information_schema.table_constraints WHERE table_schema=? LIMIT 1) UNION ALL "
-                        + "(SELECT 1 as found FROM information_schema.triggers WHERE event_object_schema=?  LIMIT 1) UNION ALL "
-                        + "(SELECT 1 as found FROM information_schema.routines WHERE routine_schema=? LIMIT 1)"
-                        // #2410 Unlike MySQL, MariaDB 10.0 and newer don't allow the events table to be queried
-                        // when the event scheduled is DISABLED or in some rare cases OFF
-                        + (database.eventSchedulerQueryable ? " UNION ALL (SELECT 1 as found FROM information_schema.events WHERE event_schema=? LIMIT 1)" : "")
-                        + ") as all_found",
-                params.toArray(new String[0])
-        ) == 0;
+                                                + "(SELECT 1 as found FROM information_schema.tables WHERE table_schema=?) UNION ALL "
+                                                + "(SELECT 1 as found FROM information_schema.views WHERE table_schema=? LIMIT 1) UNION ALL "
+                                                + "(SELECT 1 as found FROM information_schema.table_constraints WHERE table_schema=? LIMIT 1) UNION ALL "
+                                                + "(SELECT 1 as found FROM information_schema.triggers WHERE event_object_schema=?  LIMIT 1) UNION ALL "
+                                                + "(SELECT 1 as found FROM information_schema.routines WHERE routine_schema=? LIMIT 1)"
+                                                // #2410 Unlike MySQL, MariaDB 10.0 and newer don't allow the events table to be queried
+                                                // when the event scheduled is DISABLED or in some rare cases OFF
+                                                + (database.eventSchedulerQueryable ? " UNION ALL (SELECT 1 as found FROM information_schema.events WHERE event_schema=? LIMIT 1)" : "")
+                                                + ") as all_found",
+                                        params.toArray(new String[0])
+                                       ) == 0;
     }
 
     @Override
@@ -104,12 +95,6 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
         }
     }
 
-    /**
-     * Generate the statements to clean the events in this schema.
-     *
-     * @return The list of statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
     private List<String> cleanEvents() throws SQLException {
         List<String> eventNames =
                 jdbcTemplate.queryForStringList(
@@ -123,12 +108,6 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
         return statements;
     }
 
-    /**
-     * Generate the statements to clean the routines in this schema.
-     *
-     * @return The list of statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
     private List<String> cleanRoutines() throws SQLException {
         List<Map<String, String>> routineNames =
                 jdbcTemplate.queryForList(
@@ -144,12 +123,6 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
         return statements;
     }
 
-    /**
-     * Generate the statements to clean the views in this schema.
-     *
-     * @return The list of statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
     private List<String> cleanViews() throws SQLException {
         List<String> viewNames =
                 jdbcTemplate.queryForStringList(
@@ -162,12 +135,6 @@ public class MySQLSchema extends Schema<MySQLDatabase, MySQLTable> {
         return statements;
     }
 
-    /**
-     * Generate the statements to clean the sequences in this schema.
-     *
-     * @return The list of statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
     private List<String> cleanSequences() throws SQLException {
         List<String> names =
                 jdbcTemplate.queryForStringList(

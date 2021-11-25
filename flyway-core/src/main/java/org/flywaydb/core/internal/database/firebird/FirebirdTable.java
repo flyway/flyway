@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ public class FirebirdTable extends Table<FirebirdDatabase, FirebirdSchema> {
      * Creates a new Firebird table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param schema       The schema this table lives in.
-     * @param name         The name of the table.
+     * @param database The database-specific support.
+     * @param schema The schema this table lives in.
+     * @param name The name of the table.
      */
     public FirebirdTable(JdbcTemplate jdbcTemplate, FirebirdDatabase database, FirebirdSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
@@ -42,8 +42,8 @@ public class FirebirdTable extends Table<FirebirdDatabase, FirebirdSchema> {
     @Override
     protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("select count(*) from RDB$RELATIONS\n" +
-                "where RDB$RELATION_NAME = ?\n" +
-                "and RDB$VIEW_BLR is null", name) > 0;
+                                                "where RDB$RELATION_NAME = ?\n" +
+                                                "and RDB$VIEW_BLR is null", name) > 0;
     }
 
     @Override
@@ -56,12 +56,12 @@ public class FirebirdTable extends Table<FirebirdDatabase, FirebirdSchema> {
          still possible as are selects that don't use 'with lock'.
         */
         jdbcTemplate.execute("execute block as\n"
-                + "declare tempvar integer;\n"
-                + "begin\n"
-                + "  for select 1 from " + this + " with lock into :tempvar do\n"
-                + "  begin\n"
-                + "  end\n"
-                + "end");
+                                     + "declare tempvar integer;\n"
+                                     + "begin\n"
+                                     + "  for select 1 from " + this + " with lock into :tempvar do\n"
+                                     + "  begin\n"
+                                     + "  end\n"
+                                     + "end");
     }
 
     @Override

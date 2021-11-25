@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,11 @@ public class PostgreSQLTable extends Table<PostgreSQLDatabase, PostgreSQLSchema>
      * Creates a new PostgreSQL table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param schema       The schema this table lives in.
-     * @param name         The name of the table.
+     * @param database The database-specific support.
+     * @param schema The schema this table lives in.
+     * @param name The name of the table.
      */
-    PostgreSQLTable(JdbcTemplate jdbcTemplate, PostgreSQLDatabase database, PostgreSQLSchema schema, String name) {
+    protected PostgreSQLTable(JdbcTemplate jdbcTemplate, PostgreSQLDatabase database, PostgreSQLSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
     }
 
@@ -44,13 +44,13 @@ public class PostgreSQLTable extends Table<PostgreSQLDatabase, PostgreSQLSchema>
     @Override
     protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
-                "  SELECT 1\n" +
-                "  FROM   pg_catalog.pg_class c\n" +
-                "  JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
-                "  WHERE  n.nspname = ?\n" +
-                "  AND    c.relname = ?\n" +
-                "  AND    c.relkind = 'r'\n" + // only tables
-                ")", schema.getName(), name);
+                                                    "  SELECT 1\n" +
+                                                    "  FROM   pg_catalog.pg_class c\n" +
+                                                    "  JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
+                                                    "  WHERE  n.nspname = ?\n" +
+                                                    "  AND    c.relname = ?\n" +
+                                                    "  AND    c.relkind = 'r'\n" + // only tables
+                                                    ")", schema.getName(), name);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,13 @@
  */
 package org.flywaydb.core.api.callback;
 
+import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+
 /**
  * The Flyway lifecycle events that can be handled in callbacks.
  */
+@RequiredArgsConstructor
 public enum Event {
     /**
      * Fired before clean is executed. This event will be fired in a separate transaction from the actual clean operation.
@@ -220,23 +224,22 @@ public enum Event {
     /**
      * Fired before any non-existent schemas are created.
      */
-    CREATE_SCHEMA("createSchema");
-
-    private final String id;
-
-    Event(String id) {
-        this.id = id;
-    }
+    CREATE_SCHEMA("createSchema"),
+    /**
+     * Fired before a connection is created. These must be arbitrary scripts only (e.g. ps1, cmd, sh etc.)
+     * <p><i>Flyway Teams Edition only</i></p>
+     */
+    BEFORE_CONNECT("beforeConnect");
 
     /**
      * @return The id of an event. Examples: {@code beforeClean}, {@code afterEachMigrate}, ...
      */
-    public String getId() {
-        return id;
-    }
+    @Getter
+    private final String id;
 
     /**
      * Retrieves the event with this id.
+     *
      * @param id The id.
      * @return The event. {@code null} if not found.
      */

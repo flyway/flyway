@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Warning;
 
@@ -25,12 +27,14 @@ import java.util.List;
 /**
  * Container for all results, warnings, errors and remaining side-effects of a sql statement.
  */
+@Getter
 public class Results {
     public static final Results EMPTY_RESULTS = new Results();
 
     private final List<Result> results = new ArrayList<>();
     private final List<Warning> warnings = new ArrayList<>();
     private final List<Error> errors = new ArrayList<>();
+    @Setter
     private SQLException exception = null;
 
     public void addResult(Result result) {
@@ -43,25 +47,5 @@ public class Results {
 
     public void addError(Error error) {
         errors.add(error);
-    }
-
-    public List<Warning> getWarnings() {
-        return warnings;
-    }
-
-    public List<Error> getErrors() {
-        return errors;
-    }
-
-    public List<Result> getResults() {
-        return results;
-    }
-
-    public SQLException getException() {
-        return exception;
-    }
-
-    public void setException(SQLException exception) {
-        this.exception = exception;
     }
 }

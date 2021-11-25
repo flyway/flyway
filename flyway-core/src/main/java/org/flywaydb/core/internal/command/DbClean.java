@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 package org.flywaydb.core.internal.command;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Event;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CleanResult;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
@@ -31,85 +31,38 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 
-/**
- * Main workflow for cleaning the database.
- */
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+@CustomLog
 public class DbClean {
-    private static final Log LOG = LogFactory.getLog(DbClean.class);
-
-    /**
-     * The schemas to clean.
-     */
-    private final Schema[] schemas;
-    private final Connection connection;
-    private Database database;
     private final SchemaHistory schemaHistory;
-    private final CallbackExecutor callbackExecutor;
-    private boolean cleanDisabled;
+    protected final Schema[] schemas;
+    protected final Connection connection;
+    protected final Database database;
+    protected final CallbackExecutor callbackExecutor;
+    protected final Configuration configuration;
 
-    /**
-     * Creates a new database cleaner.
-     *
-     * @param database         The DB support for the connection.
-     * @param schemaHistory    The schema history table.
-     * @param schemas          The schemas to clean.
-     * @param callbackExecutor The callback executor.
-     * @param cleanDisabled    Whether to disable clean.
-     */
-    public DbClean(Database database, SchemaHistory schemaHistory, Schema[] schemas, CallbackExecutor callbackExecutor, boolean cleanDisabled) {
-        this.database = database;
-        this.connection = database.getMainConnection();
+    public DbClean(Database database, SchemaHistory schemaHistory, Schema[] schemas, CallbackExecutor callbackExecutor, Configuration configuration) {
         this.schemaHistory = schemaHistory;
         this.schemas = schemas;
+        this.connection = database.getMainConnection();
+        this.database = database;
         this.callbackExecutor = callbackExecutor;
-        this.cleanDisabled = cleanDisabled;
+        this.configuration = configuration;
     }
 
-    /**
-     * Cleans the schemas of all objects.
-     *
-     * @throws FlywayException When clean failed.
-     */
     public CleanResult clean() throws FlywayException {
-        if (cleanDisabled) {
-            throw new FlywayException("Unable to execute clean as it has been disabled with the \"flyway.cleanDisabled\" property.");
+        if (configuration.isCleanDisabled()) {
+            throw new FlywayException("Unable to execute clean as it has been disabled with the 'flyway.cleanDisabled' property.");
         }
+
         callbackExecutor.onEvent(Event.BEFORE_CLEAN);
 
         CleanResult cleanResult = CommandResultFactory.createCleanResult(database.getCatalog());
-
-        try {
-            connection.changeCurrentSchemaTo(schemas[0]);
-            boolean dropSchemas = false;
-            try {
-                dropSchemas = schemaHistory.hasSchemasMarker();
-            } catch (Exception e) {
-                LOG.error("Error while checking whether the schemas should be dropped", e);
-            }
-
-            dropDatabaseObjectsPreSchemas();
-
-            for (Schema schema : schemas) {
-                if (!schema.exists()) {
-                    String unknownSchemaWarning = "Unable to clean unknown schema: " + schema;
-                    cleanResult.addWarning(unknownSchemaWarning);
-                    LOG.warn(unknownSchemaWarning);
-                    continue;
-                }
-
-                if (dropSchemas) {
-                    dropSchema(schema, cleanResult);
-                } else {
-                    cleanSchema(schema);
-                    cleanResult.schemasCleaned.add(schema.getName());
-                }
-            }
-
-            dropDatabaseObjectsPostSchemas();
-        } catch (FlywayException e) {
-            callbackExecutor.onEvent(Event.AFTER_CLEAN_ERROR);
-            throw e;
-        }
+        clean(cleanResult);
 
         callbackExecutor.onEvent(Event.AFTER_CLEAN);
         schemaHistory.clearCache();
@@ -117,10 +70,58 @@ public class DbClean {
         return cleanResult;
     }
 
+    protected void clean(CleanResult cleanResult) {
+        clean(schemas[0], schemas, cleanResult);
+    }
+
+    protected void clean(Schema defaultSchema, Schema[] schemas, CleanResult cleanResult) {
+        try {
+            connection.changeCurrentSchemaTo(defaultSchema);
+
+            boolean dropSchemas = false;
+            try {
+                dropSchemas = schemaHistory.hasSchemasMarker();
+            } catch (Exception e) {
+                LOG.error("Error while checking whether the schemas should be dropped. Schemas will not be dropped", e);
+            }
+
+            clean(schemas, cleanResult, dropSchemas);
+        } catch (FlywayException e) {
+            callbackExecutor.onEvent(Event.AFTER_CLEAN_ERROR);
+            throw e;
+        }
+    }
+
+    protected void clean(Schema[] schemas, CleanResult cleanResult, boolean dropSchemas) {
+        dropDatabaseObjectsPreSchemas();
+
+        List<Schema> schemaList = new ArrayList<>(Arrays.asList(schemas));
+        for (int i = 0; i < schemaList.size(); ) {
+            Schema schema = schemaList.get(i);
+            if (!schema.exists()) {
+                String unknownSchemaWarning = "Unable to clean unknown schema: " + schema;
+                cleanResult.addWarning(unknownSchemaWarning);
+                LOG.warn(unknownSchemaWarning);
+                schemaList.remove(i);
+            } else {
+                i++;
+            }
+        }
+        cleanSchemas(schemaList.toArray(new Schema[0]), dropSchemas, cleanResult);
+        Collections.reverse(schemaList);
+        cleanSchemas(schemaList.toArray(new Schema[0]), dropSchemas, null);
+
+        dropDatabaseObjectsPostSchemas();
+
+        if (dropSchemas) {
+            for (Schema schema : schemas) {
+                dropSchema(schema, cleanResult);
+            }
+        }
+    }
+
     /**
      * Drops database-level objects that need to be cleaned prior to schema-level objects.
-     *
-     * @throws FlywayException When the drop failed.
      */
     private void dropDatabaseObjectsPreSchemas() {
         LOG.debug("Dropping pre-schema database level objects...");
@@ -131,19 +132,17 @@ public class DbClean {
                 database.cleanPreSchemas();
                 return null;
             });
+            stopWatch.stop();
+            LOG.info(String.format("Successfully dropped pre-schema database level objects (execution time %s)",
+                                   TimeFormat.format(stopWatch.getTotalTimeMillis())));
         } catch (FlywaySqlException e) {
             LOG.debug(e.getMessage());
             LOG.warn("Unable to drop pre-schema database level objects");
         }
-        stopWatch.stop();
-        LOG.info(String.format("Successfully dropped pre-schema database level objects (execution time %s)",
-                TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 
     /**
      * Drops database-level objects that need to be cleaned after all schema-level objects.
-     *
-     * @throws FlywayException When the drop failed.
      */
     private void dropDatabaseObjectsPostSchemas() {
         LOG.debug("Dropping post-schema database level objects...");
@@ -154,22 +153,17 @@ public class DbClean {
                 database.cleanPostSchemas(schemas);
                 return null;
             });
+            stopWatch.stop();
+            LOG.info(String.format("Successfully dropped post-schema database level objects (execution time %s)",
+                                   TimeFormat.format(stopWatch.getTotalTimeMillis())));
         } catch (FlywaySqlException e) {
             LOG.debug(e.getMessage());
             LOG.warn("Unable to drop post-schema database level objects");
         }
-        stopWatch.stop();
-        LOG.info(String.format("Successfully dropped post-schema database level objects (execution time %s)",
-                TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 
-    /**
-     * Drops this schema.
-     *
-     * @throws FlywayException When the drop failed.
-     */
     private void dropSchema(final Schema schema, CleanResult cleanResult) {
-        LOG.debug("Dropping schema " + schema + " ...");
+        LOG.debug("Dropping schema " + schema + "...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
@@ -177,36 +171,49 @@ public class DbClean {
                 schema.drop();
                 return null;
             });
+
             cleanResult.schemasDropped.add(schema.getName());
+
+            stopWatch.stop();
+            LOG.info(String.format("Successfully dropped schema %s (execution time %s)",
+                                   schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
         } catch (FlywaySqlException e) {
             LOG.debug(e.getMessage());
-            LOG.warn("Unable to drop schema " + schema + ". Attempting clean instead...");
-            ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(() -> {
-                schema.clean();
-                return null;
-            });
+            LOG.warn("Unable to drop schema " + schema + ". It was cleaned instead.");
             cleanResult.schemasCleaned.add(schema.getName());
         }
-        stopWatch.stop();
-        LOG.info(String.format("Successfully dropped schema %s (execution time %s)",
-                schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 
-    /**
-     * Cleans this schema of all objects.
-     *
-     * @throws FlywayException When clean failed.
-     */
-    private void cleanSchema(final Schema schema) {
-        LOG.debug("Cleaning schema " + schema + " ...");
+    private void cleanSchemas(Schema[] schemas, boolean dropSchemas, CleanResult cleanResult) {
+        for (Schema schema : schemas) {
+            if (dropSchemas) {
+                try {
+                    cleanSchema(schema);
+                } catch (FlywayException ignored) {
+                }
+            } else {
+                cleanSchema(schema);
+                if (cleanResult != null) {
+                    cleanResult.schemasCleaned.add(schema.getName());
+                }
+            }
+        }
+    }
+
+    private void cleanSchema(Schema schema) {
+        LOG.debug("Cleaning schema " + schema + "...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
+        doCleanSchema(schema);
+        stopWatch.stop();
+        LOG.info(String.format("Successfully cleaned schema %s (execution time %s)",
+                               schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+    }
+
+    protected void doCleanSchema(Schema schema) {
         ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(), database).execute(() -> {
             schema.clean();
             return null;
         });
-        stopWatch.stop();
-        LOG.info(String.format("Successfully cleaned schema %s (execution time %s)",
-                schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 }

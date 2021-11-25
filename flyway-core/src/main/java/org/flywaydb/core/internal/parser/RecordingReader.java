@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import java.io.Reader;
 
 public class RecordingReader extends FilterReader {
     private boolean paused;
-    private Recorder recorder;
+    private final Recorder recorder;
 
     RecordingReader(Recorder recorder, Reader in) {
         super(in);

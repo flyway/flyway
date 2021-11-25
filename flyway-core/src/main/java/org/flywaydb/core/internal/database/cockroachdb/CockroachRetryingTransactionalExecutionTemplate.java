@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.jdbc.TransactionalExecutionTemplate;
 
 import java.sql.Connection;
@@ -28,16 +27,15 @@ import java.util.concurrent.Callable;
  * Spring-like template for executing transactions. Cockroach always operates with transaction isolation
  * level SERIALIZABLE and needs a retrying pattern.
  */
+@CustomLog
 public class CockroachRetryingTransactionalExecutionTemplate extends TransactionalExecutionTemplate {
-    private static final Log LOG = LogFactory.getLog(CockroachRetryingTransactionalExecutionTemplate.class);
-
     private static final String DEADLOCK_OR_TIMEOUT_ERROR_CODE = "40001";
     private static final int MAX_RETRIES = 50;
 
     /**
      * Creates a new transaction template for this connection.
      *
-     * @param connection          The connection for the transaction.
+     * @param connection The connection for the transaction.
      * @param rollbackOnException Whether to roll back the transaction when an exception is thrown.
      */
     CockroachRetryingTransactionalExecutionTemplate(Connection connection, boolean rollbackOnException) {

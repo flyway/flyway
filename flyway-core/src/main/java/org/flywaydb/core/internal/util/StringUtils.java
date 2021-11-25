@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -22,23 +25,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Various string-related utilities.
- */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StringUtils {
     private static final String WHITESPACE_CHARS = " \t\n\f\r";
 
     /**
-     * Prevents instantiation.
-     */
-    private StringUtils() {
-        // Do nothing.
-    }
-
-    /**
      * Trims or pads (with spaces) this string, so it has this exact length.
      *
-     * @param str    The string to adjust. {@code null} is treated as an empty string.
+     * @param str The string to adjust. {@code null} is treated as an empty string.
      * @param length The exact length to reach.
      * @return The adjusted string.
      */
@@ -49,8 +43,8 @@ public class StringUtils {
     /**
      * Trims or pads this string, so it has this exact length.
      *
-     * @param str     The string to adjust. {@code null} is treated as an empty string.
-     * @param length  The exact length to reach.
+     * @param str The string to adjust. {@code null} is treated as an empty string.
+     * @param length The exact length to reach.
      * @param padChar The padding character.
      * @return The adjusted string.
      */
@@ -75,8 +69,8 @@ public class StringUtils {
     /**
      * Trims or pads this string, so it has this exact length.
      *
-     * @param str     The string to adjust. {@code null} is treated as an empty string.
-     * @param length  The exact length to reach.
+     * @param str The string to adjust. {@code null} is treated as an empty string.
+     * @param length The exact length to reach.
      * @param padChar The padding character.
      * @return The adjusted string.
      */
@@ -126,7 +120,7 @@ public class StringUtils {
      * Returns the first n characters from this string, where n = count. If the string is shorter, the entire string
      * will be returned. If the string is longer, it will be truncated.
      *
-     * @param str   The string to parse.
+     * @param str The string to parse.
      * @param count The amount of characters to return.
      * @return The first n characters from this string, where n = count.
      */
@@ -143,10 +137,10 @@ public class StringUtils {
     }
 
     /**
-     * Replaces all occurrances of this originalToken in this string with this replacementToken.
+     * Replaces all occurrences of this originalToken in this string with this replacementToken.
      *
-     * @param str              The string to process.
-     * @param originalToken    The token to replace.
+     * @param str The string to process.
+     * @param originalToken The token to replace.
      * @param replacementToken The replacement.
      * @return The transformed str.
      */
@@ -178,7 +172,7 @@ public class StringUtils {
      * Turns this string array in one delimited string.
      *
      * @param delimiter The delimiter to use.
-     * @param strings   The array to process.
+     * @param strings The array to process.
      * @return The new delimited string. An empty string if {@code strings} is empty. {@code null} if strings is {@code null}.
      */
     public static String arrayToDelimitedString(String delimiter, Object[] strings) {
@@ -209,7 +203,7 @@ public class StringUtils {
     /**
      * Splits this string into an array using these delimiters.
      *
-     * @param str        The string to split.
+     * @param str The string to split.
      * @param delimiters The delimiters to use.
      * @return The resulting array.
      */
@@ -224,7 +218,7 @@ public class StringUtils {
     /**
      * Splits this string into a collection using these delimiters.
      *
-     * @param str        The string to split.
+     * @param str The string to split.
      * @param delimiters The delimiters to use.
      * @return The resulting array.
      */
@@ -267,8 +261,8 @@ public class StringUtils {
     /**
      * Splits this string into a collection using this delimiter and this group delimiter.
      *
-     * @param str                The string to split.
-     * @param delimiterChar      The delimiter to use.
+     * @param str The string to split.
+     * @param delimiterChar The delimiter to use.
      * @param groupDelimiterChar The character to use to delimit groups.
      * @return The resulting array.
      */
@@ -309,31 +303,10 @@ public class StringUtils {
     }
 
     /**
-     * Counts the number of occurrences of this token in this string.
-     *
-     * @param str   The string to analyse.
-     * @param token The token to look for.
-     * @return The number of occurrences.
-     */
-    public static int countOccurrencesOf(String str, String token) {
-        if (str == null || token == null || str.length() == 0 || token.length() == 0) {
-            return 0;
-        }
-        int count = 0;
-        int pos = 0;
-        int idx;
-        while ((idx = str.indexOf(token, pos)) != -1) {
-            ++count;
-            pos = idx + token.length();
-        }
-        return count;
-    }
-
-    /**
-     * Replace all occurences of a substring within a string with
+     * Replace all occurrences of a substring within a string with
      * another string.
      *
-     * @param inString   String to examine
+     * @param inString String to examine
      * @param oldPattern String to replace
      * @param newPattern String to insert
      * @return a String with the replacements
@@ -360,7 +333,7 @@ public class StringUtils {
 
     /**
      * Convenience method to return a Collection as a comma-delimited
-     * String. E.g. useful for {@code toString()} implementations.
+     * String. e.g. useful for {@code toString()} implementations.
      *
      * @param collection the Collection to analyse
      * @return The comma-delimited String.
@@ -374,7 +347,7 @@ public class StringUtils {
      * String. E.g. useful for {@code toString()} implementations.
      *
      * @param collection the Collection to analyse
-     * @param delimiter  The delimiter.
+     * @param delimiter The delimiter.
      * @return The delimited String.
      */
     public static String collectionToDelimitedString(Collection<?> collection, String delimiter) {
@@ -393,27 +366,9 @@ public class StringUtils {
     }
 
     /**
-     * Trim leading whitespace from the given String.
-     *
-     * @param str the String to check
-     * @return the trimmed String
-     * @see java.lang.Character#isWhitespace
-     */
-    public static String trimLeadingWhitespace(String str) {
-        if (!hasLength(str)) {
-            return str;
-        }
-        StringBuilder buf = new StringBuilder(str);
-        while (buf.length() > 0 && Character.isWhitespace(buf.charAt(0))) {
-            buf.deleteCharAt(0);
-        }
-        return buf.toString();
-    }
-
-    /**
      * Trim any leading occurrence of this character from the given String.
      *
-     * @param str       the String to check.
+     * @param str the String to check.
      * @param character The character to trim.
      * @return the trimmed String
      * @see java.lang.Character#isWhitespace
@@ -427,28 +382,10 @@ public class StringUtils {
     }
 
     /**
-     * Trim trailing whitespace from the given String.
-     *
-     * @param str the String to check
-     * @return the trimmed String
-     * @see java.lang.Character#isWhitespace
-     */
-    public static String trimTrailingWhitespace(String str) {
-        if (!hasLength(str)) {
-            return str;
-        }
-        StringBuilder buf = new StringBuilder(str);
-        while (buf.length() > 0 && Character.isWhitespace(buf.charAt(buf.length() - 1))) {
-            buf.deleteCharAt(buf.length() - 1);
-        }
-        return buf.toString();
-    }
-
-    /**
      * Checks whether this strings both begins with this prefix and ends withs either of these suffixes.
      *
-     * @param str      The string to check.
-     * @param prefix   The prefix.
+     * @param str The string to check.
+     * @param prefix The prefix.
      * @param suffixes The suffixes.
      * @return {@code true} if it does, {@code false} if not.
      */
@@ -467,7 +404,7 @@ public class StringUtils {
     /**
      * Wrap this string every lineSize characters.
      *
-     * @param str      The string to wrap.
+     * @param str The string to wrap.
      * @param lineSize The maximum size of each line.
      * @return The wrapped string.
      */
@@ -489,7 +426,7 @@ public class StringUtils {
     /**
      * Wrap this string at the word boundary at or below lineSize characters.
      *
-     * @param str      The string to wrap.
+     * @param str The string to wrap.
      * @param lineSize The maximum size of each line.
      * @return The word-wrapped string.
      */
@@ -522,9 +459,9 @@ public class StringUtils {
     }
 
     /**
-     * Checks whether this characters matches any of these characters.
+     * Checks whether this character matches any of these characters.
      *
-     * @param c     The char to check.
+     * @param c The char to check.
      * @param chars The chars that should match.
      * @return {@code true} if it does, {@code false if not}.
      */
@@ -538,14 +475,14 @@ public class StringUtils {
     }
 
     public static String getFileExtension(String path) {
-        String[] foldersSplit = path.split("[\\|/]");
-        String fileNameAndExtension = foldersSplit[foldersSplit.length-1];
+        String[] foldersSplit = path.split("[|/]");
+        String fileNameAndExtension = foldersSplit[foldersSplit.length - 1];
 
         String[] nameExtensionSplit = fileNameAndExtension.split("\\.");
         if (nameExtensionSplit.length < 2) {
             return "";
         }
 
-        return nameExtensionSplit[nameExtensionSplit.length-1];
+        return nameExtensionSplit[nameExtensionSplit.length - 1];
     }
 }

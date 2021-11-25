@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,39 +15,37 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import lombok.CustomLog;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.strategy.BackoffStrategy;
 import org.flywaydb.core.internal.util.ExceptionUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 /**
  * Utility class for dealing with jdbc connections.
  */
+@CustomLog
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class JdbcUtils {
-    private static final Log LOG = LogFactory.getLog(JdbcUtils.class);
-
-    private JdbcUtils() { }
 
     /**
      * Opens a new connection from this dataSource.
      *
-     * @param dataSource     The dataSource to obtain the connection from.
+     * @param dataSource The dataSource to obtain the connection from.
      * @param connectRetries The maximum number of retries when attempting to connect to the database.
+     * @param connectRetriesInterval The maximum time between retries in seconds
      * @return The new connection.
      * @throws FlywayException when the connection could not be opened.
      */
-    public static Connection openConnection(DataSource dataSource, int connectRetries) throws FlywayException {
-        BackoffStrategy backoffStrategy = new BackoffStrategy(1, 2);
+    public static Connection openConnection(DataSource dataSource, int connectRetries, int connectRetriesInterval) throws FlywayException {
+        BackoffStrategy backoffStrategy = new BackoffStrategy(1, 2, connectRetriesInterval);
         int retries = 0;
         while (true) {
             try {
@@ -55,17 +53,18 @@ public class JdbcUtils {
             } catch (SQLException e) {
                 if ("08S01".equals(e.getSQLState()) && e.getMessage().contains("This driver is not configured for integrated authentication")) {
                     throw new FlywaySqlException("Unable to obtain connection from database"
-                            + getDataSourceInfo(dataSource) + ": " + e.getMessage() + "\nTo setup integrated authentication see https://flywaydb.org/documentation/database/sqlserver#windows-authentication", e);
+                                                         + getDataSourceInfo(dataSource) + ": " + e.getMessage() + "\nTo setup integrated authentication see " +
+                                                         FlywayDbWebsiteLinks.WINDOWS_AUTH, e);
                 } else if (e.getSQLState() == null && e.getMessage().contains("MSAL4J")) {
                     throw new FlywaySqlException("Unable to obtain connection from database"
-                            + getDataSourceInfo(dataSource) + ": " + e.getMessage() +
-                            "\nYou need to install some extra drivers in order for interactive authentication to work." +
-                            "\nFor instructions, see https://flywaydb.org/documentation/database/sqlserver#azure-active-directory", e);
+                                                         + getDataSourceInfo(dataSource) + ": " + e.getMessage() +
+                                                         "\nYou need to install some extra drivers in order for interactive authentication to work." +
+                                                         "\nFor instructions, see " + FlywayDbWebsiteLinks.AZURE_ACTIVE_DIRECTORY, e);
                 }
 
                 if (++retries > connectRetries) {
                     throw new FlywaySqlException("Unable to obtain connection from database"
-                            + getDataSourceInfo(dataSource) + ": " + e.getMessage(), e);
+                                                         + getDataSourceInfo(dataSource) + ": " + e.getMessage(), e);
                 }
                 Throwable rootCause = ExceptionUtils.getRootCause(e);
                 String msg = "Connection error: " + e.getMessage();
@@ -77,7 +76,7 @@ public class JdbcUtils {
                     Thread.sleep(backoffStrategy.next() * 1000);
                 } catch (InterruptedException e1) {
                     throw new FlywaySqlException("Unable to obtain connection from database"
-                            + getDataSourceInfo(dataSource) + ": " + e.getMessage(), e);
+                                                         + getDataSourceInfo(dataSource) + ": " + e.getMessage(), e);
                 }
             }
         }

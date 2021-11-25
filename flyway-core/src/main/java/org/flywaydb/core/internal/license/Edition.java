@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.license;
 
+import lombok.Getter;
+
+@Getter
 public enum Edition {
     COMMUNITY("Community"),
     PRO("Teams"),
@@ -28,10 +31,6 @@ public enum Edition {
 
     Edition(String name) {
         this.description = "Flyway " + name + " Edition";
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     @Override

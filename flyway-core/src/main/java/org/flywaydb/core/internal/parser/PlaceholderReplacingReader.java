@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,6 +85,21 @@ public class PlaceholderReplacingReader extends FilterReader {
                 reader);
     }
 
+    public static PlaceholderReplacingReader createForScriptMigration(Configuration configuration, ParsingContext parsingContext, Reader reader) {
+        Map<String, String> placeholders = new HashMap<>();
+        Map<String, String> configurationPlaceholders = configuration.getPlaceholders();
+        Map<String, String> parsingContextPlaceholders = parsingContext.getPlaceholders();
+
+        placeholders.putAll(configurationPlaceholders);
+        placeholders.putAll(parsingContextPlaceholders);
+
+        return new PlaceholderReplacingReader(
+                configuration.getScriptPlaceholderPrefix(),
+                configuration.getScriptPlaceholderSuffix(),
+                placeholders,
+                reader);
+    }
+
     @Override
     public int read() throws IOException {
         if (replacement == null) {
@@ -144,12 +159,12 @@ public class PlaceholderReplacingReader extends FilterReader {
 
                 if (placeholder.contains("flyway:")) {
                     throw new FlywayException("Failed to populate value for default placeholder: "
-                            + canonicalPlaceholder);
+                                                      + canonicalPlaceholder);
                 }
 
                 throw new FlywayException("No value provided for placeholder: "
-                        + canonicalPlaceholder
-                        + ".  Check your configuration!");
+                                                  + canonicalPlaceholder
+                                                  + ".  Check your configuration!");
             }
 
             // set the current placeholder replacement

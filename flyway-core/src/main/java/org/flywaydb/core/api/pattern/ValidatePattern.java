@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,17 @@
  */
 package org.flywaydb.core.api.pattern;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
+import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.util.Arrays;
 import java.util.List;
 
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ValidatePattern {
     private final String migrationType;
     private final String migrationState;
@@ -32,11 +37,6 @@ public class ValidatePattern {
             MigrationState.IGNORED.getDisplayName().toLowerCase(),
             MigrationState.FUTURE_SUCCESS.getDisplayName().toLowerCase());
 
-    private ValidatePattern(String migrationType, String migrationState) {
-        this.migrationType = migrationType;
-        this.migrationState = migrationState;
-    }
-
     public static ValidatePattern fromPattern(String pattern) {
         if (pattern == null) {
             throw new FlywayException("Null pattern not allowed.");
@@ -46,11 +46,18 @@ public class ValidatePattern {
 
         if (patternParts.length != 2) {
             throw new FlywayException("Invalid pattern '" + pattern + "'. Pattern must be of the form <migration_type>:<migration_state> " +
-                    "See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details");
+                                              "See " +
+                                              FlywayDbWebsiteLinks.IGNORE_MIGRATION_PATTERNS + " for full details");
         }
 
         String migrationType = patternParts[0].trim().toLowerCase();
         String migrationState = patternParts[1].trim().toLowerCase();
+
+
+        if (migrationType.equals("repeatable") || migrationType.equals("versioned")) {
+            throw new FlywayTeamsUpgradeRequiredException("ignoreMigrationPattern with type '" + migrationType + "'");
+        }
+
 
         if (!validMigrationTypes.contains(migrationType)) {
             throw new FlywayException("Invalid migration type '" + patternParts[0] + "'. Valid types are: " + validMigrationTypes);

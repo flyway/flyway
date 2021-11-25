@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,15 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.parser.Parser;
 
 import java.util.*;
 
+@CustomLog
 public class ParserSqlScript implements SqlScript {
-    private static final Log LOG = LogFactory.getLog(ParserSqlScript.class);
-
     /**
      * The sql statements contained in this script.
      */
@@ -56,9 +54,9 @@ public class ParserSqlScript implements SqlScript {
     /**
      * Creates a new sql script from this source.
      *
-     * @param resource         The sql script resource.
+     * @param resource The sql script resource.
      * @param metadataResource The sql script metadata resource.
-     * @param mixed            Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * @param mixed Whether to allow mixing transactional and non-transactional statements within the same migration.
      */
     public ParserSqlScript(Parser parser, LoadableResource resource, LoadableResource metadataResource, boolean mixed) {
         this.resource = resource;
@@ -109,7 +107,7 @@ public class ParserSqlScript implements SqlScript {
 
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
-                            + (sqlStatement.canExecuteInTransaction() ? "" : " [non-transactional]"));
+                                      + (sqlStatement.canExecuteInTransaction() ? "" : " [non-transactional]"));
                 }
             }
         }

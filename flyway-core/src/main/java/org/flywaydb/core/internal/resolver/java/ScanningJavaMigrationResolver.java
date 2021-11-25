@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver.java;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.Context;
@@ -32,6 +33,7 @@ import java.util.List;
  * Migration resolver for Java-based migrations. The classes must have a name like R__My_description, V1__Description
  * or V1_1_3__Description.
  */
+@RequiredArgsConstructor
 public class ScanningJavaMigrationResolver implements MigrationResolver {
     /**
      * The Scanner to use.
@@ -42,17 +44,6 @@ public class ScanningJavaMigrationResolver implements MigrationResolver {
      * The configuration to inject (if necessary) in the migration classes.
      */
     private final Configuration configuration;
-
-    /**
-     * Creates a new instance.
-     *
-     * @param classProvider The class provider.
-     * @param configuration The configuration to inject (if necessary) in the migration classes.
-     */
-    public ScanningJavaMigrationResolver(ClassProvider<JavaMigration> classProvider, Configuration configuration) {
-        this.classProvider = classProvider;
-        this.configuration = configuration;
-    }
 
     @Override
     public List<ResolvedMigration> resolveMigrations(Context context) {

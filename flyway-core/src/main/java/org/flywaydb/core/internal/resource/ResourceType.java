@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ public enum ResourceType {
 
 
 
+
     REPEATABLE_MIGRATION,
     CALLBACK;
 
@@ -27,10 +28,11 @@ public enum ResourceType {
      * Whether the given resource type represents a resource that is versioned.
      */
     public static boolean isVersioned(ResourceType type) {
-        return (type == ResourceType.MIGRATION
+        return type == ResourceType.MIGRATION
 
 
 
-            );
+
+                ;
     }
 }

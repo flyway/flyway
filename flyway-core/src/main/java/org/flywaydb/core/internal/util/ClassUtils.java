@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,12 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.AccessLevel;
+import lombok.CustomLog;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 
+import java.beans.Expression;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -30,25 +32,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-/**
- * Utility methods for dealing with classes.
- */
+@CustomLog
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClassUtils {
-    private static final Log LOG = LogFactory.getLog(ClassUtils.class);
-
-    /**
-     * Prevents instantiation.
-     */
-    private ClassUtils() {
-        // Do nothing
-    }
 
     /**
      * Creates a new instance of this class.
      *
-     * @param className   The fully qualified name of the class to instantiate.
+     * @param className The fully qualified name of the class to instantiate.
      * @param classLoader The ClassLoader to use.
-     * @param <T>         The type of the new instance.
+     * @param <T> The type of the new instance.
      * @return The new instance.
      * @throws FlywayException Thrown when the instantiation failed.
      */
@@ -62,11 +55,21 @@ public class ClassUtils {
         }
     }
 
+    @SuppressWarnings({"unchecked"})
+    // Must be synchronized for the Maven Parallel Junit runner to work
+    public static synchronized <T> T instantiate(String className, ClassLoader classLoader, Object... params) {
+        try {
+            return (T) new Expression(Class.forName(className, false, classLoader), "new", params).getValue();
+        } catch (Exception e) {
+            throw new FlywayException("Unable to instantiate class " + className + " : " + e.getMessage(), e);
+        }
+    }
+
     /**
      * Creates a new instance of this class.
      *
      * @param clazz The class to instantiate.
-     * @param <T>   The type of the new instance.
+     * @param <T> The type of the new instance.
      * @return The new instance.
      * @throws FlywayException Thrown when the instantiation failed.
      */
@@ -82,9 +85,9 @@ public class ClassUtils {
     /**
      * Instantiate all these classes.
      *
-     * @param classes     A fully qualified class names to instantiate.
+     * @param classes Fully qualified class names to instantiate.
      * @param classLoader The ClassLoader to use.
-     * @param <T>         The common type for all classes.
+     * @param <T> The common type for all classes.
      * @return The list of instances.
      */
     public static <T> List<T> instantiateAll(String[] classes, ClassLoader classLoader) {
@@ -102,7 +105,7 @@ public class ClassUtils {
      * and can be loaded. Will return {@code false} if either the class or
      * one of its dependencies is not present or cannot be loaded.
      *
-     * @param className   The name of the class to check.
+     * @param className The name of the class to check.
      * @param classLoader The ClassLoader to use.
      * @return whether the specified class is present
      */
@@ -139,8 +142,8 @@ public class ClassUtils {
      * Loads the class with this name using the class loader.
      *
      * @param implementedInterface The interface the class is expected to implement.
-     * @param className            The name of the class to load.
-     * @param classLoader          The ClassLoader to use.
+     * @param className The name of the class to load.
+     * @param classLoader The ClassLoader to use.
      * @return the newly loaded class or {@code null} if it could not be loaded.
      */
     public static <I> Class<? extends I> loadClass(Class<I> implementedInterface, String className, ClassLoader classLoader) {
@@ -185,7 +188,6 @@ public class ClassUtils {
     public static String getLocationOnDisk(Class<?> aClass) {
         ProtectionDomain protectionDomain = aClass.getProtectionDomain();
         if (protectionDomain == null) {
-            //Android
             return null;
         }
         CodeSource codeSource = protectionDomain.getCodeSource();
@@ -201,7 +203,7 @@ public class ClassUtils {
      * Adds these jars or directories to the classpath.
      *
      * @param classLoader The current ClassLoader.
-     * @param jarFiles    The jars or directories to add.
+     * @param jarFiles The jars or directories to add.
      * @return The new ClassLoader containing the additional jar or directory.
      */
     public static ClassLoader addJarsOrDirectoriesToClasspath(ClassLoader classLoader, List<File> jarFiles) {
@@ -221,9 +223,9 @@ public class ClassUtils {
     /**
      * Gets the String value of a static field.
      *
-     * @param className   The fully qualified name of the class to instantiate.
+     * @param className The fully qualified name of the class to instantiate.
      * @param classLoader The ClassLoader to use.
-     * @param fieldName   The field name
+     * @param fieldName The field name
      * @return The value of the field.
      * @throws FlywayException Thrown when the instantiation failed.
      */
@@ -231,7 +233,7 @@ public class ClassUtils {
         try {
             Class clazz = Class.forName(className, true, classLoader);
             Field field = clazz.getField(fieldName);
-            return (String)field.get(null);
+            return (String) field.get(null);
         } catch (Exception e) {
             throw new FlywayException("Unable to obtain field value " + className + "." + fieldName + " : " + e.getMessage(), e);
         }

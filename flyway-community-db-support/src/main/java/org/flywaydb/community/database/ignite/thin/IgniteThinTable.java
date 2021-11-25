@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.flywaydb.community.database.ignite.thin;
 
 import java.sql.SQLException;
 import java.util.UUID;
+
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -84,13 +85,13 @@ public class IgniteThinTable extends Table<IgniteThinDatabase, IgniteThinSchema>
         }
         // Check that there are no other locks in place. This should not happen!
         int competingLocksTaken = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + this + " WHERE " + database.quote("version") + " != '" + tableLockString + "' AND " +
-                database.quote("description") + " = 'flyway-lock'");
+                                                                   database.quote("description") + " = 'flyway-lock'");
         if (competingLocksTaken > 0) {
             throw new FlywayException("Internal error: on unlocking, a competing lock was found");
         }
         // Remove the locking row
-        jdbcTemplate.executeStatement("DELETE FROM " + this +  " WHERE " + database.quote("version") + " = '" + tableLockString + "' AND " +
-                database.quote("description") + " = 'flyway-lock'");
+        jdbcTemplate.executeStatement("DELETE FROM " + this + " WHERE " + database.quote("version") + " = '" + tableLockString + "' AND " +
+                                              database.quote("description") + " = 'flyway-lock'");
     }
 
     private boolean insertLockingRow() {

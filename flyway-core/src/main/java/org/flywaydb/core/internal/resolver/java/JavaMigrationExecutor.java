@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.resolver.java;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.executor.Context;
@@ -30,20 +32,12 @@ import java.sql.SQLException;
 /**
  * Adapter for executing migrations implementing JavaMigration.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class JavaMigrationExecutor implements MigrationExecutor {
     /**
      * The JavaMigration to execute.
      */
     private final JavaMigration javaMigration;
-
-    /**
-     * Creates a new JavaMigrationExecutor.
-     *
-     * @param javaMigration The JavaMigration to execute.
-     */
-    JavaMigrationExecutor(JavaMigration javaMigration) {
-        this.javaMigration = javaMigration;
-    }
 
     @Override
     public void execute(final Context context) throws SQLException {

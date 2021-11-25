@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,9 @@ public abstract class SchemaObject<D extends Database, S extends Schema> {
 
     /**
      * @param jdbcTemplate The JDBC template to access the DB.
-     * @param database     The database-specific support.
-     * @param schema       The schema the object lives in.
-     * @param name         The name of the object.
+     * @param database The database-specific support.
+     * @param schema The schema the object lives in.
+     * @param name The name of the object.
      */
     SchemaObject(JdbcTemplate jdbcTemplate, D database, S schema, String name) {
         this.name = name;

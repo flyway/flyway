@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,8 +83,8 @@ public class ResourceNameParser {
 
             String description = splitName.getRight().replace("_", " ");
             return new ResourceName(prefixResult.getLeft(), splitName.getLeft(),
-                    configuration.getSqlMigrationSeparator(), description, splitName.getRight(), suffixResult.getRight(),
-                    isValid, validationMessage);
+                                    configuration.getSqlMigrationSeparator(), description, splitName.getRight(), suffixResult.getRight(),
+                                    isValid, validationMessage);
         }
 
         // Didn't match any prefix
@@ -92,7 +92,7 @@ public class ResourceNameParser {
     }
 
     private Pair<String, ResourceType> findPrefix(String nameWithoutSuffix, List<Pair<String, ResourceType>> prefixes) {
-        for (Pair<String, ResourceType> prefix: prefixes) {
+        for (Pair<String, ResourceType> prefix : prefixes) {
             if (nameWithoutSuffix.startsWith(prefix.getLeft())) {
                 return prefix;
             }
@@ -120,7 +120,7 @@ public class ResourceNameParser {
         int separatorIndex = name.indexOf(separator);
         if (separatorIndex >= 0) {
             return Pair.of(name.substring(0, separatorIndex),
-                    name.substring(separatorIndex + separator.length()));
+                           name.substring(separatorIndex + separator.length()));
         } else {
             return Pair.of(name, "");
         }
@@ -130,6 +130,7 @@ public class ResourceNameParser {
         List<Pair<String, ResourceType>> prefixes = new ArrayList<>();
 
         prefixes.add(Pair.of(configuration.getSqlMigrationPrefix(), ResourceType.MIGRATION));
+
 
 
 

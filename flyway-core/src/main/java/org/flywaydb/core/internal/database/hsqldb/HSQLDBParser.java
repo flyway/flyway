@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,11 @@ public class HSQLDBParser extends Parser {
      * List of objects which can be dropped with IF EXISTS
      */
     private static final List<String> CONDITIONALLY_CREATABLE_OBJECTS = Arrays.asList(
-            "COLUMN", "CONSTRAINT", "INDEX", "PROCEDURE", "SCHEMA", "SEQUENCE", "TABLE", "VIEW"
-    );
+            "COLUMN", "CONSTRAINT", "FUNCTION", "INDEX", "PROCEDURE", "SCHEMA", "SEQUENCE", "TABLE", "VIEW"
+                                                                                     );
 
     public HSQLDBParser(Configuration configuration, ParsingContext parsingContext) {
-        super(configuration, parsingContext,2);
+        super(configuration, parsingContext, 2);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class HSQLDBParser extends Parser {
                 "VALUE", "VALUES", "VAR_POP", "VAR_SAMP", "VARBINARY", "VARCHAR", "VARYING", "VIEW",
                 "WHEN", "WHENEVER", "WHERE", "WIDTH_BUCKET", "WINDOW", "WITH", "WITHIN", "WITHOUT", "WHILE",
                 "YEAR"
-        ));
+                                          ));
     }
 
     @Override
@@ -92,7 +92,8 @@ public class HSQLDBParser extends Parser {
                 || ((("IF".equalsIgnoreCase(keywordText) && !CONDITIONALLY_CREATABLE_OBJECTS.contains(previousKeywordText))  // excludes the IF in eg. CREATE TABLE IF EXISTS
                 || "FOR".equalsIgnoreCase(keywordText)
                 || "CASE".equalsIgnoreCase(keywordText))
-                && previousKeyword != null && !"END".equalsIgnoreCase(previousKeywordText))) {
+                && previousKeyword != null && !"END".equalsIgnoreCase(previousKeywordText)
+                && !"CURSOR".equalsIgnoreCase(previousKeywordText))) {  // DECLARE CURSOR FOR SELECT ... has no END
             context.increaseBlockDepth(keywordText);
         } else if (("EACH".equalsIgnoreCase(keywordText) || "SQLEXCEPTION".equalsIgnoreCase(keywordText))
                 && previousKeyword != null && "FOR".equalsIgnoreCase(previousKeywordText) && context.getBlockDepth() > 0) {

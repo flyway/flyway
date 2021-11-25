@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class ClasspathClassScanner {
 
     public List<String> scanForType(String location, Class<?> classType, boolean errorOnNotFound) {
         ClassPathScanner<?> s = new ClassPathScanner<>(classType, classLoader, Charset.defaultCharset(), new Location("classpath:" + location),
-                resourceNameCache, locationScannerCache, errorOnNotFound);
+                                                       resourceNameCache, locationScannerCache, errorOnNotFound);
 
         List<String> discoveredTypes = new ArrayList<>();
         for (LoadableResource resource : s.scanForResources()) {

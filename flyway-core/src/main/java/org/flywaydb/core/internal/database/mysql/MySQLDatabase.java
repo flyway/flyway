@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Table;
@@ -34,36 +33,25 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * MySQL database.
- */
+@CustomLog
 public class MySQLDatabase extends Database<MySQLConnection> {
     // See https://mariadb.com/kb/en/version/
     private static final Pattern MARIADB_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+(-\\d+)*-MariaDB(-\\w+)*");
     private static final Pattern MARIADB_WITH_MAXSCALE_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+(-\\d+)* (\\d+\\.\\d+)\\.\\d+(-\\d+)*-maxscale(-\\w+)*");
     private static final Pattern MYSQL_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+)\\.\\d+\\w*");
-    private static final Log LOG = LogFactory.getLog(MySQLDatabase.class);
-
     /**
      * Whether this is a Percona XtraDB Cluster in strict mode.
      */
     private final boolean pxcStrict;
-
     /**
      * Whether this database is enforcing GTID consistency.
      */
     private final boolean gtidConsistencyEnforced;
-
     /**
      * Whether the event scheduler table is queryable.
      */
     final boolean eventSchedulerQueryable;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public MySQLDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
 
@@ -100,7 +88,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         return false;
     }
 
-   static boolean isRunningInGTIDConsistencyMode(JdbcTemplate jdbcTemplate) {
+    static boolean isRunningInGTIDConsistencyMode(JdbcTemplate jdbcTemplate) {
         try {
             String gtidConsistency = jdbcTemplate.queryForString("SELECT @@GLOBAL.ENFORCE_GTID_CONSISTENCY");
             if ("ON".equals(gtidConsistency)) {
@@ -127,12 +115,13 @@ public class MySQLDatabase extends Database<MySQLConnection> {
     }
 
     /*
-     * CREATE TABLE ... AS SELECT ... cannot be used in two scenarios:
+     * CREATE TABLE ... AS SELECT ... cannot be used in three scenarios:
      * - Percona XtraDB Cluster in strict mode doesn't support it
+     * - TiDB doesn't support it (overridden elsewhere)
      * - When GTID consistency is being enforced. Note that if GTID_MODE is ON, then ENFORCE_GTID_CONSISTENCY is
      * necessarily ON as well.
      */
-    private boolean isCreateTableAsSelectAllowed() {
+    protected boolean isCreateTableAsSelectAllowed() {
         return !pxcStrict && !gtidConsistencyEnforced;
     }
 
@@ -246,20 +235,21 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
 
 
+
+
+
+
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("5.1");
         if (databaseType instanceof MariaDBDatabaseType) {
 
-            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.1", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.3", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-
-            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.2", org.flywaydb.core.internal.license.Edition.PRO);
-
-            recommendFlywayUpgradeIfNecessary("10.5");
+            recommendFlywayUpgradeIfNecessary("10.6");
         } else {
 
-            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("5.7", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("8.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
             recommendFlywayUpgradeIfNecessary("8.0");
         }

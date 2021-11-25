@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
@@ -28,12 +27,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
-/**
- * MySQL connection.
- */
+@CustomLog
 public class MySQLConnection extends Connection<MySQLDatabase> {
-    private static final Log LOG = LogFactory.getLog(MySQLConnection.class);
-
     private static final String USER_VARIABLES_TABLE_MARIADB = "information_schema.user_variables";
     private static final String USER_VARIABLES_TABLE_MYSQL = "performance_schema.user_variables_by_thread";
     private static final String FOREIGN_KEY_CHECKS = "foreign_key_checks";
@@ -45,7 +40,7 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
     private final int originalForeignKeyChecks;
     private final int originalSqlSafeUpdates;
 
-    MySQLConnection(MySQLDatabase database, java.sql.Connection connection) {
+    public MySQLConnection(MySQLDatabase database, java.sql.Connection connection) {
         super(database, connection);
 
         userVariablesQuery = "SELECT variable_name FROM "
@@ -78,15 +73,13 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
 
 
-
-
         try {
             jdbcTemplate.queryForStringList(userVariablesQuery);
             return true;
         } catch (SQLException e) {
             LOG.debug("Disabled user variable reset as "
-                    + (database.isMariaDB() ? USER_VARIABLES_TABLE_MARIADB : USER_VARIABLES_TABLE_MYSQL)
-                    + "cannot be queried (SQL State: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
+                              + (database.isMariaDB() ? USER_VARIABLES_TABLE_MARIADB : USER_VARIABLES_TABLE_MYSQL)
+                              + "cannot be queried (SQL State: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
             return false;
         }
     }
@@ -95,7 +88,7 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
     protected void doRestoreOriginalState() throws SQLException {
         resetUserVariables();
         jdbcTemplate.execute("SET " + FOREIGN_KEY_CHECKS + "=?, " + SQL_SAFE_UPDATES + "=?",
-                originalForeignKeyChecks, originalSqlSafeUpdates);
+                             originalForeignKeyChecks, originalSqlSafeUpdates);
     }
 
     // #2197: prevent user-defined variables from leaking beyond the scope of a migration
@@ -155,9 +148,13 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
 
     @Override
     public <T> T lock(Table table, Callable<T> callable) {
-        if (database.isPxcStrict()) {
-            return super.lock(table, callable);
+        if (canUseNamedLockTemplate()) {
+            return new MySQLNamedLockTemplate(jdbcTemplate, table.toString().hashCode()).execute(callable);
         }
-        return new MySQLNamedLockTemplate(jdbcTemplate, table.toString().hashCode()).execute(callable);
+        return super.lock(table, callable);
+    }
+
+    protected boolean canUseNamedLockTemplate() {
+        return !database.isPxcStrict();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,20 +63,20 @@ public class MySQLParser extends Parser {
     protected boolean isSingleLineComment(String peek, ParserContext context, int col) {
         return (super.isSingleLineComment(peek, context, col)
                 // Normally MySQL treats # as a comment, but this may have been overridden by DELIMITER # directive
-                || (peek.charAt(0) == ALTERNATIVE_SINGLE_LINE_COMMENT && !isDelimiter(peek, context, col)));
+                || (peek.charAt(0) == ALTERNATIVE_SINGLE_LINE_COMMENT && !isDelimiter(peek, context, col, 0)));
     }
 
     @Override
     protected Token handleStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
         reader.swallow();
-        reader.swallowUntilExcludingWithEscape('\'', true, '\\');
+        reader.swallowUntilIncludingWithEscape('\'', true, '\\');
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 
     @Override
     protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
         reader.swallow();
-        reader.swallowUntilExcludingWithEscape('"', true, '\\');
+        reader.swallowUntilIncludingWithEscape('"', true, '\\');
         return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 
@@ -102,12 +102,12 @@ public class MySQLParser extends Parser {
     }
 
     @Override
-    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context) {
+    protected StatementType detectStatementType(String simplifiedStatement, ParserContext context, PeekingReader reader) {
         if (STORED_PROGRAM_REGEX.matcher(simplifiedStatement).matches()) {
             return STORED_PROGRAM_STATEMENT;
         }
 
-        return super.detectStatementType(simplifiedStatement, context);
+        return super.detectStatementType(simplifiedStatement, context, reader);
     }
 
     @Override
@@ -128,13 +128,13 @@ public class MySQLParser extends Parser {
     }
 
     private boolean doesDelimiterEndFunction(List<Token> tokens, Token delimiter) {
-        // if there's not enough tokens, its not the function
+        // if there's not enough tokens, it's not the function
         if (tokens.size() < 2) {
             return false;
         }
 
         // if the previous keyword was not inside some brackets, it's not the function
-        if (tokens.get(tokens.size()-1).getParensDepth() != delimiter.getParensDepth()+1) {
+        if (tokens.get(tokens.size() - 1).getParensDepth() != delimiter.getParensDepth() + 1) {
             return false;
         }
 
@@ -154,13 +154,13 @@ public class MySQLParser extends Parser {
         int parensDepth = keyword.getParensDepth();
 
         if ("BEGIN".equalsIgnoreCase(keywordText) && context.getStatementType() == STORED_PROGRAM_STATEMENT) {
-            context.increaseBlockDepth("");
+            context.increaseBlockDepth(Integer.toString(parensDepth));
         }
 
         if (context.getBlockDepth() > 0 && lastTokenIs(tokens, parensDepth, "END") &&
                 !"IF".equalsIgnoreCase(keywordText) && !"LOOP".equalsIgnoreCase(keywordText)) {
             String initiator = context.getBlockInitiator();
-            if (initiator.equals("") || initiator.equals(keywordText) || "AS".equalsIgnoreCase(keywordText)) {
+            if (initiator.equals("") || initiator.equals(keywordText) || "AS".equalsIgnoreCase(keywordText) || initiator.equals(Integer.toString(parensDepth))) {
                 context.decreaseBlockDepth();
             }
         }

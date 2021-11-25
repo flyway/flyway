@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,10 +35,10 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable
      * Creates a new PostgreSQL schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
+     * @param database The database-specific support.
+     * @param name The name of the schema.
      */
-    PostgreSQLSchema(JdbcTemplate jdbcTemplate, PostgreSQLDatabase database, String name) {
+    protected PostgreSQLSchema(JdbcTemplate jdbcTemplate, PostgreSQLDatabase database, String name) {
         super(jdbcTemplate, database, name);
     }
 
@@ -50,21 +50,21 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable
     @Override
     protected boolean doEmpty() throws SQLException {
         return !jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
-                "    SELECT c.oid FROM pg_catalog.pg_class c\n" +
-                "    JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
-                "    LEFT JOIN pg_catalog.pg_depend d ON d.objid = c.oid AND d.deptype = 'e'\n" +
-                "    WHERE  n.nspname = ? AND d.objid IS NULL AND c.relkind IN ('r', 'v', 'S', 't')\n" +
-                "  UNION ALL\n" +
-                "    SELECT t.oid FROM pg_catalog.pg_type t\n" +
-                "    JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace\n" +
-                "    LEFT JOIN pg_catalog.pg_depend d ON d.objid = t.oid AND d.deptype = 'e'\n" +
-                "    WHERE n.nspname = ? AND d.objid IS NULL AND t.typcategory NOT IN ('A', 'C')\n" +
-                "  UNION ALL\n" +
-                "    SELECT p.oid FROM pg_catalog.pg_proc p\n" +
-                "    JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace\n" +
-                "    LEFT JOIN pg_catalog.pg_depend d ON d.objid = p.oid AND d.deptype = 'e'\n" +
-                "    WHERE n.nspname = ? AND d.objid IS NULL\n" +
-                ")", name, name, name);
+                                                     "    SELECT c.oid FROM pg_catalog.pg_class c\n" +
+                                                     "    JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
+                                                     "    LEFT JOIN pg_catalog.pg_depend d ON d.objid = c.oid AND d.deptype = 'e'\n" +
+                                                     "    WHERE  n.nspname = ? AND d.objid IS NULL AND c.relkind IN ('r', 'v', 'S', 't')\n" +
+                                                     "  UNION ALL\n" +
+                                                     "    SELECT t.oid FROM pg_catalog.pg_type t\n" +
+                                                     "    JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace\n" +
+                                                     "    LEFT JOIN pg_catalog.pg_depend d ON d.objid = t.oid AND d.deptype = 'e'\n" +
+                                                     "    WHERE n.nspname = ? AND d.objid IS NULL AND t.typcategory NOT IN ('A', 'C')\n" +
+                                                     "  UNION ALL\n" +
+                                                     "    SELECT p.oid FROM pg_catalog.pg_proc p\n" +
+                                                     "    JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace\n" +
+                                                     "    LEFT JOIN pg_catalog.pg_depend d ON d.objid = p.oid AND d.deptype = 'e'\n" +
+                                                     "    WHERE n.nspname = ? AND d.objid IS NULL\n" +
+                                                     ")", name, name, name);
     }
 
     @Override
@@ -139,10 +139,10 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable
             List<String> extensionNames =
                     jdbcTemplate.queryForStringList(
                             "SELECT e.extname " +
-                                  "FROM pg_extension e " +
-                                  "LEFT JOIN pg_namespace n ON n.oid = e.extnamespace " +
-                                  "LEFT JOIN pg_roles r ON r.oid = e.extowner " +
-                                  "WHERE n.nspname=? AND r.rolname=?", name, database.doGetCurrentUser());
+                                    "FROM pg_extension e " +
+                                    "LEFT JOIN pg_namespace n ON n.oid = e.extnamespace " +
+                                    "LEFT JOIN pg_roles r ON r.oid = e.extowner " +
+                                    "WHERE n.nspname=? AND r.rolname=?", name, database.doGetCurrentUser());
 
             for (String extensionName : extensionNames) {
                 statements.add("DROP EXTENSION IF EXISTS " + database.quote(extensionName) + " CASCADE");
@@ -154,10 +154,10 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable
 
     private boolean extensionsTableExists() throws SQLException {
         return jdbcTemplate.queryForBoolean(
-                        "SELECT EXISTS ( \n" +
-                              "SELECT 1 \n" +
-                              "FROM pg_tables \n" +
-                              "WHERE tablename = 'pg_extension');");
+                "SELECT EXISTS ( \n" +
+                        "SELECT 1 \n" +
+                        "FROM pg_tables \n" +
+                        "WHERE tablename = 'pg_extension');");
     }
 
     /**
@@ -236,7 +236,7 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable
                                 + "LEFT JOIN pg_depend dep ON dep.objid = pg_proc.oid AND dep.deptype = 'e' "
                                 + "WHERE ns.nspname = ? AND dep.objid IS NULL",
                         name
-                );
+                                         );
 
         List<String> statements = new ArrayList<>();
         for (Map<String, String> row : rows) {
@@ -247,7 +247,7 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable
                 type = "PROCEDURE";
             }
             statements.add("DROP " + type + " IF EXISTS "
-                    + database.quote(name, row.get("proname")) + "(" + row.get("args") + ") CASCADE");
+                                   + database.quote(name, row.get("proname")) + "(" + row.get("args") + ") CASCADE");
         }
         return statements;
     }
@@ -362,7 +362,7 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDatabase, PostgreSQLTable
                                 " AND NOT (SELECT EXISTS (SELECT inhrelid FROM pg_catalog.pg_inherits" +
                                 " WHERE inhrelid = (quote_ident(t.table_schema)||'.'||quote_ident(t.table_name))::regclass::oid))",
                         name
-                );
+                                               );
         //Views and child tables are excluded as they are dropped with the parent table when using cascade.
 
         PostgreSQLTable[] tables = new PostgreSQLTable[tableNames.size()];

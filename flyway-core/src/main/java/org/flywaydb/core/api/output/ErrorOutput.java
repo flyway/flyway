@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,11 @@
  */
 package org.flywaydb.core.api.output;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.command.DbMigrate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -24,16 +27,12 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 public class ErrorOutput implements OperationResult {
+
+    @AllArgsConstructor(access = AccessLevel.PACKAGE)
     public static class ErrorOutputItem {
         public ErrorCode errorCode;
         public String message;
         public String stackTrace;
-
-        ErrorOutputItem(ErrorCode errorCode, String message, String stackTrace) {
-            this.errorCode = errorCode;
-            this.message = message;
-            this.stackTrace = stackTrace;
-        }
     }
 
     public ErrorOutputItem error;
@@ -46,7 +45,7 @@ public class ErrorOutput implements OperationResult {
         String message = exception.getMessage();
 
         if (exception instanceof FlywayException) {
-            FlywayException flywayException = (FlywayException)exception;
+            FlywayException flywayException = (FlywayException) exception;
 
             return new ErrorOutput(
                     flywayException.getErrorCode(),
@@ -58,6 +57,10 @@ public class ErrorOutput implements OperationResult {
                 ErrorCode.FAULT,
                 message == null ? "Fault occurred" : message,
                 getStackTrace(exception));
+    }
+
+    public static MigrateErrorResult fromMigrateException(DbMigrate.FlywayMigrateException exception) {
+        return exception.getErrorResult();
     }
 
     private static String getStackTrace(Exception exception) {

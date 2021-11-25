@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,13 +52,15 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
 
 
 
+
+
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("1.8");
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("2.4", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("2.5");
+        recommendFlywayUpgradeIfNecessary("2.6");
     }
 
     @Override

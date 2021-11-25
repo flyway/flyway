@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.command;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.callback.Event;
@@ -28,6 +29,7 @@ import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 
 import java.util.Arrays;
 
+@RequiredArgsConstructor
 public class DbInfo {
     private final MigrationResolver migrationResolver;
     private final SchemaHistory schemaHistory;
@@ -36,17 +38,6 @@ public class DbInfo {
     private final CallbackExecutor callbackExecutor;
     private final Schema[] schemas;
 
-    public DbInfo(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                  Configuration configuration, Database database, CallbackExecutor callbackExecutor, Schema[] schemas) {
-
-        this.migrationResolver = migrationResolver;
-        this.schemaHistory = schemaHistory;
-        this.configuration = configuration;
-        this.database = database;
-        this.callbackExecutor = callbackExecutor;
-        this.schemas = schemas;
-    }
-
     public MigrationInfoService info() {
         callbackExecutor.onEvent(Event.BEFORE_INFO);
 
@@ -54,8 +45,8 @@ public class DbInfo {
         try {
             migrationInfoService =
                     new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
-                            configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
-                            true, true, true, true);
+                                                 configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
+                                                 true, true, true, true);
             migrationInfoService.refresh();
             migrationInfoService.setAllSchemasEmpty(schemas);
         } catch (FlywayException e) {

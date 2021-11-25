@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.*;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
@@ -38,7 +36,6 @@ import java.util.concurrent.Callable;
  * Executes the callbacks for a specific event.
  */
 public class DefaultCallbackExecutor implements CallbackExecutor {
-    private static final Log LOG = LogFactory.getLog(DefaultCallbackExecutor.class);
 
     private final Configuration configuration;
     private final Database database;
@@ -50,9 +47,9 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
      * Creates a new callback executor.
      *
      * @param configuration The configuration.
-     * @param database      The database.
-     * @param schema        The current schema to use for the connection.
-     * @param callbacks     The callbacks to execute.
+     * @param database The database.
+     * @param schema The current schema to use for the connection.
+     * @param callbacks The callbacks to execute.
      */
     public DefaultCallbackExecutor(Configuration configuration, Database database, Schema schema, Collection<Callback> callbacks) {
         this.configuration = configuration;

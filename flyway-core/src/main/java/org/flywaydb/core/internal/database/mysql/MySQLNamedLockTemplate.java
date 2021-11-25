@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.database.mysql;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
@@ -27,9 +26,8 @@ import java.util.concurrent.Callable;
 /**
  * Spring-like template for executing with MySQL named locks.
  */
+@CustomLog
 public class MySQLNamedLockTemplate {
-    private static final Log LOG = LogFactory.getLog(MySQLNamedLockTemplate.class);
-
     /**
      * The connection for the named lock.
      */
@@ -40,7 +38,7 @@ public class MySQLNamedLockTemplate {
     /**
      * Creates a new named lock template for this connection.
      *
-     * @param jdbcTemplate  The jdbcTemplate for the connection.
+     * @param jdbcTemplate The jdbcTemplate for the connection.
      * @param discriminator A number to discriminate between locks.
      */
     MySQLNamedLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {

@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,33 +15,21 @@
  */
 package org.flywaydb.core.internal.logging.log4j2;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.Logger;
 import org.flywaydb.core.api.logging.Log;
 
-/**
- * Wrapper for a Log4j v2 logger.
- */
+@RequiredArgsConstructor
 public class Log4j2Log implements Log {
-    /**
-     * Log4j2 Logger.
-     */
-    private final Logger logger;
 
-    /**
-     * Creates a new wrapper around this logger.
-     *
-     * @param logger The original Slf4j Logger.
-     */
-    public Log4j2Log(Logger logger) {
-        this.logger = logger;
-    }
+    private final Logger logger;
 
     @Override
     public boolean isDebugEnabled() {
         return logger.isDebugEnabled();
     }
 
-    public void debug(String message) { logger.debug(message); }
+    public void debug(String message) {logger.debug(message);}
 
     public void info(String message) {
         logger.info(message);
@@ -51,9 +39,11 @@ public class Log4j2Log implements Log {
         logger.warn(message);
     }
 
-    public void error(String message) { logger.error(message); }
+    public void error(String message) {logger.error(message);}
 
     public void error(String message, Exception e) {
         logger.error(message, e);
     }
+
+    public void notice(String message) {}
 }

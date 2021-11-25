@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,10 +87,9 @@ public abstract class Connection<D extends Database> implements Closeable {
 
     /**
      * @param schemaNameOrSearchPath The new current schema for this connection.
-     *
      * @throws SQLException when the current schema could not be set.
      */
-    protected void doChangeCurrentSchemaOrSearchPathTo(String schemaNameOrSearchPath) throws SQLException { }
+    protected void doChangeCurrentSchemaOrSearchPathTo(String schemaNameOrSearchPath) throws SQLException {}
 
     /**
      * Locks this table and executes this callable.
@@ -142,7 +141,7 @@ public abstract class Connection<D extends Database> implements Closeable {
         }
     }
 
-    protected void doRestoreOriginalState() throws SQLException { }
+    protected void doRestoreOriginalState() throws SQLException {}
 
     public final java.sql.Connection getJdbcConnection() {
         return jdbcConnection;

@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,14 +33,15 @@ import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.logging.EvolvingLog;
+import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.File;
 import java.util.*;
 
-import static org.flywaydb.core.internal.configuration.ConfigUtils.putArrayIfSet;
-import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.*;
 
 /**
  * Common base class for all mojos with all common attributes.
@@ -95,11 +96,21 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * The maximum number of retries when attempting to connect to the database. After each failed attempt, Flyway will
      * wait 1 second before attempting to connect again, up to the maximum number of times specified by connectRetries.
+     * The interval between retries doubles with each subsequent attempt.
      * (default: 0)
      * <p>Also configurable with Maven or System Property: ${flyway.connectRetries}</p>
      */
     @Parameter(property = ConfigUtils.CONNECT_RETRIES)
     private int connectRetries;
+
+    /**
+     * The maximum time between retries when attempting to connect to the database in seconds. This will cap the interval
+     * between connect retry to the value provided.
+     * (default: 120)
+     * <p>Also configurable with Maven or System Property: ${flyway.connectRetriesInterval}</p>
+     */
+    @Parameter(property = ConfigUtils.CONNECT_RETRIES_INTERVAL)
+    private int connectRetriesInterval;
 
     /**
      * The SQL statements to run to initialize a new database connection immediately after opening it. (default: {@code null})
@@ -110,8 +121,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * The default schema managed by Flyway. This schema name is case-sensitive. If not specified, but <i>schemas</i>
-     * is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default schema
-     * for the database connection.
+     * is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default schema for the
+     * database connection.
      * <p>Consequences:</p>
      * <ul>
      * <li>This schema will be the one containing the schema history table.</li>
@@ -139,9 +150,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
-     * By default (single-schema mode) the schema history table is placed in the default schema for the connection
-     * provided by the datasource. When the {@code flyway.schemas} property is set (multi-schema mode), the
-     * schema history table is placed in the first schema of the list.
+     * By default, (single-schema mode) the schema history table is placed in the default schema for the connection provided by the datasource.
+     * When the {@code flyway.schemas} property is set (multi-schema mode), the schema history table is placed in the first schema of the list,
+     * or in the schema specified to {@code flyway.defaultSchema}.
      * <p>Also configurable with Maven or System Property: ${flyway.table}</p>
      */
     @Parameter(property = ConfigUtils.TABLE)
@@ -208,6 +219,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String encoding;
 
     /**
+     * Whether Flyway should try to automatically detect SQL migration file encoding
+     * <i>Flyway Teams only</i>
+     * <p>Also configurable with Maven or System Property: ${flyway.detectEncoding}</p>
+     */
+    @Parameter
+    private Boolean detectEncoding;
+
+    /**
      * The maximum number of retries when trying to obtain a lock. (default: 50)
      * <p>Also configurable with Maven or System Property: ${flyway.lockRetryCount}</p>
      */
@@ -222,6 +241,16 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     @Parameter(property = ConfigUtils.SQL_MIGRATION_PREFIX)
     private String sqlMigrationPrefix;
+
+    /**
+     * The file name prefix for baseline migrations. (default: B)
+     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
+     * which using the defaults translates to B1.1__My_description.sql
+     * <p>Also configurable with Maven or System Property: ${flyway.baselineMigrationPrefix}</p>
+     * <i>Flyway Teams only</i>
+     */
+    @Parameter(property = ConfigUtils.BASELINE_MIGRATION_PREFIX)
+    private String baselineMigrationPrefix;
 
     /**
      * The file name prefix for undo SQL migrations. (default: U)
@@ -285,11 +314,17 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * The target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored. 
+     * Migrations with a higher version number will be ignored.
      * Special values:
      * <ul>
-     * <li>{@code current}: designates the current version of the schema</li>
-     * <li>{@code latest}: the latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code current}: Designates the current version of the schema</li>
+     * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
+     * <li>{@code next}: The next version of the schema, as defined by the first pending migration</li>
+     * <li>
+     *     &lt;version&gt;? (end with a '?'): Instructs Flyway not to fail if the target version doesn't exist.
+     *     In this case, Flyway will go up to but not beyond the specified target
+     *     (default: fail if the target version doesn't exist) <i>Flyway Teams only</i>
+     * </li>
      * </ul>
      * Defaults to {@code latest}.
      * <p>Also configurable with Maven or System Property: ${flyway.target}</p>
@@ -305,6 +340,22 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     @Parameter
     private String[] cherryPick;
+
+    /**
+     * The loggers Flyway should use. Valid options are:
+     *
+     * <ul>
+     *     <li>auto: Auto detect the logger (default behavior)</li>
+     *     <li>console: Use stdout/stderr (only available when using the CLI)</li>
+     *     <li>slf4j2: Use the slf4j2 logger</li>
+     *     <li>log4j2: Use the log4j2 logger</li>
+     *     <li>apache-commons: Use the Apache Commons logger</li>
+     * </ul>
+     *
+     * Alternatively you can provide the fully qualified class name for any other logger to use that.
+     */
+    @Parameter
+    private String[] loggers;
 
     /**
      * Allows migrations to be run "out of order" (default: {@code false}).
@@ -334,6 +385,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean outputQueryResults;
 
     /**
+     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
+     *
      * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
      * older deployment of the application that are no longer available in this version. For example: we have migrations
      * available on the classpath with versions 1.0 and 3.0. The schema history table indicates that a migration with version 2.0
@@ -348,6 +401,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean ignoreMissingMigrations;
 
     /**
+     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
+     *
      * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
      * already migrated migrations in this version. For example: we have migrations available on the classpath with
      * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
@@ -362,6 +417,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean ignoreIgnoredMigrations;
 
     /**
+     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
+     *
      * Ignore pending migrations when reading the schema history table. These are migrations that are available
      * but have not yet been applied. This can be useful for verifying that in-development migration changes
      * don't contain any validation-breaking changes of migrations that have already been applied to a production
@@ -373,6 +430,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean ignorePendingMigrations;
 
     /**
+     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
+     *
      * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
@@ -438,6 +497,18 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     @Parameter(property = ConfigUtils.PLACEHOLDER_SUFFIX)
     private String placeholderSuffix;
+
+    /**
+     * The prefix of every script placeholder. (default: FP__ )
+     */
+    @Parameter(property = ConfigUtils.SCRIPT_PLACEHOLDER_PREFIX)
+    private String scriptPlaceholderPrefix;
+
+    /**
+     * The suffix of every script placeholder. (default: __ )
+     */
+    @Parameter(property = ConfigUtils.SCRIPT_PLACEHOLDER_SUFFIX)
+    private String scriptPlaceholderSuffix;
 
     /**
      * An array of FlywayCallback implementations. (default: empty )
@@ -595,6 +666,22 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean oracleSqlplusWarn;
 
     /**
+     * The location of your Oracle wallet, used to automatically sign in to your databases.
+     *
+     * <i>Flyway Teams only</i>
+     * <p>Also configurable with Maven or System Property: ${flyway.oracle.walletLocation}</p>
+     */
+    @Parameter(property = ConfigUtils.ORACLE_WALLET_LOCATION)
+    private String oracleWalletLocation;
+
+    /**
+     * When connecting to a Kerberos service to authenticate, the path to the Kerberos config file.
+     * <i>Flyway Teams only</i>
+     */
+    @Parameter(property = ConfigUtils.KERBEROS_CONFIG_FILE)
+    private String kerberosConfigFile;
+
+    /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
      * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
      * to try out Flyway Teams Edition features free for 30 days.
@@ -638,35 +725,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String workingDirectory;
 
     /**
-     * The REST API URL of your Vault server, including the API version.
-     * Currently only supports API version v1.
-     * Example: http://localhost:8200/v1/
+     * Whether to fail if a location specified in the flyway.locations option doesn't exist
      *
-     * <i>Flyway Teams only</i>
+     * @return @{code true} to fail (default: {@code false})
      */
-    @Parameter(property = ConfigUtils.VAULT_URL)
-    public String vaultUrl;
-    /**
-     * The Vault token required to access your secrets.
-     *
-     * <i>Flyway Teams only</i>
-     */
-    @Parameter(property = ConfigUtils.VAULT_TOKEN)
-    public String vaultToken;
-    /**
-     * A comma-separated list of paths to secrets in Vault that contain Flyway configurations. This
-     * must start with the name of the engine and end with the name of the secret.
-     * The resulting form is '{engine_name}/{path}/{to}/{secret_name}'.
-     *
-     * If multiple secrets specify the same configuration parameter, then the last
-     * secret takes precedence.
-     *
-     * Example: secret/data/flyway/flywayConfig
-     *
-     * <i>Flyway Teams only</i>
-     */
-    @Parameter
-    public String[] vaultSecrets;
+    @Parameter(property = ConfigUtils.FAIL_ON_MISSING_LOCATIONS)
+    public Boolean failOnMissingLocations;
 
     /**
      * The id of the server tag in settings.xml (default: flyway-db)
@@ -681,6 +745,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "${settings}", readonly = true)
     protected Settings settings;
+
+    /**
+     * The configuration for plugins
+     * You will need to configure this with the key and value specific to your plugin
+     */
+    @Parameter
+    private Map<String, String> pluginConfiguration;
 
     /**
      * Reference to the current project that includes the Flyway Maven plugin.
@@ -731,15 +802,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     }
 
     public final void execute() throws MojoExecutionException {
-        LogFactory.setLogCreator(new MavenLogCreator(this));
+        LogFactory.setFallbackLogCreator(new MavenLogCreator(this));
         log = LogFactory.getLog(getClass());
 
-        if (getBooleanProperty(CONFIG_SKIP, skip)) {
-            log.info("Skipping Flyway execution");
-            return;
-        }
-
         try {
+            if (getBooleanProperty(CONFIG_SKIP, skip)) {
+                log.info("Skipping Flyway execution");
+                return;
+            }
+
             Set<String> classpathElements = new HashSet<>();
             classpathElements.addAll(mavenProject.getCompileClasspathElements());
             classpathElements.addAll(mavenProject.getRuntimeClasspathElements());
@@ -762,7 +833,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                     }
                 }
             } else {
-                locations = new String[]{
+                locations = new String[] {
                         Location.FILESYSTEM_PREFIX + workDir.getAbsolutePath() + "/src/main/resources/db/migration"
                 };
             }
@@ -778,6 +849,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.USER, user);
             putIfSet(conf, ConfigUtils.PASSWORD, password);
             putIfSet(conf, ConfigUtils.CONNECT_RETRIES, connectRetries);
+            putIfSet(conf, ConfigUtils.CONNECT_RETRIES_INTERVAL, connectRetriesInterval);
             putIfSet(conf, ConfigUtils.INIT_SQL, initSql);
             putIfSet(conf, ConfigUtils.DEFAULT_SCHEMA, defaultSchema);
             putArrayIfSet(conf, ConfigUtils.SCHEMAS, schemas);
@@ -791,8 +863,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putArrayIfSet(conf, ConfigUtils.CALLBACKS, callbacks);
             putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks);
             putIfSet(conf, ConfigUtils.ENCODING, encoding);
+            putIfSet(conf, ConfigUtils.DETECT_ENCODING, detectEncoding);
             putIfSet(conf, ConfigUtils.LOCK_RETRY_COUNT, lockRetryCount);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix);
+            putIfSet(conf, ConfigUtils.BASELINE_MIGRATION_PREFIX, baselineMigrationPrefix);
             putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator);
@@ -807,6 +881,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.OUTPUT_QUERY_RESULTS, outputQueryResults);
             putIfSet(conf, ConfigUtils.TARGET, target);
             putArrayIfSet(conf, ConfigUtils.CHERRY_PICK, cherryPick);
+            putArrayIfSet(conf, ConfigUtils.LOGGERS, loggers);
             putIfSet(conf, ConfigUtils.IGNORE_MISSING_MIGRATIONS, ignoreMissingMigrations);
             putIfSet(conf, ConfigUtils.IGNORE_IGNORED_MIGRATIONS, ignoreIgnoredMigrations);
             putIfSet(conf, ConfigUtils.IGNORE_PENDING_MIGRATIONS, ignorePendingMigrations);
@@ -816,10 +891,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_SUFFIX, placeholderSuffix);
+            putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_PREFIX, scriptPlaceholderPrefix);
+            putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_SUFFIX, scriptPlaceholderSuffix);
             putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate);
             putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate);
             putIfSet(conf, ConfigUtils.DRIVER, driver);
             putIfSet(conf, ConfigUtils.CREATE_SCHEMAS, createSchemas);
+            putIfSet(conf, ConfigUtils.FAIL_ON_MISSING_LOCATIONS, failOnMissingLocations);
 
             putArrayIfSet(conf, ConfigUtils.ERROR_OVERRIDES, errorOverrides);
             putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput);
@@ -828,10 +906,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
             putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus);
             putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS_WARN, oracleSqlplusWarn);
+            putIfSet(conf, ConfigUtils.ORACLE_WALLET_LOCATION, oracleWalletLocation);
 
-            putIfSet(conf, ConfigUtils.VAULT_URL, vaultUrl);
-            putIfSet(conf, ConfigUtils.VAULT_TOKEN, vaultToken);
-            putArrayIfSet(conf, ConfigUtils.VAULT_SECRETS, vaultSecrets);
+            putIfSet(conf, ConfigUtils.KERBEROS_CONFIG_FILE, kerberosConfigFile);
 
             putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey);
 
@@ -849,20 +926,43 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 }
             }
 
+            conf.putAll(getPluginConfiguration(pluginConfiguration));
+
             conf.putAll(ConfigUtils.propertiesToMap(mavenProject.getProperties()));
             conf.putAll(loadConfigurationFromConfigFiles(workDir, envVars));
             conf.putAll(envVars);
             conf.putAll(ConfigUtils.propertiesToMap(System.getProperties()));
-
-
-
             removeMavenPluginSpecificPropertiesToAvoidWarnings(conf);
+
+            if (conf.getOrDefault(ConfigUtils.LOGGERS, "auto").equalsIgnoreCase("auto")) {
+                conf.put(ConfigUtils.LOGGERS, "maven");
+            }
 
             Flyway flyway = Flyway.configure(classLoader).configuration(conf).load();
             doExecute(flyway);
         } catch (Exception e) {
             throw new MojoExecutionException(e.toString(), ExceptionUtils.getRootCause(e));
+        } finally {
+            Log currentLog = ((EvolvingLog) log).getLog();
+            if (currentLog instanceof BufferedLog) {
+                ((BufferedLog) currentLog).flush(new MavenLog(this.getLog()));
+            }
         }
+    }
+
+    public Map<String, String> getPluginConfiguration(Map<String, String> pluginConfiguration) {
+        Map<String, String> conf = new HashMap<>();
+
+        if (pluginConfiguration == null) {
+            return conf;
+        }
+
+        String camelCaseRegex = "(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])";
+        for (String key : pluginConfiguration.keySet()) {
+            conf.put(FLYWAY_PLUGINS_PREFIX + String.join(".", key.split(camelCaseRegex)).toLowerCase(), pluginConfiguration.get(key));
+        }
+
+        return conf;
     }
 
     /**
@@ -904,7 +1004,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * Converts this file name into a file, adjusting relative paths if necessary to make them relative to the pom.
      *
-     * @param workDir  The working directory to use.
+     * @param workDir The working directory to use.
      * @param fileName The name of the file, relative or absolute.
      * @return The resulting file.
      */

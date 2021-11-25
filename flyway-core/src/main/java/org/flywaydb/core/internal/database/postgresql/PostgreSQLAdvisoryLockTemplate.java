@@ -1,5 +1,5 @@
 /*
- * Copyright © Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.strategy.RetryStrategy;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -29,8 +29,8 @@ import java.util.concurrent.Callable;
 /**
  * Spring-like template for executing with PostgreSQL advisory locks.
  */
+@CustomLog
 public class PostgreSQLAdvisoryLockTemplate {
-    private static final Log LOG = LogFactory.getLog(PostgreSQLAdvisoryLockTemplate.class);
     private static final long LOCK_MAGIC_NUM =
             (0x46L << 40) // F
                     + (0x6CL << 32) // l
@@ -48,7 +48,7 @@ public class PostgreSQLAdvisoryLockTemplate {
     /**
      * Creates a new advisory lock template for this connection.
      *
-     * @param jdbcTemplate  The jdbcTemplate for the connection.
+     * @param jdbcTemplate The jdbcTemplate for the connection.
      * @param discriminator A number to discriminate between locks.
      */
     PostgreSQLAdvisoryLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {
@@ -68,7 +68,8 @@ public class PostgreSQLAdvisoryLockTemplate {
             lock();
             return callable.call();
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to acquire PostgreSQL advisory lock", e);
+            rethrow = new FlywaySqlException("Unable to acquire PostgreSQL advisory lock", e);
+            throw rethrow;
         } catch (Exception e) {
             if (e instanceof RuntimeException) {
                 rethrow = (RuntimeException) e;
@@ -84,15 +85,15 @@ public class PostgreSQLAdvisoryLockTemplate {
     private void lock() throws SQLException {
         RetryStrategy strategy = new RetryStrategy();
         strategy.doWithRetries(this::tryLock,
-                "Interrupted while attempting to acquire PostgreSQL advisory lock",
-                "Number of retries exceeded while attempting to acquire PostgreSQL advisory lock. " +
-                        "Configure the number of retries with the 'lockRetryCount' configuration option: " +
-                        "https://flywaydb.org/documentation/configuration/parameters/lockRetryCount");
+                               "Interrupted while attempting to acquire PostgreSQL advisory lock",
+                               "Number of retries exceeded while attempting to acquire PostgreSQL advisory lock. " +
+                                       "Configure the number of retries with the 'lockRetryCount' configuration option: " +
+                                       FlywayDbWebsiteLinks.LOCK_RETRY_COUNT);
     }
 
     private boolean tryLock() throws SQLException {
         List<Boolean> results = jdbcTemplate.query("SELECT pg_try_advisory_lock(" + lockNum + ")",
-                rs -> rs.getBoolean("pg_try_advisory_lock"));
+                                                   rs -> rs.getBoolean("pg_try_advisory_lock"));
         return results.size() == 1 && results.get(0);
     }
 
