@@ -100,8 +100,13 @@ public class InformixDatabase extends Database<InformixConnection> {
     }
 
     @Override
-    public String doQuote(String identifier) {
-        return identifier;
+    public String getOpenQuote() {
+        return "";
+    }
+
+    @Override
+    public String getCloseQuote() {
+        return "";
     }
 
     @Override

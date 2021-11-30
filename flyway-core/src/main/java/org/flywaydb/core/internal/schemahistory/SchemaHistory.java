@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.schemahistory;
 
+import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.MigrationPattern;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
@@ -25,12 +26,16 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 /**
  * The schema history used to track all applied migrations.
  */
+@ExtensionMethod(Arrays.class)
 public abstract class SchemaHistory {
     public static final String NO_DESCRIPTION_MARKER = "<< no description >>";
 
@@ -133,6 +138,17 @@ public abstract class SchemaHistory {
     public final boolean hasSchemasMarker() {
         List<AppliedMigration> appliedMigrations = allAppliedMigrations();
         return !appliedMigrations.isEmpty() && appliedMigrations.get(0).getType() == MigrationType.SCHEMA;
+    }
+
+    public List<String> getSchemasCreatedByFlyway() {
+        if (!hasSchemasMarker()) {
+            return new ArrayList<>();
+        }
+
+        return allAppliedMigrations().get(0).getScript()
+                .split(",").stream()
+                .map(result -> table.getDatabase().unQuote(result))
+                .collect(Collectors.toList());
     }
 
     /**

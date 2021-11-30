@@ -139,11 +139,6 @@ public class OracleDatabase extends Database<OracleConnection> {
     }
 
     @Override
-    public String doQuote(String identifier) {
-        return "\"" + identifier + "\"";
-    }
-
-    @Override
     public boolean catalogIsSchema() {
         return false;
     }

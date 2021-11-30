@@ -78,9 +78,9 @@ public class DbClean {
         try {
             connection.changeCurrentSchemaTo(defaultSchema);
 
-            boolean dropSchemas = false;
+            List<String> dropSchemas = new ArrayList<>();
             try {
-                dropSchemas = schemaHistory.hasSchemasMarker();
+                dropSchemas = schemaHistory.getSchemasCreatedByFlyway();
             } catch (Exception e) {
                 LOG.error("Error while checking whether the schemas should be dropped. Schemas will not be dropped", e);
             }
@@ -92,7 +92,7 @@ public class DbClean {
         }
     }
 
-    protected void clean(Schema[] schemas, CleanResult cleanResult, boolean dropSchemas) {
+    protected void clean(Schema[] schemas, CleanResult cleanResult, List<String> dropSchemas) {
         dropDatabaseObjectsPreSchemas();
 
         List<Schema> schemaList = new ArrayList<>(Arrays.asList(schemas));
@@ -113,8 +113,8 @@ public class DbClean {
 
         dropDatabaseObjectsPostSchemas();
 
-        if (dropSchemas) {
-            for (Schema schema : schemas) {
+        for (Schema schema : schemas) {
+            if (dropSchemas.contains(schema.getName())) {
                 dropSchema(schema, cleanResult);
             }
         }
@@ -184,9 +184,9 @@ public class DbClean {
         }
     }
 
-    private void cleanSchemas(Schema[] schemas, boolean dropSchemas, CleanResult cleanResult) {
+    private void cleanSchemas(Schema[] schemas, List<String> dropSchemas, CleanResult cleanResult) {
         for (Schema schema : schemas) {
-            if (dropSchemas) {
+            if (dropSchemas.contains(schema.getName())) {
                 try {
                     cleanSchema(schema);
                 } catch (FlywayException ignored) {

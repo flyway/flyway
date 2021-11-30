@@ -113,11 +113,12 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
     @Override
     public String doQuote(String identifier) {
-        return pgQuote(identifier);
+        return getOpenQuote() + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote()) + getCloseQuote();
     }
 
-    static String pgQuote(String identifier) {
-        return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
+    @Override
+    public String getEscapedQuote() {
+        return "\"\"";
     }
 
     @Override

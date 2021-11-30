@@ -122,9 +122,13 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     }
 
     @Override
-    protected String doQuote(String identifier) {
-        //Sybase doesn't quote identifiers, skip quoting.
-        return identifier;
+    public String getOpenQuote() {
+        return "";
+    }
+
+    @Override
+    public String getCloseQuote() {
+        return "";
     }
 
     @Override

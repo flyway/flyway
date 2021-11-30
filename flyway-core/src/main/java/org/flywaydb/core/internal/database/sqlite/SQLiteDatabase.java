@@ -92,11 +92,6 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     }
 
     @Override
-    public String doQuote(String identifier) {
-        return "\"" + identifier + "\"";
-    }
-
-    @Override
     public boolean catalogIsSchema() {
         return true;
     }

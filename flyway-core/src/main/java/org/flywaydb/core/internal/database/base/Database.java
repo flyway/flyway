@@ -32,6 +32,7 @@ import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.Closeable;
 import java.sql.DatabaseMetaData;
@@ -231,7 +232,35 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * Quotes this identifier for use in SQL queries.
      */
-    protected abstract String doQuote(String identifier);
+    public String doQuote(String identifier) {
+        return getOpenQuote() + identifier + getCloseQuote();
+    }
+
+    protected String getOpenQuote() {
+        return "\"";
+    }
+
+    protected String getCloseQuote() {
+        return "\"";
+    }
+
+    protected String getEscapedQuote() {
+        return "";
+    }
+
+    public String unQuote(String identifier) {
+        String open = getOpenQuote();
+        String close = getCloseQuote();
+
+        if (!open.equals("") && !close.equals("") && identifier.startsWith(open) && identifier.endsWith(close)) {
+            identifier = identifier.substring(open.length(), identifier.length() - close.length());
+            if (!getEscapedQuote().equals("")) {
+                identifier = StringUtils.replaceAll(identifier, getEscapedQuote(), close);
+            }
+        }
+
+        return identifier;
+    }
 
     /**
      * @return {@code true} if this database uses a catalog to represent a schema, or {@code false} if a schema is

@@ -147,11 +147,22 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
 
     @Override
     public String doQuote(String identifier) {
-        return bigQueryQuote(identifier);
+        return getOpenQuote() + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote()) + getCloseQuote();
     }
 
-    static String bigQueryQuote(String identifier) {
-        return "`" + StringUtils.replaceAll(identifier, "`", "\\`") + "`";
+    @Override
+    public String getOpenQuote() {
+        return "`";
+    }
+
+    @Override
+    public String getCloseQuote() {
+        return "`";
+    }
+
+    @Override
+    public String getEscapedQuote() {
+        return "\\`";
     }
 
     @Override

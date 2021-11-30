@@ -146,12 +146,27 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     }
 
     private String escapeIdentifier(String identifier) {
-        return StringUtils.replaceAll(identifier, "]", "]]");
+        return StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote());
     }
 
     @Override
     public String doQuote(String identifier) {
-        return "[" + escapeIdentifier(identifier) + "]";
+        return getOpenQuote() + escapeIdentifier(identifier) + getCloseQuote();
+    }
+
+    @Override
+    public String getOpenQuote() {
+        return "[";
+    }
+
+    @Override
+    public String getCloseQuote() {
+        return "]";
+    }
+
+    @Override
+    public String getEscapedQuote() {
+        return "]]";
     }
 
     @Override

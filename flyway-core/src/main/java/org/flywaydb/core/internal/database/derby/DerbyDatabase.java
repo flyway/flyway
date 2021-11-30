@@ -106,11 +106,6 @@ public class DerbyDatabase extends Database<DerbyConnection> {
     }
 
     @Override
-    public String doQuote(String identifier) {
-        return "\"" + identifier + "\"";
-    }
-
-    @Override
     public boolean catalogIsSchema() {
         return false;
     }

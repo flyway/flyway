@@ -46,6 +46,10 @@ public abstract class SchemaObject<D extends Database, S extends Schema> {
         return schema;
     }
 
+    public final D getDatabase() {
+        return database;
+    }
+
     public final String getName() {
         return name;
     }

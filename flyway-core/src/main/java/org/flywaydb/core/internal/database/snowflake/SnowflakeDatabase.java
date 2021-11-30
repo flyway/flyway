@@ -164,11 +164,6 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
     }
 
     @Override
-    public String doQuote(String identifier) {
-        return "\"" + identifier + "\"";
-    }
-
-    @Override
     public boolean catalogIsSchema() {
         return false;
     }
