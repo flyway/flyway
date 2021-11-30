@@ -89,7 +89,7 @@ public class MySQLDatabaseType extends BaseDatabaseType {
             return MYSQL_LEGACY_JDBC_DRIVER;
         }
 
-        if (ClassUtils.isPresent(MARIADB_JDBC_DRIVER, classLoader)) {
+        if (ClassUtils.isPresent(MARIADB_JDBC_DRIVER, classLoader) && !url.contains("disableMariaDbDriver")) {
             LOG.warn("You are attempting to connect to a MySQL database using the MariaDB driver." +
                              " This is known to cause issues." +
                              " An upgrade to Oracle's MySQL JDBC driver is highly recommended.");
@@ -158,5 +158,10 @@ public class MySQLDatabaseType extends BaseDatabaseType {
 
 
 
+    }
+
+    @Override
+    public String instantiateClassExtendedErrorMessage() {
+        return "Failure probably due to inability to load dependencies. Please ensure you have downloaded 'https://dev.mysql.com/downloads/connector/j/' and extracted to 'flyway/drivers' folder";
     }
 }
