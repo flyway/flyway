@@ -42,8 +42,6 @@ import java.util.concurrent.Callable;
 
 /**
  * Handles the validate command.
- *
- * @author Axel Fontaine
  */
 @CustomLog
 public class DbValidate {

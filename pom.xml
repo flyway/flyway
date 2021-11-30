@@ -56,8 +56,10 @@
     </scm>
     <developers>
         <developer>
-            <id>axel</id>
-            <name>Axel Fontaine</name>
+            <id>flyway</id>
+            <url>https://flywaydb.org/</url>
+            <organization>Redgate Software</organization>
+            <organizationUrl>https://www.red-gate.com/</organizationUrl>
         </developer>
     </developers>
 
