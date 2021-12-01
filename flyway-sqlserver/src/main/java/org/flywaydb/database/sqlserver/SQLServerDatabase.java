@@ -60,7 +60,6 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
 
 
-
     @Override
     public final void ensureSupported() {
         if (isAzure()) {

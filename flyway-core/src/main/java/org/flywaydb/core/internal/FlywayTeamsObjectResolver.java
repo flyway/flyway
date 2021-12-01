@@ -40,8 +40,8 @@ public class FlywayTeamsObjectResolver {
             String teamsPath = packageName + ".teams." + className;
             try {
                 return ClassUtils.instantiate(teamsPath, classLoader, params);
-            } catch (FlywayException ignored) {
-                LOG.debug("Could not load " + teamsPath + ". Defaulting to Community Edition for " + className);
+            } catch (FlywayException e) {
+                LOG.debug(e.getMessage() + ". Defaulting to Community Edition for " + className);
             }
         }
 
