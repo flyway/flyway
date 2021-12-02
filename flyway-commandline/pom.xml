@@ -82,6 +82,11 @@
 
 
 
+
+
+
+
+
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
@@ -372,6 +377,13 @@
                                         <artifactItem>
                                             <groupId>org.flywaydb.enterprise</groupId>
                                             <artifactId>flyway-extensibility-commons</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.enterprise</groupId>
+                                            <artifactId>flyway-desktop-clean</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
                                             <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
