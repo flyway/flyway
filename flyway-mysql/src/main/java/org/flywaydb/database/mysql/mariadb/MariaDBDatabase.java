@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.mysql.mariadb;
+package org.flywaydb.database.mysql.mariadb;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
+import org.flywaydb.database.mysql.MySQLDatabase;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 

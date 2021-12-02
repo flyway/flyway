@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.authentication.mysql;
+package org.flywaydb.authentication.mysql;
 
 import lombok.CustomLog;
 import org.flywaydb.core.internal.authentication.ExternalAuthFileReader;

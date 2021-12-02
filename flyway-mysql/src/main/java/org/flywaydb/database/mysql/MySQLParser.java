@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.mysql;
+package org.flywaydb.database.mysql;
 
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.*;

@@ -16,8 +16,8 @@
 package org.flywaydb.community.database.mysql.tidb;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.database.mysql.MySQLConnection;
-import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
+import org.flywaydb.database.mysql.MySQLConnection;
+import org.flywaydb.database.mysql.MySQLDatabase;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 

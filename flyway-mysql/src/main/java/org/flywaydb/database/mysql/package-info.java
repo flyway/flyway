@@ -16,4 +16,4 @@
 /**
  * Private API. No compatibility guarantees provided.
  */
-package org.flywaydb.core.internal.database.mysql;
+package org.flywaydb.database.mysql;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.mysql;
+package org.flywaydb.database.mysql;
 
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
@@ -23,7 +23,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.database.mysql.mariadb.MariaDBDatabaseType;
+import org.flywaydb.database.mysql.mariadb.MariaDBDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;

@@ -16,9 +16,9 @@
 package org.flywaydb.community.database.mysql.tidb;
 
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.database.mysql.MySQLConnection;
-import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
-import org.flywaydb.core.internal.database.mysql.MySQLNamedLockTemplate;
+import org.flywaydb.database.mysql.MySQLConnection;
+import org.flywaydb.database.mysql.MySQLDatabase;
+import org.flywaydb.database.mysql.MySQLNamedLockTemplate;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 import java.sql.SQLException;

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.mysql;
+package org.flywaydb.database.mysql;
 
 import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.authentication.mysql.MySQLOptionFileReader;
+import org.flywaydb.authentication.mysql.MySQLOptionFileReader;
 
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Database;

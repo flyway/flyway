@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Copyright (C) Red Gate Software Ltd 2010-2021
@@ -19,38 +20,80 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
+        <groupId>org.flywaydb</groupId>
         <version>0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>flyway-community-db-support</artifactId>
+    <artifactId>flyway-mysql</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
+    <version>${project.parent.version}</version>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>${project.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>flyway-mysql</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-            <version>${version.junit}</version>
-        </dependency>
-        <!-- JDBC drivers -->
-        <dependency>
-            <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-core</artifactId>
-            <optional>true</optional>
-        </dependency>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     </dependencies>
 
     <build>
@@ -92,6 +135,13 @@
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                     </archive>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -101,7 +151,7 @@
                         <Automatic-Module-Name>org.flywaydb.core</Automatic-Module-Name>
                         <Bundle-SymbolicName>org.flywaydb.core</Bundle-SymbolicName>
                         <Export-Package>
-                            org.flywaydb.community;version=${project.version}
+                            org.flywaydb.database;version=${project.version}
                         </Export-Package>
                     </instructions>
                 </configuration>
@@ -117,4 +167,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

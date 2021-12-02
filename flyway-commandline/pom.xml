@@ -33,6 +33,7 @@
         <flyway-gcp-bigquery.version>${project.version}</flyway-gcp-bigquery.version>
         <flyway-gcp-spanner.version>${project.version}</flyway-gcp-spanner.version>
         <flyway-sqlserver.version>${project.version}</flyway-sqlserver.version>
+        <flyway-mysql.version>${project.version}</flyway-mysql.version>
     </properties>
     <dependencies>
         <dependency>
@@ -59,6 +60,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-sqlserver</artifactId>
             <version>${flyway-sqlserver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>flyway-mysql</artifactId>
+            <version>${flyway-mysql.version}</version>
         </dependency>
 
 
@@ -371,6 +377,13 @@
                                             <groupId>org.flywaydb.enterprise</groupId>
                                             <artifactId>flyway-sqlserver</artifactId>
                                             <version>${flyway-sqlserver.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.enterprise</groupId>
+                                            <artifactId>flyway-mysql</artifactId>
+                                            <version>${flyway-mysql.version}</version>
                                             <type>jar</type>
                                             <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
                                         </artifactItem>
