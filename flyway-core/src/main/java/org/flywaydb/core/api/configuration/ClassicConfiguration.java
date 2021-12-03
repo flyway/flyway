@@ -1748,8 +1748,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     private Map<String, String> getPropertiesUnderNamespace(Map<String, String> properties, Map<String, String> current, String namespace) {
-    private Map<String, String> getPropertiesUnderNamespace(Map<String, String> properties, Map<String, String> current,
-                                                            String namespace) {
         Map<String, String> placeholdersFromProps = new HashMap<>(current);
         Iterator<Map.Entry<String, String>> iterator = properties.entrySet().iterator();
         while (iterator.hasNext()) {

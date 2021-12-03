@@ -118,7 +118,6 @@ public class ConfigUtils {
     // Gradle specific
     public static final String CONFIGURATIONS = "flyway.configurations";
 
-    private ConfigUtils() { }
     // Plugin specific
     public static final String FLYWAY_PLUGINS_PREFIX = "flyway.plugins.";
 
