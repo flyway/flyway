@@ -275,7 +275,6 @@ public class ClassicConfiguration implements Configuration {
      * @param cleanOnValidationError {@code true} if clean should be called. {@code false} if not. (default: {@code false})
      */
     private boolean cleanOnValidationError;
-
     /**
      * -- SETTER --
      * Whether to disable clean.
@@ -434,6 +433,16 @@ public class ClassicConfiguration implements Configuration {
             LOG.warn("Discarding INCOMPLETE dataSource configuration! " + ConfigUtils.URL + " must be set.");
         }
         return dataSource;
+    }
+
+    @Override
+    public String getClickhouseClusterName() {
+        return clickhouseClusterName;
+    }
+
+    @Override
+    public String getZookeeperUrl() {
+        return zookeeperUrl;
     }
 
     @Override
@@ -996,41 +1005,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Sets the description to tag an existing schema with when executing baseline.
-     *
-     * @param baselineDescription The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
-     */
-    public void setBaselineDescription(String baselineDescription) {
-        this.baselineDescription = baselineDescription;
-    }
-
-    /**
-     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
-     * This schema will then be baselined with the {@code baselineVersion} before executing the migrations.
-     * Only migrations above {@code baselineVersion} will then be applied.
-     *
-     * This is useful for initial Flyway production deployments on projects with an existing DB.
-     *
-     * Be careful when enabling this as it removes the safety net that ensures
-     * Flyway does not migrate the wrong database in case of a configuration mistake!
-     *
-     * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
-     */
-    public void setBaselineOnMigrate(boolean baselineOnMigrate) {
-        this.baselineOnMigrate = baselineOnMigrate;
-    }
-
-    /**
-     * Allows migrations to be run "out of order".
-     * If you already have versions 1 and 3 applied, and now a version 2 is found, it will be applied too instead of being ignored.
-     *
-     * @param outOfOrder {@code true} if outOfOrder migrations should be applied, {@code false} if not. (default: {@code false})
-     */
-    public void setOutOfOrder(boolean outOfOrder) {
-        this.outOfOrder = outOfOrder;
-    }
-
-    /**
      * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
      * This should be used when you have applied a migration manually (via executing the sql yourself, or via an IDE), and
      * just want the schema history table to reflect this.
@@ -1131,15 +1105,6 @@ public class ClassicConfiguration implements Configuration {
     public void setResolversAsClassNames(String... resolvers) {
         List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolvers, classLoader);
         setResolvers(resolverList.toArray(new MigrationResolver[resolvers.length]));
-    }
-
-    /**
-     * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
-     *
-     * @param skipDefaultResolvers Whether default built-in resolvers should be skipped. (default: false)
-     */
-    public void setSkipDefaultResolvers(boolean skipDefaultResolvers) {
-        this.skipDefaultResolvers = skipDefaultResolvers;
     }
 
     /**
@@ -1247,8 +1212,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLicenseKey(String licenseKey) {
 
-         LOG.warn(Edition.ENTERPRISE + " upgrade required: " + licenseKey
-         + " is not supported by " + Edition.COMMUNITY + ".");
+         LOG.warn(Edition.ENTERPRISE + " upgrade required: licenseKey is not supported by " + Edition.COMMUNITY + ".");
 
 
 
@@ -1283,49 +1247,11 @@ public class ClassicConfiguration implements Configuration {
 
     }
 
-    public void setResourceProvider(ResourceProvider resourceProvider) {
-        this.resourceProvider = resourceProvider;
-    }
-
-    public void setJavaMigrationClassProvider(ClassProvider<JavaMigration> javaMigrationClassProvider) {
-        this.javaMigrationClassProvider = javaMigrationClassProvider;
-    }
-
-    public void setLockRetryCount(int lockRetryCount) {
-        this.lockRetryCount = lockRetryCount;
-    }
-
-    public void setVaultUrl(String vaultUrl) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultUrl");
-
-
-
-
-    }
-
-    public void setVaultToken(String vaultToken) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultToken");
-
-
-
-
-    }
-
-    public void setVaultSecrets(String... vaultSecrets) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("vaultSecrets");
-
-
-
-
-    }
-
     /**
      * Configure with the same values as this existing configuration.
      */
     public void configure(Configuration configuration) {
+        setLoggers(configuration.getLoggers());
         setBaselineDescription(configuration.getBaselineDescription());
         setBaselineOnMigrate(configuration.isBaselineOnMigrate());
         setBaselineVersion(configuration.getBaselineVersion());
@@ -1336,9 +1262,6 @@ public class ClassicConfiguration implements Configuration {
         setConnectRetries(configuration.getConnectRetries());
         setConnectRetriesInterval(configuration.getConnectRetriesInterval());
         setInitSql(configuration.getInitSql());
-
-
-
 
 
 
@@ -1631,62 +1554,42 @@ public class ClassicConfiguration implements Configuration {
         if (mixedProp != null) {
             setMixed(mixedProp);
         }
-
         Boolean groupProp = removeBoolean(props, ConfigUtils.GROUP);
         if (groupProp != null) {
             setGroup(groupProp);
         }
-
         String installedByProp = props.remove(ConfigUtils.INSTALLED_BY);
         if (installedByProp != null) {
             setInstalledBy(installedByProp);
         }
-
         String dryRunOutputProp = props.remove(ConfigUtils.DRYRUN_OUTPUT);
         if (dryRunOutputProp != null) {
             setDryRunOutputAsFileName(dryRunOutputProp);
         }
-
         String errorOverridesProp = props.remove(ConfigUtils.ERROR_OVERRIDES);
         if (errorOverridesProp != null) {
             setErrorOverrides(StringUtils.tokenizeToStringArray(errorOverridesProp, ","));
         }
-
         Boolean streamProp = removeBoolean(props, ConfigUtils.STREAM);
         if (streamProp != null) {
             setStream(streamProp);
         }
-
         Boolean batchProp = removeBoolean(props, ConfigUtils.BATCH);
         if (batchProp != null) {
             setBatch(batchProp);
         }
-
         Boolean oracleSqlplusProp = removeBoolean(props, ConfigUtils.ORACLE_SQLPLUS);
         if (oracleSqlplusProp != null) {
             setOracleSqlplus(oracleSqlplusProp);
         }
-
         Boolean oracleSqlplusWarnProp = removeBoolean(props, ConfigUtils.ORACLE_SQLPLUS_WARN);
         if (oracleSqlplusWarnProp != null) {
             setOracleSqlplusWarn(oracleSqlplusWarnProp);
         }
-
         Boolean createSchemasProp = removeBoolean(props, ConfigUtils.CREATE_SCHEMAS);
         if (createSchemasProp != null) {
             setShouldCreateSchemas(createSchemasProp);
         }
-
-        String clickhouseClusterNameProp = props.remove(ConfigUtils.CLICKHOUSE_CLUSTER_NAME);
-        if (clickhouseClusterNameProp != null) {
-            setClickhouseClusterName(clickhouseClusterNameProp);
-        }
-
-        String zookeeperUrlProp = props.remove(ConfigUtils.ZOOKEEPER_URL);
-        if (zookeeperUrlProp != null) {
-            setZookeeperUrl(zookeeperUrlProp);
-        }
-
         String kerberosConfigFile = props.remove(ConfigUtils.KERBEROS_CONFIG_FILE);
         if (kerberosConfigFile != null) {
             setKerberosConfigFile(kerberosConfigFile);
@@ -1719,16 +1622,14 @@ public class ClassicConfiguration implements Configuration {
 
         // Must be done last, so that any driver-specific config has been done at this point.
         if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) ||
-                StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) ||
-                StringUtils.hasText(passwordProp))) {
+                StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
             Map<String, String> jdbcPropertiesFromProps =
                     getPropertiesUnderNamespace(
                             props,
                             getPlaceholders(),
                             ConfigUtils.JDBC_PROPERTIES_PREFIX);
 
-            setDataSource(
-                    new DriverDataSource(classLoader, driver, url, user, password, this, jdbcPropertiesFromProps));
+            setDataSource(new DriverDataSource(classLoader, driver, url, user, password, this, jdbcPropertiesFromProps));
         }
 
         ConfigUtils.checkConfigurationForUnrecognisedProperties(props, "flyway.");
@@ -1748,7 +1649,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     private Map<String, String> getPropertiesUnderNamespace(Map<String, String> properties, Map<String, String> current, String namespace) {
-        Map<String, String> placeholdersFromProps = new HashMap<>(current);
         Iterator<Map.Entry<String, String>> iterator = properties.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, String> entry = iterator.next();

@@ -269,6 +269,7 @@ public interface Configuration {
      *     (default: fail if the target version doesn't exist) <i>Flyway Teams only</i>
      * </li>
      * </ul>
+     * Defaults to {@code latest}.
      *
      * @return The target version up to which Flyway should consider migrations. Defaults to {@code latest}
      */

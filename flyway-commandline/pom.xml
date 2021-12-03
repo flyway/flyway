@@ -27,9 +27,6 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <properties>
-
-
-
         <flyway-gcp-bigquery.version>${project.version}</flyway-gcp-bigquery.version>
         <flyway-gcp-spanner.version>${project.version}</flyway-gcp-spanner.version>
         <flyway-sqlserver.version>${project.version}</flyway-sqlserver.version>
@@ -105,6 +102,10 @@
         <dependency>
             <groupId>net.sourceforge.jtds</groupId>
             <artifactId>jtds</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
         </dependency>
         <!-- #2136: JNA is required for MariaDB with unix sockets -->
         <dependency>

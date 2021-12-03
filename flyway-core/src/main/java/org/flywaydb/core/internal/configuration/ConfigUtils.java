@@ -352,6 +352,14 @@ public class ConfigUtils {
             return ORACLE_WALLET_LOCATION;
         }
 
+        // Clickhouse specific
+        if ("FLYWAY_CLICKHOUSE_CLUSTER_NAME".equals(key)) {
+            return CLICKHOUSE_CLUSTER_NAME;
+        }
+        if ("FLYWAY_ZOOKEEPER_URL".equals(key)) {
+            return ZOOKEEPER_URL;
+        }
+
         // Command-line specific
         if ("FLYWAY_JAR_DIRS".equals(key)) {
             return JAR_DIRS;
