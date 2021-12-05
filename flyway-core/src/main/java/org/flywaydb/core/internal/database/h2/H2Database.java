@@ -59,6 +59,7 @@ public class H2Database extends Database<H2Connection> {
     public H2Database(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
 
+        requiresV2MetadataColumnNames = super.determineVersion().isAtLeast("2.0.0");
         compatibilityMode = determineCompatibilityMode();
     }
 
@@ -112,7 +113,6 @@ public class H2Database extends Database<H2Connection> {
 
         recommendFlywayUpgradeIfNecessary("2.0.201");
         supportsDropSchemaCascade = getVersion().isAtLeast("1.4.200");
-        requiresV2MetadataColumnNames = getVersion().isAtLeast("2.0.0");
     }
 
     @Override
