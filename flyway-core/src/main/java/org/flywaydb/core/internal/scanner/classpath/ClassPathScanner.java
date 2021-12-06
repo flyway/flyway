@@ -18,16 +18,14 @@ package org.flywaydb.core.internal.scanner.classpath;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.classpath.ClassPathResource;
 import org.flywaydb.core.internal.scanner.LocationScannerCache;
 import org.flywaydb.core.internal.scanner.ResourceNameCache;
 import org.flywaydb.core.internal.scanner.classpath.jboss.JBossVFSv2UrlResolver;
 import org.flywaydb.core.internal.scanner.classpath.jboss.JBossVFSv3ClassPathLocationScanner;
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.UrlUtils;
+import org.flywaydb.core.internal.util.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -95,10 +93,22 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
 
         for (LoadableResource resource : resources) {
             if (resource.getAbsolutePath().endsWith(".class")) {
-                Class<? extends I> clazz = ClassUtils.loadClass(
-                        implementedInterface,
-                        toClassName(resource.getAbsolutePath()),
-                        classLoader);
+                Class<? extends I> clazz;
+                try {
+                    clazz = ClassUtils.loadClass(
+                            implementedInterface,
+                            toClassName(resource.getAbsolutePath()),
+                            classLoader);
+                } catch(Throwable e) {
+                    Throwable rootCause = ExceptionUtils.getRootCause(e);
+                    LOG.warn("Skipping " + Callback.class + ": " + ClassUtils.formatThrowable(e) + (
+                            rootCause == e
+                                    ? ""
+                                    : " caused by " + ClassUtils.formatThrowable(rootCause)
+                                    + " at " + ExceptionUtils.getThrowLocation(rootCause)
+                    ));
+                    clazz = null;
+                }
                 if (clazz != null) {
                     classes.add(clazz);
                 }
