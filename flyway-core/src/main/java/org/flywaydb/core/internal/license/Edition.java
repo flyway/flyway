@@ -21,7 +21,8 @@ import lombok.Getter;
 public enum Edition {
     COMMUNITY("Community"),
     PRO("Teams"),
-    ENTERPRISE("Teams")
+    ENTERPRISE("Teams"),
+    TIER3("Tier 3")
 
 
 
