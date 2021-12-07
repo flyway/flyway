@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.commandline.extensibility;
+package org.flywaydb.core.extensibility;
 
 import org.flywaydb.core.api.output.OperationResultBase;
 
@@ -22,12 +22,12 @@ import java.util.Map;
 /**
  * @apiNote This interface is under development and not recommended for use.
  */
-public interface CommandLineExtension {
+public interface CommandExtension extends Plugin {
     /**
-     * @param verb The CLI verb to check is handled
-     * @return Whether this extension handles the specified verb
+     * @param command The CLI command to check is handled
+     * @return Whether this extension handles the specified command
      */
-    boolean handlesVerb(String verb);
+    boolean handlesCommand(String command);
 
     /**
      * @param parameter The parameter to check is handled
@@ -41,9 +41,9 @@ public interface CommandLineExtension {
     String getUsage();
 
     /**
-     * @param verb The verb to handle
+     * @param command The command to handle
      * @param config The configuration provided to Flyway
-     * @return The result of this verb being handled
+     * @return The result of this command being handled
      */
-    OperationResultBase handle(String verb, Map<String, String> config);
+    OperationResultBase handle(String command, Map<String, String> config);
 }

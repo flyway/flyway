@@ -17,27 +17,20 @@ package org.flywaydb.commandline;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.flywaydb.commandline.extensibility.CommandLineExtension;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
-import org.flywaydb.core.api.output.*;
-import org.flywaydb.core.internal.command.DbMigrate;
-import org.flywaydb.core.internal.logging.EvolvingLog;
-import org.flywaydb.core.internal.logging.buffered.BufferedLog;
-import org.flywaydb.core.internal.logging.multi.MultiLogCreator;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.commandline.logging.console.ConsoleLogCreator;
 import org.flywaydb.commandline.logging.file.FileLogCreator;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.output.CompositeResult;
-import org.flywaydb.core.api.output.ErrorOutput;
-import org.flywaydb.core.api.output.OperationResult;
-import org.flywaydb.core.api.output.OperationResultBase;
+import org.flywaydb.core.api.output.*;
 
+import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
@@ -46,8 +39,14 @@ import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.license.FlywayTrialExpiredException;
 import org.flywaydb.core.internal.license.VersionPrinter;
 
+import org.flywaydb.core.internal.logging.EvolvingLog;
+import org.flywaydb.core.internal.logging.buffered.BufferedLog;
+import org.flywaydb.core.internal.logging.multi.MultiLogCreator;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
-import org.flywaydb.core.internal.util.*;
+import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.Console;
 import java.io.File;
@@ -278,9 +277,8 @@ public class Main {
             result = flyway.repair();
         } else {
             boolean handled = false;
-            ServiceLoader<CommandLineExtension> loader = ServiceLoader.load(CommandLineExtension.class);
-            for (CommandLineExtension extension : loader) {
-                if (extension.handlesVerb(operation)) {
+            for (CommandExtension extension : PluginRegister.getPlugins(CommandExtension.class)) {
+                if (extension.handlesCommand(operation)) {
                     result = extension.handle(operation, config);
                     handled = true;
                 }
@@ -463,13 +461,13 @@ public class Main {
         LOG.info("--help, -h, -?  : Print this usage info and exit");
         LOG.info("-community      : Run the Flyway Community Edition (default)");
         LOG.info("-teams          : Run the Flyway Teams Edition");
-        ServiceLoader<CommandLineExtension> loader = ServiceLoader.load(CommandLineExtension.class);
-        if (loader.iterator().hasNext()) {
+        List<CommandExtension> extensions = PluginRegister.getPlugins(CommandExtension.class);
+        if (!extensions.isEmpty()) {
             LOG.info("");
             LOG.info("Command-line extensions");
             LOG.info("-----------------------");
         }
-        for (CommandLineExtension extension : loader) {
+        for (CommandExtension extension : extensions) {
             LOG.info(extension.getUsage());
         }
         LOG.info("");
