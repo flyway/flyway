@@ -73,12 +73,12 @@ public class H2Schema extends Schema<H2Database, H2Table> {
             jdbcTemplate.execute(statement);
         }
 
-        if (!requiresV2Metadata) {
-            List<String> aliasNames = jdbcTemplate.queryForStringList(
-                    "SELECT ALIAS_NAME FROM INFORMATION_SCHEMA.FUNCTION_ALIASES WHERE ALIAS_SCHEMA = ?", name);
-            for (String statement : generateDropStatements("ALIAS", aliasNames)) {
-                jdbcTemplate.execute(statement);
-            }
+        List<String> aliasNames = jdbcTemplate.queryForStringList(
+                requiresV2Metadata
+                        ? "SELECT ROUTINE_NAME FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_TYPE = 'FUNCTION' AND ROUTINE_SCHEMA = ?"
+                        : "SELECT ALIAS_NAME FROM INFORMATION_SCHEMA.FUNCTION_ALIASES WHERE ALIAS_SCHEMA = ?", name);
+        for (String statement : generateDropStatements("ALIAS", aliasNames)) {
+            jdbcTemplate.execute(statement);
         }
 
         List<String> domainNames = listObjectNames("DOMAIN", "");
@@ -132,7 +132,7 @@ public class H2Schema extends Schema<H2Database, H2Table> {
 
     @Override
     protected H2Table[] doAllTables() throws SQLException {
-        List<String> tableNames = listObjectNames("TABLE", "TABLE_TYPE = 'TABLE'");
+        List<String> tableNames = listObjectNames("TABLE", "TABLE_TYPE = " + (requiresV2Metadata ? "'BASE TABLE'" : "'TABLE'"));
 
         H2Table[] tables = new H2Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
