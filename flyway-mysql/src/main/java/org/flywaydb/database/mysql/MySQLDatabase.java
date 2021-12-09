@@ -23,6 +23,7 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Table;
+import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.database.mysql.mariadb.MariaDBDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -250,6 +251,17 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         } else {
 
             ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("8.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+
+
+
+
+
+
+
+
+
+
+
 
             recommendFlywayUpgradeIfNecessary("8.0");
         }
