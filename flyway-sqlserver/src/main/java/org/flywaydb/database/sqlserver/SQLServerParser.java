@@ -125,12 +125,14 @@ public class SQLServerParser extends Parser {
     }
 
     private boolean isTransaction(List<Token> tokens, Token keyword, String keywordText) {
-        return TRANSACTION_REGEX.matcher(keywordText).matches() &&
+        return keywordText != null &&
+                TRANSACTION_REGEX.matcher(keywordText).matches() &&
                 lastTokenIs(tokens, keyword.getParensDepth(), "BEGIN");
     }
 
     private boolean isDistributedTransaction(List<Token> tokens, Token keyword, String keywordText) {
-        return TRANSACTION_REGEX.matcher(keywordText).matches() &&
+        return keywordText != null &&
+                TRANSACTION_REGEX.matcher(keywordText).matches() &&
                 lastTokenIs(tokens, keyword.getParensDepth(), "DISTRIBUTED") &&
                 tokenAtIndexIs(tokens, tokens.size() - 2, "BEGIN");
     }
