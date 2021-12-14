@@ -116,7 +116,8 @@ public class SQLServerParser extends Parser {
 
         if (context.getBlockDepth() > 0 && ("END".equals(keywordText) ||
                 isTransaction(tokens, keyword, keywordText) ||
-                isDistributedTransaction(tokens, keyword, keywordText))) {
+                isDistributedTransaction(tokens, keyword, keywordText)) ||
+                isDialogConversation(tokens, keyword, keywordText)) {
             context.decreaseBlockDepth();
         }
 
@@ -132,6 +133,11 @@ public class SQLServerParser extends Parser {
         return TRANSACTION_REGEX.matcher(keywordText).matches() &&
                 lastTokenIs(tokens, keyword.getParensDepth(), "DISTRIBUTED") &&
                 tokenAtIndexIs(tokens, tokens.size() - 2, "BEGIN");
+    }
+
+    private boolean isDialogConversation(List<Token> tokens, Token keyword, String keywordText) {
+        return ("DIALOG".equals(keywordText) || "CONVERSATION".equals(keywordText)) &&
+                lastTokenIs(tokens, keyword.getParensDepth(), "BEGIN");
     }
 
     @Override
