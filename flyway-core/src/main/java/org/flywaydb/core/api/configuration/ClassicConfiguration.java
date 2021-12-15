@@ -32,6 +32,7 @@ import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -1080,7 +1081,19 @@ public class ClassicConfiguration implements Configuration {
     public void loadCallbackLocation(String path, boolean errorOnNotFound) {
         List<String> callbackClasses = classScanner.scanForType(path, Callback.class, errorOnNotFound);
         for (String callback : callbackClasses) {
-            Class<? extends Callback> callbackClass = ClassUtils.loadClass(Callback.class, callback, classLoader);
+            Class<? extends Callback> callbackClass;
+            try {
+                callbackClass = ClassUtils.loadClass(Callback.class, callback, classLoader);
+            } catch(Throwable e) {
+                Throwable rootCause = ExceptionUtils.getRootCause(e);
+                LOG.warn("Skipping " + Callback.class + ": " + ClassUtils.formatThrowable(e) + (
+                        rootCause == e
+                                ? ""
+                                : " caused by " + ClassUtils.formatThrowable(rootCause)
+                                + " at " + ExceptionUtils.getThrowLocation(rootCause)
+                ));
+                callbackClass = null;
+            }
             if (callbackClass != null) { // Filter out abstract classes
                 Callback callbackObj = ClassUtils.instantiate(callback, classLoader);
                 this.callbacks.add(callbackObj);

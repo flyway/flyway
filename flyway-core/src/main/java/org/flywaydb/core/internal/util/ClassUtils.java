@@ -16,8 +16,8 @@
 package org.flywaydb.core.internal.util;
 
 import lombok.AccessLevel;
-import lombok.CustomLog;
 import lombok.NoArgsConstructor;
+import lombok.Synchronized;
 import org.flywaydb.core.api.FlywayException;
 
 import java.beans.Expression;
@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-@CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClassUtils {
 
@@ -45,9 +44,9 @@ public class ClassUtils {
      * @return The new instance.
      * @throws FlywayException Thrown when the instantiation failed.
      */
+    @Synchronized
     @SuppressWarnings({"unchecked"})
-    // Must be synchronized for the Maven Parallel Junit runner to work
-    public static synchronized <T> T instantiate(String className, ClassLoader classLoader) {
+    public static <T> T instantiate(String className, ClassLoader classLoader) {
         try {
             return (T) Class.forName(className, true, classLoader).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
@@ -55,9 +54,9 @@ public class ClassUtils {
         }
     }
 
+    @Synchronized
     @SuppressWarnings({"unchecked"})
-    // Must be synchronized for the Maven Parallel Junit runner to work
-    public static synchronized <T> T instantiate(String className, ClassLoader classLoader, Object... params) {
+    public static <T> T instantiate(String className, ClassLoader classLoader, Object... params) {
         try {
             return (T) new Expression(Class.forName(className, false, classLoader), "new", params).getValue();
         } catch (Exception e) {
@@ -73,8 +72,8 @@ public class ClassUtils {
      * @return The new instance.
      * @throws FlywayException Thrown when the instantiation failed.
      */
-    // Must be synchronized for the Maven Parallel Junit runner to work
-    public static synchronized <T> T instantiate(Class<T> clazz) {
+    @Synchronized
+    public static <T> T instantiate(Class<T> clazz) {
         try {
             return clazz.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
@@ -145,37 +144,24 @@ public class ClassUtils {
      * @param className The name of the class to load.
      * @param classLoader The ClassLoader to use.
      * @return the newly loaded class or {@code null} if it could not be loaded.
+     * @throws Exception Skip if exception thrown
      */
-    public static <I> Class<? extends I> loadClass(Class<I> implementedInterface, String className, ClassLoader classLoader) {
-        try {
-            Class<?> clazz = classLoader.loadClass(className);
-
-            if (!implementedInterface.isAssignableFrom(clazz)) {
-                return null;
-            }
-
-            if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isEnum() || clazz.isAnonymousClass()) {
-                LOG.debug("Skipping non-instantiable class: " + className);
-                return null;
-            }
-
-            clazz.getDeclaredConstructor().newInstance();
-            LOG.debug("Found class: " + className);
-            //noinspection unchecked
-            return (Class<? extends I>) clazz;
-        } catch (Throwable e) {
-            Throwable rootCause = ExceptionUtils.getRootCause(e);
-            LOG.warn("Skipping " + className + ": " + formatThrowable(e) + (
-                    rootCause == e
-                            ? ""
-                            : " caused by " + formatThrowable(rootCause)
-                            + " at " + ExceptionUtils.getThrowLocation(rootCause)
-            ));
+    public static <I> Class<? extends I> loadClass(Class<I> implementedInterface, String className, ClassLoader classLoader) throws Exception {
+        Class<?> clazz = classLoader.loadClass(className);
+        if (!implementedInterface.isAssignableFrom(clazz)) {
             return null;
         }
+
+        if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isEnum() || clazz.isAnonymousClass()) {
+            return null;
+        }
+
+        clazz.getDeclaredConstructor().newInstance();
+        //noinspection unchecked
+        return (Class<? extends I>) clazz;
     }
 
-    private static String formatThrowable(Throwable e) {
+    public static String formatThrowable(Throwable e) {
         return "(" + e.getClass().getSimpleName() + ": " + e.getMessage() + ")";
     }
 
@@ -209,8 +195,6 @@ public class ClassUtils {
     public static ClassLoader addJarsOrDirectoriesToClasspath(ClassLoader classLoader, List<File> jarFiles) {
         List<URL> urls = new ArrayList<>();
         for (File jarFile : jarFiles) {
-            LOG.debug("Adding location to classpath: " + jarFile.getAbsolutePath());
-
             try {
                 urls.add(jarFile.toURI().toURL());
             } catch (Exception e) {

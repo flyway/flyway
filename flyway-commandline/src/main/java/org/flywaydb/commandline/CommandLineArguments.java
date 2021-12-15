@@ -16,11 +16,12 @@
 package org.flywaydb.commandline;
 
 import lombok.RequiredArgsConstructor;
-import org.flywaydb.commandline.extensibility.CommandLineExtension;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -110,8 +111,7 @@ public class CommandLineArguments {
                 "validate",
                 "undo",
                 "baseline",
-                "repair"
-                                                                       ));
+                "repair"));
         operationsAndFlags.addAll(PRINT_VERSION_AND_EXIT_FLAGS);
         operationsAndFlags.addAll(PRINT_USAGE_FLAGS);
         return operationsAndFlags;
@@ -206,10 +206,8 @@ public class CommandLineArguments {
     }
 
     private boolean isHandledByExtension(String arg) {
-        ServiceLoader<CommandLineExtension> loader = ServiceLoader.load(CommandLineExtension.class);
-
-        for (CommandLineExtension extension : loader) {
-            if (extension.handlesVerb(arg) || extension.handlesParameter(arg)) {
+        for (CommandExtension extension : PluginRegister.getPlugins(CommandExtension.class)) {
+            if (extension.handlesCommand(arg) || extension.handlesParameter(arg)) {
                 return true;
             }
         }
@@ -237,15 +235,12 @@ public class CommandLineArguments {
     }
 
     public Level getLogLevel() {
-
         if (isFlagSet(args, QUIET_FLAG)) {
             return Level.WARN;
         }
-
         if (isFlagSet(args, DEBUG_FLAG)) {
             return Level.DEBUG;
         }
-
         return Level.INFO;
     }
 
