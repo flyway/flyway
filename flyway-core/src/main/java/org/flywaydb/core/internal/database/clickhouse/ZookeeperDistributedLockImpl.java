@@ -21,11 +21,9 @@ import org.I0Itec.zkclient.ZkClient;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.mysql.MySQLNamedLockTemplate;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 import javax.annotation.concurrent.ThreadSafe;
-
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -33,7 +31,7 @@ import java.util.concurrent.CountDownLatch;
 @ThreadSafe
 public class ZookeeperDistributedLockImpl {
 
-    private static final Log LOG = LogFactory.getLog(MySQLNamedLockTemplate.class);
+    private static final Log LOG = LogFactory.getLog(ZookeeperDistributedLockImpl.class);
     public static final String FLYWAY_NODE_PREFIX = "/flyway-";
 
     private final ZkClient zkClient;

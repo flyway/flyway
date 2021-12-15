@@ -103,10 +103,6 @@
             <groupId>net.sourceforge.jtds</groupId>
             <artifactId>jtds</artifactId>
         </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
         <!-- #2136: JNA is required for MariaDB with unix sockets -->
         <dependency>
             <groupId>net.java.dev.jna</groupId>
