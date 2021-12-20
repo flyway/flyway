@@ -17,10 +17,7 @@ package org.flywaydb.commandline;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import lombok.AccessLevel;
-import lombok.Cleanup;
-import lombok.CustomLog;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.MachineFingerprintUtils;
@@ -33,11 +30,19 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 
 @CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @ExtensionMethod(StringUtils.class)
 public class RedgateUpdateChecker {
+    @RequiredArgsConstructor
+    public static class Context {
+        public final String jdbcUrl;
+        public final List<String> verbs;
+    }
+
     private static final String PLATFORM_URL_ROOT = getRoot();
     private static final String USAGE_CHECKER_ENDPOINT = "/usage-checker";
     private static final String CFU_ENDPOINT = "/flyway/cfu/api/v0/cfu";
@@ -46,8 +51,8 @@ public class RedgateUpdateChecker {
         return usageChecker("flyway-cfu", VersionPrinter.getVersion());
     }
 
-    public static void checkForVersionUpdates(String jdbcUrl) {
-        String message = cfu(jdbcUrl);
+    public static void checkForVersionUpdates(Context context) {
+        String message = cfu(context);
         if (message.hasText()) {
             LOG.info(message);
         }
@@ -67,7 +72,7 @@ public class RedgateUpdateChecker {
         }
     }
 
-    private static String cfu(String jdbcUrl) {
+    private static String cfu(Context context) {
         try {
             @Cleanup(value = "disconnect") HttpsURLConnection connection = (HttpsURLConnection) new URL(PLATFORM_URL_ROOT + CFU_ENDPOINT).openConnection();
             connection.setRequestMethod("POST");
@@ -75,7 +80,7 @@ public class RedgateUpdateChecker {
             connection.setDoOutput(true);
 
             try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = getJsonPayload(jdbcUrl).getBytes(StandardCharsets.UTF_8);
+                byte[] input = getJsonPayload(context).getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
 
@@ -100,13 +105,15 @@ public class RedgateUpdateChecker {
         return root.hasText() ? root : "https://www.redgate-platform.com";
     }
 
-    private static String getJsonPayload(String jdbcUrl) throws Exception {
+    private static String getJsonPayload(Context context) throws Exception {
         String operatingSystem = System.getProperty("os.name");
         JsonObject json = new JsonObject();
         json.addProperty("currentVersion", VersionPrinter.getVersion());
         json.addProperty("operatingSystem", operatingSystem);
-        json.addProperty("fingerprint", MachineFingerprintUtils.getFingerprint(operatingSystem, jdbcUrl, System.getProperty("user.dir")));
+        json.addProperty("fingerprint", MachineFingerprintUtils.getFingerprint(operatingSystem, context.jdbcUrl, System.getProperty("user.dir")));
         json.addProperty("timeStamp", Instant.now().toString());
+        json.addProperty("edition", VersionPrinter.EDITION.name());
+        json.addProperty("verbs", Arrays.toString(context.verbs.toArray()));
         return new Gson().toJson(json);
     }
 }

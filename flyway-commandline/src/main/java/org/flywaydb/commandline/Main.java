@@ -141,7 +141,8 @@ public class Main {
 
             if (!commandLineArguments.skipCheckForUpdate()) {
                 if (RedgateUpdateChecker.isEnabled()) {
-                    RedgateUpdateChecker.checkForVersionUpdates(config.get(ConfigUtils.URL));
+                    RedgateUpdateChecker.Context context = new RedgateUpdateChecker.Context(config.get(ConfigUtils.URL), commandLineArguments.getOperations());
+                    RedgateUpdateChecker.checkForVersionUpdates(context);
                 } else {
                     MavenVersionChecker.checkForVersionUpdates();
                 }
