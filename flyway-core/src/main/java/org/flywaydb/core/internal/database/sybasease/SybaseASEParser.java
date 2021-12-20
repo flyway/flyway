@@ -35,7 +35,7 @@ public class SybaseASEParser extends Parser {
     }
 
     @Override
-    protected boolean isDelimiter(String peek, ParserContext context, int col, int colIgnoringWhitepace) {
+    protected boolean isDelimiter(String peek, ParserContext context, int col, int colIgnoringWhitespace) {
         return peek.length() >= 2
                 && (peek.charAt(0) == 'G' || peek.charAt(0) == 'g')
                 && (peek.charAt(1) == 'O' || peek.charAt(1) == 'o')

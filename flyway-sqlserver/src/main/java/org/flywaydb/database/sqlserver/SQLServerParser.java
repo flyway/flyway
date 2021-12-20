@@ -36,6 +36,7 @@ public class SQLServerParser extends Parser {
             "SP_SERVEROPTION", "SP_REPLICATIONDBOPTION",
             "SP_FULLTEXT_DATABASE");
 
+    private static final Pattern BEGIN_SINGLE_STATEMENT_REGEX = Pattern.compile("TRAN(SACTION)?|CONVERSATION|DIALOG");
     private static final Pattern TRANSACTION_REGEX = Pattern.compile("TRAN(SACTION)?");
 
     public SQLServerParser(Configuration configuration, ParsingContext parsingContext) {
@@ -48,7 +49,7 @@ public class SQLServerParser extends Parser {
     }
 
     @Override
-    protected boolean isDelimiter(String peek, ParserContext context, int col, int colIgnoringWhitepace) {
+    protected boolean isDelimiter(String peek, ParserContext context, int col, int colIgnoringWhitespace) {
         return peek.length() >= 2
                 && (peek.charAt(0) == 'G' || peek.charAt(0) == 'g')
                 && (peek.charAt(1) == 'O' || peek.charAt(1) == 'o')
@@ -115,7 +116,7 @@ public class SQLServerParser extends Parser {
         }
 
         if (context.getBlockDepth() > 0 && ("END".equals(keywordText) ||
-                isTransaction(tokens, keyword, keywordText) ||
+                isSingleStatementBegin(tokens, keyword, keywordText) ||
                 isDistributedTransaction(tokens, keyword, keywordText))) {
             context.decreaseBlockDepth();
         }
@@ -123,13 +124,13 @@ public class SQLServerParser extends Parser {
         super.adjustBlockDepth(context, tokens, keyword, reader);
     }
 
-    private boolean isTransaction(List<Token> tokens, Token keyword, String keywordText) {
-        return TRANSACTION_REGEX.matcher(keywordText).matches() &&
+    private boolean isSingleStatementBegin(List<Token> tokens, Token keyword, String keywordText) {
+        return keywordText != null && BEGIN_SINGLE_STATEMENT_REGEX.matcher(keywordText).matches() &&
                 lastTokenIs(tokens, keyword.getParensDepth(), "BEGIN");
     }
 
     private boolean isDistributedTransaction(List<Token> tokens, Token keyword, String keywordText) {
-        return TRANSACTION_REGEX.matcher(keywordText).matches() &&
+        return keywordText != null && TRANSACTION_REGEX.matcher(keywordText).matches() &&
                 lastTokenIs(tokens, keyword.getParensDepth(), "DISTRIBUTED") &&
                 tokenAtIndexIs(tokens, tokens.size() - 2, "BEGIN");
     }
