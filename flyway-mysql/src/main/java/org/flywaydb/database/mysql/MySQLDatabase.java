@@ -242,6 +242,11 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     @Override
     public final void ensureSupported() {
+        if (databaseType.getName().equals("TiDB")) {
+            ensureDatabaseIsRecentEnough("5.0");
+            recommendFlywayUpgradeIfNecessary("5.0");
+            return;
+        }
         ensureDatabaseIsRecentEnough("5.1");
         if (databaseType instanceof MariaDBDatabaseType) {
 
