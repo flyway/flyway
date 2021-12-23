@@ -69,7 +69,7 @@ public class ParserSqlScript implements SqlScript {
     }
 
     protected void parse() {
-        try (SqlStatementIterator sqlStatementIterator = parser.parse(resource)) {
+        try (SqlStatementIterator sqlStatementIterator = parser.parse(resource, metadata)) {
             boolean transactionalStatementFound = false;
             while (sqlStatementIterator.hasNext()) {
                 SqlStatement sqlStatement = sqlStatementIterator.next();

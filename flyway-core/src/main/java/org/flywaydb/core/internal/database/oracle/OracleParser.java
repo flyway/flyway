@@ -21,6 +21,7 @@ import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.parser.*;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
+import org.flywaydb.core.internal.sqlscript.SqlScriptMetadata;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.StringUtils;
 

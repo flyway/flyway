@@ -22,10 +22,7 @@ import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
-import org.flywaydb.core.internal.sqlscript.Delimiter;
-import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
-import org.flywaydb.core.internal.sqlscript.SqlStatement;
-import org.flywaydb.core.internal.sqlscript.SqlStatementIterator;
+import org.flywaydb.core.internal.sqlscript.*;
 import org.flywaydb.core.internal.util.BomStrippingReader;
 import org.flywaydb.core.internal.util.IOUtils;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
@@ -98,13 +95,18 @@ public abstract class Parser {
         return true;
     }
 
+    public final SqlStatementIterator parse(LoadableResource resource) {
+        return parse(resource, null);
+    }
+
     /**
      * Parses this resource into a stream of statements.
      *
      * @param resource The resource to parse.
+     * @param metadata The resource's metadata.
      * @return The statements.
      */
-    public final SqlStatementIterator parse(final LoadableResource resource) {
+    public final SqlStatementIterator parse(LoadableResource resource, SqlScriptMetadata metadata) {
         PositionTracker tracker = new PositionTracker();
         Recorder recorder = new Recorder();
         ParserContext context = new ParserContext(getDefaultDelimiter());
@@ -115,14 +117,14 @@ public abstract class Parser {
         ResourceName result = new ResourceNameParser(configuration).parse(filename);
         parsingContext.updateFilenamePlaceholder(result);
 
-        PeekingReader peekingReader =
-                new PeekingReader(
-                        new RecordingReader(recorder,
-                                            new PositionTrackingReader(tracker, replacePlaceholders(
-                                                    new BomStrippingReader(
-                                                            new UnboundedReadAheadReader(
-                                                                    new BufferedReader(resource.read(), 4096)))))),
-                        supportsPeekingMultipleLines());
+        PeekingReader peekingReader = new PeekingReader(
+                new RecordingReader(recorder,
+                                    new PositionTrackingReader(tracker, replacePlaceholders(
+                                            new BomStrippingReader(
+                                                    new UnboundedReadAheadReader(
+                                                            new BufferedReader(resource.read(), 4096))),
+                                            metadata))),
+                supportsPeekingMultipleLines());
 
         return new ParserSqlStatementIterator(peekingReader, resource, recorder, tracker, context);
     }
@@ -131,16 +133,13 @@ public abstract class Parser {
      * Configures this reader for placeholder replacement.
      *
      * @param reader The original reader.
+     * @param metadata The resource's metadata.
      * @return The new reader with placeholder replacement.
      */
-    protected Reader replacePlaceholders(Reader reader) {
-        if (configuration.isPlaceholderReplacement()) {
-            return PlaceholderReplacingReader.create(
-                    configuration,
-                    parsingContext,
-                    reader);
+    protected Reader replacePlaceholders(Reader reader, SqlScriptMetadata metadata) {
+        if (configuration.isPlaceholderReplacement() && (metadata == null || metadata.placeholderReplacement())) {
+            return PlaceholderReplacingReader.create(configuration, parsingContext, reader);
         }
-
         return reader;
     }
 

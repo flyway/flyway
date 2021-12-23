@@ -33,17 +33,24 @@ import static org.flywaydb.core.internal.util.BooleanEvaluator.evaluateExpressio
 public class SqlScriptMetadata {
     private static final String EXECUTE_IN_TRANSACTION = "executeInTransaction";
     private static final String ENCODING = "encoding";
+    private static final String PLACEHOLDER_REPLACEMENT = "placeholderReplacement";
     private static final String SHOULD_EXECUTE = "shouldExecute";
 
     private final Boolean executeInTransaction;
     private final String encoding;
+    private final boolean placeholderReplacement;
     private boolean shouldExecute;
 
     private SqlScriptMetadata(Map<String, String> metadata) {
         // Make copy to prevent removing elements from the original
         metadata = new HashMap<>(metadata);
+
         this.executeInTransaction = removeBoolean(metadata, EXECUTE_IN_TRANSACTION);
         this.encoding = metadata.remove(ENCODING);
+
+        this.placeholderReplacement = Boolean.parseBoolean(metadata.getOrDefault(PLACEHOLDER_REPLACEMENT, "true"));
+        metadata.remove(PLACEHOLDER_REPLACEMENT);
+
         this.shouldExecute = true;
 
 
@@ -51,11 +58,9 @@ public class SqlScriptMetadata {
 
 
 
-
-        if(metadata.containsKey(SHOULD_EXECUTE))
-        {
-            throw new FlywayTeamsUpgradeRequiredException("shouldExecute");
-        }
+         if(metadata.containsKey(SHOULD_EXECUTE)) {
+             throw new FlywayTeamsUpgradeRequiredException("shouldExecute");
+         }
 
 
         ConfigUtils.checkConfigurationForUnrecognisedProperties(metadata, null);
@@ -65,7 +70,13 @@ public class SqlScriptMetadata {
         return executeInTransaction;
     }
 
-    public String encoding() {return encoding;}
+    public String encoding() {
+        return encoding;
+    }
+
+    public boolean placeholderReplacement() {
+        return placeholderReplacement;
+    }
 
     public boolean shouldExecute() {
         return shouldExecute;
