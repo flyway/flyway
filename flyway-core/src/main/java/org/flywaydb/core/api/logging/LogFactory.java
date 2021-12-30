@@ -89,6 +89,7 @@ public class LogFactory {
         return new EvolvingLog(logCreator.createLogger(clazz), clazz);
     }
 
+    @Synchronized
     private static LogCreator getLogCreator(ClassLoader classLoader, LogCreator fallbackLogCreator) {
         if (configuration == null) {
             return new BufferedLogCreator();

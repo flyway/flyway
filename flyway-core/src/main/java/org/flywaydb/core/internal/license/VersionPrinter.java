@@ -30,13 +30,9 @@ import java.nio.charset.StandardCharsets;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VersionPrinter {
     public static final String VERSION = readVersion();
-
-    public static final Edition EDITION =
+    public static Edition EDITION =
 
             Edition.COMMUNITY
-
-
-
 
 
 
