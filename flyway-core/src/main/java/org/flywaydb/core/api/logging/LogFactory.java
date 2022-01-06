@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,6 +124,7 @@ public class LogFactory {
         return new MultiLogCreator(logCreators);
     }
 
+    @Synchronized
     private static LogCreator autoDetectLogCreator(ClassLoader classLoader, LogCreator fallbackLogCreator) {
         FeatureDetector featureDetector = new FeatureDetector(classLoader);
         if (featureDetector.isSlf4jAvailable()) {
