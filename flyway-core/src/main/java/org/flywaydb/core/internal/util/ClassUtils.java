@@ -34,17 +34,14 @@ import java.util.ServiceLoader;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClassUtils {
-
     /**
      * Creates a new instance of this class.
      *
      * @param className The fully qualified name of the class to instantiate.
      * @param classLoader The ClassLoader to use.
-     * @param <T> The type of the new instance.
      * @return The new instance.
      * @throws FlywayException Thrown when the instantiation failed.
      */
-    @Synchronized
     @SuppressWarnings({"unchecked"})
     public static <T> T instantiate(String className, ClassLoader classLoader) {
         try {
@@ -54,7 +51,6 @@ public class ClassUtils {
         }
     }
 
-    @Synchronized
     @SuppressWarnings({"unchecked"})
     public static <T> T instantiate(String className, ClassLoader classLoader, Object... params) {
         try {
@@ -68,11 +64,9 @@ public class ClassUtils {
      * Creates a new instance of this class.
      *
      * @param clazz The class to instantiate.
-     * @param <T> The type of the new instance.
      * @return The new instance.
      * @throws FlywayException Thrown when the instantiation failed.
      */
-    @Synchronized
     public static <T> T instantiate(Class<T> clazz) {
         try {
             return clazz.getDeclaredConstructor().newInstance();
@@ -86,14 +80,13 @@ public class ClassUtils {
      *
      * @param classes Fully qualified class names to instantiate.
      * @param classLoader The ClassLoader to use.
-     * @param <T> The common type for all classes.
      * @return The list of instances.
      */
     public static <T> List<T> instantiateAll(String[] classes, ClassLoader classLoader) {
         List<T> clazzes = new ArrayList<>();
         for (String clazz : classes) {
             if (StringUtils.hasLength(clazz)) {
-                clazzes.add(ClassUtils.<T>instantiate(clazz, classLoader));
+                clazzes.add(ClassUtils.instantiate(clazz, classLoader));
             }
         }
         return clazzes;
@@ -208,8 +201,8 @@ public class ClassUtils {
      * Gets the String value of a static field.
      *
      * @param className The fully qualified name of the class to instantiate.
+     * @param fieldName The field name.
      * @param classLoader The ClassLoader to use.
-     * @param fieldName The field name
      * @return The value of the field.
      * @throws FlywayException Thrown when the instantiation failed.
      */
