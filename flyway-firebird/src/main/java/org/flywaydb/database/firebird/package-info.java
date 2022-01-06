@@ -16,4 +16,4 @@
 /**
  * Private API. No compatibility guarantees provided.
  */
-package org.flywaydb.core.internal.database.firebird;
+package org.flywaydb.database.firebird;

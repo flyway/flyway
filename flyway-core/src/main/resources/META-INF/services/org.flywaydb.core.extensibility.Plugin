@@ -2,7 +2,6 @@ org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabaseType
 org.flywaydb.core.internal.database.redshift.RedshiftDatabaseType
 org.flywaydb.core.internal.database.db2.DB2DatabaseType
 org.flywaydb.core.internal.database.derby.DerbyDatabaseType
-org.flywaydb.core.internal.database.firebird.FirebirdDatabaseType
 org.flywaydb.core.internal.database.h2.H2DatabaseType
 org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabaseType
 org.flywaydb.core.internal.database.informix.InformixDatabaseType

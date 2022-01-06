@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.firebird;
+package org.flywaydb.database.firebird;
 
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
-
-import java.sql.SQLException;
 
 public class FirebirdConnection extends Connection<FirebirdDatabase> {
 
@@ -29,7 +27,7 @@ public class FirebirdConnection extends Connection<FirebirdDatabase> {
     }
 
     @Override
-    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
+    protected String getCurrentSchemaNameOrSearchPath() {
         return DUMMY_SCHEMA_NAME;
     }
 

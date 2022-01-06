@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.firebird;
+package org.flywaydb.database.firebird;
 
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
@@ -26,20 +26,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FirebirdSchema extends Schema<FirebirdDatabase, FirebirdTable> {
-    /**
-     * Creates a new Firebird schema.
-     *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param name The name of the schema.
-     */
+
     public FirebirdSchema(JdbcTemplate jdbcTemplate, FirebirdDatabase database, String name) {
         super(jdbcTemplate, database, name);
-
     }
 
     @Override
-    protected boolean doExists() throws SQLException {
+    protected boolean doExists() {
         // database == schema, always return true
         return true;
     }
@@ -93,7 +86,7 @@ public class FirebirdSchema extends Schema<FirebirdDatabase, FirebirdTable> {
     }
 
     @Override
-    protected void doCreate() throws SQLException {
+    protected void doCreate() {
         // database == schema, do nothing for creation
     }
 
@@ -146,13 +139,10 @@ public class FirebirdSchema extends Schema<FirebirdDatabase, FirebirdTable> {
                         "from RDB$RELATION_CONSTRAINTS\n" +
                         "where RDB$RELATION_NAME NOT LIKE 'RDB$%'\n" +
                         "and RDB$CONSTRAINT_TYPE='FOREIGN KEY'",
-                new RowMapper<String>() {
-                    @Override
-                    public String mapRow(ResultSet rs) throws SQLException {
-                        String tableName = rs.getString(1);
-                        String constraintName = rs.getString(2);
-                        return "ALTER TABLE " + tableName + " DROP CONSTRAINT " + constraintName;
-                    }
+                rs -> {
+                    String tableName = rs.getString(1);
+                    String constraintName = rs.getString(2);
+                    return "ALTER TABLE " + tableName + " DROP CONSTRAINT " + constraintName;
                 });
     }
 

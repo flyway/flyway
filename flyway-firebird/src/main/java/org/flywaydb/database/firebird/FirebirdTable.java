@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.firebird;
+package org.flywaydb.database.firebird;
 
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -22,14 +22,6 @@ import java.sql.SQLException;
 
 public class FirebirdTable extends Table<FirebirdDatabase, FirebirdSchema> {
 
-    /**
-     * Creates a new Firebird table.
-     *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param schema The schema this table lives in.
-     * @param name The name of the table.
-     */
     public FirebirdTable(JdbcTemplate jdbcTemplate, FirebirdDatabase database, FirebirdSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
     }

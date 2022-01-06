@@ -73,6 +73,7 @@
         <module>flyway-gcp-spanner</module>
         <module>flyway-sqlserver</module>
         <module>flyway-mysql</module>
+        <module>flyway-firebird</module>
 
 
 
