@@ -29,7 +29,7 @@ Flyway is brought to you by [Redgate](https://www.red-gate.com/) with the help o
 https://flywaydb.org/documentation/contribute
 
 ## License
-Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2020
+Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2022
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
