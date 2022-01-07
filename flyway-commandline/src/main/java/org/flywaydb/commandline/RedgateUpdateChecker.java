@@ -41,6 +41,8 @@ public class RedgateUpdateChecker {
     public static class Context {
         public final String jdbcUrl;
         public final List<String> verbs;
+        public final String dbEngine;
+        public final String dbVersion;
     }
 
     private static final String PLATFORM_URL_ROOT = getRoot();
@@ -114,6 +116,8 @@ public class RedgateUpdateChecker {
         json.addProperty("timeStamp", Instant.now().toString());
         json.addProperty("edition", VersionPrinter.EDITION.name());
         json.addProperty("verbs", Arrays.toString(context.verbs.toArray()));
+        json.addProperty("engine", context.dbEngine);
+        json.addProperty("version", context.dbVersion);
         return new Gson().toJson(json);
     }
 }

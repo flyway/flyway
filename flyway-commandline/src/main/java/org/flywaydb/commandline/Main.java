@@ -34,8 +34,10 @@ import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.license.FlywayTrialExpiredException;
 import org.flywaydb.core.internal.license.VersionPrinter;
 
@@ -139,16 +141,26 @@ public class Main {
 
 
 
+            Configuration configuration = new FluentConfiguration(classLoader).configuration(config);
+
             if (!commandLineArguments.skipCheckForUpdate()) {
                 if (RedgateUpdateChecker.isEnabled()) {
-                    RedgateUpdateChecker.Context context = new RedgateUpdateChecker.Context(config.get(ConfigUtils.URL), commandLineArguments.getOperations());
+                    JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
+                    Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null);
+
+                    RedgateUpdateChecker.Context context = new RedgateUpdateChecker.Context(
+                            config.get(ConfigUtils.URL),
+                            commandLineArguments.getOperations(),
+                            database.getDatabaseType().getName(),
+                            database.getVersion().getVersion()
+                    );
                     RedgateUpdateChecker.checkForVersionUpdates(context);
                 } else {
                     MavenVersionChecker.checkForVersionUpdates();
                 }
             }
 
-            Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
+            Flyway flyway = Flyway.configure(classLoader).configuration(configuration).load();
 
             OperationResultBase result;
             if (commandLineArguments.getOperations().size() == 1) {

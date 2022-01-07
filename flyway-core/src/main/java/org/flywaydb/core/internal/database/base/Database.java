@@ -141,9 +141,7 @@ public abstract class Database<C extends Connection> implements Closeable {
     }
 
     protected final void notifyDatabaseIsNotFormallySupported() {
-        String message = "Support for " + databaseType + " is provided only on a community-led basis, and is not formally supported by Redgate";
-
-        LOG.warn(message);
+        LOG.warn("Support for " + databaseType + " is provided only on a community-led basis, and is not formally supported by Redgate");
     }
 
     private void recommendFlywayUpgrade(String newestSupportedVersion) {
@@ -392,9 +390,13 @@ public abstract class Database<C extends Connection> implements Closeable {
         return databaseType;
     }
 
-    public boolean supportsEmptyMigrationDescription() {return true;}
+    public boolean supportsEmptyMigrationDescription() {
+        return true;
+    }
 
-    public boolean supportsMultiStatementTransactions() {return true;}
+    public boolean supportsMultiStatementTransactions() {
+        return true;
+    }
 
     /**
      * Cleans all the objects in this database that need to be cleaned before each schema.
