@@ -250,7 +250,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         ensureDatabaseIsRecentEnough("5.1");
         if (databaseType instanceof MariaDBDatabaseType) {
 
-            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.3", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.2", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
             recommendFlywayUpgradeIfNecessary("10.6");
         } else {
