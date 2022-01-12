@@ -1327,7 +1327,7 @@ public class ClassicConfiguration implements Configuration {
         user = configuration.getUser();
         password = configuration.getPassword();
 
-        configureFromConfigurationProviders();
+        configureFromConfigurationProviders(this);
     }
 
     /**
@@ -1637,12 +1637,12 @@ public class ClassicConfiguration implements Configuration {
         ConfigUtils.checkConfigurationForUnrecognisedProperties(props, "flyway.");
     }
 
-    private void configureFromConfigurationProviders() {
+    private void configureFromConfigurationProviders(ClassicConfiguration configuration) {
         Map<String, String> config = new HashMap<>();
         for (ConfigurationProvider configurationProvider : PluginRegister.getPlugins(ConfigurationProvider.class)) {
             ConfigurationExtension configurationExtension = (ConfigurationExtension) PluginRegister.getPlugin(configurationProvider.getConfigurationExtensionClass());
             try {
-                config.putAll(configurationProvider.getConfiguration(configurationExtension));
+                config.putAll(configurationProvider.getConfiguration(configurationExtension, configuration));
             } catch (Exception e) {
                 throw new FlywayException("Unable to read configuration from " + configurationProvider.getClass().getName() + ": " + e.getMessage());
             }
