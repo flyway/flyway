@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,12 @@
  */
 package org.flywaydb.core.internal.scanner;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.ResourceProvider;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
-import org.flywaydb.core.internal.scanner.android.AndroidScanner;
 import org.flywaydb.core.internal.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.scanner.classpath.ResourceAndClassScanner;
 import org.flywaydb.core.internal.scanner.cloud.s3.AwsS3Scanner;
@@ -41,8 +39,8 @@ import java.util.*;
 /**
  * Scanner for Resources and Classes.
  */
+@CustomLog
 public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
-    private static final Log LOG = LogFactory.getLog(Scanner.class);
 
     private final List<LoadableResource> resources = new ArrayList<>();
     private final List<Class<? extends I>> classes = new ArrayList<>();
@@ -66,8 +64,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
             boolean throwOnMissingLocations) {
         FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding, stream, detectEncoding, throwOnMissingLocations);
 
-        FeatureDetector detector =  new FeatureDetector(classLoader);
-        boolean android = detector.isAndroidAvailable();
+        FeatureDetector detector = new FeatureDetector(classLoader);
         boolean aws = detector.isAwsAvailable();
         boolean gcs = detector.isGCSAvailable();
         long cloudMigrationCount = 0;
@@ -97,9 +94,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
                     LOG.error("Can't read location " + location + "; AWS SDK not found");
                 }
             } else {
-                ResourceAndClassScanner<I> resourceAndClassScanner = android
-                        ? new AndroidScanner<>(implementedInterface, classLoader, encoding, location)
-                        : new ClassPathScanner<>(implementedInterface, classLoader, encoding, location, resourceNameCache, locationScannerCache, throwOnMissingLocations);
+                ResourceAndClassScanner<I> resourceAndClassScanner = new ClassPathScanner<>(implementedInterface, classLoader, encoding, location, resourceNameCache, locationScannerCache, throwOnMissingLocations);
                 resources.addAll(resourceAndClassScanner.scanForResources());
                 classes.addAll(resourceAndClassScanner.scanForClasses());
             }
@@ -148,7 +143,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
     /**
      * Returns all known resources starting with the specified prefix and ending with any of the specified suffixes.
      *
-     * @param prefix   The prefix of the resource names to match.
+     * @param prefix The prefix of the resource names to match.
      * @param suffixes The suffixes of the resource names to match.
      * @return The resources that were found.
      */

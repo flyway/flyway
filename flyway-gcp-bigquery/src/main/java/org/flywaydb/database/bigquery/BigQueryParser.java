@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class BigQueryParser extends Parser {
         // https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#reserved_keywords
         return new HashSet<>(Arrays.asList(
                 "ALL", "AND", "ANY", "ARRAY", "AS", "ASC", "ASSERT_ROWS_MODIFIED", "AT",
-                "BETWEEN", "BY",
+                "BEGIN", "BETWEEN", "BY",
                 "CASE", "CAST", "COLLATE", "CONTAINS", "CREATE", "CROSS", "CUBE", "CURRENT",
                 "DEFAULT", "DEFINE", "DESC", "DISTINCT",
                 "ELSE", "END", "ENUM", "ESCAPE", "EXCEPT", "EXCLUDE", "EXISTS", "EXTRACT",
@@ -48,7 +48,7 @@ public class BigQueryParser extends Parser {
                 "IF", "IGNORE", "IN", "INNER",
                 "INTERSECT", "INTERVAL", "INTO", "IS",
                 "JOIN",
-                "LATERAL", "LEFT", "LIKE", "LIMIT", "LOOKUP",
+                "LATERAL", "LEFT", "LIKE", "LIMIT", "LOOKUP", "LOOP",
                 "MERGE",
                 "NATURAL", "NEW", "NO",
                 "NOT", "NULL", "NULLS",
@@ -57,10 +57,10 @@ public class BigQueryParser extends Parser {
                 "PARTITION", "PRECEDING", "PROTO",
                 "RANGE", "RECURSIVE", "RESPECT", "RIGHT", "ROLLUP", "ROWS",
                 "SELECT", "SET", "SOME", "STRUCT",
-                "TABLESAMPLE", "THEN", "TO", "TREAT", "TRUE",
+                "TABLESAMPLE", "THEN", "TO", "TRANSACTION", "TREAT", "TRUE",
                 "UNBOUNDED", "UNION", "UNNEST", "USING",
-                "WHEN", "WHERE", "WINDOW", "WITH", "WITHIN"
-        ));
+                "WHEN", "WHERE", "WHILE", "WINDOW", "WITH", "WITHIN"
+                                          ));
     }
 
     @Override
@@ -106,8 +106,44 @@ public class BigQueryParser extends Parser {
             reader.swallow(tripleQuote.length());
         } else {
             reader.swallow();
-            reader.swallowUntilExcludingWithEscape(singleQuote, false, '\\');
-            reader.swallow();
+            reader.swallowUntilIncludingWithEscape(singleQuote, false, '\\');
+        }
+    }
+
+    @Override
+    protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
+        TokenType tokenType = token.getType();
+        if (TokenType.EOF.equals(tokenType) || TokenType.DELIMITER.equals(tokenType) || ";".equals(token.getText())) {
+            return true;
+        }
+
+        Token lastToken = getPreviousToken(tokens, context.getParensDepth());
+        if (lastToken != null && lastToken.getType() == TokenType.KEYWORD) {
+            return true;
+        }
+
+        return super.shouldAdjustBlockDepth(context, tokens, token);
+    }
+
+    @Override
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
+        String keywordText = keyword.getText();
+        int parensDepth = keyword.getParensDepth();
+
+        if ("BEGIN".equalsIgnoreCase(keywordText)) {
+            context.increaseBlockDepth(keywordText);
+        }
+
+        if (lastTokenIs(tokens, parensDepth, "BEGIN") &&
+                ("TRANSACTION".equalsIgnoreCase(keywordText) || ";".equalsIgnoreCase(keywordText))
+                && context.getBlockDepth() > 0) {
+            context.decreaseBlockDepth();
+        }
+
+        if (lastTokenIs(tokens, parensDepth, "END") &&
+                !"IF".equalsIgnoreCase(keywordText) && !"WHILE".equalsIgnoreCase(keywordText) && !"LOOP".equalsIgnoreCase(keywordText)
+                && context.getBlockDepth() > 0) {
+            context.decreaseBlockDepth();
         }
     }
 }

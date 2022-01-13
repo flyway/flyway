@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.database.spanner;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
@@ -28,6 +29,7 @@ import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import java.sql.Connection;
 import java.sql.Types;
 
+@CustomLog
 public class SpannerDatabaseType extends BaseDatabaseType {
     @Override
     public String getName() {
@@ -97,7 +99,8 @@ public class SpannerDatabaseType extends BaseDatabaseType {
         LOG.info(""); //this can go when the beta message above is retired.
         LOG.info("Experiencing performance issues while using GCP Spanner?");
         LOG.info("Find out how Flyway Teams improves performance with batching at " +
-                FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_CLOUD_SPANNER);
+                         FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_CLOUD_SPANNER);
+        LOG.info("");
 
     }
 }

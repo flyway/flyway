@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import lombok.CustomLog;
+import lombok.Getter;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -33,15 +33,19 @@ import java.sql.SQLException;
 /**
  * Utility class for dealing with jdbc connections.
  */
+@CustomLog
 public class JdbcConnectionFactory {
-    private static final Log LOG = LogFactory.getLog(JdbcConnectionFactory.class);
-
     private final DataSource dataSource;
     private final int connectRetries;
+    private final int connectRetriesInterval;
     private final Configuration configuration;
+    @Getter
     private final DatabaseType databaseType;
+    @Getter
     private final String jdbcUrl;
+    @Getter
     private final String driverInfo;
+    @Getter
     private final String productName;
 
     private Connection firstConnection;
@@ -52,20 +56,22 @@ public class JdbcConnectionFactory {
 
 
 
+
     /**
      * Creates a new JDBC connection factory. This automatically opens a first connection which can be obtained via
      * a call to getConnection and which must be closed again to avoid leaking it.
      *
-     * @param dataSource                 The DataSource to obtain the connection from.
-     * @param configuration              The Flyway configuration.
-     * @param statementInterceptor       The statement interceptor. {@code null} if none.
+     * @param dataSource The DataSource to obtain the connection from.
+     * @param configuration The Flyway configuration.
+     * @param statementInterceptor The statement interceptor. {@code null} if none.
      */
     public JdbcConnectionFactory(DataSource dataSource, Configuration configuration, StatementInterceptor statementInterceptor) {
         this.dataSource = dataSource;
         this.connectRetries = configuration.getConnectRetries();
+        this.connectRetriesInterval = configuration.getConnectRetriesInterval();
         this.configuration = configuration;
 
-        firstConnection = JdbcUtils.openConnection(dataSource, connectRetries);
+        firstConnection = JdbcUtils.openConnection(dataSource, connectRetries, connectRetriesInterval);
         this.databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(firstConnection);
 
         final DatabaseMetaData databaseMetaData = JdbcUtils.getDatabaseMetaData(firstConnection);
@@ -95,27 +101,8 @@ public class JdbcConnectionFactory {
 
 
 
-
-
-
-    public DatabaseType getDatabaseType() {
-        return databaseType;
-    }
-
-    public String getJdbcUrl() {
-        return jdbcUrl;
-    }
-
-    public String getDriverInfo() {
-        return driverInfo;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
     public Connection openConnection() throws FlywayException {
-        Connection connection = firstConnection == null ? JdbcUtils.openConnection(dataSource, connectRetries) : firstConnection;
+        Connection connection = firstConnection == null ? JdbcUtils.openConnection(dataSource, connectRetries, connectRetriesInterval) : firstConnection;
         firstConnection = null;
 
         if (connectionInitializer != null) {

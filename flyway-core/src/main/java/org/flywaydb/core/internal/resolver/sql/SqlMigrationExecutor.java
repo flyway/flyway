@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
@@ -28,6 +30,7 @@ import java.sql.SQLException;
 /**
  * Database migration based on a sql file.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class SqlMigrationExecutor implements MigrationExecutor {
     private final SqlScriptExecutorFactory sqlScriptExecutorFactory;
 
@@ -46,18 +49,6 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      */
     private final boolean batch;
 
-    /**
-     * Creates a new sql script migration based on this sql script.
-     *
-     * @param sqlScript The SQL script that will be executed.
-     */
-    SqlMigrationExecutor(SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScript sqlScript, boolean undo, boolean batch) {
-        this.sqlScriptExecutorFactory = sqlScriptExecutorFactory;
-        this.sqlScript = sqlScript;
-        this.undo = undo;
-        this.batch = batch;
-    }
-
     @Override
     public void execute(final Context context) throws SQLException {
         DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(context.getConnection());
@@ -75,7 +66,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
 
 
-        sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection() , undo, batch, outputQueryResults).execute(sqlScript);
+        sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection(), undo, batch, outputQueryResults).execute(sqlScript);
     }
 
     @Override

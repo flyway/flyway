@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ public class H2Database extends Database<H2Connection> {
      * A dummy script marker used in Oracle mode, where a marker row is inserted with no corresponding script.
      */
     private static final String DUMMY_SCRIPT_NAME = "<< history table creation script >>";
+
     /**
      * The compatibility modes supported by H2. See http://h2database.com/html/features.html#compatibility
      */
@@ -58,6 +59,7 @@ public class H2Database extends Database<H2Connection> {
     public H2Database(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
 
+        requiresV2MetadataColumnNames = super.determineVersion().isAtLeast("2.0.0");
         compatibilityMode = determineCompatibilityMode();
     }
 
@@ -85,13 +87,15 @@ public class H2Database extends Database<H2Connection> {
                 : "SELECT VALUE FROM INFORMATION_SCHEMA.SETTINGS WHERE NAME = 'MODE'";
         try {
             String mode = getMainConnection().getJdbcTemplate().queryForString(query);
-            if (mode == null || "".equals(mode))
+            if (mode == null || "".equals(mode)) {
                 return CompatibilityMode.REGULAR;
+            }
             return CompatibilityMode.valueOf(mode);
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine H2 compatibility mode", e);
         }
     }
+
 
 
 
@@ -107,9 +111,8 @@ public class H2Database extends Database<H2Connection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("1.4", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("2.0.201");
+        recommendFlywayUpgradeIfNecessary("2.0.206");
         supportsDropSchemaCascade = getVersion().isAtLeast("1.4.200");
-        requiresV2MetadataColumnNames = getVersion().isAtLeast("2.0.0");
     }
 
     @Override
@@ -159,13 +162,18 @@ public class H2Database extends Database<H2Connection> {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        // In Oracle mode, empty strings in the installed_by column of the history table would be converted to NULLs.
-        // As H2 supports a null user, we use a dummy value when required.
-        String user = getMainConnection().getJdbcTemplate().queryForString("SELECT USER()");
-
-        if (compatibilityMode == CompatibilityMode.Oracle && (user == null || "".equals(user)))
-            return DEFAULT_USER;
-        return user;
+        try {
+            String user = getMainConnection().getJdbcTemplate().queryForString("SELECT USER()");
+            if (compatibilityMode == CompatibilityMode.Oracle && (user == null || "".equals(user))) {
+                user = DEFAULT_USER;
+            }
+            return user;
+        } catch (Exception e) {
+            if (compatibilityMode == CompatibilityMode.Oracle) {
+                return DEFAULT_USER;
+            }
+            throw e;
+        }
     }
 
     @Override
@@ -185,12 +193,7 @@ public class H2Database extends Database<H2Connection> {
 
     @Override
     public String getBooleanFalse() {
-        return "0";
-    }
-
-    @Override
-    public String doQuote(String identifier) {
-        return "\"" + identifier + "\"";
+        return requiresV2MetadataColumnNames ? "FALSE" : "0";
     }
 
     @Override

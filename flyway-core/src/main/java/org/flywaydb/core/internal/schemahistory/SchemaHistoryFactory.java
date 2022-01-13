@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@
  */
 package org.flywaydb.core.internal.schemahistory;
 
+import lombok.CustomLog;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.NoopCallbackExecutor;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
@@ -35,13 +36,9 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+@CustomLog
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SchemaHistoryFactory {
-    private static final Log LOG = LogFactory.getLog(SchemaHistoryFactory.class);
-
-    private SchemaHistoryFactory() {
-        // Prevent instantiation
-    }
-
     public static SchemaHistory getSchemaHistory(Configuration configuration,
                                                  SqlScriptExecutorFactory sqlScriptExecutorFactory,
                                                  SqlScriptFactory sqlScriptFactory,
@@ -63,25 +60,22 @@ public class SchemaHistoryFactory {
     }
 
     public static SchemaHistory getSchemaHistory(Configuration configuration) {
-        JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(
-                configuration.getDataSource(),
-                configuration,
-                null);
+        JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
+        final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
+        Database database = databaseType.createDatabase(configuration, true, jdbcConnectionFactory, null);
+
+        return getSchemaHistory(configuration, database);
+    }
+
+    public static SchemaHistory getSchemaHistory(Configuration configuration, Database database) {
+        JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
 
         final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
         final ParsingContext parsingContext = new ParsingContext();
         final SqlScriptFactory sqlScriptFactory = databaseType.createSqlScriptFactory(configuration, parsingContext);
 
         final SqlScriptExecutorFactory noCallbackSqlScriptExecutorFactory = databaseType.createSqlScriptExecutorFactory(
-                jdbcConnectionFactory,
-                NoopCallbackExecutor.INSTANCE,
-                null);
-
-        Database database = databaseType.createDatabase(
-                configuration,
-                true,
-                jdbcConnectionFactory,
-                null);
+                jdbcConnectionFactory, NoopCallbackExecutor.INSTANCE, null);
 
         Pair<Schema, List<Schema>> schemas = prepareSchemas(configuration, database);
         Schema defaultSchema = schemas.getLeft();
@@ -114,7 +108,7 @@ public class SchemaHistoryFactory {
             Schema currentSchema = database.getMainConnection().getCurrentSchema();
             if (currentSchema == null) {
                 throw new FlywayException("Unable to determine schema for the schema history table." +
-                        " Set a default schema for the connection or specify one using the defaultSchema property!");
+                                                  " Set a default schema for the connection or specify one using the defaultSchema property!");
             }
             schemas.add(currentSchema);
         } else {

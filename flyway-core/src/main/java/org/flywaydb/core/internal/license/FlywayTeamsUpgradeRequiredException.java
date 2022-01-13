@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,6 @@ import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 public class FlywayTeamsUpgradeRequiredException extends FlywayException {
     public FlywayTeamsUpgradeRequiredException(String feature) {
         super(Edition.ENTERPRISE + " upgrade required: " + feature + " is not supported by " + Edition.COMMUNITY + "\n" +
-                "Try " + Edition.ENTERPRISE + " for free: " + FlywayDbWebsiteLinks.TRY_TEAMS_EDITION);
+                      "Try " + Edition.ENTERPRISE + " for free: " + FlywayDbWebsiteLinks.TRY_TEAMS_EDITION);
     }
 }

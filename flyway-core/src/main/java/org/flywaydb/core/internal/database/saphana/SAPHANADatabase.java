@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,7 @@ import java.sql.Connection;
  * SAP HANA database.
  */
 public class SAPHANADatabase extends Database<SAPHANAConnection> {
-    /**
-     * Creates a new instance.
-     */
+
     public SAPHANADatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
@@ -38,6 +36,7 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     protected SAPHANAConnection doGetConnection(Connection connection) {
         return new SAPHANAConnection(this, connection);
     }
+
 
 
 
@@ -103,11 +102,6 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     @Override
     public String getBooleanFalse() {
         return "0";
-    }
-
-    @Override
-    public String doQuote(String identifier) {
-        return "\"" + identifier + "\"";
     }
 
     @Override

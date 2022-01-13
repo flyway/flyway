@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import lombok.CustomLog;
 import oracle.jdbc.OracleConnection;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.ResourceProvider;
@@ -40,6 +41,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+@CustomLog
 public class OracleDatabaseType extends BaseDatabaseType {
     // Oracle usernames/passwords can be 1-30 chars, can only contain alphanumerics and # _ $
     // The first (and only) capture group represents the password
@@ -121,9 +123,9 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
     @Override
     public SqlScriptExecutorFactory createSqlScriptExecutorFactory(JdbcConnectionFactory jdbcConnectionFactory,
-            final CallbackExecutor callbackExecutor,
-            final StatementInterceptor statementInterceptor
-    ) {
+                                                                   final CallbackExecutor callbackExecutor,
+                                                                   final StatementInterceptor statementInterceptor
+                                                                  ) {
 
 
 
@@ -132,7 +134,7 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
         return new SqlScriptExecutorFactory() {
             @Override
-            public SqlScriptExecutor createSqlScriptExecutor(Connection connection , boolean undo, boolean batch, boolean outputQueryResults) {
+            public SqlScriptExecutor createSqlScriptExecutor(Connection connection, boolean undo, boolean batch, boolean outputQueryResults) {
 
 
 
@@ -159,6 +161,9 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
     @Override
     public void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader) {
+
+
+
 
 
 

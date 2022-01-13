@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,60 +15,49 @@
  */
 package org.flywaydb.core.api;
 
-/**
- * Type of migration.
- */
+import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+
+@RequiredArgsConstructor
+@Getter
 public enum MigrationType {
     /**
      * Schema creation migration.
      */
-    SCHEMA(true, false),
-
+    SCHEMA(true, false, false),
     /**
      * Baseline migration.
      */
-    BASELINE(true, false),
-
+    BASELINE(true, false, false),
     /**
      * Deleted migration
      */
-    DELETE(true, false),
-
+    DELETE(true, false, false),
     /**
      * SQL migrations.
      */
-    SQL(false, false),
-
+    SQL(false, false, false),
+    /**
+     * SQL baseline migrations.
+     */
+    SQL_BASELINE(false, false, true),
     /**
      * Undo SQL migrations.
      */
-    UNDO_SQL(false, true),
-
+    UNDO_SQL(false, true, false),
     /**
      * JDBC Java-based migrations.
      */
-    JDBC(false, false),
-
+    JDBC(false, false, false),
+    /**
+     * JDBC Java-based baseline migrations.
+     */
+    JDBC_BASELINE(false, false, true),
     /**
      * Undo JDBC java-based migrations.
      */
-    UNDO_JDBC(false, true),
+    UNDO_JDBC(false, true, false),
 
-    /**
-     * Spring JDBC Java-based migrations.
-     *
-     * @deprecated Will be removed in Flyway 7.0. Use JDBC instead.
-     */
-    @Deprecated
-    SPRING_JDBC(false, false),
-
-    /**
-     * Undo Spring JDBC java-based migrations.
-     *
-     * @deprecated Will be removed in Flyway 7.0. Use UNDO_JDBC instead.
-     */
-    @Deprecated
-    UNDO_SPRING_JDBC(false, true),
 
 
 
@@ -85,33 +74,41 @@ public enum MigrationType {
     /**
      * Migrations using custom MigrationResolvers.
      */
-    CUSTOM(false, false),
-
+    CUSTOM(false, false, false),
     /**
      * Undo migrations using custom MigrationResolvers.
      */
-    UNDO_CUSTOM(false, true);
-
-    private final boolean synthetic;
-    private final boolean undo;
-
-    MigrationType(boolean synthetic, boolean undo) {
-        this.synthetic = synthetic;
-        this.undo = undo;
-    }
+    UNDO_CUSTOM(false, true, false);
 
     /**
      * @return Whether this is a synthetic migration type, which is only ever present in the schema history table,
      * but never discovered by migration resolvers.
      */
-    public boolean isSynthetic() {
-        return synthetic;
-    }
-
+    private final boolean synthetic;
     /**
      * @return Whether this is an undo migration, which has undone an earlier migration present in the schema history table.
      */
-    public boolean isUndo() {
-        return undo;
+    private final boolean undo;
+    /**
+     * @return Whether this is a baseline migration, which represents all migrations with
+     * version <= current baseline migration version.
+     */
+    private final boolean baselineMigration;
+
+    public static MigrationType fromString(String migrationType) {
+        // Convert legacy types to maintain compatibility
+        if ("SPRING_JDBC".equals(migrationType)) {
+            return JDBC;
+        }
+        if ("UNDO_SPRING_JDBC".equals(migrationType)) {
+            return UNDO_JDBC;
+        }
+        if ("SQL_STATE_SCRIPT".equals(migrationType)) {
+            return SQL_BASELINE;
+        }
+        if ("JDBC_STATE_SCRIPT".equals(migrationType)) {
+            return JDBC_BASELINE;
+        }
+        return valueOf(migrationType);
     }
 }

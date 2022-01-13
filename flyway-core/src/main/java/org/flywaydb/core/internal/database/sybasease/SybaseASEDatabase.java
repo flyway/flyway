@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.database.sybasease;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
@@ -30,9 +29,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+@CustomLog
 public class SybaseASEDatabase extends Database<SybaseASEConnection> {
-    private static final Log LOG = LogFactory.getLog(SybaseASEDatabase.class);
-
     private String databaseName = null;
     private boolean supportsMultiStatementTransactions = false;
 
@@ -54,13 +52,14 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
 
 
 
+
     @Override
     public void ensureSupported() {
         ensureDatabaseIsRecentEnough("15.7");
 
-        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("16.2", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("16.3", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("16.2");
+        recommendFlywayUpgradeIfNecessary("16.3");
     }
 
     @Override
@@ -123,9 +122,13 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     }
 
     @Override
-    protected String doQuote(String identifier) {
-        //Sybase doesn't quote identifiers, skip quoting.
-        return identifier;
+    public String getOpenQuote() {
+        return "";
+    }
+
+    @Override
+    public String getCloseQuote() {
+        return "";
     }
 
     @Override
@@ -151,7 +154,7 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     public boolean supportsMultiStatementTransactions() {
         if (supportsMultiStatementTransactions) {
             LOG.debug("ddl in tran was found to be true at some point during execution." +
-                    "Therefore multi statement transaction support is assumed.");
+                              "Therefore multi statement transaction support is assumed.");
             return true;
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public class PostgreSQLCopyParsedStatement extends ParsedSqlStatement {
 
 
 
-        );
+             );
         this.copyData = copyData;
     }
 
@@ -63,7 +63,7 @@ public class PostgreSQLCopyParsedStatement extends ParsedSqlStatement {
 
 
 
-    ) {
+                          ) {
         // #2355: Use reflection to ensure this works in cases where the PostgreSQL driver classes were loaded in a
         //        child URLClassLoader instead of the system classloader.
         Object baseConnection;

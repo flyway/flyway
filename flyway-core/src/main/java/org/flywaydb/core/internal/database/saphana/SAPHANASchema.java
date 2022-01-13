@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ public class SAPHANASchema extends Schema<SAPHANADatabase, SAPHANATable> {
      * Creates a new SAP HANA schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param name         The name of the schema.
+     * @param database The database-specific support.
+     * @param name The name of the schema.
      */
     SAPHANASchema(JdbcTemplate jdbcTemplate, SAPHANADatabase database, String name) {
         super(jdbcTemplate, database, name);

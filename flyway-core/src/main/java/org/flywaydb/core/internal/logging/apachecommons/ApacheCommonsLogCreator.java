@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,6 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.apache.commons.logging.LogFactory;
 
-/**
- * Log Creator for Apache Commons Logging.
- */
 public class ApacheCommonsLogCreator implements LogCreator {
     public Log createLogger(Class<?> clazz) {
         return new ApacheCommonsLog(LogFactory.getLog(clazz));

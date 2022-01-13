@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.info;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
@@ -27,13 +29,8 @@ import java.util.*;
 /**
  * Dumps migrations in an ascii-art table in the logs and the console.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MigrationInfoDumper {
-    /**
-     * Prevent instantiation.
-     */
-    private MigrationInfoDumper() {
-        // Do nothing
-    }
 
     /**
      * Dumps the info about all migrations into an ascii table.
@@ -51,7 +48,7 @@ public class MigrationInfoDumper {
 
 
 
-        );
+                                            );
 
         List<List<String>> rows = new ArrayList<>();
         for (MigrationInfo migrationInfo : migrationInfos) {
@@ -65,7 +62,7 @@ public class MigrationInfoDumper {
 
 
 
-            );
+                                            );
             rows.add(row);
         }
 

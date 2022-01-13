@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,14 @@
  */
 package org.flywaydb.core.internal.configuration;
 
+import lombok.AccessLevel;
+import lombok.CustomLog;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.extensibility.ConfigurationProvider;
+import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -31,9 +33,9 @@ import java.util.regex.Pattern;
 
 import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.isMultilineBooleanExpression;
 
+@CustomLog
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConfigUtils {
-    private static final Log LOG = LogFactory.getLog(ConfigUtils.class);
-
     public static final String CONFIG_FILE_NAME = "flyway.conf";
     public static final String CONFIG_FILES = "flyway.configFiles";
     public static final String CONFIG_FILE_ENCODING = "flyway.configFileEncoding";
@@ -45,6 +47,7 @@ public class ConfigUtils {
     public static final String CLEAN_DISABLED = "flyway.cleanDisabled";
     public static final String CLEAN_ON_VALIDATION_ERROR = "flyway.cleanOnValidationError";
     public static final String CONNECT_RETRIES = "flyway.connectRetries";
+    public static final String CONNECT_RETRIES_INTERVAL = "flyway.connectRetriesInterval";
     public static final String DEFAULT_SCHEMA = "flyway.defaultSchema";
     public static final String DRIVER = "flyway.driver";
     public static final String DRYRUN_OUTPUT = "flyway.dryRunOutput";
@@ -69,6 +72,8 @@ public class ConfigUtils {
     public static final String PLACEHOLDER_PREFIX = "flyway.placeholderPrefix";
     public static final String PLACEHOLDER_REPLACEMENT = "flyway.placeholderReplacement";
     public static final String PLACEHOLDER_SUFFIX = "flyway.placeholderSuffix";
+    public static final String SCRIPT_PLACEHOLDER_PREFIX = "flyway.scriptPlaceholderPrefix";
+    public static final String SCRIPT_PLACEHOLDER_SUFFIX = "flyway.scriptPlaceholderSuffix";
     public static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
     public static final String LOCK_RETRY_COUNT = "flyway.lockRetryCount";
     public static final String JDBC_PROPERTIES_PREFIX = "flyway.jdbcProperties.";
@@ -80,6 +85,7 @@ public class ConfigUtils {
     public static final String SQL_MIGRATION_PREFIX = "flyway.sqlMigrationPrefix";
     public static final String SQL_MIGRATION_SEPARATOR = "flyway.sqlMigrationSeparator";
     public static final String SQL_MIGRATION_SUFFIXES = "flyway.sqlMigrationSuffixes";
+    public static final String BASELINE_MIGRATION_PREFIX = "flyway.baselineMigrationPrefix";
     public static final String STREAM = "flyway.stream";
     public static final String TABLE = "flyway.table";
     public static final String TABLESPACE = "flyway.tablespace";
@@ -92,12 +98,15 @@ public class ConfigUtils {
     public static final String VALIDATE_MIGRATION_NAMING = "flyway.validateMigrationNaming";
     public static final String CREATE_SCHEMAS = "flyway.createSchemas";
     public static final String FAIL_ON_MISSING_LOCATIONS = "flyway.failOnMissingLocations";
+    public static final String LOGGERS = "flyway.loggers";
+    public static final String KERBEROS_CONFIG_FILE = "flyway.kerberosConfigFile";
 
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
     public static final String ORACLE_SQLPLUS_WARN = "flyway.oracle.sqlplusWarn";
     public static final String ORACLE_KERBEROS_CONFIG_FILE = "flyway.oracle.kerberosConfigFile";
     public static final String ORACLE_KERBEROS_CACHE_FILE = "flyway.oracle.kerberosCacheFile";
+    public static final String ORACLE_WALLET_LOCATION = "flyway.oracle.walletLocation";
 
     // Command-line specific
     public static final String JAR_DIRS = "flyway.jarDirs";
@@ -105,7 +114,8 @@ public class ConfigUtils {
     // Gradle specific
     public static final String CONFIGURATIONS = "flyway.configurations";
 
-    private ConfigUtils() { }
+    // Plugin specific
+    public static final String FLYWAY_PLUGINS_PREFIX = "flyway.plugins.";
 
     /**
      * Converts Flyway-specific environment variables to their matching properties.
@@ -157,6 +167,11 @@ public class ConfigUtils {
         if ("FLYWAY_CONNECT_RETRIES".equals(key)) {
             return CONNECT_RETRIES;
         }
+
+        if ("FLYWAY_CONNECT_RETRIES_INTERVAL".equals(key)) {
+            return CONNECT_RETRIES_INTERVAL;
+        }
+
         if ("FLYWAY_DEFAULT_SCHEMA".equals(key)) {
             return DEFAULT_SCHEMA;
         }
@@ -232,6 +247,12 @@ public class ConfigUtils {
         if ("FLYWAY_PLACEHOLDER_SUFFIX".equals(key)) {
             return PLACEHOLDER_SUFFIX;
         }
+        if ("FLYWAY_SCRIPT_PLACEHOLDER_PREFIX".equals(key)) {
+            return SCRIPT_PLACEHOLDER_PREFIX;
+        }
+        if ("FLYWAY_SCRIPT_PLACEHOLDER_SUFFIX".equals(key)) {
+            return SCRIPT_PLACEHOLDER_SUFFIX;
+        }
         if (key.matches("FLYWAY_PLACEHOLDERS_.+")) {
             return PLACEHOLDERS_PROPERTY_PREFIX + key.substring("FLYWAY_PLACEHOLDERS_".length()).toLowerCase(Locale.ENGLISH);
         }
@@ -264,6 +285,9 @@ public class ConfigUtils {
         if ("FLYWAY_SQL_MIGRATION_SUFFIXES".equals(key)) {
             return SQL_MIGRATION_SUFFIXES;
         }
+        if ("FLYWAY_BASELINE_MIGRATION_PREFIX".equals(key)) {
+            return BASELINE_MIGRATION_PREFIX;
+        }
         if ("FLYWAY_STREAM".equals(key)) {
             return STREAM;
         }
@@ -278,6 +302,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_CHERRY_PICK".equals(key)) {
             return CHERRY_PICK;
+        }
+        if ("FLYWAY_LOGGERS".equals(key)) {
+            return LOGGERS;
         }
         if ("FLYWAY_UNDO_SQL_MIGRATION_PREFIX".equals(key)) {
             return UNDO_SQL_MIGRATION_PREFIX;
@@ -300,6 +327,9 @@ public class ConfigUtils {
         if ("FLYWAY_FAIL_ON_MISSING_LOCATIONS".equals(key)) {
             return FAIL_ON_MISSING_LOCATIONS;
         }
+        if ("FLYWAY_KERBEROS_CONFIG_FILE".equals(key)) {
+            return KERBEROS_CONFIG_FILE;
+        }
 
         // Oracle-specific
         if ("FLYWAY_ORACLE_SQLPLUS".equals(key)) {
@@ -314,6 +344,9 @@ public class ConfigUtils {
         if ("FLYWAY_ORACLE_KERBEROS_CACHE_FILE".equals(key)) {
             return ORACLE_KERBEROS_CACHE_FILE;
         }
+        if ("FLYWAY_ORACLE_WALLET_LOCATION".equals(key)) {
+            return ORACLE_WALLET_LOCATION;
+        }
 
         // Command-line specific
         if ("FLYWAY_JAR_DIRS".equals(key)) {
@@ -325,9 +358,8 @@ public class ConfigUtils {
             return CONFIGURATIONS;
         }
 
-        ServiceLoader<ConfigurationProvider> loader = ServiceLoader.load(ConfigurationProvider.class);
-        for (ConfigurationProvider configurationProvider : loader) {
-            String configurationParameter = configurationProvider.getConfigurationParameterFromEnvironmentVariable(key);
+        for (ConfigurationExtension configurationExtension : PluginRegister.getPlugins(ConfigurationExtension.class)) {
+            String configurationParameter = configurationExtension.getConfigurationParameterFromEnvironmentVariable(key);
             if (configurationParameter != null) {
                 return configurationParameter;
             }
@@ -357,8 +389,8 @@ public class ConfigUtils {
     /**
      * Loads the configuration from this configuration file.
      *
-     * @param configFile    The configuration file to load.
-     * @param encoding      The encoding of the configuration file.
+     * @param configFile The configuration file to load.
+     * @param encoding The encoding of the configuration file.
      * @param failIfMissing Whether to fail if the file is missing.
      * @return The properties from the configuration file. An empty Map if none.
      * @throws FlywayException When the configuration file could not be loaded.
@@ -401,7 +433,7 @@ public class ConfigUtils {
                     // Prepend the first character to the rest of the string
                     // This is a char, represented as an int, so we cast to a char
                     // which is implicitly converted to an string
-                    String configurationString = (char)firstCharacter + FileCopyUtils.copyToString(bufferedReader);
+                    String configurationString = (char) firstCharacter + FileCopyUtils.copyToString(bufferedReader);
                     Map<String, String> configurationFromStandardInput = loadConfigurationFromString(configurationString);
 
                     if (configurationFromStandardInput.isEmpty()) {
@@ -446,13 +478,13 @@ public class ConfigUtils {
             // if the line ends in a \\, then it may be a multiline property
             if (replacedLine.endsWith("\\\\")) {
                 // if we aren't the last line
-                if (i < lines.length-1) {
+                if (i < lines.length - 1) {
                     // look ahead to see if the next line is a blank line, a property, or another multiline
-                    String nextLine = lines[i+1];
+                    String nextLine = lines[i + 1];
                     boolean restoreMultilineDelimiter = false;
                     if (nextLine.isEmpty()) {
                         // blank line
-                    } else if (nextLine.contains("=")) {
+                    } else if (nextLine.trim().startsWith("flyway.") && nextLine.contains("=")) {
                         if (isMultilineBooleanExpression(nextLine)) {
                             // next line is an extension of a boolean expression
                             restoreMultilineDelimiter = true;
@@ -465,7 +497,7 @@ public class ConfigUtils {
 
                     if (restoreMultilineDelimiter) {
                         // it's a multiline property, so restore the original single slash
-                        replacedLine = replacedLine.substring(0, replacedLine.length()-2) + "\\";
+                        replacedLine = replacedLine.substring(0, replacedLine.length() - 2) + "\\";
                     }
                 }
             }
@@ -478,28 +510,6 @@ public class ConfigUtils {
         contents = expandEnvironmentVariables(contents, System.getenv());
         properties.load(new StringReader(contents));
         return propertiesToMap(properties);
-    }
-
-    public static Map<String, String> loadConfigurationFromSecretsManagers(Map<String, String> config) {
-        Map<String, String> secretsManagerConfiguration = new HashMap<>();
-        ConfigurationProvider currentConfigurationProvider = null;
-
-        try {
-            ServiceLoader<ConfigurationProvider> loader = ServiceLoader.load(ConfigurationProvider.class);
-            for (ConfigurationProvider configurationProvider : loader) {
-                currentConfigurationProvider = configurationProvider;
-                if (configurationProvider.isConfigured(config)) {
-                    secretsManagerConfiguration.putAll(configurationProvider.getConfiguration(config));
-                }
-            }
-        } catch (Exception e) {
-            if (currentConfigurationProvider == null) {
-                throw new FlywayException("Unable to read configuration from a configuration provider: " + e.getMessage());
-            }
-            throw new FlywayException("Unable to read configuration from " + currentConfigurationProvider.getClass().getName() + ": " + e.getMessage());
-        }
-
-        return secretsManagerConfiguration;
     }
 
     static String expandEnvironmentVariables(String value, Map<String, String> environmentVariables) {
@@ -533,7 +543,7 @@ public class ConfigUtils {
      * Puts this property in the config if it has been set in any of these values.
      *
      * @param config The config.
-     * @param key    The property name.
+     * @param key The property name.
      * @param values The values to try. The first non-null value will be set.
      */
     public static void putIfSet(Map<String, String> config, String key, Object... values) {
@@ -549,7 +559,7 @@ public class ConfigUtils {
      * Puts this property in the config if it has been set in any of these values.
      *
      * @param config The config.
-     * @param key    The property name.
+     * @param key The property name.
      * @param values The values to try. The first non-null value will be set.
      */
     public static void putArrayIfSet(Map<String, String> config, String key, String[]... values) {
@@ -563,7 +573,7 @@ public class ConfigUtils {
 
     /**
      * @param config The config.
-     * @param key    The property name.
+     * @param key The property name.
      * @return The property value as a boolean if it exists, otherwise {@code null}.
      * @throws FlywayException when the property value is not a valid boolean.
      */
@@ -574,14 +584,14 @@ public class ConfigUtils {
         }
         if (!"true".equals(value) && !"false".equals(value)) {
             throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value,
-                    ErrorCode.CONFIGURATION);
+                                      ErrorCode.CONFIGURATION);
         }
         return Boolean.valueOf(value);
     }
 
     /**
      * @param config The config.
-     * @param key    The property name.
+     * @param key The property name.
      * @return The property value as an integer if it exists, otherwise {@code null}.
      * @throws FlywayException When the property value is not a valid integer.
      */
@@ -594,7 +604,7 @@ public class ConfigUtils {
             return Integer.valueOf(value);
         } catch (NumberFormatException e) {
             throw new FlywayException("Invalid value for " + key + " (should be an integer): " + value,
-                    ErrorCode.CONFIGURATION);
+                                      ErrorCode.CONFIGURATION);
         }
     }
 
@@ -625,15 +635,15 @@ public class ConfigUtils {
     }
 
     /**
-     *  Checks the configuration for any unrecognised properties remaining after expected ones have been consumed.
+     * Checks the configuration for any unrecognised properties remaining after expected ones have been consumed.
      *
-     *  @param config The configured properties.
-     *  @param prefix The expected prefix for Flyway configuration parameters. {@code null} if none.
+     * @param config The configured properties.
+     * @param prefix The expected prefix for Flyway configuration parameters. {@code null} if none.
      */
     public static void checkConfigurationForUnrecognisedProperties(Map<String, String> config, String prefix) {
         ArrayList<String> unknownFlywayProperties = new ArrayList<>();
         for (String key : config.keySet()) {
-            if (prefix == null || key.startsWith(prefix)) {
+            if (prefix == null || (key.startsWith(prefix) && !key.startsWith(FLYWAY_PLUGINS_PREFIX))) {
                 unknownFlywayProperties.add(key);
             }
         }
@@ -641,8 +651,8 @@ public class ConfigUtils {
         if (!unknownFlywayProperties.isEmpty()) {
             String property = (unknownFlywayProperties.size() == 1) ? "property" : "properties";
             String message = String.format("Unknown configuration %s: %s",
-                    property,
-                    StringUtils.arrayToCommaDelimitedString(unknownFlywayProperties.toArray()));
+                                           property,
+                                           StringUtils.arrayToCommaDelimitedString(unknownFlywayProperties.toArray()));
             throw new FlywayException(message, ErrorCode.CONFIGURATION);
         }
     }

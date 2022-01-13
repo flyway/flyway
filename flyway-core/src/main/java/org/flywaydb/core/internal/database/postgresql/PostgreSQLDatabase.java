@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,13 +53,14 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
 
 
+
     @Override
     public void ensureSupported() {
         ensureDatabaseIsRecentEnough("9.0");
 
-        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("9.5", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessaryForMajorVersion("13");
+        recommendFlywayUpgradeIfNecessaryForMajorVersion("14");
     }
 
     @Override
@@ -112,11 +113,12 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
     @Override
     public String doQuote(String identifier) {
-        return pgQuote(identifier);
+        return getOpenQuote() + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote()) + getCloseQuote();
     }
 
-    static String pgQuote(String identifier) {
-        return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
+    @Override
+    public String getEscapedQuote() {
+        return "\"\"";
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,11 +33,11 @@ public class AsciiTable {
     /**
      * Creates a new Ascii table.
      *
-     * @param columns     The column titles.
-     * @param rows        The data rows
+     * @param columns The column titles.
+     * @param rows The data rows
      * @param printHeader Whether to print the header row or not.
-     * @param nullText    The text to use for a {@code null} value.
-     * @param emptyText   The text to include in the table if it has no rows.
+     * @param nullText The text to use for a {@code null} value.
+     * @param emptyText The text to include in the table if it has no rows.
      */
     public AsciiTable(List<String> columns, List<List<String>> rows, boolean printHeader, String nullText, String emptyText) {
         this.columns = ensureValidColumns(columns);

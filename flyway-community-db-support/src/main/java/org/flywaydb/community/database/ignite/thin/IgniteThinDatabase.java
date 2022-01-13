@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
+
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -33,13 +34,7 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
  */
 public class IgniteThinDatabase extends Database<IgniteThinConnection> {
 
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
     public IgniteThinDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
-        // TODO remove StatementInterceptor as that's enterprise-only
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
@@ -164,11 +159,6 @@ public class IgniteThinDatabase extends Database<IgniteThinConnection> {
     @Override
     public String getBooleanFalse() {
         return "0";
-    }
-
-    @Override
-    public String doQuote(String identifier) {
-        return "\"" + identifier + "\"";
     }
 
     @Override

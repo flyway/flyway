@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,27 +20,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * A version of a migration.
- *
- * @author Axel Fontaine
- */
 public final class MigrationVersion implements Comparable<MigrationVersion> {
     /**
      * Version for an empty schema.
      */
     public static final MigrationVersion EMPTY = new MigrationVersion(null, "<< Empty Schema >>");
-
     /**
      * Latest version.
      */
     public static final MigrationVersion LATEST = new MigrationVersion(BigInteger.valueOf(-1), "<< Latest Version >>");
-
     /**
      * Current version. Only a marker. For the real version use Flyway.info().current() instead.
      */
     public static final MigrationVersion CURRENT = new MigrationVersion(BigInteger.valueOf(-2), "<< Current Version >>");
-
     /**
      * Next version.
      */
@@ -50,12 +42,10 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * Regex for matching proper version format
      */
     private static final Pattern SPLIT_REGEX = Pattern.compile("\\.(?=\\d)");
-
     /**
      * The individual parts this version string is composed of. Ex. 1.2.3.4.0 -> [1, 2, 3, 4, 0]
      */
     private final List<BigInteger> versionParts;
-
     /**
      * The printable text to represent the version.
      */
@@ -65,15 +55,23 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * Create a MigrationVersion from a version String.
      *
      * @param version The version String. The value {@code current} will be interpreted as MigrationVersion.CURRENT,
-     *                a marker for the latest version that has been applied to the database.
+     * a marker for the latest version that has been applied to the database.
      * @return The MigrationVersion
      */
     @SuppressWarnings("ConstantConditions")
     public static MigrationVersion fromVersion(String version) {
-        if ("current".equalsIgnoreCase(version)) return CURRENT;
-        if ("next".equalsIgnoreCase(version)) return NEXT;
-        if ("latest".equalsIgnoreCase(version) || LATEST.getVersion().equals(version)) return LATEST;
-        if (version == null) return EMPTY;
+        if ("current".equalsIgnoreCase(version)) {
+            return CURRENT;
+        }
+        if ("next".equalsIgnoreCase(version)) {
+            return NEXT;
+        }
+        if ("latest".equalsIgnoreCase(version) || LATEST.getVersion().equals(version)) {
+            return LATEST;
+        }
+        if (version == null) {
+            return EMPTY;
+        }
         return new MigrationVersion(version);
     }
 
@@ -81,7 +79,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * Creates a Version using this version string.
      *
      * @param version The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
-     *                means that this version refers to an empty schema.
+     * means that this version refers to an empty schema.
      */
     private MigrationVersion(String version) {
         String normalizedVersion = version.replace('_', '.');
@@ -90,10 +88,8 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     }
 
     /**
-     * Creates a Version using this version string.
-     *
-     * @param version     The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
-     *                    means that this version refers to an empty schema.
+     * @param version The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
+     * means that this version refers to an empty schema.
      * @param displayText The alternative text to display instead of the version number.
      */
     private MigrationVersion(BigInteger version, String displayText) {
@@ -102,9 +98,6 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         this.displayText = displayText;
     }
 
-    /**
-     * @return The textual representation of the version.
-     */
     @Override
     public String toString() {
         return displayText;
@@ -114,15 +107,23 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @return Numeric version as String
      */
     public String getVersion() {
-        if (this.equals(EMPTY)) return null;
-        if (this.equals(LATEST)) return Long.toString(Long.MAX_VALUE);
+        if (this.equals(EMPTY)) {
+            return null;
+        }
+        if (this.equals(LATEST)) {
+            return Long.toString(Long.MAX_VALUE);
+        }
         return displayText;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         MigrationVersion version1 = (MigrationVersion) o;
 
@@ -195,8 +196,11 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         }
 
         if (this == EMPTY) {
-            if (o == EMPTY) return 0;
-            else return -1;
+            if (o == EMPTY) {
+                return 0;
+            } else {
+                return -1;
+            }
         }
 
         if (this == CURRENT) {
@@ -204,8 +208,11 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         }
 
         if (this == LATEST) {
-            if (o == LATEST) return 0;
-            else return 1;
+            if (o == LATEST) {
+                return 0;
+            } else {
+                return 1;
+            }
         }
 
         if (o == EMPTY) {
@@ -236,7 +243,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     }
 
     /**
-     * Splits this string into list of Long
+     * Splits this string into list of BigIntegers
      *
      * @param versionStr The string to split.
      * @return The resulting array.

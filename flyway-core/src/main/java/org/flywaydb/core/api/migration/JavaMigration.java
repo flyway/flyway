@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,9 +48,7 @@ public interface JavaMigration {
     String getDescription();
 
     /**
-     * Computes the checksum of the migration.
-     *
-     * @return The checksum of the migration.
+     * @return The checksum of this migration.
      */
     Integer getChecksum();
 
@@ -62,7 +60,14 @@ public interface JavaMigration {
     boolean isUndo();
 
     /**
-     * Whether the execution should take place inside a transaction. Almost all implementation should return {@code true}.
+     * Whether this is a baseline migration.
+     *
+     * @return {@code true} if it is, {@code false} if not.
+     */
+    boolean isBaselineMigration();
+
+    /**
+     * Whether the execution should take place inside a transaction. Almost all implementations should return {@code true}.
      * This however makes it possible to execute certain migrations outside a transaction. This is useful for databases
      * like PostgreSQL and SQL Server where certain statement can only execute outside a transaction.
      *
@@ -75,7 +80,7 @@ public interface JavaMigration {
      * database supports it and the canExecuteInTransaction returns {@code true}.
      *
      * @param context The context relevant for this migration, containing things like the JDBC connection to use and the
-     *                current Flyway configuration.
+     * current Flyway configuration.
      * @throws Exception when the migration failed.
      */
     void migrate(Context context) throws Exception;

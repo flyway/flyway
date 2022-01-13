@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.command;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.ErrorDetails;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.ValidateOutput;
 import org.flywaydb.core.api.output.ValidateResult;
@@ -43,12 +42,9 @@ import java.util.concurrent.Callable;
 
 /**
  * Handles the validate command.
- *
- * @author Axel Fontaine
  */
+@CustomLog
 public class DbValidate {
-    private static final Log LOG = LogFactory.getLog(DbValidate.class);
-
     /**
      * The database schema history table.
      */
@@ -92,13 +88,13 @@ public class DbValidate {
     /**
      * Creates a new database validator.
      *
-     * @param database          The DB support for the connection.
-     * @param schemaHistory     The database schema history table.
-     * @param schema            The schema containing the schema history table.
+     * @param database The DB support for the connection.
+     * @param schemaHistory The database schema history table.
+     * @param schema The schema containing the schema history table.
      * @param migrationResolver The migration resolver.
-     * @param configuration     The current configuration.
-     * @param pending           Whether pending migrations are allowed.
-     * @param callbackExecutor  The callback executor.
+     * @param configuration The current configuration.
+     * @param pending Whether pending migrations are allowed.
+     * @param callbackExecutor The callback executor.
      */
     public DbValidate(Database database, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
                       Configuration configuration, boolean pending, CallbackExecutor callbackExecutor) {
@@ -139,18 +135,18 @@ public class DbValidate {
         stopWatch.start();
 
         Pair<Integer, List<ValidateOutput>> result = ExecutionTemplateFactory.createExecutionTemplate(connection.getJdbcConnection(),
-                database).execute(new Callable<Pair<Integer, List<ValidateOutput>>>() {
+                                                                                                      database).execute(new Callable<Pair<Integer, List<ValidateOutput>>>() {
             @Override
             public Pair<Integer, List<ValidateOutput>> call() {
                 MigrationInfoServiceImpl migrationInfoService =
                         new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
-                                configuration.getTarget(),
-                                configuration.isOutOfOrder(),
-                                configuration.getCherryPick(),
-                                pending,
-                                configuration.isIgnoreMissingMigrations(),
-                                configuration.isIgnoreIgnoredMigrations(),
-                                configuration.isIgnoreFutureMigrations());
+                                                     configuration.getTarget(),
+                                                     configuration.isOutOfOrder(),
+                                                     configuration.getCherryPick(),
+                                                     pending,
+                                                     configuration.isIgnoreMissingMigrations(),
+                                                     configuration.isIgnoreIgnoredMigrations(),
+                                                     configuration.isIgnoreFutureMigrations());
 
                 migrationInfoService.refresh();
 
@@ -170,10 +166,10 @@ public class DbValidate {
             count = result.getLeft();
             if (count == 1) {
                 LOG.info(String.format("Successfully validated 1 migration (execution time %s)",
-                        TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                                       TimeFormat.format(stopWatch.getTotalTimeMillis())));
             } else {
                 LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
-                        count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                                       count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
 
                 if (count == 0) {
                     String noMigrationsWarning = "No migrations found. Are your locations set up correctly?";

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
-import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Pair;
 
 import java.util.*;
@@ -58,15 +57,15 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
     /**
      * @param migrationResolver The migration resolver for available migrations.
-     * @param schemaHistory     The schema history table for applied migrations.
-     * @param configuration     The current configuration.
-     * @param target            The target version up to which to retrieve the info.
-     * @param outOfOrder        Allows migrations to be run "out of order".
-     * @param cherryPick        The migrations to consider when migration.
-     * @param pending           Whether pending migrations are allowed.
-     * @param missing           Whether missing migrations are allowed.
-     * @param ignored           Whether ignored migrations are allowed.
-     * @param future            Whether future migrations are allowed.
+     * @param schemaHistory The schema history table for applied migrations.
+     * @param configuration The current configuration.
+     * @param target The target version up to which to retrieve the info.
+     * @param outOfOrder Allows migrations to be run "out of order".
+     * @param cherryPick The migrations to consider when migration.
+     * @param pending Whether pending migrations are allowed.
+     * @param missing Whether missing migrations are allowed.
+     * @param ignored Whether ignored migrations are allowed.
+     * @param future Whether future migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver,
                                     SchemaHistory schemaHistory, Database database, final Configuration configuration,
@@ -105,6 +104,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
         Map<Pair<MigrationVersion, Boolean>, ResolvedMigration> resolvedVersioned = new TreeMap<>();
         Map<String, ResolvedMigration> resolvedRepeatable = new TreeMap<>();
+        ResolvedMigration pendingBaselineMigration = null;
+        AppliedMigration appliedBaselineMigration = null;
 
         // Separate resolved migrations into versioned and repeatable
         for (ResolvedMigration resolvedMigration : resolvedMigrations) {
@@ -113,12 +114,19 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 if (version.compareTo(context.lastResolved) > 0) {
                     context.lastResolved = version;
                 }
-                //noinspection RedundantConditionalExpression
-                resolvedVersioned.put(Pair.of(version,
+                if (resolvedMigration.getType().isBaselineMigration() && version.compareTo(context.latestBaselineMigration) > 0) {
 
 
 
-                                false), resolvedMigration);
+
+                } else {
+                    //noinspection RedundantConditionalExpression
+                    resolvedVersioned.put(Pair.of(version,
+
+
+
+                                                          false), resolvedMigration);
+                }
             } else {
                 resolvedRepeatable.put(resolvedMigration.getDescription(), resolvedMigration);
             }
@@ -151,7 +159,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
 
 
-         // Split applied into version and repeatable, and update state from synthetic migrations
+        // Split applied into version and repeatable, and update state from synthetic migrations
         List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedVersioned = new ArrayList<>();
         List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedRepeatable = new ArrayList<>();
         for (AppliedMigration appliedMigration : appliedMigrations) {
@@ -183,8 +191,14 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
         // Update last applied and out of order states
         for (Pair<AppliedMigration, AppliedMigrationAttributes> av : appliedVersioned) {
-            MigrationVersion version = av.getLeft().getVersion();
+            AppliedMigration appliedMigration = av.getLeft();
+            MigrationVersion version = appliedMigration.getVersion();
             if (version != null) {
+
+
+
+
+
                 if (version.compareTo(context.lastApplied) > 0) {
                     if (av.getLeft().getType() != MigrationType.DELETE && !av.getRight().deleted
 
@@ -198,6 +212,16 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
                 }
             }
         }
+
+
+
+
+
+
+
+
+
+
 
         // Set target
         if (MigrationVersion.CURRENT == target) {
@@ -226,10 +250,17 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
         // Add all pending migrations to output list
         for (ResolvedMigration prv : pendingResolvedVersioned) {
+            if (prv.getVersion().compareTo(context.latestBaselineMigration) <= 0) {
+                continue;
+            }
             migrationInfos1.add(new MigrationInfoImpl(prv, null, context, false, false, false));
         }
 
-        if (configuration.getFailOnMissingTarget() &&
+        if (pendingBaselineMigration != null) {
+            migrationInfos1.add(new MigrationInfoImpl(pendingBaselineMigration, null, context, false, false, false));
+        }
+
+        if (configuration.isFailOnMissingTarget() &&
                 target != null &&
                 target != MigrationVersion.CURRENT &&
                 target != MigrationVersion.LATEST &&
@@ -277,7 +308,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
             // If latest run is the same rank, its not pending
             if (!av.getRight().deleted && av.getLeft().getType() != MigrationType.DELETE
-                   && resolvedMigration != null && rank == latestRank && resolvedMigration.checksumMatches(appliedRepeatableMigration.getChecksum())) {
+                    && resolvedMigration != null && rank == latestRank && resolvedMigration.checksumMatches(appliedRepeatableMigration.getChecksum())) {
                 pendingResolvedRepeatable.remove(resolvedMigration);
             }
 
@@ -325,7 +356,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     /**
      * Marks the latest applied migration with this version as deleted.
      *
-     * @param version          The version.
+     * @param version The version.
      * @param appliedVersioned The applied migrations.
      */
     private void markAsDeleted(MigrationVersion version, List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedVersioned) {
@@ -334,7 +365,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             if (!av.getLeft().getType().isSynthetic() && version.equals(av.getLeft().getVersion())) {
                 if (av.getRight().deleted) {
                     throw new FlywayException("Corrupted schema history: multiple delete entries for version " + version,
-                            ErrorCode.DUPLICATE_DELETED_MIGRATION);
+                                              ErrorCode.DUPLICATE_DELETED_MIGRATION);
                 } else {
                     av.getRight().deleted = true;
                     return;
@@ -342,6 +373,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             }
         }
     }
+
 
 
 
@@ -462,15 +494,15 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     /**
      * @return The failed migrations. An empty array if none.
      */
-    public MigrationInfo[] failed() {
-        List<MigrationInfo> failedMigrations = new ArrayList<>();
-        for (MigrationInfo migrationInfo : migrationInfos) {
+    public MigrationInfoImpl[] failed() {
+        List<MigrationInfoImpl> failedMigrations = new ArrayList<>();
+        for (MigrationInfoImpl migrationInfo : migrationInfos) {
             if (migrationInfo.getState().isFailed()) {
                 failedMigrations.add(migrationInfo);
             }
         }
 
-        return failedMigrations.toArray(new MigrationInfo[0]);
+        return failedMigrations.toArray(new MigrationInfoImpl[0]);
     }
 
     /**
@@ -523,6 +555,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
 
 
 
+
     /**
      * @return The list of migrations that failed validation, which is empty if everything is fine.
      */
@@ -539,7 +572,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     }
 
     public void setAllSchemasEmpty(Schema[] schemas) {
-        allSchemasEmpty = Arrays.stream(schemas).allMatch(Schema::empty);
+        allSchemasEmpty = Arrays.stream(schemas).filter(Schema::exists).allMatch(Schema::empty);
     }
 
     @Override

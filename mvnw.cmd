@@ -1,5 +1,5 @@
 @REM
-@REM Copyright (C) Red Gate Software Ltd 2010-2021
+@REM Copyright (C) Red Gate Software Ltd 2010-2022
 @REM
 @REM Licensed under the Apache License, Version 2.0 (the "License");
 @REM you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 @REM See the License for the specific language governing permissions and
 @REM limitations under the License.
 @REM
+
 
 @REM ----------------------------------------------------------------------------
 @REM Maven2 Start Up Batch script

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,27 +15,16 @@
  */
 package org.flywaydb.maven;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.apache.maven.plugin.AbstractMojo;
 
-/**
- * Log Creator for Maven Logging.
- */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class MavenLogCreator implements LogCreator {
-    /**
-     * The Maven Mojo to log for.
-     */
-    private final AbstractMojo mojo;
 
-    /**
-     * Creates a new Maven Log Creator for this Mojo.
-     *
-     * @param mojo The Maven Mojo to log for.
-     */
-    MavenLogCreator(AbstractMojo mojo) {
-        this.mojo = mojo;
-    }
+    private final AbstractMojo mojo;
 
     public Log createLogger(Class<?> clazz) {
         return new MavenLog(mojo.getLog());

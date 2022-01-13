@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,16 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.internal.database.base.Table;
 
 import java.util.concurrent.Callable;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class TableLockingExecutionTemplate implements ExecutionTemplate {
     private final Table table;
     private final ExecutionTemplate executionTemplate;
-
-    TableLockingExecutionTemplate(Table table, ExecutionTemplate executionTemplate) {
-        this.table = table;
-        this.executionTemplate = executionTemplate;
-    }
 
     @Override
     public <T> T execute(final Callable<T> callback) {

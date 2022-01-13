@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,11 @@
  */
 package org.flywaydb.core.api.output;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class RepairOutput {
     public String version;
     public String description;
     public String filepath;
-
-    public RepairOutput(String version, String description, String filepath) {
-        this.version = version;
-        this.description = description;
-        this.filepath = filepath;
-    }
 }

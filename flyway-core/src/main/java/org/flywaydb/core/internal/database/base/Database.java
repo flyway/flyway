@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.database.base;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -33,6 +32,7 @@ import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.Closeable;
 import java.sql.DatabaseMetaData;
@@ -41,9 +41,8 @@ import java.sql.SQLException;
 /**
  * Abstraction for database-specific functionality.
  */
+@CustomLog
 public abstract class Database<C extends Connection> implements Closeable {
-    private static final Log LOG = LogFactory.getLog(Database.class);
-
     protected final DatabaseType databaseType;
     protected final Configuration configuration;
     protected final StatementInterceptor statementInterceptor;
@@ -142,9 +141,7 @@ public abstract class Database<C extends Connection> implements Closeable {
     }
 
     protected final void notifyDatabaseIsNotFormallySupported() {
-        String message = "Support for " + databaseType + " is provided only on a community-led basis, and is not formally supported by Redgate";
-
-        LOG.warn(message);
+        LOG.warn("Support for " + databaseType + " is provided only on a community-led basis, and is not formally supported by Redgate");
     }
 
     private void recommendFlywayUpgrade(String newestSupportedVersion) {
@@ -233,7 +230,35 @@ public abstract class Database<C extends Connection> implements Closeable {
     /**
      * Quotes this identifier for use in SQL queries.
      */
-    protected abstract String doQuote(String identifier);
+    public String doQuote(String identifier) {
+        return getOpenQuote() + identifier + getCloseQuote();
+    }
+
+    protected String getOpenQuote() {
+        return "\"";
+    }
+
+    protected String getCloseQuote() {
+        return "\"";
+    }
+
+    protected String getEscapedQuote() {
+        return "";
+    }
+
+    public String unQuote(String identifier) {
+        String open = getOpenQuote();
+        String close = getCloseQuote();
+
+        if (!open.equals("") && !close.equals("") && identifier.startsWith(open) && identifier.endsWith(close)) {
+            identifier = identifier.substring(open.length(), identifier.length() - close.length());
+            if (!getEscapedQuote().equals("")) {
+                identifier = StringUtils.replaceAll(identifier, getEscapedQuote(), close);
+            }
+        }
+
+        return identifier;
+    }
 
     /**
      * @return {@code true} if this database uses a catalog to represent a schema, or {@code false} if a schema is
@@ -291,8 +316,8 @@ public abstract class Database<C extends Connection> implements Closeable {
      * Retrieves the script used to create the schema history table.
      *
      * @param sqlScriptFactory The factory used to create the SQL script.
-     * @param table            The table to create.
-     * @param baseline         Whether to include the creation of a baseline marker.
+     * @param table The table to create.
+     * @param baseline Whether to include the creation of a baseline marker.
      */
     public final SqlScript getCreateScript(SqlScriptFactory sqlScriptFactory, Table table, boolean baseline) {
         return sqlScriptFactory.createSqlScript(new StringResource(getRawCreateScript(table, baseline)), false, null);
@@ -317,16 +342,16 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     public final String getBaselineStatement(Table table) {
         return String.format(getInsertStatement(table).replace("?", "%s"),
-                1,
-                "'" + configuration.getBaselineVersion() + "'",
-                "'" + AbbreviationUtils.abbreviateDescription(configuration.getBaselineDescription()) + "'",
-                "'" + MigrationType.BASELINE + "'",
-                "'" + AbbreviationUtils.abbreviateScript(configuration.getBaselineDescription()) + "'",
-                "NULL",
-                "'" + installedBy + "'",
-                0,
-                getBooleanTrue()
-        );
+                             1,
+                             "'" + configuration.getBaselineVersion() + "'",
+                             "'" + AbbreviationUtils.abbreviateDescription(configuration.getBaselineDescription()) + "'",
+                             "'" + MigrationType.BASELINE + "'",
+                             "'" + AbbreviationUtils.abbreviateScript(configuration.getBaselineDescription()) + "'",
+                             "NULL",
+                             "'" + installedBy + "'",
+                             0,
+                             getBooleanTrue()
+                            );
     }
 
     public String getSelectStatement(Table table) {
@@ -365,9 +390,13 @@ public abstract class Database<C extends Connection> implements Closeable {
         return databaseType;
     }
 
-    public boolean supportsEmptyMigrationDescription() { return true; }
+    public boolean supportsEmptyMigrationDescription() {
+        return true;
+    }
 
-    public boolean supportsMultiStatementTransactions() { return true; }
+    public boolean supportsMultiStatementTransactions() {
+        return true;
+    }
 
     /**
      * Cleans all the objects in this database that need to be cleaned before each schema.
@@ -385,7 +414,7 @@ public abstract class Database<C extends Connection> implements Closeable {
      *
      * @throws SQLException when the clean failed.
      */
-    protected void doCleanPreSchemas() throws SQLException { }
+    protected void doCleanPreSchemas() throws SQLException {}
 
     /**
      * Cleans all the objects in this database that need to be cleaned after each schema.
@@ -406,5 +435,9 @@ public abstract class Database<C extends Connection> implements Closeable {
      * @param schemas The list of schemas managed by Flyway.
      * @throws SQLException when the clean failed.
      */
-    protected void doCleanPostSchemas(Schema[] schemas) throws SQLException { }
+    protected void doCleanPostSchemas(Schema[] schemas) throws SQLException {}
+
+    public Schema[] getAllSchemas() {
+        throw new UnsupportedOperationException("Getting all schemas not supported for " + getDatabaseType().getName());
+    }
 }

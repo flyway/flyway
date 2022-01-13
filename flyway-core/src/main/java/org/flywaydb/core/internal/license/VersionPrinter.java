@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,29 @@
  */
 package org.flywaydb.core.internal.license;
 
+import lombok.CustomLog;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.extensibility.FlywayExtension;
+import org.flywaydb.core.extensibility.PluginMetadata;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ServiceLoader;
 
+@CustomLog
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VersionPrinter {
-    private static final Log LOG = LogFactory.getLog(VersionPrinter.class);
-    private static final ClassLoader CLASS_LOADER = new VersionPrinter().getClass().getClassLoader();
     public static final String VERSION = readVersion();
-
-    public static final Edition EDITION =
+    public static Edition EDITION =
 
             Edition.COMMUNITY
 
 
 
 
-
-
-
             ;
-
-    private VersionPrinter() { }
 
     public static String getVersion() {
         return VERSION;
@@ -58,9 +53,8 @@ public class VersionPrinter {
     }
 
     private static void printExtensionVersions() {
-        ServiceLoader<FlywayExtension> loader = ServiceLoader.load(FlywayExtension.class, CLASS_LOADER);
-        for (FlywayExtension extension : loader) {
-            LOG.debug( ">\t" + extension.getDescription());
+        for (PluginMetadata plugin : PluginRegister.getPlugins(PluginMetadata.class)) {
+            LOG.debug(">\t" + plugin.getDescription());
         }
     }
 

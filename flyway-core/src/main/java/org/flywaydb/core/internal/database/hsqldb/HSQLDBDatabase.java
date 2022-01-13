@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
     protected HSQLDBConnection doGetConnection(Connection connection) {
         return new HSQLDBConnection(this, connection);
     }
+
 
 
 
@@ -99,11 +100,6 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
     @Override
     public String getBooleanFalse() {
         return "0";
-    }
-
-    @Override
-    public String doQuote(String identifier) {
-        return "\"" + identifier + "\"";
     }
 
     @Override

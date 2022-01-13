@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,10 @@
  */
 package org.flywaydb.core.internal.database.snowflake;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
@@ -31,18 +29,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+@CustomLog
 public class SnowflakeDatabase extends Database<SnowflakeConnection> {
-    private static final Log LOG = LogFactory.getLog(SnowflakeDatabase.class);
-
     /**
      * Whether quoted identifiers are treated in a case-insensitive way. Defaults to false. See
      * https://docs.snowflake.com/en/sql-reference/identifiers-syntax.html#controlling-case-using-the-quoted-identifiers-ignore-case-parameter
      */
     private final boolean quotedIdentifiersIgnoreCase;
 
-    /**
-     * Creates a new instance.
-     */
     public SnowflakeDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
 
@@ -68,6 +62,7 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
     protected SnowflakeConnection doGetConnection(Connection connection) {
         return new SnowflakeConnection(this, connection);
     }
+
 
 
 
@@ -165,11 +160,6 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
     @Override
     public String getBooleanFalse() {
         return "false";
-    }
-
-    @Override
-    public String doQuote(String identifier) {
-        return "\"" + identifier + "\"";
     }
 
     @Override

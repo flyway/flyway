@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,19 @@
  */
 package org.flywaydb.database.spanner;
 
-import java.util.List;
+import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.Token;
 
+import java.util.List;
+
+@CustomLog
 public class SpannerParser extends Parser {
-    private static final Log LOG = LogFactory.getLog(SpannerParser.class);
+
     public SpannerParser(Configuration configuration, ParsingContext parsingContext) {
-        super(configuration,parsingContext, 3);
+        super(configuration, parsingContext, 3);
     }
 
     @Override

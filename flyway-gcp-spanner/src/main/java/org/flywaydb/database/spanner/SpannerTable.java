@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,14 +34,14 @@ public class SpannerTable extends Table<SpannerDatabase, SpannerSchema> {
         try (Connection c = database.getNewRawConnection()) {
             Statement s = c.createStatement();
             s.close();
-            try(ResultSet tables = c.getMetaData().getTables("", "", this.name, null)){
+            try (ResultSet tables = c.getMetaData().getTables("", "", this.name, null)) {
                 return tables.next();
             }
         }
     }
 
     @Override
-    protected void doLock() { }
+    protected void doLock() {}
 
     @Override
     protected void doDrop() throws SQLException {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.flywaydb.core.internal.sqlscript;
+
+import lombok.Getter;
 
 /**
  * Represents a sql statement delimiter.
@@ -32,7 +34,10 @@ public class Delimiter {
 
     /**
      * The actual delimiter string.
+     *
+     * @return The actual delimiter string.
      */
+    @Getter
     private final String delimiter;
 
     /**
@@ -50,26 +55,19 @@ public class Delimiter {
     /**
      * Creates a new delimiter.
      *
-     * @param delimiter   The actual delimiter string.
+     * @param delimiter The actual delimiter string.
      * @param aloneOnLine Whether the delimiter sits alone on a new line or not.
      */
     public Delimiter(String delimiter, boolean aloneOnLine
 
 
 
-    ) {
+                    ) {
         this.delimiter = delimiter;
         this.aloneOnLine = aloneOnLine;
 
 
 
-    }
-
-    /**
-     * @return The actual delimiter string.
-     */
-    public String getDelimiter() {
-        return delimiter;
     }
 
     /**
@@ -91,7 +89,6 @@ public class Delimiter {
         return returnValue;
     }
 
-
     @Override
     public String toString() {
         return (aloneOnLine ? "\n" : "") + delimiter;
@@ -99,8 +96,12 @@ public class Delimiter {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Delimiter delimiter1 = (Delimiter) o;
 

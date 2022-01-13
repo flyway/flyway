@@ -1,5 +1,5 @@
 @REM
-@REM Copyright (C) Red Gate Software Ltd 2010-2021
+@REM Copyright (C) Red Gate Software Ltd 2010-2022
 @REM
 @REM Licensed under the Apache License, Version 2.0 (the "License");
 @REM you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 @REM See the License for the specific language governing permissions and
 @REM limitations under the License.
 @REM
+
 
 @Echo off
 
@@ -83,12 +84,12 @@ if %editionValid%==false (
   EXIT /B 1
 )
 
-%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\%FLYWAY_EDITION%\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\gcp\*" org.flywaydb.commandline.Main %*
+%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\oracle_wallet\*;%INSTALLDIR%\lib\%FLYWAY_EDITION%\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\gcp\*" org.flywaydb.commandline.Main %*
 
 @REM Exit using the same code returned from Java
 EXIT /B %ERRORLEVEL%
 :checkLicense
-%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\enterprise\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\gcp\*" org.flywaydb.commandline.Main %* -checkLicence >NUL 2>NUL
+%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\oracle_wallet\*;%INSTALLDIR%\lib\enterprise\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\gcp\*" org.flywaydb.commandline.Main %* -checkLicence -n >NUL 2>NUL
 if %ERRORLEVEL% EQU 101 (call :displayError "Your Flyway Teams License has expired; falling back to Community Edition. To force Teams Edition, please specify '-teams'. Please contact sales at sales@flywaydb.org to renew your license.")
 if %ERRORLEVEL% EQU 102 (call :displayError "Your Flyway Teams Trial License has expired; falling back to Community Edition. Please contact sales at sales@flywaydb.org to purchase a licence, extend your Flyway Teams trial license via https://flywaydb.org/download/teams?ref=expiredTrial or specify -community to downgrade and stop this message appearing.")
 if %ERRORLEVEL% EQU 103 (call :displayError "A Flyway Teams License was found but is unreadable; falling back to Community Edition. Please contact sales at sales@flywaydb.org to purchase a valid license, request a Flyway Teams trial license via https://flywaydb.org/download/teams?ref=invalidLicense or remove the 'licenseKey' configuration parameter to stop this message appearing.")

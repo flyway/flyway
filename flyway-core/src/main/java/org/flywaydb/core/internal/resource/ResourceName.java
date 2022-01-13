@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.resource;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 
@@ -24,6 +25,7 @@ import org.flywaydb.core.api.MigrationVersion;
  * Versioned and Undo migrations are named in the form prefixVERSIONseparatorDESCRIPTIONsuffix;
  * Repeatable migrations and callbacks are named in the form prefixSeparatorDESCRIPTIONsuffix
  */
+@RequiredArgsConstructor
 public class ResourceName {
     private final String prefix;
     private final String version;
@@ -34,18 +36,6 @@ public class ResourceName {
     private final boolean isValid;
     private final String validityMessage;
 
-    public ResourceName(String prefix, String version, String separator, String description, String rawDescription, String suffix,
-                        boolean isValid, String validityMessage){
-        this.prefix = prefix;
-        this.version = version;
-        this.separator = separator;
-        this.description = description;
-        this.rawDescription = rawDescription;
-        this.suffix = suffix;
-        this.isValid = isValid;
-        this.validityMessage = validityMessage;
-    }
-
     /**
      * Construct a result representing an invalid resource name
      *
@@ -54,7 +44,7 @@ public class ResourceName {
      */
     public static ResourceName invalid(String message) {
         return new ResourceName(null, null, null, null, null,
-                null, false, message);
+                                null, false, message);
     }
 
     /**

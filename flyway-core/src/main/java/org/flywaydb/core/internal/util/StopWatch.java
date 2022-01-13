@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,26 +21,13 @@ import java.util.concurrent.TimeUnit;
  * Stop watch, inspired by the implementation in the Spring framework.
  */
 public class StopWatch {
-    /**
-     * The timestamp at which the stopwatch was started.
-     */
     private long start;
-
-    /**
-     * The timestamp at which the stopwatch was stopped.
-     */
     private long stop;
 
-    /**
-     * Starts the stop watch.
-     */
     public void start() {
         start = nanoTime();
     }
 
-    /**
-     * Stops the stop watch.
-     */
     public void stop() {
         stop = nanoTime();
     }

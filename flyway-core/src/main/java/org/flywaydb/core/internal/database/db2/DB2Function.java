@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,10 @@ public class DB2Function extends Function {
      * Creates a new Db2 function.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param schema       The schema this function lives in.
-     * @param name         The name of the function.
-     * @param args         The arguments of the function.
+     * @param database The database-specific support.
+     * @param schema The schema this function lives in.
+     * @param name The name of the function.
+     * @param args The arguments of the function.
      */
     DB2Function(JdbcTemplate jdbcTemplate, Database database, Schema schema, String name, String... args) {
         super(jdbcTemplate, database, schema, name, args);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package org.flywaydb.core.internal.resource.classpath;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.UrlUtils;
 
 import java.io.*;
@@ -34,8 +34,8 @@ import java.util.Objects;
 
 
 
+@CustomLog
 public class ClassPathResource extends LoadableResource {
-    private static final Log LOG = LogFactory.getLog(ClassPathResource.class);
     private final String fileNameWithAbsolutePath;
     private final String fileNameWithRelativePath;
     private final ClassLoader classLoader;
@@ -129,6 +129,7 @@ public class ClassPathResource extends LoadableResource {
 
 
 
+
         return new InputStreamReader(inputStream, charset.newDecoder());
     }
 
@@ -143,8 +144,12 @@ public class ClassPathResource extends LoadableResource {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ClassPathResource that = (ClassPathResource) o;
 

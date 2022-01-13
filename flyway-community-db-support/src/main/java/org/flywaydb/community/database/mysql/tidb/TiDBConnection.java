@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 package org.flywaydb.community.database.mysql.tidb;
 
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.database.mysql.MySQLConnection;
-import org.flywaydb.core.internal.database.mysql.MySQLDatabase;
-import org.flywaydb.core.internal.database.mysql.MySQLNamedLockTemplate;
+import org.flywaydb.database.mysql.MySQLConnection;
+import org.flywaydb.database.mysql.MySQLDatabase;
+import org.flywaydb.database.mysql.MySQLNamedLockTemplate;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
 import java.sql.SQLException;
@@ -48,5 +48,5 @@ public class TiDBConnection extends MySQLConnection {
     }
 
     @Override
-    protected boolean canUseNamedLockTemplate() { return false; }
+    protected boolean canUseNamedLockTemplate() {return false;}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.database.sqlite;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
@@ -25,9 +24,8 @@ import java.sql.SQLException;
 /**
  * SQLite-specific table.
  */
+@CustomLog
 public class SQLiteTable extends Table<SQLiteDatabase, SQLiteSchema> {
-    private static final Log LOG = LogFactory.getLog(SQLiteTable.class);
-
     /**
      * SQLite system tables are undroppable.
      */
@@ -38,9 +36,9 @@ public class SQLiteTable extends Table<SQLiteDatabase, SQLiteSchema> {
      * Creates a new SQLite table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param schema       The schema this table lives in.
-     * @param name         The name of the table.
+     * @param database The database-specific support.
+     * @param schema The schema this table lives in.
+     * @param name The name of the table.
      */
     public SQLiteTable(JdbcTemplate jdbcTemplate, SQLiteDatabase database, SQLiteSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
@@ -64,7 +62,7 @@ public class SQLiteTable extends Table<SQLiteDatabase, SQLiteSchema> {
     @Override
     protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT count(tbl_name) FROM "
-                + database.quote(schema.getName()) + ".sqlite_master WHERE type='table' AND tbl_name='" + name + "'") > 0;
+                                                + database.quote(schema.getName()) + ".sqlite_master WHERE type='table' AND tbl_name='" + name + "'") > 0;
     }
 
     @Override

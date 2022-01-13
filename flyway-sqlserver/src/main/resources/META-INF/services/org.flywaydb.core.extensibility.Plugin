@@ -1,0 +1,4 @@
+org.flywaydb.database.sqlserver.SQLServerDatabaseType
+org.flywaydb.database.sqlserver.synapse.SynapseDatabaseType
+org.flywaydb.database.sqlserver.SQLServerConfigurationExtension
+org.flywaydb.database.SQLServerDatabaseExtension

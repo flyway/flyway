@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.resolver;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.util.BomFilter;
@@ -25,9 +27,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChecksumCalculator {
-    private ChecksumCalculator() { }
-
     /**
      * Calculates the checksum of these resources. The checksum is encoding and line-ending independent.
      *

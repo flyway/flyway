@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,11 @@
  */
 package org.flywaydb.core.api;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class MigrationPattern {
     private final String migrationName;
-
-    public MigrationPattern(String migrationName) {
-        this.migrationName = migrationName;
-
-    }
 
     public boolean matches(MigrationVersion version, String description) {
         if (version != null) {

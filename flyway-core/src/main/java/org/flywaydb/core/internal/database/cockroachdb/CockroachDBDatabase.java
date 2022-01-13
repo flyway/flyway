@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     protected CockroachDBConnection doGetConnection(Connection connection) {
         return new CockroachDBConnection(this, connection);
     }
+
 
 
 
@@ -137,7 +138,12 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
 
     @Override
     public String doQuote(String identifier) {
-        return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
+        return getOpenQuote() + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote()) + getCloseQuote();
+    }
+
+    @Override
+    public String getEscapedQuote() {
+        return "\"\"";
     }
 
     @Override

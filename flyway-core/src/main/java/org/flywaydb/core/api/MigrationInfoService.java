@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ public interface MigrationInfoService extends InfoOutputProvider {
      * @return The full set of infos. An empty array if none.
      */
     MigrationInfo[] all();
+
 
 
 

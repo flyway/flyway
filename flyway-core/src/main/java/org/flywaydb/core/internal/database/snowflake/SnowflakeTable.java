@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,9 @@ public class SnowflakeTable extends Table<SnowflakeDatabase, SnowflakeSchema> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        if (!schema.exists()) return false;
+        if (!schema.exists()) {
+            return false;
+        }
 
         String sql = "SHOW TABLES LIKE '" + name + "' IN SCHEMA " + database.quote(schema.getName());
         List<Boolean> results = jdbcTemplate.query(sql, new RowMapper<Boolean>() {

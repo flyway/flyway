@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,36 @@ package org.flywaydb.commandline;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.flywaydb.commandline.ConsoleLog.Level;
+import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
+import org.flywaydb.commandline.logging.console.ConsoleLogCreator;
+import org.flywaydb.commandline.logging.file.FileLogCreator;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.output.CompositeResult;
-import org.flywaydb.core.api.output.ErrorOutput;
-import org.flywaydb.core.api.output.OperationResult;
-import org.flywaydb.core.api.output.OperationResultBase;
+import org.flywaydb.core.api.output.*;
 
+import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.license.FlywayTrialExpiredException;
 import org.flywaydb.core.internal.license.VersionPrinter;
 
+import org.flywaydb.core.internal.logging.EvolvingLog;
+import org.flywaydb.core.internal.logging.buffered.BufferedLog;
+import org.flywaydb.core.internal.logging.multi.MultiLogCreator;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -70,9 +77,7 @@ public class Main {
         }
 
         List<LogCreator> logCreators = new ArrayList<>();
-
         logCreators.add(new ConsoleLogCreator(commandLineArguments));
-
         if (commandLineArguments.isOutputFileSet()) {
             logCreators.add(new FileLogCreator(commandLineArguments));
         }
@@ -81,30 +86,9 @@ public class Main {
     }
 
     static void initLogging(CommandLineArguments commandLineArguments) {
-        LogCreator logCreator = getLogCreator(commandLineArguments);
-
-
-
-
-
-        LogFactory.setFallbackLogCreator(logCreator);
-
-
-
+        LogFactory.setFallbackLogCreator(getLogCreator(commandLineArguments));
         LOG = LogFactory.getLog(Main.class);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     public static void main(String[] args) {
         CommandLineArguments commandLineArguments = new CommandLineArguments(args);
@@ -115,7 +99,7 @@ public class Main {
 
             if (!commandLineArguments.shouldCheckLicenseAndExit() && commandLineArguments.shouldPrintVersionAndExit()) {
                 printVersion();
-                System.exit(0);
+                return;
             }
 
             if (commandLineArguments.hasOperation("help") || commandLineArguments.shouldPrintUsage()) {
@@ -135,7 +119,6 @@ public class Main {
 
             config.putAll(envVars);
             config = overrideConfiguration(config, commandLineArguments.getConfiguration());
-            config = overrideConfiguration(config, ConfigUtils.loadConfigurationFromSecretsManagers(config));
 
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             List<File> jarFiles = new ArrayList<>();
@@ -152,57 +135,78 @@ public class Main {
             ConfigUtils.dumpConfiguration(config);
             filterProperties(config);
 
-            if(!commandLineArguments.skipCheckForUpdate()) {
-                if (FeatureDetector.areExperimentalFeaturesEnabled()) {
-                    String message = RedgateUpdateChecker.getUpdateCheckMessage(config.get(ConfigUtils.URL));
-                    if (!message.isEmpty()) {
-                        LOG.info(message);
-                    }
+
+
+
+
+
+
+            Configuration configuration = new FluentConfiguration(classLoader).configuration(config);
+
+            if (!commandLineArguments.skipCheckForUpdate()) {
+                if (RedgateUpdateChecker.isEnabled()) {
+                    JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
+                    Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null);
+
+                    RedgateUpdateChecker.Context context = new RedgateUpdateChecker.Context(
+                            config.get(ConfigUtils.URL),
+                            commandLineArguments.getOperations(),
+                            database.getDatabaseType().getName(),
+                            database.getVersion().getVersion()
+                    );
+                    RedgateUpdateChecker.checkForVersionUpdates(context);
                 } else {
                     MavenVersionChecker.checkForVersionUpdates();
                 }
             }
 
-            Flyway flyway = Flyway.configure(classLoader).configuration(config).load();
-
-
-
-
-
-
+            Flyway flyway = Flyway.configure(classLoader).configuration(configuration).load();
 
             OperationResultBase result;
-            if (commandLineArguments.getOperations().size()==1) {
-                    String operation = commandLineArguments.getOperations().get(0);
-                    result = executeOperation(flyway, operation, commandLineArguments);
-                } else {
-                    result = new CompositeResult();
-                    for (String operation : commandLineArguments.getOperations()) {
-                        OperationResultBase individualResult = executeOperation(flyway, operation, commandLineArguments);
-                        ((CompositeResult)result).individualResults.add(individualResult);
+            if (commandLineArguments.getOperations().size() == 1) {
+                String operation = commandLineArguments.getOperations().get(0);
+                result = executeOperation(flyway, operation, config, commandLineArguments);
+            } else {
+                result = new CompositeResult();
+                for (String operation : commandLineArguments.getOperations()) {
+                    OperationResultBase individualResult = executeOperation(flyway, operation, config, commandLineArguments);
+                    ((CompositeResult) result).individualResults.add(individualResult);
                 }
             }
 
             if (commandLineArguments.shouldOutputJson()) {
-                if (commandLineArguments.shouldWarnAboutDeprecatedFlag()) {
-                    String message = "Option -json is deprecated; use -outputType=json instead";
-                    LOG.warn(message);
-                    result.addWarning(message);
-                }
                 printJson(commandLineArguments, result);
             }
-        } catch (Exception e) {
-            if (commandLineArguments.shouldOutputJson()) {
-                ErrorOutput errorOutput = ErrorOutput.fromException(e);
-                printJson(commandLineArguments, errorOutput);
-            } else {
-                if (commandLineArguments.getLogLevel() == Level.DEBUG) {
-                    LOG.error("Unexpected error", e);
-                } else {
-                    LOG.error(getMessagesFromException(e));
-                }
-            }
+        } catch (DbMigrate.FlywayMigrateException e) {
+            MigrateErrorResult errorResult = ErrorOutput.fromMigrateException(e);
+            printError(commandLineArguments, e, errorResult);
             System.exit(1);
+        } catch (Exception e) {
+            ErrorOutput errorOutput = ErrorOutput.fromException(e);
+            printError(commandLineArguments, e, errorOutput);
+            System.exit(1);
+        } finally {
+            flushLog(commandLineArguments);
+        }
+    }
+
+    private static void printError(CommandLineArguments commandLineArguments, Exception e, OperationResult errorResult) {
+        if (commandLineArguments.shouldOutputJson()) {
+            printJson(commandLineArguments, errorResult);
+        } else {
+            if (commandLineArguments.getLogLevel() == Level.DEBUG) {
+                LOG.error("Unexpected error", e);
+            } else {
+                LOG.error(getMessagesFromException(e));
+            }
+        }
+        flushLog(commandLineArguments);
+    }
+
+    private static void flushLog(CommandLineArguments commandLineArguments) {
+        Log currentLog = ((EvolvingLog) LOG).getLog();
+        if (currentLog instanceof BufferedLog) {
+            ((BufferedLog) currentLog).flush(getLogCreator(commandLineArguments).createLogger(Main.class));
         }
     }
 
@@ -246,7 +250,7 @@ public class Main {
         return condensedMessages.toString();
     }
 
-    private static OperationResultBase executeOperation(Flyway flyway, String operation, CommandLineArguments commandLineArguments) {
+    private static OperationResultBase executeOperation(Flyway flyway, String operation, Map<String, String> config, CommandLineArguments commandLineArguments) {
         OperationResultBase result = null;
         if ("clean".equals(operation)) {
             result = flyway.clean();
@@ -285,9 +289,19 @@ public class Main {
         } else if ("repair".equals(operation)) {
             result = flyway.repair();
         } else {
-            LOG.error("Invalid operation: " + operation);
-            printUsage();
-            System.exit(1);
+            boolean handled = false;
+            for (CommandExtension extension : PluginRegister.getPlugins(CommandExtension.class)) {
+                if (extension.handlesCommand(operation)) {
+                    result = extension.handle(operation, config);
+                    handled = true;
+                }
+            }
+
+            if (!handled) {
+                LOG.error("Invalid operation: " + operation);
+                printUsage();
+                System.exit(1);
+            }
         }
 
         return result;
@@ -342,6 +356,7 @@ public class Main {
         config.remove(ConfigUtils.CONFIG_FILES);
         config.remove(ConfigUtils.CONFIG_FILE_ENCODING);
     }
+
 
 
 
@@ -415,6 +430,8 @@ public class Main {
         LOG.info("placeholders                 : Placeholders to replace in sql migrations");
         LOG.info("placeholderPrefix            : Prefix of every placeholder");
         LOG.info("placeholderSuffix            : Suffix of every placeholder");
+        LOG.info("scriptPlaceholderPrefix      : Prefix of every script placeholder");
+        LOG.info("scriptPlaceholderSuffix      : Suffix of every script placeholder");
         LOG.info("lockRetryCount               : The maximum number of retries when trying to obtain a lock");
         LOG.info("jdbcProperties               : Properties to pass to the JDBC driver object");
         LOG.info("installedBy                  : Username that will be recorded in the schema history table");
@@ -457,6 +474,15 @@ public class Main {
         LOG.info("--help, -h, -?  : Print this usage info and exit");
         LOG.info("-community      : Run the Flyway Community Edition (default)");
         LOG.info("-teams          : Run the Flyway Teams Edition");
+        List<CommandExtension> extensions = PluginRegister.getPlugins(CommandExtension.class);
+        if (!extensions.isEmpty()) {
+            LOG.info("");
+            LOG.info("Command-line extensions");
+            LOG.info("-----------------------");
+        }
+        for (CommandExtension extension : extensions) {
+            LOG.info(extension.getUsage());
+        }
         LOG.info("");
         LOG.info("Example");
         LOG.info("-------");
@@ -495,8 +521,7 @@ public class Main {
 
             // see javadoc of listFiles(): null if given path is not a real directory
             if (files == null) {
-                LOG.error("Directory for Java Migrations not found: " + dirName);
-                System.exit(1);
+                throw new FlywayException("Directory for Java Migrations not found: " + dirName);
             }
 
             jarFiles.addAll(Arrays.asList(files));
@@ -606,7 +631,6 @@ public class Main {
             }
             return configFiles;
         }
-
 
         for (String file : commandLineArguments.getConfigFiles()) {
             configFiles.add(new File(workingDirectory, file));

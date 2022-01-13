@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,25 @@
  */
 package org.flywaydb.core.internal.strategy;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class BackoffStrategy {
 
     private int current;
     private final int exponent;
+    private final int interval;
 
     /**
-     * Constructs an exponential backoff counter.
-     *
-     * @param initial   The initial integer to start the counter with
-     * @param exponent  The exponent by which to increase the counter value with on each call to {@link #next()}
-     */
-    public BackoffStrategy(int initial, int exponent) {
-        this.current = initial;
-        this.exponent = exponent;
-    }
-
-    /**
-     *
      * @return The current value of the counter and immediately updates it with the next value
      */
     public int next() {
         int temp = current;
-        current *= exponent;
+        current = Math.min(current * exponent, interval);
         return temp;
     }
 
     /**
-     *
      * @return The current value of the counter without updating it
      */
     public int peek() {

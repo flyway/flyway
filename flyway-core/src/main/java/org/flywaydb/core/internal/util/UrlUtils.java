@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 
 import java.io.File;
@@ -25,14 +27,8 @@ import java.net.URLDecoder;
 /**
  * Collection of utility methods for working with URLs.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UrlUtils {
-    /**
-     * Prevent instantiation.
-     */
-    private UrlUtils() {
-        // Do nothing
-    }
-
     /**
      * Retrieves the file path of this URL, with any trailing slashes removed.
      *

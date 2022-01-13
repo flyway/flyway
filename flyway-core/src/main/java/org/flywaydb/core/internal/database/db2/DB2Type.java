@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,9 @@ public class DB2Type extends Type<DB2Database, DB2Schema> {
      * Creates a new Db2 type.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database     The database-specific support.
-     * @param schema       The schema this type lives in.
-     * @param name         The name of the type.
+     * @param database The database-specific support.
+     * @param schema The schema this type lives in.
+     * @param name The name of the type.
      */
     DB2Type(JdbcTemplate jdbcTemplate, DB2Database database, DB2Schema schema, String name) {
         super(jdbcTemplate, database, schema, name);

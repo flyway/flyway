@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.database.bigquery;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
@@ -31,6 +32,7 @@ import java.sql.Types;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+@CustomLog
 public class BigQueryDatabaseType extends BaseDatabaseType {
     private static final String BIGQUERY_JDBC42_DRIVER = "com.simba.googlebigquery.jdbc42.Driver";
     private static final String BIGQUERY_JDBC_DRIVER = "com.simba.googlebigquery.jdbc.Driver";
@@ -96,18 +98,19 @@ public class BigQueryDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public String instantiateClassExtendedErrorMessage(){
+    public String instantiateClassExtendedErrorMessage() {
         return "Failure probably due to inability to load dependencies. Please ensure you have downloaded 'https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers' and extracted to 'flyway/drivers' folder";
     }
 
     @Override
     public void printMessages() {
-        LOG.info("Join the GCP BigQuery beta via" + FlywayDbWebsiteLinks.BIG_QUERY_BETA);
+        LOG.info("Join the GCP BigQuery beta via " + FlywayDbWebsiteLinks.BIG_QUERY_BETA);
 
         LOG.info(""); //this can go when the beta message above is retired.
         LOG.info("Experiencing performance issues while using GCP BigQuery?");
         LOG.info("Find out how Flyway Teams improves performance with batching at " +
-                FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_BIG_QUERY);
+                         FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_BIG_QUERY);
+        LOG.info("");
 
     }
 }

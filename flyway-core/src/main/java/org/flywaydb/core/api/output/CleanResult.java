@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class CleanResult extends OperationResultBase {
     public ArrayList<String> schemasCleaned = new ArrayList<>();
     public ArrayList<String> schemasDropped = new ArrayList<>();
-        
+
     public CleanResult(String flywayVersion, String database) {
         this.flywayVersion = flywayVersion;
         this.database = database;

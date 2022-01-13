@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ValidateResult extends OperationResultBase {
-    /**
-     * @deprecated
-     * Will be removed in Flyway V8. Use {@link #errorDetails} instead
-     */
-    @Deprecated
-    public String validationError;
-
     public final ErrorDetails errorDetails;
     public final List<ValidateOutput> invalidMigrations;
     public final boolean validationSuccessful;
@@ -40,8 +33,7 @@ public class ValidateResult extends OperationResultBase {
             boolean validationSuccessful,
             int validateCount,
             List<ValidateOutput> invalidMigrations,
-            List<String> warnings,
-            String validationError) {
+            List<String> warnings) {
         this.flywayVersion = flywayVersion;
         this.database = database;
         this.errorDetails = errorDetails;
@@ -49,22 +41,7 @@ public class ValidateResult extends OperationResultBase {
         this.validateCount = validateCount;
         this.invalidMigrations = invalidMigrations;
         this.warnings.addAll(warnings);
-        this.validationError = validationError;
         this.operation = "validate";
-    }
-
-    /**
-     * @deprecated
-     * Will be removed in Flyway V8. Use {@link #ValidateResult(String, String, ErrorDetails, boolean, int, List, List, String)} instead
-     */
-    public ValidateResult(
-            String flywayVersion,
-            String database,
-            String validationError,
-            boolean validationSuccessful,
-            int validateCount,
-            List<String> warnings) {
-        this(flywayVersion, database,null, validationSuccessful, validateCount,null, warnings, validationError);
     }
 
     public String getAllErrorMessages() {

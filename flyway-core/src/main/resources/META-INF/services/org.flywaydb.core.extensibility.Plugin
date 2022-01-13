@@ -1,0 +1,15 @@
+org.flywaydb.core.internal.database.cockroachdb.CockroachDBDatabaseType
+org.flywaydb.core.internal.database.redshift.RedshiftDatabaseType
+org.flywaydb.core.internal.database.db2.DB2DatabaseType
+org.flywaydb.core.internal.database.derby.DerbyDatabaseType
+org.flywaydb.core.internal.database.h2.H2DatabaseType
+org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabaseType
+org.flywaydb.core.internal.database.informix.InformixDatabaseType
+org.flywaydb.core.internal.database.oracle.OracleDatabaseType
+org.flywaydb.core.internal.database.postgresql.PostgreSQLDatabaseType
+org.flywaydb.core.internal.database.saphana.SAPHANADatabaseType
+org.flywaydb.core.internal.database.snowflake.SnowflakeDatabaseType
+org.flywaydb.core.internal.database.sqlite.SQLiteDatabaseType
+org.flywaydb.core.internal.database.sybasease.SybaseASEJConnectDatabaseType
+org.flywaydb.core.internal.database.sybasease.SybaseASEJTDSDatabaseType
+org.flywaydb.core.internal.database.base.TestContainersDatabaseType

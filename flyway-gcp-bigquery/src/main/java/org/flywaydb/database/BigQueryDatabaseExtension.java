@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 package org.flywaydb.database;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.extensibility.FlywayExtension;
+import org.flywaydb.core.extensibility.PluginMetadata;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public class BigQueryDatabaseExtension implements FlywayExtension {
+public class BigQueryDatabaseExtension implements PluginMetadata {
     public String getDescription() {
         return "GCP BigQuery database support (beta) " + readVersion() + " by Redgate";
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class BigQueryJdbcTemplate extends JdbcTemplate {
                 statement.setInt(i + 1, (Integer) params[i]);
             } else if (params[i] instanceof Boolean) {
                 statement.setBoolean(i + 1, (Boolean) params[i]);
-            } else if (params[i] instanceof String){
+            } else if (params[i] instanceof String) {
                 statement.setString(i + 1, params[i].toString());
             } else if (params[i] == JdbcNullTypes.StringNull) {
                 // This is the only difference from Spanner - NVARCHAR fails for BigQuery.

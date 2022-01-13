@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,7 @@ import java.sql.SQLException;
  * Redshift database.
  */
 public class RedshiftDatabase extends Database<RedshiftConnection> {
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
+
     public RedshiftDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
@@ -93,11 +89,12 @@ public class RedshiftDatabase extends Database<RedshiftConnection> {
 
     @Override
     public String doQuote(String identifier) {
-        return redshiftQuote(identifier);
+        return getOpenQuote() + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote()) + getCloseQuote();
     }
 
-    static String redshiftQuote(String identifier) {
-        return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
+    @Override
+    public String getEscapedQuote() {
+        return "\"\"";
     }
 
     @Override

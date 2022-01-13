@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +15,17 @@
  */
 package org.flywaydb.core.internal.logging.javautil;
 
+import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.logging.Log;
 
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-/**
- * Wrapper for a java.util.Logger.
- */
+@RequiredArgsConstructor
 public class JavaUtilLog implements Log {
-    /**
-     * Java Util Logger.
-     */
-    private final Logger logger;
 
-    /**
-     * Creates a new wrapper around this logger.
-     *
-     * @param logger The original java.util Logger.
-     */
-    public JavaUtilLog(Logger logger) {
-        this.logger = logger;
-    }
+    private final Logger logger;
 
     @Override
     public boolean isDebugEnabled() {
@@ -64,15 +52,12 @@ public class JavaUtilLog implements Log {
         log(Level.SEVERE, message, e);
     }
 
+    public void notice(String message) {}
+
     /**
      * Log the message at the specified level with the specified exception if any.
-     *
-     * @param level The level to log at.
-     * @param message The message to log.
-     * @param e The exception, if any.
      */
     private void log(Level level, String message, Exception e) {
-        // millis and thread are filled by the constructor
         LogRecord record = new LogRecord(level, message);
         record.setLoggerName(logger.getName());
         record.setThrown(e);

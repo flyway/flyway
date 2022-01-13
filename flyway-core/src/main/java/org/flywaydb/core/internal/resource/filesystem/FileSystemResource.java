@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
  */
 package org.flywaydb.core.internal.resource.filesystem;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 
 
 import org.flywaydb.core.internal.util.BomStrippingReader;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.io.*;
 import java.nio.channels.Channels;
@@ -30,8 +30,10 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.StandardOpenOption;
 
+import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
+
+@CustomLog
 public class FileSystemResource extends LoadableResource {
-    private static final Log LOG = LogFactory.getLog(FileSystemResource.class);
 
 
 
@@ -81,11 +83,12 @@ public class FileSystemResource extends LoadableResource {
 
 
 
+
         try {
             return Channels.newReader(FileChannel.open(file.toPath(), StandardOpenOption.READ), charSet.newDecoder(), 4096);
-        } catch (IOException e){
+        } catch (IOException e) {
             LOG.debug("Unable to load filesystem resource" + file.getPath() + " using FileChannel.open." +
-                    " Falling back to FileInputStream implementation. Exception message: " + e.getMessage());
+                              " Falling back to FileInputStream implementation. Exception message: " + e.getMessage());
         }
 
         try {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.scanner.cloud.s3;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.S3ClientFactory;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.internal.resource.s3.AwsS3Resource;
 import org.flywaydb.core.internal.scanner.cloud.CloudScanner;
@@ -32,9 +31,9 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 import java.nio.charset.Charset;
 import java.util.*;
 
+@CustomLog
 public class AwsS3Scanner extends CloudScanner {
-    private static final Log LOG = LogFactory.getLog(AwsS3Scanner.class);
-    private boolean throwOnMissingLocations;
+    private final boolean throwOnMissingLocations;
 
     /**
      * Creates a new AWS S3 scanner.

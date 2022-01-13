@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.database.cockroachdb;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
@@ -27,13 +26,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * CockroachDB connection.
- */
+@CustomLog
 public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
-    private static final Log LOG = LogFactory.getLog(CockroachDBConnection.class);
-
-    CockroachDBConnection(CockroachDBDatabase database, java.sql.Connection connection) {
+    public CockroachDBConnection(CockroachDBDatabase database, java.sql.Connection connection) {
         super(database, connection);
     }
 
@@ -66,8 +61,8 @@ public class CockroachDBConnection extends Connection<CockroachDBDatabase> {
             // illegal in the corresponding SET query. Normally this simply results in an exception which we skip over,
             // but in dry runs the produced script will be invalid and error when you run it.
             if (sp.contains("$user")) {
-                LOG.warn("Search path contains $user; removing...");
-                ArrayList<String> paths = new ArrayList(Arrays.asList(sp.split(",")));
+                LOG.debug("Search path contains $user; removing...");
+                ArrayList<String> paths = new ArrayList<>(Arrays.asList(sp.split(",")));
                 paths.remove("$user");
                 sp = String.join(",", paths);
             }

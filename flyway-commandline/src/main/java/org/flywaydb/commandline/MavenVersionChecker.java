@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 package org.flywaydb.commandline;
 
 import com.google.gson.Gson;
+import lombok.AccessLevel;
+import lombok.Cleanup;
+import lombok.CustomLog;
+import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
@@ -28,6 +30,8 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
 
+@CustomLog
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MavenVersionChecker {
     private static class MavenResponse {
         public MavenDoc[] docs;
@@ -45,32 +49,29 @@ public class MavenVersionChecker {
     }
 
     private static final String FLYWAY_URL = "https://search.maven.org/solrsearch/select?q=a:flyway-core";
-    private static final Log LOG = LogFactory.getLog(MavenVersionChecker.class);
 
     private static boolean canConnectToMaven() {
         try {
             InetAddress address = InetAddress.getByName("maven.org");
             return address.isReachable(500);
-        } catch(Exception e) {
+        } catch (Exception e) {
             return false;
         }
     }
 
     public static void checkForVersionUpdates() {
-        HttpsURLConnection connection = null;
-
         if (!canConnectToMaven()) {
             return;
         }
 
         try {
             URL url = new URL(FLYWAY_URL);
-            connection = (HttpsURLConnection) url.openConnection();
+            @Cleanup(value = "disconnect") HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
 
             StringBuilder response = new StringBuilder();
 
-            try(BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            try (BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                 String line;
                 while ((line = rd.readLine()) != null) {
                     response.append(line).append('\r');
@@ -97,14 +98,9 @@ public class MavenVersionChecker {
 
             if (current.compareTo(latest) < 0) {
                 LOG.warn("This version of Flyway is out of date. Upgrade to Flyway " + latest + ": "
-                        + FlywayDbWebsiteLinks.STAYING_UP_TO_DATE + "\n");
+                                 + FlywayDbWebsiteLinks.STAYING_UP_TO_DATE + "\n");
             }
-        } catch (Exception e) {
-            // Ignored
-        } finally {
-            if(connection != null) {
-                connection.disconnect();
-            }
+        } catch (Exception ignored) {
         }
     }
 }

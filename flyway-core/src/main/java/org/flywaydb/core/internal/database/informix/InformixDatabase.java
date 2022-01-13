@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,7 @@ import java.sql.SQLException;
  * Informix database.
  */
 public class InformixDatabase extends Database<InformixConnection> {
-    /**
-     * Creates a new instance.
-     *
-     * @param configuration The Flyway configuration.
-     */
+
     public InformixDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
@@ -41,6 +37,7 @@ public class InformixDatabase extends Database<InformixConnection> {
     protected InformixConnection doGetConnection(Connection connection) {
         return new InformixConnection(this, connection);
     }
+
 
 
 
@@ -103,8 +100,13 @@ public class InformixDatabase extends Database<InformixConnection> {
     }
 
     @Override
-    public String doQuote(String identifier) {
-        return identifier;
+    public String getOpenQuote() {
+        return "";
+    }
+
+    @Override
+    public String getCloseQuote() {
+        return "";
     }
 
     @Override

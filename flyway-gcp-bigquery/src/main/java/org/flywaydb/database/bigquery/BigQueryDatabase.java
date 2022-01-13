@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,32 @@
  */
 package org.flywaydb.database.bigquery;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.license.Edition;
+import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
+import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import static org.flywaydb.core.internal.util.DataUnits.GIGABYTE;
 
 /**
  * Note: The necessary driver is not available via Maven. See flywaydb.org documentation for where to get it from.
  */
+@CustomLog
 public class BigQueryDatabase extends Database<BigQueryConnection> {
+    private static final long TEN_GB_DATABASE_SIZE_LIMIT = GIGABYTE.toBytes(10);
+    private static final long NINE_GB_DATABASE_SIZE = GIGABYTE.toBytes(9);
+
     public BigQueryDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
@@ -40,7 +52,35 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
 
     @Override
     public final void ensureSupported() {
-        // BigQuery version is always at latest and supported
+        if (VersionPrinter.EDITION == Edition.COMMUNITY) {
+            long databaseSize = getDatabaseSize();
+            if (databaseSize > TEN_GB_DATABASE_SIZE_LIMIT) {
+                throw new FlywayTeamsUpgradeRequiredException("A Google BigQuery database that exceeds the 10 GB database size limit " +
+                                                                      "(Calculated size: " + GIGABYTE.toHumanReadableString(databaseSize) + ")");
+            }
+
+            String usageLimitMessage = "Google BigQuery databases have a 10 GB database size limit in " + Edition.COMMUNITY + ".\n" +
+                    "You have used " + GIGABYTE.toHumanReadableString(databaseSize) + " / 10 GB\n" +
+                    "Consider upgrading to " + Edition.ENTERPRISE + " for unlimited usage: " + FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_BIG_QUERY;
+
+            if (databaseSize >= NINE_GB_DATABASE_SIZE) {
+                LOG.warn(usageLimitMessage);
+            } else {
+                LOG.info(usageLimitMessage);
+            }
+        }
+    }
+
+    private long getDatabaseSize() {
+        long totalDatabaseSize = 0;
+        try {
+            ResultSet schemaRs = getJdbcMetaData().getSchemas();
+            while (schemaRs.next()) {
+                totalDatabaseSize += jdbcTemplate.queryForLong("select sum(size_bytes) from " + schemaRs.getString("TABLE_SCHEM") + ".__TABLES__");
+            }
+        } catch (SQLException ignored) {
+        }
+        return totalDatabaseSize;
     }
 
     @Override
@@ -107,11 +147,22 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
 
     @Override
     public String doQuote(String identifier) {
-        return bigQueryQuote(identifier);
+        return getOpenQuote() + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote()) + getCloseQuote();
     }
 
-    static String bigQueryQuote(String identifier) {
-        return "`" + StringUtils.replaceAll(identifier, "`", "\\`") + "`";
+    @Override
+    public String getOpenQuote() {
+        return "`";
+    }
+
+    @Override
+    public String getCloseQuote() {
+        return "`";
+    }
+
+    @Override
+    public String getEscapedQuote() {
+        return "\\`";
     }
 
     @Override

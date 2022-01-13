@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,42 +15,40 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.commandline.ConsoleLog.Level;
+import lombok.RequiredArgsConstructor;
+import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
-class CommandLineArguments {
+public class CommandLineArguments {
 
-    enum Color {
+    @RequiredArgsConstructor
+    public enum Color {
         ALWAYS("always"),
         NEVER("never"),
         AUTO("auto");
 
         private final String value;
 
-        Color(String value) {
-            this.value = value;
-        }
-
         public static Color fromString(String value) {
             if (value.isEmpty()) {
                 return AUTO;
             }
 
-            for (Color color : values()) {
-                if (color.value.equals(value)) {
-                    return color;
-                }
-            }
-
-            return null;
+            return Arrays.stream(values())
+                    .filter(color -> color.value.equals(value))
+                    .findFirst()
+                    .orElse(null);
         }
 
         public static boolean isValid(String value) {
@@ -64,11 +62,9 @@ class CommandLineArguments {
     private static final String DEBUG_FLAG = "-X";
     private static final String QUIET_FLAG = "-q";
     private static final String SUPPRESS_PROMPT_FLAG = "-n";
-    private static final List<String> PRINT_VERSION_AND_EXIT_FLAGS = Arrays.asList( "-v", "--version" );
+    private static final List<String> PRINT_VERSION_AND_EXIT_FLAGS = Arrays.asList("-v", "--version");
     private static final String CHECK_LICENCE = "-checkLicence";
-    // The JSON_FLAG is deprecated and should be removed in v8
-    private static final String JSON_FLAG = "-json";
-    private static final List<String> PRINT_USAGE_FLAGS = Arrays.asList( "-?", "-h", "--help" );
+    private static final List<String> PRINT_USAGE_FLAGS = Arrays.asList("-?", "-h", "--help");
     private static final String SKIP_CHECK_FOR_UPDATE_FLAG = "-skipCheckForUpdate";
     private static final String COMMUNITY_FLAG = "-community";
     private static final String ENTERPRISE_FLAG = "-enterprise";
@@ -88,6 +84,11 @@ class CommandLineArguments {
     private static final String INFO_UNTIL_VERSION = "infoUntilVersion";
     private static final String INFO_OF_STATE = "infoOfState";
 
+    private static final Set<String> COMMAND_LINE_ONLY_OPTIONS = new HashSet<>(Arrays.asList(
+            OUTPUT_FILE, OUTPUT_TYPE, COLOR, WORKING_DIRECTORY, INFO_SINCE_DATE,
+            INFO_UNTIL_DATE, INFO_SINCE_VERSION, INFO_UNTIL_VERSION, INFO_OF_STATE
+                                                                                            ));
+
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     private static final List<String> VALID_OPERATIONS_AND_FLAGS = getValidOperationsAndFlags();
@@ -97,7 +98,6 @@ class CommandLineArguments {
                 DEBUG_FLAG,
                 QUIET_FLAG,
                 SUPPRESS_PROMPT_FLAG,
-                JSON_FLAG,
                 SKIP_CHECK_FOR_UPDATE_FLAG,
                 COMMUNITY_FLAG,
                 ENTERPRISE_FLAG,
@@ -111,8 +111,7 @@ class CommandLineArguments {
                 "validate",
                 "undo",
                 "baseline",
-                "repair"
-        ));
+                "repair"));
         operationsAndFlags.addAll(PRINT_VERSION_AND_EXIT_FLAGS);
         operationsAndFlags.addAll(PRINT_USAGE_FLAGS);
         return operationsAndFlags;
@@ -120,35 +119,24 @@ class CommandLineArguments {
 
     private final String[] args;
 
-    CommandLineArguments(String[] args) {
+    public CommandLineArguments(String... args) {
         this.args = args;
     }
 
     private static boolean isFlagSet(String[] args, String flag) {
-        for (String arg : args) {
-            if (flag.equals(arg)) {
-                return true;
-            }
-        }
-        return false;
+        return Arrays.asList(args).contains(flag);
     }
 
     private static boolean isFlagSet(String[] args, List<String> flags) {
-        for (String flag : flags) {
-            if (isFlagSet(args, flag)) {
-                return true;
-            }
-        }
-        return false;
+        return flags.stream().anyMatch(flag -> isFlagSet(args, flag));
     }
 
     private static String getArgumentValue(String argName, String[] allArgs) {
-        for (String arg : allArgs) {
-            if (arg.startsWith("-" + argName + "=")) {
-                return parseConfigurationOptionValueFromArg(arg);
-            }
-        }
-        return "";
+        return Arrays.stream(allArgs)
+                .filter(arg -> arg.startsWith("-" + argName + "="))
+                .findFirst()
+                .map(CommandLineArguments::parseConfigurationOptionValueFromArg)
+                .orElse("");
     }
 
     private static String parseConfigurationOptionValueFromArg(String arg) {
@@ -162,20 +150,11 @@ class CommandLineArguments {
     }
 
     private static List<String> getOperationsFromArgs(String[] args) {
-        List<String> operations = new ArrayList<>();
-
-        for (String arg : args) {
-            if (!arg.startsWith("-")) {
-                operations.add(arg);
-            }
-        }
-        return operations;
+        return Arrays.stream(args).filter(arg -> !arg.startsWith("-")).collect(Collectors.toList());
     }
 
     private static List<String> getConfigFilesFromArgs(String[] args) {
-        String configFilesCommaSeparatedList = getArgumentValue(CONFIG_FILES, args);
-
-        return Arrays.asList(StringUtils.tokenizeToStringArray(configFilesCommaSeparatedList, ","));
+        return Arrays.asList(StringUtils.tokenizeToStringArray(getArgumentValue(CONFIG_FILES, args), ","));
     }
 
     private static Map<String, String> getConfigurationFromArgs(String[] args) {
@@ -185,7 +164,7 @@ class CommandLineArguments {
             if (isConfigurationArg(arg)) {
                 String configurationOptionName = getConfigurationOptionNameFromArg(arg);
 
-                if (!isConfigurationOptionIgnored(configurationOptionName)) {
+                if (!isConfigurationOptionCommandlineOnly(configurationOptionName)) {
                     configuration.put("flyway." + configurationOptionName, parseConfigurationOptionValueFromArg(arg));
                 }
             }
@@ -194,121 +173,114 @@ class CommandLineArguments {
         return configuration;
     }
 
-    private static boolean isConfigurationOptionIgnored(String configurationOptionName) {
-        return OUTPUT_FILE.equals(configurationOptionName) ||
-                OUTPUT_TYPE.equals(configurationOptionName) ||
-                COLOR.equals(configurationOptionName) ||
-                WORKING_DIRECTORY.equals(configurationOptionName) ||
-                INFO_SINCE_DATE.equals(configurationOptionName) ||
-                INFO_UNTIL_DATE.equals(configurationOptionName) ||
-                INFO_SINCE_VERSION.equals(configurationOptionName) ||
-                INFO_UNTIL_VERSION.equals(configurationOptionName) ||
-                INFO_OF_STATE.equals(configurationOptionName);
+    private static boolean isConfigurationOptionCommandlineOnly(String configurationOptionName) {
+        return COMMAND_LINE_ONLY_OPTIONS.contains(configurationOptionName);
     }
 
     private static String getConfigurationOptionNameFromArg(String arg) {
-        int index = arg.indexOf("=");
-
-        return arg.substring(1, index);
+        return arg.substring(1, arg.indexOf("="));
     }
 
     private static boolean isConfigurationArg(String arg) {
         return arg.startsWith("-") && arg.contains("=");
     }
 
-    void validate() {
+    public void validate() {
         for (String arg : args) {
-            if (!isConfigurationArg(arg) && !VALID_OPERATIONS_AND_FLAGS.contains(arg)) {
+            if (!isConfigurationArg(arg) && !VALID_OPERATIONS_AND_FLAGS.contains(arg) && !isHandledByExtension(arg)) {
                 throw new FlywayException("Invalid argument: " + arg);
             }
         }
 
         String outputTypeValue = getArgumentValue(OUTPUT_TYPE, args).toLowerCase();
+
         if (!("json".equals(outputTypeValue) || "".equals(outputTypeValue))) {
             throw new FlywayException("'" + outputTypeValue + "' is an invalid value for the -outputType option. Use 'json'.");
         }
 
         String colorArgumentValue = getArgumentValue(COLOR, args);
+
         if (!Color.isValid(colorArgumentValue)) {
             throw new FlywayException("'" + colorArgumentValue + "' is an invalid value for the -color option. Use 'always', 'never', or 'auto'.");
         }
     }
 
-    boolean shouldSuppressPrompt() {
+    private boolean isHandledByExtension(String arg) {
+        for (CommandExtension extension : PluginRegister.getPlugins(CommandExtension.class)) {
+            if (extension.handlesCommand(arg) || extension.handlesParameter(arg)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean shouldSuppressPrompt() {
         return isFlagSet(args, SUPPRESS_PROMPT_FLAG);
     }
 
-    boolean shouldPrintVersionAndExit() {
+    public boolean shouldPrintVersionAndExit() {
         return isFlagSet(args, PRINT_VERSION_AND_EXIT_FLAGS);
     }
 
-    boolean shouldCheckLicenseAndExit() {
+    public boolean shouldCheckLicenseAndExit() {
         return isFlagSet(args, CHECK_LICENCE);
     }
 
-    boolean shouldOutputJson() {
-        // The JSON_FLAG is deprecated and should be removed in v8
-        // Not easy to warn about it as that needs to be injected into JSON
-        return (isFlagSet(args, JSON_FLAG) || "json".equalsIgnoreCase(getArgumentValue(OUTPUT_TYPE, args)));
+    public boolean shouldOutputJson() {
+        return "json".equalsIgnoreCase(getArgumentValue(OUTPUT_TYPE, args));
     }
 
-    boolean shouldWarnAboutDeprecatedFlag() {
-        return isFlagSet(args, JSON_FLAG);
-    }
-
-    boolean shouldPrintUsage() {
+    public boolean shouldPrintUsage() {
         return (isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty()) && !isFlagSet(args, CHECK_LICENCE);
     }
 
-    Level getLogLevel() {
+    public Level getLogLevel() {
         if (isFlagSet(args, QUIET_FLAG)) {
             return Level.WARN;
         }
-
         if (isFlagSet(args, DEBUG_FLAG)) {
             return Level.DEBUG;
         }
-
         return Level.INFO;
     }
 
-    boolean hasOperation(String operation) {
+    public boolean hasOperation(String operation) {
         return getOperations().contains(operation);
     }
 
-    List<String> getOperations() {
+    public List<String> getOperations() {
         return getOperationsFromArgs(args);
     }
 
-    List<String> getConfigFiles() {
+    public List<String> getConfigFiles() {
         return getConfigFilesFromArgs(args);
     }
 
-    String getOutputFile() {
+    public String getOutputFile() {
         return getArgumentValue(OUTPUT_FILE, args);
     }
 
-    String getWorkingDirectory() {
+    public String getWorkingDirectory() {
         return getArgumentValue(WORKING_DIRECTORY, args);
     }
 
-    Date getInfoSinceDate() {
+    public Date getInfoSinceDate() {
         return parseDate(INFO_SINCE_DATE);
     }
 
-    Date getInfoUntilDate() {
+    public Date getInfoUntilDate() {
         return parseDate(INFO_UNTIL_DATE);
     }
 
-    MigrationVersion getInfoSinceVersion() {
+    public MigrationVersion getInfoSinceVersion() {
         return parseVersion(INFO_SINCE_VERSION);
     }
 
-    MigrationVersion getInfoUntilVersion() {
+    public MigrationVersion getInfoUntilVersion() {
         return parseVersion(INFO_UNTIL_VERSION);
     }
 
-    MigrationState getInfoOfState() {
+    public MigrationState getInfoOfState() {
         String stateStr = getArgumentValue(INFO_OF_STATE, args);
 
         if (!StringUtils.hasText(stateStr)) {
@@ -339,36 +311,36 @@ class CommandLineArguments {
             return DATE_FORMAT.parse(dateStr);
         } catch (ParseException e) {
             throw new FlywayException("'" + dateStr + "' is an invalid value for the " + argument + " option. " +
-                    "The expected format is 'dd/mm/yyyy hh:mm', like '13/10/2020 16:30'. " +
-                    "See the Flyway documentation for help: " + FlywayDbWebsiteLinks.FILTER_INFO_OUTPUT);
+                                              "The expected format is 'dd/mm/yyyy hh:mm', like '13/10/2020 16:30'. " +
+                                              "See the Flyway documentation for help: " + FlywayDbWebsiteLinks.FILTER_INFO_OUTPUT);
         }
     }
 
-    boolean isOutputFileSet() {
+    public boolean isOutputFileSet() {
         return !getOutputFile().isEmpty();
     }
 
-    boolean isWorkingDirectorySet() {
+    public boolean isWorkingDirectorySet() {
         return !getWorkingDirectory().isEmpty();
     }
 
-    String getConfigFileEncoding() {
+    public String getConfigFileEncoding() {
         return getArgumentValue(CONFIG_FILE_ENCODING, args);
     }
 
-    boolean isConfigFileEncodingSet() {
+    public boolean isConfigFileEncodingSet() {
         return !getConfigFileEncoding().isEmpty();
     }
 
-    boolean skipCheckForUpdate() {
+    public boolean skipCheckForUpdate() {
         return isFlagSet(args, SKIP_CHECK_FOR_UPDATE_FLAG);
     }
 
-    Color getColor() {
+    public Color getColor() {
         return Color.fromString(getArgumentValue(COLOR, args));
     }
 
-    Map<String, String> getConfiguration() {
+    public Map<String, String> getConfiguration() {
         return getConfigurationFromArgs(args);
     }
 }

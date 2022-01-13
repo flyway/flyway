@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.callback.Warning;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Result;
@@ -32,10 +31,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@CustomLog
 public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
-    private static final Log LOG = LogFactory.getLog(DefaultSqlScriptExecutor.class);
-
-    private final JdbcTemplate jdbcTemplate;
+    protected final JdbcTemplate jdbcTemplate;
 
 
 
@@ -70,9 +68,9 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
     public DefaultSqlScriptExecutor(JdbcTemplate jdbcTemplate,
-            CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
-            StatementInterceptor statementInterceptor
-    ) {
+                                    CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
+                                    StatementInterceptor statementInterceptor
+                                   ) {
         this.jdbcTemplate = jdbcTemplate;
 
 
@@ -146,7 +144,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-                    + "SQL: " + sqlStatement.getSql());
+                              + "SQL: " + sqlStatement.getSql());
         }
     }
 
@@ -213,7 +211,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-        );
+                                              );
         if (results.getException() != null) {
 
 
@@ -235,14 +233,14 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-        );
+                     );
     }
 
     protected void handleResults(Results results
 
 
 
-    ) {
+                                ) {
         for (Result result : results.getResults()) {
             long updateCount = result.getUpdateCount();
             if (updateCount != -1) {
@@ -259,9 +257,9 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-                result.getColumns() != null) {
+                        result.getColumns() != null) {
             LOG.info(new AsciiTable(result.getColumns(), result.getData(),
-                    true, "", "No rows returned").render());
+                                    true, "", "No rows returned").render());
         }
     }
 
@@ -290,7 +288,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
                     LOG.info("DB: " + warning.getMessage());
                 } else {
                     LOG.warn("DB: " + warning.getMessage()
-                            + " (SQL State: " + warning.getState() + " - Error Code: " + warning.getCode() + ")");
+                                     + " (SQL State: " + warning.getState() + " - Error Code: " + warning.getCode() + ")");
                 }
 
 

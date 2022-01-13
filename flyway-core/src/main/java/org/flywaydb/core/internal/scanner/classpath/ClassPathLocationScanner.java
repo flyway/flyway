@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ public interface ClassPathLocationScanner {
     /**
      * Finds the resource names below this location on the classpath under this locationUrl.
      *
-     * @param location    The system-independent location on the classpath.
+     * @param location The system-independent location on the classpath.
      * @param locationUrl The system-specific physical location URL.
      * @return The system-independent names of the resources on the classpath.
      */

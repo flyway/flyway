@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,49 +15,17 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.flywaydb.core.api.callback.Error;
 
+@RequiredArgsConstructor
+@Getter(onMethod = @__(@Override))
 public class ErrorImpl implements Error {
     private final int code;
     private final String state;
     private final String message;
+    @Setter(onMethod = @__(@Override))
     private boolean handled;
-
-    /**
-     * An error that occurred while executing a statement.
-     *
-     * @param code    The error code.
-     * @param state   The error state.
-     * @param message The error message.
-     */
-    public ErrorImpl(int code, String state, String message) {
-        this.code = code;
-        this.state = state;
-        this.message = message;
-    }
-
-    @Override
-    public int getCode() {
-        return code;
-    }
-
-    @Override
-    public String getState() {
-        return state;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
-    }
-
-    @Override
-    public boolean isHandled() {
-        return handled;
-    }
-
-    @Override
-    public void setHandled(boolean handled) {
-        this.handled = handled;
-    }
 }

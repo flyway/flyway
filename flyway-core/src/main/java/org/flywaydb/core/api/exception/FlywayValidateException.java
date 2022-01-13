@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ public class FlywayValidateException extends FlywayException {
 
     public FlywayValidateException(ErrorDetails errorDetails, String allValidateMessages) {
         super("Validate failed: " + errorDetails.errorMessage + "\n" + allValidateMessages +
-                "\nNeed more flexibility with validation rules? Learn more: " + FlywayDbWebsiteLinks.CUSTOM_VALIDATE_RULES, errorDetails.errorCode);
+                      "\nNeed more flexibility with validation rules? Learn more: " + FlywayDbWebsiteLinks.CUSTOM_VALIDATE_RULES, errorDetails.errorCode);
     }
 
 }

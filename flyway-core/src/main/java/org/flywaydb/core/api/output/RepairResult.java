@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,14 @@ public class RepairResult extends OperationResultBase {
     }
 
     public void setRepairActions(DbRepair.CompletedRepairActions completedRepairActions) {
-        if (completedRepairActions.removedFailedMigrations) repairActions.add(completedRepairActions.removedMessage());
-        if (completedRepairActions.deletedMissingMigrations) repairActions.add(completedRepairActions.deletedMessage());
-        if (completedRepairActions.alignedAppliedMigrationChecksums) repairActions.add(completedRepairActions.alignedMessage());
+        if (completedRepairActions.removedFailedMigrations) {
+            repairActions.add(completedRepairActions.removedMessage());
+        }
+        if (completedRepairActions.deletedMissingMigrations) {
+            repairActions.add(completedRepairActions.deletedMessage());
+        }
+        if (completedRepairActions.alignedAppliedMigrationChecksums) {
+            repairActions.add(completedRepairActions.alignedMessage());
+        }
     }
 }

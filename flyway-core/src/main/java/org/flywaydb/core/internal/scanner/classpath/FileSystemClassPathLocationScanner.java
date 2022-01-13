@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 package org.flywaydb.core.internal.scanner.classpath;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.util.UrlUtils;
 
 import java.io.File;
@@ -27,9 +26,8 @@ import java.util.TreeSet;
 /**
  * ClassPathLocationScanner for the file system.
  */
+@CustomLog
 public class FileSystemClassPathLocationScanner implements ClassPathLocationScanner {
-    private static final Log LOG = LogFactory.getLog(FileSystemClassPathLocationScanner.class);
-
     public Set<String> findResourceNames(String location, URL locationUrl) {
         String filePath = UrlUtils.toFilePath(locationUrl);
         File folder = new File(filePath);
@@ -50,8 +48,8 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
      * Finds all the resource names contained in this file system folder.
      *
      * @param classPathRootOnDisk The location of the classpath root on disk, with a trailing slash.
-     * @param scanRootLocation    The root location of the scan on the classpath, without leading or trailing slashes.
-     * @param folder              The folder to look for resources under on disk.
+     * @param scanRootLocation The root location of the scan on the classpath, without leading or trailing slashes.
+     * @param folder The folder to look for resources under on disk.
      * @return The resource names;
      */
     /*private -> for testing*/
@@ -84,7 +82,7 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
      * Converts this file into a resource name on the classpath.
      *
      * @param classPathRootOnDisk The location of the classpath root on disk, with a trailing slash.
-     * @param file                The file.
+     * @param file The file.
      * @return The resource name on the classpath.
      */
     private String toResourceNameOnClasspath(String classPathRootOnDisk, File file) {

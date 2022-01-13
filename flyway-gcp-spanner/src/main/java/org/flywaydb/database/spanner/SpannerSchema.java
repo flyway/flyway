@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -31,8 +30,8 @@ import org.flywaydb.core.internal.jdbc.Results;
 import java.sql.SQLException;
 import java.util.List;
 
+@CustomLog
 public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
-    private static final Log LOG = LogFactory.getLog(SpannerSchema.class);
 
     public SpannerSchema(JdbcTemplate jdbcTemplate, SpannerDatabase database, String name) {
         super(jdbcTemplate, database, name);
@@ -45,11 +44,10 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
 
     @Override
     protected boolean doEmpty() throws SQLException {
-
-        try (Connection c = database.getNewRawConnection()){
+        try (Connection c = database.getNewRawConnection()) {
             Statement s = c.createStatement();
             s.close();
-            try(ResultSet tables = c.getMetaData().getTables("", "", null, null)){
+            try (ResultSet tables = c.getMetaData().getTables("", "", null, null)) {
                 return !tables.next();
             }
         }
@@ -69,7 +67,7 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
     protected void doClean() throws SQLException {
         List<String> statements = new ArrayList<>();
 
-        for (String[] foreignKeyAndTable: doAllForeignKeys()) {
+        for (String[] foreignKeyAndTable : doAllForeignKeys()) {
             String foreignKey = foreignKeyAndTable[0];
             String table = foreignKeyAndTable[1];
             statements.add("ALTER TABLE " + table + " DROP CONSTRAINT " + foreignKey);
@@ -87,12 +85,12 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
         statements.clear();
 
         for (Table table : doAllTables()) {
-            for (String index: doAllIndexes(table)) {
+            for (String index : doAllIndexes(table)) {
                 if (!index.equalsIgnoreCase("PRIMARY_KEY")) {
                     jdbcTemplate.execute("DROP INDEX " + index);
                 }
             }
-            statements.add("DROP TABLE " + table.toString());
+            statements.add("DROP TABLE " + table);
         }
 
 
@@ -113,7 +111,7 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
         ResultSet tablesRs = c.getMetaData().getTables("", "", null, null);
         while (tablesRs.next()) {
             tablesList.add(new SpannerTable(jdbcTemplate, database, this,
-                    tablesRs.getString("TABLE_NAME")));
+                                            tablesRs.getString("TABLE_NAME")));
         }
         tablesRs.close();
 
@@ -125,11 +123,11 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
         List<String[]> foreignKeyAndTableList = new ArrayList<>();
 
         Results foreignKeyRs = jdbcTemplate.executeStatement("SELECT CONSTRAINT_NAME, TABLE_NAME " +
-                "FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS " +
-                "WHERE CONSTRAINT_TYPE='FOREIGN KEY'");
+                                                                     "FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS " +
+                                                                     "WHERE CONSTRAINT_TYPE='FOREIGN KEY'");
 
-        for (Result result: foreignKeyRs.getResults()) {
-            for (List<String> row: result.getData()) {
+        for (Result result : foreignKeyRs.getResults()) {
+            for (List<String> row : result.getData()) {
                 String[] foreignKeyAndTable = {row.get(0), row.get(1)};
                 foreignKeyAndTableList.add(foreignKeyAndTable);
             }

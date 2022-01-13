@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import lombok.Getter;
 import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 
@@ -24,27 +25,25 @@ import java.sql.SQLException;
  * This specific exception thrown when Flyway encounters a problem in SQL script
  */
 public class FlywaySqlScriptException extends FlywaySqlException {
+    /**
+     * @return The resource containing the failed statement.
+     */
+    @Getter
     private final Resource resource;
+
     private final SqlStatement statement;
 
     /**
      * Creates new instance of FlywaySqlScriptException.
      *
-     * @param resource     The resource containing the failed statement.
-     * @param statement    The failed SQL statement.
+     * @param resource The resource containing the failed statement.
+     * @param statement The failed SQL statement.
      * @param sqlException Cause of the problem.
      */
     public FlywaySqlScriptException(Resource resource, SqlStatement statement, SQLException sqlException) {
         super(resource == null ? "Script failed" : "Migration " + resource.getFilename() + " failed", sqlException);
         this.resource = resource;
         this.statement = statement;
-    }
-
-    /**
-     * @return The resource containing the failed statement.
-     */
-    public Resource getResource() {
-        return resource;
     }
 
     /**
@@ -63,15 +62,6 @@ public class FlywaySqlScriptException extends FlywaySqlException {
      */
     public String getStatement() {
         return statement == null ? "" : statement.getSql();
-    }
-
-    /**
-     * Returns the failed statement in SQL script.
-     *
-     * @return The failed statement.
-     */
-    public SqlStatement getSqlStatement() {
-        return statement;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2021
+ * Copyright (C) Red Gate Software Ltd 2010-2022
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@
  */
 package org.flywaydb.core.extensibility;
 
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
+
 import java.util.Map;
 
-public interface ConfigurationProvider {
-    boolean isConfigured(Map<String, String> configuration);
-    String getConfigurationParameterFromEnvironmentVariable(String environmentVariable);
-    Map<String, String> getConfiguration(Map<String, String> currentConfiguration) throws Exception;
+public interface ConfigurationProvider<T extends ConfigurationExtension> extends Plugin {
+    Map<String, String> getConfiguration(T configurationExtension, ClassicConfiguration flywayConfiguration) throws Exception;
+    Class<? extends ConfigurationExtension> getConfigurationExtensionClass();
 }
