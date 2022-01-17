@@ -178,7 +178,7 @@
         <version.derby>10.15.2.0</version.derby>
         <version.equinox>3.15.200</version.equinox>
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
-        <version.gcs>1.113.13</version.gcs>
+        <version.gcs>2.2.3</version.gcs>
         <version.gradle>6.1.1</version.gradle>
         <version.gson>2.8.9</version.gson>
         <version.h2>2.0.206</version.h2>
@@ -211,7 +211,7 @@
         <version.sap>2.6.30</version.sap>
         <version.slf4j>1.7.30</version.slf4j>
         <version.snowflake>3.13.1</version.snowflake>
-        <version.spanner>2.2.6</version.spanner>
+        <version.spanner>2.5.7</version.spanner>
         <version.springjdbc>4.3.30.RELEASE</version.springjdbc>
         <version.sqlite>3.34.0</version.sqlite>
         <version.testcontainers>1.15.3</version.testcontainers>
