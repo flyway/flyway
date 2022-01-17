@@ -21,4 +21,5 @@ target
 
 flyway-core/SPOOLEDCONTENTS.SQL
 flyway-cli-sample/jars/
+flyway-*compare/**/resources/*compare/
 out/**

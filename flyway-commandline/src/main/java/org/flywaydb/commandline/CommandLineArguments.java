@@ -56,9 +56,6 @@ public class CommandLineArguments {
         }
     }
 
-    // Flags
-    // GNU standards require --version, --help and their single-letter forms
-    // RG standards mandate --help / -h
     private static final String DEBUG_FLAG = "-X";
     private static final String QUIET_FLAG = "-q";
     private static final String SUPPRESS_PROMPT_FLAG = "-n";
@@ -86,11 +83,9 @@ public class CommandLineArguments {
 
     private static final Set<String> COMMAND_LINE_ONLY_OPTIONS = new HashSet<>(Arrays.asList(
             OUTPUT_FILE, OUTPUT_TYPE, COLOR, WORKING_DIRECTORY, INFO_SINCE_DATE,
-            INFO_UNTIL_DATE, INFO_SINCE_VERSION, INFO_UNTIL_VERSION, INFO_OF_STATE
-                                                                                            ));
+            INFO_UNTIL_DATE, INFO_SINCE_VERSION, INFO_UNTIL_VERSION, INFO_OF_STATE));
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-
     private static final List<String> VALID_OPERATIONS_AND_FLAGS = getValidOperationsAndFlags();
 
     private static List<String> getValidOperationsAndFlags() {
@@ -141,11 +136,9 @@ public class CommandLineArguments {
 
     private static String parseConfigurationOptionValueFromArg(String arg) {
         int index = arg.indexOf("=");
-
         if (index < 0 || index == arg.length()) {
             return "";
         }
-
         return arg.substring(index + 1);
     }
 
@@ -183,6 +176,12 @@ public class CommandLineArguments {
 
     private static boolean isConfigurationArg(String arg) {
         return arg.startsWith("-") && arg.contains("=");
+    }
+
+    public List<String> getFlags() {
+        return Arrays.stream(args)
+                .filter(a -> a.startsWith("-") && !a.contains("="))
+                .collect(Collectors.toList());
     }
 
     public void validate() {
@@ -282,21 +281,17 @@ public class CommandLineArguments {
 
     public MigrationState getInfoOfState() {
         String stateStr = getArgumentValue(INFO_OF_STATE, args);
-
         if (!StringUtils.hasText(stateStr)) {
             return null;
         }
-
         return MigrationState.valueOf(stateStr.toUpperCase(Locale.ENGLISH));
     }
 
     private MigrationVersion parseVersion(String argument) {
         String versionStr = getArgumentValue(argument, args);
-
         if (versionStr.isEmpty()) {
             return null;
         }
-
         return MigrationVersion.fromVersion(versionStr);
     }
 

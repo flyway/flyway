@@ -18,13 +18,7 @@ package org.flywaydb.core.internal.util;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.Charset;
 
 /**
@@ -38,7 +32,7 @@ public class FileCopyUtils {
      *
      * @param in the reader to copy from
      * @return the String that has been copied to
-     * @throws java.io.IOException in case of I/O errors
+     * @throws IOException in case of I/O errors
      */
     public static String copyToString(Reader in) throws IOException {
         StringWriter out = new StringWriter();
@@ -51,20 +45,6 @@ public class FileCopyUtils {
         }
 
         return str;
-    }
-
-    /**
-     * Copy the contents of the given InputStream into a new byte array.
-     * Closes the stream when done.
-     *
-     * @param in the stream to copy from
-     * @return the new byte array that has been copied to
-     * @throws IOException in case of I/O errors
-     */
-    public static byte[] copyToByteArray(InputStream in) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(4096);
-        copy(in, out);
-        return out.toByteArray();
     }
 
     /**

@@ -292,7 +292,7 @@ public class Main {
             boolean handled = false;
             for (CommandExtension extension : PluginRegister.getPlugins(CommandExtension.class)) {
                 if (extension.handlesCommand(operation)) {
-                    result = extension.handle(operation, config);
+                    result = extension.handle(operation, config, commandLineArguments.getFlags());
                     handled = true;
                 }
             }

@@ -15,8 +15,10 @@
  */
 package org.flywaydb.core.extensibility;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.output.OperationResultBase;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,5 +47,5 @@ public interface CommandExtension extends Plugin {
      * @param config The configuration provided to Flyway
      * @return The result of this command being handled
      */
-    OperationResultBase handle(String command, Map<String, String> config);
+    OperationResultBase handle(String command, Map<String, String> config, List<String> flags) throws FlywayException;
 }

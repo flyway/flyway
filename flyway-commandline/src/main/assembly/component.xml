@@ -91,6 +91,16 @@
             <fileMode>644</fileMode>
         </fileSet>
 
+
+
+
+
+
+
+
+
+
+
         <fileSet>
             <directory>target/editions/enterprise</directory>
             <outputDirectory>lib/enterprise</outputDirectory>

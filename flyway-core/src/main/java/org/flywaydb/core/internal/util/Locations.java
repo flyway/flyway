@@ -27,14 +27,9 @@ import java.util.List;
  */
 @CustomLog
 public class Locations {
-    /**
-     * The backing list.
-     */
     private final List<Location> locations = new ArrayList<>();
 
     /**
-     * Creates a new Locations wrapper with these raw locations.
-     *
      * @param rawLocations The raw locations to process.
      */
     public Locations(String... rawLocations) {
@@ -46,12 +41,14 @@ public class Locations {
     }
 
     /**
-     * Creates a new Locations wrapper with these locations.
-     *
      * @param rawLocations The locations to process.
      */
     public Locations(List<Location> rawLocations) {
         processLocations(rawLocations);
+    }
+
+    public List<Location> getLocations() {
+        return locations;
     }
 
     private void processLocations(List<Location> rawLocations) {
@@ -66,19 +63,12 @@ public class Locations {
 
             Location parentLocation = getParentLocationIfExists(normalizedLocation, locations);
             if (parentLocation != null) {
-                LOG.warn("Discarding location '" + normalizedLocation + "' as it is a sublocation of '" + parentLocation + "'");
+                LOG.warn("Discarding location '" + normalizedLocation + "' as it is a sub-location of '" + parentLocation + "'");
                 continue;
             }
 
             locations.add(normalizedLocation);
         }
-    }
-
-    /**
-     * @return The locations.
-     */
-    public List<Location> getLocations() {
-        return locations;
     }
 
     /**
@@ -89,11 +79,9 @@ public class Locations {
      * @return The parent location. {@code null} if none.
      */
     private Location getParentLocationIfExists(Location location, List<Location> finalLocations) {
-        for (Location finalLocation : finalLocations) {
-            if (finalLocation.isParentOf(location)) {
-                return finalLocation;
-            }
-        }
-        return null;
+        return finalLocations.stream()
+                .filter(fl -> fl.isParentOf(location))
+                .findFirst()
+                .orElse(null);
     }
 }

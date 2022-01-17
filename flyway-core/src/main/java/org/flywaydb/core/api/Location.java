@@ -29,35 +29,28 @@ public final class Location implements Comparable<Location> {
      * The prefix for classpath locations.
      */
     private static final String CLASSPATH_PREFIX = "classpath:";
-
     /**
      * The prefix for filesystem locations.
      */
     public static final String FILESYSTEM_PREFIX = "filesystem:";
-
     /**
      * The prefix for AWS S3 locations.
      */
     private static final String AWS_S3_PREFIX = "s3:";
-
     /**
      * The prefix for Google Cloud Storage locations.
      */
     private static final String GCS_PREFIX = "gcs:";
 
     /**
-     * The prefix part of the location. Can be either classpath: or filesystem:.
-     *
      * @return The prefix part of the location. Can be either classpath: or filesystem:.
      */
     @Getter
     private final String prefix;
-
     /**
      * The path part of the location.
      */
     private String rawPath;
-
     /**
      * The first folder in the path. This will equal rawPath if the path does not contain any wildcards
      *
@@ -65,18 +58,12 @@ public final class Location implements Comparable<Location> {
      */
     @Getter
     private String rootPath;
-
     /**
-     * @return The regex that matches wildcards in teh original path. Null if the original path did not contain any wildcards.
+     * @return The regex that matches wildcards in the original path. Null if the original path did not contain any wildcards.
      */
     @Getter
     private Pattern pathRegex = null;
 
-    /**
-     * Creates a new location.
-     *
-     * @param descriptor The location descriptor.
-     */
     public Location(String descriptor) {
         String normalizedDescriptor = descriptor.trim();
 
@@ -118,7 +105,7 @@ public final class Location implements Comparable<Location> {
      * Process the rawPath into a rootPath and a regex.
      * Supported wildcards:
      * **: Match any 0 or more directories
-     * *: Match any sequence of non-seperator characters
+     * *: Match any sequence of non-separator characters
      * ?: Match any single character
      */
     private void processRawPath() {
@@ -128,14 +115,14 @@ public final class Location implements Comparable<Location> {
             String separator = isFileSystem() ? File.separator : "/";
             String escapedSeparator = separator.replace("\\", "\\\\").replace("/", "\\/");
 
-            // split on either of the path seperators
+            // split on either of the path separators
             String[] pathSplit = rawPath.split("[\\\\/]");
 
             StringBuilder rootPart = new StringBuilder();
             StringBuilder patternPart = new StringBuilder();
 
             boolean endsInFile = false;
-            boolean skipSeperator = false;
+            boolean skipSeparator = false;
             boolean inPattern = false;
             for (String pathPart : pathSplit) {
                 endsInFile = false;
@@ -145,8 +132,8 @@ public final class Location implements Comparable<Location> {
                 }
 
                 if (inPattern) {
-                    if (skipSeperator) {
-                        skipSeperator = false;
+                    if (skipSeparator) {
+                        skipSeparator = false;
                     } else {
                         patternPart.append("/");
                     }
@@ -155,8 +142,8 @@ public final class Location implements Comparable<Location> {
                     if ("**".equals(pathPart)) {
                         regex = "([^/]+/)*?";
 
-                        // this pattern contains the ending seperator, so make sure we skip appending it after
-                        skipSeperator = true;
+                        // this pattern contains the ending separator, so make sure we skip appending it after
+                        skipSeparator = true;
                     } else {
                         endsInFile = pathPart.contains(".");
 
@@ -172,16 +159,16 @@ public final class Location implements Comparable<Location> {
                 }
             }
 
-            // We always append a seperator before each part, so ensure we skip it when setting the final rootPath
-            rootPath = rootPart.length() > 0 ? rootPart.toString().substring(1) : "";
+            // We always append a separator before each part, so ensure we skip it when setting the final rootPath
+            rootPath = rootPart.length() > 0 ? rootPart.substring(1) : "";
 
-            // Again, skip first seperator
-            String pattern = patternPart.toString().substring(1);
+            // Again, skip first separator
+            String pattern = patternPart.substring(1);
 
-            // Replace the temporary / with the actual escaped seperator
+            // Replace the temporary / with the actual escaped separator
             pattern = pattern.replace("/", escapedSeparator);
 
-            // Append the rootpath if it is non-empty
+            // Append the rootPath if it is non-empty
             if (rootPart.length() > 0) {
                 pattern = rootPath.replace(separator, escapedSeparator) + escapedSeparator + pattern;
             }
@@ -204,15 +191,12 @@ public final class Location implements Comparable<Location> {
         if (pathRegex == null) {
             return true;
         }
-
         return pathRegex.matcher(path).matches();
     }
 
     /**
      * Returns the path relative to this location. If the location path contains wildcards, the returned path will be relative
      * to the last non-wildcard folder in the path.
-     *
-     * @return the path relative to this location
      */
     public String getPathRelativeToThis(String path) {
         if (pathRegex != null && pathRegex.pattern().contains("?<relpath>")) {
@@ -275,7 +259,6 @@ public final class Location implements Comparable<Location> {
         if (pathRegex != null || other.pathRegex != null) {
             return false;
         }
-
         if (isClassPath() && other.isClassPath()) {
             return (other.getDescriptor() + "/").startsWith(getDescriptor() + "/");
         }
@@ -299,7 +282,7 @@ public final class Location implements Comparable<Location> {
         return prefix + rawPath;
     }
 
-    @SuppressWarnings("NullableProblems")
+    @Override
     public int compareTo(Location o) {
         return getDescriptor().compareTo(o.getDescriptor());
     }
@@ -312,9 +295,7 @@ public final class Location implements Comparable<Location> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         Location location = (Location) o;
-
         return getDescriptor().equals(location.getDescriptor());
     }
 
