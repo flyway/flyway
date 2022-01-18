@@ -46,4 +46,8 @@ public class JsonUtils {
             throw new FlywayException("Unable to write JSON to file: " + e.getMessage());
         }
     }
+
+    public static Object parseJsonArray(String json) {
+        return JsonParser.parseString(json).getAsJsonArray();
+    }
 }
