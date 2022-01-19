@@ -58,6 +58,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Main {
     private static Log LOG;
@@ -103,7 +104,26 @@ public class Main {
             }
 
             if (commandLineArguments.hasOperation("help") || commandLineArguments.shouldPrintUsage()) {
-                printUsage();
+                StringBuilder helpText = new StringBuilder();
+                boolean helpAsVerbWithOperation = commandLineArguments.hasOperation("help") && commandLineArguments.getOperations().size() > 1;
+                boolean helpAsFlagWithOperation = commandLineArguments.shouldPrintUsage() && commandLineArguments.getOperations().size() > 0;
+                if (helpAsVerbWithOperation || helpAsFlagWithOperation) {
+                    for (String operation : commandLineArguments.getOperations()) {
+                        String helpTextForOperation = PluginRegister.getPlugins(CommandExtension.class).stream()
+                                .filter(e -> e.handlesCommand(operation))
+                                .map(CommandExtension::getHelp)
+                                .collect(Collectors.joining("\n\n"));
+
+                        if (StringUtils.hasText(helpText.toString())) {
+                            helpText.append(helpTextForOperation).append("\n\n");
+                        }
+                    }
+                }
+                if (!StringUtils.hasText(helpText.toString())) {
+                    printUsage();
+                } else {
+                    LOG.info(helpText.toString());
+                }
                 return;
             }
 

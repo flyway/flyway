@@ -43,6 +43,11 @@ public interface CommandExtension extends Plugin {
     String getUsage();
 
     /**
+     * @return The text to show when the '--help' flag is present on this command
+     */
+    String getHelp();
+
+    /**
      * @param command The command to handle
      * @param config The configuration provided to Flyway
      * @return The result of this command being handled

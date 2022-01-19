@@ -92,6 +92,14 @@ public class StringUtils {
         return result.toString();
     }
 
+    public static String rightPad(String original, int length, char padChar) {
+        StringBuilder result = new StringBuilder(original);
+        while (result.length() < length) {
+            result.append(padChar);
+        }
+        return result.toString();
+    }
+
     /**
      * Replaces all sequences of whitespace by a single blank. Ex.: "&nbsp;&nbsp;&nbsp;&nbsp;" -> " "
      *
