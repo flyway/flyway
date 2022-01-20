@@ -23,16 +23,14 @@ import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class CommandResultFactory {
     public static InfoResult createInfoResult(Configuration configuration, Database database, MigrationInfo[] migrationInfos, MigrationInfo current, boolean allSchemasEmpty) {
         String flywayVersion = VersionPrinter.getVersion();
         String databaseName = getDatabaseName(configuration, database);
-        Set<MigrationVersion> undoableVersions = getUndoableVersions(migrationInfos);
+        Set<MigrationInfo> undoableMigrations = getUndoMigrations(migrationInfos);
 
 
 
@@ -40,7 +38,7 @@ public class CommandResultFactory {
 
         List<InfoOutput> infoOutputs = new ArrayList<>();
         for (MigrationInfo migrationInfo : migrationInfos) {
-            infoOutputs.add(createInfoOutput(undoableVersions, migrationInfo));
+            infoOutputs.add(createInfoOutput(undoableMigrations, migrationInfo));
         }
 
         MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
@@ -58,11 +56,7 @@ public class CommandResultFactory {
 
     public static MigrateResult createMigrateResult(String databaseName, Configuration configuration) {
         String flywayVersion = VersionPrinter.getVersion();
-
-        return new MigrateResult(
-                flywayVersion,
-                databaseName,
-                String.join(", ", configuration.getSchemas()));
+        return new MigrateResult(flywayVersion, databaseName, String.join(", ", configuration.getSchemas()));
     }
 
     public static CleanResult createCleanResult(String databaseName) {
@@ -93,28 +87,16 @@ public class CommandResultFactory {
         return new RepairResult(flywayVersion, databaseName);
     }
 
-    private static String getDatabaseName(Configuration configuration, Database database) {
-        try {
-            return database.getCatalog();
-        } catch (Exception e) {
-            try (Connection connection = configuration.getDataSource().getConnection()) {
-                String catalog = connection.getCatalog();
-                return catalog != null ? catalog : "";
-            } catch (Exception e1) {
-                return "";
-            }
-        }
-    }
-
-    public static InfoOutput createInfoOutput(Set<MigrationVersion> undoableVersions, MigrationInfo migrationInfo) {
+    public static InfoOutput createInfoOutput(Set<MigrationInfo> undoableMigrations, MigrationInfo migrationInfo) {
         return new InfoOutput(getCategory(migrationInfo),
                               migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
                               migrationInfo.getDescription(),
                               migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
                               migrationInfo.getInstalledOn() != null ? migrationInfo.getInstalledOn().toInstant().toString() : "",
                               migrationInfo.getState().getDisplayName(),
-                              getUndoableStatus(migrationInfo, undoableVersions),
+                              getUndoableStatus(migrationInfo, undoableMigrations),
                               migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
+                              getUndoablePath(migrationInfo, undoableMigrations),
                               migrationInfo.getInstalledBy() != null ? migrationInfo.getInstalledBy() : "",
                               migrationInfo.getExecutionTime() != null ? migrationInfo.getExecutionTime() : 0);
     }
@@ -155,7 +137,20 @@ public class CommandResultFactory {
         return new RepairOutput(am.getVersion() != null ? am.getVersion().getVersion() : "", am.getDescription(), "");
     }
 
-    private static String getUndoableStatus(MigrationInfo migrationInfo, Set<MigrationVersion> undoableVersions) {
+    private static String getUndoableStatus(MigrationInfo migrationInfo, Set<MigrationInfo> undoableMigrations) {
+
+
+
+
+
+
+
+
+        return "";
+    }
+
+    private static String getUndoablePath(MigrationInfo migrationInfo, Set<MigrationInfo> undoableMigrations) {
+
 
 
 
@@ -169,10 +164,8 @@ public class CommandResultFactory {
         return "";
     }
 
-    private static Set<MigrationVersion> getUndoableVersions(MigrationInfo[] migrationInfos) {
-        Set<MigrationVersion> result = new HashSet<>();
-
-
+    private static Set<MigrationInfo> getUndoMigrations(MigrationInfo[] migrationInfos) {
+        Set<MigrationInfo> result = Collections.emptySet();
 
 
 
@@ -181,16 +174,23 @@ public class CommandResultFactory {
         return result;
     }
 
-    private static MigrationInfo[] removeAvailableUndos(MigrationInfo[] migrationInfos) {
-        List<MigrationInfo> result = new ArrayList<>();
+    private static MigrationInfo[] removeAvailableUndoMigrations(MigrationInfo[] migrationInfos) {
+        return Arrays.stream(migrationInfos)
+                .filter(m -> !m.getState().equals(MigrationState.AVAILABLE))
+                .toArray(MigrationInfo[]::new);
+    }
 
-        for (MigrationInfo migrationInfo : migrationInfos) {
-            if (!migrationInfo.getState().equals(MigrationState.AVAILABLE)) {
-                result.add(migrationInfo);
+    private static String getDatabaseName(Configuration configuration, Database database) {
+        try {
+            return database.getCatalog();
+        } catch (Exception e) {
+            try (Connection connection = configuration.getDataSource().getConnection()) {
+                String catalog = connection.getCatalog();
+                return catalog != null ? catalog : "";
+            } catch (Exception e1) {
+                return "";
             }
         }
-
-        return result.toArray(new MigrationInfo[0]);
     }
 
     private static String getCategory(MigrationInfo migrationInfo) {

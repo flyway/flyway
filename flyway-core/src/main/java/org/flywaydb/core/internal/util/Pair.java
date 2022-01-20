@@ -20,24 +20,10 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
-/**
- * A simple pair of values.
- */
 @RequiredArgsConstructor(staticName = "of")
 @Getter
 public class Pair<L, R> implements Comparable<Pair<L, R>> {
-    /**
-     * The left side of the pair.
-     *
-     * @return The left side of the pair.
-     */
     private final L left;
-
-    /**
-     * The right side of the pair.
-     *
-     * @return The right side of the pair.
-     */
     private final R right;
 
     @Override

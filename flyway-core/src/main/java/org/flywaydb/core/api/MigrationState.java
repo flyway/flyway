@@ -18,9 +18,6 @@ package org.flywaydb.core.api;
 import lombok.RequiredArgsConstructor;
 import lombok.Getter;
 
-/**
- * The state of a migration.
- */
 @RequiredArgsConstructor
 @Getter
 public enum MigrationState {

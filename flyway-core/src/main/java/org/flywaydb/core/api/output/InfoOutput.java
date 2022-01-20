@@ -27,6 +27,7 @@ public class InfoOutput {
     public String state;
     public String undoable;
     public String filepath;
+    public String undoFilepath;
     public String installedBy;
     public int executionTime;
 }
