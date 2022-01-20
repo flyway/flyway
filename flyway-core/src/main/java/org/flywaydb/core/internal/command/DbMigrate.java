@@ -108,6 +108,9 @@ public class DbMigrate {
             throw e;
         }
 
+        if (count > 0) {
+            callbackExecutor.onMigrateOrUndoEvent(Event.AFTER_MIGRATE_APPLIED);
+        }
         callbackExecutor.onMigrateOrUndoEvent(Event.AFTER_MIGRATE);
 
         return migrateResult;

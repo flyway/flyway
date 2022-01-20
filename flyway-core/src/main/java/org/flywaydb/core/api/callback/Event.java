@@ -82,6 +82,10 @@ public enum Event {
      */
     AFTER_VERSIONED("afterVersioned"),
     /**
+     * Fired after migrate has succeeded, and at least one migration has been applied. This event will be fired in a separate transaction from the actual migrate operation.
+     */
+    AFTER_MIGRATE_APPLIED("afterMigrateApplied"),
+    /**
      * Fired after migrate has succeeded. This event will be fired in a separate transaction from the actual migrate operation.
      */
     AFTER_MIGRATE("afterMigrate"),
