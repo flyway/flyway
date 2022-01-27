@@ -113,6 +113,14 @@ public class FlywayExecutor {
 
         configurationValidator.validate(configuration);
 
+
+
+
+
+
+
+
+
         StatementInterceptor statementInterceptor = null;
 
 
@@ -202,14 +210,6 @@ public class FlywayExecutor {
                     database,
                     defaultSchema,
                     statementInterceptor);
-
-
-
-
-
-
-
-
 
             result = command.execute(
                     createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory, parsingContext),
