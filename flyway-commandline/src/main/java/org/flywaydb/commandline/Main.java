@@ -163,7 +163,7 @@ public class Main {
             Configuration configuration = new FluentConfiguration(classLoader).configuration(config);
 
             if (!commandLineArguments.skipCheckForUpdate()) {
-                if (RedgateUpdateChecker.isEnabled()) {
+                if (RedgateUpdateChecker.isEnabled() && configuration.getDataSource() != null) {
                     JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
                     Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null);
 
