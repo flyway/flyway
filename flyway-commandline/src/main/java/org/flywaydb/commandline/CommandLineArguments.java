@@ -143,7 +143,16 @@ public class CommandLineArguments {
     }
 
     private static List<String> getOperationsFromArgs(String[] args) {
-        return Arrays.stream(args).filter(arg -> !arg.startsWith("-")).collect(Collectors.toList());
+        List<String> flags = Arrays.stream(args).filter(x -> x.startsWith("-")).collect(Collectors.toList());
+        List<String> operations = Arrays.stream(args).filter(arg -> !arg.startsWith("-")).collect(Collectors.toList());
+
+        PluginRegister.getPlugins(CommandExtension.class)
+                .forEach(extension -> flags.stream()
+                        .map(extension::getCommandForFlag)
+                        .filter(Objects::nonNull)
+                        .forEach(operations::add));
+
+        return operations;
     }
 
     private static List<String> getConfigFilesFromArgs(String[] args) {

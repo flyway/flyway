@@ -32,6 +32,14 @@ public interface CommandExtension extends Plugin {
     boolean handlesCommand(String command);
 
     /**
+     * @param flag The CLI flag to get the command for
+     * @return The command or null if no action is to be taken
+     */
+    default String getCommandForFlag(String flag) {
+        return null;
+    }
+
+    /**
      * @param parameter The parameter to check is handled
      * @return Whether this extension handles the specified parameter
      */

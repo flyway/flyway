@@ -39,7 +39,6 @@ import org.flywaydb.core.internal.info.MigrationInfoDumper;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.license.FlywayTrialExpiredException;
-import org.flywaydb.core.internal.license.VersionPrinter;
 
 import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
@@ -96,11 +95,6 @@ public class Main {
 
         try {
             commandLineArguments.validate();
-
-            if (!commandLineArguments.shouldCheckLicenseAndExit() && commandLineArguments.shouldPrintVersionAndExit()) {
-                printVersion();
-                return;
-            }
 
             if (commandLineArguments.hasOperation("help") || commandLineArguments.shouldPrintUsage()) {
                 StringBuilder helpText = new StringBuilder();
@@ -393,15 +387,9 @@ public class Main {
 
 
 
-    private static void printVersion() {
-        VersionPrinter.printVersionOnly();
-        LOG.info("");
-
-        LOG.debug("Java " + System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")");
-        LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch") + "\n");
-    }
-
     private static void printUsage() {
+        String indent = "    ";
+
         LOG.info("Usage");
         LOG.info("=====");
         LOG.info("");
@@ -411,100 +399,90 @@ public class Main {
         LOG.info("Options passed from the command-line override the configuration.");
         LOG.info("");
         LOG.info("Commands");
-        LOG.info("--------");
-        LOG.info("migrate  : Migrates the database");
-        LOG.info("clean    : Drops all objects in the configured schemas");
-        LOG.info("info     : Prints the information about applied, current and pending migrations");
-        LOG.info("validate : Validates the applied migrations against the ones on the classpath");
-        LOG.info("undo     : [" + "teams] Undoes the most recently applied versioned migration");
-        LOG.info("baseline : Baselines an existing database at the baselineVersion");
-        LOG.info("repair   : Repairs the schema history table");
+        LOG.info(indent + "migrate  : Migrates the database");
+        LOG.info(indent + "clean    : Drops all objects in the configured schemas");
+        LOG.info(indent + "info     : Prints the information about applied, current and pending migrations");
+        LOG.info(indent + "validate : Validates the applied migrations against the ones on the classpath");
+        LOG.info(indent + "undo     : [" + "teams] Undoes the most recently applied versioned migration");
+        LOG.info(indent + "baseline : Baselines an existing database at the baselineVersion");
+        LOG.info(indent + "repair   : Repairs the schema history table");
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
-        LOG.info("-------");
-        LOG.info("driver                       : Fully qualified classname of the JDBC driver");
-        LOG.info("url                          : Jdbc url to use to connect to the database");
-        LOG.info("user                         : User to use to connect to the database");
-        LOG.info("password                     : Password to use to connect to the database");
-        LOG.info("connectRetries               : Maximum number of retries when attempting to connect to the database");
-        LOG.info("initSql                      : SQL statements to run to initialize a new database connection");
-        LOG.info("schemas                      : Comma-separated list of the schemas managed by Flyway");
-        LOG.info("table                        : Name of Flyway's schema history table");
-        LOG.info("locations                    : Classpath locations to scan recursively for migrations");
-        LOG.info("failOnMissingLocations       : Whether to fail if a location specified in the flyway.locations option doesn't exist");
-        LOG.info("resolvers                    : Comma-separated list of custom MigrationResolvers");
-        LOG.info("skipDefaultResolvers         : Skips default resolvers (jdbc, sql and Spring-jdbc)");
-        LOG.info("sqlMigrationPrefix           : File name prefix for versioned SQL migrations");
-        LOG.info("undoSqlMigrationPrefix       : [" + "teams] File name prefix for undo SQL migrations");
-        LOG.info("repeatableSqlMigrationPrefix : File name prefix for repeatable SQL migrations");
-        LOG.info("sqlMigrationSeparator        : File name separator for SQL migrations");
-        LOG.info("sqlMigrationSuffixes         : Comma-separated list of file name suffixes for SQL migrations");
-        LOG.info("stream                       : [" + "teams] Stream SQL migrations when executing them");
-        LOG.info("batch                        : [" + "teams] Batch SQL statements when executing them");
-        LOG.info("mixed                        : Allow mixing transactional and non-transactional statements");
-        LOG.info("encoding                     : Encoding of SQL migrations");
-        LOG.info("detectEncoding               : [" + "teams] Whether Flyway should try to automatically detect SQL migration file encoding");
-        LOG.info("placeholderReplacement       : Whether placeholders should be replaced");
-        LOG.info("placeholders                 : Placeholders to replace in sql migrations");
-        LOG.info("placeholderPrefix            : Prefix of every placeholder");
-        LOG.info("placeholderSuffix            : Suffix of every placeholder");
-        LOG.info("scriptPlaceholderPrefix      : Prefix of every script placeholder");
-        LOG.info("scriptPlaceholderSuffix      : Suffix of every script placeholder");
-        LOG.info("lockRetryCount               : The maximum number of retries when trying to obtain a lock");
-        LOG.info("jdbcProperties               : Properties to pass to the JDBC driver object");
-        LOG.info("installedBy                  : Username that will be recorded in the schema history table");
-        LOG.info("target                       : Target version up to which Flyway should use migrations");
-        LOG.info("cherryPick                   : [" + "teams] Comma separated list of migrations that Flyway should consider when migrating");
-        LOG.info("skipExecutingMigrations      : [" + "teams] Whether Flyway should skip actually executing the contents of the migrations");
-        LOG.info("outOfOrder                   : Allows migrations to be run \"out of order\"");
-        LOG.info("callbacks                    : Comma-separated list of FlywayCallback classes, or locations to scan for FlywayCallback classes");
-        LOG.info("skipDefaultCallbacks         : Skips default callbacks (sql)");
-        LOG.info("validateOnMigrate            : Validate when running migrate");
-        LOG.info("validateMigrationNaming      : Validate file names of SQL migrations (including callbacks)");
-        LOG.info("ignoreMissingMigrations      : Allow missing migrations when validating");
-        LOG.info("ignoreIgnoredMigrations      : Allow ignored migrations when validating");
-        LOG.info("ignorePendingMigrations      : Allow pending migrations when validating");
-        LOG.info("ignoreFutureMigrations       : Allow future migrations when validating");
-        LOG.info("ignoreMigrationPatterns      : [" + "teams] Patterns of migrations and states to ignore during validate");
-        LOG.info("cleanOnValidationError       : Automatically clean on a validation error");
-        LOG.info("cleanDisabled                : Whether to disable clean");
-        LOG.info("baselineVersion              : Version to tag schema with when executing baseline");
-        LOG.info("baselineDescription          : Description to tag schema with when executing baseline");
-        LOG.info("baselineOnMigrate            : Baseline on migrate against uninitialized non-empty schema");
-        LOG.info("configFiles                  : Comma-separated list of config files to use");
-        LOG.info("configFileEncoding           : Encoding to use when loading the config files");
-        LOG.info("jarDirs                      : Comma-separated list of dirs for Jdbc drivers & Java migrations");
-        LOG.info("createSchemas                : Whether Flyway should attempt to create the schemas specified in the schemas property");
-        LOG.info("dryRunOutput                 : [" + "teams] File where to output the SQL statements of a migration dry run");
-        LOG.info("errorOverrides               : [" + "teams] Rules to override specific SQL states and errors codes");
-        LOG.info("oracle.sqlplus               : [" + "teams] Enable Oracle SQL*Plus command support");
-        LOG.info("licenseKey                   : [" + "teams] Your Flyway license key");
-        LOG.info("color                        : Whether to colorize output. Values: always, never, or auto (default)");
-        LOG.info("outputFile                   : Send output to the specified file alongside the console");
-        LOG.info("outputType                   : Serialise the output in the given format, Values: json");
+        LOG.info(indent + "driver                       : Fully qualified classname of the JDBC driver");
+        LOG.info(indent + "url                          : Jdbc url to use to connect to the database");
+        LOG.info(indent + "user                         : User to use to connect to the database");
+        LOG.info(indent + "password                     : Password to use to connect to the database");
+        LOG.info(indent + "connectRetries               : Maximum number of retries when attempting to connect to the database");
+        LOG.info(indent + "initSql                      : SQL statements to run to initialize a new database connection");
+        LOG.info(indent + "schemas                      : Comma-separated list of the schemas managed by Flyway");
+        LOG.info(indent + "table                        : Name of Flyway's schema history table");
+        LOG.info(indent + "locations                    : Classpath locations to scan recursively for migrations");
+        LOG.info(indent + "failOnMissingLocations       : Whether to fail if a location specified in the flyway.locations option doesn't exist");
+        LOG.info(indent + "resolvers                    : Comma-separated list of custom MigrationResolvers");
+        LOG.info(indent + "skipDefaultResolvers         : Skips default resolvers (jdbc, sql and Spring-jdbc)");
+        LOG.info(indent + "sqlMigrationPrefix           : File name prefix for versioned SQL migrations");
+        LOG.info(indent + "undoSqlMigrationPrefix       : [" + "teams] File name prefix for undo SQL migrations");
+        LOG.info(indent + "repeatableSqlMigrationPrefix : File name prefix for repeatable SQL migrations");
+        LOG.info(indent + "sqlMigrationSeparator        : File name separator for SQL migrations");
+        LOG.info(indent + "sqlMigrationSuffixes         : Comma-separated list of file name suffixes for SQL migrations");
+        LOG.info(indent + "stream                       : [" + "teams] Stream SQL migrations when executing them");
+        LOG.info(indent + "batch                        : [" + "teams] Batch SQL statements when executing them");
+        LOG.info(indent + "mixed                        : Allow mixing transactional and non-transactional statements");
+        LOG.info(indent + "encoding                     : Encoding of SQL migrations");
+        LOG.info(indent + "detectEncoding               : [" + "teams] Whether Flyway should try to automatically detect SQL migration file encoding");
+        LOG.info(indent + "placeholderReplacement       : Whether placeholders should be replaced");
+        LOG.info(indent + "placeholders                 : Placeholders to replace in sql migrations");
+        LOG.info(indent + "placeholderPrefix            : Prefix of every placeholder");
+        LOG.info(indent + "placeholderSuffix            : Suffix of every placeholder");
+        LOG.info(indent + "scriptPlaceholderPrefix      : Prefix of every script placeholder");
+        LOG.info(indent + "scriptPlaceholderSuffix      : Suffix of every script placeholder");
+        LOG.info(indent + "lockRetryCount               : The maximum number of retries when trying to obtain a lock");
+        LOG.info(indent + "jdbcProperties               : Properties to pass to the JDBC driver object");
+        LOG.info(indent + "installedBy                  : Username that will be recorded in the schema history table");
+        LOG.info(indent + "target                       : Target version up to which Flyway should use migrations");
+        LOG.info(indent + "cherryPick                   : [" + "teams] Comma separated list of migrations that Flyway should consider when migrating");
+        LOG.info(indent + "skipExecutingMigrations      : [" + "teams] Whether Flyway should skip actually executing the contents of the migrations");
+        LOG.info(indent + "outOfOrder                   : Allows migrations to be run \"out of order\"");
+        LOG.info(indent + "callbacks                    : Comma-separated list of FlywayCallback classes, or locations to scan for FlywayCallback classes");
+        LOG.info(indent + "skipDefaultCallbacks         : Skips default callbacks (sql)");
+        LOG.info(indent + "validateOnMigrate            : Validate when running migrate");
+        LOG.info(indent + "validateMigrationNaming      : Validate file names of SQL migrations (including callbacks)");
+        LOG.info(indent + "ignoreMissingMigrations      : Allow missing migrations when validating");
+        LOG.info(indent + "ignoreIgnoredMigrations      : Allow ignored migrations when validating");
+        LOG.info(indent + "ignorePendingMigrations      : Allow pending migrations when validating");
+        LOG.info(indent + "ignoreFutureMigrations       : Allow future migrations when validating");
+        LOG.info(indent + "ignoreMigrationPatterns      : [" + "teams] Patterns of migrations and states to ignore during validate");
+        LOG.info(indent + "cleanOnValidationError       : Automatically clean on a validation error");
+        LOG.info(indent + "cleanDisabled                : Whether to disable clean");
+        LOG.info(indent + "baselineVersion              : Version to tag schema with when executing baseline");
+        LOG.info(indent + "baselineDescription          : Description to tag schema with when executing baseline");
+        LOG.info(indent + "baselineOnMigrate            : Baseline on migrate against uninitialized non-empty schema");
+        LOG.info(indent + "configFiles                  : Comma-separated list of config files to use");
+        LOG.info(indent + "configFileEncoding           : Encoding to use when loading the config files");
+        LOG.info(indent + "jarDirs                      : Comma-separated list of dirs for Jdbc drivers & Java migrations");
+        LOG.info(indent + "createSchemas                : Whether Flyway should attempt to create the schemas specified in the schemas property");
+        LOG.info(indent + "dryRunOutput                 : [" + "teams] File where to output the SQL statements of a migration dry run");
+        LOG.info(indent + "errorOverrides               : [" + "teams] Rules to override specific SQL states and errors codes");
+        LOG.info(indent + "oracle.sqlplus               : [" + "teams] Enable Oracle SQL*Plus command support");
+        LOG.info(indent + "licenseKey                   : [" + "teams] Your Flyway license key");
+        LOG.info(indent + "color                        : Whether to colorize output. Values: always, never, or auto (default)");
+        LOG.info(indent + "outputFile                   : Send output to the specified file alongside the console");
+        LOG.info(indent + "outputType                   : Serialise the output in the given format, Values: json");
+        List<CommandExtension> extensions = PluginRegister.getPlugins(CommandExtension.class);
+        for (CommandExtension extension : extensions) {
+            LOG.info(indent + extension.getUsage());
+        }
         LOG.info("");
         LOG.info("Flags");
-        LOG.info("-----");
-        LOG.info("-X              : Print debug output");
-        LOG.info("-q              : Suppress all output, except for errors and warnings");
-        LOG.info("-n              : Suppress prompting for a user and password");
-        LOG.info("--version, -v   : Print the Flyway version and exit");
-        LOG.info("--help, -h, -?  : Print this usage info and exit");
-        LOG.info("-community      : Run the Flyway Community Edition (default)");
-        LOG.info("-teams          : Run the Flyway Teams Edition");
-        List<CommandExtension> extensions = PluginRegister.getPlugins(CommandExtension.class);
-        if (!extensions.isEmpty()) {
-            LOG.info("");
-            LOG.info("Command-line extensions");
-            LOG.info("-----------------------");
-        }
-        for (CommandExtension extension : extensions) {
-            LOG.info(extension.getUsage());
-        }
+        LOG.info(indent + "-X              : Print debug output");
+        LOG.info(indent + "-q              : Suppress all output, except for errors and warnings");
+        LOG.info(indent + "-n              : Suppress prompting for a user and password");
+        LOG.info(indent + "--help, -h, -?  : Print this usage info and exit");
+        LOG.info(indent + "-community      : Run the Flyway Community Edition (default)");
+        LOG.info(indent + "-teams          : Run the Flyway Teams Edition");
         LOG.info("");
-        LOG.info("Example");
-        LOG.info("-------");
-        LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
+        LOG.info("Flyway Usage Example");
+        LOG.info(indent + "flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
         LOG.info("More info at " + FlywayDbWebsiteLinks.USAGE_COMMANDLINE);
         LOG.info("Learn more about Flyway Teams edition at " + FlywayDbWebsiteLinks.TRY_TEAMS_EDITION);
