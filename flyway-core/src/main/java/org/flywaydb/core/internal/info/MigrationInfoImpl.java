@@ -320,10 +320,10 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         if (state.isFailed() && (!context.future || MigrationState.FUTURE_FAILED != state)) {
             if (getVersion() == null) {
-                String errorMessage = "Detected failed repeatable migration: " + getDescription() + ". Please remove any half-completed changes then run repair to fix the schema history.";
+                String errorMessage = "Detected failed repeatable migration: " + getDescription() + ".\nPlease remove any half-completed changes then run repair to fix the schema history.";
                 return new ErrorDetails(ErrorCode.FAILED_REPEATABLE_MIGRATION, errorMessage);
             }
-            String errorMessage = "Detected failed migration to version " + getVersion() + " (" + getDescription() + ")" + ". Please remove any half-completed changes then run repair to fix the schema history.";
+            String errorMessage = "Detected failed migration to version " + getVersion() + " (" + getDescription() + ")" + ".\nPlease remove any half-completed changes then run repair to fix the schema history.";
             return new ErrorDetails(ErrorCode.FAILED_VERSIONED_MIGRATION, errorMessage);
         }
 
@@ -343,10 +343,10 @@ public class MigrationInfoImpl implements MigrationInfo {
                 && (!context.missing || (MigrationState.MISSING_SUCCESS != state && MigrationState.MISSING_FAILED != state))
                 && (!context.future || (MigrationState.FUTURE_SUCCESS != state && MigrationState.FUTURE_FAILED != state))) {
             if (appliedMigration.getVersion() != null) {
-                String errorMessage = "Detected applied migration not resolved locally: " + getVersion() + ". If you removed this migration intentionally, run repair to mark the migration as deleted.";
+                String errorMessage = "Detected applied migration not resolved locally: " + getVersion() + ".\nIf you removed this migration intentionally, run repair to mark the migration as deleted.";
                 return new ErrorDetails(ErrorCode.APPLIED_VERSIONED_MIGRATION_NOT_RESOLVED, errorMessage);
             } else {
-                String errorMessage = "Detected applied migration not resolved locally: " + getDescription() + ". If you removed this migration intentionally, run repair to mark the migration as deleted.";
+                String errorMessage = "Detected applied migration not resolved locally: " + getDescription() + ".\nIf you removed this migration intentionally, run repair to mark the migration as deleted.";
                 return new ErrorDetails(ErrorCode.APPLIED_REPEATABLE_MIGRATION_NOT_RESOLVED, errorMessage);
             }
         }
@@ -356,24 +356,24 @@ public class MigrationInfoImpl implements MigrationInfo {
                 return null;
             }
             if (getVersion() != null) {
-                String errorMessage = "Detected resolved migration not applied to database: " + getVersion() + ". To ignore this migration, set -ignoreIgnoredMigrations=true. To allow executing this migration, set -outOfOrder=true.";
+                String errorMessage = "Detected resolved migration not applied to database: " + getVersion() + ".\nTo ignore this migration, set -ignoreIgnoredMigrations=true. To allow executing this migration, set -outOfOrder=true.";
                 return new ErrorDetails(ErrorCode.RESOLVED_VERSIONED_MIGRATION_NOT_APPLIED, errorMessage);
             }
-            String errorMessage = "Detected resolved repeatable migration not applied to database: " + getDescription() + ". To ignore this migration, set -ignoreIgnoredMigrations=true.";
+            String errorMessage = "Detected resolved repeatable migration not applied to database: " + getDescription() + ".\nTo ignore this migration, set -ignoreIgnoredMigrations=true.";
             return new ErrorDetails(ErrorCode.RESOLVED_REPEATABLE_MIGRATION_NOT_APPLIED, errorMessage);
         }
 
         if (!context.pending && MigrationState.PENDING == state) {
             if (getVersion() != null) {
-                String errorMessage = "Detected resolved migration not applied to database: " + getVersion() + ". To fix this error, either run migrate, or set -ignorePendingMigrations=true.";
+                String errorMessage = "Detected resolved migration not applied to database: " + getVersion() + ".\nTo fix this error, either run migrate, or set -ignorePendingMigrations=true.";
                 return new ErrorDetails(ErrorCode.RESOLVED_VERSIONED_MIGRATION_NOT_APPLIED, errorMessage);
             }
-            String errorMessage = "Detected resolved repeatable migration not applied to database: " + getDescription() + ". To fix this error, either run migrate, or set -ignorePendingMigrations=true.";
+            String errorMessage = "Detected resolved repeatable migration not applied to database: " + getDescription() + ".\nTo fix this error, either run migrate, or set -ignorePendingMigrations=true.";
             return new ErrorDetails(ErrorCode.RESOLVED_REPEATABLE_MIGRATION_NOT_APPLIED, errorMessage);
         }
 
         if (!context.pending && MigrationState.OUTDATED == state) {
-            String errorMessage = "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription() + ". Run migrate to execute this migration.";
+            String errorMessage = "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription() + ".\nRun migrate to execute this migration.";
             return new ErrorDetails(ErrorCode.OUTDATED_REPEATABLE_MIGRATION, errorMessage);
         }
 
@@ -437,8 +437,8 @@ public class MigrationInfoImpl implements MigrationInfo {
     private String createMismatchMessage(String mismatch, String migrationIdentifier, Object applied, Object resolved) {
         return String.format("Migration " + mismatch + " mismatch for migration %s\n" +
                                      "-> Applied to database : %s\n" +
-                                     "-> Resolved locally    : %s" +
-                                     ". Either revert the changes to the migration, or run repair to update the schema history.",
+                                     "-> Resolved locally    : %s\n" +
+                                     "Either revert the changes to the migration, or run repair to update the schema history.",
                              migrationIdentifier, applied, resolved);
     }
 

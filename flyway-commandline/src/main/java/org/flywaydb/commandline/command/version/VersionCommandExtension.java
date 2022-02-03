@@ -20,17 +20,15 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.output.OperationResultBase;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.Pair;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @CustomLog
 public class VersionCommandExtension implements CommandExtension {
-
     public static final String VERSION = "version";
     public static final List<String> FLAGS = Arrays.asList("-v", "--version");
 
@@ -43,24 +41,12 @@ public class VersionCommandExtension implements CommandExtension {
         if (FLAGS.contains(flag.toLowerCase())) {
             return VERSION;
         }
-
         return CommandExtension.super.getCommandForFlag(flag);
     }
 
     @Override
     public boolean handlesParameter(String parameter) {
         return false;
-    }
-
-    @Override
-    public String getUsage() {
-        String optionsList = VERSION + ", " + String.join(", ", FLAGS);
-        return StringUtils.rightPad(optionsList, 29, ' ') + ": Print the Flyway version and edition";
-    }
-
-    @Override
-    public String getHelp() {
-        return null;
     }
 
     @Override
@@ -72,5 +58,10 @@ public class VersionCommandExtension implements CommandExtension {
         LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch") + "\n");
 
         return null;
+    }
+
+    @Override
+    public List<Pair<String, String>> getUsage() {
+        return Collections.singletonList(Pair.of(VERSION + ", " + String.join(", ", FLAGS), "Print the Flyway version and edition"));
     }
 }

@@ -15,9 +15,13 @@
  */
 package org.flywaydb.core.extensibility;
 
-import java.util.Map;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-public interface ConfigurationExtension extends Plugin {
-    void extractParametersFromConfiguration(Map<String, String> configuration);
-    String getConfigurationParameterFromEnvironmentVariable(String environmentVariable);
+@Getter
+@RequiredArgsConstructor
+public class ConfigurationParameter {
+    public final String name;
+    public final String description;
+    public final boolean required;
 }

@@ -15,12 +15,10 @@
  */
 package org.flywaydb.core.internal.license;
 
-import lombok.CustomLog;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.extensibility.PluginMetadata;
-import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 
 import java.io.IOException;
@@ -49,13 +47,6 @@ public class VersionPrinter {
 
     public static void printVersionOnly() {
         LOG.info(EDITION + " " + VERSION + " by Redgate");
-        printExtensionVersions();
-    }
-
-    private static void printExtensionVersions() {
-        for (PluginMetadata plugin : PluginRegister.getPlugins(PluginMetadata.class)) {
-            LOG.debug(">\t" + plugin.getDescription());
-        }
     }
 
     private static String readVersion() {
