@@ -92,27 +92,12 @@ public class PostgreSQLAdvisoryLockTemplate {
     }
 
     private boolean tryLock() throws SQLException {
-        List<Boolean> results = jdbcTemplate.query("SELECT pg_try_advisory_lock(" + lockNum + ")",
-                                                   rs -> rs.getBoolean("pg_try_advisory_lock"));
+        List<Boolean> results = jdbcTemplate.query("SELECT pg_try_advisory_xact_lock(" + lockNum + ")",
+                                                   rs -> rs.getBoolean("pg_try_advisory_xact_lock"));
         return results.size() == 1 && results.get(0);
     }
 
     private void unlock(RuntimeException rethrow) throws FlywaySqlException {
-        try {
-            boolean unlocked = jdbcTemplate.queryForBoolean("SELECT pg_advisory_unlock(" + lockNum + ")");
-            if (!unlocked) {
-                if (rethrow == null) {
-                    throw new FlywayException("Unable to release PostgreSQL advisory lock");
-                } else {
-                    LOG.error("Unable to release PostgreSQL advisory lock");
-                }
-            }
-        } catch (SQLException e) {
-            if (rethrow == null) {
-                throw new FlywaySqlException("Unable to release PostgreSQL advisory lock", e);
-            } else {
-                LOG.error("Unable to release PostgreSQL advisory lock", e);
-            }
-        }
+        // With transaction advisory locks, unlocking happens automatically when the transaction ends
     }
 }
