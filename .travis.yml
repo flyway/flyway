@@ -2,10 +2,8 @@ language: minimal
 
 env:
   matrix:
-    - JDK_VERSION=10
     - JDK_VERSION=11
-    - JDK_VERSION=12
-    - JDK_VERSION=13
+    - JDK_VERSION=17
 
 install: skip
 
