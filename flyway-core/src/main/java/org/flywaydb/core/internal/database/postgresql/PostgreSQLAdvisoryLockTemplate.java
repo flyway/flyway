@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
-import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -29,7 +28,6 @@ import java.util.concurrent.Callable;
 /**
  * Spring-like template for executing with PostgreSQL advisory locks.
  */
-@CustomLog
 public class PostgreSQLAdvisoryLockTemplate {
     private static final long LOCK_MAGIC_NUM =
             (0x46L << 40) // F
@@ -92,12 +90,19 @@ public class PostgreSQLAdvisoryLockTemplate {
     }
 
     private boolean tryLock() throws SQLException {
+        // Start a new transaction to ensure that the transaction scoped lock runs until we commit on unlock
+        jdbcTemplate.executeStatement("BEGIN");
         List<Boolean> results = jdbcTemplate.query("SELECT pg_try_advisory_xact_lock(" + lockNum + ")",
                                                    rs -> rs.getBoolean("pg_try_advisory_xact_lock"));
-        return results.size() == 1 && results.get(0);
+        Boolean result = results.size() == 1 && results.get(0);    
+        if(!result) {
+            jdbcTemplate.executeStatement("ROLLBACK");
+        }
+        return result;
     }
 
     private void unlock(RuntimeException rethrow) throws FlywaySqlException {
         // With transaction advisory locks, unlocking happens automatically when the transaction ends
+        jdbcTemplate.executeStatement("COMMIT");
     }
 }
