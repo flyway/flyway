@@ -398,13 +398,16 @@ public class Main {
         LOG.info("Options passed from the command-line override the configuration.");
         LOG.info("");
         LOG.info("Commands");
-        LOG.info(indent + "migrate    Migrates the database");
-        LOG.info(indent + "clean      Drops all objects in the configured schemas");
-        LOG.info(indent + "info       Prints the information about applied, current and pending migrations");
-        LOG.info(indent + "validate   Validates the applied migrations against the ones on the classpath");
-        LOG.info(indent + "undo       [" + "teams] Undoes the most recently applied versioned migration");
-        LOG.info(indent + "baseline   Baselines an existing database at the baselineVersion");
-        LOG.info(indent + "repair     Repairs the schema history table");
+        List<Pair<String, String>> usages = PluginRegister.getPlugins(CommandExtension.class).stream().flatMap(e -> e.getUsage().stream()).collect(Collectors.toList());
+        int padSize = usages.stream().max(Comparator.comparingInt(u -> u.getLeft().length())).map(u -> u.getLeft().length() + 3).orElse(11);
+        LOG.info(indent + StringUtils.rightPad("migrate", padSize, ' ') + "Migrates the database");
+        LOG.info(indent + StringUtils.rightPad("clean", padSize, ' ') + "Drops all objects in the configured schemas");
+        LOG.info(indent + StringUtils.rightPad("info", padSize, ' ') + "Prints the information about applied, current and pending migrations");
+        LOG.info(indent + StringUtils.rightPad("validate", padSize, ' ') + "Validates the applied migrations against the ones on the classpath");
+        LOG.info(indent + StringUtils.rightPad("undo", padSize, ' ') + "[" + "teams] Undoes the most recently applied versioned migration");
+        LOG.info(indent + StringUtils.rightPad("baseline", padSize, ' ') + "Baselines an existing database at the baselineVersion");
+        LOG.info(indent + StringUtils.rightPad("repair", padSize, ' ') + "Repairs the schema history table");
+        usages.forEach(u -> LOG.info(indent + StringUtils.rightPad(u.getLeft(), padSize, ' ') + u.getRight()));
         LOG.info("");
         LOG.info("Configuration parameters (Format: -key=value)");
         LOG.info(indent + "driver                         Fully qualified classname of the JDBC driver");
@@ -467,9 +470,6 @@ public class Main {
         LOG.info(indent + "color                          Whether to colorize output. Values: always, never, or auto (default)");
         LOG.info(indent + "outputFile                     Send output to the specified file alongside the console");
         LOG.info(indent + "outputType                     Serialise the output in the given format, Values: json");
-        PluginRegister.getPlugins(CommandExtension.class).stream()
-                .flatMap(extension -> extension.getUsage().stream())
-                .forEach(usages -> LOG.info(indent + StringUtils.rightPad(usages.getLeft(), 31, ' ') + usages.getRight()));
         LOG.info("");
         LOG.info("Flags");
         LOG.info(indent + "-X                Print debug output");
