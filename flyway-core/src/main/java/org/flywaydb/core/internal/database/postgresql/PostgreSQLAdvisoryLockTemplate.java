@@ -15,12 +15,14 @@
  */
 package org.flywaydb.core.internal.database.postgresql;
 
+import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.strategy.RetryStrategy;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -28,6 +30,7 @@ import java.util.concurrent.Callable;
 /**
  * Spring-like template for executing with PostgreSQL advisory locks.
  */
+@CustomLog
 public class PostgreSQLAdvisoryLockTemplate {
     private static final long LOCK_MAGIC_NUM =
             (0x46L << 40) // F
@@ -42,6 +45,16 @@ public class PostgreSQLAdvisoryLockTemplate {
      */
     private final JdbcTemplate jdbcTemplate;
     private final long lockNum;
+
+    /**
+     * Restore previous autocommit value for the connection on unlock.
+     */
+    private boolean oldAutoCommit;
+
+    /**
+     * Track if template was invoked within an already existing transaction.
+     */
+    private boolean prevTransactionExists;
 
     /**
      * Creates a new advisory lock template for this connection.
@@ -81,6 +94,10 @@ public class PostgreSQLAdvisoryLockTemplate {
     }
 
     private void lock() throws SQLException {
+        Connection connection = jdbcTemplate.getConnection();
+        oldAutoCommit = connection.getAutoCommit();
+        prevTransactionExists = !oldAutoCommit;
+
         RetryStrategy strategy = new RetryStrategy();
         strategy.doWithRetries(this::tryLock,
                                "Interrupted while attempting to acquire PostgreSQL advisory lock",
@@ -90,19 +107,53 @@ public class PostgreSQLAdvisoryLockTemplate {
     }
 
     private boolean tryLock() throws SQLException {
-        // Start a new transaction to ensure that the transaction scoped lock runs until we commit on unlock
-        jdbcTemplate.executeStatement("BEGIN");
-        List<Boolean> results = jdbcTemplate.query("SELECT pg_try_advisory_xact_lock(" + lockNum + ")",
-                                                   rs -> rs.getBoolean("pg_try_advisory_xact_lock"));
-        Boolean result = results.size() == 1 && results.get(0);    
-        if(!result) {
-            jdbcTemplate.executeStatement("ROLLBACK");
+        // Start a new transaction, if none exists, to ensure that the 
+        // transaction scoped lock runs until we commit on unlock
+        Connection connection = jdbcTemplate.getConnection();
+        try {
+            if (connection.getAutoCommit()) {
+                connection.setAutoCommit(false);
+            }
+            List<Boolean> results = jdbcTemplate.query("SELECT pg_try_advisory_xact_lock(" + lockNum + ")",
+                    rs -> rs.getBoolean("pg_try_advisory_xact_lock"));
+            return results.size() == 1 && results.get(0);
+        } catch (SQLException se) {
+            if (!prevTransactionExists) {
+                try {
+                    connection.rollback();
+                } catch (SQLException e) {
+                    LOG.error("Unable to rollback transaction.", e);
+                }
+            }
+            restoreAutoCommit(connection);
+            throw se;
         }
-        return result;
     }
 
     private void unlock(RuntimeException rethrow) throws FlywaySqlException {
         // With transaction advisory locks, unlocking happens automatically when the transaction ends
-        jdbcTemplate.executeStatement("COMMIT");
+        Connection connection = jdbcTemplate.getConnection();
+        boolean rolledBack = rethrow != null;
+        if (!prevTransactionExists && !rolledBack) {
+            try {
+                connection.commit();
+            } catch (SQLException se) {
+                throw new FlywaySqlException("Unable to commit transaction", se);
+            } finally {
+                restoreAutoCommit(connection);
+            }
+        }
+        // Else, transaction is managed by caller
+    }
+
+
+    private void restoreAutoCommit(Connection connection) {
+        try {
+            if (connection.getAutoCommit() != oldAutoCommit) {
+                connection.setAutoCommit(oldAutoCommit);
+            }
+        } catch (SQLException e) {
+            LOG.error("Unable to restore autocommit to original value for connection", e);
+        }
     }
 }
