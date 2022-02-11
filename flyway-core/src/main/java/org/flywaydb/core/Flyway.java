@@ -122,11 +122,10 @@ public class Flyway {
      */
     public MigrateResult migrate() throws FlywayException {
         return flywayExecutor.execute(new FlywayExecutor.Command<MigrateResult>() {
-            public MigrateResult execute(MigrationResolver migrationResolver,
-                                         SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
-                                         StatementInterceptor statementInterceptor) {
+            public MigrateResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+                                         Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor) {
                 if (configuration.isValidateOnMigrate()) {
-                    ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor, true);
+                    ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, true);
                     if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
                         throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
                     }
@@ -159,7 +158,7 @@ public class Flyway {
                     } else {
                         if (configuration.isCreateSchemas()) {
                             new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(false);
-                        } else if (!schemas[0].exists()) {
+                        } else if (!defaultSchema.exists()) {
                             LOG.warn("The configuration option 'createSchemas' is false.\n" +
                                              "However, the schema history table still needs a schema to reside in.\n" +
                                              "You must manually create a schema for the schema history table to reside in.\n" +
@@ -170,7 +169,7 @@ public class Flyway {
                     }
                 }
 
-                MigrateResult result = new DbMigrate(database, schemaHistory, schemas[0], migrationResolver, configuration, callbackExecutor).migrate();
+                MigrateResult result = new DbMigrate(database, schemaHistory, defaultSchema, migrationResolver, configuration, callbackExecutor).migrate();
 
                 callbackExecutor.onOperationFinishEvent(Event.AFTER_MIGRATE_OPERATION_FINISH, result);
 
@@ -189,11 +188,9 @@ public class Flyway {
      */
     public MigrationInfoService info() {
         return flywayExecutor.execute(new FlywayExecutor.Command<MigrationInfoService>() {
-            public MigrationInfoService execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                                                final Database database, final Schema[] schemas, CallbackExecutor callbackExecutor,
-                                                StatementInterceptor statementInterceptor) {
-                MigrationInfoService migrationInfoService = new DbInfo(migrationResolver, schemaHistory, configuration, database,
-                                                                       callbackExecutor, schemas).info();
+            public MigrationInfoService execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+                                                Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor) {
+                MigrationInfoService migrationInfoService = new DbInfo(migrationResolver, schemaHistory, configuration, database, callbackExecutor, schemas).info();
 
                 callbackExecutor.onOperationFinishEvent(Event.AFTER_INFO_OPERATION_FINISH, migrationInfoService.getInfoResult());
 
@@ -213,9 +210,8 @@ public class Flyway {
     public CleanResult clean() {
         return flywayExecutor.execute(new FlywayExecutor.Command<CleanResult>() {
             public CleanResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
-                                       Schema[] schemas, CallbackExecutor callbackExecutor,
-                                       StatementInterceptor statementInterceptor) {
-                CleanResult cleanResult = doClean(database, schemaHistory, schemas, callbackExecutor);
+                                       Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor) {
+                CleanResult cleanResult = doClean(database, schemaHistory, defaultSchema, schemas, callbackExecutor);
 
                 callbackExecutor.onOperationFinishEvent(Event.AFTER_CLEAN_OPERATION_FINISH, cleanResult);
 
@@ -241,10 +237,8 @@ public class Flyway {
     public void validate() throws FlywayException {
         flywayExecutor.execute(new FlywayExecutor.Command<Void>() {
             public Void execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
-                                Schema[] schemas, CallbackExecutor callbackExecutor,
-                                StatementInterceptor statementInterceptor) {
-                ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
-                                                           configuration.isIgnorePendingMigrations());
+                                Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor) {
+                ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration.isIgnorePendingMigrations());
 
                 callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
 
@@ -277,10 +271,8 @@ public class Flyway {
     public ValidateResult validateWithResult() throws FlywayException {
         return flywayExecutor.execute(new FlywayExecutor.Command<ValidateResult>() {
             public ValidateResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
-                                          Schema[] schemas, CallbackExecutor callbackExecutor,
-                                          StatementInterceptor statementInterceptor) {
-                ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, schemas, callbackExecutor,
-                                                           configuration.isIgnorePendingMigrations());
+                                          Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor) {
+                ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration.isIgnorePendingMigrations());
 
                 callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
 
@@ -299,16 +291,15 @@ public class Flyway {
      */
     public BaselineResult baseline() throws FlywayException {
         return flywayExecutor.execute(new FlywayExecutor.Command<BaselineResult>() {
-            public BaselineResult execute(MigrationResolver migrationResolver,
-                                          SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
-                                          StatementInterceptor statementInterceptor) {
+            public BaselineResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+                                          Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor) {
                 if (configuration.isCreateSchemas()) {
                     new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(true);
                 } else {
                     LOG.warn("The configuration option 'createSchemas' is false.\n" +
                                      "Even though Flyway is configured not to create any schemas, the schema history table still needs a schema to reside in.\n" +
                                      "You must manually create a schema for the schema history table to reside in.\n" +
-                                     "See http://flywaydb.org/documentation/migrations#the-createschemas-option-and-the-schema-history-table");
+                                     "See https://flywaydb.org/documentation/concepts/migrations.html#the-createschemas-option-and-the-schema-history-table");
                 }
 
                 BaselineResult baselineResult = doBaseline(schemaHistory, callbackExecutor, database);
@@ -333,9 +324,8 @@ public class Flyway {
      */
     public RepairResult repair() throws FlywayException {
         return flywayExecutor.execute(new FlywayExecutor.Command<RepairResult>() {
-            public RepairResult execute(MigrationResolver migrationResolver,
-                                        SchemaHistory schemaHistory, Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
-                                        StatementInterceptor statementInterceptor) {
+            public RepairResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+                                        Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor) {
                 RepairResult repairResult = new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor, configuration).repair();
 
                 callbackExecutor.onOperationFinishEvent(Event.AFTER_REPAIR_OPERATION_FINISH, repairResult);
@@ -357,9 +347,7 @@ public class Flyway {
      */
     public UndoResult undo() throws FlywayException {
 
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("undo");
-
-
+         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("undo");
 
 
 
@@ -375,24 +363,22 @@ public class Flyway {
 
     }
 
-    private CleanResult doClean(Database database, SchemaHistory schemaHistory, Schema[] schemas, CallbackExecutor callbackExecutor) {
-        return DbClean.class.resolve(database, schemaHistory, schemas, callbackExecutor, configuration).clean();
+    private CleanResult doClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor) {
+        return DbClean.class.resolve(database, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration).clean();
     }
 
     private ValidateResult doValidate(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                                      Schema[] schemas, CallbackExecutor callbackExecutor, boolean ignorePending) {
-        ValidateResult validateResult = new DbValidate(database, schemaHistory, schemas[0], migrationResolver,
-                                                       configuration, ignorePending, callbackExecutor).validate();
+                                      Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, boolean ignorePending) {
+        ValidateResult validateResult = new DbValidate(database, schemaHistory, defaultSchema, migrationResolver, configuration, ignorePending, callbackExecutor).validate();
 
         if (!validateResult.validationSuccessful && configuration.isCleanOnValidationError()) {
-            doClean(database, schemaHistory, schemas, callbackExecutor);
+            doClean(database, schemaHistory, defaultSchema, schemas, callbackExecutor);
         }
 
         return validateResult;
     }
 
     private BaselineResult doBaseline(SchemaHistory schemaHistory, CallbackExecutor callbackExecutor, Database database) {
-        return new DbBaseline(schemaHistory, configuration.getBaselineVersion(), configuration.getBaselineDescription(),
-                              callbackExecutor, database).baseline();
+        return new DbBaseline(schemaHistory, configuration.getBaselineVersion(), configuration.getBaselineDescription(), callbackExecutor, database).baseline();
     }
 }

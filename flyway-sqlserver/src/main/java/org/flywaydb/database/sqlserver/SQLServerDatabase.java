@@ -280,6 +280,9 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     private List<String> cleanTypes(Schema[] schemas) throws SQLException {
         List<String> statements = new ArrayList<>();
         String schemaList = Arrays.stream(schemas).map(s -> "'" + s.getName() + "'").collect(Collectors.joining(","));
+        if (schemaList.isEmpty()) {
+            schemaList = "''";
+        }
         List<Map<String, String>> typesAndSchemas = jdbcTemplate.queryForList("" +
                                                                                       "SELECT t.name as type_name, s.name as schema_name " +
                                                                                       "FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id " +

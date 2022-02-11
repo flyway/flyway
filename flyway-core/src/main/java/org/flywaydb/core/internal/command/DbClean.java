@@ -39,14 +39,16 @@ import java.util.List;
 @CustomLog
 public class DbClean {
     private final SchemaHistory schemaHistory;
+    protected final Schema defaultSchema;
     protected final Schema[] schemas;
     protected final Connection connection;
     protected final Database database;
     protected final CallbackExecutor callbackExecutor;
     protected final Configuration configuration;
 
-    public DbClean(Database database, SchemaHistory schemaHistory, Schema[] schemas, CallbackExecutor callbackExecutor, Configuration configuration) {
+    public DbClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, Configuration configuration) {
         this.schemaHistory = schemaHistory;
+        this.defaultSchema = defaultSchema;
         this.schemas = schemas;
         this.connection = database.getMainConnection();
         this.database = database;
@@ -71,7 +73,7 @@ public class DbClean {
     }
 
     protected void clean(CleanResult cleanResult) {
-        clean(schemas[0], schemas, cleanResult);
+        clean(defaultSchema, schemas, cleanResult);
     }
 
     protected void clean(Schema defaultSchema, Schema[] schemas, CleanResult cleanResult) {
@@ -189,8 +191,7 @@ public class DbClean {
             if (dropSchemas.contains(schema.getName())) {
                 try {
                     cleanSchema(schema);
-                } catch (FlywayException ignored) {
-                }
+                } catch (FlywayException ignored) {}
             } else {
                 cleanSchema(schema);
                 if (cleanResult != null) {

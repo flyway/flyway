@@ -17,8 +17,6 @@ package org.flywaydb.core.internal.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.license.VersionPrinter;
 
 
 
