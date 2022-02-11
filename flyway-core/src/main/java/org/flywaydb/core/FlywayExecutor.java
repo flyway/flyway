@@ -65,10 +65,8 @@ import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
 @CustomLog
 public class FlywayExecutor {
     public interface Command<T> {
-        T execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                  Database database, Schema[] schemas, CallbackExecutor callbackExecutor,
-                  StatementInterceptor statementInterceptor
-                 );
+        T execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+                  Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor);
     }
 
     /**
@@ -132,7 +130,6 @@ public class FlywayExecutor {
 
 
 
-
         final Pair<ResourceProvider, ClassProvider<JavaMigration>> resourceProviderClassProviderPair = createResourceAndClassProviders(scannerRequired);
         final ResourceProvider resourceProvider = resourceProviderClassProviderPair.getLeft();
         final ClassProvider<JavaMigration> classProvider = resourceProviderClassProviderPair.getRight();
@@ -147,8 +144,7 @@ public class FlywayExecutor {
             resourceNameValidator.validateSQLMigrationNaming(resourceProvider, configuration);
         }
 
-        JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(
-                configuration.getDataSource(), configuration, statementInterceptor);
+        JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, statementInterceptor);
 
         final DatabaseType databaseType = jdbcConnectionFactory.getDatabaseType();
         final SqlScriptFactory sqlScriptFactory = databaseType.createSqlScriptFactory(configuration, parsingContext);
@@ -195,13 +191,10 @@ public class FlywayExecutor {
 
             database.ensureSupported();
 
-            DefaultCallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, defaultSchema,
-                                                                                   prepareCallbacks(
-                                                                                           database, resourceProvider, jdbcConnectionFactory, sqlScriptFactory, statementInterceptor, defaultSchema, parsingContext
-                                                                                                   ));
+            DefaultCallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, defaultSchema, prepareCallbacks(
+                    database, resourceProvider, jdbcConnectionFactory, sqlScriptFactory, statementInterceptor, defaultSchema, parsingContext));
 
-            SqlScriptExecutorFactory sqlScriptExecutorFactory =
-                    databaseType.createSqlScriptExecutorFactory(jdbcConnectionFactory, callbackExecutor, statementInterceptor);
+            SqlScriptExecutorFactory sqlScriptExecutorFactory = databaseType.createSqlScriptExecutorFactory(jdbcConnectionFactory, callbackExecutor, statementInterceptor);
 
             SchemaHistory schemaHistory = SchemaHistoryFactory.getSchemaHistory(
                     configuration,
@@ -215,6 +208,7 @@ public class FlywayExecutor {
                     createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory, parsingContext),
                     schemaHistory,
                     database,
+                    defaultSchema,
                     schemas.getRight().toArray(new Schema[0]),
                     callbackExecutor,
                     statementInterceptor);
@@ -257,8 +251,7 @@ public class FlywayExecutor {
                         stream,
                         resourceNameCache,
                         locationScannerCache,
-                        configuration.isFailOnMissingLocations()
-                );
+                        configuration.isFailOnMissingLocations());
                 // set the defaults
                 resourceProvider = scanner;
                 classProvider = scanner;
@@ -305,12 +298,10 @@ public class FlywayExecutor {
 
 
         if (!configuration.isSkipDefaultCallbacks()) {
-            SqlScriptExecutorFactory sqlScriptExecutorFactory =
-                    jdbcConnectionFactory.getDatabaseType().createSqlScriptExecutorFactory(jdbcConnectionFactory,
-                                                                                           callbackExecutor, statementInterceptor);
+            SqlScriptExecutorFactory sqlScriptExecutorFactory = jdbcConnectionFactory.getDatabaseType().createSqlScriptExecutorFactory(
+                    jdbcConnectionFactory, callbackExecutor, statementInterceptor);
 
-            effectiveCallbacks.addAll(new SqlScriptCallbackFactory(
-                    resourceProvider, sqlScriptExecutorFactory, sqlScriptFactory, configuration).getCallbacks());
+            effectiveCallbacks.addAll(new SqlScriptCallbackFactory(resourceProvider, sqlScriptExecutorFactory, sqlScriptFactory, configuration).getCallbacks());
         }
 
 
@@ -325,8 +316,7 @@ public class FlywayExecutor {
                                                       SqlScriptExecutorFactory sqlScriptExecutorFactory,
                                                       SqlScriptFactory sqlScriptFactory,
                                                       ParsingContext parsingContext) {
-        return new CompositeMigrationResolver(resourceProvider, classProvider, configuration,
-                                              sqlScriptExecutorFactory, sqlScriptFactory, parsingContext, configuration.getResolvers());
+        return new CompositeMigrationResolver(resourceProvider, classProvider, configuration, sqlScriptExecutorFactory, sqlScriptFactory, parsingContext, configuration.getResolvers());
     }
 
     private void showMemoryUsage() {

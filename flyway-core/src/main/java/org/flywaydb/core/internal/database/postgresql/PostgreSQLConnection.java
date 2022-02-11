@@ -75,7 +75,7 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
             }
 
             if (StringUtils.hasText(originalSchemaNameOrSearchPath)) {
-                doChangeCurrentSchemaOrSearchPathTo(schema.toString() + "," + originalSchemaNameOrSearchPath);
+                doChangeCurrentSchemaOrSearchPathTo(schema + "," + originalSchemaNameOrSearchPath);
             } else {
                 doChangeCurrentSchemaOrSearchPathTo(schema.toString());
             }

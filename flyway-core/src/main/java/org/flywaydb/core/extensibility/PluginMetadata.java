@@ -110,7 +110,7 @@ public interface PluginMetadata extends Plugin {
     }
 
     /**
-     * @return A list of <command, description> pairs that describe how this plugin is to be used
+     * @return A list of &lt;command, description&gt; pairs that describe how this plugin is to be used
      */
     default List<Pair<String, String>> getUsage() {
         return null;

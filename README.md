@@ -1,4 +1,4 @@
-# [Flyway](https://flywaydb.org) by [Redgate](https://www.red-gate.com/) [![Build Status](https://api.travis-ci.org/flyway/flyway.svg)](https://travis-ci.org/flyway/flyway) [![Maven Central](https://img.shields.io/maven-central/v/org.flywaydb/flyway-core.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.flywaydb.flyway-core%22) [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
+# [Flyway](https://flywaydb.org) by [Redgate](https://www.red-gate.com/) [![Build Status](https://api.travis-ci.com/flyway/flyway.svg)](https://travis-ci.com/flyway/flyway) [![Maven Central](https://img.shields.io/maven-central/v/org.flywaydb/flyway-core.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.flywaydb.flyway-core%22) [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 
 ### Database Migrations Made Easy.
 

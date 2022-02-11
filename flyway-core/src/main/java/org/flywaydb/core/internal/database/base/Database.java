@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.database.base;
 
 import lombok.CustomLog;
+import lombok.Getter;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -44,6 +45,7 @@ import java.sql.SQLException;
 @CustomLog
 public abstract class Database<C extends Connection> implements Closeable {
     protected final DatabaseType databaseType;
+    @Getter
     protected final Configuration configuration;
     protected final StatementInterceptor statementInterceptor;
     protected final JdbcConnectionFactory jdbcConnectionFactory;

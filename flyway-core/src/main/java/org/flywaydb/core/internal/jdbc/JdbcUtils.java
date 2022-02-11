@@ -28,19 +28,15 @@ import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import javax.sql.DataSource;
 import java.sql.*;
 
-/**
- * Utility class for dealing with jdbc connections.
- */
 @CustomLog
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class JdbcUtils {
-
     /**
-     * Opens a new connection from this dataSource.
+     * Opens a new connection from this DataSource.
      *
-     * @param dataSource The dataSource to obtain the connection from.
+     * @param dataSource The DataSource to obtain the connection from.
      * @param connectRetries The maximum number of retries when attempting to connect to the database.
-     * @param connectRetriesInterval The maximum time between retries in seconds
+     * @param connectRetriesInterval The maximum time between retries in seconds.
      * @return The new connection.
      * @throws FlywayException when the connection could not be opened.
      */
@@ -52,86 +48,84 @@ public class JdbcUtils {
                 return dataSource.getConnection();
             } catch (SQLException e) {
                 if ("08S01".equals(e.getSQLState()) && e.getMessage().contains("This driver is not configured for integrated authentication")) {
-                    throw new FlywaySqlException("Unable to obtain connection from database"
-                                                         + getDataSourceInfo(dataSource) + ": " + e.getMessage() + "\nTo setup integrated authentication see " +
-                                                         FlywayDbWebsiteLinks.WINDOWS_AUTH, e);
+                    throw new FlywaySqlException("Unable to obtain connection from database" + getDataSourceInfo(dataSource, true) + ": " + e.getMessage() +
+                                                         "\nTo setup integrated authentication see " + FlywayDbWebsiteLinks.WINDOWS_AUTH, e);
                 } else if (e.getSQLState() == null && e.getMessage().contains("MSAL4J")) {
-                    throw new FlywaySqlException("Unable to obtain connection from database"
-                                                         + getDataSourceInfo(dataSource) + ": " + e.getMessage() +
+                    throw new FlywaySqlException("Unable to obtain connection from database" + getDataSourceInfo(dataSource, false) + ": " + e.getMessage() +
                                                          "\nYou need to install some extra drivers in order for interactive authentication to work." +
                                                          "\nFor instructions, see " + FlywayDbWebsiteLinks.AZURE_ACTIVE_DIRECTORY, e);
                 }
 
                 if (++retries > connectRetries) {
-                    throw new FlywaySqlException("Unable to obtain connection from database"
-                                                         + getDataSourceInfo(dataSource) + ": " + e.getMessage(), e);
+                    throw new FlywaySqlException("Unable to obtain connection from database" + getDataSourceInfo(dataSource, false) + ": " + e.getMessage(), e);
                 }
                 Throwable rootCause = ExceptionUtils.getRootCause(e);
-                String msg = "Connection error: " + e.getMessage();
+                String message = "Connection error: " + e.getMessage();
                 if (rootCause != null && rootCause != e && rootCause.getMessage() != null) {
-                    msg += " (Caused by " + rootCause.getMessage() + ")";
+                    message += "\n(Caused by " + rootCause.getMessage() + ")";
                 }
-                LOG.warn(msg + " Retrying in " + backoffStrategy.peek() + " sec...");
+                LOG.warn(message + "\nRetrying in " + backoffStrategy.peek() + " sec...");
                 try {
-                    Thread.sleep(backoffStrategy.next() * 1000);
+                    Thread.sleep(backoffStrategy.next() * 1000L);
                 } catch (InterruptedException e1) {
-                    throw new FlywaySqlException("Unable to obtain connection from database"
-                                                         + getDataSourceInfo(dataSource) + ": " + e.getMessage(), e);
+                    throw new FlywaySqlException("Unable to obtain connection from database" + getDataSourceInfo(dataSource, false) + ": " + e.getMessage(), e);
                 }
             }
         }
     }
 
-    private static String getDataSourceInfo(DataSource dataSource) {
+    private static String getDataSourceInfo(DataSource dataSource, boolean suppressNullUserMessage) {
         if (!(dataSource instanceof DriverDataSource)) {
             return "";
         }
         DriverDataSource driverDataSource = (DriverDataSource) dataSource;
-        return " (" + DatabaseTypeRegister.redactJdbcUrl(driverDataSource.getUrl()) + ") for user '" + driverDataSource.getUser() + "'";
+        String user = driverDataSource.getUser();
+        String info = " (" + DatabaseTypeRegister.redactJdbcUrl(driverDataSource.getUrl()) + ")";
+        if (user != null || !suppressNullUserMessage) {
+            info += " for user '" + user + "'";
+        }
+        return info;
     }
 
     /**
-     * Safely closes this connection. This method never fails.
+     * Safely closes this Connection. This method never fails.
      */
     public static void closeConnection(Connection connection) {
         if (connection == null) {
             return;
         }
-
         try {
             connection.close();
         } catch (Exception e) {
-            LOG.error("Error while closing database connection: " + e.getMessage(), e);
+            LOG.error("Error while closing database Connection: " + e.getMessage(), e);
         }
     }
 
     /**
-     * Safely closes this statement. This method never fails.
+     * Safely closes this Statement. This method never fails.
      */
     public static void closeStatement(Statement statement) {
         if (statement == null) {
             return;
         }
-
         try {
             statement.close();
         } catch (SQLException e) {
-            LOG.error("Error while closing JDBC statement", e);
+            LOG.error("Error while closing JDBC Statement", e);
         }
     }
 
     /**
-     * Safely closes this resultSet. This method never fails.
+     * Safely closes this ResultSet. This method never fails.
      */
     public static void closeResultSet(ResultSet resultSet) {
         if (resultSet == null) {
             return;
         }
-
         try {
             resultSet.close();
         } catch (SQLException e) {
-            LOG.error("Error while closing JDBC resultSet", e);
+            LOG.error("Error while closing JDBC ResultSet", e);
         }
     }
 
@@ -158,10 +152,7 @@ public class JdbcUtils {
                 throw new FlywayException("Unable to determine database. Product name is null.");
             }
 
-            int databaseMajorVersion = databaseMetaData.getDatabaseMajorVersion();
-            int databaseMinorVersion = databaseMetaData.getDatabaseMinorVersion();
-
-            return databaseProductName + " " + databaseMajorVersion + "." + databaseMinorVersion;
+            return databaseProductName + " " + databaseMetaData.getDatabaseMajorVersion() + "." + databaseMetaData.getDatabaseMinorVersion();
         } catch (SQLException e) {
             throw new FlywaySqlException("Error while determining database product name", e);
         }
