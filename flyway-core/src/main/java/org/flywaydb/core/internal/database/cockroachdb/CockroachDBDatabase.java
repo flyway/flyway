@@ -121,13 +121,6 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
         return true;
     }
 
-
-
-
-
-
-
-
     public String getBooleanTrue() {
         return "TRUE";
     }
