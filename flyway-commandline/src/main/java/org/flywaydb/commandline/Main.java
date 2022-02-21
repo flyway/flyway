@@ -359,7 +359,11 @@ public class Main {
         String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : getInstallationDir();
 
         config.put(ConfigUtils.LOCATIONS, "filesystem:" + new File(workingDirectory, "sql").getAbsolutePath());
-        config.put(ConfigUtils.JAR_DIRS, new File(workingDirectory, "jars").getAbsolutePath());
+
+        File jarDir = new File(workingDirectory, "jars");
+        if (jarDir.exists()) {
+            config.put(ConfigUtils.JAR_DIRS, jarDir.getAbsolutePath());
+        }
     }
 
     /**
