@@ -274,7 +274,7 @@ public class DbMigrate {
                 LOG.warn(unresolvedMigration.getValidityMessage());
             }
             LOG.warn("If these should have been resolved, perhaps try the -validateMigrationNaming=\"true\" " +
-                    "command-line option to fail this command instead of igoring unresolved migrations.");
+                    "command-line option to fail this command instead of ignoring unresolved migrations.");
         }
     }
 
