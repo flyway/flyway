@@ -32,7 +32,6 @@ jobs:
         os: [ubuntu-latest, macOS-latest, windows-latest]
         java: [ 11, 17 ]
       fail-fast: false
-      max-parallel: 2
 
     permissions:
       contents: read
