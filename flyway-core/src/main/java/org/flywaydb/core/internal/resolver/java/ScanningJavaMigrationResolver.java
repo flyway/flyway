@@ -22,10 +22,13 @@ import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.api.ClassProvider;
+import org.flywaydb.core.api.resolver.UnresolvedMigration;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,7 +49,7 @@ public class ScanningJavaMigrationResolver implements MigrationResolver {
     private final Configuration configuration;
 
     @Override
-    public List<ResolvedMigration> resolveMigrations(Context context) {
+    public Pair<List<ResolvedMigration>, Collection<UnresolvedMigration>> attemptResolveMigrations(Context context) {
         List<ResolvedMigration> migrations = new ArrayList<>();
 
         for (Class<?> clazz : classProvider.getClasses()) {
@@ -55,6 +58,6 @@ public class ScanningJavaMigrationResolver implements MigrationResolver {
         }
 
         Collections.sort(migrations, new ResolvedMigrationComparator());
-        return migrations;
+        return Pair.of(migrations, new ArrayList<>());
     }
 }

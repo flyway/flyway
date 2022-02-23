@@ -24,6 +24,7 @@ import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.api.resolver.UnresolvedMigration;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resolver.java.FixedJavaMigrationResolver;
 import org.flywaydb.core.internal.resolver.java.ScanningJavaMigrationResolver;
@@ -31,6 +32,7 @@ import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
+import org.flywaydb.core.internal.util.Pair;
 
 import java.util.*;
 
@@ -47,7 +49,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * The available migrations, sorted by version, newest first. An empty list is returned when no migrations can be
      * found.
      */
-    private List<ResolvedMigration> availableMigrations;
+    private Pair<List<ResolvedMigration>, Collection<UnresolvedMigration>> availableMigrations;
 
     public CompositeMigrationResolver(ResourceProvider resourceProvider,
                                       ClassProvider<JavaMigration> classProvider,
@@ -78,7 +80,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * can be found.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
-    public List<ResolvedMigration> resolveMigrations(Context context) {
+    public Pair<List<ResolvedMigration>, Collection<UnresolvedMigration>> attemptResolveMigrations(Context context) {
         if (availableMigrations == null) {
             availableMigrations = doFindAvailableMigrations(context);
         }
@@ -86,13 +88,14 @@ public class CompositeMigrationResolver implements MigrationResolver {
         return availableMigrations;
     }
 
-    private List<ResolvedMigration> doFindAvailableMigrations(Context context) throws FlywayException {
-        List<ResolvedMigration> migrations = new ArrayList<>(collectMigrations(migrationResolvers, context));
-        migrations.sort(new ResolvedMigrationComparator());
+    private Pair<List<ResolvedMigration>, Collection<UnresolvedMigration>> doFindAvailableMigrations(Context context) throws FlywayException {
+        Pair<Collection<ResolvedMigration>, Collection<UnresolvedMigration>> migrations = collectMigrations(migrationResolvers, context);
+        ArrayList<ResolvedMigration> resolvedMigrations = new ArrayList<>(migrations.getLeft());
+        resolvedMigrations.sort(new ResolvedMigrationComparator());
 
-        checkForIncompatibilities(migrations);
+        checkForIncompatibilities(resolvedMigrations);
 
-        return migrations;
+        return Pair.of(resolvedMigrations, migrations.getRight());
     }
 
     /**
@@ -101,12 +104,15 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param migrationResolvers The migration resolvers to check.
      * @return All migrations.
      */
-    static Collection<ResolvedMigration> collectMigrations(Collection<MigrationResolver> migrationResolvers, Context context) {
+    static Pair<Collection<ResolvedMigration>, Collection<UnresolvedMigration>> collectMigrations(Collection<MigrationResolver> migrationResolvers, Context context) {
         Set<ResolvedMigration> migrations = new HashSet<>();
+        Set<UnresolvedMigration> unresolvedMigrations = new HashSet<>();
         for (MigrationResolver migrationResolver : migrationResolvers) {
-            migrations.addAll(migrationResolver.resolveMigrations(context));
+            Pair<List<ResolvedMigration>, Collection<UnresolvedMigration>> collectionsPair = migrationResolver.attemptResolveMigrations(context);
+            migrations.addAll(collectionsPair.getLeft());
+            unresolvedMigrations.addAll(collectionsPair.getRight());
         }
-        return migrations;
+        return Pair.of(migrations, unresolvedMigrations);
     }
 
     /**

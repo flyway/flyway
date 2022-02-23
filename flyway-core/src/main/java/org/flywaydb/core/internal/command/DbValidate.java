@@ -115,12 +115,12 @@ public class DbValidate {
      */
     public ValidateResult validate() {
         if (!schema.exists()) {
-            if (!migrationResolver.resolveMigrations(new Context() {
+            if (!migrationResolver.attemptResolveMigrations(new Context() {
                 @Override
                 public Configuration getConfiguration() {
                     return configuration;
                 }
-            }).isEmpty() && !pending) {
+            }).getLeft().isEmpty() && !pending) {
                 String validationErrorMessage = "Schema " + schema + " doesn't exist yet";
                 ErrorDetails validationError = new ErrorDetails(ErrorCode.SCHEMA_DOES_NOT_EXIST, validationErrorMessage);
                 return CommandResultFactory.createValidateResult(database.getCatalog(), validationError, 0, null, new ArrayList<>());

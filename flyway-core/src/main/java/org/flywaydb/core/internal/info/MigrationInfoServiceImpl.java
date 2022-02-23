@@ -25,6 +25,7 @@ import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 
+import org.flywaydb.core.api.resolver.UnresolvedMigration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
@@ -50,6 +51,12 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
      * The migrations infos calculated at the last refresh.
      */
     private List<MigrationInfoImpl> migrationInfos;
+
+    /**
+     * The migrations that were detected but failed to resolve at the last refresh.
+     */
+    private Collection<UnresolvedMigration> unresolvedMigrations;
+
     /**
      * Whether all of the specified schemas are empty or not.
      */
@@ -89,7 +96,10 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
      * Refreshes the info about all known migrations from both the classpath and the DB.
      */
     public void refresh() {
-        Collection<ResolvedMigration> resolvedMigrations = migrationResolver.resolveMigrations(context);
+        Pair<List<ResolvedMigration>, Collection<UnresolvedMigration>> migrations = migrationResolver.attemptResolveMigrations(context);
+        List<ResolvedMigration> resolvedMigrations = migrations.getLeft();
+        unresolvedMigrations = migrations.getRight();
+
         List<AppliedMigration> appliedMigrations = schemaHistory.allAppliedMigrations();
 
         MigrationInfoContext context = new MigrationInfoContext();
@@ -489,6 +499,10 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         }
 
         return resolvedMigrations.toArray(new MigrationInfo[0]);
+    }
+
+    public Collection<UnresolvedMigration> unresolved() {
+        return this.unresolvedMigrations;
     }
 
     /**

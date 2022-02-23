@@ -26,6 +26,7 @@ import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.core.api.output.MigrateErrorResult;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.api.resolver.UnresolvedMigration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
@@ -33,11 +34,9 @@ import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
+import org.flywaydb.core.internal.resolver.UnresolvedMigrationImpl;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
-import org.flywaydb.core.internal.util.ExceptionUtils;
-import org.flywaydb.core.internal.util.StopWatch;
-import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.TimeFormat;
+import org.flywaydb.core.internal.util.*;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -85,7 +84,7 @@ public class DbMigrate {
 
         migrateResult = CommandResultFactory.createMigrateResult(database.getCatalog(), configuration);
 
-        int count;
+        Pair<Integer, Collection<UnresolvedMigration>> count;
         try {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
@@ -100,7 +99,7 @@ public class DbMigrate {
             stopWatch.stop();
 
             migrateResult.targetSchemaVersion = getTargetVersion();
-            migrateResult.migrationsExecuted = count;
+            migrateResult.migrationsExecuted = count.getLeft();
 
             logSummary(count, stopWatch.getTotalTimeMillis(), migrateResult.targetSchemaVersion);
         } catch (FlywayException e) {
@@ -108,7 +107,7 @@ public class DbMigrate {
             throw e;
         }
 
-        if (count > 0) {
+        if (count.getLeft() > 0) {
             callbackExecutor.onMigrateOrUndoEvent(Event.AFTER_MIGRATE_APPLIED);
         }
         callbackExecutor.onMigrateOrUndoEvent(Event.AFTER_MIGRATE);
@@ -128,22 +127,24 @@ public class DbMigrate {
         return null;
     }
 
-    private int migrateAll() {
+    private Pair<Integer, Collection<UnresolvedMigration>> migrateAll() {
         int total = 0;
+        Collection<UnresolvedMigration> unresolvedMigrations = new HashSet<>();
         isPreviousVersioned = true;
 
         while (true) {
             final boolean firstRun = total == 0;
-            int count = configuration.isGroup()
+            Pair<Integer, Collection<UnresolvedMigration>> count = configuration.isGroup()
                     // With group active a lock on the schema history table has already been acquired.
                     ? migrateGroup(firstRun)
                     // Otherwise acquire the lock now. The lock will be released at the end of each migration.
                     : schemaHistory.lock(() -> migrateGroup(firstRun));
 
-            migrateResult.migrationsExecuted += count;
+            migrateResult.migrationsExecuted += count.getLeft();
+            unresolvedMigrations.addAll(count.getRight());
 
-            total += count;
-            if (count == 0) {
+            total += count.getLeft();
+            if (count.getLeft() == 0) {
                 // No further migrations available
                 break;
             } else if (configuration.getTarget() == MigrationVersion.NEXT) {
@@ -156,7 +157,7 @@ public class DbMigrate {
             callbackExecutor.onMigrateOrUndoEvent(Event.AFTER_VERSIONED);
         }
 
-        return total;
+        return Pair.of(total, unresolvedMigrations);
     }
 
     /**
@@ -165,7 +166,7 @@ public class DbMigrate {
      * @param firstRun Whether this is the first time this code runs in this migration run.
      * @return The number of newly applied migrations.
      */
-    private Integer migrateGroup(boolean firstRun) {
+    private Pair<Integer, Collection<UnresolvedMigration>> migrateGroup(boolean firstRun) {
         MigrationInfoServiceImpl infoService =
                 new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
                                              configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
@@ -246,21 +247,35 @@ public class DbMigrate {
 
             applyMigrations(group, skipExecutingMigrations);
         }
-        return group.size();
+        return Pair.of(group.size(), infoService.unresolved());
     }
 
-    private void logSummary(int migrationSuccessCount, long executionTime, String targetVersion) {
-        if (migrationSuccessCount == 0) {
+    private void logSummary(Pair<Integer, Collection<UnresolvedMigration>> migrationsCount, long executionTime, String targetVersion) {
+        if (migrationsCount.getLeft() == 0) {
             LOG.info("Schema " + schema + " is up to date. No migration necessary.");
+            if(migrationsCount.getRight().size() > 0) {
+                LOG.warn("Schema " + schema + " has " + migrationsCount.getRight().size() + " unresolved migrations with the following outout:");
+                for(UnresolvedMigration unresolvedMigration : migrationsCount.getRight()) {
+                    LOG.warn(unresolvedMigration.getValidityMessage());
+                }
+            }
             return;
         }
 
         String targetText = (targetVersion != null) ? ", now at version v" + targetVersion : "";
 
-        String migrationText = (migrationSuccessCount == 1) ? "migration" : "migrations";
+        String migrationText = (migrationsCount.getLeft() == 1) ? "migration" : "migrations";
 
-        LOG.info("Successfully applied " + migrationSuccessCount + " " + migrationText + " to schema " + schema
+        LOG.info("Successfully applied " + migrationsCount + " " + migrationText + " to schema " + schema
                          + targetText + " (execution time " + TimeFormat.format(executionTime) + ")");
+        if(migrationsCount.getRight().size() > 0) {
+            LOG.warn("Found " + migrationsCount.getRight().size() + " unresolved migrations with the following output:");
+            for(UnresolvedMigration unresolvedMigration : migrationsCount.getRight()) {
+                LOG.warn(unresolvedMigration.getValidityMessage());
+            }
+            LOG.warn("If these should have been resolved, perhaps try the -validateMigrationNaming=\"true\" " +
+                    "command-line option to fail this command instead of igoring unresolved migrations.");
+        }
     }
 
     /**

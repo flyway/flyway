@@ -23,25 +23,23 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.api.resolver.UnresolvedMigration;
 import org.flywaydb.core.api.resource.LoadableResource;
-import org.flywaydb.core.api.resource.Resource;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
 import org.flywaydb.core.internal.resolver.ChecksumCalculator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
+import org.flywaydb.core.internal.resolver.UnresolvedMigrationImpl;
 import org.flywaydb.core.internal.resource.ResourceName;
 import org.flywaydb.core.internal.resource.ResourceNameParser;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
+import org.flywaydb.core.internal.util.Pair;
 
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * Migration resolver for SQL files on the classpath. The SQL files must have names like
@@ -64,11 +62,12 @@ public class SqlMigrationResolver implements MigrationResolver {
         this.parsingContext = parsingContext;
     }
 
-    public List<ResolvedMigration> resolveMigrations(Context context) {
+    public Pair<List<ResolvedMigration>, Collection<UnresolvedMigration>> attemptResolveMigrations(Context context) {
         List<ResolvedMigration> migrations = new ArrayList<>();
+        List<UnresolvedMigration> unresolvedMigrations = new ArrayList<>();
         String[] suffixes = configuration.getSqlMigrationSuffixes();
 
-        addMigrations(migrations, configuration.getSqlMigrationPrefix(), suffixes,
+        addMigrations(migrations, unresolvedMigrations, configuration.getSqlMigrationPrefix(), suffixes,
                       false
 
 
@@ -78,7 +77,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-        addMigrations(migrations, configuration.getRepeatableSqlMigrationPrefix(), suffixes,
+        addMigrations(migrations, unresolvedMigrations, configuration.getRepeatableSqlMigrationPrefix(), suffixes,
                       true
 
 
@@ -86,7 +85,7 @@ public class SqlMigrationResolver implements MigrationResolver {
                      );
 
         migrations.sort(new ResolvedMigrationComparator());
-        return migrations;
+        return Pair.of(migrations, unresolvedMigrations);
     }
 
     private LoadableResource[] createPlaceholderReplacingLoadableResources(List<LoadableResource> loadableResources) {
@@ -134,7 +133,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         return null;
     }
 
-    private void addMigrations(List<ResolvedMigration> migrations, String prefix, String[] suffixes,
+    private void addMigrations(List<ResolvedMigration> migrations, List<UnresolvedMigration> unresolvedMigrations, String prefix, String[] suffixes,
                                boolean repeatable
 
 
@@ -146,6 +145,7 @@ public class SqlMigrationResolver implements MigrationResolver {
             String filename = resource.getFilename();
             ResourceName result = resourceNameParser.parse(filename);
             if (!result.isValid() || isSqlCallback(result) || !prefix.equals(result.getPrefix())) {
+                unresolvedMigrations.add(new UnresolvedMigrationImpl(result.getValidityMessage()));
                 continue;
             }
 

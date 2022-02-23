@@ -15,7 +15,10 @@
  */
 package org.flywaydb.core.api.resolver;
 
+import org.flywaydb.core.internal.util.Pair;
+
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Resolves available migrations. This interface can be implemented to create custom resolvers. A custom resolver
@@ -28,5 +31,5 @@ public interface MigrationResolver {
      *
      * @return The available migrations.
      */
-    Collection<ResolvedMigration> resolveMigrations(Context context);
+    Pair<List<ResolvedMigration>, Collection<UnresolvedMigration>> attemptResolveMigrations(Context context);
 }
