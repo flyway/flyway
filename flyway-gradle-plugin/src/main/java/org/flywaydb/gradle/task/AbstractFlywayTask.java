@@ -951,9 +951,12 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     private Map<String, String> loadConfigurationFromDefaultConfigFiles(Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(envVars);
-        File configFile = new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME);
 
-        return new HashMap<>(ConfigUtils.loadConfigurationFile(configFile, encoding, false));
+        Map<String, String> configMap = new HashMap<>();
+        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        configMap.putAll(ConfigUtils.loadConfigurationFile(new File(ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+
+        return configMap;
     }
 
     /**
