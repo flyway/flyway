@@ -203,7 +203,7 @@
         <version.maven>3.8.1</version.maven>
         <version.mockito>1.10.19</version.mockito>
         <version.msal4j>1.10.1</version.msal4j>
-        <version.mssql>9.2.1</version.mssql>
+        <version.mssql>10.2.0</version.mssql>
         <version.mssql-jdbc>${version.mssql}.jre8</version.mssql-jdbc>
         <version.oracle>19.6.0.0</version.oracle>
         <version.osgi>4.3.1</version.osgi>
