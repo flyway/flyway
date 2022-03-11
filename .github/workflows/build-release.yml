@@ -14,18 +14,12 @@
 # limitations under the License.
 #
 
-# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
-# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
-
-name: build
+name: Build Release Tags
 
 on:
   release:
     types:
       - created
-  pull_request:
-    branches:
-      - master
 
 jobs:
   build:
@@ -40,7 +34,6 @@ jobs:
         java:
           - 11
           - 17
-      fail-fast: false
 
     permissions:
       contents: read
@@ -52,7 +45,6 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
         distribution: 'temurin'
-        cache: maven
 
     - name: Build with Maven
       run: mvn -B install -e --file pom.xml
