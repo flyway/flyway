@@ -282,6 +282,11 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String placeholderSuffix;
 
     /**
+     * The separator of default placeholders.
+     */
+    public String placeholderSeparator;
+
+    /**
      * The prefix of every script placeholder.
      */
     public String scriptPlaceholderPrefix;
@@ -781,6 +786,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement, extension.placeholderReplacement);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix, extension.placeholderPrefix);
         putIfSet(conf, ConfigUtils.PLACEHOLDER_SUFFIX, placeholderSuffix, extension.placeholderSuffix);
+        putIfSet(conf, ConfigUtils.PLACEHOLDER_SEPARATOR, placeholderSeparator, extension.placeholderSeparator);
         putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_PREFIX, scriptPlaceholderPrefix, extension.scriptPlaceholderPrefix);
         putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_SUFFIX, scriptPlaceholderSuffix, extension.scriptPlaceholderSuffix);
         putIfSet(conf, ConfigUtils.TARGET, target, extension.target);

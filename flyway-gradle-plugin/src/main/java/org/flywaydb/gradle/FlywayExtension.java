@@ -240,6 +240,12 @@ public class FlywayExtension {
      */
     public String placeholderSuffix;
 
+
+    /**
+     * The separator of default placeholders.
+     */
+    public String placeholderSeparator;
+
     /**
      * The prefix of every script placeholder.
      */

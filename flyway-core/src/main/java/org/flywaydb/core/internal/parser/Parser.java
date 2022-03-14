@@ -115,7 +115,7 @@ public abstract class Parser {
         LOG.debug("Parsing " + filename + " ...");
 
         ResourceName result = new ResourceNameParser(configuration).parse(filename);
-        parsingContext.updateFilenamePlaceholder(result);
+        parsingContext.updateFilenamePlaceholder(result, configuration);
 
         PeekingReader peekingReader = new PeekingReader(
                 new RecordingReader(recorder,

@@ -499,6 +499,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String placeholderSuffix;
 
     /**
+     * The separator of default placeholders. (default: : )
+     * <p>Also configurable with Maven or System Property: ${flyway.placeholderSeparator}</p>
+     */
+    @Parameter(property = ConfigUtils.PLACEHOLDER_SEPARATOR)
+    private String placeholderSeparator;
+
+    /**
      * The prefix of every script placeholder. (default: FP__ )
      */
     @Parameter(property = ConfigUtils.SCRIPT_PLACEHOLDER_PREFIX)
@@ -891,6 +898,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_SUFFIX, placeholderSuffix);
+            putIfSet(conf, ConfigUtils.PLACEHOLDER_SEPARATOR, placeholderSeparator);
             putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_PREFIX, scriptPlaceholderPrefix);
             putIfSet(conf, ConfigUtils.SCRIPT_PLACEHOLDER_SUFFIX, scriptPlaceholderSuffix);
             putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate);

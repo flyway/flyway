@@ -221,6 +221,13 @@ public interface Configuration {
     String getPlaceholderPrefix();
 
     /**
+     * Retrieves the separator of default placeholders.
+     *
+     * @return The separator of default placeholders. (default: : )
+     */
+    String getPlaceholderSeparator();
+
+    /**
      * Retrieves the suffix of every script placeholder.
      *
      * @return The suffix of every script placeholder. (default: __ )
