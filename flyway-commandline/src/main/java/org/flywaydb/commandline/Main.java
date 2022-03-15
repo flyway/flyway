@@ -58,6 +58,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Main {
     private static Log LOG;
@@ -619,22 +620,14 @@ public class Main {
     }
 
     private static List<File> determineConfigFilesFromArgs(CommandLineArguments commandLineArguments, Map<String, String> envVars) {
-        List<File> configFiles = new ArrayList<>();
 
         String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : null;
 
-        if (envVars.containsKey(ConfigUtils.CONFIG_FILES)) {
-            for (String file : StringUtils.tokenizeToStringArray(envVars.get(ConfigUtils.CONFIG_FILES), ",")) {
-                configFiles.add(new File(workingDirectory, file));
-            }
-            return configFiles;
-        }
+        Stream<String> configFilePaths = envVars.containsKey(ConfigUtils.CONFIG_FILES) ?
+                Arrays.stream(StringUtils.tokenizeToStringArray(envVars.get(ConfigUtils.CONFIG_FILES), ",")) :
+                commandLineArguments.getConfigFiles().stream();
 
-        for (String file : commandLineArguments.getConfigFiles()) {
-            configFiles.add(new File(workingDirectory, file));
-        }
-
-        return configFiles;
+        return configFilePaths.map(path -> Paths.get(path).isAbsolute() ? new File(path) : new File(workingDirectory, path)).collect(Collectors.toList());
     }
 
     @SuppressWarnings("ConstantConditions")
