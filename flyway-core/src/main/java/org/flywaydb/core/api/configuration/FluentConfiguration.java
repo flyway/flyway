@@ -553,6 +553,16 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * Sets the separator of default placeholders.
+     *
+     * @param placeholderSeparator The separator of default placeholders. (default: : )
+     */
+    public FluentConfiguration placeholderSeparator(String placeholderSeparator) {
+        config.setPlaceholderSeparator(placeholderSeparator);
+        return this;
+    }
+
+    /**
      * Sets the prefix of every script placeholder.
      *
      * @param scriptPlaceholderPrefix The prefix of every placeholder. (default: FP__ )

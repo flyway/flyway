@@ -74,13 +74,6 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
         return false;
     }
 
-
-
-
-
-
-
-
     @Override
     public String getBooleanTrue() {
         return "1";

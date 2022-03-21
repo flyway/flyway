@@ -25,12 +25,8 @@ import java.io.FileWriter;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JsonUtils {
-    public static String jsonToFile(String folder, String filename, String json, String... properties) {
-        JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
-        for (String property : properties) {
-            obj = obj.getAsJsonObject(property);
-        }
-        return jsonToFile(folder, filename, obj);
+    public static String jsonToFile(String folder, String filename, String json) {
+        return jsonToFile(folder, filename, JsonParser.parseString(json).getAsJsonObject());
     }
 
     public static String jsonToFile(String folder, String filename, Object json) {

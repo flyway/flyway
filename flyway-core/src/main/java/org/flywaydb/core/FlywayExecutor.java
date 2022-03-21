@@ -140,9 +140,7 @@ public class FlywayExecutor {
 
 
 
-        if (configuration.isValidateMigrationNaming()) {
-            resourceNameValidator.validateSQLMigrationNaming(resourceProvider, configuration);
-        }
+        resourceNameValidator.validateSQLMigrationNaming(resourceProvider, configuration);
 
         JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, statementInterceptor);
 

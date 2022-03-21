@@ -31,19 +31,23 @@ import java.util.Map;
 
 @CustomLog
 public class ParsingContext {
-    private static final String DEFAULT_SCHEMA_PLACEHOLDER = "flyway:defaultSchema";
-    private static final String USER_PLACEHOLDER = "flyway:user";
-    private static final String DATABASE_PLACEHOLDER = "flyway:database";
-    private static final String TIMESTAMP_PLACEHOLDER = "flyway:timestamp";
-    private static final String FILENAME_PLACEHOLDER = "flyway:filename";
-    private static final String WORKING_DIRECTORY_PLACEHOLDER = "flyway:workingDirectory";
-    private static final String TABLE_PLACEHOLDER = "flyway:table";
+    private static final String DEFAULT_SCHEMA_PLACEHOLDER = "defaultSchema";
+    private static final String USER_PLACEHOLDER = "user";
+    private static final String DATABASE_PLACEHOLDER = "database";
+    private static final String TIMESTAMP_PLACEHOLDER = "timestamp";
+    private static final String FILENAME_PLACEHOLDER = "filename";
+    private static final String WORKING_DIRECTORY_PLACEHOLDER = "workingDirectory";
+    private static final String TABLE_PLACEHOLDER = "table";
 
     @Getter
     private final Map<String, String> placeholders = new HashMap<>();
     @Getter
     @Setter
     private Database database;
+
+    private String generateName(String name, Configuration configuration) {
+        return "flyway" + configuration.getPlaceholderSeparator() + name;
+    }
 
     public void populate(Database database, Configuration configuration) {
         setDatabase(database);
@@ -65,24 +69,25 @@ public class ParsingContext {
         }
 
         if (defaultSchemaName != null) {
-            placeholders.put(DEFAULT_SCHEMA_PLACEHOLDER, defaultSchemaName);
+            placeholders.put(generateName(DEFAULT_SCHEMA_PLACEHOLDER,configuration), defaultSchemaName);
         }
 
         if (catalog != null) {
-            placeholders.put(DATABASE_PLACEHOLDER, catalog);
+            placeholders.put(generateName(DATABASE_PLACEHOLDER,configuration), catalog);
         }
 
-        placeholders.put(USER_PLACEHOLDER, currentUser);
-        placeholders.put(TIMESTAMP_PLACEHOLDER, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-        placeholders.put(WORKING_DIRECTORY_PLACEHOLDER, System.getProperty("user.dir"));
-        placeholders.put(TABLE_PLACEHOLDER, configuration.getTable());
+        placeholders.put(generateName(USER_PLACEHOLDER,configuration), currentUser);
+        placeholders.put(generateName(TIMESTAMP_PLACEHOLDER,configuration), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        placeholders.put(generateName(WORKING_DIRECTORY_PLACEHOLDER,configuration), System.getProperty("user.dir"));
+        placeholders.put(generateName(TABLE_PLACEHOLDER,configuration), configuration.getTable());
     }
 
-    public void updateFilenamePlaceholder(ResourceName resourceName) {
+    public void updateFilenamePlaceholder(ResourceName resourceName, Configuration configuration) {
+        String filenamePlaceholder = generateName(FILENAME_PLACEHOLDER, configuration);
         if (resourceName.isValid()) {
-            placeholders.put(FILENAME_PLACEHOLDER, resourceName.getFilename());
+            placeholders.put(filenamePlaceholder, resourceName.getFilename());
         } else {
-            placeholders.remove(FILENAME_PLACEHOLDER);
+            placeholders.remove(filenamePlaceholder);
         }
     }
 

@@ -113,7 +113,7 @@ public class DbClean {
         Collections.reverse(schemaList);
         cleanSchemas(schemaList.toArray(new Schema[0]), dropSchemas, null);
 
-        dropDatabaseObjectsPostSchemas();
+        dropDatabaseObjectsPostSchemas(schemas);
 
         for (Schema schema : schemas) {
             if (dropSchemas.contains(schema.getName())) {
@@ -146,7 +146,7 @@ public class DbClean {
     /**
      * Drops database-level objects that need to be cleaned after all schema-level objects.
      */
-    private void dropDatabaseObjectsPostSchemas() {
+    private void dropDatabaseObjectsPostSchemas(Schema[] schemas) {
         LOG.debug("Dropping post-schema database level objects...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();

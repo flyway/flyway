@@ -165,6 +165,7 @@ public class ClassicConfiguration implements Configuration {
     private Map<String, String> placeholders = new HashMap<>();
     private String placeholderPrefix = "${";
     private String placeholderSuffix = "}";
+    private String placeholderSeparator = ":";
     private String scriptPlaceholderPrefix = "FP__";
     private String scriptPlaceholderSuffix = "__";
     private String sqlMigrationPrefix = "V";
@@ -794,6 +795,19 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
+     * Sets the separator of default placeholders.
+     *
+     * @param placeholderSeparator The separator of default placeholders. (default: : )
+     */
+    public void setPlaceholderSeparator(String placeholderSeparator) {
+        if (!StringUtils.hasLength(placeholderSeparator)) {
+            throw new FlywayException("placeholderSeparator cannot be empty!", ErrorCode.CONFIGURATION);
+        }
+        this.placeholderSeparator = placeholderSeparator;
+    }
+
+
+    /**
      * Sets the suffix of every placeholder.
      *
      * @param scriptPlaceholderSuffix The suffix of every placeholder. (default: __ )
@@ -1301,6 +1315,7 @@ public class ClassicConfiguration implements Configuration {
         setPlaceholderReplacement(configuration.isPlaceholderReplacement());
         setPlaceholders(configuration.getPlaceholders());
         setPlaceholderSuffix(configuration.getPlaceholderSuffix());
+        setPlaceholderSeparator(configuration.getPlaceholderSeparator());
         setScriptPlaceholderPrefix(configuration.getScriptPlaceholderPrefix());
         setScriptPlaceholderSuffix(configuration.getScriptPlaceholderSuffix());
         setRepeatableSqlMigrationPrefix(configuration.getRepeatableSqlMigrationPrefix());
@@ -1405,6 +1420,10 @@ public class ClassicConfiguration implements Configuration {
         String placeholderSuffixProp = props.remove(ConfigUtils.PLACEHOLDER_SUFFIX);
         if (placeholderSuffixProp != null) {
             setPlaceholderSuffix(placeholderSuffixProp);
+        }
+        String placeholderSeparatorProp = props.remove(ConfigUtils.PLACEHOLDER_SEPARATOR);
+        if (placeholderSeparatorProp != null) {
+            setPlaceholderSeparator(placeholderSeparatorProp);
         }
         String scriptPlaceholderPrefixProp = props.remove(ConfigUtils.SCRIPT_PLACEHOLDER_PREFIX);
         if (scriptPlaceholderPrefixProp != null) {

@@ -72,6 +72,7 @@ public class ConfigUtils {
     public static final String PLACEHOLDER_PREFIX = "flyway.placeholderPrefix";
     public static final String PLACEHOLDER_REPLACEMENT = "flyway.placeholderReplacement";
     public static final String PLACEHOLDER_SUFFIX = "flyway.placeholderSuffix";
+    public static final String PLACEHOLDER_SEPARATOR = "flyway.placeholderSeparator";
     public static final String SCRIPT_PLACEHOLDER_PREFIX = "flyway.scriptPlaceholderPrefix";
     public static final String SCRIPT_PLACEHOLDER_SUFFIX = "flyway.scriptPlaceholderSuffix";
     public static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
@@ -246,6 +247,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_PLACEHOLDER_SUFFIX".equals(key)) {
             return PLACEHOLDER_SUFFIX;
+        }
+        if ("FLYWAY_PLACEHOLDER_SEPARATOR".equals(key)) {
+            return PLACEHOLDER_SEPARATOR;
         }
         if ("FLYWAY_SCRIPT_PLACEHOLDER_PREFIX".equals(key)) {
             return SCRIPT_PLACEHOLDER_PREFIX;

@@ -55,7 +55,12 @@ public class ResourceNameValidator {
         }
 
         if (!errorsFound.isEmpty()) {
-            throw new FlywayException("Invalid SQL filenames found:\r\n" + StringUtils.collectionToDelimitedString(errorsFound, "\r\n"));
+            if (configuration.isValidateMigrationNaming()) {
+                throw new FlywayException("Invalid SQL filenames found:\r\n" + StringUtils.collectionToDelimitedString(errorsFound, "\r\n"));
+            } else {
+                LOG.info(errorsFound.size() + " SQL migrations were detected but not run because they did not follow the filename convention.");
+                LOG.info("If this is in error, enable debug logging or 'validateMigrationNaming' to fail fast and see a list of the invalid file names.");
+            }
         }
     }
 
