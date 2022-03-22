@@ -16,8 +16,7 @@
 package org.flywaydb.core.extensibility;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.output.OperationResultBase;
-import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.api.output.OperationResult;
 
 import java.util.List;
 import java.util.Map;
@@ -52,5 +51,5 @@ public interface CommandExtension extends PluginMetadata {
      * @param flags The CLI flags provided to Flyway
      * @return The result of this command being handled
      */
-    OperationResultBase handle(String command, Map<String, String> config, List<String> flags) throws FlywayException;
+    OperationResult handle(String command, Map<String, String> config, List<String> flags) throws FlywayException;
 }

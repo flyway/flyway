@@ -177,15 +177,14 @@ public class Main {
 
             Flyway flyway = Flyway.configure(classLoader).configuration(configuration).load();
 
-            OperationResultBase result;
+            OperationResult result;
             if (commandLineArguments.getOperations().size() == 1) {
                 String operation = commandLineArguments.getOperations().get(0);
                 result = executeOperation(flyway, operation, config, commandLineArguments);
             } else {
                 result = new CompositeResult();
                 for (String operation : commandLineArguments.getOperations()) {
-                    OperationResultBase individualResult = executeOperation(flyway, operation, config, commandLineArguments);
-                    ((CompositeResult) result).individualResults.add(individualResult);
+                    ((CompositeResult) result).individualResults.add(executeOperation(flyway, operation, config, commandLineArguments));
                 }
             }
 
@@ -265,8 +264,8 @@ public class Main {
         return condensedMessages.toString();
     }
 
-    private static OperationResultBase executeOperation(Flyway flyway, String operation, Map<String, String> config, CommandLineArguments commandLineArguments) {
-        OperationResultBase result = null;
+    private static OperationResult executeOperation(Flyway flyway, String operation, Map<String, String> config, CommandLineArguments commandLineArguments) {
+        OperationResult result = null;
         if ("clean".equals(operation)) {
             result = flyway.clean();
         } else if ("baseline".equals(operation)) {
