@@ -15,17 +15,17 @@
  */
 package org.flywaydb.core.internal.database.oracle;
 
+import lombok.AccessLevel;
 import lombok.CustomLog;
+import lombok.Getter;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
-import org.flywaydb.core.internal.jdbc.*;
-import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
-import lombok.AccessLevel;
-import lombok.Getter;
 
 
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.jdbc.*;
+import org.flywaydb.core.internal.sqlscript.DefaultSqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
 import org.flywaydb.core.internal.util.AsciiTable;
@@ -66,13 +66,9 @@ public class OracleSqlScriptExecutor extends DefaultSqlScriptExecutor {
 
 
 
-
-    public OracleSqlScriptExecutor(JdbcTemplate jdbcTemplate,
-                                   CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults,
-                                   StatementInterceptor statementInterceptor) {
+    public OracleSqlScriptExecutor(JdbcTemplate jdbcTemplate, CallbackExecutor callbackExecutor, boolean undo, boolean batch, boolean outputQueryResults, StatementInterceptor statementInterceptor) {
         super(jdbcTemplate, callbackExecutor, undo, batch, outputQueryResults, statementInterceptor);
     }
-
 
 
 
