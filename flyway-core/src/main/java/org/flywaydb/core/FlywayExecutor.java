@@ -111,6 +111,8 @@ public class FlywayExecutor {
 
         configurationValidator.validate(configuration);
 
+        VersionPrinter.printVersion();
+        
 
 
 
@@ -169,8 +171,6 @@ public class FlywayExecutor {
 
         Database database = null;
         try {
-            VersionPrinter.printVersion();
-
             database = databaseType.createDatabase(configuration, !dbConnectionInfoPrinted, jdbcConnectionFactory, statementInterceptor);
             databaseType.printMessages();
             dbConnectionInfoPrinted = true;
