@@ -1,4 +1,5 @@
 org.flywaydb.community.database.ignite.thin.IgniteThinDatabaseType
 org.flywaydb.community.database.mysql.tidb.TiDBDatabaseType
 org.flywaydb.community.database.yugabytedb.YugabyteDBDatabaseType
+org.flywaydb.community.database.singlestore.SingleStoreDatabaseType
 org.flywaydb.community.database.CommunityDatabaseExtension

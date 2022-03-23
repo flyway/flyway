@@ -51,6 +51,12 @@
             <artifactId>ignite-core</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>com.singlestore</groupId>
+            <artifactId>singlestore-jdbc-client</artifactId>
+            <version>${version.singlestore-jdbc}</version>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
