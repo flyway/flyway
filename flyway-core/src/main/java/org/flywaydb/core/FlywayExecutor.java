@@ -111,16 +111,16 @@ public class FlywayExecutor {
 
         configurationValidator.validate(configuration);
 
+
+
+
+
+
+
+
+
         VersionPrinter.printVersion();
         
-
-
-
-
-
-
-
-
         StatementInterceptor statementInterceptor = null;
 
 
