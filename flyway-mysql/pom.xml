@@ -22,7 +22,7 @@
     <parent>
         <artifactId>flyway-parent</artifactId>
         <groupId>org.flywaydb</groupId>
-        <version>0-SNAPSHOT</version>
+        <version>8.5.5-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
