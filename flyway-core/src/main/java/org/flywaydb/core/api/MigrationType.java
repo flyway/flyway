@@ -57,20 +57,18 @@ public enum MigrationType {
      * Undo JDBC java-based migrations.
      */
     UNDO_JDBC(false, true, false),
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Script migrations.
+     */
+    SCRIPT(false, false, false),
+    /**
+     * Script baseline migrations.
+     */
+    SCRIPT_BASELINE(false, false, true),
+    /**
+     * Undo Script migrations.
+     */
+    UNDO_SCRIPT(false, true, false),
     /**
      * Migrations using custom MigrationResolvers.
      */
