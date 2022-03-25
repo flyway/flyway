@@ -44,7 +44,6 @@ public class VersionPrinter {
     public static void printVersion() {
         printVersionOnly();
         LOG.info("See what's new here: https://flywaydb.org/documentation/learnmore/releaseNotes#" + VERSION);
-        LOG.info("");
     }
 
     public static void printVersionOnly() {
