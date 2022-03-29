@@ -22,7 +22,7 @@ public enum Edition {
     COMMUNITY("Community"),
     PRO("Teams"),
     ENTERPRISE("Teams"),
-    TIER3("Tier 3")
+    TIER3("Enterprise")
 
 
 
