@@ -180,11 +180,11 @@ public class Main {
             OperationResult result;
             if (commandLineArguments.getOperations().size() == 1) {
                 String operation = commandLineArguments.getOperations().get(0);
-                result = executeOperation(flyway, operation, config, commandLineArguments);
+                result = executeOperation(flyway, operation, commandLineArguments);
             } else {
                 result = new CompositeResult();
                 for (String operation : commandLineArguments.getOperations()) {
-                    ((CompositeResult) result).individualResults.add(executeOperation(flyway, operation, config, commandLineArguments));
+                    ((CompositeResult) result).individualResults.add(executeOperation(flyway, operation, commandLineArguments));
                 }
             }
 
@@ -264,7 +264,7 @@ public class Main {
         return condensedMessages.toString();
     }
 
-    private static OperationResult executeOperation(Flyway flyway, String operation, Map<String, String> config, CommandLineArguments commandLineArguments) {
+    private static OperationResult executeOperation(Flyway flyway, String operation, CommandLineArguments commandLineArguments) {
         OperationResult result = null;
         if ("clean".equals(operation)) {
             result = flyway.clean();
@@ -303,19 +303,7 @@ public class Main {
         } else if ("repair".equals(operation)) {
             result = flyway.repair();
         } else {
-            boolean handled = false;
-            for (CommandExtension extension : PluginRegister.getPlugins(CommandExtension.class)) {
-                if (extension.handlesCommand(operation)) {
-                    result = extension.handle(operation, config, commandLineArguments.getFlags());
-                    handled = true;
-                }
-            }
-
-            if (!handled) {
-                LOG.error("Invalid operation: " + operation);
-                printUsage();
-                System.exit(1);
-            }
+            result = flyway.runCommand(operation, commandLineArguments.getFlags());
         }
 
         return result;

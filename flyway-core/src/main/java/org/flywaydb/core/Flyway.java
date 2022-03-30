@@ -27,12 +27,14 @@ import org.flywaydb.core.api.exception.FlywayValidateException;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.*;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.internal.FlywayTeamsObjectResolver;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -361,6 +363,17 @@ public class Flyway {
 
 
 
+    }
+
+    /**
+     * For running commands that are provided by plugins to Flyway (e.g. check)
+     */
+    public OperationResult runCommand(String command, List<String> flags) {
+        return PluginRegister.getPlugins(CommandExtension.class).stream()
+                .filter(commandExtension -> commandExtension.handlesCommand(command))
+                .findFirst()
+                .map(commandExtension -> commandExtension.handle(command, configuration, flags))
+                .orElseThrow(() -> new FlywayException("No command extension found to handle command: " + command));
     }
 
     private CleanResult doClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor) {

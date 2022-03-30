@@ -17,6 +17,7 @@ package org.flywaydb.commandline.command.version;
 
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.internal.license.VersionPrinter;
@@ -25,7 +26,6 @@ import org.flywaydb.core.internal.util.Pair;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @CustomLog
 public class VersionCommandExtension implements CommandExtension {
@@ -50,7 +50,7 @@ public class VersionCommandExtension implements CommandExtension {
     }
 
     @Override
-    public OperationResult handle(String command, Map<String, String> config, List<String> flags) throws FlywayException {
+    public OperationResult handle(String command, Configuration config, List<String> flags) throws FlywayException {
         VersionPrinter.printVersionOnly();
         LOG.info("");
 
