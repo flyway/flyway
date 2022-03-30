@@ -616,24 +616,18 @@ public class ConfigUtils {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Using configuration:");
             for (Map.Entry<String, String> entry : new TreeMap<>(config).entrySet()) {
+                String key = entry.getKey();
                 String value = entry.getValue();
 
-                switch (entry.getKey()) {
-                    // Mask the password. Ex.: T0pS3cr3t -> *********
-                    case ConfigUtils.PASSWORD:
-                        value = StringUtils.trimOrPad("", value.length(), '*');
-                        break;
-                    // Mask the licence key, leaving a few characters to confirm which key is in use
-                    case ConfigUtils.LICENSE_KEY:
-                        value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
-                        break;
-                    // Mask any password in the URL
-                    case ConfigUtils.URL:
-                        value = DatabaseTypeRegister.redactJdbcUrl(value);
-                        break;
+                if (key.toLowerCase().endsWith("password")) {
+                    value = StringUtils.trimOrPad("", value.length(), '*');
+                } else if (ConfigUtils.LICENSE_KEY.equals(key)) {
+                    value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
+                } else if (ConfigUtils.URL.equals(key)) {
+                    value = DatabaseTypeRegister.redactJdbcUrl(value);
                 }
 
-                LOG.debug(entry.getKey() + " -> " + value);
+                LOG.debug(key + " -> " + value);
             }
         }
     }
