@@ -26,6 +26,7 @@ import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 
 import javax.sql.DataSource;
+import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -34,7 +35,7 @@ import java.sql.SQLException;
  * Utility class for dealing with jdbc connections.
  */
 @CustomLog
-public class JdbcConnectionFactory {
+public class JdbcConnectionFactory implements Closeable {
     private final DataSource dataSource;
     private final int connectRetries;
     private final int connectRetriesInterval;
@@ -122,6 +123,18 @@ public class JdbcConnectionFactory {
 
         connection = databaseType.alterConnectionAsNeeded(connection, configuration);
         return connection;
+    }
+
+    @Override
+    public void close() {
+        if (firstConnection != null) {
+            try {
+                firstConnection.close();
+            } catch (Exception e) {
+                LOG.error("Error while closing connection: " + e.getMessage(), e);
+            }
+            firstConnection = null;
+        }
     }
 
     public interface ConnectionInitializer {

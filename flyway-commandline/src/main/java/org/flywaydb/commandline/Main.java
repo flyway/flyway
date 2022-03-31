@@ -44,10 +44,7 @@ import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.logging.multi.MultiLogCreator;
 import org.flywaydb.core.internal.plugin.PluginRegister;
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
-import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.*;
 
 import java.io.Console;
 import java.io.File;
@@ -160,16 +157,17 @@ public class Main {
 
             if (!commandLineArguments.skipCheckForUpdate()) {
                 if (RedgateUpdateChecker.isEnabled() && configuration.getDataSource() != null) {
-                    JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
-                    Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null);
+                    try(JdbcConnectionFactory jdbcConnectionFactory= new JdbcConnectionFactory(configuration.getDataSource(), configuration, null)) {
+                        Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null);
 
-                    RedgateUpdateChecker.Context context = new RedgateUpdateChecker.Context(
-                            config.get(ConfigUtils.URL),
-                            commandLineArguments.getOperations(),
-                            database.getDatabaseType().getName(),
-                            database.getVersion().getVersion()
-                    );
-                    RedgateUpdateChecker.checkForVersionUpdates(context);
+                        RedgateUpdateChecker.Context context = new RedgateUpdateChecker.Context(
+                                config.get(ConfigUtils.URL),
+                                commandLineArguments.getOperations(),
+                                database.getDatabaseType().getName(),
+                                database.getVersion().getVersion()
+                        );
+                        RedgateUpdateChecker.checkForVersionUpdates(context);
+                    }
                 } else {
                     MavenVersionChecker.checkForVersionUpdates();
                 }

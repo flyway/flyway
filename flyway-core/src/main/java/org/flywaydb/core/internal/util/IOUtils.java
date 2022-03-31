@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class IOUtils {
     /**
-     * Closes this closeable and never fail while doing so.
+     * Closes this closeable and never fails while doing so.
      *
      * @param closeable The closeable to close. Can be {@code null}.
      */
@@ -32,8 +32,6 @@ public class IOUtils {
 
         try {
             closeable.close();
-        } catch (Exception e) {
-            // Ignore
-        }
+        } catch (Exception ignored) {}
     }
 }
