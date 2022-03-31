@@ -303,7 +303,11 @@ public class Main {
         } else if ("repair".equals(operation)) {
             result = flyway.repair();
         } else {
-            result = flyway.runCommand(operation, commandLineArguments.getFlags());
+            result = PluginRegister.getPlugins(CommandExtension.class).stream()
+                    .filter(commandExtension -> commandExtension.handlesCommand(operation))
+                    .findFirst()
+                    .map(commandExtension -> commandExtension.handle(operation, flyway.getConfiguration(), commandLineArguments.getFlags()))
+                    .orElseThrow(() -> new FlywayException("No command extension found to handle command: " + operation));
         }
 
         return result;
