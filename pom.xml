@@ -131,7 +131,7 @@
     <properties>
         <version.ant>1.9.14</version.ant>
         <version.aws-java-sdk>2.17.53</version.aws-java-sdk>
-        <version.aws-secretsmanager>1.0.6</version.aws-secretsmanager>
+        <version.aws-secretsmanager>1.0.7</version.aws-secretsmanager>
         <version.commonslogging>1.2</version.commonslogging>
         <version.db2>11.5.0.0</version.db2>
         <version.derby>10.15.2.0</version.derby>
@@ -457,18 +457,12 @@
                 <version>${version.aws-secretsmanager}</version>
                 <optional>true</optional>
             </dependency>
-            <!-- Override transitive dependencies within SecretsManager to deal with high priority CVEs. These
-             two can be removed when SecretsManager moves on from 1.0.6 -->
+            <!-- Override transitive dependencies within AWS SecretsManager to deal with high priority CVEs. This
+            can be removed when AWS SecretsManager moves on from 1.0.7 -->
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.13.1</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-cbor</artifactId>
-                <version>2.12.1</version>
+                <version>2.13.2.2</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
