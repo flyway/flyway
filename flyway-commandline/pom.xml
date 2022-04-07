@@ -30,8 +30,8 @@
 
 
 
-        <flyway-gcp-bigquery.version>8.5.6-beta</flyway-gcp-bigquery.version>
-        <flyway-gcp-spanner.version>8.5.6-beta</flyway-gcp-spanner.version>
+        <flyway-gcp-bigquery.version>${project.version}</flyway-gcp-bigquery.version>
+        <flyway-gcp-spanner.version>${project.version}</flyway-gcp-spanner.version>
         <flyway-sqlserver.version>${project.version}</flyway-sqlserver.version>
         <flyway-mysql.version>${project.version}</flyway-mysql.version>
         <flyway-firebird.version>${project.version}</flyway-firebird.version>
