@@ -130,7 +130,7 @@
 
     <properties>
         <version.ant>1.9.14</version.ant>
-        <version.aws-java-sdk>2.17.53</version.aws-java-sdk>
+        <version.aws-java-sdk>2.17.107</version.aws-java-sdk>
         <version.aws-secretsmanager>1.0.7</version.aws-secretsmanager>
         <version.commonslogging>1.2</version.commonslogging>
         <version.db2>11.5.0.0</version.db2>
