@@ -67,8 +67,6 @@ public class OracleDatabase extends Database<OracleConnection> {
 
 
 
-
-
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("10");
