@@ -92,6 +92,9 @@ public class HSQLDBParser extends Parser {
                 || ((("IF".equalsIgnoreCase(keywordText) && !CONDITIONALLY_CREATABLE_OBJECTS.contains(previousKeywordText))  // excludes the IF in eg. CREATE TABLE IF EXISTS
                 || "FOR".equalsIgnoreCase(keywordText)
                 || "CASE".equalsIgnoreCase(keywordText))
+                || "WHILE".equalsIgnoreCase(keywordText)        // WHILE <search condition> DO <SQL statement list> END WHILE [ <ending label> ]
+                || "LOOP".equalsIgnoreCase(keywordText)         // LOOP <SQL statement list> END LOOP [ <ending label> ]
+                || "REPEAT".equalsIgnoreCase(keywordText))      // REPEAT <SQL statement list> UNTIL <search condition> END REPEAT [ <ending label>
                 && previousKeyword != null && !"END".equalsIgnoreCase(previousKeywordText)
                 && !"CURSOR".equalsIgnoreCase(previousKeywordText))) {  // DECLARE CURSOR FOR SELECT ... has no END
             context.increaseBlockDepth(keywordText);
