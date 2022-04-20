@@ -15,15 +15,18 @@
  */
 package org.flywaydb.core.internal.database.snowflake;
 
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.RowMapper;
+import org.flywaydb.core.internal.util.Pair;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+@CustomLog
 public class SnowflakeSchema extends Schema<SnowflakeDatabase, SnowflakeTable> {
     /**
      * Creates a new Snowflake schema.
@@ -78,12 +81,20 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase, SnowflakeTable> {
             jdbcTemplate.execute(dropStatement);
         }
 
-        for (String dropStatement : generateDropStatementsWithArgs("USER FUNCTIONS", "FUNCTION")) {
-            jdbcTemplate.execute(dropStatement);
+        for (Pair<String, String> snowflakeDropPair : generateDropStatementsWithArgs("USER FUNCTIONS", "FUNCTION")) {
+            try {
+                jdbcTemplate.execute(snowflakeDropPair.getRight());
+            } catch (SQLException sqlException) {
+                LOG.warn("Unable to drop User Function " + snowflakeDropPair.getLeft() + ": " + sqlException.getMessage());
+            }
         }
 
-        for (String dropStatement : generateDropStatementsWithArgs("PROCEDURES", "PROCEDURE")) {
-            jdbcTemplate.execute(dropStatement);
+        for (Pair<String, String> snowflakeDropPair : generateDropStatementsWithArgs("PROCEDURES", "PROCEDURE")) {
+            try {
+                jdbcTemplate.execute(snowflakeDropPair.getRight());
+            } catch (SQLException sqlException) {
+                LOG.warn("Unable to drop Procedure " + snowflakeDropPair.getLeft() + ": " + sqlException.getMessage());
+            }
         }
     }
 
@@ -111,12 +122,12 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase, SnowflakeTable> {
         });
     }
 
-    private List<String> generateDropStatementsWithArgs(final String showObjectType, final String dropObjectType) throws SQLException {
+    private List<Pair<String,String>> generateDropStatementsWithArgs(final String showObjectType, final String dropObjectType) throws SQLException {
         return jdbcTemplate.query("SHOW " + showObjectType + " IN SCHEMA " + database.quote(name), rs -> {
             String nameAndArgsList = rs.getString("arguments");
             int indexOfEndOfArgs = nameAndArgsList.indexOf(") RETURN ");
             String functionName = nameAndArgsList.substring(0, indexOfEndOfArgs + 1);
-            return "DROP " + dropObjectType + " " + name + "." + functionName;
+            return Pair.of(functionName, "DROP " + dropObjectType + " " + name + "." + functionName);
         });
     }
 }
