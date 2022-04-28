@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.database.oracle;
 import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.Getter;
+import lombok.Setter;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.Error;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
@@ -47,6 +48,7 @@ import java.util.Locale;
 @CustomLog
 @Getter
 public class OracleSqlScriptExecutor extends DefaultSqlScriptExecutor {
+
 
 
 

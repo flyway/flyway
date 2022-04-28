@@ -19,7 +19,8 @@ target
 !**/.idea/codeStyles/
 !**/.idea/codeStyles/*
 
-flyway-core/SPOOLEDCONTENTS.SQL
+flyway-core-test/spooledContents.sql
+flyway-core-test/spool.sql
 flyway-cli-sample/jars/
 flyway-*compare/**/resources/*compare/
 out/**
