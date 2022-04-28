@@ -22,8 +22,8 @@ import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.DatabaseType;
-import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
+import org.flywaydb.core.internal.database.base.Database;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -34,9 +34,7 @@ import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -77,6 +75,7 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
     @Override
     public String getDriverClass(String url, ClassLoader classLoader) {
+
 
 
 
@@ -124,8 +123,7 @@ public class OracleDatabaseType extends BaseDatabaseType {
     @Override
     public SqlScriptExecutorFactory createSqlScriptExecutorFactory(JdbcConnectionFactory jdbcConnectionFactory,
                                                                    final CallbackExecutor callbackExecutor,
-                                                                   final StatementInterceptor statementInterceptor
-                                                                  ) {
+                                                                   final StatementInterceptor statementInterceptor) {
 
 
 
@@ -141,9 +139,7 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
 
 
-                return new OracleSqlScriptExecutor(new JdbcTemplate(connection, thisRef)
-                        , callbackExecutor, undo, batch, outputQueryResults, statementInterceptor
-                );
+                return new OracleSqlScriptExecutor(new JdbcTemplate(connection, thisRef), callbackExecutor, undo, batch, outputQueryResults, statementInterceptor);
             }
         };
     }
@@ -242,4 +238,15 @@ public class OracleDatabaseType extends BaseDatabaseType {
         return super.alterConnectionAsNeeded(connection, configuration);
     }
 
+    /**
+     * Workaround until this issue gets fixed: https://github.com/aws/aws-secretsmanager-jdbc/issues/44
+     */
+    private void registerOracleDriver() {
+        try {
+            Class<Driver> driver = (Class<Driver>) getClass().getClassLoader().loadClass("oracle.jdbc.OracleDriver");
+            DriverManager.registerDriver(driver.getDeclaredConstructor().newInstance());
+        } catch (Exception e) {
+            throw new FlywayException("Unable to register Oracle driver. AWS Secrets Manager may not work", e);
+        }
+    }
 }
