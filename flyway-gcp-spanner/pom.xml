@@ -21,14 +21,14 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>8.5.9</version>
+        <version>8.5.10</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>flyway-gcp-spanner</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <version>8.5.9-beta</version>
+    <version>8.5.10-beta</version>
 
     <dependencies>
         <dependency>
