@@ -89,7 +89,7 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase, SnowflakeTable> {
             }
         }
 
-        for (Pair<String, String> snowflakeDropPair : generateDropStatementsWithArgs("PROCEDURES", "PROCEDURE")) {
+        for (Pair<String, String> snowflakeDropPair : generateDropStatementsWithArgs("USER PROCEDURES", "PROCEDURE")) {
             try {
                 jdbcTemplate.execute(snowflakeDropPair.getRight());
             } catch (SQLException sqlException) {
