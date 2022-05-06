@@ -1,0 +1,17 @@
+#main.yml
+
+name: Meterian Scanner workflow
+
+on: push
+
+jobs:
+    meterian_scan:
+        name: Meterian client scan
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v2
+          - name: Meterian Scanner
+            uses: MeterianHQ/meterian-github-action@v1.0.9
+            with:
+              oss: true
