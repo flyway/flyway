@@ -23,4 +23,6 @@ flyway-core-test/spooledContents.sql
 flyway-core-test/spool.sql
 flyway-cli-sample/jars/
 flyway-*compare/**/resources/*compare/
+flyway-rgcompare/src/main/resources/obj/
+flyway-rgcompare/rgcompare/
 out/**
