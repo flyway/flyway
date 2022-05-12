@@ -32,30 +32,6 @@ import java.util.stream.Collectors;
 
 public class CommandLineArguments {
 
-    @RequiredArgsConstructor
-    public enum Color {
-        ALWAYS("always"),
-        NEVER("never"),
-        AUTO("auto");
-
-        private final String value;
-
-        public static Color fromString(String value) {
-            if (value.isEmpty()) {
-                return AUTO;
-            }
-
-            return Arrays.stream(values())
-                    .filter(color -> color.value.equals(value))
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        public static boolean isValid(String value) {
-            return fromString(value) != null;
-        }
-    }
-
     private static final String DEBUG_FLAG = "-X";
     private static final String QUIET_FLAG = "-q";
     private static final String SUPPRESS_PROMPT_FLAG = "-n";
@@ -67,7 +43,6 @@ public class CommandLineArguments {
     private static final String ENTERPRISE_FLAG = "-enterprise";
     private static final String PRO_FLAG = "-pro";
     private static final String TEAMS_FLAG = "-teams";
-
     // Command line specific configuration options
     private static final String OUTPUT_FILE = "outputFile";
     private static final String OUTPUT_TYPE = "outputType";
@@ -80,13 +55,16 @@ public class CommandLineArguments {
     private static final String INFO_SINCE_VERSION = "infoSinceVersion";
     private static final String INFO_UNTIL_VERSION = "infoUntilVersion";
     private static final String INFO_OF_STATE = "infoOfState";
-
     private static final Set<String> COMMAND_LINE_ONLY_OPTIONS = new HashSet<>(Arrays.asList(
             OUTPUT_FILE, OUTPUT_TYPE, COLOR, WORKING_DIRECTORY, INFO_SINCE_DATE,
             INFO_UNTIL_DATE, INFO_SINCE_VERSION, INFO_UNTIL_VERSION, INFO_OF_STATE));
-
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     private static final List<String> VALID_OPERATIONS_AND_FLAGS = getValidOperationsAndFlags();
+    private final String[] args;
+
+    public CommandLineArguments(String... args) {
+        this.args = args;
+    }
 
     private static List<String> getValidOperationsAndFlags() {
         List<String> operationsAndFlags = new ArrayList<>(Arrays.asList(
@@ -110,12 +88,6 @@ public class CommandLineArguments {
         operationsAndFlags.addAll(PRINT_VERSION_AND_EXIT_FLAGS);
         operationsAndFlags.addAll(PRINT_USAGE_FLAGS);
         return operationsAndFlags;
-    }
-
-    private final String[] args;
-
-    public CommandLineArguments(String... args) {
-        this.args = args;
     }
 
     private static boolean isFlagSet(String[] args, String flag) {
@@ -156,7 +128,9 @@ public class CommandLineArguments {
     }
 
     private static List<String> getConfigFilesFromArgs(String[] args) {
-        return Arrays.asList(StringUtils.tokenizeToStringArray(getArgumentValue(CONFIG_FILES, args), ","));
+        return Arrays.stream(StringUtils.tokenizeToStringArray(getArgumentValue(CONFIG_FILES, args), ","))
+                .filter(i -> !i.isEmpty())
+                .collect(Collectors.toList());
     }
 
     private static Map<String, String> getConfigurationFromArgs(String[] args) {
@@ -346,5 +320,29 @@ public class CommandLineArguments {
 
     public Map<String, String> getConfiguration() {
         return getConfigurationFromArgs(args);
+    }
+
+    @RequiredArgsConstructor
+    public enum Color {
+        ALWAYS("always"),
+        NEVER("never"),
+        AUTO("auto");
+
+        private final String value;
+
+        public static Color fromString(String value) {
+            if (value.isEmpty()) {
+                return AUTO;
+            }
+
+            return Arrays.stream(values())
+                    .filter(color -> color.value.equals(value))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        public static boolean isValid(String value) {
+            return fromString(value) != null;
+        }
     }
 }

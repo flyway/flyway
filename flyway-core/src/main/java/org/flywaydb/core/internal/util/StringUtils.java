@@ -18,12 +18,13 @@ package org.flywaydb.core.internal.util;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StringUtils {
@@ -209,105 +210,33 @@ public class StringUtils {
     }
 
     /**
-     * Splits this string into an array using these delimiters.
+     * Splits this string into an array using this delimiter.
      *
      * @param str The string to split.
-     * @param delimiters The delimiters to use.
+     * @param delimiter The delimiter to use.
      * @return The resulting array.
      */
-    public static String[] tokenizeToStringArray(String str, String delimiters) {
+    public static String[] tokenizeToStringArray(String str, String delimiter) {
         if (str == null) {
             return null;
         }
-        Collection<String> tokens = tokenizeToStringCollection(str, delimiters);
-        return tokens.toArray(new String[0]);
+
+        return tokenizeToStringCollection(str, delimiter).toArray(new String[0]);
     }
 
     /**
-     * Splits this string into a collection using these delimiters.
+     * Splits this string into a collection using this delimiter.
      *
      * @param str The string to split.
-     * @param delimiters The delimiters to use.
+     * @param delimiter The delimiter to use.
      * @return The resulting array.
      */
-    public static List<String> tokenizeToStringCollection(String str, String delimiters) {
+    public static List<String> tokenizeToStringCollection(String str, String delimiter) {
         if (str == null) {
             return null;
         }
-        List<String> tokens = new ArrayList<>(str.length() / 5);
-        char[] delimiterChars = delimiters.toCharArray();
-        int start = 0;
-        int end = 0;
-        for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
-            boolean delimiter = false;
-            for (char d : delimiterChars) {
-                if (c == d) {
-                    tokens.add(str.substring(start, end));
-                    start = i + 1;
-                    end = start;
-                    delimiter = true;
-                    break;
-                }
-            }
-            if (!delimiter) {
-                if (i == start && c == ' ') {
-                    start++;
-                    end++;
-                }
-                if (i >= start && c != ' ') {
-                    end = i + 1;
-                }
-            }
-        }
-        if (start < end) {
-            tokens.add(str.substring(start, end));
-        }
-        return tokens;
-    }
 
-    /**
-     * Splits this string into a collection using this delimiter and this group delimiter.
-     *
-     * @param str The string to split.
-     * @param delimiterChar The delimiter to use.
-     * @param groupDelimiterChar The character to use to delimit groups.
-     * @return The resulting array.
-     */
-    public static List<String> tokenizeToStringCollection(String str, char delimiterChar, char groupDelimiterChar) {
-        if (str == null) {
-            return null;
-        }
-        List<String> tokens = new ArrayList<>(str.length() / 5);
-        int start = 0;
-        int end = 0;
-        boolean inGroup = false;
-        for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
-            if (c == groupDelimiterChar) {
-                inGroup = !inGroup;
-                addToken(tokens, str, start, end);
-                start = i + 1;
-                end = start;
-            } else if (!inGroup && c == delimiterChar) {
-                addToken(tokens, str, start, end);
-                start = i + 1;
-                end = start;
-            } else if (i == start && c == ' ') {
-                start++;
-                end++;
-            } else if (i >= start && c != ' ') {
-                end = i + 1;
-            }
-        }
-        addToken(tokens, str, start, end);
-        return tokens;
-    }
-
-    private static void addToken(List<String> tokens, String str, int start, int end) {
-        if (start < end) {
-            tokens.add(str.substring(start, end));
-        }
+        return Arrays.stream(str.split(delimiter)).map(String::trim).collect(Collectors.toList());
     }
 
     /**
