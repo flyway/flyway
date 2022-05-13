@@ -130,8 +130,8 @@
 
     <properties>
         <version.ant>1.9.14</version.ant>
-        <version.aws-java-sdk>2.17.107</version.aws-java-sdk>
-        <version.aws-secretsmanager>1.0.7</version.aws-secretsmanager>
+        <version.aws-java-sdk>2.17.189</version.aws-java-sdk>
+        <version.aws-secretsmanager>1.0.8</version.aws-secretsmanager>
         <version.commonslogging>1.2</version.commonslogging>
         <version.db2>11.5.0.0</version.db2>
         <version.derby>10.15.2.0</version.derby>
@@ -157,9 +157,9 @@
         <version.lombok>1.18.20</version.lombok>
         <version.lombok-maven-plugin>1.18.20.0</version.lombok-maven-plugin>
         <version.mariadb>2.7.2</version.mariadb>
-        <version.maven>3.8.1</version.maven>
+        <version.maven>3.8.5</version.maven>
         <version.mockito>1.10.19</version.mockito>
-        <version.msal4j>1.10.1</version.msal4j>
+        <version.msal4j>1.12.0</version.msal4j>
         <version.mssql>10.2.0</version.mssql>
         <version.mssql-jdbc>${version.mssql}.jre8</version.mssql-jdbc>
         <version.oracle>19.6.0.0</version.oracle>
@@ -457,14 +457,6 @@
                 <version>${version.aws-secretsmanager}</version>
                 <optional>true</optional>
             </dependency>
-            <!-- Override transitive dependencies within AWS SecretsManager to deal with high priority CVEs. This
-            can be removed when AWS SecretsManager moves on from 1.0.7 -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>2.13.2.2</version>
-                <optional>true</optional>
-            </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-plugin-api</artifactId>
@@ -489,14 +481,6 @@
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-core</artifactId>
                 <version>${version.maven}</version>
-            </dependency>
-            <dependency>
-                <!-- NOTE: This is a transitive dependency of maven-core. It ONLY appears here to force us to use the
-                particular version 3.3.3, as the default one for maven-core:3.6.3 is a vulnerable one (maven-shared-utils:3.2.1)
-                Remove when maven-core is updated.-->
-                <groupId>org.apache.maven.shared</groupId>
-                <artifactId>maven-shared-utils</artifactId>
-                <version>3.3.3</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ant</groupId>
