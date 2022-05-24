@@ -27,6 +27,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+
+
+
+
+
 @CustomLog
 public class VersionCommandExtension implements CommandExtension {
     public static final String VERSION = "version";
@@ -51,13 +56,21 @@ public class VersionCommandExtension implements CommandExtension {
 
     @Override
     public OperationResult handle(String command, Configuration config, List<String> flags) throws FlywayException {
+
+
+
+
+
+
+
+
         VersionPrinter.printVersionOnly();
         LOG.info("");
 
         LOG.debug("Java " + System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")");
         LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch") + "\n");
 
-        return new OperationResult() {};
+        return new VersionResult(VersionPrinter.getVersion(), command);
     }
 
     @Override
