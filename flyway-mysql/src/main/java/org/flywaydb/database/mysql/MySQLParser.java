@@ -43,7 +43,11 @@ public class MySQLParser extends Parser {
     @Override
     protected Token handleKeyword(PeekingReader reader, ParserContext context, int pos, int line, int col, String keyword) throws IOException {
         if ("DELIMITER".equalsIgnoreCase(keyword)) {
-            String text = reader.readUntilExcluding('\n', '\r').trim();
+            String text = "";
+            while (text.isEmpty()) {
+                text = reader.readUntilExcluding('\n', '\r').trim();
+                reader.swallow(1);
+            }
             return new Token(TokenType.NEW_DELIMITER, pos, line, col, text, text, context.getParensDepth());
         }
         return super.handleKeyword(reader, context, pos, line, col, keyword);
