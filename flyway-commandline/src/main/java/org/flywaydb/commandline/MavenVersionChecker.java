@@ -68,6 +68,7 @@ public class MavenVersionChecker {
             URL url = new URL(FLYWAY_URL);
             @Cleanup(value = "disconnect") HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
+            connection.setConnectTimeout(1000);
 
             StringBuilder response = new StringBuilder();
 

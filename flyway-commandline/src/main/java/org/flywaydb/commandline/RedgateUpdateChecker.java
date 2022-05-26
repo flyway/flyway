@@ -79,6 +79,7 @@ public class RedgateUpdateChecker {
             @Cleanup(value = "disconnect") HttpsURLConnection connection = (HttpsURLConnection) new URL(PLATFORM_URL_ROOT + CFU_ENDPOINT).openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json; utf-8");
+            connection.setConnectTimeout(1000);
             connection.setDoOutput(true);
 
             try (OutputStream os = connection.getOutputStream()) {
