@@ -165,7 +165,7 @@
         <version.oracle>19.6.0.0</version.oracle>
         <version.osgi>4.3.1</version.osgi>
         <version.p6spy>3.9.1</version.p6spy>
-        <version.postgresql>42.3.3</version.postgresql>
+        <version.postgresql>42.3.6</version.postgresql>
         <version.redshift>1.2.10.1009</version.redshift>
         <version.sap>2.6.30</version.sap>
         <version.slf4j>1.7.30</version.slf4j>
