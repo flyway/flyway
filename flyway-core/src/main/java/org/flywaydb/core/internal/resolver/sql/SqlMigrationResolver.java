@@ -118,8 +118,9 @@ public class SqlMigrationResolver implements MigrationResolver {
         return list.toArray(new LoadableResource[0]);
     }
 
-    private Integer getChecksumForLoadableResource(boolean repeatable, List<LoadableResource> loadableResources) {
+    private Integer getChecksumForLoadableResource(boolean repeatable, List<LoadableResource> loadableResources, ResourceName resourceName) {
         if (repeatable && configuration.isPlaceholderReplacement()) {
+            parsingContext.updateFilenamePlaceholder(resourceName, configuration);
             return ChecksumCalculator.calculate(createPlaceholderReplacingLoadableResources(loadableResources));
         }
 
@@ -144,8 +145,8 @@ public class SqlMigrationResolver implements MigrationResolver {
 
         for (LoadableResource resource : resourceProvider.getResources(prefix, suffixes)) {
             String filename = resource.getFilename();
-            ResourceName result = resourceNameParser.parse(filename);
-            if (!result.isValid() || isSqlCallback(result) || !prefix.equals(result.getPrefix())) {
+            ResourceName resourceName = resourceNameParser.parse(filename);
+            if (!resourceName.isValid() || isSqlCallback(resourceName) || !prefix.equals(resourceName.getPrefix())) {
                 continue;
             }
 
@@ -165,12 +166,12 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-            Integer checksum = getChecksumForLoadableResource(repeatable, resources);
+            Integer checksum = getChecksumForLoadableResource(repeatable, resources, resourceName);
             Integer equivalentChecksum = getEquivalentChecksumForLoadableResource(repeatable, resources);
 
             migrations.add(new ResolvedMigrationImpl(
-                    result.getVersion(),
-                    result.getDescription(),
+                    resourceName.getVersion(),
+                    resourceName.getDescription(),
                     resource.getRelativePath(),
                     checksum,
                     equivalentChecksum,
