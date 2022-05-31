@@ -257,7 +257,7 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
 
-                        result.getColumns() != null) {
+                        result.getColumns() != null && !result.getColumns().isEmpty()) {
             LOG.info(new AsciiTable(result.getColumns(), result.getData(),
                                     true, "", "No rows returned").render());
         }

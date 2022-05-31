@@ -92,7 +92,7 @@ public class AsciiTable {
         result.append(ruler);
 
         if (rows.isEmpty()) {
-            result.append("| ").append(StringUtils.trimOrPad(emptyText, ruler.length() - 5)).append(" |\n");
+            result.append("| ").append(StringUtils.trimOrPad(emptyText, ruler.length() - Math.min(ruler.length(), 5))).append(" |\n");
         } else {
             for (List<String> row : rows) {
                 StringBuilder r = new StringBuilder("|");
