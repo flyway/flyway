@@ -125,12 +125,12 @@ public class Main {
             initializeDefaults(config, commandLineArguments);
             loadConfigurationFromConfigFiles(config, commandLineArguments, envVars);
 
+            config.putAll(envVars);
+            config = overrideConfiguration(config, commandLineArguments.getConfiguration());
+
             if (commandLineArguments.isWorkingDirectorySet()) {
                 makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments, config);
             }
-
-            config.putAll(envVars);
-            config = overrideConfiguration(config, commandLineArguments.getConfiguration());
 
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             List<File> jarFiles = new ArrayList<>();
