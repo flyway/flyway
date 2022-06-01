@@ -37,6 +37,8 @@ public class DB2Parser extends Parser {
 
     private static final Pattern CREATE_IF_NOT_EXISTS = Pattern.compile(
             ".*CREATE\\s([^\\s]+\\s){0,2}IF\\sNOT\\sEXISTS");
+    private static final Pattern CREATE_OR_REPLACE_PACKAGE = Pattern.compile(
+            ".*CREATE\\s(OR\\sREPLACE\\s)?PACKAGE\\s([^\\s]+\\s){0,2}(IS|AS)");
     private static final Pattern DROP_IF_EXISTS = Pattern.compile(
             ".*DROP\\s([^\\s]+\\s){0,2}IF\\sEXISTS");
 
@@ -50,20 +52,13 @@ public class DB2Parser extends Parser {
         lastKeywordIndex = getLastKeywordIndex(tokens, lastKeywordIndex);
         String previousPreviousToken = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex).getText() : null;
 
-        if (
-            // BEGIN increases block depth, exception when used with ROW BEGIN
-                ("BEGIN".equals(keyword.getText()) && (!"ROW".equals(previousKeyword) || previousPreviousToken == null || "EACH".equals(previousPreviousToken)))
-                        // Control flow keywords increase depth
-                        || CONTROL_FLOW_KEYWORDS.contains(keyword.getText())
-        ) {
-            // But not END IF and END WHILE
+        if (("BEGIN".equals(keyword.getText()) && (!"ROW".equals(previousKeyword) || previousPreviousToken == null || "EACH".equals(previousPreviousToken)))
+                || CONTROL_FLOW_KEYWORDS.contains(keyword.getText())
+                || doTokensMatchPattern(tokens, keyword, CREATE_OR_REPLACE_PACKAGE)) {
             if (!previousTokenIsKeyword || !"END".equals(previousKeyword)) {
                 context.increaseBlockDepth(keyword.getText());
-
             }
-        } else if (
-            // END decreases block depth, exception when used with ROW END
-                ("END".equals(keyword.getText()) && !"ROW".equals(previousKeyword))
+        } else if (("END".equals(keyword.getText()) && !"ROW".equals(previousKeyword))
                         || doTokensMatchPattern(tokens, keyword, CREATE_IF_NOT_EXISTS)
                         || doTokensMatchPattern(tokens, keyword, DROP_IF_EXISTS)) {
             context.decreaseBlockDepth();
