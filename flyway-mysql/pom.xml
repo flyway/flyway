@@ -148,8 +148,8 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Automatic-Module-Name>org.flywaydb.core</Automatic-Module-Name>
-                        <Bundle-SymbolicName>org.flywaydb.core</Bundle-SymbolicName>
+                        <Automatic-Module-Name>org.flywaydb.database</Automatic-Module-Name>
+                        <Bundle-SymbolicName>org.flywaydb.database</Bundle-SymbolicName>
                         <Export-Package>
                             org.flywaydb.database;version=${project.version}
                         </Export-Package>
