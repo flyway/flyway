@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
-import lombok.CustomLog;
 import lombok.AccessLevel;
+import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
@@ -95,7 +95,9 @@ public class JdbcUtils {
             return;
         }
         try {
-            connection.close();
+            if (!connection.isClosed()) {
+                connection.close();
+            }
         } catch (Exception e) {
             LOG.error("Error while closing database Connection: " + e.getMessage(), e);
         }

@@ -157,8 +157,8 @@ public class Main {
 
             if (!commandLineArguments.skipCheckForUpdate()) {
                 if (RedgateUpdateChecker.isEnabled() && configuration.getDataSource() != null) {
-                    try(JdbcConnectionFactory jdbcConnectionFactory= new JdbcConnectionFactory(configuration.getDataSource(), configuration, null)) {
-                        Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null);
+                    try(JdbcConnectionFactory jdbcConnectionFactory= new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
+                        Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null)) {
 
                         RedgateUpdateChecker.Context context = new RedgateUpdateChecker.Context(
                                 config.get(ConfigUtils.URL),

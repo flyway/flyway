@@ -25,6 +25,7 @@ import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
@@ -379,6 +380,10 @@ public abstract class Database<C extends Connection> implements Closeable {
         }
         if (mainConnection != null) {
             mainConnection.close();
+        }
+
+        if (rawMainJdbcConnection != null) {
+            JdbcUtils.closeConnection(rawMainJdbcConnection);
         }
     }
 
