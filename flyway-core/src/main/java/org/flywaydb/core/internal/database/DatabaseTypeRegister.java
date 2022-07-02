@@ -33,7 +33,9 @@ import java.util.stream.Collectors;
 @CustomLog
 public class DatabaseTypeRegister {
 
+
     private static final List<DatabaseType> SORTED_DATABASE_TYPES = PluginRegister.getPlugins(DatabaseType.class).stream().sorted().collect(Collectors.toList());
+
 
     public static DatabaseType getDatabaseTypeForUrl(String url) {
         List<DatabaseType> typesAcceptingUrl = getDatabaseTypesForUrl(url);
