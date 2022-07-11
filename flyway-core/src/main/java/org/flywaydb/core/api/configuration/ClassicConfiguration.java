@@ -31,10 +31,7 @@ import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.ExceptionUtils;
-import org.flywaydb.core.internal.util.Locations;
-import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.*;
 
 import javax.sql.DataSource;
 import java.io.*;
@@ -1134,7 +1131,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLicenseKey(String licenseKey) {
 
-         LOG.warn(Edition.ENTERPRISE + " upgrade required: licenseKey is not supported by " + Edition.COMMUNITY + ".");
+         LOG.warn("License key detected - in order to use Teams or Enterprise features, download " + Edition.ENTERPRISE + " & " + Edition.TIER3 + "here: " + FlywayDbWebsiteLinks.TEAMS_ENTERPRISE_DOWNLOAD);
 
 
 

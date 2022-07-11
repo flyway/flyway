@@ -47,4 +47,5 @@ public class FlywayDbWebsiteLinks {
     public static final String TEAMS_FEATURES_FOR_BIG_QUERY = "https://rd.gt/3CWAuTb";
     public static final String TEAMS_FEATURES_FOR_CLOUD_SPANNER = "https://rd.gt/2ZvELhV";
     public static final String FILE_ENCODING_HELP = "https://rd.gt/3BzSFhr";
+    public static final String TEAMS_ENTERPRISE_DOWNLOAD = "https://rd.gt/3aqhTXb";
 }
