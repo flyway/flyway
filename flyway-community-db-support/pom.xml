@@ -46,6 +46,12 @@
             <version>${version.junit}</version>
         </dependency>
         <!-- JDBC drivers -->
+        <!-- https://mvnrepository.com/artifact/com.kinetica/kinetica-jdbc -->
+        <dependency>
+            <groupId>com.kinetica</groupId>
+            <artifactId>kinetica-jdbc</artifactId>
+            <version>7.1.6.1</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
             <artifactId>ignite-core</artifactId>
