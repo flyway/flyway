@@ -17,9 +17,9 @@ package org.flywaydb.core.internal.info;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
-import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.util.AsciiTable;
 import org.flywaydb.core.internal.util.DateUtils;
@@ -81,6 +81,9 @@ public class MigrationInfoDumper {
 
 
 
+        if (migrationInfo.getType().isBaseline()) {
+            return "Baseline";
+        }
         return "Versioned";
     }
 

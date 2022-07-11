@@ -31,14 +31,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandLineArguments {
-
     private static final String DEBUG_FLAG = "-X";
     private static final String QUIET_FLAG = "-q";
     private static final String SUPPRESS_PROMPT_FLAG = "-n";
     private static final List<String> PRINT_VERSION_AND_EXIT_FLAGS = Arrays.asList("-v", "--version");
-    private static final String CHECK_LICENCE = "-checkLicence";
     private static final List<String> PRINT_USAGE_FLAGS = Arrays.asList("-?", "-h", "--help");
     private static final String SKIP_CHECK_FOR_UPDATE_FLAG = "-skipCheckForUpdate";
+    private static final String MIGRATIONS_IDS_FLAG = "-migrationIds";
     private static final String COMMUNITY_FLAG = "-community";
     private static final String ENTERPRISE_FLAG = "-enterprise";
     private static final String PRO_FLAG = "-pro";
@@ -60,9 +59,12 @@ public class CommandLineArguments {
             INFO_UNTIL_DATE, INFO_SINCE_VERSION, INFO_UNTIL_VERSION, INFO_OF_STATE));
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     private static final List<String> VALID_OPERATIONS_AND_FLAGS = getValidOperationsAndFlags();
+
+    private final PluginRegister pluginRegister;
     private final String[] args;
 
-    public CommandLineArguments(String... args) {
+    public CommandLineArguments(PluginRegister pluginRegister, String... args) {
+        this.pluginRegister = pluginRegister;
         this.args = args;
     }
 
@@ -72,11 +74,11 @@ public class CommandLineArguments {
                 QUIET_FLAG,
                 SUPPRESS_PROMPT_FLAG,
                 SKIP_CHECK_FOR_UPDATE_FLAG,
+                MIGRATIONS_IDS_FLAG,
                 COMMUNITY_FLAG,
                 ENTERPRISE_FLAG,
                 PRO_FLAG,
                 TEAMS_FLAG,
-                CHECK_LICENCE,
                 "help",
                 "migrate",
                 "clean",
@@ -114,11 +116,11 @@ public class CommandLineArguments {
         return arg.substring(index + 1);
     }
 
-    private static List<String> getOperationsFromArgs(String[] args) {
+    private List<String> getOperationsFromArgs(String[] args) {
         List<String> flags = Arrays.stream(args).filter(x -> x.startsWith("-")).collect(Collectors.toList());
         List<String> operations = Arrays.stream(args).filter(arg -> !arg.startsWith("-")).collect(Collectors.toList());
 
-        PluginRegister.getPlugins(CommandExtension.class)
+        pluginRegister.getPlugins(CommandExtension.class)
                 .forEach(extension -> flags.stream()
                         .map(extension::getCommandForFlag)
                         .filter(Objects::nonNull)
@@ -188,7 +190,7 @@ public class CommandLineArguments {
     }
 
     private boolean isHandledByExtension(String arg) {
-        for (CommandExtension extension : PluginRegister.getPlugins(CommandExtension.class)) {
+        for (CommandExtension extension : pluginRegister.getPlugins(CommandExtension.class)) {
             if (extension.handlesCommand(arg) || extension.handlesParameter(arg)) {
                 return true;
             }
@@ -200,20 +202,12 @@ public class CommandLineArguments {
         return isFlagSet(args, SUPPRESS_PROMPT_FLAG);
     }
 
-    public boolean shouldPrintVersionAndExit() {
-        return isFlagSet(args, PRINT_VERSION_AND_EXIT_FLAGS);
-    }
-
-    public boolean shouldCheckLicenseAndExit() {
-        return isFlagSet(args, CHECK_LICENCE);
-    }
-
     public boolean shouldOutputJson() {
         return "json".equalsIgnoreCase(getArgumentValue(OUTPUT_TYPE, args));
     }
 
     public boolean shouldPrintUsage() {
-        return (isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty()) && !isFlagSet(args, CHECK_LICENCE);
+        return isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty();
     }
 
     public Level getLogLevel() {
@@ -262,12 +256,18 @@ public class CommandLineArguments {
         return parseVersion(INFO_UNTIL_VERSION);
     }
 
-    public MigrationState getInfoOfState() {
+    public MigrationState[] getInfoOfState() {
         String stateStr = getArgumentValue(INFO_OF_STATE, args);
         if (!StringUtils.hasText(stateStr)) {
             return null;
         }
-        return MigrationState.valueOf(stateStr.toUpperCase(Locale.ENGLISH));
+        return Arrays.stream(stateStr.split(","))
+                .map(s -> MigrationState.valueOf(s.toUpperCase(Locale.ENGLISH)))
+                .toArray(MigrationState[]::new);
+    }
+
+    public boolean isFilterOnMigrationIds() {
+        return isFlagSet(args, MIGRATIONS_IDS_FLAG);
     }
 
     private MigrationVersion parseVersion(String argument) {

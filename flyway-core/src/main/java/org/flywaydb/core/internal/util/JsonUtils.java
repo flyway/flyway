@@ -19,31 +19,71 @@ import com.google.gson.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.output.CompositeResult;
+import org.flywaydb.core.api.output.OperationResult;
 
-import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JsonUtils {
-    public static String jsonToFile(String folder, String filename, String json) {
-        return jsonToFile(folder, filename, JsonParser.parseString(json).getAsJsonObject());
+    public static String jsonToFile(String filename, String json) {
+        return jsonToFile(filename, JsonParser.parseString(json).getAsJsonObject());
     }
 
-    public static String jsonToFile(String folder, String filename, Object json) {
+    public static String jsonToFile(String filename, Object json) {
         Gson gson = new GsonBuilder()
                 .serializeNulls()
                 .setPrettyPrinting()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer())
                 .create();
-        String fullFilename = folder + File.separator + filename + ".json";
-        try (FileWriter fileWriter = new FileWriter(fullFilename)) {
+
+        try (FileWriter fileWriter = new FileWriter(filename)) {
             gson.toJson(json, fileWriter);
-            return fullFilename;
+            return filename;
         } catch (Exception e) {
             throw new FlywayException("Unable to write JSON to file: " + e.getMessage());
         }
     }
 
+    public static CompositeResult appendIfExists(String filename, CompositeResult json, Class<? extends OperationResult> operationResultImplementation) {
+        if (!Files.exists(Paths.get(filename))) {
+            return json;
+        }
+
+        CompositeResult existingObject;
+        try (FileReader reader = new FileReader(filename)) {
+            existingObject = new GsonBuilder()
+                    .registerTypeAdapter(OperationResult.class, new OperationResultDeserializer(operationResultImplementation))
+                    .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer())
+                    .create()
+                    .fromJson(reader, CompositeResult.class);
+        } catch (Exception e) {
+            throw new FlywayException("Unable to read filename: " + filename, e);
+        }
+
+        existingObject.individualResults.addAll(json.individualResults);
+        return existingObject;
+    }
+
     public static Object parseJsonArray(String json) {
         return JsonParser.parseString(json).getAsJsonArray();
+    }
+
+    private static class OperationResultDeserializer implements JsonDeserializer<OperationResult> {
+        private final Class<? extends OperationResult> clazz;
+
+        public OperationResultDeserializer(Class<? extends OperationResult> clazz) {
+            this.clazz = clazz;
+        }
+
+        @Override
+        public OperationResult deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            return jsonDeserializationContext.deserialize(jsonElement, clazz);
+        }
     }
 }

@@ -15,9 +15,11 @@
  */
 package org.flywaydb.core.api.resolver;
 
-import org.flywaydb.core.api.MigrationType;
+import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.executor.MigrationExecutor;
+import org.flywaydb.core.extensibility.MigrationType;
+import org.flywaydb.core.internal.info.MigrationInfoContext;
 
 /**
  * Migration resolved through a MigrationResolver. Can be applied against a database.
@@ -57,4 +59,31 @@ public interface ResolvedMigration extends ChecksumMatcher {
      * @return The executor to run this migration.
      */
     MigrationExecutor getExecutor();
+
+    default MigrationState getState(MigrationInfoContext context) {
+        if (getVersion() != null) {
+            if (getVersion().compareTo(context.lastApplied == MigrationVersion.EMPTY ? context.pendingBaseline : context.appliedBaseline) < 0) {
+                return MigrationState.BELOW_BASELINE;
+            }
+            if (getVersion().compareTo(context.lastApplied == MigrationVersion.EMPTY ? context.pendingBaseline : context.appliedBaseline) == 0) {
+                return MigrationState.BASELINE_IGNORED;
+            }
+
+
+
+
+
+            if (context.target != null && context.target != MigrationVersion.NEXT && getVersion().compareTo(context.target) > 0) {
+                return MigrationState.ABOVE_TARGET;
+            }
+            if ((getVersion().compareTo(context.lastApplied) < 0) && !context.outOfOrder) {
+                return MigrationState.IGNORED;
+            }
+        }
+        return MigrationState.PENDING;
+    }
+
+    default boolean canCompareWith(ResolvedMigration o) {
+        return true;
+    }
 }

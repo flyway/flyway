@@ -38,7 +38,7 @@ public class SchemaHistoryFactory {
     public static SchemaHistory getSchemaHistory(Configuration configuration, SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScriptFactory sqlScriptFactory,
                                                  Database database, Schema schema, StatementInterceptor statementInterceptor) {
         Table table = schema.getTable(configuration.getTable());
-        JdbcTableSchemaHistory jdbcTableSchemaHistory = new JdbcTableSchemaHistory(sqlScriptExecutorFactory, sqlScriptFactory, database, table);
+        JdbcTableSchemaHistory jdbcTableSchemaHistory = new JdbcTableSchemaHistory(sqlScriptExecutorFactory, sqlScriptFactory, database, table, configuration);
 
 
 

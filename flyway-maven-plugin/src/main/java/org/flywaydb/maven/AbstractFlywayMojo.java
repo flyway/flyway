@@ -41,7 +41,9 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.io.File;
 import java.util.*;
 
-import static org.flywaydb.core.internal.configuration.ConfigUtils.*;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGINS_PREFIX;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.putArrayIfSet;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
 /**
  * Common base class for all mojos with all common attributes.
@@ -243,16 +245,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String sqlMigrationPrefix;
 
     /**
-     * The file name prefix for baseline migrations. (default: B)
-     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to B1.1__My_description.sql
-     * <p>Also configurable with Maven or System Property: ${flyway.baselineMigrationPrefix}</p>
-     * <i>Flyway Teams only</i>
-     */
-    @Parameter(property = ConfigUtils.BASELINE_MIGRATION_PREFIX)
-    private String baselineMigrationPrefix;
-
-    /**
      * The file name prefix for undo SQL migrations. (default: U)
      * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
      * <p>They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
@@ -306,7 +298,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * Whether to disable clean. (default: {@code false})
-     * This is especially useful for production environments where running clean can be quite a career limiting move.
+     * This is especially useful for production environments where running clean can be a career limiting move.
      * <p>Also configurable with Maven or System Property: ${flyway.cleanDisabled}</p>
      */
     @Parameter(property = ConfigUtils.CLEAN_DISABLED)
@@ -385,69 +377,11 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean outputQueryResults;
 
     /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
-     * older deployment of the application that are no longer available in this version. For example: we have migrations
-     * available on the classpath with versions 1.0 and 3.0. The schema history table indicates that a migration with version 2.0
-     * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
-     * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
-     * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
-     * mark it as future instead. (default: {@code false})
-     * <p>Also configurable with Maven or System Property: ${flyway.ignoreMissingMigrations}</p>
-     */
-    @Parameter(property = ConfigUtils.IGNORE_MISSING_MIGRATIONS)
-    private Boolean ignoreMissingMigrations;
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
-     * already migrated migrations in this version. For example: we have migrations available on the classpath with
-     * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
-     * one was 2.0.0. But with the next release a new migration was added to version 1: 1.0.16. Such scenario is ignored
-     * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
-     * will not be reported by validate command. This is useful for situations where one must be able to deliver
-     * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
-     * development of older versions. (default: {@code false})
-     * <p>Also configurable with Maven or System Property: ${flyway.ignoreIgnoredMigrations}</p>
-     */
-    @Parameter(property = ConfigUtils.IGNORE_IGNORED_MIGRATIONS)
-    private Boolean ignoreIgnoredMigrations;
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore pending migrations when reading the schema history table. These are migrations that are available
-     * but have not yet been applied. This can be useful for verifying that in-development migration changes
-     * don't contain any validation-breaking changes of migrations that have already been applied to a production
-     * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
-     * (default: {@code false})
-     * <p>Also configurable with Maven or System Property: ${flyway.ignorePendingMigrations}</p>
-     */
-    @Parameter(property = ConfigUtils.IGNORE_PENDING_MIGRATIONS)
-    private Boolean ignorePendingMigrations;
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
-     * newer deployment of the application that are not yet available in this version. For example: we have migrations
-     * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
-     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
-     * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
-     * <p>Also configurable with Maven or System Property: ${flyway.ignoreFutureMigrations}</p>
-     */
-    @Parameter(property = ConfigUtils.IGNORE_FUTURE_MIGRATIONS)
-    private Boolean ignoreFutureMigrations;
-
-    /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations.
      * Each pattern is of the form <migration_type>:<migration_state>
      * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
      * Example: repeatable:missing,versioned:pending,*:failed
+     * (default: *:future)
      * <i>Flyway Teams only</i>
      */
     @Parameter
@@ -873,7 +807,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.DETECT_ENCODING, detectEncoding);
             putIfSet(conf, ConfigUtils.LOCK_RETRY_COUNT, lockRetryCount);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix);
-            putIfSet(conf, ConfigUtils.BASELINE_MIGRATION_PREFIX, baselineMigrationPrefix);
             putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix);
             putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator);
@@ -889,10 +822,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.TARGET, target);
             putArrayIfSet(conf, ConfigUtils.CHERRY_PICK, cherryPick);
             putArrayIfSet(conf, ConfigUtils.LOGGERS, loggers);
-            putIfSet(conf, ConfigUtils.IGNORE_MISSING_MIGRATIONS, ignoreMissingMigrations);
-            putIfSet(conf, ConfigUtils.IGNORE_IGNORED_MIGRATIONS, ignoreIgnoredMigrations);
-            putIfSet(conf, ConfigUtils.IGNORE_PENDING_MIGRATIONS, ignorePendingMigrations);
-            putIfSet(conf, ConfigUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations);
             putArrayIfSet(conf, ConfigUtils.IGNORE_MIGRATION_PATTERNS, ignoreMigrationPatterns);
             putIfSet(conf, ConfigUtils.VALIDATE_MIGRATION_NAMING, validateMigrationNaming);
             putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement);

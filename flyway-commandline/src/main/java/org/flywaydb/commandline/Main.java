@@ -27,7 +27,10 @@ import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.output.*;
+import org.flywaydb.core.api.output.CompositeResult;
+import org.flywaydb.core.api.output.ErrorOutput;
+import org.flywaydb.core.api.output.MigrateErrorResult;
+import org.flywaydb.core.api.output.OperationResult;
 
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.internal.command.DbMigrate;
@@ -38,13 +41,14 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
-import org.flywaydb.core.internal.license.FlywayTrialExpiredException;
-
 import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.logging.multi.MultiLogCreator;
 import org.flywaydb.core.internal.plugin.PluginRegister;
-import org.flywaydb.core.internal.util.*;
+import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
+import org.flywaydb.core.internal.util.Pair;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.Console;
 import java.io.File;
@@ -59,18 +63,11 @@ import java.util.stream.Stream;
 
 public class Main {
     private static Log LOG;
-
-
-
-
-
-
-
-
+    private static final PluginRegister pluginRegister = new PluginRegister();
 
     static LogCreator getLogCreator(CommandLineArguments commandLineArguments) {
         // JSON output uses a different mechanism, so we do not create any loggers
-        if (commandLineArguments.shouldOutputJson()) {
+        if (commandLineArguments.shouldOutputJson() || (commandLineArguments.hasOperation("info") && commandLineArguments.isFilterOnMigrationIds())) {
             return MultiLogCreator.empty();
         }
 
@@ -89,7 +86,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        CommandLineArguments commandLineArguments = new CommandLineArguments(args);
+        CommandLineArguments commandLineArguments = new CommandLineArguments(pluginRegister, args);
         initLogging(commandLineArguments);
 
         try {
@@ -101,7 +98,7 @@ public class Main {
                 boolean helpAsFlagWithOperation = commandLineArguments.shouldPrintUsage() && commandLineArguments.getOperations().size() > 0;
                 if (helpAsVerbWithOperation || helpAsFlagWithOperation) {
                     for (String operation : commandLineArguments.getOperations()) {
-                        String helpTextForOperation = PluginRegister.getPlugins(CommandExtension.class).stream()
+                        String helpTextForOperation = pluginRegister.getPlugins(CommandExtension.class).stream()
                                 .filter(e -> e.handlesCommand(operation))
                                 .map(CommandExtension::getHelpText)
                                 .collect(Collectors.joining("\n\n"));
@@ -147,12 +144,6 @@ public class Main {
             ConfigUtils.dumpConfiguration(config);
             filterProperties(config);
 
-
-
-
-
-
-
             Configuration configuration = new FluentConfiguration(classLoader).configuration(config);
 
             if (!commandLineArguments.skipCheckForUpdate()) {
@@ -161,10 +152,11 @@ public class Main {
                         Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null)) {
 
                         RedgateUpdateChecker.Context context = new RedgateUpdateChecker.Context(
-                                config.get(ConfigUtils.URL),
-                                commandLineArguments.getOperations(),
-                                database.getDatabaseType().getName(),
-                                database.getVersion().getVersion()
+                            config,
+                            commandLineArguments.getOperations(),
+                            database.getDatabaseType().getName(),
+                            database.getVersion().getVersion(),
+                            pluginRegister
                         );
                         RedgateUpdateChecker.checkForVersionUpdates(context);
                     }
@@ -297,11 +289,17 @@ public class Main {
              MigrationInfo[] infos = info.all();
 
 
-            LOG.info(MigrationInfoDumper.dumpToAsciiTable(infos));
+            if (commandLineArguments.isFilterOnMigrationIds()) {
+                System.out.print(Arrays.stream(infos)
+                        .map(m -> m.getVersion() == null ? m.getDescription() : m.getVersion().getVersion())
+                        .collect(Collectors.joining(",")));
+            } else {
+                LOG.info(MigrationInfoDumper.dumpToAsciiTable(infos));
+            }
         } else if ("repair".equals(operation)) {
             result = flyway.repair();
         } else {
-            result = PluginRegister.getPlugins(CommandExtension.class).stream()
+            result = pluginRegister.getPlugins(CommandExtension.class).stream()
                     .filter(commandExtension -> commandExtension.handlesCommand(operation))
                     .findFirst()
                     .map(commandExtension -> commandExtension.handle(operation, flyway.getConfiguration(), commandLineArguments.getFlags()))
@@ -365,23 +363,6 @@ public class Main {
         config.remove(ConfigUtils.CONFIG_FILE_ENCODING);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private static void printUsage() {
         String indent = "    ";
 
@@ -392,7 +373,7 @@ public class Main {
         LOG.info("Options passed from the command-line override the configuration.");
         LOG.info("");
         LOG.info("Commands");
-        List<Pair<String, String>> usages = PluginRegister.getPlugins(CommandExtension.class).stream().flatMap(e -> e.getUsage().stream()).collect(Collectors.toList());
+        List<Pair<String, String>> usages = pluginRegister.getPlugins(CommandExtension.class).stream().flatMap(e -> e.getUsage().stream()).collect(Collectors.toList());
         int padSize = usages.stream().max(Comparator.comparingInt(u -> u.getLeft().length())).map(u -> u.getLeft().length() + 3).orElse(11);
         LOG.info(indent + StringUtils.rightPad("migrate", padSize, ' ') + "Migrates the database");
         LOG.info(indent + StringUtils.rightPad("clean", padSize, ' ') + "Drops all objects in the configured schemas");
@@ -443,11 +424,7 @@ public class Main {
         LOG.info(indent + "skipDefaultCallbacks           Skips default callbacks (sql)");
         LOG.info(indent + "validateOnMigrate              Validate when running migrate");
         LOG.info(indent + "validateMigrationNaming        Validate file names of SQL migrations (including callbacks)");
-        LOG.info(indent + "ignoreMissingMigrations        Allow missing migrations when validating");
-        LOG.info(indent + "ignoreIgnoredMigrations        Allow ignored migrations when validating");
-        LOG.info(indent + "ignorePendingMigrations        Allow pending migrations when validating");
-        LOG.info(indent + "ignoreFutureMigrations         Allow future migrations when validating");
-        LOG.info(indent + "ignoreMigrationPatterns        [" + "teams] Patterns of migrations and states to ignore during validate");
+        LOG.info(indent + "ignoreMigrationPatterns        Patterns of migrations and states to ignore during validate");
         LOG.info(indent + "cleanOnValidationError         Automatically clean on a validation error");
         LOG.info(indent + "cleanDisabled                  Whether to disable clean");
         LOG.info(indent + "baselineVersion                Version to tag schema with when executing baseline");

@@ -20,9 +20,6 @@ import org.flywaydb.core.internal.database.base.Schema;
 
 import java.sql.SQLException;
 
-/**
- * Oracle connection.
- */
 public class OracleConnection extends Connection<OracleDatabase> {
     OracleConnection(OracleDatabase database, java.sql.Connection connection) {
         super(database, connection);

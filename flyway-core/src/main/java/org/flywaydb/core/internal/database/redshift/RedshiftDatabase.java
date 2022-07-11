@@ -25,9 +25,6 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-/**
- * Redshift database.
- */
 public class RedshiftDatabase extends Database<RedshiftConnection> {
 
     public RedshiftDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {

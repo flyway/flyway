@@ -90,6 +90,7 @@
 
 
 
+
     </modules>
 
     <distributionManagement>
@@ -133,6 +134,7 @@
         <version.aws-java-sdk>2.17.189</version.aws-java-sdk>
         <version.aws-secretsmanager>1.0.8</version.aws-secretsmanager>
         <version.commonslogging>1.2</version.commonslogging>
+        <version.commonstext>1.9</version.commonstext>
         <version.db2>11.5.0.0</version.db2>
         <version.derby>10.15.2.0</version.derby>
         <version.equinox>3.15.200</version.equinox>
@@ -158,7 +160,7 @@
         <version.lombok-maven-plugin>1.18.20.0</version.lombok-maven-plugin>
         <version.mariadb>2.7.2</version.mariadb>
         <version.maven>3.8.5</version.maven>
-        <version.mockito>1.10.19</version.mockito>
+        <version.mockito>4.2.0</version.mockito>
         <version.msal4j>1.12.0</version.msal4j>
         <version.mssql>10.2.0</version.mssql>
         <version.mssql-jdbc>${version.mssql}.jre8</version.mssql-jdbc>
@@ -182,6 +184,12 @@
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
                 <version>${version.commonslogging}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${version.commonstext}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>

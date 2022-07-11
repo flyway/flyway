@@ -16,8 +16,10 @@
 package org.flywaydb.core.internal.resource;
 
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.ResourceType;
+import org.flywaydb.core.extensibility.ResourceTypeProvider;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.Pair;
 
 import java.util.*;
@@ -54,7 +56,7 @@ public class ResourceNameParser {
             String exampleDescription = ("".equals(splitName.getRight())) ? "description" : splitName.getRight();
 
             // Validate the name
-            if (!ResourceType.isVersioned(prefix.getRight())) {
+            if (!prefix.getRight().isVersioned()) {
                 // Must not have a version (that is, something before the separator)
                 if (!"".equals(splitName.getLeft())) {
                     isValid = false;
@@ -129,15 +131,8 @@ public class ResourceNameParser {
     private List<Pair<String, ResourceType>> populatePrefixes(Configuration configuration) {
         List<Pair<String, ResourceType>> prefixes = new ArrayList<>();
 
-        prefixes.add(Pair.of(configuration.getSqlMigrationPrefix(), ResourceType.MIGRATION));
-
-
-
-
-        prefixes.add(Pair.of(configuration.getRepeatableSqlMigrationPrefix(), ResourceType.REPEATABLE_MIGRATION));
-        for (Event event : Event.values()) {
-            prefixes.add(Pair.of(event.getId(), ResourceType.CALLBACK));
-        }
+        configuration.getPluginRegister().getPlugins(ResourceTypeProvider.class)
+                .forEach(resourceTypeProvider -> prefixes.addAll(resourceTypeProvider.getPrefixTypePairs(configuration)));
 
         Comparator<Pair<String, ResourceType>> prefixComparator = (p1, p2) -> {
             // Sort most-hard-to-match first; that is, in descending order of prefix length

@@ -21,7 +21,6 @@ import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
-import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.*;
 
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
@@ -65,7 +64,7 @@ import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
 @CustomLog
 public class FlywayExecutor {
     public interface Command<T> {
-        T execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+        T execute(CompositeMigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
                   Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor);
     }
 
@@ -203,7 +202,7 @@ public class FlywayExecutor {
                     statementInterceptor);
 
             result = command.execute(
-                    createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory, parsingContext),
+                    createMigrationResolver(resourceProvider, classProvider, sqlScriptExecutorFactory, sqlScriptFactory, parsingContext, statementInterceptor),
                     schemaHistory,
                     database,
                     defaultSchema,
@@ -309,12 +308,13 @@ public class FlywayExecutor {
         return effectiveCallbacks;
     }
 
-    private MigrationResolver createMigrationResolver(ResourceProvider resourceProvider,
+    private CompositeMigrationResolver createMigrationResolver(ResourceProvider resourceProvider,
                                                       ClassProvider<JavaMigration> classProvider,
                                                       SqlScriptExecutorFactory sqlScriptExecutorFactory,
                                                       SqlScriptFactory sqlScriptFactory,
-                                                      ParsingContext parsingContext) {
-        return new CompositeMigrationResolver(resourceProvider, classProvider, configuration, sqlScriptExecutorFactory, sqlScriptFactory, parsingContext, configuration.getResolvers());
+                                                      ParsingContext parsingContext,
+                                                      StatementInterceptor statementInterceptor) {
+        return new CompositeMigrationResolver(resourceProvider, classProvider, configuration, sqlScriptExecutorFactory, sqlScriptFactory, parsingContext, statementInterceptor, configuration.getResolvers());
     }
 
     private void showMemoryUsage() {

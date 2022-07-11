@@ -23,9 +23,6 @@ import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 
 import java.sql.Connection;
 
-/**
- * SAP HANA database.
- */
 public class SAPHANADatabase extends Database<SAPHANAConnection> {
 
     public SAPHANADatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {

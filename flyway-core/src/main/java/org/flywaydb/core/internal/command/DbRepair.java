@@ -24,18 +24,19 @@ import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CommandResultFactory;
 import org.flywaydb.core.api.output.RepairResult;
-import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.extensibility.AppliedMigration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
-import org.flywaydb.core.internal.schemahistory.AppliedMigration;
+import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
+import org.flywaydb.core.internal.util.ValidatePatternUtils;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -89,7 +90,7 @@ public class DbRepair {
      * @param schemaHistory The schema history table.
      * @param callbackExecutor The callback executor.
      */
-    public DbRepair(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
+    public DbRepair(Database database, CompositeMigrationResolver migrationResolver, SchemaHistory schemaHistory,
                     CallbackExecutor callbackExecutor, Configuration configuration) {
         this.database = database;
         this.connection = database.getMainConnection();
@@ -98,7 +99,7 @@ public class DbRepair {
         this.configuration = configuration;
 
         this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
-                                                                 MigrationVersion.LATEST, true, configuration.getCherryPick(), true, true, true, true);
+                                                                 MigrationVersion.LATEST, true, ValidatePatternUtils.getIgnoreAllPattern(), configuration.getCherryPick());
 
         this.repairResult = CommandResultFactory.createRepairResult(database.getCatalog());
     }

@@ -17,14 +17,16 @@ package org.flywaydb.core.internal.command;
 
 import lombok.CustomLog;
 import lombok.Getter;
-import org.flywaydb.core.api.*;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationState;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.output.CommandResultFactory;
-import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.core.api.output.MigrateErrorResult;
-import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.output.MigrateResult;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Connection;
@@ -33,11 +35,9 @@ import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
+import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
-import org.flywaydb.core.internal.util.ExceptionUtils;
-import org.flywaydb.core.internal.util.StopWatch;
-import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.TimeFormat;
+import org.flywaydb.core.internal.util.*;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -51,7 +51,7 @@ public class DbMigrate {
      * The schema containing the schema history table.
      */
     private final Schema schema;
-    private final MigrationResolver migrationResolver;
+    private final CompositeMigrationResolver migrationResolver;
     private final Configuration configuration;
     private final CallbackExecutor callbackExecutor;
     /**
@@ -66,7 +66,7 @@ public class DbMigrate {
     private final List<ResolvedMigration> appliedResolvedMigrations = new ArrayList<>();
 
     public DbMigrate(Database database,
-                     SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
+                     SchemaHistory schemaHistory, Schema schema, CompositeMigrationResolver migrationResolver,
                      Configuration configuration, CallbackExecutor callbackExecutor) {
         this.database = database;
         this.connectionUserObjects = database.getMigrationConnection();
@@ -168,8 +168,7 @@ public class DbMigrate {
     private Integer migrateGroup(boolean firstRun) {
         MigrationInfoServiceImpl infoService =
                 new MigrationInfoServiceImpl(migrationResolver, schemaHistory, database, configuration,
-                                             configuration.getTarget(), configuration.isOutOfOrder(), configuration.getCherryPick(),
-                                             true, true, true, true);
+                                             configuration.getTarget(), configuration.isOutOfOrder(), ValidatePatternUtils.getIgnoreAllPattern(), configuration.getCherryPick());
         infoService.refresh();
 
         MigrationInfo current = infoService.current();
@@ -211,7 +210,7 @@ public class DbMigrate {
         if (failed.length > 0) {
             if ((failed.length == 1)
                     && (failed[0].getState() == MigrationState.FUTURE_FAILED)
-                    && configuration.isIgnoreFutureMigrations()) {
+                    && ValidatePatternUtils.isFutureIgnored(configuration.getIgnoreMigrationPatterns())) {
                 LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
             } else {
                 final boolean inTransaction = failed[0].canExecuteInTransaction();

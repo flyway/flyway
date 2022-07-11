@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.api;
 
-import lombok.RequiredArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
@@ -33,6 +33,10 @@ public enum MigrationState {
      * This migration was not applied against this DB, because the schema history table was baselined with a higher version.
      */
     BELOW_BASELINE("Below Baseline", true, false, false),
+    /**
+     * This migration will not be applied as there is a corresponding baseline at this version.
+     */
+    BASELINE_IGNORED("Ignored (Baseline)", true, false, false),
     /**
      * This migration has baselined this DB.
      */

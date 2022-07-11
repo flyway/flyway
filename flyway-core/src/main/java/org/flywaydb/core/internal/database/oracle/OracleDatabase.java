@@ -26,11 +26,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class OracleDatabase extends Database<OracleConnection> {
     private static final String ORACLE_NET_TNS_ADMIN = "oracle.net.tns_admin";
@@ -71,7 +67,7 @@ public class OracleDatabase extends Database<OracleConnection> {
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("10");
 
-        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("12.2", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("18.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
         recommendFlywayUpgradeIfNecessary("19.0");
     }

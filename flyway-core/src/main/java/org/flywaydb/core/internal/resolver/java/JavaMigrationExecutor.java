@@ -25,6 +25,7 @@ import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.internal.database.DatabaseExecutionStrategy;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -32,22 +33,28 @@ import java.sql.SQLException;
 /**
  * Adapter for executing migrations implementing JavaMigration.
  */
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor
 public class JavaMigrationExecutor implements MigrationExecutor {
     /**
      * The JavaMigration to execute.
      */
     private final JavaMigration javaMigration;
 
+    private final StatementInterceptor statementInterceptor;
+
     @Override
     public void execute(final Context context) throws SQLException {
-        DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(context.getConnection());
+        if (statementInterceptor != null) {
+            statementInterceptor.javaMigration(javaMigration);
+        } else {
+            DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForConnection(context.getConnection());
 
-        DatabaseExecutionStrategy strategy = databaseType.createExecutionStrategy(context.getConnection());
-        strategy.execute(() -> {
-            executeOnce(context);
-            return true;
-        });
+            DatabaseExecutionStrategy strategy = databaseType.createExecutionStrategy(context.getConnection());
+            strategy.execute(() -> {
+                executeOnce(context);
+                return true;
+            });
+        }
     }
 
     private void executeOnce(final Context context) throws SQLException {

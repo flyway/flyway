@@ -26,17 +26,19 @@ import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.exception.FlywayValidateException;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.*;
-import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.internal.FlywayTeamsObjectResolver;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -122,10 +124,12 @@ public class Flyway {
      */
     public MigrateResult migrate() throws FlywayException {
         return flywayExecutor.execute(new FlywayExecutor.Command<MigrateResult>() {
-            public MigrateResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+            public MigrateResult execute(CompositeMigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
                                          Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor) {
                 if (configuration.isValidateOnMigrate()) {
-                    ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, true);
+                    List<ValidatePattern> ignorePatterns = new ArrayList<>(Arrays.asList(configuration.getIgnoreMigrationPatterns()));
+                    ignorePatterns.add(ValidatePattern.fromPattern("*:pending"));
+                    ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, ignorePatterns.toArray(new ValidatePattern[0]));
                     if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
                         throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
                     }
@@ -188,7 +192,7 @@ public class Flyway {
      */
     public MigrationInfoService info() {
         return flywayExecutor.execute(new FlywayExecutor.Command<MigrationInfoService>() {
-            public MigrationInfoService execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+            public MigrationInfoService execute(CompositeMigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
                                                 Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor) {
                 MigrationInfoService migrationInfoService = new DbInfo(migrationResolver, schemaHistory, configuration, database, callbackExecutor, schemas).info();
 
@@ -209,7 +213,7 @@ public class Flyway {
      */
     public CleanResult clean() {
         return flywayExecutor.execute(new FlywayExecutor.Command<CleanResult>() {
-            public CleanResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+            public CleanResult execute(CompositeMigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
                                        Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor) {
                 CleanResult cleanResult = doClean(database, schemaHistory, defaultSchema, schemas, callbackExecutor);
 
@@ -236,9 +240,9 @@ public class Flyway {
      */
     public void validate() throws FlywayException {
         flywayExecutor.execute(new FlywayExecutor.Command<Void>() {
-            public Void execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+            public Void execute(CompositeMigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
                                 Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor) {
-                ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration.isIgnorePendingMigrations());
+                ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration.getIgnoreMigrationPatterns());
 
                 callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
 
@@ -270,9 +274,9 @@ public class Flyway {
      */
     public ValidateResult validateWithResult() throws FlywayException {
         return flywayExecutor.execute(new FlywayExecutor.Command<ValidateResult>() {
-            public ValidateResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+            public ValidateResult execute(CompositeMigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
                                           Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor) {
-                ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration.isIgnorePendingMigrations());
+                ValidateResult validateResult = doValidate(database, migrationResolver, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration.getIgnoreMigrationPatterns());
 
                 callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
 
@@ -291,7 +295,7 @@ public class Flyway {
      */
     public BaselineResult baseline() throws FlywayException {
         return flywayExecutor.execute(new FlywayExecutor.Command<BaselineResult>() {
-            public BaselineResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+            public BaselineResult execute(CompositeMigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
                                           Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor) {
                 if (configuration.isCreateSchemas()) {
                     new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(true);
@@ -324,7 +328,7 @@ public class Flyway {
      */
     public RepairResult repair() throws FlywayException {
         return flywayExecutor.execute(new FlywayExecutor.Command<RepairResult>() {
-            public RepairResult execute(MigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
+            public RepairResult execute(CompositeMigrationResolver migrationResolver, SchemaHistory schemaHistory, Database database,
                                         Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, StatementInterceptor statementInterceptor) {
                 RepairResult repairResult = new DbRepair(database, migrationResolver, schemaHistory, callbackExecutor, configuration).repair();
 
@@ -367,9 +371,9 @@ public class Flyway {
         return DbClean.class.resolve(database, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration).clean();
     }
 
-    private ValidateResult doValidate(Database database, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
-                                      Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, boolean ignorePending) {
-        ValidateResult validateResult = new DbValidate(database, schemaHistory, defaultSchema, migrationResolver, configuration, ignorePending, callbackExecutor).validate();
+    private ValidateResult doValidate(Database database, CompositeMigrationResolver migrationResolver, SchemaHistory schemaHistory,
+                                      Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor, ValidatePattern[] ignorePatterns) {
+        ValidateResult validateResult = new DbValidate(database, schemaHistory, defaultSchema, migrationResolver, configuration, callbackExecutor, ignorePatterns).validate();
 
         if (!validateResult.validationSuccessful && configuration.isCleanOnValidationError()) {
             doClean(database, schemaHistory, defaultSchema, schemas, callbackExecutor);

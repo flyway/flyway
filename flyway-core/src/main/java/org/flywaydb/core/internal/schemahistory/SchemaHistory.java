@@ -16,11 +16,13 @@
 package org.flywaydb.core.internal.schemahistory;
 
 import lombok.experimental.ExtensionMethod;
+import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.MigrationPattern;
-import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.output.RepairResult;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.extensibility.AppliedMigration;
+import org.flywaydb.core.extensibility.MigrationType;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.util.AbbreviationUtils;
@@ -98,7 +100,7 @@ public abstract class SchemaHistory {
         // BASELINE can only be the first or second (in case there is a SCHEMA one) migration.
         for (int i = 0; i < Math.min(appliedMigrations.size(), 2); i++) {
             AppliedMigration appliedMigration = appliedMigrations.get(i);
-            if (appliedMigration.getType() == MigrationType.BASELINE) {
+            if (appliedMigration.getType() == CoreMigrationType.BASELINE) {
                 return appliedMigration;
             }
         }
@@ -127,7 +129,7 @@ public abstract class SchemaHistory {
      */
     public final void addSchemasMarker(Schema[] schemas) {
         addAppliedMigration(null, "<< Flyway Schema Creation >>",
-                            MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true);
+                            CoreMigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true);
     }
 
     /**
@@ -137,7 +139,7 @@ public abstract class SchemaHistory {
      */
     public final boolean hasSchemasMarker() {
         List<AppliedMigration> appliedMigrations = allAppliedMigrations();
-        return !appliedMigrations.isEmpty() && appliedMigrations.get(0).getType() == MigrationType.SCHEMA;
+        return !appliedMigrations.isEmpty() && appliedMigrations.get(0).getType() == CoreMigrationType.SCHEMA;
     }
 
     public List<String> getSchemasCreatedByFlyway() {
@@ -186,7 +188,7 @@ public abstract class SchemaHistory {
      */
     public final void addAppliedMigration(MigrationVersion version, String description, MigrationType type,
                                           String script, Integer checksum, int executionTime, boolean success) {
-        int installedRank = type == MigrationType.SCHEMA ? 0 : calculateInstalledRank();
+        int installedRank = type == CoreMigrationType.SCHEMA ? 0 : calculateInstalledRank();
         doAddAppliedMigration(
                 installedRank,
                 version,

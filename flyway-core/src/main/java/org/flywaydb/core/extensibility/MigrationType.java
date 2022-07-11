@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.output;
+package org.flywaydb.core.extensibility;
 
-import java.util.LinkedList;
-import java.util.List;
+public interface MigrationType {
+    boolean isUndo();
 
-public class CompositeResult implements OperationResult {
-    public List<OperationResult> individualResults = new LinkedList<>();
+    String name();
+
+    boolean isSynthetic();
+
+    boolean isBaseline();
 }

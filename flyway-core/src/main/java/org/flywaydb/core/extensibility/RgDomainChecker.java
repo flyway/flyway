@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.output;
+package org.flywaydb.core.extensibility;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Map;
 
-public class CompositeResult implements OperationResult {
-    public List<OperationResult> individualResults = new LinkedList<>();
+public interface RgDomainChecker extends Plugin {
+    boolean isInDomain(Map<String, String> config);
 }

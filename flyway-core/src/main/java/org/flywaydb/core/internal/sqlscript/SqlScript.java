@@ -34,13 +34,10 @@ public interface SqlScript extends Comparable<SqlScript> {
      */
     int getSqlStatementCount();
 
-
-
-
-
-
-
-
+    /**
+     * @return The external SQL scripts referenced directly or indirectly by this SQL script.
+     */
+    Collection<SqlScript> getReferencedSqlScripts();
 
     /**
      * @return The resource containing the statements.

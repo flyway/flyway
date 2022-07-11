@@ -17,15 +17,18 @@ package org.flywaydb.core.internal.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.flywaydb.core.api.FlywayException;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Utility class for copying files and their contents. Inspired by Spring's own.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class FileCopyUtils {
+public class FileUtils {
     /**
      * Copy the contents of the given Reader into a String.
      * Closes the reader when done.
@@ -107,6 +110,14 @@ public class FileCopyUtils {
         } finally {
             IOUtils.close(in);
             IOUtils.close(out);
+        }
+    }
+
+    public static String readAsString(Path path) {
+        try {
+            return String.join(System.lineSeparator(), Files.readAllLines(path.toAbsolutePath()));
+        } catch (IOException ioe) {
+            throw new FlywayException("Unable to read " + path.toAbsolutePath() + " from disk", ioe);
         }
     }
 }

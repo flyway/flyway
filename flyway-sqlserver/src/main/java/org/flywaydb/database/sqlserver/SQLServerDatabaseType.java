@@ -24,15 +24,12 @@ import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
-import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.Types;
-import java.util.Collections;
 import java.util.Properties;
 
 @CustomLog

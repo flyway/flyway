@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.plugin;
 
-import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.extensibility.Plugin;
@@ -28,14 +27,33 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 @CustomLog
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class PluginRegister {
+    public final List<Plugin> REGISTERED_PLUGINS = new ArrayList<>();
+    private final ClassLoader CLASS_LOADER = this.getClass().getClassLoader();
+    private boolean hasRegisteredPlugins = false;
 
-    private static final ClassLoader CLASS_LOADER = new PluginRegister().getClass().getClassLoader();
-    public static final List<Plugin> REGISTERED_PLUGINS = new ArrayList<>();
-    private static boolean hasRegisteredPlugins = false;
+    public <T extends Plugin> T getPlugin(Class<T> clazz) {
+        return (T) getPlugins()
+                .stream()
+                .filter(p -> p.getClass().getCanonicalName().equals(clazz.getCanonicalName()))
+                .findFirst()
+                .orElse(null);
+    }
 
-    public static void registerPlugins() {
+    public <T extends Plugin> List<T> getPlugins(Class<T> clazz) {
+        return (List<T>) getPlugins()
+                .stream()
+                .filter(clazz::isInstance)
+                .collect(Collectors.toList());
+    }
+
+    private List<Plugin> getPlugins() {
+        registerPlugins();
+        return REGISTERED_PLUGINS;
+    }
+
+    private void registerPlugins() {
         synchronized (REGISTERED_PLUGINS) {
             if (hasRegisteredPlugins) {
                 return;
@@ -51,27 +69,5 @@ public class PluginRegister {
 
             hasRegisteredPlugins = true;
         }
-    }
-
-    private static List<Plugin> getPlugins() {
-        if (!hasRegisteredPlugins) {
-            registerPlugins();
-        }
-        return REGISTERED_PLUGINS;
-    }
-
-    public static <T extends Plugin> List<T> getPlugins(Class<T> clazz) {
-        return (List<T>) getPlugins()
-                .stream()
-                .filter(clazz::isInstance)
-                .collect(Collectors.toList());
-    }
-
-    public static <T extends Plugin> T getPlugin(Class<T> clazz) {
-        return (T) getPlugins()
-                .stream()
-                .filter(p -> p.getClass().getCanonicalName().equals(clazz.getCanonicalName()))
-                .findFirst()
-                .orElse(null);
     }
 }

@@ -198,15 +198,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String sqlMigrationPrefix;
 
     /**
-     * The file name prefix for baseline migrations. (default: B)
-     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to B1.1__My_description.sql
-     * <i>Flyway Teams only</i>
-     * <p>Also configurable with Gradle or System Property: ${flyway.baselineMigrationPrefix}</p>
-     */
-    public String baselineMigrationPrefix;
-
-    /**
      * The file name prefix for undo SQL migrations. (default: U)
      * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
      * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
@@ -386,65 +377,11 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean cleanOnValidationError;
 
     /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
-     * older deployment of the application that are no longer available in this version. For example: we have migrations
-     * available on the classpath with versions 1.0 and 3.0. The schema history table indicates that a migration with version 2.0
-     * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
-     * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
-     * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
-     * mark it as future instead.(default: {@code false})
-     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreMissingMigrations}</p>
-     */
-    public Boolean ignoreMissingMigrations;
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
-     * already migrated migrations in this version. For example: we have migrations available on the classpath with
-     * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
-     * one was 2.0.0. But with the next release a new migration was added to version 1: 1.0.16. Such scenario is ignored
-     * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
-     * will not be reported by validate command. This is useful for situations where one must be able to deliver
-     * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
-     * development of older versions.(default: {@code false})
-     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreIgnoredMigrations}</p>
-     */
-    public Boolean ignoreIgnoredMigrations;
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore pending migrations when reading the schema history table. These are migrations that are available
-     * but have not yet been applied. This can be useful for verifying that in-development migration changes
-     * don't contain any validation-breaking changes of migrations that have already been applied to a production
-     * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
-     * (default: {@code false})
-     * <p>Also configurable with Gradle or System Property: ${flyway.ignorePendingMigrations}</p>
-     */
-    public Boolean ignorePendingMigrations;
-
-    /**
-     * @deprecated Will remove in Flyway V9. Use {@code ignoreMigrationPatterns} instead.
-     *
-     * Ignore future migrations when reading the schema history table. These are migrations that were performed by a
-     * newer deployment of the application that are not yet available in this version. For example: we have migrations
-     * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
-     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
-     * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
-     * <p>Also configurable with Gradle or System Property: ${flyway.ignoreFutureMigrations}</p>
-     */
-    public Boolean ignoreFutureMigrations;
-
-    /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations.
      * Each pattern is of the form <migration_type>:<migration_state>
      * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
      * Example: repeatable:missing,versioned:pending,*:failed
+     * (default: *:future)
      * <i>Flyway Teams only</i>
      */
     public String[] ignoreMigrationPatterns;
@@ -457,8 +394,8 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public Boolean validateMigrationNaming;
 
     /**
-     * Whether to disable clean. (default: {@code false})
-     * This is especially useful for production environments where running clean can be quite a career limiting move.
+     * Whether to disable clean. (default: {@code true})
+     * Set to false if you need to be able to clean your environment (can be a career limiting move)
      */
     public Boolean cleanDisabled;
 
@@ -772,7 +709,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion, extension.baselineVersion);
         putIfSet(conf, ConfigUtils.BASELINE_DESCRIPTION, baselineDescription, extension.baselineDescription);
         putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix, extension.sqlMigrationPrefix);
-        putIfSet(conf, ConfigUtils.BASELINE_MIGRATION_PREFIX, baselineMigrationPrefix, extension.baselineMigrationPrefix);
         putIfSet(conf, ConfigUtils.UNDO_SQL_MIGRATION_PREFIX, undoSqlMigrationPrefix, extension.undoSqlMigrationPrefix);
         putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix, extension.repeatableSqlMigrationPrefix);
         putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator, extension.sqlMigrationSeparator);
@@ -797,10 +733,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.OUTPUT_QUERY_RESULTS, outputQueryResults, extension.outputQueryResults);
         putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate, extension.validateOnMigrate);
         putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError, extension.cleanOnValidationError);
-        putIfSet(conf, ConfigUtils.IGNORE_MISSING_MIGRATIONS, ignoreMissingMigrations, extension.ignoreMissingMigrations);
-        putIfSet(conf, ConfigUtils.IGNORE_IGNORED_MIGRATIONS, ignoreIgnoredMigrations, extension.ignoreIgnoredMigrations);
-        putIfSet(conf, ConfigUtils.IGNORE_PENDING_MIGRATIONS, ignorePendingMigrations, extension.ignorePendingMigrations);
-        putIfSet(conf, ConfigUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations, extension.ignoreFutureMigrations);
         putIfSet(conf, ConfigUtils.IGNORE_MIGRATION_PATTERNS, StringUtils.arrayToCommaDelimitedString(ignoreMigrationPatterns), StringUtils.arrayToCommaDelimitedString(extension.ignoreMigrationPatterns));
         putIfSet(conf, ConfigUtils.VALIDATE_MIGRATION_NAMING, validateMigrationNaming, extension.validateMigrationNaming);
         putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled, extension.cleanDisabled);

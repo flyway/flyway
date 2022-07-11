@@ -49,7 +49,7 @@ public class ParserSqlScript implements SqlScript {
 
 
 
-
+    private final Set<SqlScript> referencedSqlScripts = new TreeSet<>();
 
     /**
      * Creates a new sql script from this source.
@@ -161,17 +161,15 @@ public class ParserSqlScript implements SqlScript {
         return sqlStatementCount;
     }
 
+    @Override
+    public Collection<SqlScript> getReferencedSqlScripts() {
+        // Don't trigger validation if there can't be any referenced SQL scripts anyway
+        if (parser.supportsReferencedSqlScripts()) {
+            validate();
+        }
 
-
-
-
-
-
-
-
-
-
-
+        return referencedSqlScripts;
+    }
 
     @Override
     public final LoadableResource getResource() {

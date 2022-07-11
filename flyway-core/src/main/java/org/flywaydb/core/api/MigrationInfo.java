@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.api;
 
+import org.flywaydb.core.extensibility.MigrationType;
+
 import java.util.Date;
 
 /**

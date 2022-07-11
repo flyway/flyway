@@ -17,7 +17,7 @@ package org.flywaydb.database;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.extensibility.PluginMetadata;
-import org.flywaydb.core.internal.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.FileUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -29,7 +29,7 @@ public class MySQLDatabaseExtension implements PluginMetadata {
 
     private static String readVersion() {
         try {
-            return FileCopyUtils.copyToString(
+            return FileUtils.copyToString(
                     MySQLDatabaseExtension.class.getClassLoader().getResourceAsStream("org/flywaydb/database/version.txt"),
                     StandardCharsets.UTF_8);
         } catch (IOException e) {

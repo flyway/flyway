@@ -16,13 +16,11 @@
 package org.flywaydb.core.internal.resolver.java;
 
 import org.flywaydb.core.api.migration.JavaMigration;
-import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -48,10 +46,10 @@ public class FixedJavaMigrationResolver implements MigrationResolver {
         List<ResolvedMigration> migrations = new ArrayList<>();
 
         for (JavaMigration javaMigration : javaMigrations) {
-            migrations.add(new ResolvedJavaMigration(javaMigration));
+            migrations.add(javaMigration.getResolvedMigration(context.configuration, context.statementInterceptor));
         }
 
-        Collections.sort(migrations, new ResolvedMigrationComparator());
+        migrations.sort(new ResolvedMigrationComparator());
         return migrations;
     }
 }

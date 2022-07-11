@@ -18,9 +18,9 @@ package org.flywaydb.core.api.output;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.extensibility.AppliedMigration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 
 import java.sql.Connection;
 import java.util.*;

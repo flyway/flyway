@@ -20,7 +20,6 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.plugin.PluginRegister;
-import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -33,7 +32,7 @@ import java.util.stream.Collectors;
 @CustomLog
 public class DatabaseTypeRegister {
 
-    private static final List<DatabaseType> SORTED_DATABASE_TYPES = PluginRegister.getPlugins(DatabaseType.class).stream().sorted().collect(Collectors.toList());
+    private static final List<DatabaseType> SORTED_DATABASE_TYPES = new PluginRegister().getPlugins(DatabaseType.class).stream().sorted().collect(Collectors.toList());
 
     public static DatabaseType getDatabaseTypeForUrl(String url) {
         List<DatabaseType> typesAcceptingUrl = getDatabaseTypesForUrl(url);
@@ -87,7 +86,7 @@ public class DatabaseTypeRegister {
         Matcher matcher = pattern.matcher(url);
         if (matcher.find()) {
             String password = matcher.group(1);
-            return url.replace(password, StringUtils.trimOrPad("", password.length(), '*'));
+            return url.replace(password, "********");
         }
         return url;
     }

@@ -15,8 +15,10 @@
  */
 package org.flywaydb.core.api.migration;
 
+import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.extensibility.MigrationType;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.util.Pair;
 
@@ -27,12 +29,11 @@ import org.flywaydb.core.internal.util.Pair;
  * <li><strong>Versioned Migrations:</strong> V2__Add_new_table</li>
  * <li><strong>Undo Migrations:</strong> U2__Add_new_table</li>
  * <li><strong>Repeatable Migrations:</strong> R__Add_new_table</li>
- * <li><strong>Baseline Migrations:</strong> B2__Add_new_table</li>
  * </ul>
  *
  * <p>The file name consists of the following parts:</p>
  * <ul>
- * <li><strong>Prefix:</strong> V for versioned migrations, U for undo migrations, R for repeatable migrations, B for baseline migrations</li>
+ * <li><strong>Prefix:</strong> V for versioned migrations, U for undo migrations, R for repeatable migrations</li>
  * <li><strong>Version:</strong> Underscores (automatically replaced by dots at runtime) separate as many parts as you like (Not for repeatable migrations)</li>
  * <li><strong>Separator:</strong> __ (two underscores)</li>
  * <li><strong>Description:</strong> Underscores (automatically replaced by spaces at runtime) separate the words</li>
@@ -42,20 +43,22 @@ import org.flywaydb.core.internal.util.Pair;
  * migration category are provided by implementing the respective methods.</p>
  */
 public abstract class BaseJavaMigration implements JavaMigration {
-    private final MigrationVersion version;
-    private final String description;
 
 
 
-
+    private MigrationVersion version;
+    private String description;
 
     /**
      * Creates a new instance of a Java-based migration following Flyway's default naming convention.
      */
     public BaseJavaMigration() {
+        init();
+    }
+
+    protected void init() {
         String shortName = getClass().getSimpleName();
         String prefix = null;
-
 
 
 
@@ -79,9 +82,11 @@ public abstract class BaseJavaMigration implements JavaMigration {
 
                                               " or implement org.flywaydb.core.api.migration.JavaMigration directly for non-default naming");
         }
+        extractVersionAndDescription(shortName, prefix, repeatable);
+    }
 
-        Pair<MigrationVersion, String> info =
-                MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", new String[] {""}, repeatable);
+    protected void extractVersionAndDescription(String shortName, String prefix, boolean repeatable) {
+        Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", new String[] {""}, repeatable);
         version = info.getLeft();
         description = info.getRight();
     }
@@ -102,27 +107,16 @@ public abstract class BaseJavaMigration implements JavaMigration {
     }
 
     @Override
-    public boolean isUndo() {
-
-
-
-
-        return false;
-
-    }
-
-    @Override
-    public boolean isBaselineMigration() {
-
-
-
-
-        return false;
-
-    }
-
-    @Override
     public boolean canExecuteInTransaction() {
         return true;
+    }
+
+    @Override
+    public MigrationType getType() {
+        return
+
+
+
+                JavaMigration.super.getType();
     }
 }

@@ -15,10 +15,11 @@
  */
 package org.flywaydb.core.internal.jdbc;
 
+import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.resource.LoadableResource;
+import org.flywaydb.core.extensibility.AppliedMigration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.sqlscript.SqlStatement;
 
 import java.util.Map;
@@ -33,6 +34,10 @@ public interface StatementInterceptor {
     void close();
 
     void sqlScript(LoadableResource resource);
+
+    void scriptMigration(LoadableResource resource);
+
+    void javaMigration(JavaMigration javaMigration);
 
     void sqlStatement(SqlStatement statement);
 

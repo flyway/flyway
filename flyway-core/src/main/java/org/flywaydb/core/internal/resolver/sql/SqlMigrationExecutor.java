@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.executor.Context;
 import org.flywaydb.core.api.executor.MigrationExecutor;
@@ -30,7 +29,7 @@ import java.sql.SQLException;
 /**
  * Database migration based on a sql file.
  */
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor
 public class SqlMigrationExecutor implements MigrationExecutor {
     private final SqlScriptExecutorFactory sqlScriptExecutorFactory;
 

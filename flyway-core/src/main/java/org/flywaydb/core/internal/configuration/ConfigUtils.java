@@ -23,7 +23,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.plugin.PluginRegister;
-import org.flywaydb.core.internal.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.*;
@@ -55,10 +55,6 @@ public class ConfigUtils {
     public static final String DETECT_ENCODING = "flyway.detectEncoding";
     public static final String ERROR_OVERRIDES = "flyway.errorOverrides";
     public static final String GROUP = "flyway.group";
-    public static final String IGNORE_FUTURE_MIGRATIONS = "flyway.ignoreFutureMigrations";
-    public static final String IGNORE_MISSING_MIGRATIONS = "flyway.ignoreMissingMigrations";
-    public static final String IGNORE_IGNORED_MIGRATIONS = "flyway.ignoreIgnoredMigrations";
-    public static final String IGNORE_PENDING_MIGRATIONS = "flyway.ignorePendingMigrations";
     public static final String IGNORE_MIGRATION_PATTERNS = "flyway.ignoreMigrationPatterns";
     public static final String INIT_SQL = "flyway.initSql";
     public static final String INSTALLED_BY = "flyway.installedBy";
@@ -86,7 +82,6 @@ public class ConfigUtils {
     public static final String SQL_MIGRATION_PREFIX = "flyway.sqlMigrationPrefix";
     public static final String SQL_MIGRATION_SEPARATOR = "flyway.sqlMigrationSeparator";
     public static final String SQL_MIGRATION_SUFFIXES = "flyway.sqlMigrationSuffixes";
-    public static final String BASELINE_MIGRATION_PREFIX = "flyway.baselineMigrationPrefix";
     public static final String STREAM = "flyway.stream";
     public static final String TABLE = "flyway.table";
     public static final String TABLESPACE = "flyway.tablespace";
@@ -105,7 +100,6 @@ public class ConfigUtils {
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
     public static final String ORACLE_SQLPLUS_WARN = "flyway.oracle.sqlplusWarn";
-    public static final String ORACLE_KERBEROS_CONFIG_FILE = "flyway.oracle.kerberosConfigFile";
     public static final String ORACLE_KERBEROS_CACHE_FILE = "flyway.oracle.kerberosCacheFile";
     public static final String ORACLE_WALLET_LOCATION = "flyway.oracle.walletLocation";
 
@@ -194,18 +188,6 @@ public class ConfigUtils {
         if ("FLYWAY_GROUP".equals(key)) {
             return GROUP;
         }
-        if ("FLYWAY_IGNORE_FUTURE_MIGRATIONS".equals(key)) {
-            return IGNORE_FUTURE_MIGRATIONS;
-        }
-        if ("FLYWAY_IGNORE_MISSING_MIGRATIONS".equals(key)) {
-            return IGNORE_MISSING_MIGRATIONS;
-        }
-        if ("FLYWAY_IGNORE_IGNORED_MIGRATIONS".equals(key)) {
-            return IGNORE_IGNORED_MIGRATIONS;
-        }
-        if ("FLYWAY_IGNORE_PENDING_MIGRATIONS".equals(key)) {
-            return IGNORE_PENDING_MIGRATIONS;
-        }
         if ("FLYWAY_IGNORE_MIGRATION_PATTERNS".equals(key)) {
             return IGNORE_MIGRATION_PATTERNS;
         }
@@ -289,9 +271,6 @@ public class ConfigUtils {
         if ("FLYWAY_SQL_MIGRATION_SUFFIXES".equals(key)) {
             return SQL_MIGRATION_SUFFIXES;
         }
-        if ("FLYWAY_BASELINE_MIGRATION_PREFIX".equals(key)) {
-            return BASELINE_MIGRATION_PREFIX;
-        }
         if ("FLYWAY_STREAM".equals(key)) {
             return STREAM;
         }
@@ -342,9 +321,6 @@ public class ConfigUtils {
         if ("FLYWAY_ORACLE_SQLPLUS_WARN".equals(key)) {
             return ORACLE_SQLPLUS_WARN;
         }
-        if ("FLYWAY_ORACLE_KERBEROS_CONFIG_FILE".equals(key)) {
-            return ORACLE_KERBEROS_CONFIG_FILE;
-        }
         if ("FLYWAY_ORACLE_KERBEROS_CACHE_FILE".equals(key)) {
             return ORACLE_KERBEROS_CACHE_FILE;
         }
@@ -362,7 +338,7 @@ public class ConfigUtils {
             return CONFIGURATIONS;
         }
 
-        for (ConfigurationExtension configurationExtension : PluginRegister.getPlugins(ConfigurationExtension.class)) {
+        for (ConfigurationExtension configurationExtension : new PluginRegister().getPlugins(ConfigurationExtension.class)) {
             String configurationParameter = configurationExtension.getConfigurationParameterFromEnvironmentVariable(key);
             if (configurationParameter != null) {
                 return configurationParameter;
@@ -437,7 +413,7 @@ public class ConfigUtils {
                     // Prepend the first character to the rest of the string
                     // This is a char, represented as an int, so we cast to a char
                     // which is implicitly converted to an string
-                    String configurationString = (char) firstCharacter + FileCopyUtils.copyToString(bufferedReader);
+                    String configurationString = (char) firstCharacter + FileUtils.copyToString(bufferedReader);
                     Map<String, String> configurationFromStandardInput = loadConfigurationFromString(configurationString);
 
                     if (configurationFromStandardInput.isEmpty()) {
@@ -465,7 +441,7 @@ public class ConfigUtils {
      */
     public static Map<String, String> loadConfigurationFromReader(Reader reader) throws FlywayException {
         try {
-            String contents = FileCopyUtils.copyToString(reader);
+            String contents = FileUtils.copyToString(reader);
             return loadConfigurationFromString(contents);
         } catch (IOException e) {
             throw new FlywayException("Unable to read config", e);

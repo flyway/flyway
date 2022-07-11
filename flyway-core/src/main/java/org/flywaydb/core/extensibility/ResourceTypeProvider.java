@@ -13,18 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.resolver;
+package org.flywaydb.core.extensibility;
 
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.internal.util.Pair;
 
-import java.sql.Connection;
+import java.util.List;
 
-/**
- * The context relevant to a migration resolver.
- */
-public interface Context {
-    /**
-     * @return The configuration currently in use.
-     */
-    Configuration getConfiguration();
+public interface ResourceTypeProvider extends Plugin {
+    List<Pair<String, ResourceType>> getPrefixTypePairs(Configuration configuration);
 }

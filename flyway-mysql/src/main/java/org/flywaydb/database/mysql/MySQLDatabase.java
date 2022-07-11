@@ -16,18 +16,18 @@
 package org.flywaydb.database.mysql;
 
 import lombok.CustomLog;
+import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
+import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-import org.flywaydb.database.mysql.mariadb.MariaDBDatabaseType;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.database.mysql.mariadb.MariaDBDatabaseType;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -143,7 +143,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
                         "     1 as \"installed_rank\"," +
                         "     '" + configuration.getBaselineVersion() + "' as \"version\"," +
                         "     '" + configuration.getBaselineDescription() + "' as \"description\"," +
-                        "     '" + MigrationType.BASELINE + "' as \"type\"," +
+                        "     '" + CoreMigrationType.BASELINE + "' as \"type\"," +
                         "     '" + configuration.getBaselineDescription() + "' as \"script\"," +
                         "     NULL as \"checksum\"," +
                         "     '" + getInstalledBy() + "' as \"installed_by\"," +
@@ -250,7 +250,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         ensureDatabaseIsRecentEnough("5.1");
         if (databaseType instanceof MariaDBDatabaseType) {
 
-            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.2", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.3", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
             recommendFlywayUpgradeIfNecessary("10.6");
         } else {

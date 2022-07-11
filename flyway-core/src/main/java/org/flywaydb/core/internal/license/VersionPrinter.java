@@ -19,7 +19,7 @@ import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.FileUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -53,7 +53,7 @@ public class VersionPrinter {
 
     private static String readVersion() {
         try {
-            return FileCopyUtils.copyToString(
+            return FileUtils.copyToString(
                     VersionPrinter.class.getClassLoader().getResourceAsStream("org/flywaydb/core/internal/version.txt"),
                     StandardCharsets.UTF_8);
         } catch (IOException e) {

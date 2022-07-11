@@ -16,17 +16,15 @@
 package org.flywaydb.core.internal.resolver.java;
 
 import lombok.RequiredArgsConstructor;
+import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
-import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.api.ClassProvider;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.util.ClassUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -51,10 +49,10 @@ public class ScanningJavaMigrationResolver implements MigrationResolver {
 
         for (Class<?> clazz : classProvider.getClasses()) {
             JavaMigration javaMigration = ClassUtils.instantiate(clazz.getName(), configuration.getClassLoader());
-            migrations.add(new ResolvedJavaMigration(javaMigration));
+            migrations.add(javaMigration.getResolvedMigration(configuration, context.statementInterceptor));
         }
 
-        Collections.sort(migrations, new ResolvedMigrationComparator());
+        migrations.sort(new ResolvedMigrationComparator());
         return migrations;
     }
 }

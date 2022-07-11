@@ -18,26 +18,28 @@ package org.flywaydb.core.internal.schemahistory;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationPattern;
-import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CommandResultFactory;
-import org.flywaydb.core.api.output.RepairOutput;
 import org.flywaydb.core.api.output.RepairResult;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.extensibility.AppliedMigration;
+import org.flywaydb.core.extensibility.MigrationType;
 import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
+import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.jdbc.JdbcNullTypes;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.jdbc.RowMapper;
-import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.Callable;
 
@@ -66,6 +68,8 @@ class JdbcTableSchemaHistory extends SchemaHistory {
      */
     private final LinkedList<AppliedMigration> cache = new LinkedList<>();
 
+    private final Configuration configuration;
+
     /**
      * Creates a new instance of the schema history table support.
      *
@@ -73,13 +77,14 @@ class JdbcTableSchemaHistory extends SchemaHistory {
      * @param table The schema history table used by Flyway.
      */
     JdbcTableSchemaHistory(SqlScriptExecutorFactory sqlScriptExecutorFactory, SqlScriptFactory sqlScriptFactory,
-                           Database database, Table table) {
+                           Database database, Table table, Configuration configuration) {
         this.sqlScriptExecutorFactory = sqlScriptExecutorFactory;
         this.sqlScriptFactory = sqlScriptFactory;
         this.table = table;
         this.database = database;
         this.connection = database.getMainConnection();
         this.jdbcTemplate = connection.getJdbcTemplate();
+        this.configuration = configuration;
     }
 
     @Override
@@ -190,38 +195,33 @@ class JdbcTableSchemaHistory extends SchemaHistory {
 
     private void refreshCache() {
         int maxCachedInstalledRank = cache.isEmpty() ? -1 : cache.getLast().getInstalledRank();
-
         String query = database.getSelectStatement(table);
 
         try {
-            cache.addAll(jdbcTemplate.query(query, new RowMapper<AppliedMigration>() {
-                public AppliedMigration mapRow(final ResultSet rs) throws SQLException {
-                    // Construct a map of lower-cased column names to ordinals. This is useful for databases that
-                    // upper-case them - eg Snowflake with QUOTED-IDENTIFIERS-IGNORE-CASE turned on
-                    HashMap<String, Integer> columnOrdinalMap = constructColumnOrdinalMap(rs);
+            cache.addAll(jdbcTemplate.query(query, rs -> {
+                // Construct a map of lower-cased column names to ordinals. This is useful for databases that
+                // upper-case them - e.g. Snowflake with QUOTED-IDENTIFIERS-IGNORE-CASE turned on
+                HashMap<String, Integer> columnOrdinalMap = constructColumnOrdinalMap(rs);
 
-                    Integer checksum = rs.getInt(columnOrdinalMap.get("checksum"));
-                    if (rs.wasNull()) {
-                        checksum = null;
-                    }
+                int installedRank = rs.getInt(columnOrdinalMap.get("installed_rank"));
+                MigrationVersion version = rs.getString(columnOrdinalMap.get("version")) != null ? MigrationVersion.fromVersion(rs.getString(columnOrdinalMap.get("version"))) : null;
+                String description = rs.getString(columnOrdinalMap.get("description"));
+                String type = rs.getString(columnOrdinalMap.get("type"));
+                String script = rs.getString(columnOrdinalMap.get("script"));
+                Integer checksum = rs.wasNull() ? null : rs.getInt(columnOrdinalMap.get("checksum"));
+                Timestamp installedOn = rs.getTimestamp(columnOrdinalMap.get("installed_on"));
+                String installedBy = rs.getString(columnOrdinalMap.get("installed_by"));
+                int executionTime = rs.getInt(columnOrdinalMap.get("execution_time"));
+                boolean success = rs.getBoolean(columnOrdinalMap.get("success"));
 
-                    return new AppliedMigration(
-                            rs.getInt(columnOrdinalMap.get("installed_rank")),
-                            rs.getString(columnOrdinalMap.get("version")) != null ? MigrationVersion.fromVersion(rs.getString(columnOrdinalMap.get("version"))) : null,
-                            rs.getString(columnOrdinalMap.get("description")),
-                            MigrationType.fromString(rs.getString(columnOrdinalMap.get("type"))),
-                            rs.getString(columnOrdinalMap.get("script")),
-                            checksum,
-                            rs.getTimestamp(columnOrdinalMap.get("installed_on")),
-                            rs.getString(columnOrdinalMap.get("installed_by")),
-                            rs.getInt(columnOrdinalMap.get("execution_time")),
-                            rs.getBoolean(columnOrdinalMap.get("success"))
-                    );
-                }
+                return configuration.getPluginRegister().getPlugins(AppliedMigration.class).stream()
+                        .filter(am -> am.handlesType(type))
+                        .findFirst()
+                        .orElse(new BaseAppliedMigration())
+                        .create(installedRank, version, description, type, script, checksum, installedOn, installedBy, executionTime, success);
             }, maxCachedInstalledRank));
         } catch (SQLException e) {
-            throw new FlywaySqlException("Error while retrieving the list of applied migrations from Schema History table "
-                                                 + table, e);
+            throw new FlywaySqlException("Error while retrieving the list of applied migrations from Schema History table " + table, e);
         }
     }
 

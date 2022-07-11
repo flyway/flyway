@@ -19,8 +19,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import lombok.*;
 import lombok.experimental.ExtensionMethod;
+import org.flywaydb.core.extensibility.RgDomainChecker;
 import org.flywaydb.core.internal.license.VersionPrinter;
-import org.flywaydb.core.internal.util.MachineFingerprintUtils;
+import org.flywaydb.core.internal.plugin.PluginRegister;
+import org.flywaydb.core.internal.util.FingerprintUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -32,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -39,10 +42,11 @@ import java.util.List;
 public class RedgateUpdateChecker {
     @RequiredArgsConstructor
     public static class Context {
-        public final String jdbcUrl;
+        public final Map<String, String> config;
         public final List<String> verbs;
         public final String dbEngine;
         public final String dbVersion;
+        public final PluginRegister pluginRegister;
     }
 
     private static final String PLATFORM_URL_ROOT = getRoot();
@@ -109,16 +113,26 @@ public class RedgateUpdateChecker {
     }
 
     private static String getJsonPayload(Context context) throws Exception {
-        String operatingSystem = System.getProperty("os.name");
         JsonObject json = new JsonObject();
         json.addProperty("currentVersion", VersionPrinter.getVersion());
-        json.addProperty("operatingSystem", operatingSystem);
-        json.addProperty("fingerprint", MachineFingerprintUtils.getFingerprint(operatingSystem, context.jdbcUrl, System.getProperty("user.dir")));
+        json.addProperty("operatingSystem", System.getProperty("os.name"));
+        json.addProperty("fingerprint", FingerprintUtils.getFingerprint(context.config));
         json.addProperty("timeStamp", Instant.now().toString());
         json.addProperty("edition", VersionPrinter.EDITION.name());
         json.addProperty("verbs", Arrays.toString(context.verbs.toArray()));
         json.addProperty("engine", context.dbEngine);
         json.addProperty("version", context.dbVersion);
+        json.addProperty("fromRedgate", Boolean.toString(isInRedgate(context)));
         return new Gson().toJson(json);
+    }
+
+    private static boolean isInRedgate(Context context) {
+        if (System.getenv("RGDOMAIN") != null) {
+            return true;
+        }
+        return context.pluginRegister
+                .getPlugins(RgDomainChecker.class)
+                .stream()
+                .anyMatch(c -> c.isInDomain(context.config));
     }
 }

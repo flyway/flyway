@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ValidatePattern {
@@ -86,5 +87,22 @@ public class ValidatePattern {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ValidatePattern that = (ValidatePattern) o;
+        return Objects.equals(migrationType, that.migrationType) && Objects.equals(migrationState, that.migrationState);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(migrationType, migrationState);
     }
 }

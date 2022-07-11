@@ -16,11 +16,10 @@
 package org.flywaydb.core.internal.resolver.sql;
 
 import lombok.CustomLog;
-import org.flywaydb.core.api.MigrationType;
+import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.resolver.Context;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.api.resource.LoadableResource;
@@ -64,6 +63,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         this.parsingContext = parsingContext;
     }
 
+    @Override
     public List<ResolvedMigration> resolveMigrations(Context context) {
         List<ResolvedMigration> migrations = new ArrayList<>();
         String[] suffixes = configuration.getSqlMigrationSuffixes();
@@ -74,7 +74,6 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
                      );
-
 
 
 
@@ -178,8 +177,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
 
-
-                                    MigrationType.SQL,
+                            CoreMigrationType.SQL,
                     resource.getAbsolutePathOnDisk(),
                     new SqlMigrationExecutor(sqlScriptExecutorFactory, sqlScript
 

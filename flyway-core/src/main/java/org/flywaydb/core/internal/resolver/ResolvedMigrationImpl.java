@@ -17,10 +17,10 @@ package org.flywaydb.core.internal.resolver;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.executor.MigrationExecutor;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.extensibility.MigrationType;
 
 import java.util.Objects;
 

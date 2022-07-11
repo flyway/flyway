@@ -463,11 +463,9 @@ public abstract class Parser {
         return true;
     }
 
-
-
-
-
-
+    public boolean supportsReferencedSqlScripts() {
+        return false;
+    }
 
     private Token readToken(PeekingReader reader, PositionTracker tracker, ParserContext context) throws IOException {
         int pos = tracker.getPos();

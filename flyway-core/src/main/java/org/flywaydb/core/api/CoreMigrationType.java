@@ -15,12 +15,13 @@
  */
 package org.flywaydb.core.api;
 
-import lombok.RequiredArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.flywaydb.core.extensibility.MigrationType;
 
 @RequiredArgsConstructor
 @Getter
-public enum MigrationType {
+public enum CoreMigrationType implements MigrationType {
     /**
      * Schema creation migration.
      */
@@ -28,7 +29,7 @@ public enum MigrationType {
     /**
      * Baseline migration.
      */
-    BASELINE(true, false, false),
+    BASELINE(true, false, true),
     /**
      * Deleted migration
      */
@@ -38,10 +39,6 @@ public enum MigrationType {
      */
     SQL(false, false, false),
     /**
-     * SQL baseline migrations.
-     */
-    SQL_BASELINE(false, false, true),
-    /**
      * Undo SQL migrations.
      */
     UNDO_SQL(false, true, false),
@@ -49,10 +46,6 @@ public enum MigrationType {
      * JDBC Java-based migrations.
      */
     JDBC(false, false, false),
-    /**
-     * JDBC Java-based baseline migrations.
-     */
-    JDBC_BASELINE(false, false, true),
     /**
      * Undo JDBC java-based migrations.
      */
@@ -62,8 +55,11 @@ public enum MigrationType {
      */
     SCRIPT(false, false, false),
     /**
+     * @deprecated Will be removed and replaced with just SCRIPT
+     *
      * Script baseline migrations.
      */
+    @Deprecated
     SCRIPT_BASELINE(false, false, true),
     /**
      * Undo Script migrations.
@@ -88,10 +84,9 @@ public enum MigrationType {
      */
     private final boolean undo;
     /**
-     * @return Whether this is a baseline migration, which represents all migrations with
-     * version <= current baseline migration version.
+     * @return Whether this is a baseline type
      */
-    private final boolean baselineMigration;
+    private final boolean baseline;
 
     public static MigrationType fromString(String migrationType) {
         // Convert legacy types to maintain compatibility
@@ -100,12 +95,6 @@ public enum MigrationType {
         }
         if ("UNDO_SPRING_JDBC".equals(migrationType)) {
             return UNDO_JDBC;
-        }
-        if ("SQL_STATE_SCRIPT".equals(migrationType)) {
-            return SQL_BASELINE;
-        }
-        if ("JDBC_STATE_SCRIPT".equals(migrationType)) {
-            return JDBC_BASELINE;
         }
         return valueOf(migrationType);
     }

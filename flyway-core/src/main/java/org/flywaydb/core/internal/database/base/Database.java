@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.database.base;
 
 import lombok.CustomLog;
 import lombok.Getter;
-import org.flywaydb.core.api.MigrationType;
+import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.DatabaseType;
@@ -51,13 +51,13 @@ public abstract class Database<C extends Connection> implements Closeable {
     protected final StatementInterceptor statementInterceptor;
     protected final JdbcConnectionFactory jdbcConnectionFactory;
     protected final DatabaseMetaData jdbcMetaData;
-    protected JdbcTemplate jdbcTemplate;
-    private C migrationConnection;
-    private C mainConnection;
     /**
      * The main JDBC connection, without any wrapping.
      */
     protected final java.sql.Connection rawMainJdbcConnection;
+    protected JdbcTemplate jdbcTemplate;
+    private C migrationConnection;
+    private C mainConnection;
     /**
      * The 'major.minor' version of this database.
      */
@@ -342,7 +342,7 @@ public abstract class Database<C extends Connection> implements Closeable {
                              1,
                              "'" + configuration.getBaselineVersion() + "'",
                              "'" + AbbreviationUtils.abbreviateDescription(configuration.getBaselineDescription()) + "'",
-                             "'" + MigrationType.BASELINE + "'",
+                             "'" + CoreMigrationType.BASELINE + "'",
                              "'" + AbbreviationUtils.abbreviateScript(configuration.getBaselineDescription()) + "'",
                              "NULL",
                              "'" + installedBy + "'",

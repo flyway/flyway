@@ -169,7 +169,6 @@ public class ClassicConfiguration implements Configuration {
     private String scriptPlaceholderPrefix = "FP__";
     private String scriptPlaceholderSuffix = "__";
     private String sqlMigrationPrefix = "V";
-    private String baselineMigrationPrefix = "B";
     private String undoSqlMigrationPrefix = "U";
     /**
      * -- SETTER --
@@ -186,70 +185,8 @@ public class ClassicConfiguration implements Configuration {
     @Setter(AccessLevel.NONE)
     private String[] sqlMigrationSuffixes = {".sql"};
     private JavaMigration[] javaMigrations = {};
-    /**
-     * -- SETTER --
-     *
-     * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code false})
-     * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
-     *
-     * Ignore missing migrations when reading the schema history table. These are migrations that were performed by an
-     * older deployment of the application that are no longer available in this version. For example: we have migrations
-     * available on the classpath with versions 1.0 and 3.0. The schema history table indicates that a migration with version 2.0
-     * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
-     * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
-     * Note that if the most recently applied migration is removed, Flyway has no way to know it is missing and will
-     * mark it as future instead.
-     */
-    @Deprecated
-    private boolean ignoreMissingMigrations;
-    /**
-     * -- SETTER --
-     *
-     * @param ignoreIgnoredMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
-     * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
-     *
-     * Ignore ignored migrations when reading the schema history table. These are migrations that were added in between
-     * already migrated migrations in this version. For example: we have migrations available on the classpath with
-     * versions from 1.0 to 3.0. The schema history table indicates that version 1 was finished on 1.0.15, and the next
-     * one was 2.0.0. But with the next release a new migration was added to version 1: 1.0.16. Such scenario is ignored
-     * by migrate command, but by default is rejected by validate. When ignoreIgnoredMigrations is enabled, such case
-     * will not be reported by validate command. This is useful for situations where one must be able to deliver
-     * complete set of migrations in a delivery package for multiple versions of the product, and allows for further
-     * development of older versions.
-     */
-    @Deprecated
-    private boolean ignoreIgnoredMigrations;
-    /**
-     * -- SETTER --
-     *
-     * @param ignorePendingMigrations {@code true} to continue normally, {@code false} to fail fast with an exception. (default: {@code false})
-     * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
-     *
-     * Ignore pending migrations when reading the schema history table. These are migrations that are available
-     * but have not yet been applied. This can be useful for verifying that in-development migration changes
-     * don't contain any validation-breaking changes of migrations that have already been applied to a production
-     * environment, e.g. as part of a CI/CD process, without failing because of the existence of new migration versions.
-     */
-    @Deprecated
-    private boolean ignorePendingMigrations;
-    /**
-     * -- SETTER --
-     *
-     * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception. (default: {@code true})
-     * @deprecated Will remove in Flyway V9. Use {@code setIgnoreMigrationPatterns} instead.
-     *
-     * Whether to ignore future migrations when reading the schema history table. These are migrations that were performed by a
-     * newer deployment of the application that are not yet available in this version. For example: we have migrations
-     * available on the classpath up to version 3.0. The schema history table indicates that a migration to version 4.0
-     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
-     * an older version of the application after the database has been migrated by a newer one.
-     */
-    @Deprecated
-    private boolean ignoreFutureMigrations = true;
     @Setter(AccessLevel.NONE)
-    private ValidatePattern[] ignoreMigrationPatterns = new ValidatePattern[0];
+    private ValidatePattern[] ignoreMigrationPatterns = new ValidatePattern[] { ValidatePattern.fromPattern("*:future") };
     /**
      * -- SETTER --
      * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
@@ -280,11 +217,11 @@ public class ClassicConfiguration implements Configuration {
     /**
      * -- SETTER --
      * Whether to disable clean.
-     * This is especially useful for production environments where running clean can be quite a career limiting move.
+     * This is especially useful for production environments where running clean can be a career limiting move.
      *
-     * @param cleanDisabled {@code true} to disable clean. {@code false} to leave it enabled.  (default: {@code false})
+     * @param cleanDisabled {@code true} to disable clean. {@code false} to be able to clean. (default: {@code true})
      */
-    private boolean cleanDisabled;
+    private boolean cleanDisabled = true;
     /**
      * -- SETTER --
      * Sets the version to tag an existing schema with when executing baseline.
@@ -375,7 +312,6 @@ public class ClassicConfiguration implements Configuration {
     private boolean oracleSqlplus;
     private boolean oracleSqlplusWarn;
     private String kerberosConfigFile = "";
-    private String oracleKerberosConfigFile = "";
     private String oracleKerberosCacheFile = "";
     private String oracleWalletLocation;
     /**
@@ -389,13 +325,14 @@ public class ClassicConfiguration implements Configuration {
     private String[] loggers = new String[] {"auto"};
     @Getter(AccessLevel.NONE)
     private final ClasspathClassScanner classScanner;
+    private PluginRegister pluginRegister = new PluginRegister();
 
     public ClassicConfiguration() {
-        classScanner = new ClasspathClassScanner(this.classLoader);
+        this.classScanner = new ClasspathClassScanner(this.classLoader);
     }
 
     /**
-     * @param classLoader The ClassLoader to use for loading migrations, resolvers, etc from the classpath. (default: Thread.currentThread().getContextClassLoader())
+     * @param classLoader The ClassLoader to use for loading migrations, resolvers, etc. from the classpath. (default: Thread.currentThread().getContextClassLoader())
      */
     public ClassicConfiguration(ClassLoader classLoader) {
         if (classLoader != null) {
@@ -410,6 +347,11 @@ public class ClassicConfiguration implements Configuration {
     public ClassicConfiguration(Configuration configuration) {
         this(configuration.getClassLoader());
         configure(configuration);
+    }
+
+    @Override
+    public PluginRegister getPluginRegister() {
+        return pluginRegister;
     }
 
     @Override
@@ -831,23 +773,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Sets the file name prefix for baseline migrations.
-     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to B1.1__My_description.sql
-     * <i>Flyway Teams only</i>
-     *
-     * @param baselineMigrationPrefix The file name prefix for baseline migrations (default: B)
-     */
-    public void setBaselineMigrationPrefix(String baselineMigrationPrefix) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("baselineMigrationPrefix");
-
-
-
-
-    }
-
-    /**
      * Sets the file name prefix for undo SQL migrations. (default: U)
      * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
      * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
@@ -950,10 +875,6 @@ public class ClassicConfiguration implements Configuration {
      * @param dataSource The datasource to use. Must have the necessary privileges to execute DDL.
      */
     public void setDataSource(DataSource dataSource) {
-        driver = null;
-        url = null;
-        user = null;
-        password = null;
         this.dataSource = dataSource;
     }
 
@@ -1154,21 +1075,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * @deprecated Will be removed in V9. Please use {@link #setKerberosConfigFile(String)}
-     *
-     * When Oracle needs to connect to a Kerberos service to authenticate, the location of the Kerberos configuration.
-     * <i>Flyway Teams only</i>
-     */
-    public void setOracleKerberosConfigFile(String oracleKerberosConfigFile) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.kerberosConfigFile");
-
-
-
-
-    }
-
-    /**
      * When Oracle needs to connect to a Kerberos service to authenticate, the location of the Kerberos cache.
      * <i>Flyway Teams only</i>
      */
@@ -1296,16 +1202,10 @@ public class ClassicConfiguration implements Configuration {
 
 
 
-
-
         setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
         setValidateMigrationNaming(configuration.isValidateMigrationNaming());
         setIgnoreMigrationPatterns(configuration.getIgnoreMigrationPatterns());
-        setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
-        setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
-        setIgnoreIgnoredMigrations(configuration.isIgnoreIgnoredMigrations());
-        setIgnorePendingMigrations(configuration.isIgnorePendingMigrations());
         setInstalledBy(configuration.getInstalledBy());
         setJavaMigrations(configuration.getJavaMigrations());
         setLocations(configuration.getLocations());
@@ -1342,6 +1242,8 @@ public class ClassicConfiguration implements Configuration {
         user = configuration.getUser();
         password = configuration.getPassword();
 
+        pluginRegister = configuration.getPluginRegister();
+
         configureFromConfigurationProviders(this);
     }
 
@@ -1369,7 +1271,7 @@ public class ClassicConfiguration implements Configuration {
         // Make copy to prevent removing elements from the original.
         props = new HashMap<>(props);
 
-        for (ConfigurationExtension configurationExtension : PluginRegister.getPlugins(ConfigurationExtension.class)) {
+        for (ConfigurationExtension configurationExtension : pluginRegister.getPlugins(ConfigurationExtension.class)) {
             configurationExtension.extractParametersFromConfiguration(props);
         }
 
@@ -1441,10 +1343,6 @@ public class ClassicConfiguration implements Configuration {
         if (undoSqlMigrationPrefixProp != null) {
             setUndoSqlMigrationPrefix(undoSqlMigrationPrefixProp);
         }
-        String baselineMigrationPrefixProp = props.remove(ConfigUtils.BASELINE_MIGRATION_PREFIX);
-        if (baselineMigrationPrefixProp != null) {
-            setBaselineMigrationPrefix(baselineMigrationPrefixProp);
-        }
         String repeatableSqlMigrationPrefixProp = props.remove(ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX);
         if (repeatableSqlMigrationPrefixProp != null) {
             setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefixProp);
@@ -1504,22 +1402,6 @@ public class ClassicConfiguration implements Configuration {
         Boolean baselineOnMigrateProp = removeBoolean(props, ConfigUtils.BASELINE_ON_MIGRATE);
         if (baselineOnMigrateProp != null) {
             setBaselineOnMigrate(baselineOnMigrateProp);
-        }
-        Boolean ignoreMissingMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_MISSING_MIGRATIONS);
-        if (ignoreMissingMigrationsProp != null) {
-            setIgnoreMissingMigrations(ignoreMissingMigrationsProp);
-        }
-        Boolean ignoreIgnoredMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_IGNORED_MIGRATIONS);
-        if (ignoreIgnoredMigrationsProp != null) {
-            setIgnoreIgnoredMigrations(ignoreIgnoredMigrationsProp);
-        }
-        Boolean ignorePendingMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_PENDING_MIGRATIONS);
-        if (ignorePendingMigrationsProp != null) {
-            setIgnorePendingMigrations(ignorePendingMigrationsProp);
-        }
-        Boolean ignoreFutureMigrationsProp = removeBoolean(props, ConfigUtils.IGNORE_FUTURE_MIGRATIONS);
-        if (ignoreFutureMigrationsProp != null) {
-            setIgnoreFutureMigrations(ignoreFutureMigrationsProp);
         }
         Boolean validateMigrationNamingProp = removeBoolean(props, ConfigUtils.VALIDATE_MIGRATION_NAMING);
         if (validateMigrationNamingProp != null) {
@@ -1615,10 +1497,6 @@ public class ClassicConfiguration implements Configuration {
         if (kerberosConfigFile != null) {
             setKerberosConfigFile(kerberosConfigFile);
         }
-        String oracleKerberosConfigFile = props.remove(ConfigUtils.ORACLE_KERBEROS_CONFIG_FILE);
-        if (oracleKerberosConfigFile != null) {
-            setOracleKerberosConfigFile(oracleKerberosConfigFile);
-        }
         String oracleKerberosCacheFile = props.remove(ConfigUtils.ORACLE_KERBEROS_CACHE_FILE);
         if (oracleKerberosCacheFile != null) {
             setOracleKerberosCacheFile(oracleKerberosCacheFile);
@@ -1658,8 +1536,8 @@ public class ClassicConfiguration implements Configuration {
 
     private void configureFromConfigurationProviders(ClassicConfiguration configuration) {
         Map<String, String> config = new HashMap<>();
-        for (ConfigurationProvider configurationProvider : PluginRegister.getPlugins(ConfigurationProvider.class)) {
-            ConfigurationExtension configurationExtension = (ConfigurationExtension) PluginRegister.getPlugin(configurationProvider.getConfigurationExtensionClass());
+        for (ConfigurationProvider configurationProvider : pluginRegister.getPlugins(ConfigurationProvider.class)) {
+            ConfigurationExtension configurationExtension = (ConfigurationExtension) pluginRegister.getPlugin(configurationProvider.getConfigurationExtensionClass());
             try {
                 config.putAll(configurationProvider.getConfiguration(configurationExtension, configuration));
             } catch (Exception e) {

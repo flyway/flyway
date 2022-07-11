@@ -21,9 +21,9 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.Event;
 import org.flywaydb.core.api.output.BaselineResult;
 import org.flywaydb.core.api.output.CommandResultFactory;
+import org.flywaydb.core.extensibility.AppliedMigration;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 

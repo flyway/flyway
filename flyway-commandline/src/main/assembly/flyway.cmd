@@ -37,64 +37,10 @@ if "%JAVA_ARGS%"=="" (
   set JAVA_ARGS=
 )
 
-@REM Determine Flyway edition to use
-:loop
-IF NOT [%1]==[] (
-    IF [%1]==[-community] (
-        SET FLYWAY_EDITION=community
-        GOTO :loop-end
-    )
-    IF [%1]==[-pro] (
-        SET FLYWAY_EDITION=enterprise
-        GOTO :loop-end
-    )
-    IF [%1]==[-enterprise] (
-        SET FLYWAY_EDITION=enterprise
-        GOTO :loop-end
-    )
-    IF [%1]==[-teams] (
-        SET FLYWAY_EDITION=enterprise
-        GOTO :loop-end
-    )
-    SHIFT /1
-    GOTO :loop
-)
-:loop-end
-if "%FLYWAY_EDITION%"=="" (
-  CALL :checklicense %*
-)
-if "%FLYWAY_EDITION%"=="pro" (
-  set FLYWAY_EDITION=enterprise
-)
-if "%FLYWAY_EDITION%"=="teams" (
-  set FLYWAY_EDITION=enterprise
-)
-
-@REM Validate the Flyway edition
-set editionValid=false
-for %%E in ("community" "pro" "enterprise" "teams" "community") do (
-  if "%FLYWAY_EDITION%"==%%E (
-    set editionValid=true
-  )
-)
-if %editionValid%==false (
-  @Echo on
-  echo invalid edition "%FLYWAY_EDITION%"
-  @Echo off
-  EXIT /B 1
-)
-
-%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\oracle_wallet\*;%INSTALLDIR%\lib\%FLYWAY_EDITION%\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\gcp\*" org.flywaydb.commandline.Main %*
+%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\oracle_wallet\*;%INSTALLDIR%\lib\community\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\gcp\*" org.flywaydb.commandline.Main %*
 
 @REM Exit using the same code returned from Java
 EXIT /B %ERRORLEVEL%
-:checkLicense
-%JAVA_CMD% -Djava.library.path="%INSTALLDIR%\native" %JAVA_ARGS% -cp "%CLASSPATH%;%INSTALLDIR%\lib\*;%INSTALLDIR%\lib\aad\*;%INSTALLDIR%\lib\oracle_wallet\*;%INSTALLDIR%\lib\enterprise\*;%INSTALLDIR%\drivers\*;%INSTALLDIR%\drivers\gcp\*" org.flywaydb.commandline.Main %* -checkLicence -n >NUL 2>NUL
-if %ERRORLEVEL% EQU 101 (call :displayError "Your Flyway Teams License has expired; falling back to Community Edition. To force Teams Edition, please specify '-teams'. Please contact sales at sales@flywaydb.org to renew your license.")
-if %ERRORLEVEL% EQU 102 (call :displayError "Your Flyway Teams Trial License has expired; falling back to Community Edition. Please contact sales at sales@flywaydb.org to purchase a licence, extend your Flyway Teams trial license via https://flywaydb.org/download/teams?ref=expiredTrial or specify -community to downgrade and stop this message appearing.")
-if %ERRORLEVEL% EQU 103 (call :displayError "A Flyway Teams License was found but is unreadable; falling back to Community Edition. Please contact sales at sales@flywaydb.org to purchase a valid license, request a Flyway Teams trial license via https://flywaydb.org/download/teams?ref=invalidLicense or remove the 'licenseKey' configuration parameter to stop this message appearing.")
-if %ERRORLEVEL% EQU 0 (set FLYWAY_EDITION=enterprise) else (SET FLYWAY_EDITION=community)
-EXIT /B 0
 :displayError(message)
 echo "----------------------------------------"
 echo %1

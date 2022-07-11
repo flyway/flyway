@@ -28,22 +28,14 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGIN
 @Setter
 @CustomLog
 public class SQLServerConfigurationExtension implements ConfigurationExtension {
-
     private static final String SQLSERVER_KERBEROS_LOGIN_FILE = "sqlserver.kerberos.login.file";
     private static final String KERBEROS_LOGIN_FILE = FLYWAY_PLUGINS_PREFIX + SQLSERVER_KERBEROS_LOGIN_FILE;
-    private static final String KERBEROS_LOGIN_FILE_DEPRECATED = "flyway.sqlServer.kerberosLoginFile";
 
     private String kerberosLoginFile;
 
     @Override
     public void extractParametersFromConfiguration(Map<String, String> configuration) {
-        if (configuration.containsKey(KERBEROS_LOGIN_FILE_DEPRECATED)) {
-            LOG.warn("The '" + KERBEROS_LOGIN_FILE_DEPRECATED + "' parameter has been deprecated, and will be replaced with '" + KERBEROS_LOGIN_FILE + "'." +
-                             " Update your configuration to use the new names.");
-            kerberosLoginFile = getProperty(configuration, KERBEROS_LOGIN_FILE_DEPRECATED, kerberosLoginFile);
-        } else {
-            kerberosLoginFile = getProperty(configuration, KERBEROS_LOGIN_FILE, kerberosLoginFile);
-        }
+        kerberosLoginFile = getProperty(configuration, KERBEROS_LOGIN_FILE, kerberosLoginFile);
     }
 
     @Override
@@ -51,8 +43,6 @@ public class SQLServerConfigurationExtension implements ConfigurationExtension {
         switch (environmentVariable) {
             case "FLYWAY_PLUGINS_SQL_SERVER_KERBEROS_LOGIN_FILE":
                 return KERBEROS_LOGIN_FILE;
-            case "FLYWAY_SQL_SERVER_KERBEROS_LOGIN_FILE":
-                return KERBEROS_LOGIN_FILE_DEPRECATED;
             default:
                 return null;
         }

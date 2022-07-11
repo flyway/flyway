@@ -99,6 +99,21 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
@@ -196,6 +211,10 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
         </dependency>
 
 
@@ -332,110 +351,6 @@
                                 </configuration>
                             </execution>
 
-                            <execution>
-                                <id>copy-editions</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>copy</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-commandline</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-core</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-community-db-support</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-gcp-bigquery</artifactId>
-                                            <version>${flyway-gcp-bigquery.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-gcp-spanner</artifactId>
-                                            <version>${flyway-gcp-spanner.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
-                                        </artifactItem>
-                                         <artifactItem>
-                                            <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-sqlserver</artifactId>
-                                            <version>${flyway-sqlserver.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-mysql</artifactId>
-                                            <version>${flyway-mysql.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-firebird</artifactId>
-                                            <version>${flyway-firebird.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-extensibility-commons</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-desktop-clean</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-vault-integration</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-dapr-integration</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-gcsm-integration</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/enterprise</outputDirectory>
-                                        </artifactItem>
-                                    </artifactItems>
-                                </configuration>
-                            </execution>
-
-
 
 
 
@@ -518,5 +433,257 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>build-assemblies-windows</id>
+            <activation>
+                <property>
+                    <name>github.os</name>
+                    <value>windows-latest</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>net.adoptopenjdk</groupId>
+                    <artifactId>jre</artifactId>
+                    <classifier>windows-x64</classifier>
+                    <type>zip</type>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.oracle.database.jdbc</groupId>
+                    <artifactId>ojdbc8</artifactId>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack-jres</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>unpack-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <ignorePermissions>true</ignorePermissions>
+                                    <includeArtifactIds>jre</includeArtifactIds>
+                                    <stripVersion>true</stripVersion>
+                                    <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>jre-assemblies</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/windows.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>build-assemblies-linux</id>
+            <activation>
+                <property>
+                    <name>github.os</name>
+                    <value>ubuntu-latest</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>net.adoptopenjdk</groupId>
+                    <artifactId>jre</artifactId>
+                    <classifier>linux-x64</classifier>
+                    <type>tar.gz</type>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.oracle.database.jdbc</groupId>
+                    <artifactId>ojdbc8</artifactId>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack-jres</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>unpack-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <ignorePermissions>true</ignorePermissions>
+                                    <includeArtifactIds>jre</includeArtifactIds>
+                                    <stripVersion>true</stripVersion>
+                                    <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>jre-assemblies</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/linux.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>build-assemblies-mac</id>
+            <activation>
+                <property>
+                    <name>github.os</name>
+                    <value>macOS-latest</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>net.adoptopenjdk</groupId>
+                    <artifactId>jre</artifactId>
+                    <classifier>macos-x64</classifier>
+                    <type>tar.gz</type>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.oracle.database.jdbc</groupId>
+                    <artifactId>ojdbc8</artifactId>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack-jres</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>unpack-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <ignorePermissions>true</ignorePermissions>
+                                    <includeArtifactIds>jre</includeArtifactIds>
+                                    <stripVersion>true</stripVersion>
+                                    <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>jre-assemblies</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/macos.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>build-assemblies-no-jre</id>
+            <activation>
+                <property>
+                    <name>github.os</name>
+                    <value>ubuntu-latest</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.oracle.database.jdbc</groupId>
+                    <artifactId>ojdbc8</artifactId>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack-jres</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>unpack-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <ignorePermissions>true</ignorePermissions>
+                                    <includeArtifactIds>jre</includeArtifactIds>
+                                    <stripVersion>true</stripVersion>
+                                    <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>nojre-assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/no-jre.xml</descriptor>
+                                    </descriptors>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 </project>
