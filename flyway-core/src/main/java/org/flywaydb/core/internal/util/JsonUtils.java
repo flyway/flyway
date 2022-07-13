@@ -36,18 +36,24 @@ public class JsonUtils {
     }
 
     public static String jsonToFile(String filename, Object json) {
-        Gson gson = new GsonBuilder()
-                .serializeNulls()
-                .setPrettyPrinting()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer())
-                .create();
-
         try (FileWriter fileWriter = new FileWriter(filename)) {
-            gson.toJson(json, fileWriter);
+            getGson().toJson(json, fileWriter);
             return filename;
         } catch (Exception e) {
             throw new FlywayException("Unable to write JSON to file: " + e.getMessage());
         }
+    }
+
+    public static String getFromJson(String json, String key){
+        return getGson().fromJson(json, JsonObject.class).get(key).getAsString();
+    }
+
+    private static Gson getGson() {
+        return new GsonBuilder()
+                .serializeNulls()
+                .setPrettyPrinting()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer())
+                .create();
     }
 
     public static CompositeResult appendIfExists(String filename, CompositeResult json, Class<? extends OperationResult> operationResultImplementation) {

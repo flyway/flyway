@@ -1131,7 +1131,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLicenseKey(String licenseKey) {
 
-         LOG.warn("License key detected - in order to use Teams or Enterprise features, download " + Edition.ENTERPRISE + " & " + Edition.TIER3 + "here: " + FlywayDbWebsiteLinks.TEAMS_ENTERPRISE_DOWNLOAD);
+         LOG.warn("License key detected - in order to use Teams or Enterprise features, download " + Edition.ENTERPRISE + " & " + Edition.TIER3 + " here: " + FlywayDbWebsiteLinks.TEAMS_ENTERPRISE_DOWNLOAD);
 
 
 
