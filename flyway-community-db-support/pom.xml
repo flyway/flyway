@@ -45,6 +45,12 @@
             <scope>test</scope>
             <version>${version.junit}</version>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${version.lombok}</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- JDBC drivers -->
         <dependency>
             <groupId>org.apache.ignite</groupId>

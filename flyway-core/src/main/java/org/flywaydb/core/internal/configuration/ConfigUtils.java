@@ -103,6 +103,9 @@ public class ConfigUtils {
     public static final String ORACLE_KERBEROS_CACHE_FILE = "flyway.oracle.kerberosCacheFile";
     public static final String ORACLE_WALLET_LOCATION = "flyway.oracle.walletLocation";
 
+    // DB2Z-specific
+    public static final String DB2Z_DATABASE_NAME = "flyway.db2z.databaseName";
+
     // Command-line specific
     public static final String JAR_DIRS = "flyway.jarDirs";
 
@@ -326,6 +329,11 @@ public class ConfigUtils {
         }
         if ("FLYWAY_ORACLE_WALLET_LOCATION".equals(key)) {
             return ORACLE_WALLET_LOCATION;
+        }
+
+        // DB2Z-specific
+        if ("FLYWAY_DB2Z_DATABASE_NAME".equals(key)) {
+            return DB2Z_DATABASE_NAME;
         }
 
         // Command-line specific
