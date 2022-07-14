@@ -67,7 +67,6 @@ public class DB2ZCallProcedureParsedStatement extends ParsedSqlStatement {
 		callStmt += ")";
 
         results = jdbcTemplate.executeCallableStatement(callStmt, parms);
-        // results = jdbcTemplate.executeStatement("Zomaar");
 		
 		//For SYSPROC.DSNUTILU invocations, check last result row to detect any error
 		if(DB2Z_DSNUTILU_PROCNAME.matcher(procedureName).matches()) {
@@ -75,7 +74,7 @@ public class DB2ZCallProcedureParsedStatement extends ParsedSqlStatement {
 			if(resultList.size() > 0) {
 				Result result = resultList.get(0);
 				if(result != null) {
-					List<List<String>> resultData = result.getData(); 
+					List<List<String>> resultData = result.getData();
 					if(resultData != null && resultData.size() > 0) {
 						List<String> lastResultRow = resultData.get(resultData.size()-1);
 						if(lastResultRow != null && lastResultRow.size() > 0 ) {
@@ -88,10 +87,6 @@ public class DB2ZCallProcedureParsedStatement extends ParsedSqlStatement {
 									message += row.get(row.size()-1) + "\n";
 								}
 								results.setException(new SQLException(message));
-							} else {
-								//In case of successful completion, only log last message
-								resultData.clear();
-								resultData.add(lastResultRow);
 							}
 						}
 					}

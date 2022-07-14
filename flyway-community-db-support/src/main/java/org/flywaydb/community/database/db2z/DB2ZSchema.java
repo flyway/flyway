@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.flywaydb.community.database.db2z;
 
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Function;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
@@ -28,6 +30,7 @@ import java.util.List;
 /**
  * DB2 implementation of Schema.
  */
+@CustomLog
 public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
     /**
      * Creates a new DB2 schema.
@@ -85,6 +88,19 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
 
             for (String dropVersioningStatement : dropVersioningStatements) {
                 jdbcTemplate.execute(dropVersioningStatement);
+            }
+        
+            // diable archiving on table
+            List<String> disableArchivingStatements = generateDisableArchivingStatement();
+            if (!disableArchivingStatements.isEmpty()) {
+                // Do a explicit drop of MQTs in order to be able to drop the Versioning
+                for (String dropTableStatement : generateDropStatements("M", "TABLE")) {
+                    jdbcTemplate.execute(dropTableStatement);
+                }
+            }
+
+            for (String disableArchivingStatement : disableArchivingStatements) {
+                jdbcTemplate.execute(disableArchivingStatement);
             }
 
         // views
@@ -183,6 +199,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
         List<String> dropStatements = new ArrayList<>();
         List<String> dbObjects = jdbcTemplate.queryForStringList(dropTablespaceGenQuery);
         for (String dbObject : dbObjects) {
+            LOG.info("DROP TABLESPACE " + database.quote(database.getName(), dbObject));
             dropStatements.add("DROP TABLESPACE " + database.quote(database.getName(), dbObject));
         }
         return dropStatements;
@@ -194,6 +211,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
         List<String> dropStatements = new ArrayList<>();
         List<String> dbObjects = jdbcTemplate.queryForStringList(dropTablespaceGenQuery);
         for (String dbObject : dbObjects) {
+            LOG.info("DROP TABLESPACE " + database.quote(database.getName(), dbObject));
             dropStatements.add("DROP TABLESPACE " + database.quote(database.getName(), dbObject));
         }
         return dropStatements;
@@ -235,6 +253,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
         List<String> dropStatements = new ArrayList<>();
         List<String> dbObjects = jdbcTemplate.queryForStringList(query);
         for (String dbObject : dbObjects) {
+            LOG.info(dropPrefix + " " + database.quote(name, dbObject));
             dropStatements.add(dropPrefix + " " + database.quote(name, dbObject));
         }
         return dropStatements;
@@ -247,10 +266,24 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
         List<String> dropVersioningStatements = new ArrayList<>();
         Table[] versioningTables = findTables("select rtrim(NAME) from SYSIBM.SYSTABLES where VERSIONING_TABLE <> '' and DBNAME = '" + database.getName() + "' AND CREATOR = ?", name);
         for (Table table : versioningTables) {
+            LOG.info("ALTER TABLE " + table.toString() + " DROP VERSIONING");
             dropVersioningStatements.add("ALTER TABLE " + table.toString() + " DROP VERSIONING");
         }
 
         return dropVersioningStatements;
+    }
+
+    /**
+     * @return All tables that have archiving associated with them.
+     */
+    private List<String> generateDisableArchivingStatement() throws SQLException {
+        List<String> dropArchivingStatements = new ArrayList<>();
+        Table[] archivingTables = findTables("select rtrim(NAME) from SYSIBM.SYSTABLES where ARCHIVING_TABLE <> '' and DBNAME = '" + database.getName() + "' AND CREATOR = ?", name);
+        for (Table table : archivingTables) {
+            LOG.info("ALTER TABLE " + table.toString() + " DISABLE ARCHIVE");
+            dropArchivingStatements.add("ALTER TABLE " + table.toString() + " DISABLE ARCHIVE");
+        }
+        return dropArchivingStatements;
     }
 
     private DB2ZTable[] findTables(String sqlQuery, String... params) throws SQLException {

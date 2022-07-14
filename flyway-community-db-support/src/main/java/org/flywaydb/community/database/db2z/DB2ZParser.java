@@ -20,7 +20,6 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.*;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -47,19 +46,20 @@ public class DB2ZParser extends Parser {
             ".*DROP\\s([^\\s]+\\s){0,2}IF\\sEXISTS");
     private static final Pattern STORED_PROCEDURE_CALL = Pattern.compile(
             "^CALL");
-	private static final StatementType DB2Z_CALL_STATEMENT = new StatementType();
-    private static final Pattern DB2Z_CALL_WITH_PARMS_REXEX = Pattern.compile(
-            "^CALL\\s+(?<procname>([^\\s]+\\.)?[^\\s]+)(\\((?<args>\\S.*)\\))", Pattern.CASE_INSENSITIVE);
+    private static final StatementType DB2Z_CALL_STATEMENT = new StatementType();
+    // Do not assume first line is beginning of CALL statement. Maybe comment or whitelines first...
+    private static final Pattern DB2Z_CALL_WITH_PARMS_REGEX = Pattern.compile(
+            "CALL\\s+(?<procname>([^\\s]+\\.)?[^\\s]+)(\\(\\s*(?<args>\\S.*)\\s*\\))", Pattern.CASE_INSENSITIVE);
 
-	//Split on comma if that comma has zero, or an even number of quotes ahead
-	private static final Pattern PARMS_SPLIT_REGEX = Pattern.compile(",(?=(?:[^']*'[^']*')*[^']*$)");
-	private static final Pattern STRING_PARM_REGEX = Pattern.compile("'.*'");
-	private static final Pattern INTEGER_PARM_REGEX = Pattern.compile("-?\\d+");
+    //Split on comma if that comma has zero, or an even number of quotes ahead
+    private static final Pattern PARMS_SPLIT_REGEX = Pattern.compile(",(?=(?:[^']*'[^']*')*[^']*$)");
+    private static final Pattern STRING_PARM_REGEX = Pattern.compile("'.*'");
+    private static final Pattern INTEGER_PARM_REGEX = Pattern.compile("-?\\d+");
 
     @Override
     protected StatementType detectStatementType(String simplifiedStatement, ParserContext context, PeekingReader reader) {
         LOG.debug("detectStatementType: simplifiedStatement=" + simplifiedStatement);
-	    if (STORED_PROCEDURE_CALL.matcher(simplifiedStatement).matches()) {
+        if (STORED_PROCEDURE_CALL.matcher(simplifiedStatement).matches()) {
             LOG.debug("detectStatementType: DB2Z CALL statement found" );
             return DB2Z_CALL_STATEMENT;
         }
@@ -73,24 +73,26 @@ public class DB2ZParser extends Parser {
                                                  StatementType statementType, boolean canExecuteInTransaction,
                                                  Delimiter delimiter, String sql
     ) throws IOException {
+        // Always display parsed sql comment included
+        LOG.info(sql);
         if (statementType == DB2Z_CALL_STATEMENT) {
-			Matcher callMatcher = DB2Z_CALL_WITH_PARMS_REXEX.matcher(sql);
-			
-			if(callMatcher.matches()) {
+            Matcher callMatcher = DB2Z_CALL_WITH_PARMS_REGEX.matcher(sql);
+			if(callMatcher.find()) {
 				String procName = callMatcher.group("procname");
-				String parmsString = callMatcher.group("args");
-	            LOG.debug("createStatement: DB2Z CALL " + procName );
+                String parmsString = callMatcher.group("args");
 				String[] parmStrings = PARMS_SPLIT_REGEX.split(parmsString);
 				Object[] parms = new Object[parmStrings.length];
 				for(int i = 0; i < parmStrings.length; i++) {
 		            String prmTrimmed = parmStrings[i].trim();
-					LOG.debug("createStatement: DB2Z CALL parm: " + prmTrimmed );
+					LOG.debug("createStatement: DB2Z CALL with parms: " + procName + " " + prmTrimmed );
 				    if (STRING_PARM_REGEX.matcher(prmTrimmed).matches()) {
 						//For string literals, remove the surrounding single quotes and 
 						//de-escape any single quotes inside the string
 						parms[i] = prmTrimmed.substring(1, prmTrimmed.length() - 1).replace("''", "'");
 					} else if (INTEGER_PARM_REGEX.matcher(prmTrimmed).matches()) {
-						parms[i] = new Integer(prmTrimmed);
+                        // ruttm03 I think below line is deprecated....
+                        parms[i] = new Integer(prmTrimmed);
+                        // parms[i] = Integer.valueOf(prmTrimmed);
 					} else if (prmTrimmed.toUpperCase().equals("NULL")) {
 						parms[i] = null;						
 					} else {
@@ -99,8 +101,9 @@ public class DB2ZParser extends Parser {
                 }
 	            return new DB2ZCallProcedureParsedStatement(statementPos, statementLine, statementCol,
                     sql, delimiter, canExecuteInTransaction, procName, parms);
-			}
+            }
         }
+        LOG.debug("createStatement: DB2Z CALL no parms " + statementType + " " + sql);
         return super.createStatement(reader, recorder, statementPos, statementLine, statementCol,
                 nonCommentPartPos, nonCommentPartLine, nonCommentPartCol,
                 statementType, canExecuteInTransaction, delimiter, sql
