@@ -32,7 +32,6 @@ import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.ExecutionTemplateFactory;
 import org.flywaydb.core.internal.jdbc.JdbcNullTypes;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
@@ -203,12 +202,16 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                 // upper-case them - e.g. Snowflake with QUOTED-IDENTIFIERS-IGNORE-CASE turned on
                 HashMap<String, Integer> columnOrdinalMap = constructColumnOrdinalMap(rs);
 
+                Integer checksum = rs.getInt(columnOrdinalMap.get("checksum"));
+                if (rs.wasNull()) {
+                    checksum = null;
+                }
+
                 int installedRank = rs.getInt(columnOrdinalMap.get("installed_rank"));
                 MigrationVersion version = rs.getString(columnOrdinalMap.get("version")) != null ? MigrationVersion.fromVersion(rs.getString(columnOrdinalMap.get("version"))) : null;
                 String description = rs.getString(columnOrdinalMap.get("description"));
                 String type = rs.getString(columnOrdinalMap.get("type"));
                 String script = rs.getString(columnOrdinalMap.get("script"));
-                Integer checksum = rs.wasNull() ? null : rs.getInt(columnOrdinalMap.get("checksum"));
                 Timestamp installedOn = rs.getTimestamp(columnOrdinalMap.get("installed_on"));
                 String installedBy = rs.getString(columnOrdinalMap.get("installed_by"));
                 int executionTime = rs.getInt(columnOrdinalMap.get("execution_time"));
