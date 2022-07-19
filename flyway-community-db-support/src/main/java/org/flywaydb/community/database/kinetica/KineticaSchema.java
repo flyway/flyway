@@ -36,7 +36,7 @@ public class KineticaSchema extends Schema<KineticaDatabase,KineticaTable> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME=?", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME= '"+name+"'") > 0;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class KineticaSchema extends Schema<KineticaDatabase,KineticaTable> {
     @Override
     protected KineticaTable[] doAllTables() throws SQLException {
         String query = "select table_name from information_schema.tables where table_schema= '"+name +"'";
-        List<String> tables = jdbcTemplate.queryForStringList(query, name);
+        List<String> tables = jdbcTemplate.queryForStringList(query);
         KineticaTable[]  kineticaTables = new KineticaTable[tables.size()];
         int index = 0;
         for (String table: tables) {
