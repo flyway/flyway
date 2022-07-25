@@ -358,10 +358,6 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public DataSource getDataSource() {
-        if (dataSource == null &&
-                (StringUtils.hasLength(driver) || StringUtils.hasLength(user) || StringUtils.hasLength(password))) {
-            LOG.warn("Discarding INCOMPLETE dataSource configuration! " + ConfigUtils.URL + " must be set.");
-        }
         return dataSource;
     }
 

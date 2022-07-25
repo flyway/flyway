@@ -45,10 +45,7 @@ import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.logging.multi.MultiLogCreator;
 import org.flywaydb.core.internal.plugin.PluginRegister;
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
-import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.*;
 
 import java.io.Console;
 import java.io.File;
@@ -57,6 +54,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -338,7 +336,12 @@ public class Main {
     }
 
     private static String convertObjectToJsonString(Object object) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().serializeNulls().create();
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .disableHtmlEscaping()
+                .serializeNulls()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer())
+                .create();
         return gson.toJson(object);
     }
 
