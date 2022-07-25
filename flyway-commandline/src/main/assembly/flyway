@@ -43,6 +43,8 @@ CP="$CLASSPATH:$INSTALLDIR/lib/*:$INSTALLDIR/lib/aad/*:$INSTALLDIR/lib/oracle_wa
 EXTRA_ARGS=
 if $linux; then
   EXTRA_ARGS=-Djava.security.egd=file:/dev/../dev/urandom
+else
+  EXTRA_ARGS=-Djava.library.path="$INSTALLDIR/native"
 fi
 
 if `command -v cygpath > /dev/null`; then CP=`cygpath -pw "$CP"`; fi
