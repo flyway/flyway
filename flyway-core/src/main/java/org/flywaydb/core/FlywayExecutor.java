@@ -96,6 +96,14 @@ public class FlywayExecutor {
         this.resourceNameCache = new ResourceNameCache();
         this.locationScannerCache = new LocationScannerCache();
         this.configuration = configuration;
+
+
+
+
+
+
+
+
     }
 
     /**
@@ -109,14 +117,6 @@ public class FlywayExecutor {
         T result;
 
         configurationValidator.validate(configuration);
-
-
-
-
-
-
-
-
 
         VersionPrinter.printVersion();
         

@@ -146,6 +146,8 @@ public class Main {
 
             Configuration configuration = new FluentConfiguration(classLoader).configuration(config);
 
+            Flyway flyway = Flyway.configure(classLoader).configuration(configuration).load();
+
             if (!commandLineArguments.skipCheckForUpdate()) {
                 if (RedgateUpdateChecker.isEnabled() && configuration.getDataSource() != null) {
                     try(JdbcConnectionFactory jdbcConnectionFactory= new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
@@ -164,8 +166,6 @@ public class Main {
                     MavenVersionChecker.checkForVersionUpdates();
                 }
             }
-
-            Flyway flyway = Flyway.configure(classLoader).configuration(configuration).load();
 
             OperationResult result;
             if (commandLineArguments.getOperations().size() == 1) {
