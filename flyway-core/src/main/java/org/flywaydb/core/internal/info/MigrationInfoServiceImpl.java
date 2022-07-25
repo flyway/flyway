@@ -188,6 +188,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             }
             if (appliedMigration.getType().equals(CoreMigrationType.DELETE) && appliedMigration.isSuccess()) {
                 markAsDeleted(version, appliedVersionedMigrations);
+                continue;
             }
 
 

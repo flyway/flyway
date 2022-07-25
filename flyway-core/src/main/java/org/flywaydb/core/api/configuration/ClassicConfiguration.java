@@ -541,9 +541,13 @@ public class ClassicConfiguration implements Configuration {
      * <i>Flyway Teams only</i>
      */
     public void setIgnoreMigrationPatterns(String... ignoreMigrationPatterns) {
-        this.ignoreMigrationPatterns = Arrays.stream(ignoreMigrationPatterns)
-                .map(ValidatePattern::fromPattern)
-                .toArray(ValidatePattern[]::new);
+        if (Arrays.equals(ignoreMigrationPatterns, new String[] { "" })) {
+            this.ignoreMigrationPatterns = new ValidatePattern[0];
+        } else {
+            this.ignoreMigrationPatterns = Arrays.stream(ignoreMigrationPatterns)
+                    .map(ValidatePattern::fromPattern)
+                    .toArray(ValidatePattern[]::new);
+        }
     }
 
     /**
