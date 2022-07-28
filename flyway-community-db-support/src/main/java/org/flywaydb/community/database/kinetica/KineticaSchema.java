@@ -15,11 +15,13 @@
  */
 package org.flywaydb.community.database.kinetica;
 
+import org.flywaydb.community.database.ignite.thin.IgniteThinTable;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class KineticaSchema extends Schema<KineticaDatabase,KineticaTable> {
@@ -58,7 +60,9 @@ public class KineticaSchema extends Schema<KineticaDatabase,KineticaTable> {
 
     @Override
     protected void doClean() throws SQLException {
-      //
+        for (Table table : allTables()) {
+            table.drop();
+        }
     }
 
     @Override

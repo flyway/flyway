@@ -46,6 +46,6 @@ public class KineticaTable extends Table<KineticaDatabase, KineticaSchema> {
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP TABLE " + schema.getName()+"." +name );
+        jdbcTemplate.execute("DROP TABLE \"" + schema.getName()+"\".\"" +name+"\"" );
     }
 }

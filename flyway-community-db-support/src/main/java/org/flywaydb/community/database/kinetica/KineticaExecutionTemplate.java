@@ -18,27 +18,10 @@ package org.flywaydb.community.database.kinetica;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.ExecutionTemplate;
-
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
 public class KineticaExecutionTemplate implements ExecutionTemplate {
-
-    /**
-     * The connection to the database
-     */
-    private final Connection connection;
-
-    /**
-     * Whether to roll back the transaction when an exception is thrown.
-     */
-    private final boolean rollbackOnException;
-
-    public KineticaExecutionTemplate(Connection connection, boolean rollbackOnException) {
-        this.connection = connection;
-        this.rollbackOnException = rollbackOnException;
-    }
 
     /**
      * Executes this callback.
@@ -49,8 +32,6 @@ public class KineticaExecutionTemplate implements ExecutionTemplate {
      */
     @Override
     public <T> T execute(Callable<T> callback) {
-        boolean oldAutocommit = true;
-
 
         try {
             T result = callback.call();
@@ -58,7 +39,7 @@ public class KineticaExecutionTemplate implements ExecutionTemplate {
         } catch (Exception e) {
             RuntimeException rethrow;
             if (e instanceof SQLException) {
-                rethrow = new FlywaySqlException("Unable to commit transaction", (SQLException) e);
+                rethrow = new FlywaySqlException("Unable to execute SQL statement", (SQLException) e);
             } else if (e instanceof RuntimeException) {
                 rethrow = (RuntimeException) e;
             } else {

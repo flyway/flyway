@@ -72,7 +72,7 @@ public class KineticaDatabaseType extends BaseDatabaseType {
 
     @Override
     public ExecutionTemplate createTransactionalExecutionTemplate(Connection connection, boolean rollbackOnException) {
-        final KineticaExecutionTemplate kineticaExecutionTemplate = new KineticaExecutionTemplate(connection, rollbackOnException);
+        final KineticaExecutionTemplate kineticaExecutionTemplate = new KineticaExecutionTemplate();
         return kineticaExecutionTemplate;
     }
 }
