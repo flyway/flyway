@@ -109,6 +109,12 @@
             <includes>
                 <include>org.fusesource.jansi:jansi</include>
                 <include>com.google.code.gson:gson</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
                 <include>org.apache.commons:commons-text</include>
             </includes>
         </dependencySet>
