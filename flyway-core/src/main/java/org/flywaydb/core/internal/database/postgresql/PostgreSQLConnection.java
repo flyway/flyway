@@ -25,9 +25,6 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
-/**
- * PostgreSQL connection.
- */
 public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
     private final String originalRole;
 
@@ -96,6 +93,6 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
 
     @Override
     public <T> T lock(Table table, Callable<T> callable) {
-        return new PostgreSQLAdvisoryLockTemplate(jdbcTemplate, table.toString().hashCode()).execute(callable);
+        return new PostgreSQLAdvisoryLockTemplate(database.getConfiguration(), jdbcTemplate, table.toString().hashCode()).execute(callable);
     }
 }
