@@ -20,11 +20,11 @@
     <!--
     Detailed information how to contribute: https://flywaydb.org/documentation/contribute/code/
 
-    The OS-specific JREs are unfortunately not available from Maven Central due to licensing issues.
-    Instructions for installing them: https://flywaydb.org/documentation/contribute/devEnvironmentSetup.html
-
-    To build the OS-specific flyway-commandline assemblies you can run the build with:
-    mvn clean install -PCommandlinePlatformAssemblies
+    To build the OS-specific flyway-commandline assemblies you can run the build with one of the following commands:
+    mvn clean install -Pbuild-assemblies-windows
+    mvn clean install -Pbuild-assemblies-linux
+    mvn clean install -Pbuild-assemblies-mac
+    mvn clean install -Pbuild-assemblies-no-jre
     -->
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
