@@ -35,6 +35,7 @@
         <flyway-sqlserver.version>${project.version}</flyway-sqlserver.version>
         <flyway-mysql.version>${project.version}</flyway-mysql.version>
         <flyway-firebird.version>${project.version}</flyway-firebird.version>
+        <jre.version>11.0.16</jre.version>
     </properties>
     <dependencies>
         <dependency>
@@ -235,6 +236,37 @@
 
 
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>net.adoptium</groupId>
+                <artifactId>jre</artifactId>
+                <classifier>windows-x64</classifier>
+                <version>${jre.version}</version>
+                <type>zip</type>
+                <scope>system</scope>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK11U-jre_x64_windows_hotspot_${jre.version}_8.zip</systemPath>
+            </dependency>
+            <dependency>
+                <groupId>net.adoptium</groupId>
+                <artifactId>jre</artifactId>
+                <classifier>linux-x64</classifier>
+                <version>${jre.version}</version>
+                <type>tar.gz</type>
+                <scope>system</scope>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK11U-jre_x64_linux_hotspot_${jre.version}_8.tar.gz</systemPath>
+            </dependency>
+            <dependency>
+                <groupId>net.adoptium</groupId>
+                <artifactId>jre</artifactId>
+                <classifier>macos-x64</classifier>
+                <version>${jre.version}</version>
+                <type>tar.gz</type>
+                <scope>system</scope>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK11U-jre_x64_mac_hotspot_${jre.version}_8.tar.gz</systemPath>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <build>
         <plugins>
             <plugin>
@@ -311,25 +343,25 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>net.adoptopenjdk</groupId>
+                    <groupId>net.adoptium</groupId>
                     <artifactId>jre</artifactId>
                     <classifier>windows-x64</classifier>
                     <type>zip</type>
-                    <scope>provided</scope>
+                    <scope>system</scope>
                 </dependency>
                 <dependency>
-                    <groupId>net.adoptopenjdk</groupId>
+                    <groupId>net.adoptium</groupId>
                     <artifactId>jre</artifactId>
                     <classifier>linux-x64</classifier>
                     <type>tar.gz</type>
-                    <scope>provided</scope>
+                    <scope>system</scope>
                 </dependency>
                 <dependency>
-                    <groupId>net.adoptopenjdk</groupId>
+                    <groupId>net.adoptium</groupId>
                     <artifactId>jre</artifactId>
                     <classifier>macos-x64</classifier>
                     <type>tar.gz</type>
-                    <scope>provided</scope>
+                    <scope>system</scope>
                 </dependency>
             </dependencies>
             <build>
@@ -444,11 +476,11 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>net.adoptopenjdk</groupId>
+                    <groupId>net.adoptium</groupId>
                     <artifactId>jre</artifactId>
                     <classifier>windows-x64</classifier>
                     <type>zip</type>
-                    <scope>provided</scope>
+                    <scope>system</scope>
                 </dependency>
                 <dependency>
                     <groupId>com.oracle.database.jdbc</groupId>
@@ -508,11 +540,11 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>net.adoptopenjdk</groupId>
+                    <groupId>net.adoptium</groupId>
                     <artifactId>jre</artifactId>
                     <classifier>linux-x64</classifier>
                     <type>tar.gz</type>
-                    <scope>provided</scope>
+                    <scope>system</scope>
                 </dependency>
                 <dependency>
                     <groupId>com.oracle.database.jdbc</groupId>
@@ -572,11 +604,11 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>net.adoptopenjdk</groupId>
+                    <groupId>net.adoptium</groupId>
                     <artifactId>jre</artifactId>
                     <classifier>macos-x64</classifier>
                     <type>tar.gz</type>
-                    <scope>provided</scope>
+                    <scope>system</scope>
                 </dependency>
                 <dependency>
                     <groupId>com.oracle.database.jdbc</groupId>
