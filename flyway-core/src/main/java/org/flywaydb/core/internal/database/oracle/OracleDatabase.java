@@ -69,7 +69,7 @@ public class OracleDatabase extends Database<OracleConnection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("18.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessary("19.0");
+        recommendFlywayUpgradeIfNecessaryForMajorVersion("19.3");
     }
 
     @Override
