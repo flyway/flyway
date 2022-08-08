@@ -41,6 +41,8 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+import org.flywaydb.core.internal.license.FlywayTrialExpiredException;
+
 import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.logging.multi.MultiLogCreator;
@@ -62,6 +64,10 @@ import java.util.stream.Stream;
 public class Main {
     private static Log LOG;
     private static final PluginRegister pluginRegister = new PluginRegister();
+
+
+
+
 
     static LogCreator getLogCreator(CommandLineArguments commandLineArguments) {
         // JSON output uses a different mechanism, so we do not create any loggers
@@ -141,6 +147,12 @@ public class Main {
 
             ConfigUtils.dumpConfiguration(config);
             filterProperties(config);
+
+
+
+
+
+
 
             Configuration configuration = new FluentConfiguration(classLoader).configuration(config);
 
@@ -365,6 +377,17 @@ public class Main {
         config.remove(ConfigUtils.CONFIG_FILES);
         config.remove(ConfigUtils.CONFIG_FILE_ENCODING);
     }
+
+
+
+
+
+
+
+
+
+
+
 
     private static void printUsage() {
         String indent = "    ";

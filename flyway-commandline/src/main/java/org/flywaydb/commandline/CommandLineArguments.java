@@ -35,6 +35,7 @@ public class CommandLineArguments {
     private static final String QUIET_FLAG = "-q";
     private static final String SUPPRESS_PROMPT_FLAG = "-n";
     private static final List<String> PRINT_VERSION_AND_EXIT_FLAGS = Arrays.asList("-v", "--version");
+    private static final String CHECK_LICENCE = "-checkLicence";
     private static final List<String> PRINT_USAGE_FLAGS = Arrays.asList("-?", "-h", "--help");
     private static final String SKIP_CHECK_FOR_UPDATE_FLAG = "-skipCheckForUpdate";
     private static final String MIGRATIONS_IDS_FLAG = "-migrationIds";
@@ -79,6 +80,7 @@ public class CommandLineArguments {
                 ENTERPRISE_FLAG,
                 PRO_FLAG,
                 TEAMS_FLAG,
+                CHECK_LICENCE,
                 "help",
                 "migrate",
                 "clean",
@@ -207,7 +209,7 @@ public class CommandLineArguments {
     }
 
     public boolean shouldPrintUsage() {
-        return isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty();
+        return isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty() && !isFlagSet(args, CHECK_LICENCE);
     }
 
     public Level getLogLevel() {
@@ -230,6 +232,10 @@ public class CommandLineArguments {
 
     public List<String> getConfigFiles() {
         return getConfigFilesFromArgs(args);
+    }
+
+    public boolean shouldCheckLicenseAndExit() {
+        return isFlagSet(args, CHECK_LICENCE);
     }
 
     public String getOutputFile() {

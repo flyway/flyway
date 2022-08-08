@@ -19,7 +19,12 @@
            xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2 http://maven.apache.org/xsd/component-1.1.2.xsd">
     <fileSets>
         <fileSet>
+
             <directory>src/main/assembly</directory>
+
+
+
+
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway.cmd</include>
@@ -28,7 +33,12 @@
             <filtered>true</filtered>
         </fileSet>
         <fileSet>
+
             <directory>src/main/assembly</directory>
+
+
+
+
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway</include>
@@ -90,6 +100,14 @@
             </includes>
             <fileMode>644</fileMode>
         </fileSet>
+
+
+
+
+
+
+
+
 
 
 
