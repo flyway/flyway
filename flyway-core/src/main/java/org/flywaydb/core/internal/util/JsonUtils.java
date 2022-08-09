@@ -48,7 +48,7 @@ public class JsonUtils {
         return getGson().fromJson(json, JsonObject.class).get(key).getAsString();
     }
 
-    private static Gson getGson() {
+    public static Gson getGson() {
         return new GsonBuilder()
                 .serializeNulls()
                 .setPrettyPrinting()
