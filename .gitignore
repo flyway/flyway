@@ -12,6 +12,7 @@ target
 .gradle
 *.h2.db
 .DS_Store
+*.asc
 
 **/.idea/**
 !**/.idea/runConfigurations/

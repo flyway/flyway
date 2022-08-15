@@ -29,7 +29,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>9.1.3</version>
+    <version>9.1.4</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -166,12 +166,12 @@
         <version.oracle>19.6.0.0</version.oracle>
         <version.osgi>4.3.1</version.osgi>
         <version.p6spy>3.9.1</version.p6spy>
-        <version.postgresql>42.3.3</version.postgresql>
+        <version.postgresql>42.4.1</version.postgresql>
         <version.redshift>1.2.10.1009</version.redshift>
         <version.sap>2.6.30</version.sap>
         <version.slf4j>1.7.30</version.slf4j>
         <version.snowflake>3.13.1</version.snowflake>
-        <version.spanner>2.5.7</version.spanner>
+        <version.spanner>2.7.6</version.spanner>
         <version.springjdbc>5.3.19</version.springjdbc>
         <version.sqlite>3.34.0</version.sqlite>
         <version.testcontainers>1.15.3</version.testcontainers>
