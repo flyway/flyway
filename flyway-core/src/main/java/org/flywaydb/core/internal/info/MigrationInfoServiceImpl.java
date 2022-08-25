@@ -530,21 +530,18 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         return outOfOrderMigrations.toArray(new MigrationInfo[0]);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * @return The undo migrations. An empty array if none.
+     */
+    public MigrationInfoImpl[] undo() {
+        List<MigrationInfoImpl> result = new ArrayList<>();
+        for (MigrationInfoImpl migrationInfo : migrationInfos) {
+            if (migrationInfo.getType().isUndo()) {
+                result.add(migrationInfo);
+            }
+        }
+        return result.toArray(new MigrationInfoImpl[0]);
+    }
 
     /**
      * @return The list of migrations that failed validation, which is empty if everything is fine.

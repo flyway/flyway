@@ -219,6 +219,7 @@
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <includes>
                 <include>com.google.cloud:google-cloud-spanner-jdbc</include>
+                <include>com.google.api:gax</include>
             </includes>
             <excludes>
                 <exclude>commons-logging:commons-logging</exclude>

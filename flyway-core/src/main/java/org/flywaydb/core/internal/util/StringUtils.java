@@ -331,7 +331,7 @@ public class StringUtils {
             return false;
         }
         for (String suffix : suffixes) {
-            if (str.endsWith(suffix) && (str.length() > (prefix + suffix).length())) {
+            if (str.toUpperCase().endsWith(suffix.toUpperCase()) && (str.length() > (prefix + suffix).length())) {
                 return true;
             }
         }

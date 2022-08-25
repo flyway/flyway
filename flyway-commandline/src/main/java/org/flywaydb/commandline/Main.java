@@ -182,10 +182,11 @@ public class Main {
                 String operation = commandLineArguments.getOperations().get(0);
                 result = executeOperation(flyway, operation, commandLineArguments);
             } else {
-                result = new CompositeResult();
+                CompositeResult<OperationResult> compositeResult = new CompositeResult<>();
                 for (String operation : commandLineArguments.getOperations()) {
-                    ((CompositeResult) result).individualResults.add(executeOperation(flyway, operation, commandLineArguments));
+                    compositeResult.individualResults.add(executeOperation(flyway, operation, commandLineArguments));
                 }
+                result = compositeResult;
             }
 
             if (commandLineArguments.shouldOutputJson()) {
@@ -405,7 +406,6 @@ public class Main {
         LOG.info(indent + StringUtils.rightPad("clean", padSize, ' ') + "Drops all objects in the configured schemas");
         LOG.info(indent + StringUtils.rightPad("info", padSize, ' ') + "Prints the information about applied, current and pending migrations");
         LOG.info(indent + StringUtils.rightPad("validate", padSize, ' ') + "Validates the applied migrations against the ones on the classpath");
-        LOG.info(indent + StringUtils.rightPad("undo", padSize, ' ') + "[" + "teams] Undoes the most recently applied versioned migration");
         LOG.info(indent + StringUtils.rightPad("baseline", padSize, ' ') + "Baselines an existing database at the baselineVersion");
         LOG.info(indent + StringUtils.rightPad("repair", padSize, ' ') + "Repairs the schema history table");
         usages.forEach(u -> LOG.info(indent + StringUtils.rightPad(u.getLeft(), padSize, ' ') + u.getRight()));

@@ -18,6 +18,6 @@ package org.flywaydb.core.api.output;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CompositeResult implements OperationResult {
-    public List<OperationResult> individualResults = new LinkedList<>();
+public class CompositeResult<T extends OperationResult> implements OperationResult {
+    public List<T> individualResults = new LinkedList<>();
 }
