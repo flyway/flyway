@@ -29,7 +29,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>9.2.0</version>
+    <version>9.2.1</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -157,7 +157,7 @@
         <version.logback>1.2.3</version.logback>
         <version.lombok>1.18.20</version.lombok>
         <version.lombok-maven-plugin>1.18.20.0</version.lombok-maven-plugin>
-        <version.mariadb>2.7.2</version.mariadb>
+        <version.mariadb>3.0.7</version.mariadb>
         <version.maven>3.8.5</version.maven>
         <version.mockito>4.2.0</version.mockito>
         <version.msal4j>1.12.0</version.msal4j>
@@ -170,7 +170,7 @@
         <version.redshift>1.2.10.1009</version.redshift>
         <version.sap>2.6.30</version.sap>
         <version.slf4j>1.7.30</version.slf4j>
-        <version.snowflake>3.13.1</version.snowflake>
+        <version.snowflake>3.13.22</version.snowflake>
         <version.spanner>2.7.6</version.spanner>
         <version.springjdbc>5.3.19</version.springjdbc>
         <version.sqlite>3.34.0</version.sqlite>

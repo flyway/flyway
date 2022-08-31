@@ -21,32 +21,40 @@ import org.flywaydb.core.internal.parser.*;
 import java.io.IOException;
 
 public class SnowflakeParser extends Parser {
-    private final String ALTERNATIVE_QUOTE = "$$";
+    private static final String ALTERNATIVE_QUOTE = "$$";
+    private static final String ALTERNATIVE_QUOTE_SCRIPT = "DECLARE";
 
     public SnowflakeParser(Configuration configuration, ParsingContext parsingContext) {
-        super(configuration, parsingContext, 2);
+        super(configuration, parsingContext, 7);
     }
 
     @Override
     protected boolean isAlternativeStringLiteral(String peek) {
-        if (peek.startsWith("$$")) {
+        if (peek.startsWith(ALTERNATIVE_QUOTE) || peek.toUpperCase().startsWith(ALTERNATIVE_QUOTE_SCRIPT)) {
             return true;
         }
-
         return super.isAlternativeStringLiteral(peek);
     }
 
     @Override
     protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
-        reader.swallow(ALTERNATIVE_QUOTE.length());
-        reader.swallowUntilExcluding(ALTERNATIVE_QUOTE);
-        reader.swallow(ALTERNATIVE_QUOTE.length());
-        return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
+        String alternativeQuoteOpen = ALTERNATIVE_QUOTE;
+        String alternativeQuoteEnd = ALTERNATIVE_QUOTE;
+
+        if (reader.peek(ALTERNATIVE_QUOTE_SCRIPT)) {
+            alternativeQuoteOpen = ALTERNATIVE_QUOTE_SCRIPT;
+            alternativeQuoteEnd = "END";
+        }
+
+        reader.swallow(alternativeQuoteOpen.length());
+        String text = reader.readUntilExcluding(alternativeQuoteEnd);
+        reader.swallow(alternativeQuoteEnd.length());
+
+        return new Token(TokenType.STRING, pos, line, col, text, text, context.getParensDepth());
     }
 
     @Override
     protected boolean isSingleLineComment(String peek, ParserContext context, int col) {
         return peek.startsWith("--") || peek.startsWith("//");
     }
-
 }
