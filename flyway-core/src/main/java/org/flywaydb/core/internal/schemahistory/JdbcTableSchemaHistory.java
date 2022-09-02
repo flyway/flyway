@@ -351,7 +351,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
 
         try {
             jdbcTemplate.update(database.getInsertStatement(table),
-                                calculateInstalledRank(),
+                                calculateInstalledRank(appliedMigration.getType()),
                                 versionObj, appliedMigration.getDescription(), "DELETE", appliedMigration.getScript(),
                                 checksumObj, database.getInstalledBy(), 0, appliedMigration.isSuccess());
         } catch (SQLException e) {

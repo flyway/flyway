@@ -1517,13 +1517,8 @@ public class ClassicConfiguration implements Configuration {
         }
 
         // Must be done last, so that any driver-specific config has been done at this point.
-        if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) ||
-                StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
-            Map<String, String> jdbcPropertiesFromProps =
-                    getPropertiesUnderNamespace(
-                            props,
-                            getPlaceholders(),
-                            ConfigUtils.JDBC_PROPERTIES_PREFIX);
+        if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) || StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
+            Map<String, String> jdbcPropertiesFromProps = getPropertiesUnderNamespace(props, getPlaceholders(), ConfigUtils.JDBC_PROPERTIES_PREFIX);
 
             setDataSource(new DriverDataSource(classLoader, driver, url, user, password, this, jdbcPropertiesFromProps));
         }

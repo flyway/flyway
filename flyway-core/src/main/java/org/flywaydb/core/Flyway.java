@@ -135,6 +135,15 @@ public class Flyway {
                 }
             }
 
+            if (configuration.isCreateSchemas()) {
+                new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(false);
+            } else if (!defaultSchema.exists()) {
+                LOG.warn("The configuration option 'createSchemas' is false.\n" +
+                                 "However, the schema history table still needs a schema to reside in.\n" +
+                                 "You must manually create a schema for the schema history table to reside in.\n" +
+                                 "See https://flywaydb.org/documentation/concepts/migrations.html#the-createschemas-option-and-the-schema-history-table");
+            }
+
             if (!schemaHistory.exists()) {
                 List<Schema> nonEmptySchemas = new ArrayList<>();
                 for (Schema schema : schemas) {
@@ -159,18 +168,9 @@ public class Flyway {
                                                               + " or set baselineOnMigrate to true to initialize the schema history table.");
                         }
                     }
-                } else {
-                    if (configuration.isCreateSchemas()) {
-                        new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(false);
-                    } else if (!defaultSchema.exists()) {
-                        LOG.warn("The configuration option 'createSchemas' is false.\n" +
-                                         "However, the schema history table still needs a schema to reside in.\n" +
-                                         "You must manually create a schema for the schema history table to reside in.\n" +
-                                         "See https://flywaydb.org/documentation/concepts/migrations.html#the-createschemas-option-and-the-schema-history-table");
-                    }
-
-                    schemaHistory.create(false);
                 }
+
+                schemaHistory.create(false);
             }
 
             MigrateResult result = new DbMigrate(database, schemaHistory, defaultSchema, migrationResolver, configuration, callbackExecutor).migrate();
@@ -340,7 +340,7 @@ public class Flyway {
             throw e;
         }
     }
-    
+
     private OperationResult runCommand(String command, List<String> flags) {
         return configuration.getPluginRegister().getPlugins(CommandExtension.class).stream()
                 .filter(commandExtension -> commandExtension.handlesCommand(command))

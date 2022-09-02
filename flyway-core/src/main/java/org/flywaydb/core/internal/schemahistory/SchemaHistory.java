@@ -188,7 +188,7 @@ public abstract class SchemaHistory {
      */
     public final void addAppliedMigration(MigrationVersion version, String description, MigrationType type,
                                           String script, Integer checksum, int executionTime, boolean success) {
-        int installedRank = type == CoreMigrationType.SCHEMA ? 0 : calculateInstalledRank();
+        int installedRank = calculateInstalledRank(type);
         doAddAppliedMigration(
                 installedRank,
                 version,
@@ -203,12 +203,13 @@ public abstract class SchemaHistory {
     /**
      * Calculates the installed rank for the new migration to be inserted.
      *
+     * @param type The type of migration (SCHEMA, SQL, ...)
      * @return The installed rank.
      */
-    protected int calculateInstalledRank() {
+    protected int calculateInstalledRank(MigrationType type) {
         List<AppliedMigration> appliedMigrations = allAppliedMigrations();
         if (appliedMigrations.isEmpty()) {
-            return 1;
+            return type == CoreMigrationType.SCHEMA ? 0 : 1;
         }
         return appliedMigrations.get(appliedMigrations.size() - 1).getInstalledRank() + 1;
     }

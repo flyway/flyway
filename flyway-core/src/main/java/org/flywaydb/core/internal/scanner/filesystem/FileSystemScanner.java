@@ -57,34 +57,21 @@ public class FileSystemScanner {
         LOG.debug("Scanning for filesystem resources at '" + path + "'");
 
         File dir = new File(path);
-        if (!dir.exists()) {
+
+        DirectoryValidationResult validationResult = getDirectoryValidationResult(dir);
+
+        if (validationResult != DirectoryValidationResult.VALID) {
             if (throwOnMissingLocations) {
-                throw new FlywayException("Failed to find filesystem location:" + path + ".");
+                throw new FlywayException("Failed to find filesystem location: " + path + " (" + validationResult + ")");
             }
 
-            LOG.error("Skipping filesystem location:" + path + " (not found).");
-            return Collections.emptyList();
-        }
-        if (!dir.canRead()) {
-            if (throwOnMissingLocations) {
-                throw new FlywayException("Failed to find filesystem location:" + path + " (not readable).");
-            }
-
-            LOG.error("Skipping filesystem location:" + path + " (not readable).");
-            return Collections.emptyList();
-        }
-        if (!dir.isDirectory()) {
-            if (throwOnMissingLocations) {
-                throw new FlywayException("Failed to find filesystem location:" + path + " (not a directory).");
-            }
-
-            LOG.error("Skipping filesystem location:" + path + " (not a directory).");
+            LOG.error("Skipping filesystem location: " + path + " (" + validationResult + ")");
             return Collections.emptyList();
         }
 
         Set<LoadableResource> resources = new TreeSet<>();
 
-        for (String resourceName : findResourceNamesFromFileSystem(path, new File(path))) {
+        for (String resourceName : findResourceNamesFromFileSystem(path, dir)) {
             boolean detectEncodingForThisResource = detectEncoding;
             if (location.matchesPath(resourceName)) {
                 Charset encoding = defaultEncoding;
@@ -107,19 +94,36 @@ public class FileSystemScanner {
         return resources;
     }
 
-    /**
-     * Finds all the resource names contained in this file system folder.
-     *
-     * @param scanRootLocation The root location of the scan on disk.
-     * @param folder The folder to look for resources under on disk.
-     * @return The resource names;
-     */
+    private DirectoryValidationResult getDirectoryValidationResult(File directory) {
+        if (!directory.exists()) {
+            return DirectoryValidationResult.NOT_FOUND;
+        }
+        if (!directory.canRead()) {
+            return DirectoryValidationResult.NOT_READABLE;
+        }
+        if (!directory.isDirectory()) {
+            return DirectoryValidationResult.NOT_A_DIRECTORY;
+        }
+        return DirectoryValidationResult.VALID;
+    }
+
     private Set<String> findResourceNamesFromFileSystem(String scanRootLocation, File folder) {
+        String path = folder.getPath();
         LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
 
         Set<String> resourceNames = new TreeSet<>();
 
         File[] files = folder.listFiles();
+
+        if (files == null) {
+            if (throwOnMissingLocations) {
+                throw new FlywayException("Failed to find filesystem location: " + path + " (" + DirectoryValidationResult.UNABLE_TO_ACCESS_FOLDER + ")");
+            }
+
+            LOG.error("Skipping filesystem location: " + path + " (" + DirectoryValidationResult.UNABLE_TO_ACCESS_FOLDER + ")");
+            return Collections.emptySet();
+        }
+
         for (File file : files) {
             if (file.canRead()) {
                 if (file.isDirectory()) {
@@ -136,5 +140,18 @@ public class FileSystemScanner {
         }
 
         return resourceNames;
+    }
+
+    private enum DirectoryValidationResult {
+        NOT_FOUND,
+        NOT_READABLE,
+        NOT_A_DIRECTORY,
+        UNABLE_TO_ACCESS_FOLDER,
+        VALID;
+
+        @Override
+        public String toString() {
+            return name().toLowerCase().replace('_', ' ');
+        }
     }
 }
