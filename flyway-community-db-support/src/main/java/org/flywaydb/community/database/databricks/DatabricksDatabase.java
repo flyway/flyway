@@ -7,6 +7,7 @@ import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class DatabricksDatabase extends Database<DatabricksConnection> {
     public DatabricksDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
@@ -15,7 +16,7 @@ public class DatabricksDatabase extends Database<DatabricksConnection> {
 
     @Override
     protected DatabricksConnection doGetConnection(Connection connection) {
-        return null;
+        return new DatabricksConnection(this, connection);
     }
 
     @Override
@@ -46,6 +47,16 @@ public class DatabricksDatabase extends Database<DatabricksConnection> {
     @Override
     public boolean catalogIsSchema() {
         return false;
+    }
+
+    @Override
+    protected String getOpenQuote() {
+        return "`";
+    }
+
+    @Override
+    protected String getCloseQuote() {
+        return "`";
     }
 
     @Override

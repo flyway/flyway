@@ -12,6 +12,7 @@ import org.flywaydb.core.internal.util.ClassUtils;
 
 import java.sql.Connection;
 import java.sql.Types;
+import java.util.Properties;
 
 public class DatabricksDatabaseType extends BaseDatabaseType {
     private static final String DATABRICKS_JDBC_DRIVER = "com.databricks.client.jdbc.Driver";

@@ -48,6 +48,6 @@ public class DatabricksSchema extends Schema<DatabricksDatabase, DatabricksTable
 
     @Override
     public Table getTable(String tableName) {
-        return null;
+        return new DatabricksTable(jdbcTemplate, database, this, tableName);
     }
 }
