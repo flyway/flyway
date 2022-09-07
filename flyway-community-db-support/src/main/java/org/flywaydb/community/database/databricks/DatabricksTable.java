@@ -23,7 +23,11 @@ public class DatabricksTable extends Table<DatabricksDatabase, DatabricksSchema>
 
     @Override
     protected boolean doExists() throws SQLException {
-        return false;
+        if (!schema.exists()) {
+            return false;
+        }
+        return jdbcTemplate
+                .queryForInt("select count(table_name) from information_schema.tables where table_schema = ? and table_name = ?;", schema.getName(), name) > 0;
     }
 
     @Override

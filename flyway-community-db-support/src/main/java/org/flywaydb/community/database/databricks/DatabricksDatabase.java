@@ -96,11 +96,29 @@ public class DatabricksDatabase extends Database<DatabricksConnection> {
                 "    `script` STRING NOT NULL,\n" +
                 "    `checksum` INT,\n" +
                 "    `installed_by` STRING NOT NULL,\n" +
-                "    `installed_on` TIMESTAMP,\n" +
+                "    `installed_on` TIMESTAMP NOT NULL,\n" +
                 "    `execution_time` INT NOT NULL,\n" +
                 "    `success` BOOLEAN NOT NULL\n" +
                 ");\n" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "");
         return sql;
+    }
+
+    @Override
+    public String getInsertStatement(Table table) {
+        // Explicitly set installed_on to CURRENT_TIMESTAMP().
+        return "INSERT INTO " + table
+                + " (" + quote("installed_rank")
+                + ", " + quote("version")
+                + ", " + quote("description")
+                + ", " + quote("type")
+                + ", " + quote("script")
+                + ", " + quote("checksum")
+                + ", " + quote("installed_by")
+                + ", " + quote("installed_on")
+                + ", " + quote("execution_time")
+                + ", " + quote("success")
+                + ")"
+                + " VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), ?, ?)";
     }
 }

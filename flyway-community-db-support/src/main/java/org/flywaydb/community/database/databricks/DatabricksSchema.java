@@ -18,12 +18,14 @@ public class DatabricksSchema extends Schema<DatabricksDatabase, DatabricksTable
 
     @Override
     protected boolean doExists() throws SQLException {
-        return false;
+        return jdbcTemplate
+                .queryForInt("select count(table_name) from information_schema.tables where table_schema = ?;", name) > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        return false;
+        return jdbcTemplate
+                .queryForInt("select count(table_name) from information_schema.tables where table_schema = ?;", name) == 0;
     }
 
     @Override
