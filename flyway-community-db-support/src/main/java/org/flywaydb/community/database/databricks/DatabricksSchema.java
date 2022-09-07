@@ -5,6 +5,8 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabricksSchema extends Schema<DatabricksDatabase, DatabricksTable> {
     /**
@@ -30,22 +32,67 @@ public class DatabricksSchema extends Schema<DatabricksDatabase, DatabricksTable
 
     @Override
     protected void doCreate() throws SQLException {
-
+        jdbcTemplate.execute("create database if not exists " + database.quote(name) + ";");
     }
 
     @Override
     protected void doDrop() throws SQLException {
-
+        jdbcTemplate.execute("drop database if exists " + database.quote(name) + " cascade;");
     }
 
     @Override
     protected void doClean() throws SQLException {
+        for (String statement : generateDropStatements("MANAGED", "TABLE")) {
+            jdbcTemplate.execute(statement);
+        }
+        for (String statement : generateDropStatements("VIEW", "VIEW")) {
+            jdbcTemplate.execute(statement);
+        }
+        for (String statement : generateDropStatementsForRoutines("FUNCTION")) {
+            jdbcTemplate.execute(statement);
+        }
+    }
 
+    private List<String> generateDropStatements(String type, String objType) throws SQLException {
+        List<String> names =
+                jdbcTemplate.queryForStringList(
+                        // Search for all views
+                        "select table_name from information_schema.tables where table_schema = ? WHERE table_type = ?;",
+                        name,
+                        type
+                );
+        List<String> statements = new ArrayList<>();
+        for (String domainName : names) {
+            statements.add("drop " + objType + " if exists " + database.quote(name, domainName) + ";");
+        }
+        return statements;
+    }
+
+    private List<String> generateDropStatementsForRoutines(String objType) throws SQLException {
+        List<String> objNames =
+                jdbcTemplate.queryForStringList(
+                        // Search for all functions
+                        "select routine_name from information_schema.routines where routine_schema = ? WHERE routine_type = ?;",
+                        objType
+                );
+        List<String> statements = new ArrayList<>();
+        for (String objName : objNames) {
+            statements.add("drop " + objType + " if exists " + database.quote(name, objName) + ";");
+        }
+        return statements;
     }
 
     @Override
     protected DatabricksTable[] doAllTables() throws SQLException {
-        return new DatabricksTable[0];
+        List<String> tableNames = jdbcTemplate.queryForStringList(
+                "select table_name from information_schema.tables where table_schema = ? and table_type = 'MANAGED';",
+                name
+        );
+        DatabricksTable[] tables = new DatabricksTable[tableNames.size()];
+        for (int i = 0; i < tableNames.size(); i++) {
+            tables[i] = new DatabricksTable(jdbcTemplate, database, this, tableNames.get(i));
+        }
+        return tables;
     }
 
     @Override
