@@ -10,34 +10,32 @@ import java.sql.SQLException;
 public class DatabricksConnection extends Connection<DatabricksDatabase> {
     protected DatabricksConnection(DatabricksDatabase database, java.sql.Connection connection) {
         super(database, connection);
-        try {
-            connection.setCatalog("hive_metastore");
-            connection.setSchema("main");
-        } catch (SQLException e) {}
     }
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
         String defaultCatalog = "hive_metastore";
-        String currentCatalog = jdbcTemplate.queryForString("SELECT current_catalog()");
-        return (currentCatalog != null) ? currentCatalog : defaultCatalog;
+        String currentCatalog = jdbcTemplate.queryForString("SELECT current_catalog();");
+        String defaultSchema = "default";
+        String currentSchema = jdbcTemplate.queryForString("SELECT current_database();");
+        return (currentSchema != null) ? currentSchema : defaultSchema;
     }
 
     @Override
     public void doChangeCurrentSchemaOrSearchPathTo(String schema) throws SQLException {
-        String sql = "USE CATALOG " + database.doQuote(schema);
+        String sql = "USE DATABASE " + database.doQuote(schema) + ";";
         jdbcTemplate.execute(sql);
     }
 
     @Override
     public Schema doGetCurrentSchema() throws SQLException {
-        String currentCatalog = getCurrentSchemaNameOrSearchPath();
+        String currentSchema = getCurrentSchemaNameOrSearchPath();
 
-        if (!StringUtils.hasText(currentCatalog)) {
-            throw new FlywayException("Unable to determine current catalog as search_path is empty.");
+        if (!StringUtils.hasText(currentSchema)) {
+            throw new FlywayException("Unable to determine current schema as currentSchema is empty.");
         }
 
-        return getSchema(currentCatalog);
+        return getSchema(currentSchema);
     }
 
     @Override

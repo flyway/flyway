@@ -5,6 +5,7 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -20,12 +21,18 @@ public class DatabricksDatabase extends Database<DatabricksConnection> {
     }
 
     @Override
-    public void ensureSupported() {
+    protected String doGetCurrentUser() throws SQLException {
+        return getMainConnection().getJdbcTemplate().queryForString("SELECT current_user() as user;");
+    }
 
+    @Override
+    public void ensureSupported() {
+        // Always latest Databricks version.
     }
 
     @Override
     public boolean supportsDdlTransactions() {
+        // Databricks i non-transactional
         return false;
     }
 
@@ -36,17 +43,32 @@ public class DatabricksDatabase extends Database<DatabricksConnection> {
 
     @Override
     public String getBooleanTrue() {
-        return null;
+        return "TRUE";
     }
 
     @Override
     public String getBooleanFalse() {
-        return null;
+        return "FALSE";
     }
 
     @Override
     public boolean catalogIsSchema() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsMultiStatementTransactions() {
         return false;
+    }
+
+    @Override
+    public boolean useSingleConnection() {
+        return true;
+    }
+
+    @Override
+    public String doQuote(String identifier) {
+        return getOpenQuote() + StringUtils.replaceAll(identifier, getCloseQuote(), getEscapedQuote()) + getCloseQuote();
     }
 
     @Override
@@ -60,7 +82,25 @@ public class DatabricksDatabase extends Database<DatabricksConnection> {
     }
 
     @Override
+    public String getEscapedQuote() {
+        return "\\`";
+    }
+
+    @Override
     public String getRawCreateScript(Table table, boolean baseline) {
-        return null;
+        String sql = "CREATE TABLE " + table + " (\n" +
+                "    `installed_rank` INT NOT NULL,\n" +
+                "    `version` STRING,\n" +
+                "    `description` STRING NOT NULL,\n" +
+                "    `type` STRING NOT NULL,\n" +
+                "    `script` STRING NOT NULL,\n" +
+                "    `checksum` INT,\n" +
+                "    `installed_by` STRING NOT NULL,\n" +
+                "    `installed_on` TIMESTAMP,\n" +
+                "    `execution_time` INT NOT NULL,\n" +
+                "    `success` BOOLEAN NOT NULL\n" +
+                ");\n" +
+                (baseline ? getBaselineStatement(table) + ";\n" : "");
+        return sql;
     }
 }
