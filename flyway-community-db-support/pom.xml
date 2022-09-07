@@ -51,6 +51,11 @@
             <artifactId>ignite-core</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>com.databricks</groupId>
+            <artifactId>databricks-jdbc</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
