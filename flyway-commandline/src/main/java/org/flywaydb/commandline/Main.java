@@ -27,10 +27,7 @@ import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.output.CompositeResult;
-import org.flywaydb.core.api.output.ErrorOutput;
-import org.flywaydb.core.api.output.MigrateErrorResult;
-import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.api.output.*;
 
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.internal.command.DbMigrate;
@@ -41,7 +38,6 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
-import org.flywaydb.core.internal.license.FlywayTrialExpiredException;
 
 import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
@@ -187,6 +183,10 @@ public class Main {
                     compositeResult.individualResults.add(executeOperation(flyway, operation, commandLineArguments));
                 }
                 result = compositeResult;
+            }
+
+            if (commandLineArguments.isCommunityFallback()) {
+                LOG.warn("A Flyway License was not been provided; fell back to Community Edition. Please contact sales at sales@flywaydb.org for license information.");
             }
 
             if (commandLineArguments.shouldOutputJson()) {

@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandLineArguments {
+    private static final String COMMUNITY_FALLBACK_FLAG = "-communityFallback";
     private static final String DEBUG_FLAG = "-X";
     private static final String QUIET_FLAG = "-q";
     private static final String SUPPRESS_PROMPT_FLAG = "-n";
@@ -73,6 +74,7 @@ public class CommandLineArguments {
         List<String> operationsAndFlags = new ArrayList<>(Arrays.asList(
                 DEBUG_FLAG,
                 QUIET_FLAG,
+                COMMUNITY_FALLBACK_FLAG,
                 SUPPRESS_PROMPT_FLAG,
                 SKIP_CHECK_FOR_UPDATE_FLAG,
                 MIGRATIONS_IDS_FLAG,
@@ -220,6 +222,10 @@ public class CommandLineArguments {
             return Level.DEBUG;
         }
         return Level.INFO;
+    }
+
+    public boolean isCommunityFallback() {
+        return isFlagSet(args, COMMUNITY_FALLBACK_FLAG);
     }
 
     public boolean hasOperation(String operation) {

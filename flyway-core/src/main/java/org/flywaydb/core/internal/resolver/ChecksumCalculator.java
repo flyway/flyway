@@ -72,7 +72,9 @@ public class ChecksumCalculator {
                 } while ((line = bufferedReader.readLine()) != null);
             }
         } catch (IOException e) {
-            throw new FlywayException("Unable to calculate checksum of " + resource.getFilename() + "\r\n" + e.getMessage(), e);
+            throw new FlywayException("Unable to calculate checksum of " + resource.getFilename() + "\n" +
+                                      "Please ensure you have configured the correct file encoding with 'flyway.encoding' " +
+                                      "or enable 'flyway.detectEncoding' to let Flyway detect it for you", e);
         } finally {
             IOUtils.close(bufferedReader);
         }
