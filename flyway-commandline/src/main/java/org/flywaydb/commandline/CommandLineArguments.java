@@ -23,6 +23,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
+import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.text.ParseException;
@@ -67,7 +68,9 @@ public class CommandLineArguments {
 
     public CommandLineArguments(PluginRegister pluginRegister, String... args) {
         this.pluginRegister = pluginRegister;
-        this.args = args;
+        this.args = Arrays.stream(args)
+                .filter(StringUtils::hasText)
+                .toArray(String[]::new);
     }
 
     private static List<String> getValidOperationsAndFlags() {
@@ -140,19 +143,11 @@ public class CommandLineArguments {
     }
 
     private static Map<String, String> getConfigurationFromArgs(String[] args) {
-        Map<String, String> configuration = new HashMap<>();
-
-        for (String arg : args) {
-            if (isConfigurationArg(arg)) {
-                String configurationOptionName = getConfigurationOptionNameFromArg(arg);
-
-                if (!isConfigurationOptionCommandlineOnly(configurationOptionName)) {
-                    configuration.put("flyway." + configurationOptionName, parseConfigurationOptionValueFromArg(arg));
-                }
-            }
-        }
-
-        return configuration;
+        return Arrays.stream(args)
+                .filter(CommandLineArguments::isConfigurationArg)
+                .map(arg -> Pair.of(arg, getConfigurationOptionNameFromArg(arg)))
+                .filter(p -> !isConfigurationOptionCommandlineOnly(p.getRight()))
+                .collect(Collectors.toMap(p -> "flyway." + p.getRight(), p -> parseConfigurationOptionValueFromArg(p.getLeft())));
     }
 
     private static boolean isConfigurationOptionCommandlineOnly(String configurationOptionName) {
@@ -174,11 +169,13 @@ public class CommandLineArguments {
     }
 
     public void validate() {
-        for (String arg : args) {
-            if (!isConfigurationArg(arg) && !VALID_OPERATIONS_AND_FLAGS.contains(arg) && !isHandledByExtension(arg)) {
-                throw new FlywayException("Invalid argument: " + arg);
-            }
-        }
+
+        Arrays.stream(args)
+                .filter(arg -> !isConfigurationArg(arg))
+                .filter(arg -> !VALID_OPERATIONS_AND_FLAGS.contains(arg))
+                .filter(arg -> !isHandledByExtension(arg))
+                .findAny()
+                .ifPresent(arg -> {throw new FlywayException("Invalid argument: " + arg);});
 
         String outputTypeValue = getArgumentValue(OUTPUT_TYPE, args).toLowerCase();
 

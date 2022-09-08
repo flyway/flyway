@@ -186,7 +186,7 @@ public class Main {
             }
 
             if (commandLineArguments.isCommunityFallback()) {
-                LOG.warn("A Flyway License was not been provided; fell back to Community Edition. Please contact sales at sales@flywaydb.org for license information.");
+                LOG.warn("A Flyway License was not provided; fell back to Community Edition. Please contact sales at sales@flywaydb.org for license information.");
             }
 
             if (commandLineArguments.shouldOutputJson()) {
