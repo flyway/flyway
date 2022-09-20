@@ -134,6 +134,7 @@
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <includes>
                 <include>org.apache.commons:commons-text</include>
+                <include>com.electronwill.night-config:toml</include>
             </includes>
         </dependencySet>
         <dependencySet>

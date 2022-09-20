@@ -345,7 +345,7 @@ public abstract class Database<C extends Connection> implements Closeable {
                              "'" + CoreMigrationType.BASELINE + "'",
                              "'" + AbbreviationUtils.abbreviateScript(configuration.getBaselineDescription()) + "'",
                              "NULL",
-                             "'" + installedBy + "'",
+                             "'" + getInstalledBy() + "'",
                              0,
                              getBooleanTrue()
                             );

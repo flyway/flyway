@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.3.0</version>
+        <version>9.3.1</version>
     </parent>
     <artifactId>flyway-gradle-plugin</artifactId>
     <packaging>jar</packaging>
@@ -90,6 +90,16 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+
+
+
+
+
+
+
+
+
+
 
 
 
