@@ -184,11 +184,6 @@ public class H2Database extends Database<H2Connection> {
     }
 
     @Override
-    public boolean supportsChangingCurrentSchema() {
-        return true;
-    }
-
-    @Override
     public String getBooleanTrue() {
         return "1";
     }

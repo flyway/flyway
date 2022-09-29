@@ -116,11 +116,6 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
         return false;
     }
 
-    @Override
-    public boolean supportsChangingCurrentSchema() {
-        return true;
-    }
-
     public String getBooleanTrue() {
         return "TRUE";
     }

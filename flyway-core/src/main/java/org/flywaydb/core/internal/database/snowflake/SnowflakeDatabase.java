@@ -148,11 +148,6 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
     }
 
     @Override
-    public boolean supportsChangingCurrentSchema() {
-        return true;
-    }
-
-    @Override
     public String getBooleanTrue() {
         return "true";
     }

@@ -60,6 +60,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
 
 
+
     @Override
     public final void ensureSupported() {
         if (isAzure()) {
@@ -73,7 +74,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
             ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("14.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-            recommendFlywayUpgradeIfNecessary("15.0");
+            recommendFlywayUpgradeIfNecessary("16.0");
         }
     }
 
@@ -130,11 +131,6 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     @Override
     public boolean supportsDdlTransactions() {
         return true;
-    }
-
-    @Override
-    public boolean supportsChangingCurrentSchema() {
-        return false;
     }
 
     @Override

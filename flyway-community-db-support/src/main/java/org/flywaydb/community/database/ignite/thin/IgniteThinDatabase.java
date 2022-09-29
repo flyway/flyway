@@ -147,11 +147,6 @@ public class IgniteThinDatabase extends Database<IgniteThinConnection> {
     }
 
     @Override
-    public boolean supportsChangingCurrentSchema() {
-        return false;
-    }
-
-    @Override
     public String getBooleanTrue() {
         return "1";
     }

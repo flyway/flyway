@@ -70,11 +70,6 @@ public class SQLiteDatabase extends Database<SQLiteConnection> {
     }
 
     @Override
-    public boolean supportsChangingCurrentSchema() {
-        return false;
-    }
-
-    @Override
     public String getBooleanTrue() {
         return "1";
     }

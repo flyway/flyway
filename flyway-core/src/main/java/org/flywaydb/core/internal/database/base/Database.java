@@ -194,8 +194,6 @@ public abstract class Database<C extends Connection> implements Closeable {
 
     public abstract boolean supportsDdlTransactions();
 
-    public abstract boolean supportsChangingCurrentSchema();
-
     /**
      * @return The representation of the value {@code true} in a boolean column.
      */
