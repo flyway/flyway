@@ -144,7 +144,7 @@
         <version.gson>2.8.9</version.gson>
         <version.h2>2.1.214</version.h2>
         <version.hamcrest>2.2</version.hamcrest>
-        <version.hsqldb>2.6.1</version.hsqldb>
+        <version.hsqldb>2.7.1</version.hsqldb>
         <version.ignite>2.9.0</version.ignite>
         <version.informix>4.50.3</version.informix>
         <version.jansi>1.18</version.jansi>
