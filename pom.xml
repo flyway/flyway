@@ -29,7 +29,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>9.4.0</version>
+    <version>9.5.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -134,12 +134,12 @@
         <version.aws-java-sdk>2.17.189</version.aws-java-sdk>
         <version.aws-secretsmanager>1.0.8</version.aws-secretsmanager>
         <version.commonslogging>1.2</version.commonslogging>
-        <version.commonstext>1.9</version.commonstext>
+        <version.commonstext>1.10.0</version.commonstext>
         <version.db2>11.5.0.0</version.db2>
         <version.derby>10.15.2.0</version.derby>
         <version.equinox>3.15.200</version.equinox>
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
-        <version.gcs>2.6.1</version.gcs>
+        <version.gcs>2.13.0</version.gcs>
         <version.gradle>6.1.1</version.gradle>
         <version.gson>2.8.9</version.gson>
         <version.h2>2.1.214</version.h2>
@@ -174,7 +174,7 @@
         <version.sap>2.6.30</version.sap>
         <version.slf4j>1.7.30</version.slf4j>
         <version.snowflake>3.13.22</version.snowflake>
-        <version.spanner>2.7.6</version.spanner>
+        <version.spanner>2.7.8</version.spanner>
         <version.springjdbc>5.3.19</version.springjdbc>
         <version.sqlite>3.34.0</version.sqlite>
         <version.testcontainers>1.15.3</version.testcontainers>
