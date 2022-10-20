@@ -110,14 +110,14 @@
 
 
 
-        <fileSet>
-            <directory>../flyway-compare/src/main/resources</directory>
-            <outputDirectory>lib</outputDirectory>
-            <includes>
-                <include>sqlfluff-*/**/*</include>
-            </includes>
-            <fileMode>644</fileMode>
-        </fileSet>
+
+
+
+
+
+
+
+
         <fileSet>
             <directory>target/editions/community</directory>
             <outputDirectory>lib/community</outputDirectory>
