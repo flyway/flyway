@@ -144,9 +144,10 @@
         <version.gson>2.8.9</version.gson>
         <version.h2>2.1.214</version.h2>
         <version.hamcrest>2.2</version.hamcrest>
-        <version.hsqldb>2.6.1</version.hsqldb>
+        <version.hsqldb>2.7.1</version.hsqldb>
         <version.ignite>2.9.0</version.ignite>
         <version.informix>4.50.3</version.informix>
+        <version.jackson-bom>2.13.4.20221013</version.jackson-bom>
         <version.jansi>1.18</version.jansi>
         <version.jaxb>2.3.1</version.jaxb>
         <version.jaybird>3.0.10</version.jaybird>
@@ -182,6 +183,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${version.jackson-bom}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
