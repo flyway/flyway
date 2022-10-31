@@ -51,6 +51,10 @@
         </dependency>
         <dependency>
             <groupId>com.electronwill.night-config</groupId>
+            <artifactId>core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.electronwill.night-config</groupId>
             <artifactId>toml</artifactId>
         </dependency>
         <dependency>
@@ -63,6 +67,14 @@
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>aws-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sdk-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.cloud</groupId>
@@ -83,6 +95,10 @@
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

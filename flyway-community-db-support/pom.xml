@@ -39,12 +39,6 @@
             <artifactId>flyway-mysql</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-            <version>${version.junit}</version>
-        </dependency>
         <!-- JDBC drivers -->
         <dependency>
             <groupId>org.apache.ignite</groupId>
