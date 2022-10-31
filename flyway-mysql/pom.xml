@@ -29,13 +29,12 @@
     <artifactId>flyway-mysql</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <version>${project.parent.version}</version>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
