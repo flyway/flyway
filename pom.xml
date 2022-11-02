@@ -30,7 +30,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>9.6.0</version>
+    <version>9.7.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -93,6 +93,7 @@
 
 
 
+
     </modules>
 
     <distributionManagement>
@@ -134,7 +135,7 @@
     <properties>
         <version.ant>1.9.14</version.ant>
         <version.aws-java-sdk>2.17.189</version.aws-java-sdk>
-        <version.aws-secretsmanager>1.0.8</version.aws-secretsmanager>
+        <version.aws-secretsmanager>1.0.9</version.aws-secretsmanager>
         <version.commonslogging>1.2</version.commonslogging>
         <version.commonstext>1.10.0</version.commonstext>
         <version.db2>11.5.0.0</version.db2>
@@ -150,6 +151,7 @@
         <version.ignite>2.9.0</version.ignite>
         <version.informix>4.50.3</version.informix>
         <version.jansi>1.18</version.jansi>
+        <version.jackson>2.13.4</version.jackson>
         <version.jaxb>2.3.1</version.jaxb>
         <version.jaybird>3.0.10</version.jaybird>
         <version.jboss>3.2.15.Final</version.jboss>
@@ -164,7 +166,7 @@
         <version.mariadb>2.7.2</version.mariadb>
         <version.maven>3.8.5</version.maven>
         <version.mockito>4.2.0</version.mockito>
-        <version.msal4j>1.12.0</version.msal4j>
+        <version.msal4j>1.13.3</version.msal4j>
         <version.mssql>10.2.0</version.mssql>
         <version.mssql-jdbc>${version.mssql}.jre8</version.mssql-jdbc>
         <version.night-config>3.6.6</version.night-config>
@@ -195,6 +197,11 @@
                 <artifactId>commons-text</artifactId>
                 <version>${version.commonstext}</version>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-toml</artifactId>
+                <version>${version.jackson}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -728,6 +735,23 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

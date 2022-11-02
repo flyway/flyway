@@ -24,9 +24,9 @@ flyway-core-test/spooledContents.sql
 flyway-core-test/spool.sql
 flyway-cli-sample/jars/
 flyway-*compare/**/resources/*compare/
-flyway-*compare/**/resources/sqlfluff*/.pytest_cache
-flyway-*compare/**/resources/sqlfluff*/**/*.pyc
-flyway-*compare/sqlfluff*
+flyway-rulesengine-sqlfluff/**/resources/sqlfluff*/.pytest_cache
+flyway-rulesengine-sqlfluff/**/resources/sqlfluff*/**/*.pyc
+flyway-rulesengine-sqlfluff/sqlfluff*
 flyway-rgcompare/src/main/resources/obj/
 flyway-rgcompare/rgcompare/
 out/**
