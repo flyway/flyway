@@ -32,6 +32,7 @@ import java.util.Map;
 @CustomLog
 public class ParsingContext {
     private static final String DEFAULT_SCHEMA_PLACEHOLDER = "defaultSchema";
+    private static final String SCHEMAS_PLACEHOLDER = "schemas";
     private static final String USER_PLACEHOLDER = "user";
     private static final String DATABASE_PLACEHOLDER = "database";
     private static final String TIMESTAMP_PLACEHOLDER = "timestamp";
@@ -71,6 +72,7 @@ public class ParsingContext {
         if (defaultSchemaName != null) {
             placeholders.put(generateName(DEFAULT_SCHEMA_PLACEHOLDER,configuration), defaultSchemaName);
         }
+        placeholders.put(generateName(SCHEMAS_PLACEHOLDER,configuration), String.join(",", schemaNames));
 
         if (catalog != null) {
             placeholders.put(generateName(DATABASE_PLACEHOLDER,configuration), catalog);
