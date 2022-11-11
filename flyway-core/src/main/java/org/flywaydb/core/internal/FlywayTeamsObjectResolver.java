@@ -32,14 +32,14 @@ public class FlywayTeamsObjectResolver {
 
         // Using instance class loader rather than static because it's more reliable
         // https://github.com/flyway/flyway/issues/3177
-        @SuppressWarnings({"InstantiationOfUtilityClass", "InstantiatingObjectToGetClassObject"})
+        @SuppressWarnings({ "InstantiationOfUtilityClass", "InstantiatingObjectToGetClassObject" })
         ClassLoader classLoader = new FlywayTeamsObjectResolver().getClass().getClassLoader();
 
         if (VersionPrinter.EDITION == Edition.COMMUNITY) {
             return loadCommunityClass(packageName + "." + className, classLoader, params);
         }
 
-        if (VersionPrinter.EDITION == Edition.PRO || VersionPrinter.EDITION == Edition.ENTERPRISE) {
+        if (VersionPrinter.EDITION == Edition.PRO || VersionPrinter.EDITION == Edition.ENTERPRISE || VersionPrinter.EDITION == Edition.TIER3) {
             String pathOfTheClass = packageName + ".teams." + className;
             return loadClass(pathOfTheClass, packageName, className, classLoader, params);
         }

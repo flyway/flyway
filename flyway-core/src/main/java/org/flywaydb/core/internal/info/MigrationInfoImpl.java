@@ -35,9 +35,7 @@ public class MigrationInfoImpl implements MigrationInfo {
     private final boolean outOfOrder;
     private final boolean deleted;
     private final boolean shouldNotExecuteMigration;
-
-
-
+    private final boolean undone;
 
     MigrationInfoImpl(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration,
                       MigrationInfoContext context, boolean outOfOrder, boolean deleted, boolean undone) {
@@ -47,9 +45,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         this.outOfOrder = outOfOrder;
         this.deleted = deleted;
         this.shouldNotExecuteMigration = shouldNotExecuteMigration(resolvedMigration);
-
-
-
+        this.undone = undone;
     }
 
     /**
@@ -80,6 +76,14 @@ public class MigrationInfoImpl implements MigrationInfo {
             return appliedMigration.getChecksum();
         }
         return resolvedMigration.getChecksum();
+    }
+
+    @Override
+    public boolean isVersioned() {
+        if (appliedMigration != null) {
+            return appliedMigration.isVersioned();
+        }
+        return resolvedMigration.isVersioned();
     }
 
     @Override
@@ -125,11 +129,9 @@ public class MigrationInfoImpl implements MigrationInfo {
 
     @Override
     public MigrationState getState() {
-
-
-
-
-
+        if (undone) {
+            return MigrationState.UNDONE;
+        }
 
         if (deleted) {
             return MigrationState.DELETED;
@@ -233,9 +235,7 @@ public class MigrationInfoImpl implements MigrationInfo {
 
         if (resolvedMigration == null
                 && !appliedMigration.getType().isSynthetic()
-
-
-
+                && !appliedMigration.getType().isUndo()
                 && (MigrationState.SUPERSEDED != state)
                 && (!context.isMissingIgnored() || (MigrationState.MISSING_SUCCESS != state && MigrationState.MISSING_FAILED != state))
                 && (!context.isFutureIgnored() || (MigrationState.FUTURE_SUCCESS != state && MigrationState.FUTURE_FAILED != state))) {
@@ -277,9 +277,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         if (resolvedMigration != null &&
                 appliedMigration != null &&
                 getType() != CoreMigrationType.DELETE
-
-
-
+                && !getType().isUndo()
         ) {
             String migrationIdentifier = appliedMigration.getVersion() == null ? appliedMigration.getScript() : "version " + appliedMigration.getVersion();
             if (getVersion() == null || getVersion().compareTo(context.appliedBaseline) > 0) {
@@ -384,17 +382,15 @@ public class MigrationInfoImpl implements MigrationInfo {
             if (v != 0) {
                 return v;
             }
-
-
-
-
-
-
-
-
-
-
-
+            if (getType().isUndo() && o.getType().isUndo()) {
+                return 0;
+            }
+            // Undo goes after regular
+            if (getType().isUndo()) {
+                return 1;
+            } else if (o.getType().isUndo()) {
+                return -1;
+            }
             return 0;
         }
 

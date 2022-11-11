@@ -18,6 +18,59 @@
 <div class="col-md-9">
 
     <div class="release">
+        <h2 id="9.8.0">Flyway 9.8.0 (2022-11-11)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>Logic for the undo command has been moved into the separate 'flyway-proprietary' module, which will need to be present on the classpath in order to use the undo command. This also means that undo migrations will now be resolved in Community edition, and migrations may be marked as undone in the info output, though running the undo migrations still requires a Teams or Enterprise license. Lastly, when implementing undo migrations as java migrations, they should extend 'UndoJavaMigration' instead of 'BaseJavaMigration'.</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fix an issue where 'clean.mode' would not be detected in Enterprise</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>We now use 'jackson-dataformat-toml' to read TOML config files, instead of 'night-config'.</li>
+            <li>All 'check' results include the operation in the JSON result</li>
+            <li>Include the code analysis engine's name in the summary logs</li>
+            <li>Bump the version of Redgate Compare to 1.0.0.6319</li>
+            <li>Move documentation to main repo</li>
+            <li>Create a Dialect configuration to allow configuration of rules engine dialect via Flyway</li>
+            <li>Add descriptions to shipped Regex Rules in the check report</li>
+            <li>Bundled Regex Rules are now enabled by default</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3562">Issue 3562</a>
+                The version of 'jackson-dataformat' bundled in the CLI package has been bumped to 2.14.0 to avoid CVE-2022-42003
+            </li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/1317">Issue 1317</a>
+                Add SingleStore support at the Teams level
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3570">Issue 3570</a>
+                Cockroach DB is now supported up to the latest version of 22.1
+            </li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>The JSON result for the 'check' command now includes the paths to any generated report</li>
+            <li>SingleStore JDBC driver is now shipped in the CLI</li>
+            <li>Allows a configuration ('flyway.check.failOnDrift') to trigger an error if drift is detected with `check -drift` allowing the build to be halted should drift exist.</li>
+        </ul>
+
+        <p>
+            Thanks to nycjay, engvalla and basweitjens for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="9.7.0">Flyway 9.7.0 (2022-11-02)</h2>
 
         <h3>Bug fixes</h3>
@@ -79,7 +132,7 @@
         </p>
     </div>
 
-        <div class="release">
+    <div class="release">
         <h2 id="9.5.1">Flyway 9.5.1 (2022-10-20)</h2>
 
         <h3>Database compatibility</h3>
@@ -89,7 +142,7 @@
 
     </div>
 
-            <div class="release">
+    <div class="release">
         <h2 id="9.5.0">Flyway 9.5.0 (2022-10-19)</h2>
 
         <h3>Changes</h3>
@@ -123,7 +176,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.4.0">Flyway 9.4.0 (2022-09-29)</h2>
 
         <h3>Changes</h3>
@@ -143,7 +196,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.3.1">Flyway 9.3.1 (2022-09-20)</h2>
 
         <h3>Bug fixes</h3>
@@ -155,7 +208,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.3.0">Flyway 9.3.0 (2022-09-08)</h2>
 
         <h3>Bug fixes</h3>
@@ -170,7 +223,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.2.3">Flyway 9.2.3 (2022-09-07)</h2>
         <h3>
             Skipped due to a regression.
@@ -183,7 +236,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.2.2">Flyway 9.2.2 (2022-09-02)</h2>
 
         <h3>Bug fixes</h3>
@@ -212,7 +265,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.2.1">Flyway 9.2.1 (2022-08-31)</h2>
 
         <h3>Changes</h3>
@@ -242,7 +295,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.2.0">Flyway 9.2.0 (2022-08-25)</h2>
 
         <h3>Bug fixes</h3>
@@ -276,7 +329,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.1.6">Flyway 9.1.6 (2022-08-18)</h2>
 
         <h3>Bug fixes</h3>
@@ -298,7 +351,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.1.5">Flyway 9.1.5 (2022-08-16)</h2>
 
         <h3>New features</h3>
@@ -307,7 +360,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.1.4">Flyway 9.1.4 (2022-08-15)</h2>
 
         <h3>Changes</h3>
@@ -329,7 +382,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.1.3">Flyway 9.1.3 (2022-08-10)</h2>
 
         <h3>Changes</h3>
@@ -356,7 +409,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.1.2">Flyway 9.1.2 (2022-08-03)</h2>
 
         <h3>Bug fixes</h3>
@@ -393,7 +446,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.1.1">Flyway 9.1.1 (2022-08-03)</h2>
         <h3>
             Due to issues in the release process, this version is to be skipped as the artifacts are incomplete.
@@ -401,7 +454,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.1.0">Flyway 9.1.0 (2022-08-02)</h2>
         <h3>
             Due to issues in the release process, this version is to be skipped as the artifacts are incomplete.
@@ -409,7 +462,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.0.4">Flyway 9.0.4 (2022-07-29)</h2>
 
         <h3>Bug fixes</h3>
@@ -419,7 +472,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.0.3">Flyway 9.0.3 (2022-07-28)</h2>
 
         <h3>Bug fixes</h3>
@@ -434,7 +487,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.0.2">Flyway 9.0.2 (2022-07-26)</h2>
 
         <h3>Changes</h3>
@@ -450,7 +503,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.0.1">Flyway 9.0.1 (2022-07-15)</h2>
 
         <h3>Bug fixes</h3>
@@ -467,7 +520,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="9.0.0">Flyway 9.0.0 (2022-07-13)</h2>
         <h3>
             Skipped due to a regression.
@@ -523,7 +576,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.5.13">Flyway 8.5.13 (2022-06-16)</h2>
 
         <h3>Bug fixes</h3>
@@ -550,7 +603,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.5.12">Flyway 8.5.12 (2022-05-31)</h2>
 
         <h3>Bug fixes</h3>
@@ -583,7 +636,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.5.11">Flyway 8.5.11 (2022-05-16)</h2>
 
         <h3>Changes</h3>
@@ -599,7 +652,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.5.10">Flyway 8.5.10 (2022-04-29)</h2>
 
         <h3>Bug fixes</h3>
@@ -619,7 +672,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.5.9">Flyway 8.5.9 (2022-04-21)</h2>
 
         <h3>Bug fixes</h3>
@@ -646,7 +699,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.5.8">Flyway 8.5.8 (2022-04-14)</h2>
 
         <h3>Bug fixes</h3>
@@ -663,7 +716,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.5.7">Flyway 8.5.7 (2022-04-07)</h2>
 
         <h3>Changes</h3>
@@ -673,7 +726,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.5.6">Flyway 8.5.6 (2022-04-06)</h2>
 
         <h3>Changes</h3>
@@ -702,7 +755,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.5.5">Flyway 8.5.5 (2022-03-28)</h2>
 
         <h3>Bug fixes</h3>
@@ -725,7 +778,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.5.4">Flyway 8.5.4 (2022-03-15)</h2>
 
         <h3>Changes</h3>
@@ -747,7 +800,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.5.3">Flyway 8.5.3 (2022-03-14)</h2>
 
         <h3>Breaking changes</h3>
@@ -775,7 +828,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.5.2">Flyway 8.5.2 (2022-03-04)</h2>
 
         <h3>Bug fixes</h3>
@@ -797,7 +850,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.5.1">Flyway 8.5.1 (2022-02-23)</h2>
 
         <h3>Bug fixes</h3>
@@ -812,7 +865,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.5.0">Flyway 8.5.0 (2022-02-14)</h2>
 
         <h3>Bug fixes</h3>
@@ -830,7 +883,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.4.4">Flyway 8.4.4 (2022-02-02)</h2>
 
         <h3>Bug fixes</h3>
@@ -845,7 +898,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.4.3">Flyway 8.4.3 (2022-01-26)</h2>
 
         <h3>Changes</h3>
@@ -869,7 +922,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.4.2">Flyway 8.4.2 (2022-01-19)</h2>
 
         <h3>Bug fixes</h3>
@@ -884,7 +937,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.4.1">Flyway 8.4.1 (2022-01-11)</h2>
 
         <h3>Changes</h3>
@@ -912,7 +965,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.4.0">Flyway 8.4.0 (2022-01-05)</h2>
 
         <h3>Changes</h3>
@@ -925,7 +978,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.3.0">Flyway 8.3.0 (2021-12-23)</h2>
 
         <h3>Bug fixes</h3>
@@ -965,7 +1018,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.2.3">Flyway 8.2.3 (2021-12-20)</h2>
 
         <h3>Changes</h3>
@@ -975,7 +1028,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.2.2">Flyway 8.2.2 (2021-12-14)</h2>
 
         <h3>Changes</h3>
@@ -998,7 +1051,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.2.1">Flyway 8.2.1 (2021-12-07)</h2>
 
         <h3>Bug fixes</h3>
@@ -1013,7 +1066,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.2.0">Flyway 8.2.0 (2021-11-30)</h2>
 
         <h3>Breaking changes</h3>
@@ -1035,7 +1088,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.1.0">Flyway 8.1.0 (2021-11-25)</h2>
 
         <h3>Bug fixes</h3>
@@ -1069,7 +1122,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.0.5">Flyway 8.0.5 (2021-11-17)</h2>
 
         <h3>Bug fixes</h3>
@@ -1099,7 +1152,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.0.4">Flyway 8.0.4 (2021-11-10)</h2>
 
         <h3>Breaking changes</h3>
@@ -1120,7 +1173,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.0.3">Flyway 8.0.3 (2021-11-01)</h2>
 
         <h3>Bug fixes</h3>
@@ -1181,7 +1234,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.0.2">Flyway 8.0.2 (2021-10-20)</h2>
 
         <h3>Changes</h3>
@@ -1196,7 +1249,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.0.1">Flyway 8.0.1 (2021-10-13)</h2>
 
         <h3>Bug fixes</h3>
@@ -1224,7 +1277,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.0.0">Flyway 8.0.0 (2021-10-06)</h2>
 
         <h3>Breaking changes</h3>
@@ -1250,7 +1303,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.0.0-beta3">Flyway 8.0.0-beta3 (2021-09-29)</h2>
 
         <h3>Breaking changes</h3>
@@ -1299,7 +1352,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.0.0-beta2">Flyway 8.0.0-beta2 (2021-09-21)</h2>
 
         <h3>Bug fixes</h3>
@@ -1339,7 +1392,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="8.0.0-beta1">Flyway 8.0.0-beta1 (2021-09-14)</h2>
 
         <h3>Breaking changes</h3>
@@ -1372,7 +1425,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.15.0">Flyway 7.15.0 (2021-09-06)</h2>
 
         <h3>Bug fixes</h3>
@@ -1399,7 +1452,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.14.1">Flyway 7.14.1 (2021-09-01)</h2>
 
         <h3>Bug fixes</h3>
@@ -1432,7 +1485,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.14.0">Flyway 7.14.0 (2021-08-17)</h2>
 
         <h3>Bug fixes</h3>
@@ -1451,7 +1504,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.13.0">Flyway 7.13.0 (2021-08-11)</h2>
 
         <h3>Bug fixes</h3>
@@ -1487,7 +1540,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.12.1">Flyway 7.12.1 (2021-08-05)</h2>
 
         <h3>Changes</h3>
@@ -1509,7 +1562,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.12.0">Flyway 7.12.0 (2021-07-30)</h2>
 
         <h3>Bug fixes</h3>
@@ -1542,7 +1595,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.11.4">Flyway 7.11.4 (2021-07-26)</h2>
 
         <h3>Bug fixes</h3>
@@ -1569,7 +1622,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.11.3">Flyway 7.11.3 (2021-07-19)</h2>
 
         <h3>Changes</h3>
@@ -1591,7 +1644,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.11.2">Flyway 7.11.2 (2021-07-13)</h2>
 
         <h3>Bug fixes</h3>
@@ -1623,7 +1676,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.11.1">Flyway 7.11.1 (2021-07-08)</h2>
 
         <h3>Changes</h3>
@@ -1647,7 +1700,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.11.0">Flyway 7.11.0 (2021-07-01)</h2>
 
         <h3>New features</h3>
@@ -1692,7 +1745,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.10.0">Flyway 7.10.0 (2021-06-10)</h2>
 
         <h3>New features</h3>
@@ -1716,7 +1769,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.9.2">Flyway 7.9.2 (2021-06-03)</h2>
 
         <h3>Bug fixes</h3>
@@ -1744,7 +1797,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.9.1">Flyway 7.9.1 (2021-05-19)</h2>
 
         <h3>Bug fixes</h3>
@@ -1772,7 +1825,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.9.0">Flyway 7.9.0 (2021-05-13)</h2>
 
         <h3>New features</h3>
@@ -1827,7 +1880,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.8.2">Flyway 7.8.2 (2021-04-27)</h2>
 
         <h3>New features</h3>
@@ -1860,7 +1913,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.8.1">Flyway 7.8.1 (2021-04-16)</h2>
 
         <h3>Bug fixes</h3>
@@ -1877,7 +1930,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.8.0">Flyway 7.8.0 (2021-04-15)</h2>
         <h3>
             Skipped due to a regression.
@@ -1912,7 +1965,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.7.3">Flyway 7.7.3 (2021-04-08)</h2>
 
         <h3>Bug fixes</h3>
@@ -1930,7 +1983,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.7.2">Flyway 7.7.2 (2021-04-01)</h2>
 
         <h3>Bug fixes</h3>
@@ -1972,7 +2025,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.7.1">Flyway 7.7.1 (2021-03-24)</h2>
 
         <h3>Bug fixes</h3>
@@ -2019,7 +2072,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.7.0">Flyway 7.7.0 (2021-03-11)</h2>
 
         <h3>New features</h3>
@@ -2046,7 +2099,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.6.0">Flyway 7.6.0 (2021-03-05)</h2>
 
         <h3>New features</h3>
@@ -2092,7 +2145,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.5.4">Flyway 7.5.4 (2021-02-22)</h2>
 
         <h3>Bug fixes</h3>
@@ -2134,7 +2187,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.5.3">Flyway 7.5.3 (2021-02-10)</h2>
 
         <h3>Bug fixes</h3>
@@ -2180,7 +2233,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.5.2">Flyway 7.5.2 (2021-01-27)</h2>
 
         <h3>Bug fixes</h3>
@@ -2209,7 +2262,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.5.1">Flyway 7.5.1 (2021-01-21)</h2>
 
         <h3>Bug fixes</h3>
@@ -2238,7 +2291,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.5.0">Flyway 7.5.0 (2021-01-11)</h2>
 
         <h3>Bug fixes</h3>
@@ -2283,7 +2336,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.4.0">Flyway 7.4.0 (2021-01-04)</h2>
 
         <h3>Bug fixes</h3>
@@ -2334,7 +2387,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.3.2">Flyway 7.3.2 (2020-12-16)</h2>
 
         <h3>Bug fixes</h3>
@@ -2383,7 +2436,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.3.1">Flyway 7.3.1 (2020-12-04)</h2>
 
         <h3>Bug fixes</h3>
@@ -2419,7 +2472,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.3.0">Flyway 7.3 (2020-11-25)</h2>
 
         <h3>New features</h3>
@@ -2475,7 +2528,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.2.1">Flyway 7.2.1 (2020-11-18)</h2>
 
         <h3>New features</h3>
@@ -2530,7 +2583,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.2.0">Flyway 7.2.0 (2020-11-09)</h2>
 
         <h3>New features</h3>
@@ -2581,7 +2634,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.1.1">Flyway 7.1.1 (2020-10-29)</h2>
 
         <h3>Bug fixes</h3>
@@ -2616,7 +2669,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.1.0">Flyway 7.1.0 (2020-10-27)</h2>
 
         <h3>
@@ -2687,7 +2740,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.0.4">Flyway 7.0.4 (2020-10-16)</h2>
 
         <h3>Bug fixes</h3>
@@ -2701,7 +2754,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.0.3">Flyway 7.0.3 (2020-10-14)</h2>
 
         <h3>Bug fixes</h3>
@@ -2733,7 +2786,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.0.2">Flyway 7.0.2 (2020-10-09)</h2>
 
         <h3>Bug fixes</h3>
@@ -2755,7 +2808,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.0.1">Flyway 7.0.1 (2020-10-07)</h2>
         <h3>
             Skipped due to a regression, see <a href="https://github.com/flyway/flyway/issues/2919#issuecomment-707043914" target="_blank">this comment</a>.
@@ -2842,7 +2895,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.0.0">Flyway 7.0.0 (2020-09-28)</h2>
 
         <h3>Changes</h3>
@@ -2927,7 +2980,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="7.0.0-beta1">Flyway 7.0.0-beta1 (2020-09-02)</h2>
 
         <h3>New features</h3>
@@ -3063,7 +3116,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.5.7">Flyway 6.5.7 (2020-09-22)</h2>
 
         <h3>Changes</h3>
@@ -3089,7 +3142,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.5.6">Flyway 6.5.6 (2020-09-16)</h2>
 
         <h3>Bug fixes</h3>
@@ -3116,7 +3169,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.5.5">Flyway 6.5.5 (2020-08-18)</h2>
 
         <h3>Bug fixes</h3>
@@ -3133,7 +3186,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.5.4">Flyway 6.5.4 (2020-08-12)</h2>
 
         <h3>Changes</h3>
@@ -3159,7 +3212,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.5.3">Flyway 6.5.3 (2020-07-29)</h2>
 
         <h3>Bug fixes</h3>
@@ -3177,7 +3230,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.5.2">Flyway 6.5.2 (2020-07-22)</h2>
 
         <h3>Bug fixes</h3>
@@ -3214,7 +3267,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.5.1">Flyway 6.5.1 (2020-07-13)</h2>
 
         <h3>Bug fixes</h3>
@@ -3245,7 +3298,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.5.0">Flyway 6.5.0 (2020-06-25)</h2>
 
         <h3>New features</h3>
@@ -3301,7 +3354,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.4.4">Flyway 6.4.4 (2020-06-10)</h2>
 
         <h3>Bug fixes</h3>
@@ -3342,7 +3395,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.4.3">Flyway 6.4.3 (2020-05-27)</h2>
 
         <h3>Bug fixes</h3>
@@ -3384,7 +3437,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.4.2">Flyway 6.4.2 (2020-05-12)</h2>
 
         <h3>Changes</h3>
@@ -3420,7 +3473,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.4.1">Flyway 6.4.1 (2020-04-30)</h2>
 
         <h3>Changes</h3>
@@ -3476,7 +3529,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.4">Flyway 6.4 (2020-04-21)</h2>
 
         <h3>New features</h3>
@@ -3566,7 +3619,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.3.3">Flyway 6.3.3 (2020-04-06)</h2>
 
         <h3>Bug fixes</h3>
@@ -3603,7 +3656,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.3.2">Flyway 6.3.2 (2020-03-24)</h2>
 
         <h3>Bug fixes</h3>
@@ -3644,7 +3697,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.3.1">Flyway 6.3.1 (2020-03-13)</h2>
 
         <h3>Changes</h3>
@@ -3689,7 +3742,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.3.0">Flyway 6.3.0 (2020-03-05)</h2>
 
         <h3>New features</h3>
@@ -3774,7 +3827,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.2.4">Flyway 6.2.4 (2020-02-20)</h2>
 
         <h3>Bug fixes</h3>
@@ -3821,7 +3874,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.2.3">Flyway 6.2.3 (2020-02-13)</h2>
 
         <h3>Changes</h3>
@@ -3866,7 +3919,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.2.2">Flyway 6.2.2 (2020-02-06)</h2>
         <h3>New features</h3>
         <ul>
@@ -3902,7 +3955,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.2.1">Flyway 6.2.1 (2020-01-30)</h2>
         <h3>Database compatibility</h3>
         <ul>
@@ -3947,7 +4000,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.2.0">Flyway 6.2.0 (2020-01-23)</h2>
 
         <h3>New features</h3>
@@ -4021,7 +4074,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.1.4">Flyway 6.1.4 (2020-01-06)</h2>
         <h3>Bug fixes</h3>
         <ul>
@@ -4052,7 +4105,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.1.3">Flyway 6.1.3 (2019-12-20)</h2>
         <h3>Bug fixes</h3>
         <ul>
@@ -4083,7 +4136,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.1.2">Flyway 6.1.2 (2019-12-16)</h2>
         <h3>Bug fixes</h3>
         <ul>
@@ -4133,7 +4186,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.1.1">Flyway 6.1.1 (2019-12-09)</h2>
         <h3>Bug fixes</h3>
         <ul>
@@ -4179,7 +4232,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.1.0">Flyway 6.1.0 (2019-11-26)</h2>
         <h3>New features</h3>
         <ul>
@@ -4276,7 +4329,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.0.8">Flyway 6.0.8 (2019-10-30)</h2>
         <h3>Bug fixes</h3>
         <ul>
@@ -4307,7 +4360,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.0.7">Flyway 6.0.7 (2019-10-17)</h2>
         <h3>Bug fixes</h3>
         <ul>
@@ -4338,7 +4391,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.0.6">Flyway 6.0.6 (2019-10-09)</h2>
 
         <h3>New features</h3>
@@ -4394,11 +4447,11 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.0.5">Flyway 6.0.5 (Skipped due to regression in Community)</h2>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.0.4">Flyway 6.0.4 (2019-09-23)</h2>
 
         <h3>Bug fixes</h3>
@@ -4420,7 +4473,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.0.3">Flyway 6.0.3 (2019-09-13)</h2>
 
         <h3>New features</h3>
@@ -4470,7 +4523,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.0.2">Flyway 6.0.2 (2019-09-09)</h2>
 
         <h3>Bug fixes</h3>
@@ -4502,7 +4555,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.0.1">Flyway 6.0.1 (2019-08-29)</h2>
         <h3>New features</h3>
         <ul>
@@ -4547,7 +4600,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.0.0">Flyway 6.0.0 (2019-08-19)</h2>
 
         <h3>New features</h3>
@@ -4722,7 +4775,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.0.0-beta2">Flyway 6.0.0-beta2 (2019-05-30)</h2>
 
         <h3>New features</h3>
@@ -4886,7 +4939,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="6.0.0-beta">Flyway 6.0.0-beta (2019-02-12)</h2>
 
         <h3>New features</h3>
@@ -5087,7 +5140,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.2.4">Flyway 5.2.4 (2018-12-04)</h2>
 
         <h3>Bug fixes</h3>
@@ -5129,7 +5182,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.2.3">Flyway 5.2.3 (2018-11-26)</h2>
 
         <h3>Bug fixes</h3>
@@ -5145,7 +5198,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.2.2">Flyway 5.2.2 (2018-11-25)</h2>
 
         <h3>New features</h3>
@@ -5214,7 +5267,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.2.1">Flyway 5.2.1 (2018-10-24)</h2>
 
         <h3>New features</h3>
@@ -5254,7 +5307,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.2.0">Flyway 5.2.0 (2018-10-04)</h2>
 
         <h3>New features</h3>
@@ -5524,7 +5577,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.1.4">Flyway 5.1.4 (2018-07-04)</h2>
 
         <h3>New features</h3>
@@ -5569,7 +5622,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.1.3">Flyway 5.1.3 (2018-06-20)</h2>
 
         <h3>Bug fixes</h3>
@@ -5620,11 +5673,11 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.1.2">Flyway 5.1.2 (Skipped due to build process failure)</h2>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.1.1">Flyway 5.1.1 (2018-05-28)</h2>
         <h3>Bug fixes</h3>
         <ul>
@@ -5932,7 +5985,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.0.7">Flyway 5.0.7 (2018-01-30)</h2>
 
         <h3>Changes</h3>
@@ -5968,7 +6021,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.0.6">Flyway 5.0.6 (2018-01-16)</h2>
 
         <h3>New features</h3>
@@ -6004,7 +6057,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.0.5">Flyway 5.0.5 (2018-01-04)</h2>
 
         <h3>Bug fixes</h3>
@@ -6033,7 +6086,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.0.4">Flyway 5.0.4 (2018-01-02)</h2>
 
         <h3>New features</h3>
@@ -6074,7 +6127,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.0.3">Flyway 5.0.3 (2017-12-20)</h2>
 
         <h3>New features</h3>
@@ -6132,7 +6185,7 @@
     </div>
 
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.0.2">Flyway 5.0.2 (2017-12-08)</h2>
 
         <h3>Bug fixes</h3>
@@ -6157,7 +6210,7 @@
     </div>
 
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.0.1">Flyway 5.0.1 (2017-12-07)</h2>
 
         <p>This release is identical to Flyway 5.0.0. It only adds the platform specific distribution of Flyway Command-line
@@ -6165,7 +6218,7 @@
     </div>
 
 
-                <div class="release">
+    <div class="release">
         <h2 id="5.0.0">Flyway 5.0.0 (2017-12-07)</h2>
 
         <p><strong>Important note for users upgrading from Flyway 3.x:</strong> This release no longer supports a schema history
@@ -6555,7 +6608,7 @@
 
     </div>
 
-                <div class="release">
+    <div class="release">
 
         <h2 id="4.2.0">Flyway 4.2.0 (2017-04-27)</h2>
 
@@ -6651,7 +6704,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="4.1.2">Flyway 4.1.2 (2017-03-06)</h2>
 
         <h3>Bug fixes</h3>
@@ -6685,7 +6738,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
 
         <h2 id="4.1.1">Flyway 4.1.1 (2017-02-16)</h2>
 
@@ -6716,7 +6769,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
 
         <h2 id="4.1.0">Flyway 4.1.0 (2017-02-08)</h2>
 
@@ -6921,7 +6974,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
 
         <h2 id="4.0.3">Flyway 4.0.3 (2016-06-17)</h2>
 
@@ -6948,7 +7001,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
 
         <h2 id="4.0.2">Flyway 4.0.2 (2016-06-09)</h2>
 
@@ -6997,7 +7050,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
 
         <h2>Flyway 4.0.1 (2016-05-06)</h2>
         <h3>Bug fixes</h3>
@@ -7163,7 +7216,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
 
 
         <h2>Flyway 4.0 (2016-02-29)</h2>
@@ -7540,7 +7593,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
 
         <h2>Flyway 3.2.1 (2015-03-20)</h2>
 
@@ -7725,7 +7778,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
 
         <h2>Flyway 3.1 (2014-11-27)</h2>
 
@@ -7967,7 +8020,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="flyway-3.0">Flyway 3.0 (2014-04-20)</h2>
 
         <h3>New Features</h3>
@@ -8179,7 +8232,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 2.3 (2013-12-17)</h2>
 
         <h3>New Features</h3>
@@ -8285,7 +8338,7 @@
     </div>
 
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 2.2.1 (2013-08-20)</h2>
 
         <h3>Bug fixes</h3>
@@ -8331,7 +8384,7 @@
     </div>
 
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 2.2 (2013-07-15)</h2>
 
         <h3>New Features</h3>
@@ -8487,7 +8540,7 @@
         <p>Special thanks to Ben Manes for contributing the Gradle Plugin!</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 2.1.1 (2013-03-15)</h2>
 
         <h3>Bug fixes</h3>
@@ -8520,7 +8573,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 2.1 (2013-03-05)</h2>
 
         <p>This version <strong>fixes minor issues with the metadata table</strong>. Migration is transparent and automatic
@@ -8681,7 +8734,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 2.0.3 (2012-12-05)</h2>
 
         <h3>Bug fixes</h3>
@@ -8712,7 +8765,7 @@
             for reporting these issues.
         </p>
     </div>
-                <div class="release">
+    <div class="release">
         <h2>Flyway 2.0.2 (2012-11-22)</h2>
 
         <p>This version performs <strong>minor fixes on the metadata table</strong>. Migration is transparent and automatic
@@ -8743,7 +8796,7 @@
             for reporting these issues.
         </p>
     </div>
-                <div class="release">
+    <div class="release">
         <h2>Flyway 2.0.1 (2012-11-20)</h2>
 
         <h3>Bug fixes</h3>
@@ -8771,7 +8824,7 @@
             for reporting these issues.
         </p>
     </div>
-                <div class="release">
+    <div class="release">
         <h2>Flyway 2.0 (2012-11-14)</h2>
 
         <p>This version comes with a <strong>new metadata table format</strong>. Migration is transparent and automatic on
@@ -8980,7 +9033,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 1.7 (2012-07-10)</h2>
 
         <h3>New Features</h3>
@@ -9069,7 +9122,7 @@
         </p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 1.6.1 (2012-04-21)</h2>
 
         <h3>Bug Fixes</h3>
@@ -9086,7 +9139,7 @@
         <p>Thanks to Marc Dumontier, Steve Tarka and vtkstef for reporting these issues.</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 1.6 (2012-04-09)</h2>
 
         <h3>New Features</h3>
@@ -9151,7 +9204,7 @@
             issues.</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 1.5 (2011-11-09)</h2>
 
         <h3>New Features</h3>
@@ -9230,7 +9283,7 @@
             these issues.</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 1.4.2 (2011-06-29)</h2>
 
         <h3>Bug Fixes</h3>
@@ -9242,7 +9295,7 @@
         <p>Thanks to Armin Gattung for reporting this issue.</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 1.4.1 (2011-05-27)</h2>
 
         <h3>New Features</h3>
@@ -9260,7 +9313,7 @@
         <p>Thanks to jmarin and floburka for reporting these issues.</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 1.4 (2011-05-13)</h2>
 
         <h3>New Features</h3>
@@ -9302,7 +9355,7 @@
             issues.</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 1.3.1 (2011-04-06)</h2>
 
         <h3>New Features</h3>
@@ -9343,7 +9396,7 @@
             issues.</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 1.3 (2011-03-18)</h2>
 
         <h3>New Features</h3>
@@ -9363,7 +9416,7 @@
             Pletzer for reporting these issues.</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 1.2 (2011-02-27)</h2>
 
         <h3>New Features</h3>
@@ -9400,7 +9453,7 @@
             Samselnig, Daniel Garcia, Ulf Bamberg and Gene Gotimer for reporting the other issues</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 1.1 (2011-02-03)</h2>
 
         <h3>New Features</h3>
@@ -9428,7 +9481,7 @@
         <p>Thanks to jaggerjackkurosaki and Thomas Kruse for reporting these issues</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 1.0.1 (2010-12-27)</h2>
 
         <h3>Bug Fixes</h3>
@@ -9439,7 +9492,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2 id="flyway-1.0">Flyway 1.0 (2010-12-26)</h2>
 
         <h3>New Features</h3>
@@ -9456,7 +9509,7 @@
         <p>Thanks to Mathias Bogaert for reporting the Flyway.configure issue</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 0.9.5 (2010-12-12)</h2>
 
         <h3>New Features</h3>
@@ -9497,7 +9550,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 0.9.4 (2010-11-24)</h2>
 
         <h3>Changes</h3>
@@ -9520,7 +9573,7 @@
             patch for the new-line issue</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 0.9.3 (2010-11-09)</h2>
 
         <h3>New Features</h3>
@@ -9532,7 +9585,7 @@
         <p>Thanks to Mathias Bogaert for reporting this issue</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 0.9.2 (2010-11-05)</h2>
 
         <h3>New Features</h3>
@@ -9563,7 +9616,7 @@
         <p>Thanks to Philipp (godhood) for contributing large parts of the PostgreSQL support</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 0.9.1 (2010-09-14)</h2>
 
         <h3>Bug fixes</h3>
@@ -9573,7 +9626,7 @@
         <p>Thanks to Hilario Fernandes for reporting this issue.</p>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 0.9 (2010-08-25)</h2>
 
         <h3>New Features</h3>
@@ -9608,7 +9661,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 0.8.5 (2010-07-26)</h2>
         <ul>
             <li>Added mvn flyway:history goal to display the complete migration history of the schema</li>
@@ -9623,7 +9676,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 0.8 (2010-07-15)</h2>
         <ul>
             <li>Added mvn flyway:status goal to display the current version of the schema</li>
@@ -9634,7 +9687,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 0.7 (2010-06-29)</h2>
         <ul>
             <li>Added support for parallel migrations. Flyway is now safe to deploy in a cluster.</li>
@@ -9644,7 +9697,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 0.6 (2010-06-13)</h2>
         <ul>
             <li>Updated maven groupId to <strong>com.googlecode.flyway</strong></li>
@@ -9657,7 +9710,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 0.0.5 (2010-05-13)</h2>
         <ul>
             <li>Fixed connection leaks</li>
@@ -9665,7 +9718,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 0.0.4 (2010-05-09)</h2>
         <ul>
             <li>Display exact script name and line number when a statement could not be executed</li>
@@ -9673,7 +9726,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 0.0.3 (2010-04-26)</h2>
         <ul>
             <li>Added support for Ant-style ${placeholder} replacement in sql migrations</li>
@@ -9681,7 +9734,7 @@
         </ul>
     </div>
 
-                <div class="release">
+    <div class="release">
         <h2>Flyway 0.0.2 (2010-04-23)</h2>
         <ul>
             <li>Fixed current version index on Oracle</li>

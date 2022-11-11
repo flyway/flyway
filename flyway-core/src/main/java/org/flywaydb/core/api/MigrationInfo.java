@@ -33,6 +33,10 @@ public interface MigrationInfo extends Comparable<MigrationInfo> {
      */
     Integer getChecksum();
 
+    default boolean isVersioned() {
+        return getVersion() != null;
+    }
+
     /**
      * @return The schema version after the migration is complete.
      */

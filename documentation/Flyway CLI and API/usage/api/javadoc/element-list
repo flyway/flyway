@@ -1,0 +1,12 @@
+org.flywaydb.core
+org.flywaydb.core.api
+org.flywaydb.core.api.callback
+org.flywaydb.core.api.configuration
+org.flywaydb.core.api.exception
+org.flywaydb.core.api.executor
+org.flywaydb.core.api.logging
+org.flywaydb.core.api.migration
+org.flywaydb.core.api.output
+org.flywaydb.core.api.pattern
+org.flywaydb.core.api.resolver
+org.flywaydb.core.api.resource

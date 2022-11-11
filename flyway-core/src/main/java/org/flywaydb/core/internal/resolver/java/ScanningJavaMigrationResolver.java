@@ -27,20 +27,11 @@ import org.flywaydb.core.internal.util.ClassUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Migration resolver for Java-based migrations. The classes must have a name like R__My_description, V1__Description
- * or V1_1_3__Description.
- */
 @RequiredArgsConstructor
 public class ScanningJavaMigrationResolver implements MigrationResolver {
-    /**
-     * The Scanner to use.
-     */
+
     private final ClassProvider<JavaMigration> classProvider;
 
-    /**
-     * The configuration to inject (if necessary) in the migration classes.
-     */
     private final Configuration configuration;
 
     @Override

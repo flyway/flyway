@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.7.0</version>
+        <version>9.8.0</version>
     </parent>
     <artifactId>flyway-core</artifactId>
     <packaging>jar</packaging>
@@ -48,10 +48,6 @@
             <groupId>org.jboss</groupId>
             <artifactId>jboss-vfs</artifactId>
             <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>com.electronwill.night-config</groupId>
-            <artifactId>toml</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>

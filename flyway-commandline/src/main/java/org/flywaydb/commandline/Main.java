@@ -360,7 +360,7 @@ public class Main {
 
     private static void initializeDefaults(Map<String, String> config, CommandLineArguments commandLineArguments) {
         // To maintain override order, return extension value first if present
-        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : getInstallationDir();
+        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : ClassUtils.getInstallDir(Main.class);
 
         config.put(ConfigUtils.LOCATIONS, "filesystem:" + new File(workingDirectory, "sql").getAbsolutePath());
 
@@ -484,7 +484,7 @@ public class Main {
     }
 
     private static List<File> getJdbcDriverJarFiles() {
-        File driversDir = new File(getInstallationDir(), "drivers");
+        File driversDir = new File(ClassUtils.getInstallDir(Main.class), "drivers");
         File[] files = driversDir.listFiles((dir, name) -> name.endsWith(".jar"));
 
         // see javadoc of listFiles(): null if given path is not a real directory
@@ -523,7 +523,7 @@ public class Main {
 
     protected static void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(commandLineArguments, envVars);
-        File installationDir = new File(getInstallationDir());
+        File installationDir = new File(ClassUtils.getInstallDir(Main.class));
 
         config.putAll(ConfigUtils.loadDefaultConfigurationFiles(installationDir, encoding));
 
@@ -620,16 +620,6 @@ public class Main {
                 commandLineArguments.getConfigFiles().stream();
 
         return configFilePaths.map(path -> Paths.get(path).isAbsolute() ? new File(path) : new File(workingDirectory, path)).collect(Collectors.toList());
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    private static String getInstallationDir() {
-        String path = ClassUtils.getLocationOnDisk(Main.class);
-        return new File(path) // jar file
-                .getParentFile() // edition dir
-                .getParentFile() // lib dir
-                .getParentFile() // installation dir
-                .getAbsolutePath();
     }
 
     /**

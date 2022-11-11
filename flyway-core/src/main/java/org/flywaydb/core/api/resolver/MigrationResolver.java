@@ -46,7 +46,7 @@ public interface MigrationResolver extends Plugin {
     /**
      * @return The prefix this resolver looks for. {@code null} if no particular prefix is used
      */
-    default String getPrefix() {
+    default String getPrefix(Configuration configuration) {
         return null;
     }
 

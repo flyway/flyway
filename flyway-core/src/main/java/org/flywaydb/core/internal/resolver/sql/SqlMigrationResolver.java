@@ -68,21 +68,8 @@ public class SqlMigrationResolver implements MigrationResolver {
         List<ResolvedMigration> migrations = new ArrayList<>();
         String[] suffixes = configuration.getSqlMigrationSuffixes();
 
-        addMigrations(migrations, configuration.getSqlMigrationPrefix(), suffixes,
-                      false
-
-
-
-                     );
-
-
-
-        addMigrations(migrations, configuration.getRepeatableSqlMigrationPrefix(), suffixes,
-                      true
-
-
-
-                     );
+        addMigrations(migrations, configuration.getSqlMigrationPrefix(), suffixes, false);
+        addMigrations(migrations, configuration.getRepeatableSqlMigrationPrefix(), suffixes, true);
 
         migrations.sort(new ResolvedMigrationComparator());
         return migrations;
@@ -134,12 +121,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         return null;
     }
 
-    private void addMigrations(List<ResolvedMigration> migrations, String prefix, String[] suffixes,
-                               boolean repeatable
-
-
-
-                              ) {
+    private void addMigrations(List<ResolvedMigration> migrations, String prefix, String[] suffixes, boolean repeatable) {
         ResourceNameParser resourceNameParser = new ResourceNameParser(configuration);
 
         for (LoadableResource resource : resourceProvider.getResources(prefix, suffixes)) {
@@ -174,22 +156,16 @@ public class SqlMigrationResolver implements MigrationResolver {
                     resource.getRelativePath(),
                     checksum,
                     equivalentChecksum,
-
-
-
-                            CoreMigrationType.SQL,
+                    CoreMigrationType.SQL,
                     resource.getAbsolutePathOnDisk(),
-                    new SqlMigrationExecutor(sqlScriptExecutorFactory, sqlScript
+                    new SqlMigrationExecutor(sqlScriptExecutorFactory, sqlScript, false,
 
 
 
 
-                                              , false, false
+                                              false
 
-                    )) {
-                @Override
-                public void validate() {}
-            });
+                    )));
         }
     }
 

@@ -43,9 +43,6 @@ import org.flywaydb.core.internal.util.Pair;
  * migration category are provided by implementing the respective methods.</p>
  */
 public abstract class BaseJavaMigration implements JavaMigration {
-
-
-
     private MigrationVersion version;
     private String description;
 
@@ -60,26 +57,14 @@ public abstract class BaseJavaMigration implements JavaMigration {
         String shortName = getClass().getSimpleName();
         String prefix = null;
 
-
-
-
         boolean repeatable = shortName.startsWith("R");
-
-
-
-
-
-
 
         if (shortName.startsWith("V") || repeatable) {
             prefix = shortName.substring(0, 1);
         }
         if (prefix == null) {
             throw new FlywayException("Invalid Java-based migration class name: " + getClass().getName() +
-                                              " => ensure it starts with V, R" +
-
-
-
+                                              " => ensure it starts with V or R" +
                                               " or implement org.flywaydb.core.api.migration.JavaMigration directly for non-default naming");
         }
         extractVersionAndDescription(shortName, prefix, repeatable);
@@ -109,14 +94,5 @@ public abstract class BaseJavaMigration implements JavaMigration {
     @Override
     public boolean canExecuteInTransaction() {
         return true;
-    }
-
-    @Override
-    public MigrationType getType() {
-        return
-
-
-
-                JavaMigration.super.getType();
     }
 }

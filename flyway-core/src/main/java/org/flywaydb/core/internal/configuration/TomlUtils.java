@@ -15,14 +15,15 @@
  */
 package org.flywaydb.core.internal.configuration;
 
-import com.electronwill.nightconfig.core.Config;
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.electronwill.nightconfig.core.file.FileConfig;
-import com.electronwill.nightconfig.toml.TomlFormat;
+import com.fasterxml.jackson.databind.type.MapLikeType;
+import com.fasterxml.jackson.dataformat.toml.TomlMapper;
 import lombok.CustomLog;
+import org.flywaydb.core.api.FlywayException;
 
 import java.io.File;
-import java.nio.charset.Charset;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,15 +37,15 @@ public class TomlUtils {
         LOG.warn("Loading TOML config file: " + configFile.getAbsolutePath());
         LOG.warn("This is an experimental feature, which is subject to change, and not recommended for use as yet");
 
-        Map<String, Object> valueMap;
-        try(FileConfig toml = CommentedFileConfig.builder(configFile, TomlFormat.instance())
-                                                 .charset(Charset.forName(encoding))
-                                                 .build()) {
-            toml.load();
-            valueMap = ((Config) toml.valueMap().get("flyway")).valueMap();
-        }
+        TomlMapper tomlMapper = new TomlMapper();
+        MapLikeType mapType = tomlMapper.getTypeFactory().constructMapLikeType(Map.class, String.class, Object.class);
 
-        return flatten(valueMap, "flyway");
+        try {
+            Map<String, Map<String, Object>> valueMap = tomlMapper.readValue(new InputStreamReader(new FileInputStream(configFile), encoding), mapType);
+            return flatten(valueMap.get("flyway"), "flyway");
+        } catch (IOException e) {
+            throw new FlywayException("Unable to load config file: " + configFile.getAbsolutePath(), e);
+        }
     }
 
     private static Map<String, String> flatten(Map<String, Object> map, String parentKey) {
@@ -53,8 +54,8 @@ public class TomlUtils {
         for (String key : map.keySet()) {
             Object value = map.get(key);
 
-            if (value instanceof Config) {
-                Map<String, String> subTree = flatten(((Config) value).valueMap(), key);
+            if (value instanceof Map) {
+                Map<String, String> subTree = flatten(((Map) value), key);
 
                 for (String subKey : subTree.keySet()) {
                     result.put(parentKey + "." + subKey, subTree.get(subKey));
