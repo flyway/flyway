@@ -21,14 +21,14 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.8.0</version>
+        <version>9.8.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>flyway-gcp-spanner</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <version>9.8.0-beta</version>
+    <version>9.8.1-beta</version>
 
     <dependencies>
         <dependency>
@@ -57,6 +57,12 @@
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-spanner-jdbc</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api</groupId>
+            <artifactId>gax</artifactId>
+            <version>2.19.5</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
