@@ -14,6 +14,9 @@ target
 .DS_Store
 *.asc
 
+documentation/.jekyll-metadata
+documentation/_site
+
 **/.idea/**
 !**/.idea/runConfigurations/
 !**/.idea/runConfigurations/*

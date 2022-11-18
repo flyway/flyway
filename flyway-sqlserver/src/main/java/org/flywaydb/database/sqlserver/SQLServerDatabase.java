@@ -15,8 +15,12 @@
  */
 package org.flywaydb.database.sqlserver;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.CleanModePlugin;
+import org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension;
+import org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
@@ -42,6 +46,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
     protected SQLServerConnection doGetConnection(Connection connection) {
         return new SQLServerConnection(this, connection);
     }
+
 
 
 
@@ -245,6 +250,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
      * Cleans all the objects in this database that need to be cleaned after cleaning schemas.
      *
      * @param schemas The list of schemas managed by Flyway
+     *
      * @throws SQLException when the clean failed.
      */
     @Override
@@ -269,11 +275,23 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
                 jdbcTemplate.execute(statement);
             }
         }
+
+        Mode cleanMode = configuration.getPluginRegister().getPlugin(CleanModeConfigurationExtension.class).getCleanMode();
+        if (cleanMode == Mode.ALL) {
+            CleanModePlugin cleanModePlugin = configuration.getPluginRegister().getPlugins(CleanModePlugin.class).stream()
+                                                           .filter(p -> p.handlesMode(cleanMode))
+                                                           .filter(p -> p.handlesDatabase(this))
+                                                           .findFirst()
+                                                           .orElseThrow(() -> new FlywayException("No plugin found to handle clean mode " + cleanMode + " for SQLServer. Please ensure you have the `flyway-desktop-clean` module on the classpath"));
+            cleanModePlugin.cleanDatabasePostSchema(this, jdbcTemplate);
+        }
     }
 
     /**
      * @param schemas The list of schemas managed by Flyway
+     *
      * @return The drop statements.
+     *
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanTypes(Schema[] schemas) throws SQLException {
@@ -294,6 +312,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
     /**
      * @return The drop statements.
+     *
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanPartitionSchemes() throws SQLException {
@@ -307,6 +326,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
     /**
      * @return The drop statements.
+     *
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanAssemblies() throws SQLException {
@@ -320,6 +340,7 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
     /**
      * @return The drop statements.
+     *
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanPartitionFunctions() throws SQLException {
@@ -329,5 +350,29 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
             statements.add("DROP PARTITION FUNCTION " + quote(partitionFunctionName));
         }
         return statements;
+    }
+
+    @Override
+    public Schema[] getAllSchemas() {
+        try {
+            List<String> allSchemaNames = jdbcTemplate.queryForStringList("(" +
+                                                                                  "SELECT s.name\n" +
+                                                                                  "FROM sys.schemas s\n" +
+                                                                                  "INNER JOIN sys.sysusers u ON u.uid = s.principal_id\n" +
+                                                                                  "WHERE u.issqluser = 1 AND u.name NOT IN ('sys', 'guest', 'INFORMATION_SCHEMA')\n" +
+                                                                                  ") UNION (\n" +
+                                                                                  "SELECT s.name\n" +
+                                                                                  "FROM sys.schemas s\n" +
+                                                                                  "INNER JOIN sys.sysusers u ON u.uid = s.schema_id\n" +
+                                                                                  "WHERE u.islogin = 1 AND u.name NOT IN ('sys', 'guest', 'INFORMATION_SCHEMA')\n" +
+                                                                                  ") UNION (\n" +
+                                                                                  "SELECT DISTINCT s.name\n" +
+                                                                                  "FROM sys.schemas s\n" +
+                                                                                  "INNER JOIN sys.objects o ON o.schema_id = s.schema_id\n" +
+                                                                                  "WHERE o.is_ms_shipped = 0)");
+            return allSchemaNames.stream().map(n -> getMainConnection().getSchema(n)).toArray(Schema[]::new);
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to determine all schemas", e);
+        }
     }
 }

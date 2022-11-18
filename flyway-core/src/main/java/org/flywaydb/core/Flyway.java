@@ -16,7 +16,6 @@
 package org.flywaydb.core;
 
 import lombok.CustomLog;
-import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.callback.Event;
@@ -28,9 +27,9 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.*;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.extensibility.CommandExtension;
-import org.flywaydb.core.internal.FlywayTeamsObjectResolver;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.command.*;
+import org.flywaydb.core.internal.command.clean.DbClean;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
@@ -56,7 +55,6 @@ import java.util.List;
  * Note that a configured Flyway object is immutable. If you change the configuration you will end up creating a new Flyway object.
  */
 @CustomLog
-@ExtensionMethod(FlywayTeamsObjectResolver.class)
 public class Flyway {
     private final ClassicConfiguration configuration;
     private final FlywayExecutor flywayExecutor;
@@ -88,6 +86,7 @@ public class Flyway {
      * functionality such as migrate() or clean().
      *
      * @param classLoader The class loader to use when loading classes and resources.
+     *
      * @return A new configuration from which Flyway can be loaded.
      */
     public static FluentConfiguration configure(ClassLoader classLoader) {
@@ -122,6 +121,7 @@ public class Flyway {
      * <img src="https://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
      *
      * @return An object summarising the successfully applied migrations.
+     *
      * @throws FlywayException when the migration failed.
      */
     public MigrateResult migrate() throws FlywayException {
@@ -187,6 +187,7 @@ public class Flyway {
      * <img src="https://flywaydb.org/assets/balsamiq/command-info.png" alt="info">
      *
      * @return All migrations sorted by version, oldest first.
+     *
      * @throws FlywayException when the info retrieval failed.
      */
     public MigrationInfoService info() {
@@ -205,6 +206,7 @@ public class Flyway {
      * <img src="https://flywaydb.org/assets/balsamiq/command-clean.png" alt="clean">
      *
      * @return An object summarising the actions taken
+     *
      * @throws FlywayException when the clean fails.
      */
     public CleanResult clean() {
@@ -260,6 +262,7 @@ public class Flyway {
      * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
      *
      * @return An object summarising the validation results
+     *
      * @throws FlywayException when the validation failed.
      */
     public ValidateResult validateWithResult() throws FlywayException {
@@ -278,6 +281,7 @@ public class Flyway {
      * <img src="https://flywaydb.org/assets/balsamiq/command-baseline.png" alt="baseline">
      *
      * @return An object summarising the actions taken
+     *
      * @throws FlywayException when the schema baseline failed.
      */
     public BaselineResult baseline() throws FlywayException {
@@ -308,6 +312,7 @@ public class Flyway {
      * <img src="https://flywaydb.org/assets/balsamiq/command-repair.png" alt="repair">
      *
      * @return An object summarising the actions taken
+     *
      * @throws FlywayException when the schema history table repair failed.
      */
     public RepairResult repair() throws FlywayException {
@@ -328,6 +333,7 @@ public class Flyway {
      * <img src="https://flywaydb.org/assets/balsamiq/command-undo.png" alt="undo">
      *
      * @return An object summarising the successfully undone migrations.
+     *
      * @throws FlywayException when undo failed.
      */
     public UndoResult undo() throws FlywayException {
@@ -343,14 +349,14 @@ public class Flyway {
 
     private OperationResult runCommand(String command, List<String> flags) {
         return configuration.getPluginRegister().getPlugins(CommandExtension.class).stream()
-                .filter(commandExtension -> commandExtension.handlesCommand(command))
-                .findFirst()
-                .map(commandExtension -> commandExtension.handle(command, configuration, flags))
-                .orElseThrow(() -> new FlywayException("No command extension found to handle command: " + command));
+                            .filter(commandExtension -> commandExtension.handlesCommand(command))
+                            .findFirst()
+                            .map(commandExtension -> commandExtension.handle(command, configuration, flags))
+                            .orElseThrow(() -> new FlywayException("No command extension found to handle command: " + command));
     }
 
     private CleanResult doClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor) {
-        return DbClean.class.resolve(database, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration).clean();
+        return new DbClean(database, schemaHistory, defaultSchema, schemas, callbackExecutor, configuration).clean();
     }
 
     private ValidateResult doValidate(Database database, CompositeMigrationResolver migrationResolver, SchemaHistory schemaHistory,
