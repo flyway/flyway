@@ -18,6 +18,7 @@ package org.flywaydb.core.extensibility;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 public interface PluginMetadata extends Plugin {
@@ -113,7 +114,7 @@ public interface PluginMetadata extends Plugin {
      * @return A list of &lt;command, description&gt; pairs that describe how this plugin is to be used
      */
     default List<Pair<String, String>> getUsage() {
-        return null;
+        return Collections.emptyList();
     }
 
     /**

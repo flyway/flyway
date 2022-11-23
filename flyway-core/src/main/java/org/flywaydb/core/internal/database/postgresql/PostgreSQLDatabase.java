@@ -54,13 +54,14 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
 
 
+
     @Override
     public void ensureSupported() {
         ensureDatabaseIsRecentEnough("9.0");
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessaryForMajorVersion("14");
+        recommendFlywayUpgradeIfNecessaryForMajorVersion("15");
     }
 
     @Override
@@ -82,8 +83,8 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
                 "    \"success\" BOOLEAN NOT NULL\n" +
                 ")" + tablespace + ";\n" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "") +
-                "ALTER TABLE " + table + " ADD CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\");\n" +
-                "CREATE INDEX \"" + table.getName() + "_s_idx\" ON " + table + " (\"success\");";
+                "ALTER TABLE " + table + " ADD CONSTRAINT \"" + table.getName() + "_pk\" PRIMARY KEY (\"installed_rank\")" + (configuration.getTablespace() != null ? " USING INDEX" + tablespace : "" ) + ";\n" +
+                "CREATE INDEX \"" + table.getName() + "_s_idx\" ON " + table + " (\"success\")" + tablespace + ";";
     }
 
     @Override
@@ -93,11 +94,6 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
     @Override
     public boolean supportsDdlTransactions() {
-        return true;
-    }
-
-    @Override
-    public boolean supportsChangingCurrentSchema() {
         return true;
     }
 
@@ -128,7 +124,8 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
 
     @Override
     public boolean useSingleConnection() {
-        return true;
+        PostgreSQLConfigurationExtension configurationExtension = configuration.getPluginRegister().getPlugin(PostgreSQLConfigurationExtension.class);
+        return !configurationExtension.isTransactionalLock();
     }
 
     /**

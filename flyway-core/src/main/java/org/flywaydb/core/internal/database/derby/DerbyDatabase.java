@@ -91,11 +91,6 @@ public class DerbyDatabase extends Database<DerbyConnection> {
     }
 
     @Override
-    public boolean supportsChangingCurrentSchema() {
-        return true;
-    }
-
-    @Override
     public String getBooleanTrue() {
         return "true";
     }

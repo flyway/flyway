@@ -82,7 +82,7 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
 
         ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("3", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-        recommendFlywayUpgradeIfNecessaryForMajorVersion("5.1");
+        recommendFlywayUpgradeIfNecessaryForMajorVersion("6.29");
     }
 
     @Override
@@ -145,11 +145,6 @@ public class SnowflakeDatabase extends Database<SnowflakeConnection> {
     @Override
     public boolean supportsDdlTransactions() {
         return false;
-    }
-
-    @Override
-    public boolean supportsChangingCurrentSchema() {
-        return true;
     }
 
     @Override

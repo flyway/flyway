@@ -85,11 +85,6 @@ public class InformixDatabase extends Database<InformixConnection> {
     }
 
     @Override
-    public boolean supportsChangingCurrentSchema() {
-        return false;
-    }
-
-    @Override
     public String getBooleanTrue() {
         return "1";
     }

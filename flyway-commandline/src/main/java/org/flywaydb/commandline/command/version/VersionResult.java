@@ -15,14 +15,13 @@
  */
 package org.flywaydb.commandline.command.version;
 
+import lombok.AllArgsConstructor;
 import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.internal.license.Edition;
 
+@AllArgsConstructor
 public class VersionResult implements OperationResult {
     public String version;
     public String command;
-
-    public VersionResult(String version, String command) {
-        this.version = version;
-        this.command = command;
-    }
+    public Edition edition;
 }

@@ -174,6 +174,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
     private List<Pair<AppliedMigration, AppliedMigrationAttributes>> getAppliedVersionedMigrations(List<AppliedMigration> appliedMigrations, MigrationInfoContext context) {
         List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedVersionedMigrations = new ArrayList<>();
         for (AppliedMigration appliedMigration : appliedMigrations) {
+            appliedMigration.updateAttributes(appliedVersionedMigrations);
+
             MigrationVersion version = appliedMigration.getVersion();
             if (version == null) {
                 continue;
@@ -188,11 +190,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             }
             if (appliedMigration.getType().equals(CoreMigrationType.DELETE) && appliedMigration.isSuccess()) {
                 markAsDeleted(version, appliedVersionedMigrations);
+                continue;
             }
-
-
-
-
 
             appliedVersionedMigrations.add(Pair.of(appliedMigration, new AppliedMigrationAttributes()));
         }
@@ -259,11 +258,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         for (Pair<AppliedMigration, AppliedMigrationAttributes> av : appliedVersionedMigrations) {
             ResolvedMigration resolvedMigration = resolvedVersionedMigrations.get(Pair.of(av.getLeft().getVersion(), av.getLeft().getType()));
             if (resolvedMigration != null
-                    && !av.getRight().deleted && av.getLeft().getType() != CoreMigrationType.DELETE
-
-
-
-            ) {
+                    && !av.getRight().deleted && av.getLeft().getType() != CoreMigrationType.DELETE && !av.getRight().undone) {
                 pendingResolvedVersionedMigrations.remove(resolvedMigration);
             }
         }
@@ -319,10 +314,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             MigrationVersion version = appliedMigration.getVersion();
             if (version.compareTo(context.lastApplied) > 0) {
                 if (av.getLeft().getType() != CoreMigrationType.DELETE && !av.getRight().deleted
-
-
-
-                ) {
+                        && av.getLeft().isVersioned() && !av.getRight().undone) {
                     context.lastApplied = version;
                 }
             } else {
@@ -370,30 +362,6 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public MigrationInfo[] all() {
         return migrationInfos.toArray(new MigrationInfo[0]);
@@ -418,11 +386,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             if (migrationInfo.getState().isApplied()
                     && !MigrationState.DELETED.equals(migrationInfo.getState())
                     && !migrationInfo.getType().equals(CoreMigrationType.DELETE)
-
-
-
-
-                    && migrationInfo.getVersion() != null
+                    && !MigrationState.UNDONE.equals(migrationInfo.getState())
+                    && migrationInfo.isVersioned()
                     && (current == null || migrationInfo.getVersion().compareTo(current.getVersion()) > 0)) {
                 current = migrationInfo;
             }
@@ -437,10 +402,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
             if (migrationInfo.getState().isApplied()
                     && !MigrationState.DELETED.equals(migrationInfo.getState())
                     && !migrationInfo.getType().equals(CoreMigrationType.DELETE)
-
-
-
-
+                    && !MigrationState.UNDONE.equals(migrationInfo.getState())
+                    && migrationInfo.getVersion() == null
             ) {
                 return migrationInfo;
             }
@@ -505,10 +468,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         for (MigrationInfo migrationInfo : migrationInfos) {
             if (((migrationInfo.getState() == MigrationState.FUTURE_SUCCESS)
                     || (migrationInfo.getState() == MigrationState.FUTURE_FAILED))
-
-
-
-
+                    && migrationInfo.isVersioned()
             ) {
                 futureMigrations.add(migrationInfo);
             }
@@ -529,21 +489,18 @@ public class MigrationInfoServiceImpl implements MigrationInfoService, Operation
         return outOfOrderMigrations.toArray(new MigrationInfo[0]);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * @return The undo migrations. An empty array if none.
+     */
+    public MigrationInfoImpl[] undo() {
+        List<MigrationInfoImpl> result = new ArrayList<>();
+        for (MigrationInfoImpl migrationInfo : migrationInfos) {
+            if (migrationInfo.getType().isUndo()) {
+                result.add(migrationInfo);
+            }
+        }
+        return result.toArray(new MigrationInfoImpl[0]);
+    }
 
     /**
      * @return The list of migrations that failed validation, which is empty if everything is fine.

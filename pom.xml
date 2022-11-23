@@ -20,16 +20,17 @@
     <!--
     Detailed information how to contribute: https://flywaydb.org/documentation/contribute/code/
 
-    The OS-specific JREs are unfortunately not available from Maven Central due to licensing issues.
-    Instructions for installing them: https://flywaydb.org/documentation/contribute/devEnvironmentSetup.html
-
-    To build the OS-specific flyway-commandline assemblies you can run the build with:
-    mvn clean install -PCommandlinePlatformAssemblies
+    To build the OS-specific flyway-commandline assemblies you can run the build with one of the following commands:
+    mvn clean install -Pbuild-assemblies-windows
+    mvn clean install -Pbuild-assemblies-linux
+    mvn clean install -Pbuild-assemblies-mac
+    mvn clean install -Pbuild-assemblies-mac-arm64
+    mvn clean install -Pbuild-assemblies-no-jre
     -->
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>9.0.0</version>
+    <version>9.8.2</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -91,6 +92,9 @@
 
 
 
+
+
+
     </modules>
 
     <distributionManagement>
@@ -132,28 +136,30 @@
     <properties>
         <version.ant>1.9.14</version.ant>
         <version.aws-java-sdk>2.17.189</version.aws-java-sdk>
-        <version.aws-secretsmanager>1.0.8</version.aws-secretsmanager>
+        <version.aws-secretsmanager>1.0.9</version.aws-secretsmanager>
         <version.commonslogging>1.2</version.commonslogging>
-        <version.commonstext>1.9</version.commonstext>
+        <version.commonstext>1.10.0</version.commonstext>
         <version.db2>11.5.0.0</version.db2>
         <version.derby>10.15.2.0</version.derby>
         <version.equinox>3.15.200</version.equinox>
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
-        <version.gcs>2.6.1</version.gcs>
+        <version.gcs>2.13.0</version.gcs>
         <version.gradle>6.1.1</version.gradle>
         <version.gson>2.8.9</version.gson>
-        <version.h2>2.1.210</version.h2>
-        <version.hsqldb>2.6.1</version.hsqldb>
+        <version.h2>2.1.214</version.h2>
+        <version.hamcrest>2.2</version.hamcrest>
+        <version.hsqldb>2.7.1</version.hsqldb>
         <version.ignite>2.9.0</version.ignite>
         <version.informix>4.50.3</version.informix>
         <version.jansi>1.18</version.jansi>
+        <version.jackson>2.14.0</version.jackson>
         <version.jaxb>2.3.1</version.jaxb>
         <version.jaybird>3.0.10</version.jaybird>
         <version.jboss>3.2.15.Final</version.jboss>
         <version.jna>4.5.2</version.jna>
-        <version.jre>11.0.2</version.jre>
         <version.jtds>1.3.1</version.jtds>
         <version.junit>4.13.2</version.junit>
+        <version.junit5>5.9.0</version.junit5>
         <version.log4net2>2.17.1</version.log4net2>
         <version.logback>1.2.3</version.logback>
         <version.lombok>1.18.20</version.lombok>
@@ -161,18 +167,19 @@
         <version.mariadb>2.7.2</version.mariadb>
         <version.maven>3.8.5</version.maven>
         <version.mockito>4.2.0</version.mockito>
-        <version.msal4j>1.12.0</version.msal4j>
+        <version.msal4j>1.13.3</version.msal4j>
         <version.mssql>10.2.0</version.mssql>
         <version.mssql-jdbc>${version.mssql}.jre8</version.mssql-jdbc>
         <version.oracle>19.6.0.0</version.oracle>
         <version.osgi>4.3.1</version.osgi>
         <version.p6spy>3.9.1</version.p6spy>
-        <version.postgresql>42.3.3</version.postgresql>
+        <version.postgresql>42.4.1</version.postgresql>
         <version.redshift>1.2.10.1009</version.redshift>
         <version.sap>2.6.30</version.sap>
+        <version.singlestore>1.1.4</version.singlestore>
         <version.slf4j>1.7.30</version.slf4j>
-        <version.snowflake>3.13.1</version.snowflake>
-        <version.spanner>2.5.7</version.spanner>
+        <version.snowflake>3.13.22</version.snowflake>
+        <version.spanner>2.7.8</version.spanner>
         <version.springjdbc>5.3.19</version.springjdbc>
         <version.sqlite>3.34.0</version.sqlite>
         <version.testcontainers>1.15.3</version.testcontainers>
@@ -191,6 +198,11 @@
                 <artifactId>commons-text</artifactId>
                 <version>${version.commonstext}</version>
                 <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-toml</artifactId>
+                <version>${version.jackson}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -308,6 +320,12 @@
                 <groupId>org.apache.ignite</groupId>
                 <artifactId>ignite-core</artifactId>
                 <version>${version.ignite}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.singlestore</groupId>
+                <artifactId>singlestore-jdbc-client</artifactId>
+                <version>${version.singlestore}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -430,6 +448,24 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
@@ -506,27 +542,6 @@
                 <version>${version.gson}</version>
             </dependency>
             <dependency>
-                <groupId>net.adoptopenjdk</groupId>
-                <artifactId>jre</artifactId>
-                <version>${version.jre}</version>
-                <classifier>windows-x64</classifier>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>net.adoptopenjdk</groupId>
-                <artifactId>jre</artifactId>
-                <version>${version.jre}</version>
-                <classifier>linux-x64</classifier>
-                <type>tar.gz</type>
-            </dependency>
-            <dependency>
-                <groupId>net.adoptopenjdk</groupId>
-                <artifactId>jre</artifactId>
-                <version>${version.jre}</version>
-                <classifier>macos-x64</classifier>
-                <type>tar.gz</type>
-            </dependency>
-            <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${version.lombok}</version>
@@ -588,7 +603,7 @@
 
                 <plugin>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-plugin-plugin</artifactId>
@@ -664,13 +679,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <artifactId>maven-scm-plugin</artifactId>
-                <version>1.11.2</version>
-                <configuration>
-                    <tag>flyway-${project.version}</tag>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <version>3.0</version>
@@ -721,6 +729,61 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

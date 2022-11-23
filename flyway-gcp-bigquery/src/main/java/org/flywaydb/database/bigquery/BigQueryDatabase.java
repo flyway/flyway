@@ -130,12 +130,6 @@ public class BigQueryDatabase extends Database<BigQueryConnection> {
     }
 
     @Override
-    public boolean supportsChangingCurrentSchema() {
-        // BigQuery has no concept of a current schema
-        return false;
-    }
-
-    @Override
     public String getBooleanTrue() {
         return "TRUE";
     }

@@ -88,11 +88,6 @@ public class HSQLDBDatabase extends Database<HSQLDBConnection> {
     }
 
     @Override
-    public boolean supportsChangingCurrentSchema() {
-        return true;
-    }
-
-    @Override
     public String getBooleanTrue() {
         return "1";
     }

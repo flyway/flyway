@@ -19,7 +19,12 @@
            xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2 http://maven.apache.org/xsd/component-1.1.2.xsd">
     <fileSets>
         <fileSet>
+
             <directory>src/main/assembly</directory>
+
+
+
+
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway.cmd</include>
@@ -28,7 +33,12 @@
             <filtered>true</filtered>
         </fileSet>
         <fileSet>
+
             <directory>src/main/assembly</directory>
+
+
+
+
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway</include>
@@ -100,6 +110,30 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <fileSet>
+            <directory>target/editions/community</directory>
+            <outputDirectory>lib/community</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+            <fileMode>644</fileMode>
+        </fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>
@@ -109,7 +143,14 @@
             <includes>
                 <include>org.fusesource.jansi:jansi</include>
                 <include>com.google.code.gson:gson</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
                 <include>org.apache.commons:commons-text</include>
+                <include>com.fasterxml.jackson.dataformat:jackson-dataformat-toml</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -146,7 +187,10 @@
                 <include>org.flywaydb:flyway-gcsm-integration</include>
                 <include>org.flywaydb:flyway-compare</include>
                 <include>org.flywaydb:flyway-rgcompare</include>
+                <include>org.flywaydb:flyway-rulesengine-sqlfluff</include>
+                <include>org.flywaydb:flyway-rulesengine-regex</include>
                 <include>org.flywaydb:flyway-sqlserver</include>
+                <include>org.flywaydb:flyway-singlestore</include>
                 <include>org.flywaydb:flyway-mysql</include>
                 <include>org.flywaydb:flyway-firebird</include>
                 <include>org.flywaydb:flyway-proprietary</include>
@@ -190,11 +234,19 @@
 
 
 
+
+
+
+
+
+
+
         <dependencySet>
             <outputDirectory>drivers/gcp</outputDirectory>
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <includes>
                 <include>com.google.cloud:google-cloud-spanner-jdbc</include>
+                <include>com.google.api:gax</include>
             </includes>
             <excludes>
                 <exclude>commons-logging:commons-logging</exclude>

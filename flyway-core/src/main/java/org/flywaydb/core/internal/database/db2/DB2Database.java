@@ -103,11 +103,6 @@ public class DB2Database extends Database<DB2Connection> {
     }
 
     @Override
-    public boolean supportsChangingCurrentSchema() {
-        return true;
-    }
-
-    @Override
     public String getBooleanTrue() {
         return "1";
     }

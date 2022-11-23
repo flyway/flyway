@@ -1,0 +1,92 @@
+---
+subtitle: SingleStore
+---
+
+# SingleStore
+
+## Supported Versions
+
+- `7.1` {% include teams.html %}
+- `7.8` {% include teams.html %}
+
+**Note: SingleStore is currently only available to Teams and Enterprise users**
+
+## Support Level
+
+<table class="table">
+    <tr>
+        <th width="25%">Compatible</th>
+        <td>&#10003;</td>
+    </tr>
+    <tr>
+        <th width="25%">Certified</th>
+        <td>&#10003;</td>
+    </tr>
+    <tr>
+        <th width="25%">Guaranteed</th>
+        <td>&#10003; {% include teams.html %}</td>
+    </tr>
+</table>
+
+Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)).
+
+## Drivers
+
+<table class="table">
+<thead>
+<tr>
+<th></th>
+<th>SingleStore</th>
+</tr>
+</thead>
+<tr>
+<th>URL format</th>
+<td><code>jdbc:singlestore://<i>host</i>:<i>port</i>/<i>database</i></code></td>
+</tr>
+<tr>
+<th>SSL support</th>
+<td>Yes - add <code>?useSsl=true</code></td>
+</tr>
+<tr>
+<th>Ships with Flyway Command-line</th>
+<td>Yes</td>
+</tr>
+<tr>
+<th>Maven Central coordinates</th>
+<td><code>com.singlestore:singlestore-jdbc-client:1.1.4</code></td>
+</tr>
+<tr>
+<th>Supported versions</th>
+<td><code>1.1.4</code> and later</td>
+</tr>
+<tr>
+<th>Default Java class</th>
+<td><code>com.singlestore.jdbc.Driver</code></td>
+</tr>
+</table>
+
+## Java Usage
+
+SingleStore support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+
+### Maven
+
+#### Teams
+
+```xml
+
+<dependency>
+    <groupId>org.flywaydb.enterprise</groupId>
+    <artifactId>flyway-singlestore</artifactId>
+</dependency>
+```
+
+### Gradle
+
+#### Teams
+
+```groovy
+dependencies {
+    compile "org.flywaydb.enterprise:flyway-singlestore"
+}
+```

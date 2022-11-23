@@ -366,10 +366,6 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public DataSource getDataSource() {
-        if (dataSource == null &&
-                (StringUtils.hasLength(driver) || StringUtils.hasLength(user) || StringUtils.hasLength(password))) {
-            LOG.warn("Discarding INCOMPLETE dataSource configuration! " + ConfigUtils.URL + " must be set.");
-        }
         return dataSource;
     }
 
@@ -549,9 +545,13 @@ public class ClassicConfiguration implements Configuration {
      * <i>Flyway Teams only</i>
      */
     public void setIgnoreMigrationPatterns(String... ignoreMigrationPatterns) {
-        this.ignoreMigrationPatterns = Arrays.stream(ignoreMigrationPatterns)
-                .map(ValidatePattern::fromPattern)
-                .toArray(ValidatePattern[]::new);
+        if (Arrays.equals(ignoreMigrationPatterns, new String[] { "" })) {
+            this.ignoreMigrationPatterns = new ValidatePattern[0];
+        } else {
+            this.ignoreMigrationPatterns = Arrays.stream(ignoreMigrationPatterns)
+                    .map(ValidatePattern::fromPattern)
+                    .toArray(ValidatePattern[]::new);
+        }
     }
 
     /**
@@ -1551,13 +1551,8 @@ public class ClassicConfiguration implements Configuration {
         }
 
         // Must be done last, so that any driver-specific config has been done at this point.
-        if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) ||
-                StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
-            Map<String, String> jdbcPropertiesFromProps =
-                    getPropertiesUnderNamespace(
-                            props,
-                            getPlaceholders(),
-                            ConfigUtils.JDBC_PROPERTIES_PREFIX);
+        if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) || StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
+            Map<String, String> jdbcPropertiesFromProps = getPropertiesUnderNamespace(props, getPlaceholders(), ConfigUtils.JDBC_PROPERTIES_PREFIX);
 
             setDataSource(new DriverDataSource(classLoader, driver, url, user, password, this, jdbcPropertiesFromProps));
         }

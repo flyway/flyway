@@ -41,8 +41,3 @@ if "%JAVA_ARGS%"=="" (
 
 @REM Exit using the same code returned from Java
 EXIT /B %ERRORLEVEL%
-:displayError(message)
-echo "----------------------------------------"
-echo %1
-echo "----------------------------------------"
-EXIT /B

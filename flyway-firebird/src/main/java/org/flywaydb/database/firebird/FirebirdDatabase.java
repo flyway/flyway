@@ -62,12 +62,6 @@ public class FirebirdDatabase extends Database<FirebirdConnection> {
     }
 
     @Override
-    public boolean supportsChangingCurrentSchema() {
-        // one schema, can't be changed
-        return false;
-    }
-
-    @Override
     public String getBooleanTrue() {
         // boolean datatype introduced in Firebird 3, but this allows broader support
         return "1";

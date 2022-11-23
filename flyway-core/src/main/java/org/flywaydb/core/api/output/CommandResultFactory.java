@@ -32,9 +32,7 @@ public class CommandResultFactory {
         String databaseName = getDatabaseName(configuration, database);
         Set<MigrationInfo> undoableMigrations = getUndoMigrations(migrationInfos);
 
-
-
-
+        migrationInfos = removeAvailableUndoMigrations(migrationInfos);
 
         List<InfoOutput> infoOutputs = new ArrayList<>();
         for (MigrationInfo migrationInfo : migrationInfos) {
@@ -138,40 +136,32 @@ public class CommandResultFactory {
     }
 
     private static String getUndoableStatus(MigrationInfo migrationInfo, Set<MigrationInfo> undoableMigrations) {
-
-
-
-
-
-
-
-
+        if (migrationInfo.getVersion() != null && !migrationInfo.getType().isUndo() && !migrationInfo.getState().equals(MigrationState.UNDONE)) {
+            if (!migrationInfo.getState().isFailed() && undoableMigrations.stream().anyMatch(u -> u.getVersion().equals(migrationInfo.getVersion()))) {
+                return "Yes";
+            }
+            return "No";
+        }
         return "";
     }
 
     private static String getUndoablePath(MigrationInfo migrationInfo, Set<MigrationInfo> undoableMigrations) {
-
-
-
-
-
-
-
-
-
-
-
+        if (migrationInfo.getVersion() != null && !migrationInfo.getType().isUndo() && !migrationInfo.getState().equals(MigrationState.UNDONE)) {
+            if (!migrationInfo.getState().isFailed()) {
+                return undoableMigrations.stream()
+                        .filter(u -> u.getVersion().equals(migrationInfo.getVersion()))
+                        .findFirst()
+                        .map(MigrationInfo::getPhysicalLocation)
+                        .orElse("");
+            }
+        }
         return "";
     }
 
     private static Set<MigrationInfo> getUndoMigrations(MigrationInfo[] migrationInfos) {
-        Set<MigrationInfo> result = Collections.emptySet();
-
-
-
-
-
-        return result;
+        return Arrays.stream(migrationInfos)
+                .filter(m -> m.getType().isUndo())
+                .collect(Collectors.toSet());
     }
 
     private static MigrationInfo[] removeAvailableUndoMigrations(MigrationInfo[] migrationInfos) {
@@ -200,11 +190,9 @@ public class CommandResultFactory {
         if (migrationInfo.getVersion() == null) {
             return "Repeatable";
         }
-
-
-
-
-
+        if (migrationInfo.getType().isUndo()) {
+            return "Undo";
+        }
         return "Versioned";
     }
 }

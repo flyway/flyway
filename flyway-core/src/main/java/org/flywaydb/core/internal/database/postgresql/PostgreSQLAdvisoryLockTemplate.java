@@ -17,18 +17,18 @@ package org.flywaydb.core.internal.database.postgresql;
 
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.TransactionalExecutionTemplate;
 import org.flywaydb.core.internal.strategy.RetryStrategy;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
+import org.flywaydb.core.internal.util.SqlCallable;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-/**
- * Spring-like template for executing with PostgreSQL advisory locks.
- */
 @CustomLog
 public class PostgreSQLAdvisoryLockTemplate {
     private static final long LOCK_MAGIC_NUM =
@@ -39,61 +39,62 @@ public class PostgreSQLAdvisoryLockTemplate {
                     + (0x61 << 8) // a
                     + 0x79; // y
 
-    /**
-     * The connection for the advisory lock.
-     */
+    private final Configuration configuration;
     private final JdbcTemplate jdbcTemplate;
     private final long lockNum;
 
-    /**
-     * Creates a new advisory lock template for this connection.
-     *
-     * @param jdbcTemplate The jdbcTemplate for the connection.
-     * @param discriminator A number to discriminate between locks.
-     */
-    PostgreSQLAdvisoryLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {
+    PostgreSQLAdvisoryLockTemplate(Configuration configuration, JdbcTemplate jdbcTemplate, int discriminator) {
+        this.configuration = configuration;
         this.jdbcTemplate = jdbcTemplate;
         this.lockNum = LOCK_MAGIC_NUM + discriminator;
     }
 
-    /**
-     * Executes this callback with an advisory lock.
-     *
-     * @param callable The callback to execute.
-     * @return The result of the callable code.
-     */
     public <T> T execute(Callable<T> callable) {
-        RuntimeException rethrow = null;
-        try {
-            lock();
-            return callable.call();
-        } catch (SQLException e) {
-            rethrow = new FlywaySqlException("Unable to acquire PostgreSQL advisory lock", e);
-            throw rethrow;
-        } catch (Exception e) {
-            if (e instanceof RuntimeException) {
-                rethrow = (RuntimeException) e;
-            } else {
-                rethrow = new FlywayException(e);
+        PostgreSQLConfigurationExtension configurationExtension = configuration.getPluginRegister().getPlugin(PostgreSQLConfigurationExtension.class);
+
+        if (configurationExtension.isTransactionalLock()) {
+            return new TransactionalExecutionTemplate(jdbcTemplate.getConnection(), true).execute(() -> execute(callable, this::tryLockTransactional));
+        } else {
+            RuntimeException rethrow = null;
+            try {
+                return execute(callable, this::tryLock);
+            } catch (RuntimeException e) {
+                rethrow = e;
+                throw rethrow;
+            } finally {
+                unlock(rethrow);
             }
-            throw rethrow;
-        } finally {
-            unlock(rethrow);
         }
     }
 
-    private void lock() throws SQLException {
+    private <T> T execute(Callable<T> callable, SqlCallable<Boolean> tryLock) {
+        try {
+            lock(tryLock);
+            return callable.call();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to acquire PostgreSQL advisory lock", e);
+        } catch (Exception e) {
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
+            throw new FlywayException(e);
+        }
+    }
+
+    private void lock(SqlCallable<Boolean> tryLock) throws SQLException {
         RetryStrategy strategy = new RetryStrategy();
-        strategy.doWithRetries(this::tryLock,
-                               "Interrupted while attempting to acquire PostgreSQL advisory lock",
+        strategy.doWithRetries(tryLock, "Interrupted while attempting to acquire PostgreSQL advisory lock",
                                "Number of retries exceeded while attempting to acquire PostgreSQL advisory lock. " +
-                                       "Configure the number of retries with the 'lockRetryCount' configuration option: " +
-                                       FlywayDbWebsiteLinks.LOCK_RETRY_COUNT);
+                                       "Configure the number of retries with the 'lockRetryCount' configuration option: " + FlywayDbWebsiteLinks.LOCK_RETRY_COUNT);
+    }
+
+    private boolean tryLockTransactional() throws SQLException {
+        List<Boolean> results = jdbcTemplate.query("SELECT pg_try_advisory_xact_lock(" + lockNum + ")", rs -> rs.getBoolean("pg_try_advisory_xact_lock"));
+        return results.size() == 1 && results.get(0);
     }
 
     private boolean tryLock() throws SQLException {
-        List<Boolean> results = jdbcTemplate.query("SELECT pg_try_advisory_lock(" + lockNum + ")",
-                                                   rs -> rs.getBoolean("pg_try_advisory_lock"));
+        List<Boolean> results = jdbcTemplate.query("SELECT pg_try_advisory_lock(" + lockNum + ")", rs -> rs.getBoolean("pg_try_advisory_lock"));
         return results.size() == 1 && results.get(0);
     }
 

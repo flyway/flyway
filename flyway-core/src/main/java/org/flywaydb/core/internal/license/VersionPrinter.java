@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 @CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VersionPrinter {
+    private static boolean PRINTED = false;
     public static final String VERSION = readVersion();
     public static Edition EDITION =
 
@@ -42,9 +43,13 @@ public class VersionPrinter {
     }
 
     public static void printVersion() {
+        if (PRINTED) {
+            return;
+        }
         printVersionOnly();
         LOG.info("See what's new here: https://flywaydb.org/documentation/learnmore/releaseNotes#" + VERSION);
         LOG.info("");
+        PRINTED = true;
     }
 
     public static void printVersionOnly() {

@@ -140,8 +140,11 @@ public class BigQueryParser extends Parser {
             context.decreaseBlockDepth();
         }
 
-        if (lastTokenIs(tokens, parensDepth, "END") &&
-                !"IF".equalsIgnoreCase(keywordText) && !"WHILE".equalsIgnoreCase(keywordText) && !"LOOP".equalsIgnoreCase(keywordText)
+        if (lastTokenIs(tokens, parensDepth, "END")
+                && !"IF".equalsIgnoreCase(keywordText)
+                && !"WHILE".equalsIgnoreCase(keywordText)
+                && !"LOOP".equalsIgnoreCase(keywordText)
+                && !"AS".equalsIgnoreCase(keywordText)
                 && context.getBlockDepth() > 0) {
             context.decreaseBlockDepth();
         }

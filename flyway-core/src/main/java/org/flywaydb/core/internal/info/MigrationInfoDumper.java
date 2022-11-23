@@ -39,16 +39,10 @@ public class MigrationInfoDumper {
      * @return The ascii table, as one big multi-line string.
      */
     public static String dumpToAsciiTable(MigrationInfo[] migrationInfos) {
+        Set<MigrationVersion> undoableVersions = getUndoableVersions(migrationInfos);
+        migrationInfos = removeAvailableUndos(migrationInfos);
 
-
-
-
-
-        List<String> columns = Arrays.asList("Category", "Version", "Description", "Type", "Installed On", "State"
-
-
-
-                                            );
+        List<String> columns = Arrays.asList("Category", "Version", "Description", "Type", "Installed On", "State", "Undoable");
 
         List<List<String>> rows = new ArrayList<>();
         for (MigrationInfo migrationInfo : migrationInfos) {
@@ -58,11 +52,8 @@ public class MigrationInfoDumper {
                     migrationInfo.getDescription(),
                     migrationInfo.getType().name(),
                     DateUtils.formatDateAsIsoString(migrationInfo.getInstalledOn()),
-                    migrationInfo.getState().getDisplayName()
-
-
-
-                                            );
+                    migrationInfo.getState().getDisplayName(),
+                    getUndoableStatus(migrationInfo, undoableVersions));
             rows.add(row);
         }
 
@@ -76,11 +67,9 @@ public class MigrationInfoDumper {
         if (migrationInfo.getVersion() == null) {
             return "Repeatable";
         }
-
-
-
-
-
+        if (migrationInfo.getType().isUndo()) {
+            return "Undo";
+        }
         if (migrationInfo.getType().isBaseline()) {
             return "Baseline";
         }
@@ -91,39 +80,37 @@ public class MigrationInfoDumper {
         return migrationInfo.getVersion() == null ? "" : migrationInfo.getVersion().toString();
     }
 
+    private static String getUndoableStatus(MigrationInfo migrationInfo, Set<MigrationVersion> undoableVersions) {
+        if (migrationInfo.getVersion() != null
+                && !migrationInfo.getType().equals(CoreMigrationType.DELETE)
+                && !migrationInfo.getState().equals(MigrationState.DELETED)
+                && !migrationInfo.getType().isUndo()
+                && !migrationInfo.getState().equals(MigrationState.UNDONE)) {
+            if (!migrationInfo.getState().isFailed() && undoableVersions.contains(migrationInfo.getVersion())) {
+                return "Yes";
+            }
+            return "No";
+        }
+        return "";
+    }
 
+    private static Set<MigrationVersion> getUndoableVersions(MigrationInfo[] migrationInfos) {
+        Set<MigrationVersion> result = new HashSet<>();
+        for (MigrationInfo migrationInfo : migrationInfos) {
+            if (migrationInfo.getType().isUndo()) {
+                result.add(migrationInfo.getVersion());
+            }
+        }
+        return result;
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    private static MigrationInfo[] removeAvailableUndos(MigrationInfo[] migrationInfos) {
+        List<MigrationInfo> result = new ArrayList<>();
+        for (MigrationInfo migrationInfo : migrationInfos) {
+            if (!migrationInfo.getState().equals(MigrationState.AVAILABLE)) {
+                result.add(migrationInfo);
+            }
+        }
+        return result.toArray(new MigrationInfo[0]);
+    }
 }

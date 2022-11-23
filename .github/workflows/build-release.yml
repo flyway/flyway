@@ -49,3 +49,6 @@ jobs:
 
     - name: Build with Maven
       run: mvn -B install -e --file pom.xml  "-Dgithub.os=${{ matrix.os }}"
+
+    - name: Smoke Test with Maven
+      run: mvn -B exec:java -e --file pom.xml -pl flyway-commandline "-Dexec.mainClass=org.flywaydb.commandline.Main" "-Dexec.args=-url='jdbc:h2:mem:db' info"

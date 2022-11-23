@@ -87,11 +87,6 @@ public class SAPHANADatabase extends Database<SAPHANAConnection> {
     }
 
     @Override
-    public boolean supportsChangingCurrentSchema() {
-        return true;
-    }
-
-    @Override
     public String getBooleanTrue() {
         return "1";
     }
