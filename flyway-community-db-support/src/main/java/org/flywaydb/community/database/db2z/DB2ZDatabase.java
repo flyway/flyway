@@ -50,6 +50,10 @@ public class DB2ZDatabase extends Database<DB2ZConnection> {
 		return name;
 	}
 
+    public String getSqlId() {
+        return configuration.getDb2zsqlId();
+    }
+
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("10.0");
@@ -66,8 +70,11 @@ public class DB2ZDatabase extends Database<DB2ZConnection> {
 		if(configurationTablespaceName != null) {
 			tableSpaceName = configurationTablespaceName;
 		}
+        // Maybe sqlid not same as schema name and entered as config property
+        String sqlId = (this.getSqlId() == "") ? table.getSchema().getName() : this.getSqlId();
 
-        return "SET CURRENT SQLID = '" + table.getSchema().getName() + "';\n" +
+        return  "SET CURRENT SQLID = '" + sqlId + "';\n" +
+                "SET CURRENT SCHEMA = '" + table.getSchema().getName() + "';\n" +
 		        "CREATE TABLESPACE " + tableSpaceName + " IN \"" + name + "\" MAXPARTITIONS 1 LOCKSIZE ROW CLOSE YES COMPRESS YES;\n" +
 		        "CREATE TABLE " + table + " (\n" +
                 "    \"installed_rank\" INT NOT NULL,\n" +

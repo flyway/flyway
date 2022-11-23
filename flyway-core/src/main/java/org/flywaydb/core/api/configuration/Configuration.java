@@ -544,8 +544,16 @@ public interface Configuration {
     String getKerberosConfigFile();
 
     String getOracleKerberosCacheFile();
-    String getDb2zDatabaseName();
 
+    /**
+     * The db2z database name and optional SQLID
+     * Needed for setting up a connection and specifying an SQLID in case it
+	 * is different than the schema name
+     * @return
+     */
+    String getDb2zDatabaseName();
+    String getDb2zsqlId();
+    
     /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
      * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>

@@ -156,9 +156,24 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
             function.drop();
         }
 
+        // types. TODO: find out, why generic drop type function is not working at all times with Db2Z
+        // For now, call the one that is working for sure
+        for (String dropStatement : generateDropStatementsForTypes()) {
+            jdbcTemplate.execute(dropStatement);
+        }
+
         for (Type type : allTypes()) {
             type.drop();
         }
+    }
+
+    private String getSqlId() {
+        /**
+         * Get SQLID.
+         * When sqlid not set, implicitly use schema name for sqlid
+         */
+        String sqlId = (database.getSqlId() == "") ?name : database.getSqlId();
+        return sqlId;
     }
 
     /**
@@ -169,7 +184,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
      */
     private List<String> generateDropStatementsForProcedures() throws SQLException {
         String dropProcGenQuery = "select rtrim(NAME) from SYSIBM.SYSROUTINES where CAST_FUNCTION = 'N' " +
-                " and ROUTINETYPE  = 'P' and SCHEMA = '" + name + "'";
+                " and ROUTINETYPE  = 'P' and SCHEMA = '" + name + "' and OWNER = '" + this.getSqlId() + "'";
         return buildDropStatements("DROP PROCEDURE", dropProcGenQuery);
     }
 
@@ -181,7 +196,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
      */
     private List<String> generateDropStatementsForSequences() throws SQLException {
         String dropSeqGenQuery = "select rtrim(NAME) from SYSIBM.SYSSEQUENCES where SCHEMA = '" + name
-                + "' and SEQTYPE='S'";
+                + "' and SEQTYPE='S' and OWNER = '" + this.getSqlId() + "'";
         return buildDropStatements("DROP SEQUENCE", dropSeqGenQuery);
     }
 
@@ -194,7 +209,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
     private List<String> generateDropStatementsForRegularTablespace() throws SQLException {
 		//Only drop explicitly created tablespaces for current database and created under this specific schema authorization ID
 		//Note that this also drops the related table for partitioned tablespaces.
-        String dropTablespaceGenQuery = "select rtrim(NAME) FROM SYSIBM.SYSTABLESPACE where IMPLICIT = 'N' AND DBNAME = '" + database.getName() + "' AND CREATOR = '" + name + "' AND TYPE <> 'O'";
+        String dropTablespaceGenQuery = "select rtrim(NAME) FROM SYSIBM.SYSTABLESPACE where IMPLICIT = 'N' AND DBNAME = '" + database.getName() + "' AND CREATOR = '" + this.getSqlId() + "' AND TYPE <> 'O'";
 
         List<String> dropStatements = new ArrayList<>();
         List<String> dbObjects = jdbcTemplate.queryForStringList(dropTablespaceGenQuery);
@@ -206,7 +221,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
     }
     
     private List<String> generateDropStatementsForLobTablespace() throws SQLException {
-    	String dropTablespaceGenQuery = "select rtrim(NAME) FROM SYSIBM.SYSTABLESPACE where IMPLICIT = 'N' AND DBNAME = '" + database.getName() + "' AND CREATOR = '" + name + "' AND TYPE = 'O'";
+     	String dropTablespaceGenQuery = "select rtrim(NAME) FROM SYSIBM.SYSTABLESPACE where IMPLICIT = 'N' AND DBNAME = '" + database.getName() + "' AND CREATOR = '" + this.getSqlId() + "' AND TYPE = 'O'";
 
         List<String> dropStatements = new ArrayList<>();
         List<String> dbObjects = jdbcTemplate.queryForStringList(dropTablespaceGenQuery);
@@ -226,7 +241,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
      * @throws java.sql.SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatements(String tableType, String objectType) throws SQLException {
-        String dropTablesGenQuery = "select rtrim(NAME) from SYSIBM.SYSTABLES where TYPE='" + tableType + "' and (DBNAME = '" + database.getName() + "' AND CREATOR = '" + name + "')";
+        String dropTablesGenQuery = "select rtrim(NAME) from SYSIBM.SYSTABLES where TYPE='" + tableType + "' and OWNER = '" + this.getSqlId() + "' AND CREATOR = '" + name + "'";
         return buildDropStatements("DROP " + objectType, dropTablesGenQuery);
     }
 
@@ -237,8 +252,21 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatementsForTriggers() throws SQLException {
-        String dropTrigGenQuery = "select TRIGNAME from SYSIBM.SYSTRIGGERS where SCHEMA = '" + name + "'";
+        String dropTrigGenQuery = "select TRIGNAME from SYSIBM.SYSTRIGGERS where SCHEMA = '" + name + "' and OWNER = '" + this.getSqlId() + "'";
+        LOG.debug(dropTrigGenQuery);
         return buildDropStatements("DROP TRIGGER", dropTrigGenQuery);
+    }
+
+    /**
+     * Generates DROP statements for the types in this schema.
+     *
+     * @return The drop statements.
+     * @throws java.sql.SQLException when the statements could not be generated.
+     */
+    private List<String> generateDropStatementsForTypes() throws SQLException {
+        String dropProcGenQuery = "select rtrim(NAME) from SYSIBM.SYSROUTINES where CAST_FUNCTION = 'Y' " +
+                " and ROUTINETYPE  = 'T' and SCHEMA = '" + name + "' and OWNER = '" + this.getSqlId() + "'";
+        return buildDropStatements("DROP PROCEDURE", dropProcGenQuery);
     }
 
     /**
@@ -264,7 +292,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
      */
     private List<String> generateDropVersioningStatement() throws SQLException {
         List<String> dropVersioningStatements = new ArrayList<>();
-        Table[] versioningTables = findTables("select rtrim(NAME) from SYSIBM.SYSTABLES where VERSIONING_TABLE <> '' and DBNAME = '" + database.getName() + "' AND CREATOR = ?", name);
+        Table[] versioningTables = findTables("select rtrim(NAME) from SYSIBM.SYSTABLES where VERSIONING_TABLE <> '' and CREATOR = '" + name + "' and OWNER = '" + this.getSqlId() + "'");
         for (Table table : versioningTables) {
             LOG.info("ALTER TABLE " + table.toString() + " DROP VERSIONING");
             dropVersioningStatements.add("ALTER TABLE " + table.toString() + " DROP VERSIONING");
@@ -278,7 +306,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
      */
     private List<String> generateDisableArchivingStatement() throws SQLException {
         List<String> dropArchivingStatements = new ArrayList<>();
-        Table[] archivingTables = findTables("select rtrim(NAME) from SYSIBM.SYSTABLES where ARCHIVING_TABLE <> '' and DBNAME = '" + database.getName() + "' AND CREATOR = ?", name);
+        Table[] archivingTables = findTables("select rtrim(NAME) from SYSIBM.SYSTABLES where ARCHIVING_TABLE <> '' and CREATOR = '" + name + "' and OWNER = '" + this.getSqlId() + "'");
         for (Table table : archivingTables) {
             LOG.info("ALTER TABLE " + table.toString() + " DISABLE ARCHIVE");
             dropArchivingStatements.add("ALTER TABLE " + table.toString() + " DISABLE ARCHIVE");
@@ -297,7 +325,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
 
     @Override
     protected DB2ZTable[] doAllTables() throws SQLException {
-        return findTables("select rtrim(NAME) from SYSIBM.SYSTABLES where TYPE='T' and DBNAME = '" + database.getName() + "' AND CREATOR = ?", name);
+        return findTables("select rtrim(NAME) from SYSIBM.SYSTABLES where TYPE='T' and CREATOR = '" + name + "' and OWNER = '" + this.getSqlId() + "'");
     }
 
     @Override
@@ -312,7 +340,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
                         + "'M', " // Template function
                         + "'Q', " // SQL-bodied
                         + "'U')"  // User-defined, based on a source
-                        + " and SCHEMA = ?", name);
+                        + " and SCHEMA = '" + name + "' and OWNER = '" + this.getSqlId() + "'");
 
         List<Function> functions = new ArrayList<>();
         for (String functionName : functionNames) {

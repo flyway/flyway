@@ -316,6 +316,10 @@ public class ClassicConfiguration implements Configuration {
      */
     private String db2zDatabaseName = "";
     /**
+     * The SQLID DB2 on z/OS (does not necessarily match with schema)
+     */
+    private String db2zsqlId = "";
+    /**
      * -- SETTER --
      * Whether to fail if a location specified in the flyway.locations option doesn't exist
      *
@@ -1116,12 +1120,21 @@ public class ClassicConfiguration implements Configuration {
 
 
     }
+
     /**
      * The database name for DB2 on z/OS (required for DB2 on z/OS)
      */
     public void setDb2zDatabaseName(String db2zDatabaseName) {
 
         this.db2zDatabaseName = db2zDatabaseName;
+    }
+
+    /**
+     * The SQLID for DB2 on z/OS (does not necessarily match with schema)
+     */
+    public void setDb2zsqlId(String db2zsqlId) {
+
+        this.db2zsqlId = db2zsqlId;
     }
 
     /**
@@ -1246,6 +1259,7 @@ public class ClassicConfiguration implements Configuration {
         setLockRetryCount(configuration.getLockRetryCount());
         setFailOnMissingLocations(configuration.isFailOnMissingLocations());
         setDb2zDatabaseName(configuration.getDb2zDatabaseName());
+        setDb2zsqlId(configuration.getDb2zsqlId());
 
         url = configuration.getUrl();
         user = configuration.getUser();
@@ -1501,6 +1515,10 @@ public class ClassicConfiguration implements Configuration {
         String db2zDatabaseNameProp = props.remove(ConfigUtils.DB2Z_DATABASE_NAME);
         if (db2zDatabaseNameProp != null) {
             setDb2zDatabaseName(db2zDatabaseNameProp);
+        }
+        String db2zsqlIdProp = props.remove(ConfigUtils.DB2Z_SQLID);
+        if (db2zsqlIdProp != null) {
+            setDb2zsqlId(db2zsqlIdProp);
         }
         Boolean createSchemasProp = removeBoolean(props, ConfigUtils.CREATE_SCHEMAS);
         if (createSchemasProp != null) {

@@ -21,10 +21,12 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
+import lombok.CustomLog;
 
 /**
  * Db2-specific table.
  */
+@CustomLog
 public class DB2ZTable extends Table<DB2ZDatabase, DB2ZSchema> {
     private static final Log LOG = LogFactory.getLog(DB2ZTable.class);
     /**
@@ -42,16 +44,24 @@ public class DB2ZTable extends Table<DB2ZDatabase, DB2ZSchema> {
     @Override
     protected void doDrop() throws SQLException {
 		
+		String dbName = jdbcTemplate.queryForString("SELECT DBNAME FROM SYSIBM.SYSTABLES WHERE NAME=? AND CREATOR=?", this.getName(), this.getSchema().getName());
         String tableSpaceName = jdbcTemplate.queryForString("SELECT TSNAME FROM SYSIBM.SYSTABLES WHERE NAME=? AND CREATOR=?", this.getName(), this.getSchema().getName());
-		String implicit = jdbcTemplate.queryForString("SELECT IMPLICIT FROM SYSIBM.SYSTABLESPACE WHERE DBNAME=? AND NAME=?", database.getName(), tableSpaceName);
-		String tableSpaceType = jdbcTemplate.queryForString("SELECT TYPE FROM SYSIBM.SYSTABLESPACE WHERE DBNAME=? AND NAME=?", database.getName(), tableSpaceName);
+        //Use sqlid as creator with tablespace. When sqlid is not set, implicitly use schema name for sqlid
+        String sqlId = (database.getSqlId() == "") ? this.getSchema().getName() : database.getSqlId();
+        String implicit = jdbcTemplate.queryForString("SELECT IMPLICIT FROM SYSIBM.SYSTABLESPACE WHERE DBNAME=? AND CREATOR=? AND NAME=?", dbName, sqlId, tableSpaceName);
+		String tableSpaceType = jdbcTemplate.queryForString("SELECT TYPE FROM SYSIBM.SYSTABLESPACE WHERE DBNAME=? AND CREATOR=? AND NAME=?", dbName, sqlId, tableSpaceName);
 
-		if(implicit.equals("N") && (tableSpaceType.equals("G") || tableSpaceType.equals("R"))) {
-	        LOG.debug("Table '" + this + "' cannot be dropped directly (tableSpaceName=" + tableSpaceName + ", implicit=" + implicit + ", tableSpaceType=" + tableSpaceType + ")");
-		} else {
-	        LOG.debug("Dropping table " + this + " ...");
-			jdbcTemplate.execute("DROP TABLE " + this);			
-		}
+        if (implicit == null || implicit.isEmpty())  {
+            LOG.debug("Nothing to drop because table " + this.getName() + " does exist on tablespace " + tableSpaceName + " but with creator other than " + sqlId);
+        } else {
+            if (implicit.equals("N") && (tableSpaceType.equals("G") || tableSpaceType.equals("R"))) {
+				//Tablespace will be dropped by DB2ZSchema.doClean()
+                LOG.debug("Table '" + this + "' cannot be dropped directly (tableSpaceName=" + tableSpaceName + ", implicit=" + implicit + ", tableSpaceType=" + tableSpaceType + ")");
+            } else {
+                LOG.debug("Dropping table " + this + " ...");
+                jdbcTemplate.execute("DROP TABLE " + this);			
+            }
+        }
     }
 
     @Override

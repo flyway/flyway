@@ -880,6 +880,11 @@ public class FluentConfiguration implements Configuration {
         return this;
     }
 
+    public FluentConfiguration Db2zsqlId(String Db2zsqlId) {
+        config.setDb2zsqlId(Db2zsqlId);
+        return this;
+    }
+
     /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
      * Request your <a href="https://flywaydb.org/try-flyway-teams-edition">Flyway trial license key</a>
