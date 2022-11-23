@@ -18,9 +18,12 @@ package org.flywaydb.core.extensibility;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.info.AppliedMigrationAttributes;
 import org.flywaydb.core.internal.info.MigrationInfoContext;
+import org.flywaydb.core.internal.util.Pair;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * A migration applied to the database (maps to a row in the schema history table).
@@ -81,6 +84,10 @@ public interface AppliedMigration extends Plugin, Comparable<AppliedMigration> {
      */
     boolean handlesType(String type);
 
+    default boolean isVersioned() {
+        return getVersion() != null;
+    }
+
     /**
      * @return a new instance of this type of applied migration from the given arguments.
      */
@@ -96,6 +103,11 @@ public interface AppliedMigration extends Plugin, Comparable<AppliedMigration> {
                             boolean success);
 
     MigrationState getState(MigrationInfoContext context, boolean outOfOrder, ResolvedMigration resolvedMigration);
+
+    /**
+     * Updates the attributes in the given list of migrations based on the information in this migration
+     */
+    default void updateAttributes(List<Pair<AppliedMigration, AppliedMigrationAttributes>> appliedMigrations) { }
 
     default int compareTo(AppliedMigration o) {
         return getInstalledRank() - o.getInstalledRank();

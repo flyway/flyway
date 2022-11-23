@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.0.0</version>
+        <version>9.8.2</version>
     </parent>
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
@@ -30,11 +30,12 @@
 
 
 
-        <flyway-gcp-bigquery.version>9.0.0-beta</flyway-gcp-bigquery.version>
-        <flyway-gcp-spanner.version>9.0.0-beta</flyway-gcp-spanner.version>
+        <flyway-gcp-bigquery.version>9.8.2-beta</flyway-gcp-bigquery.version>
+        <flyway-gcp-spanner.version>9.8.2-beta</flyway-gcp-spanner.version>
         <flyway-sqlserver.version>${project.version}</flyway-sqlserver.version>
         <flyway-mysql.version>${project.version}</flyway-mysql.version>
         <flyway-firebird.version>${project.version}</flyway-firebird.version>
+        <jre.version>11.0.16</jre.version>
     </properties>
     <dependencies>
         <dependency>
@@ -46,32 +47,64 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-community-db-support</artifactId>
             <version>${project.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-gcp-bigquery</artifactId>
             <version>${flyway-gcp-bigquery.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-gcp-spanner</artifactId>
             <version>${flyway-gcp-spanner.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-sqlserver</artifactId>
             <version>${flyway-sqlserver.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-mysql</artifactId>
             <version>${flyway-mysql.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-firebird</artifactId>
             <version>${flyway-firebird.version}</version>
+            <scope>runtime</scope>
         </dependency>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -117,75 +150,98 @@
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derbytools</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derbyshared</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derbyclient</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.microsoft.azure</groupId>
             <artifactId>msal4j</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-spanner-jdbc</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.jtds</groupId>
             <artifactId>jtds</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.singlestore</groupId>
+            <artifactId>singlestore-jdbc-client</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <!-- #2136: JNA is required for MariaDB with unix sockets -->
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna-platform</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.firebirdsql.jdbc</groupId>
             <artifactId>jaybird-jdk18</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>net.snowflake</groupId>
             <artifactId>snowflake-jdbc</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.fusesource.jansi</groupId>
@@ -194,6 +250,7 @@
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -202,19 +259,23 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-storage</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.amazonaws.secretsmanager</groupId>
             <artifactId>aws-secretsmanager-jdbc</artifactId>
             <optional>true</optional>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
 
@@ -235,6 +296,46 @@
 
 
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>net.adoptium</groupId>
+                <artifactId>jre</artifactId>
+                <classifier>windows-x64</classifier>
+                <version>${jre.version}</version>
+                <type>zip</type>
+                <scope>system</scope>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK11U-jre_x64_windows_hotspot_${jre.version}_8.zip</systemPath>
+            </dependency>
+            <dependency>
+                <groupId>net.adoptium</groupId>
+                <artifactId>jre</artifactId>
+                <classifier>linux-x64</classifier>
+                <version>${jre.version}</version>
+                <type>tar.gz</type>
+                <scope>system</scope>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK11U-jre_x64_linux_hotspot_${jre.version}_8.tar.gz</systemPath>
+            </dependency>
+            <dependency>
+                <groupId>net.adoptium</groupId>
+                <artifactId>jre</artifactId>
+                <classifier>macos-x64</classifier>
+                <version>${jre.version}</version>
+                <type>tar.gz</type>
+                <scope>system</scope>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK11U-jre_x64_mac_hotspot_${jre.version}_8.tar.gz</systemPath>
+            </dependency>
+            <dependency>
+                <groupId>net.adoptium</groupId>
+                <artifactId>jre</artifactId>
+                <classifier>macos-arm64</classifier>
+                <version>${jre.version}</version>
+                <type>tar.gz</type>
+                <scope>system</scope>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK11U-jre_aarch64_mac_hotspot_${jre.version}_8.tar.gz</systemPath>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <build>
         <plugins>
             <plugin>
@@ -311,25 +412,32 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>net.adoptopenjdk</groupId>
+                    <groupId>net.adoptium</groupId>
                     <artifactId>jre</artifactId>
                     <classifier>windows-x64</classifier>
                     <type>zip</type>
-                    <scope>provided</scope>
+                    <scope>system</scope>
                 </dependency>
                 <dependency>
-                    <groupId>net.adoptopenjdk</groupId>
+                    <groupId>net.adoptium</groupId>
                     <artifactId>jre</artifactId>
                     <classifier>linux-x64</classifier>
                     <type>tar.gz</type>
-                    <scope>provided</scope>
+                    <scope>system</scope>
                 </dependency>
                 <dependency>
-                    <groupId>net.adoptopenjdk</groupId>
+                    <groupId>net.adoptium</groupId>
                     <artifactId>jre</artifactId>
                     <classifier>macos-x64</classifier>
                     <type>tar.gz</type>
-                    <scope>provided</scope>
+                    <scope>system</scope>
+                </dependency>
+                <dependency>
+                    <groupId>net.adoptium</groupId>
+                    <artifactId>jre</artifactId>
+                    <classifier>macos-arm64</classifier>
+                    <type>tar.gz</type>
+                    <scope>system</scope>
                 </dependency>
             </dependencies>
             <build>
@@ -392,6 +500,7 @@
                                         <descriptor>src/main/assembly/windows.xml</descriptor>
                                         <descriptor>src/main/assembly/linux.xml</descriptor>
                                         <descriptor>src/main/assembly/macos.xml</descriptor>
+                                        <descriptor>src/main/assembly/macos-arm64.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                             </execution>
@@ -444,11 +553,11 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>net.adoptopenjdk</groupId>
+                    <groupId>net.adoptium</groupId>
                     <artifactId>jre</artifactId>
                     <classifier>windows-x64</classifier>
                     <type>zip</type>
-                    <scope>provided</scope>
+                    <scope>system</scope>
                 </dependency>
                 <dependency>
                     <groupId>com.oracle.database.jdbc</groupId>
@@ -508,11 +617,11 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>net.adoptopenjdk</groupId>
+                    <groupId>net.adoptium</groupId>
                     <artifactId>jre</artifactId>
                     <classifier>linux-x64</classifier>
                     <type>tar.gz</type>
-                    <scope>provided</scope>
+                    <scope>system</scope>
                 </dependency>
                 <dependency>
                     <groupId>com.oracle.database.jdbc</groupId>
@@ -572,11 +681,11 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>net.adoptopenjdk</groupId>
+                    <groupId>net.adoptium</groupId>
                     <artifactId>jre</artifactId>
                     <classifier>macos-x64</classifier>
                     <type>tar.gz</type>
-                    <scope>provided</scope>
+                    <scope>system</scope>
                 </dependency>
                 <dependency>
                     <groupId>com.oracle.database.jdbc</groupId>
@@ -615,6 +724,70 @@
                                 <configuration>
                                     <descriptors>
                                         <descriptor>src/main/assembly/macos.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>build-assemblies-mac-arm64</id>
+            <activation>
+                <property>
+                    <name>github.os</name>
+                    <value>macOS-latest</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>net.adoptium</groupId>
+                    <artifactId>jre</artifactId>
+                    <classifier>macos-arm64</classifier>
+                    <type>tar.gz</type>
+                    <scope>system</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.oracle.database.jdbc</groupId>
+                    <artifactId>ojdbc8</artifactId>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack-jres</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>unpack-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <ignorePermissions>true</ignorePermissions>
+                                    <includeArtifactIds>jre</includeArtifactIds>
+                                    <stripVersion>true</stripVersion>
+                                    <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>jre-assemblies</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/macos-arm64.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                             </execution>
@@ -680,6 +853,161 @@
                         <configuration>
                             <encoding>UTF-8</encoding>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <profile>
+            <id>copy-enterprise-dependencies</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-editions</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.enterprise</groupId>
+                                            <artifactId>flyway-extensibility-commons</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/community</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.enterprise</groupId>
+                                            <artifactId>flyway-compare</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/community</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.enterprise</groupId>
+                                            <artifactId>flyway-rulesengine-sqlfluff</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/community</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

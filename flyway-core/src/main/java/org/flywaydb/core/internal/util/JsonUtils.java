@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.util;
 
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
@@ -28,6 +29,8 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JsonUtils {
@@ -44,11 +47,7 @@ public class JsonUtils {
         }
     }
 
-    public static String getFromJson(String json, String key){
-        return getGson().fromJson(json, JsonObject.class).get(key).getAsString();
-    }
-
-    private static Gson getGson() {
+    public static Gson getGson() {
         return new GsonBuilder()
                 .serializeNulls()
                 .setPrettyPrinting()
@@ -56,18 +55,28 @@ public class JsonUtils {
                 .create();
     }
 
-    public static CompositeResult appendIfExists(String filename, CompositeResult json, Class<? extends OperationResult> operationResultImplementation) {
+    public static <T> List<T> toList(String json) {
+        Type listType = new TypeToken<ArrayList<T>>() { }.getType();
+        return getGson().fromJson(json, listType);
+    }
+
+    public static String getFromJson(String json, String key) {
+        return getGson().fromJson(json, JsonObject.class).get(key).getAsString();
+    }
+
+    public static <T extends OperationResult> CompositeResult<T> appendIfExists(String filename, CompositeResult<T> json, JsonDeserializer<CompositeResult<T>> deserializer) {
         if (!Files.exists(Paths.get(filename))) {
             return json;
         }
 
-        CompositeResult existingObject;
+        CompositeResult<T> existingObject;
+        Type existingObjectType = new TypeToken<CompositeResult<T>>() { }.getType();
+
         try (FileReader reader = new FileReader(filename)) {
             existingObject = new GsonBuilder()
-                    .registerTypeAdapter(OperationResult.class, new OperationResultDeserializer(operationResultImplementation))
-                    .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer())
+                    .registerTypeAdapter(existingObjectType, deserializer)
                     .create()
-                    .fromJson(reader, CompositeResult.class);
+                    .fromJson(reader, existingObjectType);
         } catch (Exception e) {
             throw new FlywayException("Unable to read filename: " + filename, e);
         }
@@ -78,18 +87,5 @@ public class JsonUtils {
 
     public static Object parseJsonArray(String json) {
         return JsonParser.parseString(json).getAsJsonArray();
-    }
-
-    private static class OperationResultDeserializer implements JsonDeserializer<OperationResult> {
-        private final Class<? extends OperationResult> clazz;
-
-        public OperationResultDeserializer(Class<? extends OperationResult> clazz) {
-            this.clazz = clazz;
-        }
-
-        @Override
-        public OperationResult deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-            return jsonDeserializationContext.deserialize(jsonElement, clazz);
-        }
     }
 }

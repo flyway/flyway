@@ -27,10 +27,7 @@ import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.output.CompositeResult;
-import org.flywaydb.core.api.output.ErrorOutput;
-import org.flywaydb.core.api.output.MigrateErrorResult;
-import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.api.output.*;
 
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.internal.command.DbMigrate;
@@ -41,14 +38,12 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+
 import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.logging.multi.MultiLogCreator;
 import org.flywaydb.core.internal.plugin.PluginRegister;
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
-import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.*;
 
 import java.io.Console;
 import java.io.File;
@@ -57,6 +52,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -64,6 +60,10 @@ import java.util.stream.Stream;
 public class Main {
     private static Log LOG;
     private static final PluginRegister pluginRegister = new PluginRegister();
+
+
+
+
 
     static LogCreator getLogCreator(CommandLineArguments commandLineArguments) {
         // JSON output uses a different mechanism, so we do not create any loggers
@@ -144,7 +144,15 @@ public class Main {
             ConfigUtils.dumpConfiguration(config);
             filterProperties(config);
 
+
+
+
+
+
+
             Configuration configuration = new FluentConfiguration(classLoader).configuration(config);
+
+            Flyway flyway = Flyway.configure(classLoader).configuration(configuration).load();
 
             if (!commandLineArguments.skipCheckForUpdate()) {
                 if (RedgateUpdateChecker.isEnabled() && configuration.getDataSource() != null) {
@@ -165,17 +173,20 @@ public class Main {
                 }
             }
 
-            Flyway flyway = Flyway.configure(classLoader).configuration(configuration).load();
-
             OperationResult result;
             if (commandLineArguments.getOperations().size() == 1) {
                 String operation = commandLineArguments.getOperations().get(0);
                 result = executeOperation(flyway, operation, commandLineArguments);
             } else {
-                result = new CompositeResult();
+                CompositeResult<OperationResult> compositeResult = new CompositeResult<>();
                 for (String operation : commandLineArguments.getOperations()) {
-                    ((CompositeResult) result).individualResults.add(executeOperation(flyway, operation, commandLineArguments));
+                    compositeResult.individualResults.add(executeOperation(flyway, operation, commandLineArguments));
                 }
+                result = compositeResult;
+            }
+
+            if (commandLineArguments.isCommunityFallback()) {
+                LOG.warn("A Flyway License was not provided; fell back to Community Edition. Please contact sales at sales@flywaydb.org for license information.");
             }
 
             if (commandLineArguments.shouldOutputJson()) {
@@ -338,13 +349,18 @@ public class Main {
     }
 
     private static String convertObjectToJsonString(Object object) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().serializeNulls().create();
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .disableHtmlEscaping()
+                .serializeNulls()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer())
+                .create();
         return gson.toJson(object);
     }
 
     private static void initializeDefaults(Map<String, String> config, CommandLineArguments commandLineArguments) {
         // To maintain override order, return extension value first if present
-        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : getInstallationDir();
+        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : ClassUtils.getInstallDir(Main.class);
 
         config.put(ConfigUtils.LOCATIONS, "filesystem:" + new File(workingDirectory, "sql").getAbsolutePath());
 
@@ -363,6 +379,17 @@ public class Main {
         config.remove(ConfigUtils.CONFIG_FILE_ENCODING);
     }
 
+
+
+
+
+
+
+
+
+
+
+
     private static void printUsage() {
         String indent = "    ";
 
@@ -379,7 +406,6 @@ public class Main {
         LOG.info(indent + StringUtils.rightPad("clean", padSize, ' ') + "Drops all objects in the configured schemas");
         LOG.info(indent + StringUtils.rightPad("info", padSize, ' ') + "Prints the information about applied, current and pending migrations");
         LOG.info(indent + StringUtils.rightPad("validate", padSize, ' ') + "Validates the applied migrations against the ones on the classpath");
-        LOG.info(indent + StringUtils.rightPad("undo", padSize, ' ') + "[" + "teams] Undoes the most recently applied versioned migration");
         LOG.info(indent + StringUtils.rightPad("baseline", padSize, ' ') + "Baselines an existing database at the baselineVersion");
         LOG.info(indent + StringUtils.rightPad("repair", padSize, ' ') + "Repairs the schema history table");
         usages.forEach(u -> LOG.info(indent + StringUtils.rightPad(u.getLeft(), padSize, ' ') + u.getRight()));
@@ -458,7 +484,7 @@ public class Main {
     }
 
     private static List<File> getJdbcDriverJarFiles() {
-        File driversDir = new File(getInstallationDir(), "drivers");
+        File driversDir = new File(ClassUtils.getInstallDir(Main.class), "drivers");
         File[] files = driversDir.listFiles((dir, name) -> name.endsWith(".jar"));
 
         // see javadoc of listFiles(): null if given path is not a real directory
@@ -497,7 +523,7 @@ public class Main {
 
     protected static void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(commandLineArguments, envVars);
-        File installationDir = new File(getInstallationDir());
+        File installationDir = new File(ClassUtils.getInstallDir(Main.class));
 
         config.putAll(ConfigUtils.loadDefaultConfigurationFiles(installationDir, encoding));
 
@@ -594,16 +620,6 @@ public class Main {
                 commandLineArguments.getConfigFiles().stream();
 
         return configFilePaths.map(path -> Paths.get(path).isAbsolute() ? new File(path) : new File(workingDirectory, path)).collect(Collectors.toList());
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    private static String getInstallationDir() {
-        String path = ClassUtils.getLocationOnDisk(Main.class);
-        return new File(path) // jar file
-                .getParentFile() // edition dir
-                .getParentFile() // lib dir
-                .getParentFile() // installation dir
-                .getAbsolutePath();
     }
 
     /**

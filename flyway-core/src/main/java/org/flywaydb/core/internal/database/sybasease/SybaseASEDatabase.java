@@ -107,11 +107,6 @@ public class SybaseASEDatabase extends Database<SybaseASEConnection> {
     }
 
     @Override
-    public boolean supportsChangingCurrentSchema() {
-        return true;
-    }
-
-    @Override
     public String getBooleanTrue() {
         return "1";
     }

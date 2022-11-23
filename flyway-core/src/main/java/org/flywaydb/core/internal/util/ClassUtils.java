@@ -30,6 +30,7 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.ServiceLoader;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -176,6 +177,23 @@ public class ClassUtils {
             return null;
         }
         return UrlUtils.decodeURL(codeSource.getLocation().getPath());
+    }
+
+    public static String getLibDir(Class<?> clazz) {
+        String classLocation = Objects.requireNonNull(ClassUtils.getLocationOnDisk(clazz));
+        return new File(classLocation)  // jar file
+                .getParentFile()        // edition dir
+                .getParentFile()        // lib dir
+                .getAbsolutePath();
+    }
+
+    public static String getInstallDir(Class<?> clazz) {
+        String path = Objects.requireNonNull(ClassUtils.getLocationOnDisk(clazz));
+        return new File(path)    // jar file
+                .getParentFile() // edition dir
+                .getParentFile() // lib dir
+                .getParentFile() // installation dir
+                .getAbsolutePath();
     }
 
     /**

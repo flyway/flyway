@@ -30,6 +30,10 @@ public interface ResolvedMigration extends ChecksumMatcher {
      */
     MigrationVersion getVersion();
 
+    default boolean isVersioned()  {
+        return getVersion() != null;
+    }
+
     /**
      * @return The description of the migration.
      */
@@ -68,11 +72,6 @@ public interface ResolvedMigration extends ChecksumMatcher {
             if (getVersion().compareTo(context.lastApplied == MigrationVersion.EMPTY ? context.pendingBaseline : context.appliedBaseline) == 0) {
                 return MigrationState.BASELINE_IGNORED;
             }
-
-
-
-
-
             if (context.target != null && context.target != MigrationVersion.NEXT && getVersion().compareTo(context.target) > 0) {
                 return MigrationState.ABOVE_TARGET;
             }

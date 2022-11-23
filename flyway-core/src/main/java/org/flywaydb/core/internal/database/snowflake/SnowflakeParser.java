@@ -21,27 +21,39 @@ import org.flywaydb.core.internal.parser.*;
 import java.io.IOException;
 
 public class SnowflakeParser extends Parser {
-    private final String ALTERNATIVE_QUOTE = "$$";
+    private static final String ALTERNATIVE_QUOTE = "$$";
+    private static final String ALTERNATIVE_QUOTE_SCRIPT = "DECLARE";
 
     public SnowflakeParser(Configuration configuration, ParsingContext parsingContext) {
-        super(configuration, parsingContext, 2);
+        super(configuration, parsingContext, 7);
     }
 
     @Override
     protected boolean isAlternativeStringLiteral(String peek) {
-        if (peek.startsWith("$$")) {
+        if (peek.startsWith(ALTERNATIVE_QUOTE) || peek.toUpperCase().startsWith(ALTERNATIVE_QUOTE_SCRIPT)) {
             return true;
         }
-
         return super.isAlternativeStringLiteral(peek);
     }
 
     @Override
     protected Token handleAlternativeStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
-        reader.swallow(ALTERNATIVE_QUOTE.length());
-        reader.swallowUntilExcluding(ALTERNATIVE_QUOTE);
-        reader.swallow(ALTERNATIVE_QUOTE.length());
-        return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
+        String alternativeQuoteOpen = ALTERNATIVE_QUOTE;
+        String alternativeQuoteEnd = ALTERNATIVE_QUOTE;
+
+        String text;
+        if (reader.peek(ALTERNATIVE_QUOTE_SCRIPT)) {
+            alternativeQuoteOpen = "BEGIN";
+            alternativeQuoteEnd = "END";
+            reader.swallowUntilExcluding(alternativeQuoteOpen);
+            text = readBetweenRecursive(reader, alternativeQuoteOpen, alternativeQuoteEnd);
+        } else {
+            reader.swallow(alternativeQuoteOpen.length());
+            text = reader.readUntilExcluding(alternativeQuoteOpen, alternativeQuoteEnd);
+            reader.swallow(alternativeQuoteEnd.length());
+        }
+
+        return new Token(TokenType.STRING, pos, line, col, text, text, context.getParensDepth());
     }
 
     @Override
@@ -49,4 +61,16 @@ public class SnowflakeParser extends Parser {
         return peek.startsWith("--") || peek.startsWith("//");
     }
 
+    private String readBetweenRecursive(PeekingReader reader, String prefix, String suffix) throws IOException {
+        StringBuilder result = new StringBuilder();
+        reader.swallow(prefix.length());
+        while (!reader.peek(suffix)) {
+            result.append(reader.readUntilExcluding(prefix, suffix));
+            if (reader.peek(prefix)) {
+                result.append(prefix).append(readBetweenRecursive(reader, prefix, suffix)).append(suffix);
+            }
+        }
+        reader.swallow(suffix.length());
+        return result.toString();
+    }
 }

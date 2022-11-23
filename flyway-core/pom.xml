@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.0.0</version>
+        <version>9.8.2</version>
     </parent>
     <artifactId>flyway-core</artifactId>
     <packaging>jar</packaging>
@@ -48,6 +48,10 @@
             <groupId>org.jboss</groupId>
             <artifactId>jboss-vfs</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-toml</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

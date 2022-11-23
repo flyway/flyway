@@ -331,7 +331,7 @@ public class StringUtils {
             return false;
         }
         for (String suffix : suffixes) {
-            if (str.endsWith(suffix) && (str.length() > (prefix + suffix).length())) {
+            if (str.toUpperCase().endsWith(suffix.toUpperCase()) && (str.length() > (prefix + suffix).length())) {
                 return true;
             }
         }
@@ -411,15 +411,25 @@ public class StringUtils {
         return false;
     }
 
-    public static String getFileExtension(String path) {
-        String[] foldersSplit = path.split("[|/]");
+    public static Pair<String,String> getFileNameAndExtension(String path) {
+        String[] foldersSplit = path.split("[|/\\\\]");
         String fileNameAndExtension = foldersSplit[foldersSplit.length - 1];
 
         String[] nameExtensionSplit = fileNameAndExtension.split("\\.");
         if (nameExtensionSplit.length < 2) {
-            return "";
+            return Pair.of(fileNameAndExtension, "");
         }
 
-        return nameExtensionSplit[nameExtensionSplit.length - 1];
+        return Pair.of(nameExtensionSplit[nameExtensionSplit.length - 2], nameExtensionSplit[nameExtensionSplit.length - 1]);
+    }
+
+    public static Pair<String, String> splitAtFirstSeparator(String input, String separator) {
+        int separatorIndex = input.indexOf(separator);
+        if (separatorIndex >= 0) {
+            return Pair.of(input.substring(0, separatorIndex),
+                           input.substring(separatorIndex + separator.length()));
+        } else {
+            return Pair.of(input, "");
+        }
     }
 }

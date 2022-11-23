@@ -175,6 +175,10 @@ public class BaseAppliedMigration implements AppliedMigration {
             return MigrationState.FAILED;
         }
 
+        if (CoreMigrationType.SCHEMA == getType()) {
+            return MigrationState.SUCCESS;
+        }
+
         MigrationState repeatableState = getRepeatableState(context, resolvedMigration);
         if (repeatableState != null) {
             return repeatableState;

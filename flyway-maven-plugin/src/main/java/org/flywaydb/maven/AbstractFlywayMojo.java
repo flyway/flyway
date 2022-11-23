@@ -103,7 +103,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Also configurable with Maven or System Property: ${flyway.connectRetries}</p>
      */
     @Parameter(property = ConfigUtils.CONNECT_RETRIES)
-    private int connectRetries;
+    private Integer connectRetries;
 
     /**
      * The maximum time between retries when attempting to connect to the database in seconds. This will cap the interval
@@ -112,7 +112,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Also configurable with Maven or System Property: ${flyway.connectRetriesInterval}</p>
      */
     @Parameter(property = ConfigUtils.CONNECT_RETRIES_INTERVAL)
-    private int connectRetriesInterval;
+    private Integer connectRetriesInterval;
 
     /**
      * The SQL statements to run to initialize a new database connection immediately after opening it. (default: {@code null})

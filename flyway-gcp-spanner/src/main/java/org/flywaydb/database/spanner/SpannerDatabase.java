@@ -94,11 +94,6 @@ public class SpannerDatabase extends Database<SpannerConnection> {
     }
 
     @Override
-    public boolean supportsChangingCurrentSchema() {
-        return false;
-    }
-
-    @Override
     public String getBooleanTrue() {
         return "true";
     }

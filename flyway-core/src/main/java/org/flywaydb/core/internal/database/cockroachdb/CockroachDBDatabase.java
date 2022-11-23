@@ -58,7 +58,7 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
     @Override
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("1.1");
-        recommendFlywayUpgradeIfNecessary("21.1");
+        recommendFlywayUpgradeIfNecessary("22.1");
     }
 
     @Override
@@ -114,11 +114,6 @@ public class CockroachDBDatabase extends Database<CockroachDBConnection> {
 
     public boolean supportsDdlTransactions() {
         return false;
-    }
-
-    @Override
-    public boolean supportsChangingCurrentSchema() {
-        return true;
     }
 
     public String getBooleanTrue() {

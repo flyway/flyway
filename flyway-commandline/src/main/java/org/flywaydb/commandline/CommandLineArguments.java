@@ -23,6 +23,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
+import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.text.ParseException;
@@ -31,10 +32,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandLineArguments {
+    private static final String COMMUNITY_FALLBACK_FLAG = "-communityFallback";
     private static final String DEBUG_FLAG = "-X";
     private static final String QUIET_FLAG = "-q";
     private static final String SUPPRESS_PROMPT_FLAG = "-n";
     private static final List<String> PRINT_VERSION_AND_EXIT_FLAGS = Arrays.asList("-v", "--version");
+    private static final String CHECK_LICENCE = "-checkLicence";
     private static final List<String> PRINT_USAGE_FLAGS = Arrays.asList("-?", "-h", "--help");
     private static final String SKIP_CHECK_FOR_UPDATE_FLAG = "-skipCheckForUpdate";
     private static final String MIGRATIONS_IDS_FLAG = "-migrationIds";
@@ -65,13 +68,16 @@ public class CommandLineArguments {
 
     public CommandLineArguments(PluginRegister pluginRegister, String... args) {
         this.pluginRegister = pluginRegister;
-        this.args = args;
+        this.args = Arrays.stream(args)
+                .filter(StringUtils::hasText)
+                .toArray(String[]::new);
     }
 
     private static List<String> getValidOperationsAndFlags() {
         List<String> operationsAndFlags = new ArrayList<>(Arrays.asList(
                 DEBUG_FLAG,
                 QUIET_FLAG,
+                COMMUNITY_FALLBACK_FLAG,
                 SUPPRESS_PROMPT_FLAG,
                 SKIP_CHECK_FOR_UPDATE_FLAG,
                 MIGRATIONS_IDS_FLAG,
@@ -79,6 +85,7 @@ public class CommandLineArguments {
                 ENTERPRISE_FLAG,
                 PRO_FLAG,
                 TEAMS_FLAG,
+                CHECK_LICENCE,
                 "help",
                 "migrate",
                 "clean",
@@ -136,19 +143,11 @@ public class CommandLineArguments {
     }
 
     private static Map<String, String> getConfigurationFromArgs(String[] args) {
-        Map<String, String> configuration = new HashMap<>();
-
-        for (String arg : args) {
-            if (isConfigurationArg(arg)) {
-                String configurationOptionName = getConfigurationOptionNameFromArg(arg);
-
-                if (!isConfigurationOptionCommandlineOnly(configurationOptionName)) {
-                    configuration.put("flyway." + configurationOptionName, parseConfigurationOptionValueFromArg(arg));
-                }
-            }
-        }
-
-        return configuration;
+        return Arrays.stream(args)
+                .filter(CommandLineArguments::isConfigurationArg)
+                .map(arg -> Pair.of(arg, getConfigurationOptionNameFromArg(arg)))
+                .filter(p -> !isConfigurationOptionCommandlineOnly(p.getRight()))
+                .collect(Collectors.toMap(p -> "flyway." + p.getRight(), p -> parseConfigurationOptionValueFromArg(p.getLeft())));
     }
 
     private static boolean isConfigurationOptionCommandlineOnly(String configurationOptionName) {
@@ -170,11 +169,13 @@ public class CommandLineArguments {
     }
 
     public void validate() {
-        for (String arg : args) {
-            if (!isConfigurationArg(arg) && !VALID_OPERATIONS_AND_FLAGS.contains(arg) && !isHandledByExtension(arg)) {
-                throw new FlywayException("Invalid argument: " + arg);
-            }
-        }
+
+        Arrays.stream(args)
+                .filter(arg -> !isConfigurationArg(arg))
+                .filter(arg -> !VALID_OPERATIONS_AND_FLAGS.contains(arg))
+                .filter(arg -> !isHandledByExtension(arg))
+                .findAny()
+                .ifPresent(arg -> {throw new FlywayException("Invalid argument: " + arg);});
 
         String outputTypeValue = getArgumentValue(OUTPUT_TYPE, args).toLowerCase();
 
@@ -207,7 +208,7 @@ public class CommandLineArguments {
     }
 
     public boolean shouldPrintUsage() {
-        return isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty();
+        return isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty() && !isFlagSet(args, CHECK_LICENCE);
     }
 
     public Level getLogLevel() {
@@ -220,6 +221,10 @@ public class CommandLineArguments {
         return Level.INFO;
     }
 
+    public boolean isCommunityFallback() {
+        return isFlagSet(args, COMMUNITY_FALLBACK_FLAG);
+    }
+
     public boolean hasOperation(String operation) {
         return getOperations().contains(operation);
     }
@@ -230,6 +235,10 @@ public class CommandLineArguments {
 
     public List<String> getConfigFiles() {
         return getConfigFilesFromArgs(args);
+    }
+
+    public boolean shouldCheckLicenseAndExit() {
+        return isFlagSet(args, CHECK_LICENCE);
     }
 
     public String getOutputFile() {

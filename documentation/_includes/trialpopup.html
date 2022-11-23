@@ -1,0 +1,115 @@
+<!--
+
+    Copyright (C) Red Gate Software Ltd 2010-2022
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div class="modal fade" id="flyway-trial-license-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">License Agreement</h4>
+            </div>
+            <div class="modal-body">
+                <p>Complete the form to receive a trial license key for your organisation. </p>
+                <form id="mktoForm_2819"></form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('load', function() {
+        window.Redgate.Marketo.create({
+            formId: 2819,
+            callback: function(marketoForm) {
+                // Update the checkbox label(s).
+                var form = marketoForm.getFormElem().get(0);
+                var checkboxes = form.querySelectorAll('[type="checkbox"]');
+                for (var i=0; i<checkboxes.length; i++) {
+                    var checkbox = checkboxes[i];
+                    var labels = form.querySelectorAll('label[for="' + checkbox.getAttribute('name') + '"]');
+                    var labelText = labels[0].innerText.replace('*', '');
+                    for (var l=0; l<labels.length; l++) {
+                        labels[l].innerText = labelText;
+                    }
+                    labels[0].parentElement.removeChild(labels[0]);
+                }
+            
+                // On a successful submission, hide and submit trial form.
+                marketoForm.onSuccess(function(formData) {
+                    // Wait a second to give Marketo time to enter the person into the database
+                    // before doing the POST request in hideAndSubmitTrialForm().
+                    window.setTimeout(function(){
+                        hideAndSubmitTrialForm(formData);
+                    }, 2000);
+                    
+                    return false;
+                });
+            
+                marketoForm.onValidate(function(successful) {
+                    if (!successful) {
+                        marketoForm.submittable(false);
+                    } else {
+            
+                        // Do some custom validation.
+            
+                        // Get the fields and their values from the form.
+                        var fields = marketoForm.vals();
+            
+                        // Custom object for storing info about the fail.
+                        var fail = {
+                            isFail: false,
+                            message: '',
+                            element: null,
+                        };
+            
+                        // Email validation.
+                        if (typeof fields.Email !== 'undefined') {
+            
+                            // Email regex provided by https://regex101.com/r/L9Z2N0/1.
+                            // Check that the format is {something}@{something}.{something}.
+                            var emailRegex = /\S+@\S+\.\S+/;
+            
+                            if (emailRegex.test(fields.Email) === false) {
+                                fail.isFail = true;
+                                fail.message = 'Please enter a valid email address.';
+                                fail.element = marketoForm.getFormElem().find('input[name="Email"]');
+                            }
+                        }
+            
+                        // If form validation fails.
+                        if (fail.isFail) {
+            
+                            // Stop the form from being submittable.
+                            marketoForm.submittable(false);
+            
+                            // Show an error message against the invalid field.
+                            marketoForm.showErrorMessage(fail.message, fail.element);
+            
+                            // Display the field as invalid using the Marketo class.
+                            fail.element.get(0).classList.add('mktoInvalid');
+                        } else {
+            
+                            // All is good, continue as normal.
+                            marketoForm.submittable(true);
+                        }
+                    }
+                });
+
+            },
+        });
+    });
+</script>

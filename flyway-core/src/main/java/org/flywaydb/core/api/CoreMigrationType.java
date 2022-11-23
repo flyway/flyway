@@ -39,17 +39,9 @@ public enum CoreMigrationType implements MigrationType {
      */
     SQL(false, false, false),
     /**
-     * Undo SQL migrations.
-     */
-    UNDO_SQL(false, true, false),
-    /**
      * JDBC Java-based migrations.
      */
     JDBC(false, false, false),
-    /**
-     * Undo JDBC java-based migrations.
-     */
-    UNDO_JDBC(false, true, false),
     /**
      * Script migrations.
      */
@@ -68,11 +60,7 @@ public enum CoreMigrationType implements MigrationType {
     /**
      * Migrations using custom MigrationResolvers.
      */
-    CUSTOM(false, false, false),
-    /**
-     * Undo migrations using custom MigrationResolvers.
-     */
-    UNDO_CUSTOM(false, true, false);
+    CUSTOM(false, false, false);
 
     /**
      * @return Whether this is a synthetic migration type, which is only ever present in the schema history table,
@@ -92,9 +80,6 @@ public enum CoreMigrationType implements MigrationType {
         // Convert legacy types to maintain compatibility
         if ("SPRING_JDBC".equals(migrationType)) {
             return JDBC;
-        }
-        if ("UNDO_SPRING_JDBC".equals(migrationType)) {
-            return UNDO_JDBC;
         }
         return valueOf(migrationType);
     }

@@ -27,16 +27,9 @@ import java.util.List;
  * Migration resolver for a fixed set of pre-instantiated Java-based migrations.
  */
 public class FixedJavaMigrationResolver implements MigrationResolver {
-    /**
-     * The JavaMigration instances to use.
-     */
+
     private final JavaMigration[] javaMigrations;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param javaMigrations The JavaMigration instances to use.
-     */
     public FixedJavaMigrationResolver(JavaMigration... javaMigrations) {
         this.javaMigrations = javaMigrations;
     }
