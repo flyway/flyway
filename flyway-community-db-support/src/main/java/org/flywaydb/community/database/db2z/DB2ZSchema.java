@@ -214,7 +214,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
         List<String> dropStatements = new ArrayList<>();
         List<String> dbObjects = jdbcTemplate.queryForStringList(dropTablespaceGenQuery);
         for (String dbObject : dbObjects) {
-            LOG.info("DROP TABLESPACE " + database.quote(database.getName(), dbObject));
+            LOG.debug("DROP TABLESPACE " + database.quote(database.getName(), dbObject));
             dropStatements.add("DROP TABLESPACE " + database.quote(database.getName(), dbObject));
         }
         return dropStatements;
@@ -226,7 +226,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
         List<String> dropStatements = new ArrayList<>();
         List<String> dbObjects = jdbcTemplate.queryForStringList(dropTablespaceGenQuery);
         for (String dbObject : dbObjects) {
-            LOG.info("DROP TABLESPACE " + database.quote(database.getName(), dbObject));
+            LOG.debug("DROP TABLESPACE " + database.quote(database.getName(), dbObject));
             dropStatements.add("DROP TABLESPACE " + database.quote(database.getName(), dbObject));
         }
         return dropStatements;
@@ -281,7 +281,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
         List<String> dropStatements = new ArrayList<>();
         List<String> dbObjects = jdbcTemplate.queryForStringList(query);
         for (String dbObject : dbObjects) {
-            LOG.info(dropPrefix + " " + database.quote(name, dbObject));
+            LOG.debug(dropPrefix + " " + database.quote(name, dbObject));
             dropStatements.add(dropPrefix + " " + database.quote(name, dbObject));
         }
         return dropStatements;
@@ -294,7 +294,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
         List<String> dropVersioningStatements = new ArrayList<>();
         Table[] versioningTables = findTables("select rtrim(NAME) from SYSIBM.SYSTABLES where VERSIONING_TABLE <> '' and CREATOR = '" + name + "' and OWNER = '" + this.getSqlId() + "'");
         for (Table table : versioningTables) {
-            LOG.info("ALTER TABLE " + table.toString() + " DROP VERSIONING");
+            LOG.debug("ALTER TABLE " + table.toString() + " DROP VERSIONING");
             dropVersioningStatements.add("ALTER TABLE " + table.toString() + " DROP VERSIONING");
         }
 
@@ -308,7 +308,7 @@ public class DB2ZSchema extends Schema<DB2ZDatabase, DB2ZTable> {
         List<String> dropArchivingStatements = new ArrayList<>();
         Table[] archivingTables = findTables("select rtrim(NAME) from SYSIBM.SYSTABLES where ARCHIVING_TABLE <> '' and CREATOR = '" + name + "' and OWNER = '" + this.getSqlId() + "'");
         for (Table table : archivingTables) {
-            LOG.info("ALTER TABLE " + table.toString() + " DISABLE ARCHIVE");
+            LOG.debug("ALTER TABLE " + table.toString() + " DISABLE ARCHIVE");
             dropArchivingStatements.add("ALTER TABLE " + table.toString() + " DISABLE ARCHIVE");
         }
         return dropArchivingStatements;

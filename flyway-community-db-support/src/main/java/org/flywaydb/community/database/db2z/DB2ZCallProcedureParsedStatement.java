@@ -17,13 +17,10 @@ package org.flywaydb.community.database.db2z;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-// import org.flywaydb.community.jdbc.JdbcTemplate;
-// import org.flywaydb.community.jdbc.DB2ZJdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Result;
 import org.flywaydb.core.internal.jdbc.Results;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.ParsedSqlStatement;
-// import org.flywaydb.community.sqlscript.DB2ZParsedSqlStatement;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutor;
 
 import java.io.Reader;

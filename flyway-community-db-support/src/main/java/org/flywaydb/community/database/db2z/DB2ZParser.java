@@ -73,33 +73,30 @@ public class DB2ZParser extends Parser {
                                                  StatementType statementType, boolean canExecuteInTransaction,
                                                  Delimiter delimiter, String sql
     ) throws IOException {
-        // Always display parsed sql comment included
-        LOG.info(sql);
+        LOG.debug(sql);
         if (statementType == DB2Z_CALL_STATEMENT) {
             Matcher callMatcher = DB2Z_CALL_WITH_PARMS_REGEX.matcher(sql);
-			if(callMatcher.find()) {
-				String procName = callMatcher.group("procname");
+            if(callMatcher.find()) {
+                String procName = callMatcher.group("procname");
                 String parmsString = callMatcher.group("args");
-				String[] parmStrings = PARMS_SPLIT_REGEX.split(parmsString);
-				Object[] parms = new Object[parmStrings.length];
-				for(int i = 0; i < parmStrings.length; i++) {
-		            String prmTrimmed = parmStrings[i].trim();
-					LOG.debug("createStatement: DB2Z CALL with parms: " + procName + " " + prmTrimmed );
-				    if (STRING_PARM_REGEX.matcher(prmTrimmed).matches()) {
-						//For string literals, remove the surrounding single quotes and 
-						//de-escape any single quotes inside the string
-						parms[i] = prmTrimmed.substring(1, prmTrimmed.length() - 1).replace("''", "'");
-					} else if (INTEGER_PARM_REGEX.matcher(prmTrimmed).matches()) {
-                        // ruttm03 I think below line is deprecated....
-                        parms[i] = new Integer(prmTrimmed);
-                        // parms[i] = Integer.valueOf(prmTrimmed);
-					} else if (prmTrimmed.toUpperCase().equals("NULL")) {
-						parms[i] = null;						
-					} else {
-						parms[i] = prmTrimmed;												
-					}
+                String[] parmStrings = PARMS_SPLIT_REGEX.split(parmsString);
+                Object[] parms = new Object[parmStrings.length];
+                for(int i = 0; i < parmStrings.length; i++) {
+                    String prmTrimmed = parmStrings[i].trim();
+                    LOG.debug("createStatement: DB2Z CALL with parms: " + procName + " " + prmTrimmed );
+                    if (STRING_PARM_REGEX.matcher(prmTrimmed).matches()) {
+                        //For string literals, remove the surrounding single quotes and 
+                        //de-escape any single quotes inside the string
+                        parms[i] = prmTrimmed.substring(1, prmTrimmed.length() - 1).replace("''", "'");
+                    } else if (INTEGER_PARM_REGEX.matcher(prmTrimmed).matches()) {
+                        parms[i] = Integer.valueOf(prmTrimmed);
+                    } else if (prmTrimmed.toUpperCase().equals("NULL")) {
+                        parms[i] = null;                        
+                    } else {
+                        parms[i] = prmTrimmed;                                              
+                    }
                 }
-	            return new DB2ZCallProcedureParsedStatement(statementPos, statementLine, statementCol,
+                return new DB2ZCallProcedureParsedStatement(statementPos, statementLine, statementCol,
                     sql, delimiter, canExecuteInTransaction, procName, parms);
             }
         }
