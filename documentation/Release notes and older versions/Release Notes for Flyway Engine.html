@@ -18,6 +18,17 @@
 <div class="col-md-9">
 
     <div class="release">
+        <h2 id="9.8.3">Flyway 9.8.3 (2022-11-24)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>The version of RG compare included with Flyway has been increased to 1.2.2.6628. This avoids a bug in which 'check' produced empty change/drift reports for certain SQL Server URLs.</li>
+            <li>Upgrade the version of the Apache Ignite core dependency to avoid a new vulnerability.</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="9.8.2">Flyway 9.8.2 (2022-11-18)</h2>
 
         <h3>Changes</h3>
@@ -77,7 +88,7 @@
         <ul>
             <li>
                 <a href="https://github.com/flyway/flyway/issues/1317">Issue 1317</a>
-                Add SingleStore support at the Teams level
+                Add SingleStoreDB support at the Teams level
             </li>
             <li>
                 <a href="https://github.com/flyway/flyway/issues/3570">Issue 3570</a>
@@ -88,7 +99,7 @@
         <h3>New features</h3>
         <ul>
             <li>The JSON result for the 'check' command now includes the paths to any generated report</li>
-            <li>SingleStore JDBC driver is now shipped in the CLI</li>
+            <li>SingleStoreDB JDBC driver is now shipped in the CLI</li>
             <li>Allows a configuration ('flyway.check.failOnDrift') to trigger an error if drift is detected with `check -drift` allowing the build to be halted should drift exist.</li>
         </ul>
 

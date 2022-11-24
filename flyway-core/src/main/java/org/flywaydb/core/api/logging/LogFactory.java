@@ -30,8 +30,8 @@ import org.flywaydb.core.internal.logging.slf4j.Slf4jLogCreator;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Factory for loggers. Custom MigrationResolver, MigrationExecutor, Callback and JavaMigration
@@ -94,34 +94,24 @@ public class LogFactory {
         if (configuration == null) {
             return new BufferedLogCreator();
         }
-
-        String[] loggers = configuration.getLoggers();
-        List<LogCreator> logCreators = new ArrayList<>();
-
-        for (String logger : loggers) {
-            switch (logger.toLowerCase()) {
+        
+        return new MultiLogCreator(Arrays.stream(configuration.getLoggers()).map(logger -> {
+            switch (logger) {
                 case "auto":
-                    logCreators.add(autoDetectLogCreator(classLoader, fallbackLogCreator));
-                    break;
+                    return autoDetectLogCreator(classLoader, fallbackLogCreator);
                 case "maven":
                 case "console":
-                    logCreators.add(fallbackLogCreator);
-                    break;
+                    return fallbackLogCreator;
                 case "slf4j":
-                    logCreators.add(ClassUtils.instantiate(Slf4jLogCreator.class.getName(), classLoader));
-                    break;
+                    return ClassUtils.instantiate(Slf4jLogCreator.class.getName(), classLoader);
                 case "log4j2":
-                    logCreators.add(ClassUtils.instantiate(Log4j2LogCreator.class.getName(), classLoader));
-                    break;
+                    return ClassUtils.instantiate(Log4j2LogCreator.class.getName(), classLoader);
                 case "apache-commons":
-                    logCreators.add(ClassUtils.instantiate(ApacheCommonsLogCreator.class.getName(), classLoader));
-                    break;
+                    return ClassUtils.instantiate(ApacheCommonsLogCreator.class.getName(), classLoader);
                 default:
-                    logCreators.add(ClassUtils.instantiate(logger, classLoader));
+                    return ClassUtils.instantiate(logger, classLoader);
             }
-        }
-
-        return new MultiLogCreator(logCreators);
+        }).collect(Collectors.toList()));
     }
 
     @Synchronized

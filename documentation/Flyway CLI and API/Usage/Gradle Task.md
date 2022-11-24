@@ -9,17 +9,9 @@ The Flyway Gradle plugin supports **Gradle 3.x**, **Gradle 4.x**, **Gradle 5.x**
 running on **Java 8**, **Java 9**, **Java 10**, **Java 11** or **Java 12**.
 
 ## Installation
+### Community Edition
 
-<div class="tabbable">
-    <ul class="nav nav-tabs">
-        <li class="active marketing-item"><a href="#tab-community" data-toggle="tab">Community Edition</a>
-        </li>
-        <li class="marketing-item"><a href="#tab-teams" data-toggle="tab">Teams Edition</a>
-        </li>
-    </ul>
-    <div class="tab-content">
-    <code>build.gradle</code>
-        <div class="tab-pane active" id="tab-community">
+<code>build.gradle</code>
 <table class="table">
     <tr>
         <td>
@@ -29,8 +21,9 @@ running on **Java 8**, **Java 9**, **Java 10**, **Java 11** or **Java 12**.
         </td>
     </tr>
 </table>
-        </div>
-        <div class="tab-pane" id="tab-teams">
+
+### Teams Edition
+<code>build.gradle</code>
 <table class="table">
     <tr>
         <td>
@@ -51,9 +44,7 @@ By downloading Flyway Teams/Enterprise Gradle Plugin you confirm that you have r
         </td>
     </tr>
 </table>
-                </div>
-    </div>
-</div>
+
 <p class="note">
   For older versions see <a href="/Accessing Older Versions of Flyway">Accessing Older Versions of Flyway</a>
 </p>

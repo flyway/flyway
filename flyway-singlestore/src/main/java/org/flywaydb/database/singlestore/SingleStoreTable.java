@@ -41,7 +41,7 @@ public class SingleStoreTable extends Table<SingleStoreDatabase, SingleStoreSche
     @Override
     protected void doLock() throws SQLException {
         if (jdbcTemplate.queryForString("select storage_type from information_schema.tables where table_schema=? and table_name=?", schema.getName(), name).equals("COLUMNSTORE")) {
-            LOG.warn("Taking lock on columnstore table is not supported by SingleStore");
+            LOG.warn("Taking lock on columnstore table is not supported by SingleStoreDB");
         } else {
             jdbcTemplate.execute("SELECT * FROM " + this + " FOR UPDATE");
         }

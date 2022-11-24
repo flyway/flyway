@@ -21,13 +21,7 @@ be migrated to a state the rest of the code can work with.
 
 ## Download
 
-<div class="tabbable">
-    <ul class="nav nav-tabs">
-        <li class="active marketing-item"><a href="#tab-community" data-toggle="tab">Community Edition</a></li>
-        <li class="marketing-item"><a href="#tab-teams" data-toggle="tab">Teams Edition</a></li>
-    </ul>
-    <div class="tab-content">
-        <div class="tab-pane active" id="tab-community">
+### Community Edition
 <table class="table">
     <tr>
         <th>Maven</th>
@@ -68,8 +62,8 @@ be migrated to a state the rest of the code can work with.
         </td>
     </tr>
 </table>
-        </div>
-<div class="tab-pane" id="tab-teams">
+
+### Teams Edition
 <table class="table">
     <tr>
         <th>Maven</th>
@@ -122,9 +116,7 @@ dependencies {
         </td>
     </tr>
 </table>
-        </div>
-    </div>
-</div>
+
 <p class="note">
   For older versions see <a href="/Accessing Older Versions of Flyway">Accessing Older Versions of Flyway</a>
 </p>
