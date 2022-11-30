@@ -8,17 +8,10 @@ redirect_from: /documentation/maven/
 The Flyway Maven plugin supports **Maven 3.x** running on **Java 8**, **Java 9**, **Java 10**, **Java 11** or **Java 12**.
 
 ## Installation
+### Community Edition
 
-<div class="tabbable">
-    <ul class="nav nav-tabs">
-        <li class="active marketing-item"><a href="#tab-community" data-toggle="tab">Community Edition</a>
-        </li>
-        <li class="marketing-item"><a href="#tab-teams" data-toggle="tab">Teams Edition</a>
-        </li>
-    </ul>
-    <div class="tab-content">
-    <code>pom.xml</code>
-        <div class="tab-pane active" id="tab-community">
+<code>pom.xml</code>
+
 <table class="table">
     <tr>
         <td>
@@ -34,8 +27,10 @@ The Flyway Maven plugin supports **Maven 3.x** running on **Java 8**, **Java 9**
         </td>
     </tr>
 </table>
-        </div>
-                <div class="tab-pane" id="tab-teams">
+
+### Teams Edition
+
+<code>pom.xml</code>
 <table class="table">
     <tr>
         <td>
@@ -64,9 +59,6 @@ The Flyway Maven plugin supports **Maven 3.x** running on **Java 8**, **Java 9**
         </td>
     </tr>
 </table>
-        </div>
-    </div>
-</div>
 
 <p class="note">
   For older versions see <a href="/Accessing Older Versions of Flyway">Accessing Older Versions of Flyway</a>

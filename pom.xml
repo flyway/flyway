@@ -30,7 +30,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>9.8.2</version>
+    <version>9.8.3</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -149,7 +149,7 @@
         <version.h2>2.1.214</version.h2>
         <version.hamcrest>2.2</version.hamcrest>
         <version.hsqldb>2.7.1</version.hsqldb>
-        <version.ignite>2.9.0</version.ignite>
+        <version.ignite>2.13.0</version.ignite>
         <version.informix>4.50.3</version.informix>
         <version.jansi>1.18</version.jansi>
         <version.jackson>2.14.0</version.jackson>
