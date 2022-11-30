@@ -148,3 +148,21 @@ By default Flyway uses a transactional lock with PostgreSQL, however this can ca
  using `CREATE EXTENSION IF NOT EXISTS` in order to be able to clean and (re-)migrate your schema(s) at will
 - No support for cleaning referenced large objects in `pg_largeobject` ([Issue 1934](https://github.com/flyway/flyway/issues/1934))
 - No support for the `passfile` or `hostaddr` parameter when using pgpass as there is no JDBC equivalent
+
+## Feature support for check command
+
+Support for the check command on PostgreSQL databases is currently ongoing. Basic support for the following object types has been implemented.
+
+- Aggregates
+- Domains
+- Enums
+- Foreign Keys
+- Functions
+- Indexes
+- Materialized Views
+- Procedures
+- Schemas
+- Sequences
+- Tables
+- Triggers
+- Views

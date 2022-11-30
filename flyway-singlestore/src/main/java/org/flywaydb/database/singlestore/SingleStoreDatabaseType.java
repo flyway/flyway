@@ -33,7 +33,7 @@ import java.util.Arrays;
 public class SingleStoreDatabaseType extends BaseDatabaseType {
     @Override
     public String getName() {
-        return "SingleStore";
+        return "SingleStoreDB";
     }
 
     @Override

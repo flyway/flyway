@@ -1,15 +1,15 @@
 ---
-subtitle: SingleStore
+subtitle: SingleStoreDB
 ---
 
-# SingleStore
+# SingleStoreDB
 
 ## Supported Versions
 
 - `7.1` {% include teams.html %}
 - `7.8` {% include teams.html %}
 
-**Note: SingleStore is currently only available to Teams and Enterprise users**
+**Note: SingleStoreDB is currently only available to Teams and Enterprise users**
 
 ## Support Level
 
@@ -36,7 +36,7 @@ Support Level determines the degree of support available for this database ([lea
 <thead>
 <tr>
 <th></th>
-<th>SingleStore</th>
+<th>SingleStoreDB</th>
 </tr>
 </thead>
 <tr>
@@ -67,7 +67,7 @@ Support Level determines the degree of support available for this database ([lea
 
 ## Java Usage
 
-SingleStore support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+SingleStoreDB support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 
 ### Maven
 
