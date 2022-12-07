@@ -13,12 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.configuration.models;
+package org.flywaydb.core.internal.configuration.resolvers;
 
-public class Environment extends CoreConfiguration {
-
-    private String name;
-    private String url;
-    private String user;
-    private String password;
+public interface PropertyResolverContext {
+    String resolveValue(String input);
+    String resolveProperty(String resolverName, String propertyName);
 }

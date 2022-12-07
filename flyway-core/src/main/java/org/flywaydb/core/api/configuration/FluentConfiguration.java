@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.api.configuration;
 
+import lombok.Getter;
 import lombok.experimental.Delegate;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
@@ -37,7 +38,6 @@ import java.util.Properties;
  * This configuration can be passed to Flyway using the <code>new Flyway(Configuration)</code> constructor.
  */
 public class FluentConfiguration implements Configuration {
-
     @Delegate(types = Configuration.class)
     private final ClassicConfiguration config;
 
@@ -650,7 +650,7 @@ public class FluentConfiguration implements Configuration {
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
      */
     public FluentConfiguration baselineVersion(MigrationVersion baselineVersion) {
-        config.setBaselineVersion(baselineVersion);
+        config.setBaselineVersion(baselineVersion.getVersion());
         return this;
     }
 
@@ -660,7 +660,7 @@ public class FluentConfiguration implements Configuration {
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
      */
     public FluentConfiguration baselineVersion(String baselineVersion) {
-        config.setBaselineVersion(MigrationVersion.fromVersion(baselineVersion));
+        config.setBaselineVersion(baselineVersion);
         return this;
     }
 

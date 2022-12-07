@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import lombok.*;
 import lombok.experimental.ExtensionMethod;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.RgDomainChecker;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.plugin.PluginRegister;
@@ -42,7 +43,7 @@ import java.util.Map;
 public class RedgateUpdateChecker {
     @RequiredArgsConstructor
     public static class Context {
-        public final Map<String, String> config;
+        public final Configuration config;
         public final List<String> verbs;
         public final String dbEngine;
         public final String dbVersion;

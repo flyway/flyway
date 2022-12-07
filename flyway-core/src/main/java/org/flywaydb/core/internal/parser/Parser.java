@@ -104,6 +104,7 @@ public abstract class Parser {
      *
      * @param resource The resource to parse.
      * @param metadata The resource's metadata.
+     *
      * @return The statements.
      */
     public final SqlStatementIterator parse(LoadableResource resource, SqlScriptMetadata metadata) {
@@ -132,8 +133,9 @@ public abstract class Parser {
     /**
      * Configures this reader for placeholder replacement.
      *
-     * @param reader The original reader.
+     * @param reader   The original reader.
      * @param metadata The resource's metadata.
+     *
      * @return The new reader with placeholder replacement.
      */
     protected Reader replacePlaceholders(Reader reader, SqlScriptMetadata metadata) {
@@ -314,8 +316,9 @@ public abstract class Parser {
     /**
      * Whether the current set of tokens should be discarded.
      *
-     * @param token The latest token.
+     * @param token              The latest token.
      * @param nonCommentPartSeen Whether a non-comment part has already been seen.
+     *
      * @return {@code true} if it should, {@code false} if not.
      */
     protected boolean shouldDiscard(Token token, boolean nonCommentPartSeen) {
@@ -334,7 +337,7 @@ public abstract class Parser {
      *
      * @param statementType The statement type.
      */
-    protected void adjustDelimiter(ParserContext context, StatementType statementType) {}
+    protected void adjustDelimiter(ParserContext context, StatementType statementType) { }
 
     /**
      * @return The cutoff point in terms of number of tokens after which a statement can no longer be non-transactional.
@@ -343,7 +346,7 @@ public abstract class Parser {
         return 10;
     }
 
-    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {}
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException { }
 
     protected int getLastKeywordIndex(List<Token> tokens) {
         return getLastKeywordIndex(tokens, tokens.size());
@@ -510,21 +513,7 @@ public abstract class Parser {
             return new Token(TokenType.COMMENT, pos, line, col, text, text, context.getParensDepth());
         }
         if (peek.startsWith("/*")) {
-            int commentDepth = 0;
-            reader.swallow(2);
-            StringBuilder text = new StringBuilder(reader.readUntilExcluding("*/", "/*"));
-            // handles reading nested comments
-            while (reader.peek("/*") || commentDepth > 0) {
-                if (reader.peek("/*")) {
-                    commentDepth++;
-                } else {
-                    commentDepth--;
-                }
-                reader.swallow(2);
-                text.append(reader.readUntilExcluding("*/", "/*"));
-            }
-            reader.swallow(2);
-            return new Token(TokenType.COMMENT, pos, line, col, text.toString(), text.toString(), context.getParensDepth());
+            return handleMultilineComment(reader, context, pos, line, col);
         }
         if (Character.isDigit(c)) {
             String text = reader.readNumeric();
@@ -661,6 +650,23 @@ public abstract class Parser {
 
     protected Token handleCommentDirective(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
         return null;
+    }
+
+    protected Token handleMultilineComment(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+        int commentDepth = 0;
+        reader.swallow("/*".length());
+        StringBuilder text = new StringBuilder(reader.readUntilExcluding("*/", "/*"));
+        while (reader.peek("/*") || commentDepth > 0) {
+            if (reader.peek("/*")) {
+                commentDepth++;
+            } else {
+                commentDepth--;
+            }
+            reader.swallow(2);
+            text.append(reader.readUntilExcluding("*/", "/*"));
+        }
+        reader.swallow(2);
+        return new Token(TokenType.COMMENT, pos, line, col, text.toString(), text.toString(), context.getParensDepth());
     }
 
     protected Token handleStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {

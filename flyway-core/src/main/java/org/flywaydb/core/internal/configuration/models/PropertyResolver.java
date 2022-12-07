@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.extensibility;
+package org.flywaydb.core.internal.configuration.models;
 
-import org.flywaydb.core.api.configuration.Configuration;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public interface RgDomainChecker extends Plugin {
-    boolean isInDomain(Configuration config);
+@Getter
+@Setter
+@NoArgsConstructor
+public class PropertyResolver {
+
 }

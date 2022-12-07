@@ -42,7 +42,6 @@ public class FlywayDbWebsiteLinks {
     public static final String AZURE_ACTIVE_DIRECTORY = "https://rd.gt/3unaRb8";
     public static final String TRIAL_UPGRADE = "https://rd.gt/2WNixqj";
     public static final String KNOWN_PARSER_LIMITATIONS = "https://rd.gt/3ipi7Pm";
-    public static final String BIG_QUERY_BETA = "https://rd.gt/3fut40f";
     public static final String CLOUD_SPANNER_BETA = "https://rd.gt/3yqM3jJ";
     public static final String TEAMS_FEATURES_FOR_BIG_QUERY = "https://rd.gt/3CWAuTb";
     public static final String TEAMS_FEATURES_FOR_CLOUD_SPANNER = "https://rd.gt/2ZvELhV";

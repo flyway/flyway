@@ -18,6 +18,36 @@
 <div class="col-md-9">
 
     <div class="release">
+        <h2 id="9.9.0">Flyway 9.9.0 (2022-12-07)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Removed the parsing of nested multiline comments from Oracle. This is in line with their <a href="https://docs.oracle.com/cd/B19306_01/appdev.102/b14261/fundamentals.htm#BEIJCJED">documentation</a> that states nested multiline comments are not supported.</li>
+            <li>Drift results now appear in the JSON and HTML reports when 'failOnDrift' is set and drift is present.</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>The bundled Regex Rules are now case insensitive</li>
+            <li>Update error message for invalid CLI argument to reflect possible fixes</li>
+            <li>The version of the Postgres driver included in the CLI has been increased to 42.4.3 to avoid CVE-2022-41946</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3578">Issue 3578</a>
+                Fix documentation to use correct method to configure url, user and password in API
+            </li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Support for BigQuery is now out of beta and in GA</li>
+        </ul>
+
+        <p>
+            Thanks to gastaldi for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="9.8.3">Flyway 9.8.3 (2022-11-24)</h2>
 
         <h3>Changes</h3>

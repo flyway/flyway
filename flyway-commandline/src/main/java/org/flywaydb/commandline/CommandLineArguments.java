@@ -30,6 +30,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class CommandLineArguments {
     private static final String COMMUNITY_FALLBACK_FLAG = "-communityFallback";
@@ -170,12 +171,18 @@ public class CommandLineArguments {
 
     public void validate() {
 
-        Arrays.stream(args)
-                .filter(arg -> !isConfigurationArg(arg))
-                .filter(arg -> !VALID_OPERATIONS_AND_FLAGS.contains(arg))
-                .filter(arg -> !isHandledByExtension(arg))
-                .findAny()
-                .ifPresent(arg -> {throw new FlywayException("Invalid argument: " + arg);});
+        IntStream.range(0, args.length-1)
+                 .filter(i -> !isConfigurationArg(args[i]))
+                 .filter(i -> !VALID_OPERATIONS_AND_FLAGS.contains(args[i]))
+                 .filter(i -> !isHandledByExtension(args[i]))
+                 .findAny()
+                 .ifPresent(i -> {
+                     if (i < args.length-1 && "=".equals(args[i+1])) {
+                         throw new FlywayException("Invalid configuration argument: " + args[i] + ". Please check you have not included any spaces in your configuration argument.");
+                     } else {
+                         throw new FlywayException("Invalid flag: " + args[i]);
+                     }
+                 });
 
         String outputTypeValue = getArgumentValue(OUTPUT_TYPE, args).toLowerCase();
 

@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.util;
 import com.google.gson.Gson;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 
@@ -28,13 +29,13 @@ import java.util.Map;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FingerprintUtils {
-    public static String getFingerprint(Map<String, String> config) throws Exception {
+    public static String getFingerprint(Configuration config) throws Exception {
         Map<String, String> filteredConfig = new HashMap<>();
-        if (config.containsKey(ConfigUtils.LICENSE_KEY)) {
-            filteredConfig.put(ConfigUtils.LICENSE_KEY, config.get(ConfigUtils.LICENSE_KEY));
+        if (config.getLicenseKey() != null) {
+            filteredConfig.put(ConfigUtils.LICENSE_KEY, config.getLicenseKey());
         } else {
-            filteredConfig.put(ConfigUtils.URL, DatabaseTypeRegister.redactJdbcUrl(config.get(ConfigUtils.URL)));
-            filteredConfig.put(ConfigUtils.USER, config.get(ConfigUtils.USER));
+            filteredConfig.put(ConfigUtils.URL, DatabaseTypeRegister.redactJdbcUrl(config.getUrl()));
+            filteredConfig.put(ConfigUtils.USER, config.getUser());
         }
 
         return SHA512String(new Gson().toJson(filteredConfig));

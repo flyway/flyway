@@ -17,7 +17,7 @@ subtitle: Submit your Changes - Documentation
     <p>The next step is to fork the <a href="https://github.com/flyway/flywaydb.org">flywaydb.org GitHub repository</a>:
     </p>
 
-    <img src="Contribute/Documentation/fork.png" alt="fork"/>
+    <img src="assets/fork.png" alt="fork"/>
 
     <h2>Write awesome docs</h2>
 
@@ -34,10 +34,10 @@ subtitle: Submit your Changes - Documentation
         changes:</p>
 
     Step 1: <br/>
-    <img src="Contribute/code/pull-request.png" alt="Pull Request">
+    <img src="assets/pull-request.png" alt="Pull Request">
     <br/><br/><br/>
     Step 2: <br/>
-    <img src="Contribute/code/pull-request2.png" alt="Pull Request2">
+    <img src="assets/pull-request2.png" alt="Pull Request2">
 
     <p>We'll have a look at them and provide you feedback until they're
         ready to be merged. If they are approved, we'll merge them in the mainline and include them in the next

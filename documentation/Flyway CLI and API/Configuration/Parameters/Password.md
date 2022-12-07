@@ -29,9 +29,10 @@ FLYWAY_PASSWORD=mysecretpassword
 ```
 
 ### API
+When using the Java API, you configure your JDBC URL, User and Password via a datasource.
 ```java
 Flyway.configure()
-    .password("mysecretpassword")
+    .datasource("jdbc:h2:mem:flyway_db", "myuser", "mysecretpassword")   
     .load()
 ```
 

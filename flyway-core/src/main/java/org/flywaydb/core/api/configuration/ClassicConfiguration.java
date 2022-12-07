@@ -27,8 +27,14 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.ConfigurationProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+
+import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
+import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
+import org.flywaydb.core.internal.configuration.models.FlywayModel;
+import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
+import org.flywaydb.core.internal.configuration.resolvers.EnvironmentResolver;
+import org.flywaydb.core.internal.configuration.resolvers.PropertyResolver;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
-import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.*;
@@ -36,8 +42,8 @@ import org.flywaydb.core.internal.util.*;
 import javax.sql.DataSource;
 import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 
@@ -53,276 +59,101 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger
  * <p>This configuration can then be passed to Flyway using the <code>new Flyway(Configuration)</code> constructor.</p>
  */
 @CustomLog
-@Getter(onMethod = @__({@Override}))
-@Setter
 public class ClassicConfiguration implements Configuration {
-    @Getter(AccessLevel.NONE)
-    private String driver;
-    private String url;
-    private String user;
-    private String password;
+
+    @Getter
+    @Setter
+    private ConfigurationModel modernConfig = new ConfigurationModel().defaults();
+
+    @Getter
+    private final Map<String, ResolvedEnvironment> resolvedEnvironments = new HashMap<>();
+
+    @Getter
+    @Setter
     private DataSource dataSource;
-    private int connectRetries;
-    private int connectRetriesInterval = 120;
-    /**
-     * -- SETTER --
-     * The SQL statements to run to initialize a new database connection immediately after opening it.
-     *
-     * @param initSql The SQL statements. (default: {@code null})
-     */
-    private String initSql;
+
+    @Getter
+    @Setter
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-    @Setter(AccessLevel.NONE)
-    private Locations locations = new Locations("db/migration");
-    /**
-     * -- SETTER --
-     * Sets the encoding of SQL migrations.
-     *
-     * @param encoding The encoding of SQL migrations. (default: UTF-8)
-     */
-    private Charset encoding = StandardCharsets.UTF_8;
-    private boolean detectEncoding = false;
-    /**
-     * -- SETTER --
-     * Sets the default schema managed by Flyway. This schema name is case-sensitive. If not specified, but <i>schemas</i>
-     * is, Flyway uses the first schema in that list. If that is also not specified, Flyway uses the default schema for the
-     * database connection.
-     * <p>Consequences:</p>
-     * <ul>
-     * <li>This schema will be the one containing the schema history table.</li>
-     * <li>This schema will be the default for the database connection (provided the database supports this concept).</li>
-     * </ul>
-     *
-     * @param schema The default schema managed by Flyway, which is where the schema history table will reside.
-     */
-    private String defaultSchema = null;
-    /**
-     * -- SETTER --
-     * Sets the schemas managed by Flyway. These schema names are case-sensitive. If not specified, Flyway uses
-     * the default schema for the database connection. If <i>defaultSchema</i> is not specified, then the first of
-     * this list also acts as the default schema.
-     * <p>Consequences:</p>
-     * <ul>
-     * <li>Flyway will automatically attempt to create all these schemas, unless they already exist.</li>
-     * <li>The schemas will be cleaned in the order of this list.</li>
-     * <li>If Flyway created them, the schemas themselves will be dropped when cleaning.</li>
-     * </ul>
-     *
-     * @param schemas The schemas managed by Flyway. May not be {@code null}. Must contain at least one element.
-     */
-    private String[] schemas = {};
-    /**
-     * -- SETTER --
-     * Sets the name of the schema history table that will be used by Flyway.
-     * By default, (single-schema mode) the schema history table is placed in the default schema for the connection provided by the datasource.
-     * When the <i>flyway.schemas</i> property is set (multi-schema mode), the schema history table is placed in the first schema of the list,
-     * or in the schema specified to <i>flyway.defaultSchema</i>.
-     *
-     * @param table The name of the schema history table that will be used by Flyway. (default: flyway_schema_history)
-     */
-    private String table = "flyway_schema_history";
-    /**
-     * -- SETTER --
-     * Sets the tablespace where to create the schema history table that will be used by Flyway.
-     * If not specified, Flyway uses the default tablespace for the database connection.This setting is only relevant
-     * for databases that do support the notion of tablespaces. Its value is simply ignored for all others.
-     *
-     * @param tablespace The tablespace where to create the schema history table that will be used by Flyway.
-     */
-    private String tablespace;
-    /**
-     * -- SETTER --
-     * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored.
-     * Special values:
-     * <ul>
-     * <li>{@code current}: Designates the current version of the schema</li>
-     * <li>{@code latest}: The latest version of the schema, as defined by the migration with the highest version</li>
-     * <li>{@code next}: The next version of the schema, as defined by the first pending migration</li>
-     * </ul>
-     * Defaults to {@code latest}.
-     */
-    private MigrationVersion target;
-    private boolean failOnMissingTarget = true;
-    @Setter(AccessLevel.NONE)
-    private MigrationPattern[] cherryPick;
-    /**
-     * -- SETTER --
-     * Sets whether placeholders should be replaced.
-     *
-     * @param placeholderReplacement Whether placeholders should be replaced. (default: true)
-     */
-    private boolean placeholderReplacement = true;
-    /**
-     * -- SETTER --
-     * Sets the placeholders to replace in SQL migration scripts.
-     *
-     * @param placeholders The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
-     */
-    private Map<String, String> placeholders = new HashMap<>();
-    private String placeholderPrefix = "${";
-    private String placeholderSuffix = "}";
-    private String placeholderSeparator = ":";
-    private String scriptPlaceholderPrefix = "FP__";
-    private String scriptPlaceholderSuffix = "__";
-    private String sqlMigrationPrefix = "V";
-    private String undoSqlMigrationPrefix = "U";
-    /**
-     * -- SETTER --
-     * Sets the file name prefix for repeatable sql migrations.
-     * Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to R__My_description.sql
-     *
-     * @param repeatableSqlMigrationPrefix The file name prefix for repeatable sql migrations (default: R)
-     */
-    private String repeatableSqlMigrationPrefix = "R";
+
+    public void setDefaultSchema(String defaultSchema) {
+        getModernFlyway().setDefaultSchema(defaultSchema);
+    }
+
+    public String getDefaultSchema(){
+        return getModernFlyway().getDefaultSchema();
+    }
+
+    private EnvironmentResolver environmentResolver;
+
+    private EnvironmentModel getCurrentUnresolvedEnvironment() {
+        String envName = modernConfig.getFlyway().getEnvironment();
+        if (!StringUtils.hasText(envName)) {
+            envName = "default";
+        }
+
+        return getModernConfig().getEnvironments().get(envName);
+    }
+
+    private ResolvedEnvironment getCurrentEnvironment() {
+        if (environmentResolver == null) {
+            environmentResolver = new EnvironmentResolver(pluginRegister.getPlugins(PropertyResolver.class).stream().collect(Collectors.toMap(PropertyResolver::getName, x -> x)));
+        }
+
+        String envName = modernConfig.getFlyway().getEnvironment();
+        if (!StringUtils.hasText(envName)) {
+            envName = "default";
+        }
+
+        if (!resolvedEnvironments.containsKey(envName) && getModernConfig().getEnvironments().containsKey(envName)) {
+            resolvedEnvironments.put(envName, environmentResolver.resolve(getModernConfig().getEnvironments().get(envName)));
+        }
+
+        return resolvedEnvironments.get(envName);
+    }
+
+    private FlywayModel getModernFlyway() {
+        return modernConfig.getFlyway();
+    }
+
+    @Override
+    public String[] getSchemas() {
+        return getCurrentEnvironment().getSchemas().toArray(new String[0]);
+    }
+
+    @Override
+    public Charset getEncoding() {
+        return Charset.forName(getModernFlyway().getEncoding());
+    }
+
+    @Override
+    public boolean isDetectEncoding() {
+        return getModernFlyway().getDetectEncoding();
+    }
+
+    @Getter
+    @Setter
     private ResourceProvider resourceProvider = null;
+    @Getter
+    @Setter
     private ClassProvider<JavaMigration> javaMigrationClassProvider = null;
-    private String sqlMigrationSeparator = "__";
-    @Setter(AccessLevel.NONE)
-    private String[] sqlMigrationSuffixes = {".sql"};
+    @Getter
     private JavaMigration[] javaMigrations = {};
-    @Setter(AccessLevel.NONE)
-    private ValidatePattern[] ignoreMigrationPatterns = new ValidatePattern[] { ValidatePattern.fromPattern("*:future") };
-    /**
-     * -- SETTER --
-     * Whether to validate migrations and callbacks whose scripts do not obey the correct naming convention. A failure can be
-     * useful to check that errors such as case sensitivity in migration prefixes have been corrected.
-     *
-     * @param validateMigrationNaming {@code false} to continue normally, {@code true} to fail fast with an exception. (default: {@code false})
-     */
-    private boolean validateMigrationNaming = false;
-    /**
-     * -- SETTER --
-     * Whether to automatically call validate or not when running migrate.
-     *
-     * @param validateOnMigrate {@code true} if validate should be called. {@code false} if not. (default: {@code true})
-     */
-    private boolean validateOnMigrate = true;
-    /**
-     * -- SETTER --
-     * Whether to automatically call clean or not when a validation error occurs.
-     * This is exclusively intended as a convenience for development. even though we strongly recommend not to change
-     * migration scripts once they have been checked into SCM and run, this provides a way of dealing with this case in
-     * a smooth manner. The database will be wiped clean automatically, ensuring that the next migration will bring you
-     * back to the state checked into SCM.
-     * <b>Warning! Do not enable in production!</b>
-     *
-     * @param cleanOnValidationError {@code true} if clean should be called. {@code false} if not. (default: {@code false})
-     */
-    private boolean cleanOnValidationError;
-    /**
-     * -- SETTER --
-     * Whether to disable clean.
-     * This is especially useful for production environments where running clean can be a career limiting move.
-     *
-     * @param cleanDisabled {@code true} to disable clean. {@code false} to be able to clean. (default: {@code true})
-     */
-    private boolean cleanDisabled = true;
-    /**
-     * -- SETTER --
-     * Sets the version to tag an existing schema with when executing baseline.
-     *
-     * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
-     */
-    private MigrationVersion baselineVersion = MigrationVersion.fromVersion("1");
-    /**
-     * -- SETTER --
-     * Sets the description to tag an existing schema with when executing baseline.
-     *
-     * @param baselineDescription The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
-     */
-    private String baselineDescription = "<< Flyway Baseline >>";
-    /**
-     * -- SETTER --
-     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
-     * This schema will then be baselined with the {@code baselineVersion} before executing the migrations.
-     * Only migrations above {@code baselineVersion} will then be applied.
-     *
-     * This is useful for initial Flyway production deployments on projects with an existing DB.
-     *
-     * Be careful when enabling this as it removes the safety net that ensures
-     * Flyway does not migrate the wrong database in case of a configuration mistake!
-     *
-     * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
-     */
-    private boolean baselineOnMigrate;
-    /**
-     * -- SETTER --
-     * Allows migrations to be run "out of order".
-     * If you already have versions 1 and 3 applied, and now a version 2 is found, it will be applied too instead of being ignored.
-     *
-     * @param outOfOrder {@code true} if outOfOrder migrations should be applied, {@code false} if not. (default: {@code false})
-     */
-    private boolean outOfOrder;
-    private boolean skipExecutingMigrations;
-    @Setter(AccessLevel.NONE)
-    private final List<Callback> callbacks = new ArrayList<>();
-    /**
-     * -- SETTER --
-     * Whether Flyway should skip the default callbacks. If true, only custom callbacks are used.
-     *
-     * @param skipDefaultCallbacks Whether default built-in callbacks should be skipped. <p>(default: false)</p>
-     */
-    private boolean skipDefaultCallbacks;
-    private MigrationResolver[] resolvers = new MigrationResolver[0];
-    /**
-     * -- SETTER --
-     * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
-     *
-     * @param skipDefaultResolvers Whether default built-in resolvers should be skipped. (default: false)
-     */
-    private boolean skipDefaultResolvers;
-    /**
-     * -- SETTER --
-     * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
-     * automatically causes the entire affected migration to be run without a transaction.
-     *
-     * Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
-     * statements that do not run at all within a transaction.
-     * This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
-     * DDL statement was run within a transaction, the database will issue an implicit commit before and after
-     * its execution.
-     *
-     * @param mixed {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
-     */
-    private boolean mixed;
-    /**
-     * -- SETTER --
-     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
-     *
-     * @param group {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
-     */
-    private boolean group;
-    private String installedBy;
-    private boolean createSchemas = true;
-    @Setter(AccessLevel.NONE)
-    private String[] errorOverrides = new String[0];
-    @Setter(AccessLevel.NONE)
+
     private OutputStream dryRunOutput;
-    private boolean stream;
-    private boolean batch;
-    private boolean outputQueryResults = true;
-    private String licenseKey;
-    private int lockRetryCount = 50;
-    private Map<String, String> jdbcProperties;
-    private boolean oracleSqlplus;
-    private boolean oracleSqlplusWarn;
-    private String kerberosConfigFile = "";
-    private String oracleKerberosCacheFile = "";
-    private String oracleWalletLocation;
-    /**
-     * -- SETTER --
-     * Whether to fail if a location specified in the flyway.locations option doesn't exist
-     *
-     * @return @{code true} to fail (default: {@code false})
-     */
-    private boolean failOnMissingLocations = false;
-    @Setter(AccessLevel.NONE)
-    private String[] loggers = new String[] {"auto"};
+
+    private final List<Callback> callbacks = new ArrayList<>();
+
     @Getter(AccessLevel.NONE)
     private final ClasspathClassScanner classScanner;
+    @Getter
+    @Setter
     private PluginRegister pluginRegister = new PluginRegister();
+
+    public ClassicConfiguration(ConfigurationModel modernConfig) {
+        this.classScanner = new ClasspathClassScanner(this.classLoader);
+        this.modernConfig = modernConfig;
+    }
 
     public ClassicConfiguration() {
         this.classScanner = new ClasspathClassScanner(this.classLoader);
@@ -347,23 +178,364 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public PluginRegister getPluginRegister() {
-        return pluginRegister;
+    public Callback[] getCallbacks() {
+        return callbacks.toArray(new Callback[0]);
+    }
+
+    @Override
+    public String getUrl() {
+        return getCurrentEnvironment().getUrl();
+    }
+
+    @Override
+    public String getUser() {
+        return getCurrentEnvironment().getUser();
+    }
+
+    @Override
+    public String getPassword() {
+        return getCurrentEnvironment().getPassword();
     }
 
     @Override
     public Location[] getLocations() {
+        Locations locations = new Locations(getModernFlyway().getLocations().toArray(new String[0]));
         return locations.getLocations().toArray(new Location[0]);
     }
 
     @Override
-    public DataSource getDataSource() {
-        return dataSource;
+    public boolean isBaselineOnMigrate() {
+        return getModernFlyway().getBaselineOnMigrate();
     }
 
     @Override
-    public Callback[] getCallbacks() {
-        return callbacks.toArray(new Callback[0]);
+    public boolean isSkipExecutingMigrations() {
+        return getModernFlyway().getSkipExecutingMigrations();
+    }
+
+    @Override
+    public boolean isOutOfOrder() {
+        return getModernFlyway().getOutOfOrder();
+    }
+
+    @Override
+    public ValidatePattern[] getIgnoreMigrationPatterns() {
+        String[] ignoreMigrationPatterns = getModernFlyway().getIgnoreMigrationPatterns().toArray(new String[0]);
+        if (Arrays.equals(ignoreMigrationPatterns, new String[] { "" })) {
+            return new ValidatePattern[0];
+        } else {
+            return Arrays.stream(ignoreMigrationPatterns)
+                                                 .map(ValidatePattern::fromPattern)
+                                                 .toArray(ValidatePattern[]::new);
+        }
+    }
+
+    @Override
+    public boolean isValidateMigrationNaming() {
+        return getModernFlyway().getValidateMigrationNaming();
+    }
+
+    @Override
+    public boolean isValidateOnMigrate() {
+        return getModernFlyway().getValidateOnMigrate();
+    }
+
+    @Override
+    public boolean isCleanOnValidationError() {
+        return getModernFlyway().getCleanOnValidationError();
+    }
+
+    @Override
+    public boolean isCleanDisabled() {
+        return getModernFlyway().getCleanDisabled();
+    }
+
+    @Override
+    public boolean isMixed() {
+        return getModernFlyway().getMixed();
+    }
+
+    @Override
+    public boolean isGroup() {
+        return getModernFlyway().getGroup();
+    }
+
+    @Override
+    public String getInstalledBy() {
+        return getModernFlyway().getInstalledBy();
+    }
+
+    @Override
+    public String[] getErrorOverrides() {
+        return getModernFlyway().getErrorOverrides().toArray(new String[0]);
+    }
+
+    @Override
+    public OutputStream getDryRunOutput() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
+
+    }
+
+    @Override
+    public boolean isStream() {
+        return getModernFlyway().getStream();
+    }
+
+    @Override
+    public boolean isBatch() {
+        return getModernFlyway().getBatch();
+    }
+
+    @Override
+    public boolean isOracleSqlplus() {
+        return getModernFlyway().getOracleSqlplus();
+    }
+
+    @Override
+    public boolean isOracleSqlplusWarn() {
+        return getModernFlyway().getOracleSqlplusWarn();
+    }
+
+    @Override
+    public String getKerberosConfigFile() {
+        return getModernFlyway().getKerberosConfigFile();
+    }
+
+    @Override
+    public String getOracleKerberosCacheFile() {
+        return getModernFlyway().getOracleKerberosCacheFile();
+    }
+
+    @Override
+    public String getLicenseKey() {
+        return getModernFlyway().getLicenseKey();
+    }
+
+    @Override
+    public boolean isOutputQueryResults() {
+        return getModernFlyway().getOutputQueryResults();
+    }
+
+    @Override
+    public boolean isCreateSchemas() {
+        return getModernFlyway().getCreateSchemas();
+    }
+
+    @Override
+    public int getLockRetryCount() {
+        return getModernFlyway().getLockRetryCount();
+    }
+
+    @Override
+    public Map<String, String> getJdbcProperties() {
+        return getCurrentEnvironment().getJdbcProperties();
+    }
+
+    @Override
+    public boolean isFailOnMissingLocations() {
+        return getModernFlyway().getFailOnMissingLocations();
+    }
+
+    @Override
+    public String getOracleWalletLocation() {
+        return getModernFlyway().getOracleWalletLocation();
+    }
+
+    @Override
+    public String[] getLoggers() {
+        return getModernFlyway().getLoggers().toArray(new String[0]);
+    }
+
+    @Override
+    public int getConnectRetries() {
+        return getCurrentEnvironment().getConnectRetries();
+    }
+
+    @Override
+    public int getConnectRetriesInterval() {
+        return getCurrentEnvironment().getConnectRetriesInterval();
+    }
+
+    @Override
+    public String getInitSql() {
+        return getCurrentEnvironment().getInitSql();
+    }
+
+    @Override
+    public MigrationVersion getBaselineVersion() {
+
+        return MigrationVersion.fromVersion(getModernFlyway().getBaselineVersion()); // todo - should this be in env
+    }
+
+    @Override
+    public String getBaselineDescription() {
+        return getModernFlyway().getBaselineDescription();
+    }
+
+    @Override
+    public MigrationResolver[] getResolvers() {
+        String[] resolvers = getModernFlyway().getMigrationResolvers().toArray(new String[0]);
+        return ClassUtils.instantiateAll(resolvers, classLoader).toArray(new MigrationResolver[resolvers.length]);
+    }
+
+    @Override
+    public boolean isSkipDefaultResolvers() {
+        return getModernFlyway().getSkipDefaultResolvers();
+    }
+
+    @Override
+    public boolean isSkipDefaultCallbacks() {
+        return getModernFlyway().getSkipDefaultCallbacks();
+    }
+
+    @Override
+    public String getSqlMigrationPrefix() {
+        return getModernFlyway().getSqlMigrationPrefix();
+    }
+
+    @Override
+    public String getUndoSqlMigrationPrefix() {
+        return getModernFlyway().getUndoSqlMigrationPrefix();
+    }
+
+    @Override
+    public String getRepeatableSqlMigrationPrefix() {
+        return getModernFlyway().getRepeatableSqlMigrationPrefix();
+    }
+
+    @Override
+    public String getSqlMigrationSeparator() {
+        return getModernFlyway().getSqlMigrationSeparator();
+    }
+
+    @Override
+    public String[] getSqlMigrationSuffixes() {
+        return getModernFlyway().getSqlMigrationSuffixes().toArray(new String[0]);
+    }
+
+    @Override
+    public boolean isPlaceholderReplacement() {
+        return getModernFlyway().getPlaceholderReplacement();
+    }
+
+    @Override
+    public String getPlaceholderSuffix() {
+        return getModernFlyway().getPlaceholderSuffix();
+    }
+
+    @Override
+    public String getPlaceholderPrefix() {
+        return getModernFlyway().getPlaceholderPrefix();
+    }
+
+    @Override
+    public String getPlaceholderSeparator() {
+        return getModernFlyway().getPlaceholderSeparator();
+    }
+
+    @Override
+    public String getScriptPlaceholderSuffix() {
+        return getModernFlyway().getScriptPlaceholderSuffix();
+    }
+
+    @Override
+    public String getScriptPlaceholderPrefix() {
+        return getModernFlyway().getScriptPlaceholderPrefix();
+    }
+
+    @Override
+    public Map<String, String> getPlaceholders() {
+        return getModernFlyway().getPlaceholders();
+    }
+
+    @Override
+    public MigrationVersion getTarget() {
+        String target = getModernFlyway().getTarget();
+        if (target.endsWith("?")) {
+
+            throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("failOnMissingTarget");
+
+
+
+
+
+        } else {
+            getModernFlyway().setFailOnMissingTarget(true);
+            return MigrationVersion.fromVersion(target);
+        }
+    }
+
+    @Override
+    public boolean isFailOnMissingTarget() {
+        return getModernFlyway().getFailOnMissingTarget();
+    }
+
+    @Override
+    public MigrationPattern[] getCherryPick() {
+        MigrationPattern[] cherryPick = null;
+        if (getModernFlyway().getCherryPick() != null) {
+            cherryPick = getModernFlyway().getCherryPick().stream().map(MigrationPattern::new).toArray(MigrationPattern[]::new);
+        }
+
+        cherryPick = (cherryPick != null && cherryPick.length == 0) ? null : cherryPick;
+
+        if (cherryPick == null) {
+            return null;
+        }
+
+        Set<String> cherryPickValues = new HashSet<>();
+        List<String> duplicateValues = new ArrayList<>();
+
+        for (MigrationPattern migrationPattern : cherryPick) {
+            String migrationPatternString = migrationPattern.toString();
+
+            if (cherryPickValues.contains(migrationPatternString)) {
+                duplicateValues.add(migrationPatternString);
+            }
+
+            cherryPickValues.add(migrationPatternString);
+        }
+
+        if (!duplicateValues.isEmpty()) {
+            StringBuilder listString = new StringBuilder();
+
+            for (String s : duplicateValues) {
+                listString.append(s).append(" ");
+            }
+
+            throw new FlywayException("Duplicate values not allowed in cherryPick. Detected duplicates: \n" + listString);
+        }
+
+        return cherryPick;
+    }
+
+    @Override
+    public String getTable() {
+        return getModernFlyway().getTable();
+    }
+
+    @Override
+    public String getTablespace() {
+        return getModernFlyway().getTablespace();
     }
 
     /**
@@ -438,6 +610,53 @@ public class ClassicConfiguration implements Configuration {
 
     }
 
+    private OutputStream getDryRunOutputAsFile(File dryRunOutput) {
+
+        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+
     /**
      * Sets the file where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
      * directly against the database. If the file specified is in a non-existent directory, Flyway will create all
@@ -451,12 +670,6 @@ public class ClassicConfiguration implements Configuration {
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
-
-
-
-
-
-
 
 
 
@@ -509,7 +722,7 @@ public class ClassicConfiguration implements Configuration {
         if ("".equals(installedBy)) {
             installedBy = null;
         }
-        this.installedBy = installedBy;
+        getModernFlyway().setInstalledBy(installedBy);
     }
 
     /**
@@ -526,7 +739,7 @@ public class ClassicConfiguration implements Configuration {
      * Alternatively you can provide the fully qualified class name for any other logger to use that.
      */
     public void setLoggers(String... loggers) {
-        this.loggers = loggers;
+        getModernFlyway().setLoggers(Arrays.stream(loggers).collect(Collectors.toList()));
     }
 
     /**
@@ -537,13 +750,7 @@ public class ClassicConfiguration implements Configuration {
      * <i>Flyway Teams only</i>
      */
     public void setIgnoreMigrationPatterns(String... ignoreMigrationPatterns) {
-        if (Arrays.equals(ignoreMigrationPatterns, new String[] { "" })) {
-            this.ignoreMigrationPatterns = new ValidatePattern[0];
-        } else {
-            this.ignoreMigrationPatterns = Arrays.stream(ignoreMigrationPatterns)
-                    .map(ValidatePattern::fromPattern)
-                    .toArray(ValidatePattern[]::new);
-        }
+        getModernFlyway().setIgnoreMigrationPatterns(Arrays.stream(ignoreMigrationPatterns).collect(Collectors.toList()));
     }
 
     /**
@@ -552,7 +759,7 @@ public class ClassicConfiguration implements Configuration {
      * <i>Flyway Teams only</i>
      */
     public void setIgnoreMigrationPatterns(ValidatePattern... ignoreMigrationPatterns) {
-        this.ignoreMigrationPatterns = ignoreMigrationPatterns;
+        getModernFlyway().setIgnoreMigrationPatterns(Arrays.stream(ignoreMigrationPatterns).map(ValidatePattern::toString).collect(Collectors.toList()));
     }
 
     /**
@@ -566,7 +773,7 @@ public class ClassicConfiguration implements Configuration {
      * @param locations Locations to scan recursively for migrations. (default: db/migration)
      */
     public void setLocationsAsStrings(String... locations) {
-        this.locations = new Locations(locations);
+        getModernFlyway().setLocations(Arrays.stream(locations).collect(Collectors.toList()));
     }
 
     /**
@@ -580,7 +787,7 @@ public class ClassicConfiguration implements Configuration {
      * @param locations Locations to scan recursively for migrations. (default: db/migration)
      */
     public void setLocations(Location... locations) {
-        this.locations = new Locations(Arrays.asList(locations));
+        getModernFlyway().setLocations(Arrays.stream(locations).map(Location::getDescriptor).collect(Collectors.toList()));
     }
 
     /**
@@ -604,7 +811,7 @@ public class ClassicConfiguration implements Configuration {
      * @param encoding The encoding of SQL migrations. (default: UTF-8)
      */
     public void setEncodingAsString(String encoding) {
-        this.encoding = Charset.forName(encoding);
+        getModernFlyway().setEncoding(encoding);
     }
 
     /**
@@ -624,18 +831,7 @@ public class ClassicConfiguration implements Configuration {
      * Defaults to {@code latest}.
      */
     public void setTargetAsString(String target) {
-        if (target.endsWith("?")) {
-
-            throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("failOnMissingTarget");
-
-
-
-
-
-        } else {
-            setFailOnMissingTarget(true);
-            setTarget(MigrationVersion.fromVersion(target));
-        }
+        getModernFlyway().setTarget(target);
     }
 
     /**
@@ -646,27 +842,6 @@ public class ClassicConfiguration implements Configuration {
     public void setCherryPick(MigrationPattern... cherryPick) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("cherryPick");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -691,10 +866,6 @@ public class ClassicConfiguration implements Configuration {
 
 
 
-
-
-
-
     }
 
     /**
@@ -706,7 +877,7 @@ public class ClassicConfiguration implements Configuration {
         if (!StringUtils.hasLength(placeholderPrefix)) {
             throw new FlywayException("placeholderPrefix cannot be empty!", ErrorCode.CONFIGURATION);
         }
-        this.placeholderPrefix = placeholderPrefix;
+        getModernFlyway().setPlaceholderPrefix(placeholderPrefix);
     }
 
     /**
@@ -718,7 +889,7 @@ public class ClassicConfiguration implements Configuration {
         if (!StringUtils.hasLength(scriptPlaceholderPrefix)) {
             throw new FlywayException("scriptPlaceholderPrefix cannot be empty!", ErrorCode.CONFIGURATION);
         }
-        this.scriptPlaceholderPrefix = scriptPlaceholderPrefix;
+        getModernFlyway().setScriptPlaceholderPrefix(scriptPlaceholderPrefix);
     }
 
     /**
@@ -730,7 +901,7 @@ public class ClassicConfiguration implements Configuration {
         if (!StringUtils.hasLength(placeholderSuffix)) {
             throw new FlywayException("placeholderSuffix cannot be empty!", ErrorCode.CONFIGURATION);
         }
-        this.placeholderSuffix = placeholderSuffix;
+        getModernFlyway().setPlaceholderSuffix(placeholderSuffix);
     }
 
     /**
@@ -742,7 +913,7 @@ public class ClassicConfiguration implements Configuration {
         if (!StringUtils.hasLength(placeholderSeparator)) {
             throw new FlywayException("placeholderSeparator cannot be empty!", ErrorCode.CONFIGURATION);
         }
-        this.placeholderSeparator = placeholderSeparator;
+        getModernFlyway().setPlaceholderSeparator(placeholderSeparator);
     }
 
 
@@ -755,7 +926,7 @@ public class ClassicConfiguration implements Configuration {
         if (!StringUtils.hasLength(scriptPlaceholderSuffix)) {
             throw new FlywayException("scriptPlaceholderSuffix cannot be empty!", ErrorCode.CONFIGURATION);
         }
-        this.scriptPlaceholderSuffix = scriptPlaceholderSuffix;
+        getModernFlyway().setScriptPlaceholderSuffix(scriptPlaceholderSuffix);
     }
 
     /**
@@ -766,7 +937,7 @@ public class ClassicConfiguration implements Configuration {
      * @param sqlMigrationPrefix The file name prefix for sql migrations (default: V)
      */
     public void setSqlMigrationPrefix(String sqlMigrationPrefix) {
-        this.sqlMigrationPrefix = sqlMigrationPrefix;
+        getModernFlyway().setSqlMigrationPrefix(sqlMigrationPrefix);
     }
 
     /**
@@ -850,7 +1021,7 @@ public class ClassicConfiguration implements Configuration {
             throw new FlywayException("sqlMigrationSeparator cannot be empty!", ErrorCode.CONFIGURATION);
         }
 
-        this.sqlMigrationSeparator = sqlMigrationSeparator;
+        getModernFlyway().setSqlMigrationSeparator(sqlMigrationSeparator);
     }
 
     /**
@@ -863,7 +1034,7 @@ public class ClassicConfiguration implements Configuration {
      * @param sqlMigrationSuffixes The file name suffixes for SQL migrations.
      */
     public void setSqlMigrationSuffixes(String... sqlMigrationSuffixes) {
-        this.sqlMigrationSuffixes = sqlMigrationSuffixes;
+        getModernFlyway().setSqlMigrationSuffixes(Arrays.stream(sqlMigrationSuffixes).collect(Collectors.toList()));
     }
 
     /**
@@ -884,9 +1055,10 @@ public class ClassicConfiguration implements Configuration {
      * @param password The password of the database.
      */
     public void setDataSource(String url, String user, String password) {
-        this.url = url;
-        this.user = user;
-        this.password = password;
+        getCurrentUnresolvedEnvironment().setUrl(url);
+        getCurrentUnresolvedEnvironment().setUser(user);
+        getCurrentUnresolvedEnvironment().setPassword(password);
+
         this.dataSource = new DriverDataSource(classLoader, null, url, user, password, this);
     }
 
@@ -901,7 +1073,7 @@ public class ClassicConfiguration implements Configuration {
         if (connectRetries < 0) {
             throw new FlywayException("Invalid number of connectRetries (must be 0 or greater): " + connectRetries, ErrorCode.CONFIGURATION);
         }
-        this.connectRetries = connectRetries;
+        getCurrentUnresolvedEnvironment().setConnectRetries(connectRetries);
     }
 
     /**
@@ -914,7 +1086,7 @@ public class ClassicConfiguration implements Configuration {
         if (connectRetriesInterval < 0) {
             throw new FlywayException("Invalid number for connectRetriesInterval (must be 0 or greater): " + connectRetriesInterval, ErrorCode.CONFIGURATION);
         }
-        this.connectRetriesInterval = connectRetriesInterval;
+        getCurrentUnresolvedEnvironment().setConnectRetriesInterval(connectRetriesInterval);
     }
 
     /**
@@ -923,7 +1095,7 @@ public class ClassicConfiguration implements Configuration {
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
      */
     public void setBaselineVersionAsString(String baselineVersion) {
-        this.baselineVersion = MigrationVersion.fromVersion(baselineVersion);
+        getModernFlyway().setBaselineVersion(baselineVersion);
     }
 
     /**
@@ -944,11 +1116,6 @@ public class ClassicConfiguration implements Configuration {
 
     }
 
-    /**
-     * Set the callbacks for lifecycle notifications.
-     *
-     * @param callbacks The callbacks for lifecycle notifications. (default: none)
-     */
     public void setCallbacks(Callback... callbacks) {
         this.callbacks.clear();
         this.callbacks.addAll(Arrays.asList(callbacks));
@@ -960,9 +1127,10 @@ public class ClassicConfiguration implements Configuration {
      * @param callbacks The fully qualified class names, or full qualified package to scan, of the callbacks for lifecycle notifications. (default: none)
      */
     public void setCallbacksAsClassNames(String... callbacks) {
+        getModernFlyway().setCallbacks(Arrays.stream(callbacks).collect(Collectors.toList()));
         this.callbacks.clear();
-        for (String callback : callbacks) {
-            loadCallbackPath(callback);
+        for (String callback : getModernFlyway().getCallbacks()) {
+            this.callbacks.addAll(loadCallbackPath(callback));
         }
     }
 
@@ -971,7 +1139,8 @@ public class ClassicConfiguration implements Configuration {
      *
      * @param callbackPath The path to load or scan.
      */
-    private void loadCallbackPath(String callbackPath) {
+    private List<Callback> loadCallbackPath(String callbackPath) {
+        List<Callback> callbacks = new ArrayList<>();
         // try to load it as a classname
         Object o = null;
         try {
@@ -983,14 +1152,16 @@ public class ClassicConfiguration implements Configuration {
         if (o != null) {
             // If we have a non-null o, check that it inherits from the right interface
             if (o instanceof Callback) {
-                this.callbacks.add((Callback) o);
+                callbacks.add((Callback) o);
             } else {
                 throw new FlywayException("Invalid callback: " + callbackPath + " (must implement org.flywaydb.core.api.callback.Callback)", ErrorCode.CONFIGURATION);
             }
         } else {
             // else try to scan this location and load all callbacks found within
-            loadCallbackLocation(callbackPath, true);
+            callbacks.addAll(loadCallbackLocation(callbackPath, true));
         }
+
+        return callbacks;
     }
 
     /**
@@ -999,7 +1170,8 @@ public class ClassicConfiguration implements Configuration {
      * @param path The path to scan.
      * @param errorOnNotFound Whether to show an error if the location is not found.
      */
-    public void loadCallbackLocation(String path, boolean errorOnNotFound) {
+    public List<Callback> loadCallbackLocation(String path, boolean errorOnNotFound) {
+        List<Callback> callbacks = new ArrayList<>();
         List<String> callbackClasses = classScanner.scanForType(path, Callback.class, errorOnNotFound);
         for (String callback : callbackClasses) {
             Class<? extends Callback> callbackClass;
@@ -1017,9 +1189,11 @@ public class ClassicConfiguration implements Configuration {
             }
             if (callbackClass != null) { // Filter out abstract classes
                 Callback callbackObj = ClassUtils.instantiate(callback, classLoader);
-                this.callbacks.add(callbackObj);
+                callbacks.add(callbackObj);
             }
         }
+
+        return callbacks;
     }
 
     /**
@@ -1028,7 +1202,7 @@ public class ClassicConfiguration implements Configuration {
      * @param resolvers The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
      */
     public void setResolvers(MigrationResolver... resolvers) {
-        this.resolvers = resolvers;
+        getModernFlyway().setMigrationResolvers(Arrays.stream(resolvers).map(Object::toString).collect(Collectors.toList()));
     }
 
     /**
@@ -1037,8 +1211,7 @@ public class ClassicConfiguration implements Configuration {
      * @param resolvers The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
      */
     public void setResolversAsClassNames(String... resolvers) {
-        List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolvers, classLoader);
-        setResolvers(resolverList.toArray(new MigrationResolver[resolvers.length]));
+        getModernFlyway().setMigrationResolvers(Arrays.stream(resolvers).collect(Collectors.toList()));
     }
 
     /**
@@ -1119,7 +1292,7 @@ public class ClassicConfiguration implements Configuration {
      * @param createSchemas @{code true} to attempt to create the schemas (default: {@code true})
      */
     public void setShouldCreateSchemas(boolean createSchemas) {
-        this.createSchemas = createSchemas;
+        getModernFlyway().setCreateSchemas(createSchemas);
     }
 
     /**
@@ -1131,7 +1304,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLicenseKey(String licenseKey) {
 
-         LOG.warn("License key detected - in order to use Teams or Enterprise features, download " + Edition.ENTERPRISE + " & " + Edition.TIER3 + " here: " + FlywayDbWebsiteLinks.TEAMS_ENTERPRISE_DOWNLOAD);
+         LOG.warn("License key detected - in order to use Teams or Enterprise features, download " + org.flywaydb.core.internal.license.Edition.ENTERPRISE + " & " + org.flywaydb.core.internal.license.Edition.TIER3 + " here: " +  org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.TEAMS_ENTERPRISE_DOWNLOAD);
 
 
 
@@ -1170,74 +1343,16 @@ public class ClassicConfiguration implements Configuration {
      * Configure with the same values as this existing configuration.
      */
     public void configure(Configuration configuration) {
-        setLoggers(configuration.getLoggers());
-        setBaselineDescription(configuration.getBaselineDescription());
-        setBaselineOnMigrate(configuration.isBaselineOnMigrate());
-        setBaselineVersion(configuration.getBaselineVersion());
-        setCallbacks(configuration.getCallbacks());
-        setCleanDisabled(configuration.isCleanDisabled());
-        setCleanOnValidationError(configuration.isCleanOnValidationError());
-        setDataSource(configuration.getDataSource());
-        setConnectRetries(configuration.getConnectRetries());
-        setConnectRetriesInterval(configuration.getConnectRetriesInterval());
-        setInitSql(configuration.getInitSql());
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        setEncoding(configuration.getEncoding());
-        setGroup(configuration.isGroup());
-        setValidateMigrationNaming(configuration.isValidateMigrationNaming());
-        setIgnoreMigrationPatterns(configuration.getIgnoreMigrationPatterns());
-        setInstalledBy(configuration.getInstalledBy());
+        setModernConfig(ConfigurationModel.clone(configuration.getModernConfig()));
+        
         setJavaMigrations(configuration.getJavaMigrations());
-        setLocations(configuration.getLocations());
-        setMixed(configuration.isMixed());
-        setOutOfOrder(configuration.isOutOfOrder());
-        setPlaceholderPrefix(configuration.getPlaceholderPrefix());
-        setPlaceholderReplacement(configuration.isPlaceholderReplacement());
-        setPlaceholders(configuration.getPlaceholders());
-        setPlaceholderSuffix(configuration.getPlaceholderSuffix());
-        setPlaceholderSeparator(configuration.getPlaceholderSeparator());
-        setScriptPlaceholderPrefix(configuration.getScriptPlaceholderPrefix());
-        setScriptPlaceholderSuffix(configuration.getScriptPlaceholderSuffix());
-        setRepeatableSqlMigrationPrefix(configuration.getRepeatableSqlMigrationPrefix());
-        setResolvers(configuration.getResolvers());
-        setDefaultSchema(configuration.getDefaultSchema());
-        setSchemas(configuration.getSchemas());
-        setSkipDefaultCallbacks(configuration.isSkipDefaultCallbacks());
-        setSkipDefaultResolvers(configuration.isSkipDefaultResolvers());
-        setSqlMigrationPrefix(configuration.getSqlMigrationPrefix());
-        setSqlMigrationSeparator(configuration.getSqlMigrationSeparator());
-        setSqlMigrationSuffixes(configuration.getSqlMigrationSuffixes());
-        setTable(configuration.getTable());
-        setTablespace(configuration.getTablespace());
-        setTarget(configuration.getTarget());
-        setFailOnMissingTarget(configuration.isFailOnMissingTarget());
-        setValidateOnMigrate(configuration.isValidateOnMigrate());
         setResourceProvider(configuration.getResourceProvider());
         setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
-        setShouldCreateSchemas(configuration.isCreateSchemas());
-        setLockRetryCount(configuration.getLockRetryCount());
-        setFailOnMissingLocations(configuration.isFailOnMissingLocations());
+        setCallbacks(configuration.getCallbacks());
 
-        url = configuration.getUrl();
-        user = configuration.getUser();
-        password = configuration.getPassword();
+        this.dataSource = configuration.getDataSource();
+
+
 
         pluginRegister = configuration.getPluginRegister();
 
@@ -1254,6 +1369,31 @@ public class ClassicConfiguration implements Configuration {
      */
     public void configure(Properties properties) {
         configure(ConfigUtils.propertiesToMap(properties));
+    }
+
+    public void setUrl(String url){
+        this.dataSource = null;
+        getCurrentUnresolvedEnvironment().setUrl(url);
+        this.resolvedEnvironments.clear();
+
+    }
+
+    public void setUser(String user) {
+        this.dataSource = null;
+        getCurrentUnresolvedEnvironment().setUser(user);
+        this.resolvedEnvironments.clear();
+    }
+
+    public void setPassword(String password) {
+        this.dataSource = null;
+        getCurrentUnresolvedEnvironment().setPassword(password);
+        this.resolvedEnvironments.clear();
+    }
+
+    public void setDriver(String driver) {
+        this.dataSource = null;
+        getCurrentUnresolvedEnvironment().setDriver(driver);
+        this.resolvedEnvironments.clear();
     }
 
     /**
@@ -1274,23 +1414,19 @@ public class ClassicConfiguration implements Configuration {
 
         String driverProp = props.remove(ConfigUtils.DRIVER);
         if (driverProp != null) {
-            dataSource = null;
-            driver = driverProp;
+            setDriver(driverProp);
         }
         String urlProp = props.remove(ConfigUtils.URL);
         if (urlProp != null) {
-            dataSource = null;
-            url = urlProp;
+            setUrl(urlProp);
         }
         String userProp = props.remove(ConfigUtils.USER);
         if (userProp != null) {
-            dataSource = null;
-            user = userProp;
+            setUser(userProp);
         }
         String passwordProp = props.remove(ConfigUtils.PASSWORD);
         if (passwordProp != null) {
-            dataSource = null;
-            password = passwordProp;
+            setPassword(passwordProp);
         }
         Integer connectRetriesProp = removeInteger(props, ConfigUtils.CONNECT_RETRIES);
         if (connectRetriesProp != null) {
@@ -1390,7 +1526,7 @@ public class ClassicConfiguration implements Configuration {
         }
         String baselineVersionProp = props.remove(ConfigUtils.BASELINE_VERSION);
         if (baselineVersionProp != null) {
-            setBaselineVersion(MigrationVersion.fromVersion(baselineVersionProp));
+            setBaselineVersion(baselineVersionProp);
         }
         String baselineDescriptionProp = props.remove(ConfigUtils.BASELINE_DESCRIPTION);
         if (baselineDescriptionProp != null) {
@@ -1516,14 +1652,107 @@ public class ClassicConfiguration implements Configuration {
             setFailOnMissingLocations(failOnMissingLocationsProp);
         }
 
-        // Must be done last, so that any driver-specific config has been done at this point.
-        if (StringUtils.hasText(url) && (StringUtils.hasText(urlProp) || StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
+        if(StringUtils.hasText(getCurrentEnvironment().getUrl()) && (dataSource == null || StringUtils.hasText(urlProp) || StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
             Map<String, String> jdbcPropertiesFromProps = getPropertiesUnderNamespace(props, getPlaceholders(), ConfigUtils.JDBC_PROPERTIES_PREFIX);
-
-            setDataSource(new DriverDataSource(classLoader, driver, url, user, password, this, jdbcPropertiesFromProps));
+            setDataSource(new DriverDataSource(classLoader, getCurrentEnvironment().getDriver(), getCurrentEnvironment().getUrl(), getCurrentEnvironment().getUser(), getCurrentEnvironment().getPassword(), this, jdbcPropertiesFromProps));
         }
 
         ConfigUtils.checkConfigurationForUnrecognisedProperties(props, "flyway.");
+    }
+
+    public void setFailOnMissingLocations(Boolean failOnMissingLocationsProp) {
+        getModernFlyway().setFailOnMissingLocations(failOnMissingLocationsProp);
+    }
+
+    public String getDriver() {
+        return getCurrentEnvironment().getDriver();
+    }
+
+    public void setGroup(Boolean groupProp) {
+        getModernFlyway().setGroup(groupProp);
+    }
+
+    public void setMixed(Boolean mixedProp) {
+        getModernFlyway().setMixed(mixedProp);
+    }
+
+    public void setEncoding(Charset encoding) {
+        getModernFlyway().setEncoding(encoding.name());
+    }
+
+    public void setPlaceholders(Map<String, String> placeholdersFromProps) {
+        getModernFlyway().setPlaceholders(placeholdersFromProps);
+    }
+
+    public void setSkipDefaultCallbacks(Boolean skipDefaultCallbacksProp) {
+        getModernFlyway().setSkipDefaultCallbacks(skipDefaultCallbacksProp);
+    }
+
+    public void setSkipDefaultResolvers(Boolean skipDefaultResolversProp) {
+        getModernFlyway().setSkipDefaultResolvers(skipDefaultResolversProp);
+    }
+
+    public void setOutOfOrder(Boolean outOfOrderProp) {
+        getModernFlyway().setOutOfOrder(outOfOrderProp);
+    }
+
+    public void setLockRetryCount(Integer lockRetryCount) {
+        getModernFlyway().setLockRetryCount(lockRetryCount);
+    }
+
+    public void setValidateMigrationNaming(Boolean validateMigrationNamingProp) {
+        getModernFlyway().setValidateMigrationNaming(validateMigrationNamingProp);
+    }
+
+    public void setBaselineOnMigrate(Boolean baselineOnMigrateProp) {
+        getModernFlyway().setBaselineOnMigrate(baselineOnMigrateProp);
+    }
+
+    public void setBaselineDescription(String baselineDescriptionProp) {
+        getModernFlyway().setBaselineDescription(baselineDescriptionProp);
+    }
+
+    public void setBaselineVersion(String baselineVersionProp) {
+        getModernFlyway().setBaselineVersion(baselineVersionProp);
+    }
+
+    public void setValidateOnMigrate(Boolean validateOnMigrateProp) {
+        getModernFlyway().setValidateOnMigrate(validateOnMigrateProp);
+    }
+
+    public void setCleanDisabled(Boolean cleanDisabledProp) {
+        getModernFlyway().setCleanDisabled(cleanDisabledProp);
+    }
+
+    public void setCleanOnValidationError(Boolean cleanOnValidationErrorProp) {
+        getModernFlyway().setCleanOnValidationError(cleanOnValidationErrorProp);
+    }
+
+    public void setTablespace(String tablespaceProp) {
+        getModernFlyway().setTablespace(tablespaceProp);
+    }
+
+    public void setTable(String tableProp) {
+        getModernFlyway().setTable(tableProp);
+    }
+
+    public void setSchemas(String[] tokenizeToStringArray) {
+        List<String> schemas = Arrays.stream(tokenizeToStringArray).collect(Collectors.toList());
+        getCurrentUnresolvedEnvironment().setSchemas(schemas);
+        resolvedEnvironments.clear();
+    }
+
+    public void setRepeatableSqlMigrationPrefix(String repeatableSqlMigrationPrefixProp) {
+        getModernFlyway().setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefixProp);
+    }
+
+    public void setPlaceholderReplacement(Boolean placeholderReplacementProp) {
+        getModernFlyway().setPlaceholderReplacement(placeholderReplacementProp);
+    }
+
+    public void setInitSql(String initSqlProp) {
+        getCurrentUnresolvedEnvironment().setInitSql(initSqlProp);
+        resolvedEnvironments.clear();
     }
 
     private void configureFromConfigurationProviders(ClassicConfiguration configuration) {
@@ -1560,5 +1789,13 @@ public class ClassicConfiguration implements Configuration {
      */
     public void configureUsingEnvVars() {
         configure(ConfigUtils.environmentVariablesToPropertyMap());
+    }
+
+    public void setTarget(MigrationVersion target) {
+        if (target != null) {
+            getModernFlyway().setTarget(target.getName());
+        } else {
+            getModernFlyway().setTarget("latest");
+        }
     }
 }

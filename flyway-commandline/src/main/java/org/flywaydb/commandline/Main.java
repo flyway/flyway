@@ -22,6 +22,7 @@ import org.flywaydb.commandline.logging.console.ConsoleLogCreator;
 import org.flywaydb.commandline.logging.file.FileLogCreator;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.logging.Log;
@@ -32,6 +33,8 @@ import org.flywaydb.core.api.output.*;
 import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
+import org.flywaydb.core.internal.configuration.TomlUtils;
+import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.Database;
@@ -99,9 +102,9 @@ public class Main {
                 if (helpAsVerbWithOperation || helpAsFlagWithOperation) {
                     for (String operation : commandLineArguments.getOperations()) {
                         String helpTextForOperation = pluginRegister.getPlugins(CommandExtension.class).stream()
-                                .filter(e -> e.handlesCommand(operation))
-                                .map(CommandExtension::getHelpText)
-                                .collect(Collectors.joining("\n\n"));
+                                                                    .filter(e -> e.handlesCommand(operation))
+                                                                    .map(CommandExtension::getHelpText)
+                                                                    .collect(Collectors.joining("\n\n"));
 
                         if (StringUtils.hasText(helpTextForOperation)) {
                             helpText.append(helpTextForOperation).append("\n\n");
@@ -116,55 +119,21 @@ public class Main {
                 return;
             }
 
-            Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
+            Configuration configuration = useModernConfig(commandLineArguments) ? getConfiguration(commandLineArguments) : getLegacyConfiguration(commandLineArguments);
 
-            Map<String, String> config = new HashMap<>();
-            initializeDefaults(config, commandLineArguments);
-            loadConfigurationFromConfigFiles(config, commandLineArguments, envVars);
-
-            config.putAll(envVars);
-            config = overrideConfiguration(config, commandLineArguments.getConfiguration());
-
-            if (commandLineArguments.isWorkingDirectorySet()) {
-                makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments, config);
-            }
-
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            List<File> jarFiles = new ArrayList<>();
-            jarFiles.addAll(getJdbcDriverJarFiles());
-            jarFiles.addAll(getJavaMigrationJarFiles(config));
-            if (!jarFiles.isEmpty()) {
-                classLoader = ClassUtils.addJarsOrDirectoriesToClasspath(classLoader, jarFiles);
-            }
-
-            if (!commandLineArguments.shouldSuppressPrompt()) {
-                promptForCredentialsIfMissing(config);
-            }
-
-            ConfigUtils.dumpConfiguration(config);
-            filterProperties(config);
-
-
-
-
-
-
-
-            Configuration configuration = new FluentConfiguration(classLoader).configuration(config);
-
-            Flyway flyway = Flyway.configure(classLoader).configuration(configuration).load();
+            Flyway flyway = Flyway.configure(configuration.getClassLoader()).configuration(configuration).load();
 
             if (!commandLineArguments.skipCheckForUpdate()) {
                 if (RedgateUpdateChecker.isEnabled() && configuration.getDataSource() != null) {
-                    try(JdbcConnectionFactory jdbcConnectionFactory= new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
-                        Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null)) {
+                    try (JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
+                         Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null)) {
 
                         RedgateUpdateChecker.Context context = new RedgateUpdateChecker.Context(
-                            config,
-                            commandLineArguments.getOperations(),
-                            database.getDatabaseType().getName(),
-                            database.getVersion().getVersion(),
-                            pluginRegister
+                                configuration,
+                                commandLineArguments.getOperations(),
+                                database.getDatabaseType().getName(),
+                                database.getVersion().getVersion(),
+                                pluginRegister
                         );
                         RedgateUpdateChecker.checkForVersionUpdates(context);
                     }
@@ -203,6 +172,114 @@ public class Main {
         } finally {
             flushLog(commandLineArguments);
         }
+    }
+
+    private static boolean useModernConfig(CommandLineArguments commandLineArguments) {
+        List<File> tomlFiles = new ArrayList<>();
+        tomlFiles.addAll(ConfigUtils.getDefaultTomlConfigFileLocations(new File(ClassUtils.getInstallDir(Main.class))));
+        tomlFiles.addAll(getTomlConfigFilePaths());
+        tomlFiles.addAll(commandLineArguments.getConfigFiles().stream()
+                                             .filter(f -> f.endsWith(".toml"))
+                                             .map(File::new)
+                                             .collect(Collectors.toList()));
+
+        return tomlFiles.stream().anyMatch(File::exists);
+    }
+
+    private static Configuration getConfiguration(CommandLineArguments commandLineArguments) {
+        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : ClassUtils.getInstallDir(Main.class);
+
+        List<File> tomlFiles = ConfigUtils.getDefaultTomlConfigFileLocations(new File(ClassUtils.getInstallDir(Main.class)));
+        tomlFiles.addAll(getTomlConfigFilePaths());
+        tomlFiles.addAll(commandLineArguments.getConfigFiles().stream().map(File::new)
+                                             .collect(Collectors.toList()));
+
+        List<File> existingFiles = tomlFiles.stream().filter(File::exists).collect(Collectors.toList());
+        ConfigurationModel config = TomlUtils.loadConfigurationFiles(existingFiles, workingDirectory);
+
+        config = config.merge(TomlUtils.loadConfigurationFromEnvironment())
+                       .merge(TomlUtils.loadConfigurationFromCommandlineArgs(commandLineArguments.getConfiguration()));
+
+        config.getFlyway().getLocations().add("filesystem:" + new File(workingDirectory, "sql").getAbsolutePath());
+
+        List<String> jarDirs = new ArrayList<>();
+
+        File jarDir = new File(workingDirectory, "jars");
+        if (jarDir.exists()) {
+
+            jarDirs = StringUtils.tokenizeToStringCollection(commandLineArguments.getConfiguration().get(ConfigUtils.JAR_DIRS).replace(File.pathSeparator, ","), ",");
+            jarDirs.add(jarDir.getAbsolutePath());
+        }
+
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+        List<File> jarFiles = new ArrayList<>();
+        jarFiles.addAll(getJdbcDriverJarFiles());
+        jarFiles.addAll(getJavaMigrationJarFiles(jarDirs.toArray(new String[0])));
+
+        if (!jarFiles.isEmpty()) {
+            classLoader = ClassUtils.addJarsOrDirectoriesToClasspath(classLoader, jarFiles);
+        }
+
+        ClassicConfiguration cfg = new ClassicConfiguration(config);
+        cfg.setClassLoader(classLoader);
+
+
+
+
+
+
+
+        return cfg;
+    }
+
+    private static Configuration getLegacyConfiguration(CommandLineArguments commandLineArguments) {
+
+        Map<String, String> config = new HashMap<>();
+        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : ClassUtils.getInstallDir(Main.class);
+
+        config.put(ConfigUtils.LOCATIONS, "filesystem:" + new File(workingDirectory, "sql").getAbsolutePath());
+
+        File jarDir = new File(workingDirectory, "jars");
+        if (jarDir.exists()) {
+            config.put(ConfigUtils.JAR_DIRS, jarDir.getAbsolutePath());
+        }
+
+        Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
+
+        loadConfigurationFromConfigFiles(config, commandLineArguments, envVars);
+
+        config.putAll(envVars);
+        config = overrideConfiguration(config, commandLineArguments.getConfiguration());
+
+        if (commandLineArguments.isWorkingDirectorySet()) {
+            makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments, config);
+        }
+
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+        List<File> jarFiles = new ArrayList<>();
+        jarFiles.addAll(getJdbcDriverJarFiles());
+        jarFiles.addAll(getJavaMigrationJarFiles(StringUtils.tokenizeToStringArray(config.get(ConfigUtils.JAR_DIRS).replace(File.pathSeparator, ","), ",")));
+        if (!jarFiles.isEmpty()) {
+            classLoader = ClassUtils.addJarsOrDirectoriesToClasspath(classLoader, jarFiles);
+        }
+
+        if (!commandLineArguments.shouldSuppressPrompt()) {
+            promptForCredentialsIfMissing(config);
+        }
+
+        ConfigUtils.dumpConfiguration(config);
+        filterProperties(config);
+
+
+
+
+
+
+
+        return new FluentConfiguration(classLoader).configuration(config);
+
     }
 
     private static void printError(CommandLineArguments commandLineArguments, Exception e, OperationResult errorResult) {
@@ -302,8 +379,8 @@ public class Main {
 
             if (commandLineArguments.isFilterOnMigrationIds()) {
                 System.out.print(Arrays.stream(infos)
-                        .map(m -> m.getVersion() == null ? m.getDescription() : m.getVersion().getVersion())
-                        .collect(Collectors.joining(",")));
+                                       .map(m -> m.getVersion() == null ? m.getDescription() : m.getVersion().getVersion())
+                                       .collect(Collectors.joining(",")));
             } else {
                 LOG.info(MigrationInfoDumper.dumpToAsciiTable(infos));
             }
@@ -311,10 +388,10 @@ public class Main {
             result = flyway.repair();
         } else {
             result = pluginRegister.getPlugins(CommandExtension.class).stream()
-                    .filter(commandExtension -> commandExtension.handlesCommand(operation))
-                    .findFirst()
-                    .map(commandExtension -> commandExtension.handle(operation, flyway.getConfiguration(), commandLineArguments.getFlags()))
-                    .orElseThrow(() -> new FlywayException("No command extension found to handle command: " + operation));
+                                   .filter(commandExtension -> commandExtension.handlesCommand(operation))
+                                   .findFirst()
+                                   .map(commandExtension -> commandExtension.handle(operation, flyway.getConfiguration(), commandLineArguments.getFlags()))
+                                   .orElseThrow(() -> new FlywayException("No command extension found to handle command: " + operation));
         }
 
         return result;
@@ -356,18 +433,6 @@ public class Main {
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer())
                 .create();
         return gson.toJson(object);
-    }
-
-    private static void initializeDefaults(Map<String, String> config, CommandLineArguments commandLineArguments) {
-        // To maintain override order, return extension value first if present
-        String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : ClassUtils.getInstallDir(Main.class);
-
-        config.put(ConfigUtils.LOCATIONS, "filesystem:" + new File(workingDirectory, "sql").getAbsolutePath());
-
-        File jarDir = new File(workingDirectory, "jars");
-        if (jarDir.exists()) {
-            config.put(ConfigUtils.JAR_DIRS, jarDir.getAbsolutePath());
-        }
     }
 
     /**
@@ -496,14 +561,10 @@ public class Main {
         return Arrays.asList(files);
     }
 
-    private static List<File> getJavaMigrationJarFiles(Map<String, String> config) {
-        String jarDirs = config.get(ConfigUtils.JAR_DIRS);
-        if (!StringUtils.hasLength(jarDirs)) {
+    private static List<File> getJavaMigrationJarFiles(String[] dirs) {
+        if (dirs.length == 0) {
             return Collections.emptyList();
         }
-
-        jarDirs = jarDirs.replace(File.pathSeparator, ",");
-        String[] dirs = StringUtils.tokenizeToStringArray(jarDirs, ",");
 
         List<File> jarFiles = new ArrayList<>();
         for (String dirName : dirs) {
@@ -527,7 +588,7 @@ public class Main {
 
         config.putAll(ConfigUtils.loadDefaultConfigurationFiles(installationDir, encoding));
 
-        for (File configFile : determineConfigFilesFromArgs(commandLineArguments, envVars)) {
+        for (File configFile : determineLegacyConfigFilesFromArgs(commandLineArguments, envVars)) {
             config.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
         }
     }
@@ -611,7 +672,7 @@ public class Main {
         return false;
     }
 
-    private static List<File> determineConfigFilesFromArgs(CommandLineArguments commandLineArguments, Map<String, String> envVars) {
+    private static List<File> determineLegacyConfigFilesFromArgs(CommandLineArguments commandLineArguments, Map<String, String> envVars) {
 
         String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : null;
 
@@ -620,6 +681,15 @@ public class Main {
                 commandLineArguments.getConfigFiles().stream();
 
         return configFilePaths.map(path -> Paths.get(path).isAbsolute() ? new File(path) : new File(workingDirectory, path)).collect(Collectors.toList());
+    }
+
+    private static List<File> getTomlConfigFilePaths() {
+        String[] fileLocations = StringUtils.tokenizeToStringArray(System.getenv("FLYWAY_CONFIG_FILES"), ",");
+
+        return fileLocations == null ? new ArrayList<>() : Arrays.stream(fileLocations)
+                                                                 .filter(f -> f.endsWith(".toml"))
+                                                                 .map(File::new)
+                                                                 .collect(Collectors.toList());
     }
 
     /**
