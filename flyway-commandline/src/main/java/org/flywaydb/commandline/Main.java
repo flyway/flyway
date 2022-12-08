@@ -206,9 +206,12 @@ public class Main {
 
         File jarDir = new File(workingDirectory, "jars");
         if (jarDir.exists()) {
-
-            jarDirs = StringUtils.tokenizeToStringCollection(commandLineArguments.getConfiguration().get(ConfigUtils.JAR_DIRS).replace(File.pathSeparator, ","), ",");
             jarDirs.add(jarDir.getAbsolutePath());
+        }
+
+        String configuredJarDirs = commandLineArguments.getConfiguration().get(ConfigUtils.JAR_DIRS);
+        if (StringUtils.hasText(configuredJarDirs)) {
+            jarDirs.addAll(StringUtils.tokenizeToStringCollection(configuredJarDirs.replace(File.pathSeparator, ","), ","));
         }
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -258,9 +261,13 @@ public class Main {
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-        List<File> jarFiles = new ArrayList<>();
-        jarFiles.addAll(getJdbcDriverJarFiles());
-        jarFiles.addAll(getJavaMigrationJarFiles(StringUtils.tokenizeToStringArray(config.get(ConfigUtils.JAR_DIRS).replace(File.pathSeparator, ","), ",")));
+        List<File> jarFiles = new ArrayList<>(getJdbcDriverJarFiles());
+
+        String jarDirs = config.get(ConfigUtils.JAR_DIRS);
+        if (StringUtils.hasText(jarDirs)) {
+            jarFiles.addAll(getJavaMigrationJarFiles(StringUtils.tokenizeToStringArray(jarDirs.replace(File.pathSeparator, ","), ",")));
+        }
+
         if (!jarFiles.isEmpty()) {
             classLoader = ClassUtils.addJarsOrDirectoriesToClasspath(classLoader, jarFiles);
         }
@@ -279,7 +286,6 @@ public class Main {
 
 
         return new FluentConfiguration(classLoader).configuration(config);
-
     }
 
     private static void printError(CommandLineArguments commandLineArguments, Exception e, OperationResult errorResult) {
@@ -498,6 +504,7 @@ public class Main {
         LOG.info(indent + "mixed                          Allow mixing transactional and non-transactional statements");
         LOG.info(indent + "encoding                       Encoding of SQL migrations");
         LOG.info(indent + "detectEncoding                 [" + "teams] Whether Flyway should try to automatically detect SQL migration file encoding");
+        LOG.info(indent + "executionInTransaction         Whether SQL should execute within a transaction");
         LOG.info(indent + "placeholderReplacement         Whether placeholders should be replaced");
         LOG.info(indent + "placeholders                   Placeholders to replace in sql migrations");
         LOG.info(indent + "placeholderPrefix              Prefix of every placeholder");

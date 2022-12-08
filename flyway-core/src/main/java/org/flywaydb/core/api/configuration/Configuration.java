@@ -161,6 +161,13 @@ public interface Configuration {
     String getUndoSqlMigrationPrefix();
 
     /**
+     * Checks whether SQL is executed in a transaction.
+     *
+     * @return Whether SQL is executed in a transaction. (default: true)
+     */
+    boolean isExecuteInTransaction();
+
+    /**
      * Retrieves the file name prefix for repeatable SQL migrations.
      * Repeatable SQL migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix,
      * which using the defaults translates to R__My_description.sql<

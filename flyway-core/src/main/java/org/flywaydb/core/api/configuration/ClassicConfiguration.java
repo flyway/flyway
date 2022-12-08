@@ -63,7 +63,7 @@ public class ClassicConfiguration implements Configuration {
 
     @Getter
     @Setter
-    private ConfigurationModel modernConfig = new ConfigurationModel().defaults();
+    private ConfigurationModel modernConfig = ConfigurationModel.defaults();
 
     @Getter
     private final Map<String, ResolvedEnvironment> resolvedEnvironments = new HashMap<>();
@@ -415,6 +415,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getUndoSqlMigrationPrefix() {
         return getModernFlyway().getUndoSqlMigrationPrefix();
+    }
+
+    @Override
+    public boolean isExecuteInTransaction() {
+        return getModernFlyway().getExecuteInTransaction();
     }
 
     @Override
@@ -803,6 +808,15 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+    }
+
+    /**
+     * Sets whether SQL should be executed within a transaction.
+     *
+     * @param executeInTransaction {@code true} to enable execution of SQL in a transaction, {@code false} otherwise
+     */
+    public void setExecuteInTransaction(boolean executeInTransaction) {
+        getModernFlyway().setExecuteInTransaction(executeInTransaction);
     }
 
     /**

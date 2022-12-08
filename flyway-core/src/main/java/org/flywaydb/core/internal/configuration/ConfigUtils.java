@@ -54,6 +54,7 @@ public class ConfigUtils {
     public static final String ENCODING = "flyway.encoding";
     public static final String DETECT_ENCODING = "flyway.detectEncoding";
     public static final String ERROR_OVERRIDES = "flyway.errorOverrides";
+    public static final String EXECUTE_IN_TRANSACTION = "flyway.executeInTransaction";
     public static final String GROUP = "flyway.group";
     public static final String IGNORE_MIGRATION_PATTERNS = "flyway.ignoreMigrationPatterns";
     public static final String INIT_SQL = "flyway.initSql";
@@ -178,6 +179,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_ENCODING".equals(key)) {
             return ENCODING;
+        }
+        if ("FLYWAY_EXECUTE_IN_TRANSACTION".equals(key)) {
+            return EXECUTE_IN_TRANSACTION;
         }
         if ("FLYWAY_DETECT_ENCODING".equals(key)) {
             return DETECT_ENCODING;

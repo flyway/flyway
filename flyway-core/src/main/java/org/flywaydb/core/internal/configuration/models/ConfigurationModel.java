@@ -30,10 +30,11 @@ public class ConfigurationModel {
     private Map<String, EnvironmentModel> environments = new HashMap<>();
     private FlywayModel flyway = new FlywayModel();
 
-    public ConfigurationModel defaults() {
-        this.flyway.defaults();
-        this.environments.put("default", new EnvironmentModel().defaults());
-        return this;
+    public static ConfigurationModel defaults() {
+        ConfigurationModel model = new ConfigurationModel();
+        model.flyway = FlywayModel.defaults();
+        model.environments.put("default", EnvironmentModel.defaults());
+        return model;
     }
 
     public ConfigurationModel merge(ConfigurationModel otherPojo) {

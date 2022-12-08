@@ -44,11 +44,12 @@ public class EnvironmentModel {
 
     private Map<String, Map<String, String>> resolvers;
 
-    public EnvironmentModel defaults() {
-        schemas = new ArrayList<>();
-        connectRetries = 0;
-        connectRetriesInterval = 120;
-        return this;
+    public static EnvironmentModel defaults() {
+        EnvironmentModel model = new EnvironmentModel();
+        model.schemas = new ArrayList<>();
+        model.connectRetries = 0;
+        model.connectRetriesInterval = 120;
+        return model;
     }
 
     public EnvironmentModel merge(EnvironmentModel otherPojo) {

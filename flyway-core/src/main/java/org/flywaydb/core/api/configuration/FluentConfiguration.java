@@ -315,6 +315,17 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
+     * Sets whether SQL should be executed within a transaction.
+     *
+     * @param executeInTransaction {@code true} to enable execution of SQL in a transaction, {@code false} otherwise
+     */
+    public FluentConfiguration executeInTransaction(boolean executeInTransaction) {
+        config.setExecuteInTransaction(executeInTransaction);
+        return this;
+    }
+
+
+    /**
      * Whether Flyway should try to automatically detect SQL migration file encoding
      *
      * @param detectEncoding {@code true} to enable auto detection, {@code false} otherwise

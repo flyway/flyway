@@ -41,7 +41,7 @@ public class ExecutionTemplateFactory {
      * @param database The database
      */
     public static ExecutionTemplate createExecutionTemplate(Connection connection, Database database) {
-        if (database.supportsMultiStatementTransactions()) {
+        if (database.supportsMultiStatementTransactions() && database.getConfiguration().isExecuteInTransaction()) {
             return createTransactionalExecutionTemplate(connection, true, database.getDatabaseType());
         }
 

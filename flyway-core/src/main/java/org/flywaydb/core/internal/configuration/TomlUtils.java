@@ -77,7 +77,7 @@ public class TomlUtils {
     }
 
     public static ConfigurationModel loadConfigurationFiles(List<File> files, String workingDirectory) {
-        ConfigurationModel defaultConfig = new ConfigurationModel().defaults();
+        ConfigurationModel defaultConfig = ConfigurationModel.defaults();
         return files.stream()
                     .map(f -> TomlUtils.loadConfigurationFile(f, workingDirectory))
                     .reduce(defaultConfig, ConfigurationModel::merge);
