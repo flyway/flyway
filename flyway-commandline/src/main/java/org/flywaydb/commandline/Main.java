@@ -504,7 +504,7 @@ public class Main {
         LOG.info(indent + "mixed                          Allow mixing transactional and non-transactional statements");
         LOG.info(indent + "encoding                       Encoding of SQL migrations");
         LOG.info(indent + "detectEncoding                 [" + "teams] Whether Flyway should try to automatically detect SQL migration file encoding");
-        LOG.info(indent + "executionInTransaction         Whether SQL should execute within a transaction");
+        LOG.info(indent + "executeInTransaction           Whether SQL should execute within a transaction");
         LOG.info(indent + "placeholderReplacement         Whether placeholders should be replaced");
         LOG.info(indent + "placeholders                   Placeholders to replace in sql migrations");
         LOG.info(indent + "placeholderPrefix              Prefix of every placeholder");

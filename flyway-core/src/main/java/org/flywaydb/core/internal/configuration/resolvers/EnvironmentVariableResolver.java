@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.extensibility;
+package org.flywaydb.core.internal.configuration.resolvers;
 
-import org.flywaydb.core.api.configuration.Configuration;
+public class EnvironmentVariableResolver implements PropertyResolver {
+    @Override
+    public String getName() {
+        return "environment";
+    }
 
-public interface Plugin {
-    default boolean isLicensed(Configuration configuration) {
-        return true;
+    @Override
+    public String resolve(String key, PropertyResolverContext context) {
+        return System.getenv(key);
     }
 }

@@ -1109,7 +1109,7 @@ public class ClassicConfiguration implements Configuration {
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
      */
     public void setBaselineVersionAsString(String baselineVersion) {
-        getModernFlyway().setBaselineVersion(baselineVersion);
+       setBaselineVersion(baselineVersion);
     }
 
     /**
@@ -1510,6 +1510,10 @@ public class ClassicConfiguration implements Configuration {
         if (detectEncoding != null) {
             setDetectEncoding(detectEncoding);
         }
+        Boolean executeInTransaction = removeBoolean(props, ConfigUtils.EXECUTE_IN_TRANSACTION);
+        if (executeInTransaction != null) {
+            setExecuteInTransaction(executeInTransaction);
+        }
         String defaultSchemaProp = props.remove(ConfigUtils.DEFAULT_SCHEMA);
         if (defaultSchemaProp != null) {
             setDefaultSchema(defaultSchemaProp);
@@ -1728,6 +1732,10 @@ public class ClassicConfiguration implements Configuration {
 
     public void setBaselineVersion(String baselineVersionProp) {
         getModernFlyway().setBaselineVersion(baselineVersionProp);
+    }
+
+    public void setBaselineVersion(MigrationVersion baselineVersion) {
+        getModernFlyway().setBaselineVersion(baselineVersion.getVersion());
     }
 
     public void setValidateOnMigrate(Boolean validateOnMigrateProp) {

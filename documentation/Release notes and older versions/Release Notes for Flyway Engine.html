@@ -18,6 +18,30 @@
 <div class="col-md-9">
 
     <div class="release">
+        <h2 id="9.10.1">Flyway 9.10.1 (2022-12-16)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Flyway includes a custom SQL Fluff plugin, containing extra rules for enterprise users. Previously, if this custom plugin failed to install it would fail the whole process citing an absence of the correct SQL Fluff installation. It now only gives a warning so core SQL Fluff rules can still be run.</li>
+            <li>Incorrectly errored when validating the configuration for the 'check -changes' command, when using a URL and a snapshot.</li>
+            <li>Config parameter `flyway.executeInTransaction` should now correctly set when doing so via an environment variable.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3582">Issue 3582</a>
+                Fix missing `setBaselineVersion(MigrationVersion baselineVersion)` on ClassicConfiguration
+            </li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Update RG Compare to 1.3.1.7159</li>
+        </ul>
+
+        <p>
+            Thanks to bmarcaur for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="9.10.0">Flyway 9.10.0 (2022-12-08)</h2>
 
         <h3>Bug fixes</h3>

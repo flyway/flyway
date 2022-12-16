@@ -491,12 +491,13 @@ Copyright 2004-2014 The Apache Software Foundation
 
 H2 ${version.h2} (drivers/h2-${version.h2}.jar)
 -----------------------------------
-Source: http://www.h2database.com/
+Project: http://www.h2database.com/
+Source: https://github.com/h2database/h2database
 
 Copyright 2004-2014 H2 Group
 
 This software contains unmodified binary redistributions for H2 database engine (http://www.h2database.com/),
-which is dual licensed and available under the MPL 2.0 (Mozilla Public License) or under the EPL 1.0 (Eclipse Public License).
+which is dual licensed and available under the MPL 2.0 (Mozilla Public License)
 An original copy of the license agreement can be found at: http://www.h2database.com/html/license.html
 
 
@@ -576,7 +577,8 @@ on behalf of the Hypersonic SQL Group.
 
 jaybird ${version.jaybird} (drivers/jaybird-jdk18-${version.jaybird}.jar)
 -----------------------------------
-Source: https://www.firebirdsql.org/en/devel-jdbc-driver/
+Project: https://www.firebirdsql.org/en/devel-jdbc-driver/
+Source: https://github.com/FirebirdSQL/jaybird
 
 GNU LESSER GENERAL PUBLIC LICENSE
 Version 3, 29 June 2007

@@ -661,7 +661,7 @@ public class FluentConfiguration implements Configuration {
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
      */
     public FluentConfiguration baselineVersion(MigrationVersion baselineVersion) {
-        config.setBaselineVersion(baselineVersion.getVersion());
+        config.setBaselineVersion(baselineVersion);
         return this;
     }
 

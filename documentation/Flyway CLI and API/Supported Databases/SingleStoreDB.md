@@ -78,9 +78,10 @@ SingleStoreDB support is a separate dependency for Flyway and will need to be ad
 <dependency>
     <groupId>org.flywaydb.enterprise</groupId>
     <artifactId>flyway-singlestore</artifactId>
+    <version>{{ site.flywayVersion }}</version>
 </dependency>
 ```
-
+You will also need to [configure the repository](Usage/api-java)
 ### Gradle
 
 #### Teams
@@ -90,3 +91,4 @@ dependencies {
     compile "org.flywaydb.enterprise:flyway-singlestore"
 }
 ```
+You will also need to [configure the repository](Usage/api-java)

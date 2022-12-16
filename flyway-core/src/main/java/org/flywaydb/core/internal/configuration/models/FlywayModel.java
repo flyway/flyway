@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.util.MergeUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +109,7 @@ public class FlywayModel {
          model.oracleSqlplusWarn = false;
          model.cleanDisabled = true;
          model.cleanOnValidationError = false;
-         model.locations = Arrays.asList("db/migration");
+         model.locations = new ArrayList<>(Collections.singletonList("db/migration"));
          model.target = "latest";
          model.table = "flyway_schema_history";
          model.failOnMissingTarget = false;
