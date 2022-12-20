@@ -388,20 +388,36 @@ On linux, if executing an extensionless migration that is not set to be executab
 The migration checksum is only calculated for the migration itself, not for any files it references or loads.
 
 ## Transactions
+Flyway wraps the execution of each migration script in a single transaction and applies them in order. For example, if I have 3 pending migrations on my target, calling `flyway migrate` looks like:
 
-By default, Flyway always wraps the execution of an entire migration within a single transaction.
+```
+- Execute V001
+  If success, commit and continue; else rollback (if possible) and stop - do not process any further pending migrations
+- Execute V002
+  If success, commit and continue; else rollback (if possible) and stop - do not process any further pending migrations
+- Execute V003
+  If success, commit and continue; else rollback (if possible) and stop - do not process any further pending migrations
+```
 
-Alternatively you can also configure Flyway to wrap the entire execution of all migrations of a single migration run
-within a single transaction by setting the [`group`](Configuration/parameters/group) property to `true`.
+Alternatively, for certain databases, for each `migrate`, you can configure Flyway to wrap the execution of all pending migrations in a single transaction by setting the [`group`](Configuration/parameters/group) property to `true`. This would look like:
+
+```
+Begin a transaction
+  Execute V001
+  Execute V002
+  Execute V003
+End transaction
+If there are errors at any point, rollback to the starting point and stop processing.
+```
 
 If Flyway detects that a specific statement cannot be run within a transaction due to technical limitations of your
-database, it won't run that migration within a transaction. Instead it will be marked as *non-transactional*.
+database, it won't run that migration within a transaction. Instead, it will be marked as *non-transactional*.
 
-By default transactional and non-transactional statements cannot be mixed within a migration run. You can however allow
-this by setting the [`mixed`](Configuration/parameters/mixed) property to `true`. Note that this is only
-applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have statements that do not run at all
-within a transaction. This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even
-though a DDL statement was run within a transaction, the database will issue an implicit commit before and after
+If the `group` property is set to true, then transactional and non-transactional statements cannot be mixed within a
+migration run. You can allow this by setting the [`mixed`](Configuration/parameters/mixed) property to `true`. Note that
+this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have statements that do not
+run at all within a transaction. This is not to be confused with implicit transactions, as they occur in MySQL or Oracle,
+where even though a DDL statement was run within a transaction, the database will issue an implicit commit before and after
 its execution.
 
 ### Manual override

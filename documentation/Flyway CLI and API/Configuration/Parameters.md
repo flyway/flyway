@@ -23,6 +23,7 @@ subtitle: placeholder page
 - [dryRunOutput](Configuration/Parameters/Dry Run Output) {% include teams.html %}
 - [encoding](Configuration/parameters/encoding)
 - [errorOverrides](Configuration/parameters/errorOverrides) {% include teams.html %}
+- [executeInTransaction](Configuration/parameters/Execute In Transaction)
 - [group](Configuration/parameters/group)
 - [installedBy](Configuration/Parameters/Installed By)
 - [jarDirs](Configuration/Parameters/Jar Dirs)

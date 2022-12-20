@@ -16,6 +16,7 @@
 package org.flywaydb.core.api.pattern;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
@@ -37,6 +38,7 @@ public class ValidatePattern {
             MigrationState.PENDING.getDisplayName().toLowerCase(),
             MigrationState.IGNORED.getDisplayName().toLowerCase(),
             MigrationState.FUTURE_SUCCESS.getDisplayName().toLowerCase());
+    private final String pattern;
 
     public static ValidatePattern fromPattern(String pattern) {
         if (pattern == null) {
@@ -68,7 +70,7 @@ public class ValidatePattern {
             throw new FlywayException("Invalid migration state '" + patternParts[1] + "'. Valid states are: " + validMigrationStates);
         }
 
-        return new ValidatePattern(migrationType, migrationState);
+        return new ValidatePattern(migrationType, migrationState, pattern);
     }
 
     public boolean matchesMigration(boolean isVersioned, MigrationState state) {
@@ -104,5 +106,10 @@ public class ValidatePattern {
     @Override
     public int hashCode() {
         return Objects.hash(migrationType, migrationState);
+    }
+
+    @Override
+    public String toString() {
+        return pattern;
     }
 }

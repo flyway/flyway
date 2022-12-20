@@ -29,10 +29,11 @@ FLYWAY_URL=jdbc:h2:mem:flyway_db
 ```
 
 ### API
+When using the Java API, you configure your JDBC URL, User and Password via a datasource.
 ```java
 Flyway.configure()
-    .url("jdbc:h2:mem:flyway_db")
-    .load()
+        .datasource("jdbc:h2:mem:flyway_db", "myuser", "mysecretpassword")
+        .load()
 ```
 
 ### Gradle

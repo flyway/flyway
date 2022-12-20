@@ -29,6 +29,11 @@ format `gcs:<bucket>(/optionalfolder/subfolder)/filename.sql`. To use GCS, the G
 GCS environment variable `GOOGLE_APPLICATION_CREDENTIALS` must be set to the credentials file for the service 
 account that has access to the bucket.
 
+## Limitations
+
+When running multiple commands, e.g. `./flyway info migrate`, the dry run output will only remain open for the first command and subsequent commands will not be recorded. 
+This will cause a warning saying `Unable to close dry run output: Stream Closed`, so it's recommended to only use dry runs when running `migrate` on its own. 
+
 ## Default
 <i>Execute directly against the database</i>
 

@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.extensibility;
+package org.flywaydb.core.internal.configuration.resolvers;
 
-import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.Plugin;
 
-public interface Plugin {
-    default boolean isLicensed(Configuration configuration) {
-        return true;
-    }
+public interface PropertyResolver extends Plugin {
+    String getName();
+    String resolve(String key, PropertyResolverContext context);
 }

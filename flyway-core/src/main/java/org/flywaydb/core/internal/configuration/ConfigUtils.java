@@ -54,6 +54,7 @@ public class ConfigUtils {
     public static final String ENCODING = "flyway.encoding";
     public static final String DETECT_ENCODING = "flyway.detectEncoding";
     public static final String ERROR_OVERRIDES = "flyway.errorOverrides";
+    public static final String EXECUTE_IN_TRANSACTION = "flyway.executeInTransaction";
     public static final String GROUP = "flyway.group";
     public static final String IGNORE_MIGRATION_PATTERNS = "flyway.ignoreMigrationPatterns";
     public static final String INIT_SQL = "flyway.initSql";
@@ -182,6 +183,9 @@ public class ConfigUtils {
         }
         if ("FLYWAY_ENCODING".equals(key)) {
             return ENCODING;
+        }
+        if ("FLYWAY_EXECUTE_IN_TRANSACTION".equals(key)) {
+            return EXECUTE_IN_TRANSACTION;
         }
         if ("FLYWAY_DETECT_ENCODING".equals(key)) {
             return DETECT_ENCODING;
@@ -372,11 +376,17 @@ public class ConfigUtils {
     public static Map<String, String> loadDefaultConfigurationFiles(File installationDir, String encoding) {
         Map<String, String> configMap = new HashMap<>();
         configMap.putAll(ConfigUtils.loadConfigurationFile(new File(installationDir.getAbsolutePath() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
-        configMap.putAll(TomlUtils.loadConfigurationFile(new File(installationDir.getAbsolutePath() + "/conf/flyway.toml"), encoding));
         configMap.putAll(ConfigUtils.loadConfigurationFile(new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
         configMap.putAll(ConfigUtils.loadConfigurationFile(new File(ConfigUtils.CONFIG_FILE_NAME), encoding, false));
 
         return configMap;
+    }
+
+    public static List<File> getDefaultTomlConfigFileLocations(File installationDir) {
+        return Arrays.asList(new File(installationDir.getAbsolutePath() + "/conf/flyway.toml"),
+                      new File(System.getProperty("user.home") + "/flyway.toml"),
+                      new File("flyway.toml"),
+                      new File("flyway.user.toml"));
     }
 
     /**

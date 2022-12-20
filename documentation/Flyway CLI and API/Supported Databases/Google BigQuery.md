@@ -1,7 +1,8 @@
 ---
 subtitle: Google BigQuery
 ---
-# Google BigQuery (Beta)
+
+# Google BigQuery
 
 ## Supported Versions
 
@@ -16,11 +17,11 @@ subtitle: Google BigQuery
     </tr>
     <tr>
         <th width="25%">Certified</th>
-        <td>&#9203; Pending certification</td>
+        <td>&#10003;</td>
     </tr>
     <tr>
         <th width="25%">Guaranteed</th>
-        <td>&#10060;</td>
+        <td>&#10003; {% include teams.html %}</td>
     </tr>
 </table>
 
@@ -59,7 +60,8 @@ Support Level determines the degree of support available for this database ([lea
 
 ### Performance
 
-Executing multiple schema changes against GCP BigQuery is comparatively slow as it is optimized for data. You can read more about it [here](https://cloud.google.com/blog/products/data-analytics/troubleshoot-bigquery-performance-with-these-dashboards).
+Executing multiple schema changes against GCP BigQuery is comparatively slow as it is optimized for data. You can read more about
+it [here](https://cloud.google.com/blog/products/data-analytics/troubleshoot-bigquery-performance-with-these-dashboards).
 
 Flyway Teams Edition alleviates this via batching which executes multiple schema changes in one request to minimize latency and improve performance.
 
@@ -77,12 +79,14 @@ You can find out more about Flyway Teams Edition [here](/https://flywaydb.org/do
 ## Using Flyway with Google BigQuery
 
 ### Pre-requisites
+
 - Using Flyway with Maven?
-  - Include the Flyway GCP BigQuery dependency [here](https://mvnrepository.com/artifact/org.flywaydb/flyway-gcp-bigquery) in your pom
+    - Include the Flyway GCP BigQuery dependency [here](https://mvnrepository.com/artifact/org.flywaydb/flyway-gcp-bigquery) in your pom
 - Using Flyway with Gradle?
-  - Include the Flyway GCP BigQuery dependency [here](https://mvnrepository.com/artifact/org.flywaydb/flyway-gcp-bigquery) as a buildscript dependency
+    - Include the Flyway GCP BigQuery dependency [here](https://mvnrepository.com/artifact/org.flywaydb/flyway-gcp-bigquery) as a buildscript dependency
 
 ### Installing dependencies
+
 Google BigQuery requires a number of dependencies to be installed manually.
 
 Go to [Google's documentation](https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers#current_jdbc_driver_release_12161020) and download the JDBC driver.
@@ -93,7 +97,9 @@ If you are using the Flyway command-line, you will need to extract the contents 
 
 If you are using the Flyway Maven plugin, you will need to add the contents of this archive to your classpath.
 ​
+
 ### Configuring Flyway
+
 ​
 This is a JDBC URL that points to your database. You can configure a connection using this sample URL as an example:
 
@@ -101,6 +107,7 @@ This is a JDBC URL that points to your database. You can configure a connection 
 
 We need to fetch three things to complete this URL:
 ​
+
 - `project_id`
 - `service_account_name`
 - `path_to_service_account`
@@ -109,7 +116,8 @@ We need to fetch three things to complete this URL:
 
 To get `service_account_name` and `path_to_service_account`, you'll need to create a 'service account' for your Flyway connections.
 
-To do this, open `IAM` within GCP project settings. There you can create a service account. Upon creating this, you will be given the `service_account_name` (it will look like `something@projectname.iam.gserviceaccount.com`). Upon creating this you'll have the option to download a keyfile.
+To do this, open `IAM` within GCP project settings. There you can create a service account. Upon creating this, you will be given the `service_account_name` (it will look
+like `something@projectname.iam.gserviceaccount.com`). Upon creating this you'll have the option to download a keyfile.
 
 The keyfile file needs to be accessible to Flyway, so save it somewhere accessible on your machine. Then configure `path_to_service_account` to point to this file.
 
@@ -119,19 +127,22 @@ Set this URL in the [`url`](Configuration/parameters/url) property in your Flywa
 
 ### Other configuration
 
-Set the [`schemas`](Configuration/parameters/schemas) property in your Flyway configuration to the name of a `data set` within your BigQuery project. Set the [`user`](Configuration/parameters/user) and [`password`](Configuration/parameters/password) properties to empty in your Flyway configuration since we're authenticating using the JDBC URL i.e.
+Set the [`schemas`](Configuration/parameters/schemas) property in your Flyway configuration to the name of a `data set` within your BigQuery project. Set
+the [`user`](Configuration/parameters/user) and [`password`](Configuration/parameters/password) properties to empty in your Flyway configuration since we're authenticating using
+the JDBC URL i.e.
 
 ```
 flyway.schemas=<your data set>
 flyway.user=
 flyway.password=
 ```
-​
+
 In a Flyway configuration file.
 
 ## Limitations
 
-While the Simba JDBC driver supports a number of [different modes](https://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/authenticating/useraccount.htm)
+While the Simba JDBC driver supports a number
+of [different modes](https://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/authenticating/useraccount.htm)
 for authentication, Google User Account authentication (that is, `OAuthType=1`) is not recommended for desktop
 use and is not supported at all for unattended use, or use in Docker, as it requires a browser to be available to
 get an access token interactively.

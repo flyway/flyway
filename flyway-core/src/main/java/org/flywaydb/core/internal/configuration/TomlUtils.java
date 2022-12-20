@@ -15,56 +15,89 @@
  */
 package org.flywaydb.core.internal.configuration;
 
-import com.fasterxml.jackson.databind.type.MapLikeType;
-import com.fasterxml.jackson.dataformat.toml.TomlMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.CustomLog;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
+import org.flywaydb.core.internal.util.ObjectMapperFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @CustomLog
 public class TomlUtils {
-    public static Map<String, String> loadConfigurationFile(File configFile, String encoding) {
-        if (!configFile.isFile() || !configFile.canRead()) {
-            return new HashMap<>();
-        }
 
-        LOG.warn("Loading TOML config file: " + configFile.getAbsolutePath());
-        LOG.warn("This is an experimental feature, which is subject to change, and not recommended for use as yet");
-
-        TomlMapper tomlMapper = new TomlMapper();
-        MapLikeType mapType = tomlMapper.getTypeFactory().constructMapLikeType(Map.class, String.class, Object.class);
-
-        try {
-            Map<String, Map<String, Object>> valueMap = tomlMapper.readValue(new InputStreamReader(new FileInputStream(configFile), encoding), mapType);
-            return flatten(valueMap.get("flyway"), "flyway");
-        } catch (IOException e) {
-            throw new FlywayException("Unable to load config file: " + configFile.getAbsolutePath(), e);
-        }
+    public static ConfigurationModel loadConfigurationFromEnvironment() {
+        Map<String, String> environmentVariables = System.getenv()
+                                                         .entrySet()
+                                                         .stream()
+                                                         .filter(e -> e.getKey().startsWith("flyway_") || e.getKey().startsWith("environment_"))
+                                                         .collect(Collectors.toMap(k -> k.getKey().replace("_", "."), Map.Entry::getValue));
+        return toConfiguration(unflattenMap(environmentVariables));
     }
 
-    private static Map<String, String> flatten(Map<String, Object> map, String parentKey) {
-        Map<String, String> result = new HashMap<>();
+    public static ConfigurationModel loadConfigurationFromCommandlineArgs(Map<String, String> commandLineArguments) {
+        return toConfiguration(unflattenMap(commandLineArguments));
+    }
 
-        for (String key : map.keySet()) {
-            Object value = map.get(key);
+    private static ConfigurationModel toConfiguration(Map<String, Object> properties) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        SimpleModule simpleModule = new SimpleModule();
 
-            if (value instanceof Map) {
-                Map<String, String> subTree = flatten(((Map) value), key);
+        JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, String.class);
 
-                for (String subKey : subTree.keySet()) {
-                    result.put(parentKey + "." + subKey, subTree.get(subKey));
+        //noinspection unchecked
+        simpleModule.addDeserializer((Class<List<String>>) type.getRawClass(), new ListDeserializer());
+        objectMapper.registerModule(simpleModule);
+        return objectMapper.convertValue(properties, ConfigurationModel.class);
+    }
+
+    private static Map<String, Object> unflattenMap(Map<String, String> map) {
+        Map<String, Object> result = new HashMap<>();
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            String[] parts = entry.getKey().split("\\.");
+            Map<String, Object> currentMap = result;
+            for (int i = 0; i < parts.length; i++) {
+                if (i != parts.length - 1) {
+                    //noinspection unchecked
+                    currentMap = (Map<String, Object>) currentMap.computeIfAbsent(parts[i], (x) -> new HashMap<>());
+                } else {
+                    currentMap.put(parts[i], entry.getValue());
                 }
-            } else {
-                result.put(parentKey + "." + key, value.toString());
+            }
+        }
+        return result;
+    }
+
+    public static ConfigurationModel loadConfigurationFiles(List<File> files, String workingDirectory) {
+        ConfigurationModel defaultConfig = ConfigurationModel.defaults();
+        return files.stream()
+                    .map(f -> TomlUtils.loadConfigurationFile(f, workingDirectory))
+                    .reduce(defaultConfig, ConfigurationModel::merge);
+    }
+
+    static ConfigurationModel loadConfigurationFile(File configFile, String workingDirectory) {
+        if (!configFile.isAbsolute() && workingDirectory != null) {
+            File temporaryFile = new File(workingDirectory, configFile.getPath());
+            if (temporaryFile.exists()) {
+                configFile = temporaryFile;
             }
         }
 
-        return result;
+        try {
+            return ObjectMapperFactory.getObjectMapper(configFile.toString())
+                                      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                                      .readerFor(ConfigurationModel.class)
+                                      .readValue(configFile);
+        } catch (IOException e) {
+            throw new FlywayException("Unable to load config file: " + configFile.getAbsolutePath(), e);
+        }
     }
 }

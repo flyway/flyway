@@ -20,6 +20,7 @@ import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 
 import javax.sql.DataSource;
@@ -28,6 +29,11 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 public interface Configuration {
+    /**
+     * @apiNote Currently under development and not recommended for use.
+     */
+    ConfigurationModel getModernConfig();
+
     /**
      * Retrieves the ClassLoader to use for loading migrations, resolvers, etc. from the classpath.
      *
@@ -153,6 +159,13 @@ public interface Configuration {
      * @return The file name prefix for undo sql migrations. (default: U)
      */
     String getUndoSqlMigrationPrefix();
+
+    /**
+     * Checks whether SQL is executed in a transaction.
+     *
+     * @return Whether SQL is executed in a transaction. (default: true)
+     */
+    boolean isExecuteInTransaction();
 
     /**
      * Retrieves the file name prefix for repeatable SQL migrations.

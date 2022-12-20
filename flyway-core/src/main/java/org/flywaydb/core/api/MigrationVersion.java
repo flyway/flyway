@@ -116,6 +116,22 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         return displayText;
     }
 
+    public String getName() {
+        if (this.equals(EMPTY)) {
+            return null;
+        }
+        if (this.equals(LATEST)) {
+            return "latest";
+        }
+        if (this.equals(CURRENT)) {
+            return "current";
+        }
+        if (this.equals(NEXT)) {
+            return "next";
+        }
+        return displayText;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

@@ -29,10 +29,11 @@ FLYWAY_USER=myuser
 ```
 
 ### API
+When using the Java API, you configure your JDBC URL, User and Password via a datasource.
 ```java
 Flyway.configure()
-    .user("myuser")
-    .load()
+        .datasource("jdbc:h2:mem:flyway_db", "myuser", "mysecretpassword")
+        .load()
 ```
 
 ### Gradle

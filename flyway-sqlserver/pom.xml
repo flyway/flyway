@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.8.3</version>
+        <version>9.10.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -40,6 +40,16 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+
+
+
+
+
+
+
+
+
+
 
 
 

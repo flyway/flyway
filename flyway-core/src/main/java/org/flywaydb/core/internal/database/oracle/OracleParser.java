@@ -582,6 +582,14 @@ public class OracleParser extends Parser {
         return super.isDelimiter(peek, context, col, colIgnoringWhitespace);
     }
 
+    @Override
+    protected Token handleMultilineComment(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+        reader.swallow("/*".length());
+        String text = reader.readUntilExcluding("*/");
+        reader.swallow("*/".length());
+        return new Token(TokenType.COMMENT, pos, line, col, text, text, context.getParensDepth());
+    }
+
 
 
 

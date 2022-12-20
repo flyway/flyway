@@ -15,6 +15,23 @@
  */
 package org.flywaydb.core.internal.configuration.models;
 
-public class EnvironmentResolver {
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.List;
+import java.util.Map;
+
+@Getter
+@Setter
+public class ResolvedEnvironment {
+    private String url;
+    private String user;
+    private String password;
+    private String driver;
+    private List<String> schemas;
+    private String token;
+    private Integer connectRetries;
+    private Integer connectRetriesInterval;
+    private String initSql;
+    private Map<String, String> jdbcProperties;
 }

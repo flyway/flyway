@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.plugin;
 
 import lombok.CustomLog;
 import lombok.NoArgsConstructor;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Plugin;
 
 
@@ -45,6 +46,14 @@ public class PluginRegister {
         return (List<T>) getPlugins()
                 .stream()
                 .filter(clazz::isInstance)
+                .collect(Collectors.toList());
+    }
+
+    public <T extends Plugin> List<T> getLicensedPlugins(Class<T> clazz, Configuration configuration) {
+        return (List<T>) getPlugins()
+                .stream()
+                .filter(clazz::isInstance)
+                .filter(p -> p.isLicensed(configuration))
                 .collect(Collectors.toList());
     }
 

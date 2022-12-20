@@ -2,14 +2,12 @@
 pill: overview
 subtitle: How to Contribute - Documentation
 ---
-<div id="websiteHowToContribute">
-    <h1>Documentation: How to Contribute</h1>
+# Documentation: How to Contribute
+This guide is for people wishing to **contribute to Flyway's documentation**
 
-    <p>This guide is for people wishing to <strong>contribute to Flyway's documentation</strong>:</p>
+This guide will walk you through:
+    
+* [Setting up your dev environment](Documentation/Documentation - Dev Environment Setup)
+* [Submitting your changes](Documentation/Documentation - Submit your Changes)
 
-    <p>This guide will walk you through</p>
-    <ul>
-        <li>setting up your dev environment</li>
-        <li>submitting your changes</li>
-    </ul>
-</div>
+

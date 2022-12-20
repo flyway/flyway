@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.extensibility;
 
-import java.util.Map;
+import org.flywaydb.core.api.configuration.Configuration;
 
 public interface RgDomainChecker extends Plugin {
-    boolean isInDomain(Map<String, String> config);
+    boolean isInDomain(Configuration config);
 }

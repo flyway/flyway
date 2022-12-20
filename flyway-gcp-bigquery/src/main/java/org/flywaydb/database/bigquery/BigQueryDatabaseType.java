@@ -49,12 +49,6 @@ public class BigQueryDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public int getPriority() {
-        // All regular database types (including non-beta BigQuery support) take priority over this beta
-        return -1;
-    }
-
-    @Override
     public Pattern getJDBCCredentialsPattern() {
         return OAUTH_CREDENTIALS_PATTERN;
     }
@@ -85,7 +79,7 @@ public class BigQueryDatabaseType extends BaseDatabaseType {
     }
 
     @Override
-    public void setOverridingConnectionProps(Map<String, String> props) {}
+    public void setOverridingConnectionProps(Map<String, String> props) { }
 
     @Override
     public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
@@ -104,12 +98,9 @@ public class BigQueryDatabaseType extends BaseDatabaseType {
 
     @Override
     public void printMessages() {
-        LOG.info("Join the GCP BigQuery beta via " + FlywayDbWebsiteLinks.BIG_QUERY_BETA);
 
-        LOG.info(""); //this can go when the beta message above is retired.
         LOG.info("Experiencing performance issues while using GCP BigQuery?");
-        LOG.info("Find out how Flyway Teams improves performance with batching at " +
-                         FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_BIG_QUERY);
+        LOG.info("Find out how Flyway Teams improves performance with batching at " + FlywayDbWebsiteLinks.TEAMS_FEATURES_FOR_BIG_QUERY);
         LOG.info("");
 
     }

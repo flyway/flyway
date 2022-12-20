@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 
 public class BigQueryDatabaseExtension implements PluginMetadata {
     public String getDescription() {
-        return "GCP BigQuery database support (beta) " + readVersion() + " by Redgate";
+        return "GCP BigQuery database support " + readVersion() + " by Redgate";
     }
 
     private static String readVersion() {
