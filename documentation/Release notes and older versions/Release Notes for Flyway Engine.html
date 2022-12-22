@@ -18,6 +18,28 @@
 <div class="col-md-9">
 
     <div class="release">
+        <h2 id="9.10.2">Flyway 9.10.2 (2022-12-22)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3581">Issue 3581</a>
+                Resolves migration resolvers not fully supporting instances for API users
+            </li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>version operations (`version` or `-v` or `--version`) will now list the versions of all plugins (and if they are correctly licensed)</li>
+            <li>Update AWS dependency to resolve CVE-2022-41915</li>
+        </ul>
+
+        <p>
+            Thanks to nafg for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="9.10.1">Flyway 9.10.1 (2022-12-16)</h2>
 
         <h3>Bug fixes</h3>

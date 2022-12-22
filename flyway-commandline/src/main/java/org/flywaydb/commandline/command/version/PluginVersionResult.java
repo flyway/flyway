@@ -16,15 +16,10 @@
 package org.flywaydb.commandline.command.version;
 
 import lombok.AllArgsConstructor;
-import org.flywaydb.core.api.output.OperationResult;
-import org.flywaydb.core.internal.license.Edition;
-
-import java.util.List;
 
 @AllArgsConstructor
-public class VersionResult implements OperationResult {
+public class PluginVersionResult {
+    public String name;
     public String version;
-    public String command;
-    public Edition edition;
-    public List<PluginVersionResult> pluginVersions;
+    public boolean isLicensed;
 }

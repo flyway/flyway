@@ -80,7 +80,7 @@ public class ClassicConfiguration implements Configuration {
         getModernFlyway().setDefaultSchema(defaultSchema);
     }
 
-    public String getDefaultSchema(){
+    public String getDefaultSchema() {
         return getModernFlyway().getDefaultSchema();
     }
 
@@ -138,7 +138,10 @@ public class ClassicConfiguration implements Configuration {
     @Setter
     private ClassProvider<JavaMigration> javaMigrationClassProvider = null;
     @Getter
-    private JavaMigration[] javaMigrations = {};
+    private JavaMigration[] javaMigrations = { };
+
+    @Getter
+    private MigrationResolver[] resolvers = { };
 
     private OutputStream dryRunOutput;
 
@@ -225,8 +228,8 @@ public class ClassicConfiguration implements Configuration {
             return new ValidatePattern[0];
         } else {
             return Arrays.stream(ignoreMigrationPatterns)
-                                                 .map(ValidatePattern::fromPattern)
-                                                 .toArray(ValidatePattern[]::new);
+                         .map(ValidatePattern::fromPattern)
+                         .toArray(ValidatePattern[]::new);
         }
     }
 
@@ -389,12 +392,6 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getBaselineDescription() {
         return getModernFlyway().getBaselineDescription();
-    }
-
-    @Override
-    public MigrationResolver[] getResolvers() {
-        String[] resolvers = getModernFlyway().getMigrationResolvers().toArray(new String[0]);
-        return ClassUtils.instantiateAll(resolvers, classLoader).toArray(new MigrationResolver[resolvers.length]);
     }
 
     @Override
@@ -799,7 +796,7 @@ public class ClassicConfiguration implements Configuration {
      * Whether Flyway should try to automatically detect SQL migration file encoding
      *
      * @param detectEncoding {@code true} to enable auto detection, {@code false} otherwise
-     * <i>Flyway Teams only</i>
+     *                       <i>Flyway Teams only</i>
      */
     public void setDetectEncoding(boolean detectEncoding) {
 
@@ -930,7 +927,6 @@ public class ClassicConfiguration implements Configuration {
         getModernFlyway().setPlaceholderSeparator(placeholderSeparator);
     }
 
-
     /**
      * Sets the suffix of every placeholder.
      *
@@ -1053,19 +1049,10 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Sets the datasource to use. Must have the necessary privileges to execute DDL.
-     *
-     * @param dataSource The datasource to use. Must have the necessary privileges to execute DDL.
-     */
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    /**
-     * Sets the datasource to use. Must have the necessary privileges to execute DDL.
      * To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.
      *
-     * @param url The JDBC URL of the database.
-     * @param user The user of the database.
+     * @param url      The JDBC URL of the database.
+     * @param user     The user of the database.
      * @param password The password of the database.
      */
     public void setDataSource(String url, String user, String password) {
@@ -1181,7 +1168,7 @@ public class ClassicConfiguration implements Configuration {
     /**
      * Scan this location for classes that implement Callback.
      *
-     * @param path The path to scan.
+     * @param path            The path to scan.
      * @param errorOnNotFound Whether to show an error if the location is not found.
      */
     public List<Callback> loadCallbackLocation(String path, boolean errorOnNotFound) {
@@ -1191,7 +1178,7 @@ public class ClassicConfiguration implements Configuration {
             Class<? extends Callback> callbackClass;
             try {
                 callbackClass = ClassUtils.loadClass(Callback.class, callback, classLoader);
-            } catch(Throwable e) {
+            } catch (Throwable e) {
                 Throwable rootCause = ExceptionUtils.getRootCause(e);
                 LOG.warn("Skipping " + Callback.class + ": " + ClassUtils.formatThrowable(e) + (
                         rootCause == e
@@ -1216,7 +1203,7 @@ public class ClassicConfiguration implements Configuration {
      * @param resolvers The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
      */
     public void setResolvers(MigrationResolver... resolvers) {
-        getModernFlyway().setMigrationResolvers(Arrays.stream(resolvers).map(Object::toString).collect(Collectors.toList()));
+        this.resolvers = resolvers;
     }
 
     /**
@@ -1358,17 +1345,28 @@ public class ClassicConfiguration implements Configuration {
      */
     public void configure(Configuration configuration) {
         setModernConfig(ConfigurationModel.clone(configuration.getModernConfig()));
-        
+
         setJavaMigrations(configuration.getJavaMigrations());
         setResourceProvider(configuration.getResourceProvider());
         setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
         setCallbacks(configuration.getCallbacks());
 
-        this.dataSource = configuration.getDataSource();
+        List<MigrationResolver> migrationResolvers = new ArrayList<>(Arrays.asList(configuration.getResolvers()));
+        if (getModernFlyway().getMigrationResolvers() != null) {
+            String[] resolversFromConfig = getModernFlyway().getMigrationResolvers().toArray(new String[0]);
+            List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolversFromConfig, classLoader);
+            migrationResolvers.addAll(resolverList);
+        }
 
+        setResolvers(migrationResolvers.toArray(new MigrationResolver[0]));
 
+        getModernFlyway().setMigrationResolvers(null);
 
+        dataSource = configuration.getDataSource();
         pluginRegister = configuration.getPluginRegister();
+
+
+
 
         configureFromConfigurationProviders(this);
     }
@@ -1379,17 +1377,17 @@ public class ClassicConfiguration implements Configuration {
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
      *
      * @param properties Properties used for configuration.
+     *
      * @throws FlywayException when the configuration failed.
      */
     public void configure(Properties properties) {
         configure(ConfigUtils.propertiesToMap(properties));
     }
 
-    public void setUrl(String url){
+    public void setUrl(String url) {
         this.dataSource = null;
         getCurrentUnresolvedEnvironment().setUrl(url);
         this.resolvedEnvironments.clear();
-
     }
 
     public void setUser(String user) {
@@ -1416,6 +1414,7 @@ public class ClassicConfiguration implements Configuration {
      * <p>To use a custom ClassLoader, it must be passed to the Flyway constructor prior to calling this method.</p>
      *
      * @param props Properties used for configuration.
+     *
      * @throws FlywayException when the configuration failed.
      */
     public void configure(Map<String, String> props) {
@@ -1670,7 +1669,7 @@ public class ClassicConfiguration implements Configuration {
             setFailOnMissingLocations(failOnMissingLocationsProp);
         }
 
-        if(StringUtils.hasText(getCurrentEnvironment().getUrl()) && (dataSource == null || StringUtils.hasText(urlProp) || StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
+        if (StringUtils.hasText(getCurrentEnvironment().getUrl()) && (dataSource == null || StringUtils.hasText(urlProp) || StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
             Map<String, String> jdbcPropertiesFromProps = getPropertiesUnderNamespace(props, getPlaceholders(), ConfigUtils.JDBC_PROPERTIES_PREFIX);
             setDataSource(new DriverDataSource(classLoader, getCurrentEnvironment().getDriver(), getCurrentEnvironment().getUrl(), getCurrentEnvironment().getUser(), getCurrentEnvironment().getPassword(), this, jdbcPropertiesFromProps));
         }

@@ -8,7 +8,7 @@ redirect_from: Commandsline/
 The Flyway command-line tool is a standalone Flyway distribution. It runs on Windows, macOS and Linux and it is primarily meant for users who wish to migrate their database from the command-line without having to integrate Flyway into their applications nor having to install a build tool.
 
 ## Download and installation
-### Teams Edition
+### Teams/Enterprise Edition
 #### Windows
  <a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://flywaydb.org/download/thankyou?dl={{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-windows-x64.zip">flyway-commandline-{{site.flywayVersion}}-windows-x64.zip</a>
  <a class="note" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-windows-x64.zip.md5">md5</a>

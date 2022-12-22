@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.10.1</version>
+        <version>9.10.2</version>
     </parent>
     <artifactId>flyway-core</artifactId>
     <packaging>jar</packaging>
@@ -87,10 +87,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-secretmanager</artifactId>
         </dependency>
     </dependencies>
 

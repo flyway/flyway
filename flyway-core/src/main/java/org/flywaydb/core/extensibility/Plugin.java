@@ -21,4 +21,8 @@ public interface Plugin {
     default boolean isLicensed(Configuration configuration) {
         return true;
     }
+
+    default String getPluginVersion() {
+        return null;
+    }
 }

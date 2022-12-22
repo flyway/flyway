@@ -28,7 +28,7 @@ The Flyway Maven plugin supports **Maven 3.x** running on **Java 8**, **Java 9**
     </tr>
 </table>
 
-### Teams Edition
+### Teams/Enterprise Edition
 
 <code>pom.xml</code>
 <table class="table">

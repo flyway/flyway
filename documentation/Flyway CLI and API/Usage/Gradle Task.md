@@ -22,7 +22,7 @@ running on **Java 8**, **Java 9**, **Java 10**, **Java 11** or **Java 12**.
     </tr>
 </table>
 
-### Teams Edition
+### Teams/Enterprise Edition
 <code>build.gradle</code>
 <table class="table">
     <tr>

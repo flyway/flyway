@@ -63,7 +63,7 @@ be migrated to a state the rest of the code can work with.
     </tr>
 </table>
 
-### Teams Edition
+### Teams/Enterprise Edition
 <table class="table">
     <tr>
         <th>Maven</th>
