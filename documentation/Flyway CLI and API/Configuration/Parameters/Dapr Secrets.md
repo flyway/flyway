@@ -39,7 +39,7 @@ daprConfigurationExtension.setDaprSecrets("secret1", "secret2");
 ### Gradle
 ```groovy
 flyway {
-    pluginConfiguration [
+    pluginConfiguration = [
         daprSecrets: ['secret1', 'secret2']
     ]
 }

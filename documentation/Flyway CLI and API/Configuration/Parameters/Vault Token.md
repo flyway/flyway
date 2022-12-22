@@ -35,7 +35,7 @@ vaultConfigurationExtension.setVaultToken("s.abcdefghijklmnopqrstuvwx");
 ### Gradle
 ```groovy
 flyway {
-    pluginConfiguration [
+    pluginConfiguration = [
       vaultToken: 's.abcdefghijklmnopqrstuvwx'
     ]
 }

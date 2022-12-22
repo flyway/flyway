@@ -35,7 +35,7 @@ sqlServerConfigurationExtension.setKerberosLoginFile("/path/to/SQLJDBCDriver.con
 ### Gradle
 ```groovy
 flyway {
-    pluginConfiguration [
+    pluginConfiguration = [
         sqlserverKerberosLoginFile: '/path/to/SQLJDBCDriver.conf'
     ]
 }
