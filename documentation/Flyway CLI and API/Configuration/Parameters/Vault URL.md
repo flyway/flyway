@@ -37,7 +37,7 @@ vaultConfigurationExtension.setVaultUrl("http://localhost:8200/v1/");
 ### Gradle
 ```groovy
 flyway {
-    pluginConfiguration [
+    pluginConfiguration = [
       vaultUrl: 'http://localhost:8200/v1/'
     ]
 }

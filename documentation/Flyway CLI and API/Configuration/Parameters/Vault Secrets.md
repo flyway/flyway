@@ -40,7 +40,7 @@ vaultConfigurationExtension.setVaultSecrets("kv/data/flyway/flywayConfig1", "kv/
 ### Gradle
 ```groovy
 flyway {
-    pluginConfiguration [
+    pluginConfiguration = [
       vaultSecrets: ['kv/data/flyway/flywayConfig1', 'kv/flyway/flywayConfig2']
     ]
 }
