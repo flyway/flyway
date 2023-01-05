@@ -140,6 +140,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
                 FUNCTION,
                 PROCEDURE,
                 PACKAGE,
+                PACKAGE_BODY,
                 CONTEXT,
                 LIBRARY,
                 TYPE,
@@ -433,6 +434,7 @@ public class OracleSchema extends Schema<OracleDatabase, OracleTable> {
         PROCEDURE("PROCEDURE"),
         FUNCTION("FUNCTION"),
         PACKAGE("PACKAGE"),
+        PACKAGE_BODY("PACKAGE BODY"),
 
         // Contexts, seen in DBA_CONTEXT view, may remain if DBA_CONTEXT is not accessible.
         CONTEXT("CONTEXT") {

@@ -18,6 +18,27 @@
 <div class="col-md-9">
 
     <div class="release">
+        <h2 id="9.11.0">Flyway 9.11.0 (2023-01-05)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Explicitly drop Oracle package bodies so that package bodies not tied to an existing package are also cleaned</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>'check' reports now produce all successful reports and fail on the first non-successful report</li>
+            <li>Update RGCompare engine to 1.6.0.7325</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Regex Rule code analysis results now include the line and column number of where violations occurred</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="9.10.2">Flyway 9.10.2 (2022-12-22)</h2>
 
         <h3>Bug fixes</h3>

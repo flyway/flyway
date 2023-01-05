@@ -38,7 +38,7 @@ public class TomlUtils {
         Map<String, String> environmentVariables = System.getenv()
                                                          .entrySet()
                                                          .stream()
-                                                         .filter(e -> e.getKey().startsWith("flyway_") || e.getKey().startsWith("environment_"))
+                                                         .filter(e -> e.getKey().startsWith("flyway_") || e.getKey().startsWith("environments_"))
                                                          .collect(Collectors.toMap(k -> k.getKey().replace("_", "."), Map.Entry::getValue));
         return toConfiguration(unflattenMap(environmentVariables));
     }

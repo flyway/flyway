@@ -11,6 +11,18 @@ Instead, you might wish to add a single, cumulative migration that represents th
 
 [Flyway Teams Edition](/https://flywaydb.org/download) gives you a way to achieve this using **Baseline Migrations**.
 
+## Usage
+
+API/Maven/Gradle users will need to include `flyway-proprietary` as a dependency in order to use Baseline Migrations. For example:
+
+```
+<dependency>
+    <groupId>org.flywaydb.enterprise</groupId>
+    <artifactId>flyway-proprietary</artifactId>
+    <version>{{ site.flywayVersion }}</version>
+</dependency>
+```
+
 ## How it works
 
 Baseline migrations are prefixed with `B` followed by the version of your database they represent. For example: `B5__my_database.sql` represents the state of your database after applying all versioned migrations up to and including `V5`.

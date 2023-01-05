@@ -432,4 +432,14 @@ public class StringUtils {
             return Pair.of(input, "");
         }
     }
+
+    public static int countOccurrencesOf(String text, char search) {
+        int count = 0;
+        for (char c : text.toCharArray()) {
+            if (c == search) {
+                count++;
+            }
+        }
+        return count;
+    }
 }

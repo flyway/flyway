@@ -46,8 +46,9 @@ rules = ["(?i)(^|\\s)TO\\s+DO($|\\s|;)"]
 passOnRegexMatch = false
 description = "Phrase 'to do' remains in the code"
 ```
-### Good practice
+### Good to know
 * Does case sensitivity matter to you ? If it doesn't then make the regex rules insensitive too with the prefix `(?i)`
+* You will need to use the [Java dialect](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html) of regex 
 
 ## File Naming
 The file name will be used as the source of rule metadata:

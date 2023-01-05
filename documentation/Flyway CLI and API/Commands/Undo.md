@@ -13,7 +13,7 @@ Undoes the most recently applied versioned migration.
 {% include commandUsage.html command="Undo" %}
 <br/>
 
-API users will need to include `flyway-proprietary` as a dependency in order to use `undo`. For example:
+API/Maven/Gradle users will need to include `flyway-proprietary` as a dependency in order to use `undo`. For example:
 
 ```
 <dependency>

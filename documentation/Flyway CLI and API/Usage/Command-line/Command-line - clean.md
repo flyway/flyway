@@ -55,3 +55,16 @@ Cleaned database schema 'PUBLIC' (execution time 00:00.014s)</pre>
   "warnings": [],
   "operation": "clean"
 }</pre>
+
+## Limitations
+
+- [SQL Server - no users will be dropped](Supported Databases/SQL Server#limitations)
+
+## Cleaning additional objects
+For complicated database structures an accurate dependency graph cannot always be constructed, so not every object is cleaned.
+There are also objects that we do not drop as they aren’t always safe to, for example, users in SQL Server.
+To clean additional objects, you can add an afterClean [callback](Concepts/Callback concept) defining drop statements. For example afterClean.sql:
+
+```
+DROP USER test_user
+```
