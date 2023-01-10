@@ -81,6 +81,10 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase, SnowflakeTable> {
             jdbcTemplate.execute(dropStatement);
         }
 
+	for (String dropStatement: generateDropStatements("STAGE")) {
+            jdbcTemplate.execute(dropStatement);
+	}
+
         for (Pair<String, String> snowflakeDropPair : generateDropStatementsWithArgs("USER FUNCTIONS", "FUNCTION")) {
             try {
                 jdbcTemplate.execute(snowflakeDropPair.getRight());
