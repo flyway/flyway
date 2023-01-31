@@ -38,12 +38,10 @@ public class SnowflakeDatabaseType extends BaseDatabaseType {
         return Types.VARCHAR;
     }
 
-
-
-
-
-
-
+    @Override
+    public boolean supportsReadOnlyTransactions() {
+        return false;
+    }
 
     @Override
     public boolean handlesJDBCUrl(String url) {

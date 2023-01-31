@@ -19,10 +19,16 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.parser.*;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 public class SnowflakeParser extends Parser {
     private static final String ALTERNATIVE_QUOTE = "$$";
     private static final String ALTERNATIVE_QUOTE_SCRIPT = "DECLARE";
+    private static final List<String> CONDITIONALLY_CREATABLE_OBJECTS = Arrays.asList(
+            "COLUMN", "CONSTRAINT", "FUNCTION", "INDEX", "PROCEDURE", "SCHEMA", "SEQUENCE", "TABLE", "VIEW"
+                                                                                     );
 
     public SnowflakeParser(Configuration configuration, ParsingContext parsingContext) {
         super(configuration, parsingContext, 7);
@@ -46,7 +52,7 @@ public class SnowflakeParser extends Parser {
             alternativeQuoteOpen = "BEGIN";
             alternativeQuoteEnd = "END";
             reader.swallowUntilExcluding(alternativeQuoteOpen);
-            text = readBetweenRecursive(reader, alternativeQuoteOpen, alternativeQuoteEnd);
+            text = readBetweenRecursive(reader, alternativeQuoteOpen, alternativeQuoteEnd, context.getDelimiter().toString().charAt(0));
         } else {
             reader.swallow(alternativeQuoteOpen.length());
             text = reader.readUntilExcluding(alternativeQuoteOpen, alternativeQuoteEnd);
@@ -57,17 +63,43 @@ public class SnowflakeParser extends Parser {
     }
 
     @Override
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) throws IOException {
+        int lastKeywordIndex = getLastKeywordIndex(tokens);
+        Token previousKeyword = lastKeywordIndex >= 0 ? tokens.get(lastKeywordIndex) : null;
+        String keywordText = keyword.getText();
+        String previousKeywordText = previousKeyword != null ? previousKeyword.getText().toUpperCase(Locale.ENGLISH) : "";
+
+        if ("BEGIN".equalsIgnoreCase(keywordText)
+                || ((("IF".equalsIgnoreCase(keywordText) && !CONDITIONALLY_CREATABLE_OBJECTS.contains(previousKeywordText))  // excludes the IF in eg. CREATE TABLE IF EXISTS
+                || "FOR".equalsIgnoreCase(keywordText)
+                || "CASE".equalsIgnoreCase(keywordText))
+                && previousKeyword != null && !"END".equalsIgnoreCase(previousKeywordText)
+                && !"CURSOR".equalsIgnoreCase(previousKeywordText))) {  // DECLARE CURSOR FOR SELECT ... has no END
+            context.increaseBlockDepth(keywordText);
+        } else if (("EACH".equalsIgnoreCase(keywordText) || "SQLEXCEPTION".equalsIgnoreCase(keywordText))
+                && previousKeyword != null && "FOR".equalsIgnoreCase(previousKeywordText) && context.getBlockDepth() > 0) {
+            context.decreaseBlockDepth();
+        } else if ("END".equalsIgnoreCase(keywordText) && context.getBlockDepth() > 0) {
+            context.decreaseBlockDepth();
+        }
+    }
+
+    @Override
     protected boolean isSingleLineComment(String peek, ParserContext context, int col) {
         return peek.startsWith("--") || peek.startsWith("//");
     }
 
-    private String readBetweenRecursive(PeekingReader reader, String prefix, String suffix) throws IOException {
+    private String readBetweenRecursive(PeekingReader reader, String prefix, String suffix, char delimiter) throws IOException {
         StringBuilder result = new StringBuilder();
         reader.swallow(prefix.length());
         while (!reader.peek(suffix)) {
             result.append(reader.readUntilExcluding(prefix, suffix));
+            if (reader.peek("END IF") || reader.peek("END FOR") || reader.peek("END CASE")) {
+                result.append(reader.readUntilIncluding(delimiter));
+                result.append(reader.readUntilExcluding(prefix, suffix));
+            }
             if (reader.peek(prefix)) {
-                result.append(prefix).append(readBetweenRecursive(reader, prefix, suffix)).append(suffix);
+                result.append(prefix).append(readBetweenRecursive(reader, prefix, suffix, delimiter)).append(suffix);
             }
         }
         reader.swallow(suffix.length());

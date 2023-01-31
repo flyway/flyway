@@ -46,6 +46,10 @@ These error codes may appear from any command, and are indicative of more genera
 - **Caused by:** Schema history or filesystem corruption causing the same migration to appear to be deleted more than once
 - **Solution:** Ensure that you do not tamper with the schema history and all migrations that have been deleted are removed from [locations](Configuration/parameters/locations) known to Flyway
 
+### `NON_EMPTY_SCHEMA_WITHOUT_SCHEMA_HISTORY_TABLE`
+- **Caused by:** Having non-empty schema(s) but no schema history table (e.g. introducing Flyway to an existing database)
+- **Solution:** Run `baseline` or set [baselineOnMigrate](Configuration/parameters/Baseline On Migrate) to true to initialize the schema history table
+
 
 ## Validate Error Codes
 These error codes are surfaced when running `validate` or `validateWithResult`.

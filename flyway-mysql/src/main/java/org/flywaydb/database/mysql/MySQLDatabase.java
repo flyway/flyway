@@ -240,6 +240,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
 
 
+
     @Override
     public final void ensureSupported() {
         if (databaseType.getName().equals("TiDB")) {
@@ -252,7 +253,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
             ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("10.3", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
-            recommendFlywayUpgradeIfNecessary("10.6");
+            recommendFlywayUpgradeIfNecessary("10.10");
         } else {
 
             ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("8.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);

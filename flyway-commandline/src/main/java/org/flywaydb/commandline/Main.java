@@ -31,6 +31,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.*;
 
 import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.extensibility.TelemetryPlugin;
 import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.configuration.TomlUtils;
@@ -46,6 +47,7 @@ import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.logging.multi.MultiLogCreator;
 import org.flywaydb.core.internal.plugin.PluginRegister;
+import org.flywaydb.core.internal.telemetry.TelemetryEventFactory;
 import org.flywaydb.core.internal.util.*;
 
 import java.io.Console;
@@ -89,6 +91,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        JavaVersionPrinter.printJavaVersion();
         CommandLineArguments commandLineArguments = new CommandLineArguments(pluginRegister, args);
         initLogging(commandLineArguments);
 
@@ -124,21 +127,16 @@ public class Main {
             Flyway flyway = Flyway.configure(configuration.getClassLoader()).configuration(configuration).load();
 
             if (!commandLineArguments.skipCheckForUpdate()) {
-                if (RedgateUpdateChecker.isEnabled() && configuration.getDataSource() != null) {
-                    try (JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
-                         Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null)) {
+                MavenVersionChecker.checkForVersionUpdates();
+            }
 
-                        RedgateUpdateChecker.Context context = new RedgateUpdateChecker.Context(
-                                configuration,
-                                commandLineArguments.getOperations(),
-                                database.getDatabaseType().getName(),
-                                database.getVersion().getVersion(),
-                                pluginRegister
-                        );
-                        RedgateUpdateChecker.checkForVersionUpdates(context);
-                    }
-                } else {
-                    MavenVersionChecker.checkForVersionUpdates();
+            if (configuration.getDataSource() != null) {
+                try (JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
+                     Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null)) {
+
+                    TelemetryPlugin telemetryPlugin = configuration.getPluginRegister().getHighestPriorityPlugin(TelemetryPlugin.class);
+                    Map<String, String> properties = TelemetryEventFactory.createUpdateCheckRequest(configuration, commandLineArguments.getOperations(), database.getDatabaseType().getName(), database.getVersion().getVersion());
+                    telemetryPlugin.trackEvent("updateCheckRequest", properties);
                 }
             }
 

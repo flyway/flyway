@@ -40,13 +40,9 @@ public class SchemaHistoryFactory {
         Table table = schema.getTable(configuration.getTable());
         JdbcTableSchemaHistory jdbcTableSchemaHistory = new JdbcTableSchemaHistory(sqlScriptExecutorFactory, sqlScriptFactory, database, table, configuration);
 
-
-
-
-
-
-
-
+        if (statementInterceptor != null) {
+            return statementInterceptor.getSchemaHistory(configuration, jdbcTableSchemaHistory);
+        }
         return jdbcTableSchemaHistory;
     }
 

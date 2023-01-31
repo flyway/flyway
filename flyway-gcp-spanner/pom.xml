@@ -21,14 +21,14 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.11.0</version>
+        <version>9.14.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>flyway-gcp-spanner</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <version>9.11.0-beta</version>
+    <version>9.14.0-beta</version>
 
     <dependencies>
         <dependency>
@@ -102,6 +102,9 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <archive>
+                        <manifestEntries>
+                        	<Multi-Release>true</Multi-Release>
+                        </manifestEntries>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                     </archive>
                 </configuration>

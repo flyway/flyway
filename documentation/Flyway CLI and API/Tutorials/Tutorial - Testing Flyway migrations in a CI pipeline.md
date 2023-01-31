@@ -85,7 +85,7 @@ Lets create and set up our GitHub Actions workflow to test database migrations.
         runs-on: ubuntu-latest
         steps:
           - name: Checkout
-            uses: actions/checkout@v2
+            uses: actions/checkout@v3
           - name: Run database migrations against prod backup
             run: ./migration-test-prod.sh
             env:
@@ -173,7 +173,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Run database migrations against prod backup
         run: ./migration-test-prod.sh
         env:
@@ -203,7 +203,7 @@ One last thing which is useful - with the way it's set up, you will have to crea
         runs-on: ubuntu-latest
         steps:
           - name: Checkout
-            uses: actions/checkout@v2
+            uses: actions/checkout@v3
           - name: Create backup
             run: ./take-db-backup.sh
             env:

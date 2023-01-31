@@ -276,6 +276,12 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public OutputStream getDryRunOutput() {
 
+        if (this.dryRunOutput == null) {
+
+            String dryRunOutputFileName = modernConfig.getFlyway().getDryRunOutput();
+            if (!StringUtils.hasText(dryRunOutputFileName)) {
+                return null;
+            }
 
 
 
@@ -285,17 +291,9 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+        }
 
-
-
-
-
-
-
-
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
-
+        return this.dryRunOutput;
     }
 
     @Override

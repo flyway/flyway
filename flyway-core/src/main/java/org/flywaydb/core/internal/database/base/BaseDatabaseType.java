@@ -64,11 +64,10 @@ public abstract class BaseDatabaseType implements DatabaseType {
      */
     public abstract int getNullType();
 
-
-
-
-
-
+    @Override
+    public boolean supportsReadOnlyTransactions() {
+        return true;
+    }
 
     /**
      * Whether this database type should handle the given JDBC url.

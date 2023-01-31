@@ -113,6 +113,8 @@ public class ConfigUtils {
     // Plugin specific
     public static final String FLYWAY_PLUGINS_PREFIX = "flyway.plugins.";
 
+    private static final PluginRegister PLUGIN_REGISTER = new PluginRegister();
+
     /**
      * Converts Flyway-specific environment variables to their matching properties.
      *
@@ -342,7 +344,7 @@ public class ConfigUtils {
             return CONFIGURATIONS;
         }
 
-        for (ConfigurationExtension configurationExtension : new PluginRegister().getPlugins(ConfigurationExtension.class)) {
+        for (ConfigurationExtension configurationExtension : PLUGIN_REGISTER.getPlugins(ConfigurationExtension.class)) {
             String configurationParameter = configurationExtension.getConfigurationParameterFromEnvironmentVariable(key);
             if (configurationParameter != null) {
                 return configurationParameter;

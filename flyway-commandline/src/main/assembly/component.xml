@@ -162,6 +162,15 @@
             </includes>
         </dependencySet>
         <dependencySet>
+            <outputDirectory>lib/appinsights</outputDirectory>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>com.microsoft.azure:applicationinsights-core</include>
+                <include>com.microsoft.azure:applicationinsights-runtime-attach</include>
+                <include>net.bytebuddy:byte-buddy-agent</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
             <outputDirectory>lib/oracle_wallet</outputDirectory>
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <includes>
@@ -194,8 +203,10 @@
                 <include>org.flywaydb:flyway-mysql</include>
                 <include>org.flywaydb:flyway-firebird</include>
                 <include>org.flywaydb:flyway-proprietary</include>
+                <include>org.flywaydb:flyway-telemetry-app-insights</include>
             </includes>
         </dependencySet>
+
 
 
 

@@ -13,7 +13,7 @@ You can read more about the `check` concept [here](Concepts/Check Concept).
 
 #### Requirements
 - .NET 6 is required in order to generate reports. You can download it from [here](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
-- `sqlfluff` is required for Code Analysis (`-code`). You can install it by running `pip3 install sqlfluff==1.2.1`.
+- `sqlfluff` is required for Code Analysis (`-code`). You can install it by running `pip3 install sqlfluff==1.2.1` or use the `redgate/flyway` Docker image that has `sqlfluff` pre-installed.
 
 #### Flags:
 - _One or more flags must be present_
@@ -37,6 +37,10 @@ You can read more about the `check` concept [here](Concepts/Check Concept).
 |    check.nextSnapshot         | A snapshot containing all migrations including those that are pending (generated via [`snapshot`](Commands/snapshot))
 |    check.deployedSnapshot     | A snapshot containing all applied migrations and thus matching what should be in the target (generated via [`snapshot`](Commands/snapshot))
 |    check.appliedMigrations    | A comma-separated list of migration ids (migration versions or repeatable descriptions) to apply to create snapshots (generated via [`info`](Commands/info))
+|    check.majorRules           | A comma-separated list of rule codes that are considered to be 'major' issues
+|    check.minorRules           | A comma-separated list of rule codes that are considered to be 'minor' issues
+|    check.majorTolerance       | The number of 'major' issues to be tolerated before throwing an error
+|    check.minorTolerance       | The number of 'minor' issues to be tolerated before throwing an error
 
 #### `check.reportFilename`
 

@@ -22,7 +22,6 @@ import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
-
 import org.flywaydb.core.internal.util.ExceptionUtils;
 
 import javax.sql.DataSource;
@@ -48,10 +47,10 @@ public class JdbcConnectionFactory implements Closeable {
     private final String driverInfo;
     @Getter
     private final String productName;
+    private final StatementInterceptor statementInterceptor;
 
     private Connection firstConnection;
     private ConnectionInitializer connectionInitializer;
-
 
 
 
@@ -79,7 +78,7 @@ public class JdbcConnectionFactory implements Closeable {
         this.jdbcUrl = getJdbcUrl(databaseMetaData);
         this.driverInfo = getDriverInfo(databaseMetaData);
         this.productName = JdbcUtils.getDatabaseProductName(databaseMetaData);
-
+        this.statementInterceptor = statementInterceptor;
 
 
 
@@ -109,18 +108,16 @@ public class JdbcConnectionFactory implements Closeable {
         if (connectionInitializer != null) {
             connectionInitializer.initialize(this, connection);
         }
-
-
-
-
-
-
-
-
-
-
-
-
+        if (statementInterceptor != null) {
+            if (databaseType.supportsReadOnlyTransactions()) {
+                try {
+                    connection.setReadOnly(true);
+                } catch (SQLException e) {
+                    throw new FlywaySqlException("Unable to switch connection to read-only", e);
+                }
+            }
+            return statementInterceptor.createConnectionProxy(connection);
+        }
         connection = databaseType.alterConnectionAsNeeded(connection, configuration);
         return connection;
     }

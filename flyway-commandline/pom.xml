@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.11.0</version>
+        <version>9.14.0</version>
     </parent>
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
@@ -31,11 +31,11 @@
 
 
         <flyway-gcp-bigquery.version>${project.version}</flyway-gcp-bigquery.version>
-        <flyway-gcp-spanner.version>9.11.0-beta</flyway-gcp-spanner.version>
+        <flyway-gcp-spanner.version>9.14.0-beta</flyway-gcp-spanner.version>
         <flyway-sqlserver.version>${project.version}</flyway-sqlserver.version>
         <flyway-mysql.version>${project.version}</flyway-mysql.version>
         <flyway-firebird.version>${project.version}</flyway-firebird.version>
-        <jre.version>11.0.16</jre.version>
+        <jre.version>17.0.5</jre.version>
     </properties>
     <dependencies>
         <dependency>
@@ -147,6 +147,27 @@
 
 
 
+
+
+
+
+
+
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>applicationinsights-core</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>applicationinsights-runtime-attach</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
@@ -315,7 +336,7 @@
                 <version>${jre.version}</version>
                 <type>zip</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK11U-jre_x64_windows_hotspot_${jre.version}_8.zip</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_windows_hotspot_${jre.version}_8.zip</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -324,7 +345,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK11U-jre_x64_linux_hotspot_${jre.version}_8.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_linux_hotspot_${jre.version}_8.tar.gz</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -333,7 +354,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK11U-jre_x64_mac_hotspot_${jre.version}_8.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_mac_hotspot_${jre.version}_8.tar.gz</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -342,12 +363,22 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK11U-jre_aarch64_mac_hotspot_${jre.version}_8.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_aarch64_mac_hotspot_${jre.version}_8.tar.gz</systemPath>
             </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Multi-Release>true</Multi-Release>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
@@ -1010,6 +1041,13 @@
                                         <artifactItem>
                                             <groupId>org.flywaydb.enterprise</groupId>
                                             <artifactId>flyway-rulesengine-sqlfluff</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <outputDirectory>${project.build.directory}/editions/community</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.flywaydb.enterprise</groupId>
+                                            <artifactId>flyway-telemetry-app-insights</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
                                             <outputDirectory>${project.build.directory}/editions/community</outputDirectory>

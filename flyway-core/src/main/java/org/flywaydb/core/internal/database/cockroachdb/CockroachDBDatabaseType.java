@@ -51,12 +51,10 @@ public class CockroachDBDatabaseType extends BaseDatabaseType {
         return Types.NULL;
     }
 
-
-
-
-
-
-
+    @Override
+    public boolean supportsReadOnlyTransactions() {
+        return false;
+    }
 
     @Override
     public boolean handlesJDBCUrl(String url) {

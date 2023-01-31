@@ -45,15 +45,12 @@ public interface DatabaseType extends Plugin, Comparable<DatabaseType> {
      */
     int getNullType();
 
-
-
-
-
-
-
-
-
-
+    /**
+     * Checks whether read-only transactions are supported by this database.
+     *
+     * @return {@code true} if read-only transactions are supported, {@code false} if not.
+     */
+    boolean supportsReadOnlyTransactions();
 
     /**
      * Check if this database type should handle the given JDBC url

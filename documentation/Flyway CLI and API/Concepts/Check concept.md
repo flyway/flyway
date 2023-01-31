@@ -194,3 +194,23 @@ This file needs to be located in the same location as the migration(s) being ana
 You can find more information on SQLFluff configuration [here](https://docs.sqlfluff.com/en/stable/configuration.html).
 
 You can also use this to configure more than just the dialect, such as which rules should be enabled or disabled.
+
+### Failing on Rule Violations
+
+{% include teams.html %}
+
+You can configure your pipeline to fail when specified are violated beyond a given tolerance level.
+This can be done by configuring `check.majorRules`, `check.minorRules`, `check.majorTolerance` and `check.minorTolerance`.
+
+`majorRules` should contain a comma-separated list of [SQL Fluff](https://docs.sqlfluff.com/en/stable/rules.html) or Flyway Regex rule codes which are considered to be `major`.
+If the total number of `majorRules` violations exceeds the `majorTolerance`, Flyway will fail.
+
+The same applies to `minorRules` and `minorTolerance`.
+
+For example:
+
+```
+./flyway check -code '-check.majorTolerance=3' '-check.majorRules=L034,L042'
+```
+
+This will fail if rules `L034` and `L042` are violated 4 or more times in total across all scanned migration scripts.

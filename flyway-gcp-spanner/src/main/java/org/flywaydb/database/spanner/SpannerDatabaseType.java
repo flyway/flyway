@@ -47,12 +47,10 @@ public class SpannerDatabaseType extends BaseDatabaseType {
         return -1;
     }
 
-
-
-
-
-
-
+    @Override
+    public boolean supportsReadOnlyTransactions() {
+        return true;
+    }
 
     @Override
     public boolean handlesJDBCUrl(String url) {

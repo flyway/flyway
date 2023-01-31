@@ -59,12 +59,12 @@ will ignore repeatables regardless of their state.
 
 ### Configuration File
 ```properties
-flyway.ignoreMigrationPatterns="repeatable:missing"
+flyway.ignoreMigrationPatterns=repeatable:missing
 ```
 
 ### Environment Variable
 ```properties
-FLYWAY_IGNORE_MIGRATION_PATTERNS="repeatable:missing"
+FLYWAY_IGNORE_MIGRATION_PATTERNS=repeatable:missing
 ```
 
 ### API

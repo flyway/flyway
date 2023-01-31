@@ -15,27 +15,8 @@
     limitations under the License.
 
 -->
-<div class="tabbable">
-	<ul class="nav nav-tabs">
-		<li class="active marketing-item"><a href="#tab-commandline" data-toggle="tab"><i class="fa fa-desktop"></i>
-			Command-line</a></li>
-		<li class="marketing-item"><a href="#tab-maven" data-toggle="tab"><i class="fa fa-maxcdn"></i> Maven</a>
-		</li>
-		<li class="marketing-item"><a href="#tab-gradle" data-toggle="tab"><i class="fa fa-cogs"></i> Gradle</a>
-		</li>
-	</ul>
-	<div class="tab-content">
-		<div class="tab-pane active" id="tab-commandline">
-			<a href="Usage/Command Line/Command Line {{include.command}}" style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;">How to {{include.command}} in the
-				Command-line Tool <i class="fa fa-arrow-right"></i></a>
-		</div>
-		<div class="tab-pane" id="tab-maven">
-			<a href="Usage/Maven Goal/Maven Goal {{include.command}}" style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;">How to {{include.command}} in the
-				Maven Plugin <i class="fa fa-arrow-right"></i></a>
-		</div>
-		<div class="tab-pane" id="tab-gradle">
-			<a href="Usage/Gradle Task/Gradle Task Flyway{{include.command}}" style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;">How to {{include.command}} in the
-				Gradle Plugin <i class="fa fa-arrow-right"></i></a>
-		</div>
-	</div>
-</div>
+<ul>
+	<li><a href="Usage/Command Line/Command Line {{include.command}}">How to {{include.command}} in the Command-line Tool</a></li>
+	<li><a href="Usage/Maven Goal/Maven Goal {{include.command}}" >How to {{include.command}} in the Maven Plugin</a></li>
+	<li><a href="Usage/Gradle Task/Gradle Task Flyway{{include.command}}">How to {{include.command}} in the	Gradle Plugin</a></li>
+</ul>

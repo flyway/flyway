@@ -20,4 +20,14 @@ If using the api, config parameters can be set via calling methods on the config
 If using maven, config parameters can be set on the configuration xml block in the maven config, [configuration files](Configuration/Configuration Files), or environment variables (e.g. `FLYWAY_URL=jdbc:h2:mem:flyway`).
 
 ### Gradle
-If using maven, config parameters can be set in the plugin configuration block, [configuration files](Configuration/Configuration Files), or environment variables (e.g. `FLYWAY_URL=jdbc:h2:mem:flyway`).
+If using gradle, config parameters can be set in the plugin configuration block, [configuration files](Configuration/Configuration Files), or environment variables (e.g. `FLYWAY_URL=jdbc:h2:mem:flyway`).
+
+## Resolvers
+
+Values beginning with `$` are treated as values to be resolved by *resolvers*. *Resolvers* are integrations with other value-storage systems such as [Vault](Tutorials/Tutorial Integrating Vault).
+
+If you have a value starting with `$` which is not something to be resolved, it can be escaped by starting it with `$$`.
+
+<div id="children">
+{% include childPages.html %}
+</div>

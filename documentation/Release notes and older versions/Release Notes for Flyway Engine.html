@@ -18,6 +18,54 @@
 <div class="col-md-9">
 
     <div class="release">
+        <h2 id="9.14.0">Flyway 9.14.0 (2023-01-31)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fix issue with code analysis reports not generating when major or minor tolerance threshold has been passed and set build to fail.</li>
+        </ul>
+
+    </div>
+
+<div class="release">
+        <h2 id="9.12.0">Flyway 9.12.0 (2023-01-19)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3583">Issue 3583</a>
+                Fixed issues with the Snowflake SQL parser which failed to correctly parse scripting blocks containing 'if' and 'for' statements
+            </li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3557">Issue 3557</a>
+                Update latest supported MariaDB version to 10.10
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3602">Issue 3602</a>
+                Flyway now officially supports snowflake versions up to 7.1
+            </li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Added 'NON_EMPTY_SCHEMA_WITHOUT_SCHEMA_HISTORY_TABLE' as a new error code</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>As part of the ongoing work to improve Flyway we are looking at the current Java landscape and to the future. As a result, we are introducing Multi-Release builds for Flyway which will support Java 8 and Java 17. This allows us access to modern Java practices and technologies. This is with the aim to move fully to Java 17 in the next major release.</li>
+        </ul>
+
+        <p>
+            Thanks to pachu, hackyoMa and frichtarik for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="9.11.0">Flyway 9.11.0 (2023-01-05)</h2>
 
         <h3>Bug fixes</h3>

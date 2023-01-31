@@ -119,17 +119,11 @@ public class FlywayExecutor {
         configurationValidator.validate(configuration);
 
         VersionPrinter.printVersion();
-        
-        StatementInterceptor statementInterceptor = null;
 
-
-
-
-
-
-
-
-
+        StatementInterceptor statementInterceptor = configuration.getPluginRegister().getPlugins(StatementInterceptor.class).stream()
+                                                                 .filter(i -> i.isConfigured(configuration))
+                                                                 .findFirst()
+                                                                 .orElse(null);
 
         final Pair<ResourceProvider, ClassProvider<JavaMigration>> resourceProviderClassProviderPair = createResourceAndClassProviders(scannerRequired);
         final ResourceProvider resourceProvider = resourceProviderClassProviderPair.getLeft();
@@ -178,11 +172,9 @@ public class FlywayExecutor {
             Pair<Schema, List<Schema>> schemas = SchemaHistoryFactory.prepareSchemas(configuration, database);
             Schema defaultSchema = schemas.getLeft();
 
-
-
-
-
-
+            if (statementInterceptor != null) {
+                statementInterceptor.init(configuration, database, defaultSchema.getTable(configuration.getTable()));
+            }
 
             parsingContext.populate(database, configuration);
 
@@ -211,11 +203,9 @@ public class FlywayExecutor {
                     statementInterceptor);
         } finally {
             IOUtils.close(database);
-
-
-
-
-
+            if (statementInterceptor instanceof AutoCloseable) {
+                IOUtils.close((AutoCloseable) statementInterceptor);
+            }
             showMemoryUsage();
         }
         return result;
@@ -271,9 +261,9 @@ public class FlywayExecutor {
         List<Callback> effectiveCallbacks = new ArrayList<>();
         CallbackExecutor callbackExecutor = NoopCallbackExecutor.INSTANCE;
 
-
-
-
+        if (statementInterceptor != null) {
+            effectiveCallbacks.addAll(statementInterceptor.getCallbacks());
+        }
 
 
 

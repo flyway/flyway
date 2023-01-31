@@ -12,8 +12,7 @@ need to be explicitly listed in the main configuration, or the command line.
 
 For example, a migration file `sql/V2__my_script.sql` would have a script configuration file `sql/V2__my_script.sql.conf`.
 
-Script Config Files have a subset of the options from the other ways of configuring Flyway (e.g. `flyway.conf`). See
-the [Reference](Configuration/Script Config Files#reference) at the bottom of the page for the complete list of options.
+Script Config Files have a subset of the options from the other ways of configuring Flyway (e.g. `flyway.conf`). See the Reference section at the bottom of this page for the complete list of options.
 
 ## Structure
 
@@ -26,24 +25,45 @@ key=value
 
 ## Reference
 
-```properties
-# Encoding of this SQL migration. Caution: changing the encoding after this migration has been run
-# will invalidate the calculated checksum and require a `flyway repair`.
-encoding=ISO_8859_1
+### encoding
 
-# Manually determine whether or not to execute this migration in a transaction. This is useful for
-# databases like PostgreSQL and SQL Server where certain statements can only execute outside a transaction.
-executeInTransaction=false
+Encoding of this SQL migration. 
 
-# Whether this SQL migration should have its Flyway placeholders replaced. This behaves exactly like the global
-# 'placeholderReplacement' parameter but applies only to this script. Default: true
-placeholderReplacement=true
+Caution: changing the encoding after this migration has been run will invalidate the calculated checksum and require a `flyway repair`.
+#### example
 
-# Whether this migration should be executed or ignored. Valid values are 'true', 'false', 'A==B', 'A!=B' (where
-# A,B are values), and combinations of these using `&&` (AND), `||` (OR) and parentheses. This
-# migration is executed if the boolean expression evaluates to true, ignored if it evaluates to false, and throws an
-# exception if the expression is invalid. Placeholder replacement is also supported in the expression.
-# Example: 'shouldExecute=(${environment}==dev || ${environment}==test)' will run if '${environment}' is 'dev' or 'test'
-# Flyway Teams only
-shouldExecute=${should_execute}==true
-```
+```encoding=ISO_8859_1```
+
+### executeInTransaction
+
+Manually determine whether or not to execute this migration in a transaction. 
+
+This is useful for databases like PostgreSQL and SQL Server where certain statements can only execute outside a transaction.
+#### example
+```executeInTransaction=false```
+
+### placeholderReplacement
+
+Whether this SQL migration should have its Flyway placeholders replaced. This behaves exactly like the global 'placeholderReplacement' parameter but applies only to this script. 
+
+Default: true
+#### example
+
+```placeholderReplacement=true```
+
+### shouldExecute (Flyway Teams only)
+Whether this migration should be executed or ignored. 
+
+Valid values are 'true', 'false', 'A==B', 'A!=B' (where A,B are values), and combinations of these using `&&` (AND), `||` (OR) and parentheses. 
+
+This migration is executed if the boolean expression evaluates to true, ignored if it evaluates to false, and throws an exception if the expression is invalid. 
+
+#### example
+
+```shouldExecute=(${environment}==dev || ${environment}==test)``` 
+
+will run if '${environment}' is 'dev' or 'test'
+
+Placeholder replacement is also supported in the expression.
+
+```shouldExecute=${should_execute}==true```

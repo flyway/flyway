@@ -17,6 +17,18 @@ There are however situations where you may want to
 
 [Flyway Teams Edition](/https://flywaydb.org/download) gives you a way to achieve all these scenarios using **Dry Runs**.
 
+## Usage
+
+API/Maven/Gradle users will need to include `flyway-proprietary` as a dependency in order to use Dry run. For example:
+
+```
+<dependency>
+    <groupId>org.flywaydb.enterprise</groupId>
+    <artifactId>flyway-proprietary</artifactId>
+    <version>{{ site.flywayVersion }}</version>
+</dependency>
+```
+
 ## How it works
 
 When doing a Dry Run, Flyway sets up a read-only connection to the database. It assesses what migrations need to run and
