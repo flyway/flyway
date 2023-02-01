@@ -30,7 +30,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>9.14.0</version>
+    <version>9.14.1</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -337,21 +337,6 @@
                 <artifactId>snowflake-jdbc</artifactId>
                 <version>${version.snowflake}</version>
                 <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.microsoft.azure</groupId>
-                <artifactId>applicationinsights-core</artifactId>
-                <version>${version.appinsights}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.microsoft.azure</groupId>
-                <artifactId>applicationinsights-runtime-attach</artifactId>
-                <version>${version.appinsights}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.bytebuddy</groupId>
-                <artifactId>byte-buddy-agent</artifactId>
-                <version>${version.byte-buddy-agent}</version>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
