@@ -21,6 +21,9 @@ public class ClickHouseConfigurationExtension implements ConfigurationExtension 
 
     @Override
     public String getConfigurationParameterFromEnvironmentVariable(String environmentVariable) {
+        if ("FLYWAY_CLICKHOUSE_CLUSTER_NAME".equals(environmentVariable)) {
+            return CLUSTER_NAME;
+        }
         return null;
     }
 }
