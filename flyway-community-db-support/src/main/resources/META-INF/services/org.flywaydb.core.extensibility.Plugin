@@ -1,3 +1,5 @@
+org.flywaydb.community.database.clickhouse.ClickHouseConfigurationExtension
+org.flywaydb.community.database.clickhouse.ClickHouseDatabaseType
 org.flywaydb.community.database.ignite.thin.IgniteThinDatabaseType
 org.flywaydb.community.database.mysql.tidb.TiDBDatabaseType
 org.flywaydb.community.database.yugabytedb.YugabyteDBDatabaseType
