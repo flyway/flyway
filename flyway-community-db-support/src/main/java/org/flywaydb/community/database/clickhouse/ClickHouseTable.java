@@ -1,10 +1,12 @@
 package org.flywaydb.community.database.clickhouse;
 
+import lombok.CustomLog;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 
+@CustomLog
 public class ClickHouseTable extends Table<ClickHouseDatabase, ClickHouseSchema>
 {
     /**
@@ -32,5 +34,6 @@ public class ClickHouseTable extends Table<ClickHouseDatabase, ClickHouseSchema>
 
     @Override
     protected void doLock() throws SQLException {
+        LOG.debug("Unable to lock " + this + " as ClickHouse does not support locking. No concurrent migration supported.");
     }
 }

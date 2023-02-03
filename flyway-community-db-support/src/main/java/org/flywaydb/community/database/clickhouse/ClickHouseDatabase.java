@@ -104,7 +104,7 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection>
                     "    execution_time Int32," +
                     "    success Bool" +
                     ")" +
-                    " ENGINE = TinyLog;" +
+                    " ENGINE = StripeLog;" +
                     (baseline ? getBaselineStatement(table) + ";" : "");
         }
     }
