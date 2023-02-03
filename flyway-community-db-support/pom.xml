@@ -55,6 +55,12 @@
             <artifactId>ignite-core</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>com.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
+            <version>0.4.0</version>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
