@@ -35,8 +35,8 @@ public class ClickHouseSchema extends Schema<ClickHouseDatabase, ClickHouseTable
 
     @Override
     protected void doDrop() throws SQLException {
-        if (jdbcTemplate.getConnection().getCatalog().equals(name)) {
-            jdbcTemplate.getConnection().setCatalog("default");
+        if (jdbcTemplate.getConnection().getSchema().equals(name)) {
+            jdbcTemplate.getConnection().setSchema("default");
         }
         jdbcTemplate.executeStatement("DROP DATABASE " + database.quote(name));
     }
