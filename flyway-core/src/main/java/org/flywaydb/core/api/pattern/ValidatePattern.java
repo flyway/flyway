@@ -16,7 +16,6 @@
 package org.flywaydb.core.api.pattern;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
@@ -34,10 +33,10 @@ public class ValidatePattern {
     private static final List<String> validMigrationTypes = Arrays.asList("*", "repeatable", "versioned");
     private static final List<String> validMigrationStates = Arrays.asList(
             "*",
-            MigrationState.MISSING_SUCCESS.getDisplayName().toLowerCase(),
-            MigrationState.PENDING.getDisplayName().toLowerCase(),
-            MigrationState.IGNORED.getDisplayName().toLowerCase(),
-            MigrationState.FUTURE_SUCCESS.getDisplayName().toLowerCase());
+            MigrationState.MISSING_SUCCESS.getPattern(),
+            MigrationState.PENDING.getPattern(),
+            MigrationState.IGNORED.getPattern(),
+            MigrationState.FUTURE_SUCCESS.getPattern());
     private final String pattern;
 
     public static ValidatePattern fromPattern(String pattern) {

@@ -34,11 +34,22 @@ Let's add Flyway and H2 to our new `pom.xml`:
 ```xml
 <project xmlns="...">;
     ...
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-bom</artifactId>
+                <version>{{ site.flywayVersion }}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    ...
     <dependencies>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>{{ site.flywayVersion }}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>

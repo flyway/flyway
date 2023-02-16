@@ -16,15 +16,13 @@
 package org.flywaydb.core.api;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Getter
 public enum MigrationState {
     /**
      * This migration has not been applied yet.
      */
-    PENDING("Pending", true, false, false),
+    PENDING("Pending", "pending", true, false, false),
     /**
      * This migration has not been applied yet, and won't be applied because target is set to a lower version.
      */
@@ -50,14 +48,14 @@ public enum MigrationState {
      *
      * Fix by increasing the version number, run clean and migrate again or rerun migration with outOfOrder enabled.
      */
-    IGNORED("Ignored", true, false, false),
+    IGNORED("Ignored", "ignored", true, false, false),
     /**
      * This migration succeeded.
      *
      * This migration was applied against this DB, but it is not available locally.
      * This usually results from multiple older migration files being consolidated into a single one.
      */
-    MISSING_SUCCESS("Missing", false, true, false),
+    MISSING_SUCCESS("Missing", "missing", false, true, false),
     /**
      * This migration failed.
      *
@@ -97,7 +95,7 @@ public enum MigrationState {
      * Its version is higher than the highest version available locally.
      * It was most likely successfully installed by a future version of this deployable.
      */
-    FUTURE_SUCCESS("Future", false, true, false),
+    FUTURE_SUCCESS("Future", "future", false, true, false),
     /**
      * This migration failed.
      *
@@ -120,7 +118,20 @@ public enum MigrationState {
     DELETED("Deleted", false, true, false);
 
     private final String displayName;
+    private final String pattern;
     private final boolean resolved;
     private final boolean applied;
     private final boolean failed;
+
+    MigrationState(String displayName, boolean resolved, boolean applied, boolean failed) {
+        this(displayName, displayName, resolved, applied, failed);
+    }
+
+    MigrationState(String displayName, String pattern, boolean resolved, boolean applied, boolean failed) {
+        this.displayName = displayName;
+        this.pattern = pattern;
+        this.resolved = resolved;
+        this.applied = applied;
+        this.failed = failed;
+    }
 }

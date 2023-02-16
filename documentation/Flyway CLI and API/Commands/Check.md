@@ -22,25 +22,26 @@ You can read more about the `check` concept [here](Concepts/Check Concept).
 | ----------------------------- | --------------------------------------------------------------
 |    -changes                   | {% include enterprise.html %} Include pending changes that will be applied to the database
 |    -drift                     | {% include enterprise.html %} Include changes applied out of process to the database
-|    -code                      | **In Preview** Performs code analysis on your migrations
+|    -code                      | Performs code analysis on your migrations
 |    -dryrun                    | {% include teams.html %} Performs a [dry run](Concepts/Dry Runs), showing what changes would be applied in a real deployment
 
 #### Configuration parameters:
  _Format: -key=value_
 
-| Parameter                     | Description
-| ----------------------------- | -----------------------------------------------------------
-|    check.buildUrl             | URL for a build database.
-|    check.buildUser            | Username for the build database. Defaults to 'flyway.user'
-|    check.buildPassword        | Password for the build database. Defaults to 'flyway.password'
-|    check.reportFilename       | **[REQUIRED]** Destination filename for reports
-|    check.nextSnapshot         | A snapshot containing all migrations including those that are pending (generated via [`snapshot`](Commands/snapshot))
-|    check.deployedSnapshot     | A snapshot containing all applied migrations and thus matching what should be in the target (generated via [`snapshot`](Commands/snapshot))
-|    check.appliedMigrations    | A comma-separated list of migration ids (migration versions or repeatable descriptions) to apply to create snapshots (generated via [`info`](Commands/info))
-|    check.majorRules           | A comma-separated list of rule codes that are considered to be 'major' issues
-|    check.minorRules           | A comma-separated list of rule codes that are considered to be 'minor' issues
-|    check.majorTolerance       | The number of 'major' issues to be tolerated before throwing an error
-|    check.minorTolerance       | The number of 'minor' issues to be tolerated before throwing an error
+| Parameter                     | Operation      | Description
+| ----------------------------- | -------------- | -------------------------------------------------
+|    check.buildUrl             | changes, drift | URL for a build database.
+|    check.buildUser            | changes, drift | Username for the build database. Defaults to 'flyway.user'
+|    check.buildPassword        | changes, drift | Password for the build database. Defaults to 'flyway.password'
+|    check.reportFilename       | all            | **[REQUIRED]** Destination filename for reports
+|    check.nextSnapshot         | changes, drift | A snapshot containing all migrations including those that are pending (generated via [`snapshot`](Commands/snapshot))
+|    check.deployedSnapshot     | changes, drift | A snapshot containing all applied migrations and thus matching what should be in the target (generated via [`snapshot`](Commands/snapshot))
+|    check.appliedMigrations    | changes, drift | A comma-separated list of migration ids (migration versions or repeatable descriptions) to apply to create snapshots (generated via [`info`](Commands/info))
+|    check.failOnDrift          | drift          | Will Flyway terminate with a non-zero return code if drift detected, see [`check.failOnDrift`](Configuration/Parameters/Fail On Drift)
+|    check.majorRules           | code           | A comma-separated list of rule codes that are considered to be 'major' issues, see [Check Concept](Concepts/Check Concept)
+|    check.minorRules           | code           | A comma-separated list of rule codes that are considered to be 'minor' issues, see [Check Concept](Concepts/Check Concept)
+|    check.majorTolerance       | code           | The number of 'major' issues to be tolerated before throwing an error, see [Check Concept](Concepts/Check Concept)
+|    check.minorTolerance       | code           | The number of 'minor' issues to be tolerated before throwing an error, see [Check Concept](Concepts/Check Concept)
 
 #### `check.reportFilename`
 
