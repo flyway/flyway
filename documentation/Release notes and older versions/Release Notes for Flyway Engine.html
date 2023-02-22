@@ -18,6 +18,32 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="9.15.0">Flyway 9.15.0 (2023-02-16)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>When Flyway is running in Oracle SQLPlus mode, character escaping is now disabled by default in order to be consistent with Oracle's SQLPlus command-line tool.</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3616">Issue 3616</a>
+                Fixed a bug where migration patterns display names incorrectly changed case depending on default locale.
+            </li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Introduced a flyway-bom pom for Maven. This BOM includes all modules of Flyway which are compatible with each other to be used in Maven dependency management.</li>
+        </ul>
+
+        <p>
+            Thanks to zihniogmen for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="9.14.1">Flyway 9.14.1 (2023-02-01)</h2>
 
         <h3>Bug fixes</h3>

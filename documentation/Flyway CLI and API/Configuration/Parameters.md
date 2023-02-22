@@ -44,7 +44,7 @@ subtitle: placeholder page
 - [tablespace](Configuration/parameters/tablespace)
 - [target](Configuration/parameters/target)
 - [validateMigrationNaming](Configuration/Parameters/Validate Migration Naming)
-- [validateOnMigrate](Configuration/Parameters/Validate Migration Naming)
+- [validateOnMigrate](Configuration/Parameters/Validate On Migrate)
 - [workingDirectory](Configuration/Parameters/Working Directory)
 
 ### Schema

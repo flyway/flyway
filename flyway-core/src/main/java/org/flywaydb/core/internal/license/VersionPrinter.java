@@ -47,7 +47,7 @@ public class VersionPrinter {
             return;
         }
         printVersionOnly();
-        LOG.info("See what's new here: https://flywaydb.org/documentation/learnmore/releaseNotes#" + VERSION);
+        LOG.info("See release notes here: https://rd.gt/416ObMi");
         LOG.info("");
         PRINTED = true;
     }

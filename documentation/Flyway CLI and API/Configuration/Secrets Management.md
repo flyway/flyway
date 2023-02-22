@@ -38,6 +38,7 @@ Flyway comes with support for the following secrets management solutions that en
 Secrets Manager support is currently provided by the [AWS Secrets Manager JDBC Library](https://github.com/aws/aws-secretsmanager-jdbc) for the following databases:
 - MariaDB
 - MySQL
+- Aurora MySQL
 - Oracle
 - PostgreSQL
 - SQL Server

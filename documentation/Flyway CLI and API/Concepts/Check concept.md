@@ -19,13 +19,13 @@ Before performing a deployment to the target database (most notably, production)
 
 Each of these scenarios can be met with the `check` command, using the corresponding flag:
 
-| Scenario                                                                             | Command & Flag                                   | Output                                  |
-|--------------------------------------------------------------------------------------|--------------------------------------------------|-----------------------------------------|
-| Will these changes have the effect I am expecting?                                   | check **-changes** {% include enterprise.html %} | ChangeReport.html,<br>ChangeReport.json |
-| What database changes have been made recently?                                       | check **-changes** {% include enterprise.html %} | ChangeReport.html,<br>ChangeReport.json |
-| Is the production database in the state I am expecting it to be in?                  | check **-drift**   {% include enterprise.html %} | ChangeReport.html,<br>ChangeReport.json |
-| _In Preview_<br>Are our changes following internal policies?                         | check **-code**                                  | ChangeReport.html,<br>ChangeReport.json |
-| What SQL will be executed in the next deployment?                                    | check **-dryrun**  {% include teams.html %}      | ChangeReport.html,<br>ChangeReport.json |
+| Scenario                                                                             | Command & Flag     | Edition                         | Output                                  |
+|--------------------------------------------------------------------------------------|--------------------|---------------------------------|-----------------------------------------|
+| Will these changes have the effect I am expecting?                                   | check **-changes** | Enterprise                      | ChangeReport.html,<br>ChangeReport.json |
+| What database changes have been made recently?                                       | check **-changes** | Enterprise                      | ChangeReport.html,<br>ChangeReport.json |
+| Is the production database in the state I am expecting it to be in?                  | check **-drift**   | Enterprise                      | ChangeReport.html,<br>ChangeReport.json |
+| What SQL will be executed in the next deployment?                                    | check **-dryrun**  | Teams & Enterprise              | ChangeReport.html,<br>ChangeReport.json |
+| Are our changes following internal policies?                                         | check **-code**    | All                             | ChangeReport.html,<br>ChangeReport.json |
 
 ## `Check -changes`
 
@@ -137,8 +137,6 @@ Flyway's `check -drift` will then:
 - If you get an ERROR: Invalid argument: -check, this is because some systems do not like the period in the argument.  You can wrap the arguments in a single or double quotes.  Eg, -'check.buildURL'
 
 ## `Check -code`
-
-{% include teams.html %}
 
 ### Overview
 

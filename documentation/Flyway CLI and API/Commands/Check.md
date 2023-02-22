@@ -18,12 +18,12 @@ You can read more about the `check` concept [here](Concepts/Check Concept).
 #### Flags:
 - _One or more flags must be present_
 
-| Parameter                     | Description
-| ----------------------------- | --------------------------------------------------------------
-|    -changes                   | {% include enterprise.html %} Include pending changes that will be applied to the database
-|    -drift                     | {% include enterprise.html %} Include changes applied out of process to the database
-|    -code                      | Performs code analysis on your migrations
-|    -dryrun                    | {% include teams.html %} Performs a [dry run](Concepts/Dry Runs), showing what changes would be applied in a real deployment
+| Parameter                     | Edition            |  Description
+| ----------------------------- | -------------------| -----------------------------------------------------
+|    -changes                   | Enterprise         | Include pending changes that will be applied to the database
+|    -drift                     | Enterprise         | Include changes applied out of process to the database
+|    -dryrun                    | Teams & Enterprise | Performs a [dry run](Concepts/Dry Runs), showing what changes would be applied in a real deployment
+|    -code                      | All                | Performs code analysis on your migrations
 
 #### Configuration parameters:
  _Format: -key=value_
