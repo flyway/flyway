@@ -61,7 +61,7 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection>
         if (StringUtils.hasText(clusterName)) {
             return "CREATE TABLE IF NOT EXISTS " + table + "_local ON CLUSTER " + clusterName + "(" +
                     "    installed_rank Int32," +
-                    "    version Nullable(String)," +
+                    "    version String," +
                     "    description String," +
                     "    type String," +
                     "    script String," +
@@ -80,7 +80,7 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection>
                     (baseline ? getBaselineStatement(table) + ";" : "") +
                     "CREATE TABLE IF NOT EXISTS " + table + " ON CLUSTER " + clusterName + "(" +
                     "    installed_rank Int32," +
-                    "    version Nullable(String)," +
+                    "    version String," +
                     "    description String," +
                     "    type String," +
                     "    script String," +
@@ -90,11 +90,11 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection>
                     "    execution_time Int32," +
                     "    success Bool" +
                     ")" + " ENGINE = Distributed(" + clusterName + ", " + table.getSchema() +
-                    ", " + table.getName() + "_local, 1)";
+                    ", " + table.getName() + "_local, 1);";
         } else {
             return "CREATE TABLE IF NOT EXISTS " + table + "(" +
                     "    installed_rank Int32," +
-                    "    version Nullable(String)," +
+                    "    version String," +
                     "    description String," +
                     "    type String," +
                     "    script String," +
@@ -104,7 +104,8 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection>
                     "    execution_time Int32," +
                     "    success Bool" +
                     ")" +
-                    " ENGINE = StripeLog;" +
+                    " ENGINE = MergeTree" +
+                    "   primary key (version);" +
                     (baseline ? getBaselineStatement(table) + ";" : "");
         }
     }
