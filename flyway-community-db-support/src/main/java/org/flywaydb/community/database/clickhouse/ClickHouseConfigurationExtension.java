@@ -13,8 +13,10 @@ public class ClickHouseConfigurationExtension implements ConfigurationExtension 
 
     @Override
     public void extractParametersFromConfiguration(Map<String, String> configuration) {
-        clusterName = configuration.get(CLUSTER_NAME);
-        configuration.remove(CLUSTER_NAME);
+        String clusterName = configuration.remove(CLUSTER_NAME);
+        if (clusterName != null) {
+            this.clusterName = clusterName;
+        }
     }
 
     @Override
