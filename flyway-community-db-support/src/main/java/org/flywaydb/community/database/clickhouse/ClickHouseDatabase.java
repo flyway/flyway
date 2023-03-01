@@ -20,6 +20,10 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection>
         super(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
+    public String getClusterName() {
+        return configuration.getPluginRegister().getPlugin(ClickHouseConfigurationExtension.class).getClusterName();
+    }
+
     @Override
     protected ClickHouseConnection doGetConnection(Connection connection) {
         return new ClickHouseConnection(this, connection);
@@ -56,57 +60,30 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection>
 
     @Override
     public String getRawCreateScript(Table table, boolean baseline) {
-        String clusterName = configuration.getPluginRegister().getPlugin(ClickHouseConfigurationExtension.class).getClusterName();
+        String clusterName = getClusterName();
+        boolean isClustered = StringUtils.hasText(clusterName);
 
-        if (StringUtils.hasText(clusterName)) {
-            return "CREATE TABLE IF NOT EXISTS " + table + "_local ON CLUSTER " + clusterName + "(" +
-                    "    installed_rank Int32," +
-                    "    version String," +
-                    "    description String," +
-                    "    type String," +
-                    "    script String," +
-                    "    checksum Nullable(Int32)," +
-                    "    installed_by String," +
-                    "    installed_on DateTime DEFAULT now()," +
-                    "    execution_time Int32," +
-                    "    success Bool" +
-                    ")" +
-                    " ENGINE = ReplicatedMergeTree(" +
-                    "   '/clickhouse/tables/{shard}/" + table.getName() + "'," +
-                    "   '{replica}'" +
-                    " )" +
+        String script = "CREATE TABLE IF NOT EXISTS " + table + (isClustered ? (" ON CLUSTER " + clusterName) : "") + "(" +
+                "    installed_rank Int32," +
+                "    version String," +
+                "    description String," +
+                "    type String," +
+                "    script String," +
+                "    checksum Nullable(Int32)," +
+                "    installed_by String," +
+                "    installed_on DateTime DEFAULT now()," +
+                "    execution_time Int32," +
+                "    success Bool" +
+                ")";
+
+        if (isClustered) {
+            script += " ENGINE = ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/{table}', '{replica}')" +
                     " PARTITION BY tuple()" +
-                    " ORDER BY (installed_rank);" +
-                    (baseline ? getBaselineStatement(table) + ";" : "") +
-                    "CREATE TABLE IF NOT EXISTS " + table + " ON CLUSTER " + clusterName + "(" +
-                    "    installed_rank Int32," +
-                    "    version String," +
-                    "    description String," +
-                    "    type String," +
-                    "    script String," +
-                    "    checksum Nullable(Int32)," +
-                    "    installed_by String," +
-                    "    installed_on DateTime DEFAULT now()," +
-                    "    execution_time Int32," +
-                    "    success Bool" +
-                    ")" + " ENGINE = Distributed(" + clusterName + ", " + table.getSchema() +
-                    ", " + table.getName() + "_local, 1);";
+                    " ORDER BY (installed_rank);";
         } else {
-            return "CREATE TABLE IF NOT EXISTS " + table + "(" +
-                    "    installed_rank Int32," +
-                    "    version String," +
-                    "    description String," +
-                    "    type String," +
-                    "    script String," +
-                    "    checksum Nullable(Int32)," +
-                    "    installed_by String," +
-                    "    installed_on DateTime DEFAULT now()," +
-                    "    execution_time Int32," +
-                    "    success Bool" +
-                    ")" +
-                    " ENGINE = MergeTree" +
-                    "   primary key (version);" +
-                    (baseline ? getBaselineStatement(table) + ";" : "");
+            script += " ENGINE = MergeTree PRIMARY KEY (version);";
         }
+
+        return script + (baseline ? getBaselineStatement(table) + ";" : "");
     }
 }

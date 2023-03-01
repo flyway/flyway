@@ -12,7 +12,7 @@ public class ClickHouseConnection extends Connection<ClickHouseDatabase>
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
-        return getJdbcTemplate().getConnection().getSchema();
+        return database.unQuote(getJdbcTemplate().getConnection().getSchema());
     }
 
     @Override
