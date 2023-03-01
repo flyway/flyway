@@ -4,8 +4,7 @@ import org.flywaydb.core.internal.database.base.Connection;
 
 import java.sql.SQLException;
 
-public class ClickHouseConnection extends Connection<ClickHouseDatabase>
-{
+public class ClickHouseConnection extends Connection<ClickHouseDatabase> {
     ClickHouseConnection(ClickHouseDatabase database, java.sql.Connection connection) {
         super(database, connection);
     }

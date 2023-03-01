@@ -9,8 +9,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 
-public class ClickHouseDatabase extends Database<ClickHouseConnection>
-{
+public class ClickHouseDatabase extends Database<ClickHouseConnection> {
     @Override
     public boolean useSingleConnection() {
         return true;

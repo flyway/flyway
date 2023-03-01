@@ -8,8 +8,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.sql.SQLException;
 
 @CustomLog
-public class ClickHouseTable extends Table<ClickHouseDatabase, ClickHouseSchema>
-{
+public class ClickHouseTable extends Table<ClickHouseDatabase, ClickHouseSchema> {
     /**
      * @param jdbcTemplate The JDBC template for communicating with the DB.
      * @param database The database-specific support.

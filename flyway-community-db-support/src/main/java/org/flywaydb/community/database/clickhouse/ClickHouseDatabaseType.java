@@ -10,8 +10,7 @@ import org.flywaydb.core.internal.parser.ParsingContext;
 
 import java.sql.Connection;
 
-public class ClickHouseDatabaseType extends BaseDatabaseType
-{
+public class ClickHouseDatabaseType extends BaseDatabaseType {
     @Override
     public String getName() {
         return "ClickHouse";

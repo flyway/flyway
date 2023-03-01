@@ -5,8 +5,7 @@ import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 
-public class ClickHouseSchema extends Schema<ClickHouseDatabase, ClickHouseTable>
-{
+public class ClickHouseSchema extends Schema<ClickHouseDatabase, ClickHouseTable> {
     /**
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
      * @param database The database-specific support.
