@@ -15,7 +15,62 @@
     limitations under the License.
 
 -->
+<div class="call-to-action">
+
+<p>Learn more about <a href="https://www.red-gate.com/products/flyway/editions" style="font-size: larger;" title="Flyway editions">Flyway Editions</a> capabilities
+<p>Download <a href="https://documentation.red-gate.com/fd/command-line-184127404.html" style="font-size: larger;" title="Flyway CLI">Flyway CLI</a>
+
+
+</div>
 <div class="col-md-9">
+
+<div class="release">
+        <h2 id="9.15.2">Flyway 9.15.2 (2023-03-06)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>SQL errors with configured overrides no longer cause the Oracle SQLPlus spool output to close prematurely and lead to a null pointer exception.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3621">Issue 3621</a>
+                Further improvements to the Snowflake parser when detecting conditionally creatable objects.
+            </li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>When running 'check' commands with involve database comparison (i.e. '-drift' and '-changes') and Flyway has debug enabled, debug output from the Redgate Compare engine will be logged as well.</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Update Ant dependency version to address CVE-2020-11979, CVE-2021-36374, CVE-2021-36373 and CVE-2020-1945 vulnerabilities.</li>
+        </ul>
+
+        <p>
+            Thanks to frichtarik for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
+        <h2 id="9.15.1">Flyway 9.15.1 (2023-02-22)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>If Flyway encounters a SQL exception while Oracle Spool is set, the error information is now written to the Spool output.</li>
+        </ul>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3613">Issue 3613</a>
+                Allow the Snowflake parser to handle more conditionally creatable objects.
+            </li>
+        </ul>
+
+        <p>
+            Thanks to niegowic for reporting these issues.
+        </p>
+    </div>
 
 <div class="release">
         <h2 id="9.15.0">Flyway 9.15.0 (2023-02-16)</h2>
