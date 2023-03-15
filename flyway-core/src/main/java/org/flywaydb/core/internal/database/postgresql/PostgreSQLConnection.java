@@ -41,7 +41,8 @@ public class PostgreSQLConnection extends Connection<PostgreSQLDatabase> {
     @Override
     protected void doRestoreOriginalState() throws SQLException {
         // Reset the role to its original value in case a migration or callback changed it
-        jdbcTemplate.execute("SET ROLE '" + originalRole + "'");
+        // fix AntDB by coolbeevip
+        // jdbcTemplate.execute("SET ROLE '" + originalRole + "'");
     }
 
     @Override
