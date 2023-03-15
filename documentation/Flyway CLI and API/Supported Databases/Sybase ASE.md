@@ -53,7 +53,7 @@ Support Level determines the degree of support available for this database ([lea
 <tr>
 <th>Download</th>
 <td>Download from <a href="https://sap.com">sap.com</a></td>
-<td>Maven Central coordinates: <code>net.sourceforge.jtds:jtds:1.3.1</code></td>
+<td>Maven Central coordinates: <code>net.sourceforge.jtds:jtds</code></td>
 </tr>
 <tr>
 <th>Supported versions</th>

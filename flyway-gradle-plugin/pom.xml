@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.15.2</version>
+        <version>9.16.0</version>
     </parent>
     <artifactId>flyway-gradle-plugin</artifactId>
     <packaging>jar</packaging>

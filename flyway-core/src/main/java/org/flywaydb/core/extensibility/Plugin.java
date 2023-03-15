@@ -17,12 +17,23 @@ package org.flywaydb.core.extensibility;
 
 import org.flywaydb.core.api.configuration.Configuration;
 
-public interface Plugin {
+public interface Plugin extends Comparable<Plugin> {
     default boolean isLicensed(Configuration configuration) {
         return true;
     }
 
     default String getPluginVersion() {
         return null;
+    }
+
+    /**
+     * High numbers indicate that this type will be used in preference to lower priorities.
+     */
+    default int getPriority() {
+        return 0;
+    }
+
+    default int compareTo(Plugin o) {
+        return o.getPriority() - getPriority();
     }
 }

@@ -117,11 +117,11 @@ public class DbBaseline {
 
                     if (schemaHistory.allAppliedMigrations().isEmpty()) {
                         throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already exists, and is empty.\n" +
-                                                          "Delete the schema history table with the clean command, and run baseline again.");
+                                                          "Delete the schema history table, and run baseline again.");
                     }
 
                     throw new FlywayException("Unable to baseline schema history table " + schemaHistory + " as it already contains migrations.\n" +
-                                                      "Delete the schema history table with the clean command, and run baseline again.\n" +
+                                                      "Delete the schema history table, and run baseline again.\n" +
                                                       "Need to reset your baseline? Learn more: " + FlywayDbWebsiteLinks.RESET_THE_BASELINE_MIGRATION);
                 }
             }

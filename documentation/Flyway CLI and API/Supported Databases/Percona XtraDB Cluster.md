@@ -40,7 +40,7 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 <tr>
 <th>Maven Central coordinates</th>
-<td><code>mysql:mysql-connector-java:8.0.12</code></td>
+<td><code>mysql:mysql-connector-java</code></td>
 </tr>
 <tr>
 <th>Supported versions</th>

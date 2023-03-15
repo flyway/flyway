@@ -18,3 +18,4 @@ org.flywaydb.core.internal.resource.CoreResourceTypeProvider
 org.flywaydb.core.internal.database.postgresql.PostgreSQLConfigurationExtension
 org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension
 org.flywaydb.core.internal.configuration.resolvers.EnvironmentVariableResolver
+org.flywaydb.core.internal.proprietaryStubs.CommandExtensionStub

@@ -35,22 +35,14 @@ public class EnvironmentModel {
     private String user;
     private String password;
     private String driver;
-    private List<String> schemas;
+    private List<String> schemas = new ArrayList<>();
     private String token;
-    private Integer connectRetries;
-    private Integer connectRetriesInterval;
+    private Integer connectRetries = 120;
+    private Integer connectRetriesInterval = 0;
     private String initSql;
     private Map<String, String> jdbcProperties;
 
     private Map<String, Map<String, String>> resolvers;
-
-    public static EnvironmentModel defaults() {
-        EnvironmentModel model = new EnvironmentModel();
-        model.schemas = new ArrayList<>();
-        model.connectRetries = 0;
-        model.connectRetriesInterval = 120;
-        return model;
-    }
 
     public EnvironmentModel merge(EnvironmentModel otherPojo) {
         EnvironmentModel result = new EnvironmentModel();

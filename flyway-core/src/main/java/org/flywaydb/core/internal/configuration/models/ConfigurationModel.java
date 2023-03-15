@@ -33,7 +33,7 @@ public class ConfigurationModel {
     public static ConfigurationModel defaults() {
         ConfigurationModel model = new ConfigurationModel();
         model.flyway = FlywayModel.defaults();
-        model.environments.put("default", EnvironmentModel.defaults());
+        model.environments.put("default", new EnvironmentModel());
         return model;
     }
 

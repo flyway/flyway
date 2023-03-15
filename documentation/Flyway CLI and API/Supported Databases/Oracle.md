@@ -49,7 +49,7 @@ Support Level determines the degree of support available for this database ([lea
     </tr>
     <tr>
         <th>Maven Central coordinates</th>
-        <td><code>com.oracle.database.jdbc:ojdbc8:19.6.0.0</code></td>
+        <td><code>com.oracle.database.jdbc:ojdbc8</code></td>
     </tr>
     <tr>
         <th>Supported versions</th>

@@ -20,10 +20,11 @@ import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
-import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.text.ParseException;
@@ -70,8 +71,8 @@ public class CommandLineArguments {
     public CommandLineArguments(PluginRegister pluginRegister, String... args) {
         this.pluginRegister = pluginRegister;
         this.args = Arrays.stream(args)
-                .filter(StringUtils::hasText)
-                .toArray(String[]::new);
+                          .filter(StringUtils::hasText)
+                          .toArray(String[]::new);
     }
 
     private static List<String> getValidOperationsAndFlags() {
@@ -110,10 +111,10 @@ public class CommandLineArguments {
 
     private static String getArgumentValue(String argName, String[] allArgs) {
         return Arrays.stream(allArgs)
-                .filter(arg -> arg.startsWith("-" + argName + "="))
-                .findFirst()
-                .map(CommandLineArguments::parseConfigurationOptionValueFromArg)
-                .orElse("");
+                     .filter(arg -> arg.startsWith("-" + argName + "="))
+                     .findFirst()
+                     .map(CommandLineArguments::parseConfigurationOptionValueFromArg)
+                     .orElse("");
     }
 
     private static String parseConfigurationOptionValueFromArg(String arg) {
@@ -129,26 +130,29 @@ public class CommandLineArguments {
         List<String> operations = Arrays.stream(args).filter(arg -> !arg.startsWith("-")).collect(Collectors.toList());
 
         pluginRegister.getPlugins(CommandExtension.class)
-                .forEach(extension -> flags.stream()
-                        .map(extension::getCommandForFlag)
-                        .filter(Objects::nonNull)
-                        .forEach(operations::add));
+                      .forEach(extension -> flags.stream()
+                                                 .map(extension::getCommandForFlag)
+                                                 .filter(Objects::nonNull)
+                                                 .forEach(operations::add));
 
         return operations;
     }
 
     private static List<String> getConfigFilesFromArgs(String[] args) {
         return Arrays.stream(StringUtils.tokenizeToStringArray(getArgumentValue(CONFIG_FILES, args), ","))
-                .filter(i -> !i.isEmpty())
-                .collect(Collectors.toList());
+                     .filter(i -> !i.isEmpty())
+                     .collect(Collectors.toList());
     }
 
     private static Map<String, String> getConfigurationFromArgs(String[] args) {
         return Arrays.stream(args)
-                .filter(CommandLineArguments::isConfigurationArg)
-                .map(arg -> Pair.of(arg, getConfigurationOptionNameFromArg(arg)))
-                .filter(p -> !isConfigurationOptionCommandlineOnly(p.getRight()))
-                .collect(Collectors.toMap(p -> "flyway." + p.getRight(), p -> parseConfigurationOptionValueFromArg(p.getLeft())));
+                     .filter(CommandLineArguments::isConfigurationArg)
+                     .filter(f -> !isConfigurationOptionCommandlineOnly(getConfigurationOptionNameFromArg(f)))
+                     .collect(Collectors.toMap(p -> (Arrays.stream((EnvironmentModel.class).getDeclaredFields()).anyMatch(x -> x.getName().equals(getConfigurationOptionNameFromArg(p)))
+                                                       ? "environments." + ClassicConfiguration.TEMP_ENVIRONMENT_NAME + "."
+                                                       : "flyway.")
+                                                       + getConfigurationOptionNameFromArg(p),
+                                               CommandLineArguments::parseConfigurationOptionValueFromArg));
     }
 
     private static boolean isConfigurationOptionCommandlineOnly(String configurationOptionName) {
@@ -165,19 +169,19 @@ public class CommandLineArguments {
 
     public List<String> getFlags() {
         return Arrays.stream(args)
-                .filter(a -> a.startsWith("-") && !a.contains("="))
-                .collect(Collectors.toList());
+                     .filter(a -> a.startsWith("-") && !a.contains("="))
+                     .collect(Collectors.toList());
     }
 
     public void validate() {
 
-        IntStream.range(0, args.length-1)
+        IntStream.range(0, args.length - 1)
                  .filter(i -> !isConfigurationArg(args[i]))
                  .filter(i -> !VALID_OPERATIONS_AND_FLAGS.contains(args[i]))
                  .filter(i -> !isHandledByExtension(args[i]))
                  .findAny()
                  .ifPresent(i -> {
-                     if (i < args.length-1 && "=".equals(args[i+1])) {
+                     if (i < args.length - 1 && "=".equals(args[i + 1])) {
                          throw new FlywayException("Invalid configuration argument: " + args[i] + ". Please check you have not included any spaces in your configuration argument.");
                      } else {
                          throw new FlywayException("Invalid flag: " + args[i]);
@@ -278,8 +282,8 @@ public class CommandLineArguments {
             return null;
         }
         return Arrays.stream(stateStr.split(","))
-                .map(s -> MigrationState.valueOf(s.toUpperCase(Locale.ENGLISH)))
-                .toArray(MigrationState[]::new);
+                     .map(s -> MigrationState.valueOf(s.toUpperCase(Locale.ENGLISH)))
+                     .toArray(MigrationState[]::new);
     }
 
     public boolean isFilterOnMigrationIds() {
@@ -352,9 +356,9 @@ public class CommandLineArguments {
             }
 
             return Arrays.stream(values())
-                    .filter(color -> color.value.equals(value))
-                    .findFirst()
-                    .orElse(null);
+                         .filter(color -> color.value.equals(value))
+                         .findFirst()
+                         .orElse(null);
         }
 
         public static boolean isValid(String value) {

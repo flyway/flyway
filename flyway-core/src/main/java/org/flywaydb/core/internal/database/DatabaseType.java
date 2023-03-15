@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-public interface DatabaseType extends Plugin, Comparable<DatabaseType> {
+public interface DatabaseType extends Plugin {
     /**
      * @return The human-readable name for this database type.
      */
@@ -59,17 +59,6 @@ public interface DatabaseType extends Plugin, Comparable<DatabaseType> {
      * @return {@code true} if this handles the JDBC url, {@code false} if not.
      */
     boolean handlesJDBCUrl(String url);
-
-    /**
-     * When identifying database types, the priority with which this type will be used. High numbers indicate
-     * that this type will be used in preference to others.
-     */
-    int getPriority();
-
-    /**
-     * When identifying database types, this method will sort by priority.
-     */
-    int compareTo(DatabaseType other);
 
     /**
      * A regex that identifies credentials in the JDBC URL, where they conform to a pattern specific to this database.

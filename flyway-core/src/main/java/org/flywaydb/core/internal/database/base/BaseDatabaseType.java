@@ -75,22 +75,6 @@ public abstract class BaseDatabaseType implements DatabaseType {
     public abstract boolean handlesJDBCUrl(String url);
 
     /**
-     * When identifying database types, the priority with which this type will be used. High numbers indicate
-     * that this type will be used in preference to others.
-     */
-    public int getPriority() {
-        return 0;
-    }
-
-    /**
-     * When identifying database types, the priority with which this type will be used. This should return -1 if
-     * to be used in preference to the other type; +1 if the other should be used in preference to this.
-     */
-    public int compareTo(DatabaseType other) {
-        return other.getPriority() - this.getPriority();
-    }
-
-    /**
      * A regex that identifies credentials in the JDBC URL, where they conform to a pattern specific to this database.
      * The first captured group should represent the password text, so that it can be redacted if necessary.
      *

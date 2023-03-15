@@ -45,7 +45,7 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 <tr>
 <th>Maven Central coordinates</th>
-<td><code>org.xerial:sqlite-jdbc:3.30.1</code></td>
+<td><code>org.xerial:sqlite-jdbc</code></td>
 </tr>
 <tr>
 <th>Supported versions</th>

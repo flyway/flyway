@@ -145,6 +145,10 @@ public class PeekingReader extends FilterReader {
         return r != -1 && ((char) r == '_' || (char) r == '$' || Character.isLetterOrDigit((char) r) || context.isLetter((char) r));
     }
 
+    public boolean peekIgnoreCase(String str) throws IOException {
+        return str.equalsIgnoreCase(peek(str.length()));
+    }
+
     /**
      * Peek ahead in the stream to see if the next characters match this string exactly.
      *

@@ -16,15 +16,22 @@
 package org.flywaydb.commandline.command.version;
 
 import lombok.CustomLog;
+import lombok.SneakyThrows;
+import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.Plugin;
+import org.flywaydb.core.extensibility.TelemetryPlugin;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -53,37 +60,45 @@ public class VersionCommandExtension implements CommandExtension {
     }
 
     @Override
-    public OperationResult handle(String command, Configuration config, List<String> flags) throws FlywayException {
-        VersionPrinter.printVersionOnly();
-        LOG.info("");
+    @SneakyThrows
+    public OperationResult handle(String command, Configuration config, List<String> flags, FlywayTelemetryManager flywayTelemetryManager) throws FlywayException {
+        try (EventTelemetryModel telemetryModel = new EventTelemetryModel("version", flywayTelemetryManager)) {
+            try {
+                VersionPrinter.printVersionOnly();
+                LOG.info("");
 
-        LOG.debug("Java " + System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")");
-        LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch") + "\n");
+                LOG.debug("Java " + System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")");
+                LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch") + "\n");
 
-        List<Plugin> allPlugins = config.getPluginRegister().getPlugins(Plugin.class);
+                List<Plugin> allPlugins = config.getPluginRegister().getPlugins(Plugin.class);
 
-        List<PluginVersionResult> pluginVersions = allPlugins.stream()
-                                                             .map(p -> new PluginVersionResult(p.getClass().getSimpleName(), p.getPluginVersion(), p.isLicensed(config)))
-                                                             .filter(p -> StringUtils.hasText(p.version))
-                                                             .collect(Collectors.toList());
+                List<PluginVersionResult> pluginVersions = allPlugins.stream()
+                                                                     .map(p -> new PluginVersionResult(p.getClass().getSimpleName(), p.getPluginVersion(), p.isLicensed(config)))
+                                                                     .filter(p -> StringUtils.hasText(p.version))
+                                                                     .collect(Collectors.toList());
 
-        int nameLength = pluginVersions.stream().map(p -> p.name.length()).max(Integer::compare).get() + 2;
-        int versionLength = pluginVersions.stream().map(p -> p.version.length()).max(Integer::compare).get() + 2;
+                int nameLength = pluginVersions.stream().map(p -> p.name.length()).max(Integer::compare).get() + 2;
+                int versionLength = pluginVersions.stream().map(p -> p.version.length()).max(Integer::compare).get() + 2;
 
-        LOG.info(StringUtils.rightPad("Plugin Name", nameLength, ' ') + " | " +
-                                      StringUtils.rightPad("Version", versionLength, ' ') + " | " +
-                                      ("Licensed"));
+                LOG.info(StringUtils.rightPad("Plugin Name", nameLength, ' ') + " | " +
+                                 StringUtils.rightPad("Version", versionLength, ' ') + " | " +
+                                 ("Licensed"));
 
-        LOG.info(StringUtils.rightPad(StringUtils.leftPad("", nameLength, '-'), nameLength, ' ') + " | " +
-                                      StringUtils.rightPad(StringUtils.leftPad("", versionLength, '-'), versionLength, ' ') + " | " +
-                                      ("--------"));
-        for (PluginVersionResult p : pluginVersions) {
-            LOG.info(StringUtils.rightPad(p.name, nameLength, ' ') + " | " +
-                                          StringUtils.rightPad(p.version, versionLength, ' ') + " | " +
-                                          (p.isLicensed ? "Licensed" : "Unlicensed"));
+                LOG.info(StringUtils.rightPad(StringUtils.leftPad("", nameLength, '-'), nameLength, ' ') + " | " +
+                                 StringUtils.rightPad(StringUtils.leftPad("", versionLength, '-'), versionLength, ' ') + " | " +
+                                 ("--------"));
+                for (PluginVersionResult p : pluginVersions) {
+                    LOG.info(StringUtils.rightPad(p.name, nameLength, ' ') + " | " +
+                                     StringUtils.rightPad(p.version, versionLength, ' ') + " | " +
+                                     (p.isLicensed ? "Licensed" : "Unlicensed"));
+                }
+
+                return new VersionResult(VersionPrinter.getVersion(), command, VersionPrinter.EDITION, pluginVersions);
+            } catch (Exception e) {
+                telemetryModel.setException(e);
+                throw e;
+            }
         }
-
-        return new VersionResult(VersionPrinter.getVersion(), command, VersionPrinter.EDITION, pluginVersions);
     }
 
     @Override

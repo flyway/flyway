@@ -38,6 +38,7 @@ public class DbInfo {
     private final Schema[] schemas;
 
     public MigrationInfoService info() {
+
         callbackExecutor.onEvent(Event.BEFORE_INFO);
 
         MigrationInfoServiceImpl migrationInfoService;

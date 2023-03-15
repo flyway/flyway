@@ -47,13 +47,8 @@ In order to build the platform-specific packages of the command-line tool, you n
 Unfortunately these are not available through Maven Central and must be added manually to your local Maven
 repository.
 
-Download the following files from the [AdoptOpenJDK website](https://adoptopenjdk.net/archive.html?variant=OpenJDK17):
-
-- [Windows x64 JRE 17.0.5](https://github.com/AdoptOpenJDK/OpenJDK17-binaries/releases/download/jdk-17.0.5%2B9/OpenJDK17U-jre_x64_windows_hotspot_17.0.5_9.zip)
-- [Linux x64 JRE 17.0.5](https://github.com/AdoptOpenJDK/OpenJDK17-binaries/releases/download/jdk-17.0.5%2B9/OpenJDK17U-jre_x64_linux_hotspot_17.0.5_9.tar.gz)
-- [macOS x64 JRE 17.0.5](https://github.com/AdoptOpenJDK/OpenJDK17-binaries/releases/download/jdk-17.0.5%2B9/OpenJDK17U-jre_x64_mac_hotspot_17.0.5_9.tar.gz)
-
-and place them in your local maven repository as:
+Download the v17 JRE package suitable for your OS files from the [Adoptium website](https://adoptium.net/temurin/releases/?version=17):
+and place them in your local maven repository as (_Note: your precise version may be newer_):
 
 - `~/.m2/repository/net/adoptopenjdk/jre/17.0.5/jre-17.0.5-windows-x64.zip`
 - `~/.m2/repository/net/adoptopenjdk/jre/17.0.5/jre-17.0.5-linux-x64.tar.gz`

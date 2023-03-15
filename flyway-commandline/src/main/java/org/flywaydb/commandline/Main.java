@@ -17,10 +17,12 @@ package org.flywaydb.commandline;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import lombok.SneakyThrows;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.commandline.logging.console.ConsoleLogCreator;
 import org.flywaydb.commandline.logging.file.FileLogCreator;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -31,16 +33,22 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.*;
 
 import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.extensibility.EventTelemetryModel;
+import org.flywaydb.core.extensibility.InfoTelemetryModel;
+import org.flywaydb.core.extensibility.RgDomainChecker;
+import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.configuration.TomlUtils;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
+import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+import org.flywaydb.core.internal.license.VersionPrinter;
 
 import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
@@ -88,75 +96,116 @@ public class Main {
         LOG = LogFactory.getLog(Main.class);
     }
 
-    public static void main(String[] args) {
-        JavaVersionPrinter.printJavaVersion();
-        CommandLineArguments commandLineArguments = new CommandLineArguments(pluginRegister, args);
-        initLogging(commandLineArguments);
+    public static void main(String[] args) throws Exception {
+        int exitCode=0;
+
+        FlywayTelemetryManager flywayTelemetryManager = null;
+        if(!StringUtils.hasText(System.getenv("REDGATE_DISABLE_TELEMETRY"))) {
+            flywayTelemetryManager = new FlywayTelemetryManager(pluginRegister);
+        }
 
         try {
-            commandLineArguments.validate();
 
-            if (commandLineArguments.hasOperation("help") || commandLineArguments.shouldPrintUsage()) {
-                StringBuilder helpText = new StringBuilder();
-                boolean helpAsVerbWithOperation = commandLineArguments.hasOperation("help") && commandLineArguments.getOperations().size() > 1;
-                boolean helpAsFlagWithOperation = commandLineArguments.shouldPrintUsage() && commandLineArguments.getOperations().size() > 0;
-                if (helpAsVerbWithOperation || helpAsFlagWithOperation) {
-                    for (String operation : commandLineArguments.getOperations()) {
-                        String helpTextForOperation = pluginRegister.getPlugins(CommandExtension.class).stream()
-                                                                    .filter(e -> e.handlesCommand(operation))
-                                                                    .map(CommandExtension::getHelpText)
-                                                                    .collect(Collectors.joining("\n\n"));
 
-                        if (StringUtils.hasText(helpTextForOperation)) {
-                            helpText.append(helpTextForOperation).append("\n\n");
+            JavaVersionPrinter.printJavaVersion();
+            CommandLineArguments commandLineArguments = new CommandLineArguments(pluginRegister, args);
+            initLogging(commandLineArguments);
+
+            try {
+                commandLineArguments.validate();
+
+                if (commandLineArguments.hasOperation("help") || commandLineArguments.shouldPrintUsage()) {
+                    StringBuilder helpText = new StringBuilder();
+                    boolean helpAsVerbWithOperation = commandLineArguments.hasOperation("help") && commandLineArguments.getOperations().size() > 1;
+                    boolean helpAsFlagWithOperation = commandLineArguments.shouldPrintUsage() && commandLineArguments.getOperations().size() > 0;
+                    if (helpAsVerbWithOperation || helpAsFlagWithOperation) {
+                        for (String operation : commandLineArguments.getOperations()) {
+                            String helpTextForOperation = pluginRegister.getPlugins(CommandExtension.class).stream()
+                                                                        .filter(e -> e.handlesCommand(operation))
+                                                                        .map(CommandExtension::getHelpText)
+                                                                        .collect(Collectors.joining("\n\n"));
+
+                            if (StringUtils.hasText(helpTextForOperation)) {
+                                helpText.append(helpTextForOperation).append("\n\n");
+                            }
                         }
                     }
+                    if (!StringUtils.hasText(helpText.toString())) {
+                        printUsage();
+                    } else {
+                        LOG.info(helpText.toString());
+                    }
+                    return;
                 }
-                if (!StringUtils.hasText(helpText.toString())) {
-                    printUsage();
+
+                Configuration configuration = useModernConfig(commandLineArguments) ? getConfiguration(commandLineArguments) : getLegacyConfiguration(commandLineArguments);
+
+                Flyway flyway = Flyway.configure(configuration.getClassLoader()).configuration(configuration).load();
+
+                if (flywayTelemetryManager != null) {
+                    RootTelemetryModel rootTelemetryModel = flywayTelemetryManager.getRootTelemetryModel();
+                    rootTelemetryModel.setApplicationVersion(VersionPrinter.getVersion());
+                    rootTelemetryModel.setApplicationEdition(VersionPrinter.EDITION.getDescription());
+                    RgDomainChecker domainChecker = pluginRegister.getPlugin(RgDomainChecker.class);
+                    if (domainChecker != null) {
+                        rootTelemetryModel.setRedgateEmployee(domainChecker.isInDomain(configuration));
+                    }
+                    ClassicConfiguration classicConfiguration = new ClassicConfiguration(configuration);
+                    if(classicConfiguration.getDataSource() != null) {
+                        try (JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, null);
+                             Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null)) {
+                            rootTelemetryModel.setDatabaseEngine(database.getDatabaseType().getName());
+                        }
+                    } else {
+                        rootTelemetryModel.setDatabaseEngine("UNKNOWN");
+                    }
+
+                }
+
+                if (!commandLineArguments.skipCheckForUpdate()) {
+                    MavenVersionChecker.checkForVersionUpdates();
+                }
+
+                OperationResult result;
+                if (commandLineArguments.getOperations().size() == 1) {
+                    String operation = commandLineArguments.getOperations().get(0);
+                    result = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager);
                 } else {
-                    LOG.info(helpText.toString());
+                    CompositeResult<OperationResult> compositeResult = new CompositeResult<>();
+
+                        for (String operation : commandLineArguments.getOperations()) {
+                            compositeResult.individualResults.add(executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager));
+                        }
+                    result = compositeResult;
                 }
-                return;
-            }
 
-            Configuration configuration = useModernConfig(commandLineArguments) ? getConfiguration(commandLineArguments) : getLegacyConfiguration(commandLineArguments);
-
-            Flyway flyway = Flyway.configure(configuration.getClassLoader()).configuration(configuration).load();
-
-            if (!commandLineArguments.skipCheckForUpdate()) {
-                MavenVersionChecker.checkForVersionUpdates();
-            }
-
-            OperationResult result;
-            if (commandLineArguments.getOperations().size() == 1) {
-                String operation = commandLineArguments.getOperations().get(0);
-                result = executeOperation(flyway, operation, commandLineArguments);
-            } else {
-                CompositeResult<OperationResult> compositeResult = new CompositeResult<>();
-                for (String operation : commandLineArguments.getOperations()) {
-                    compositeResult.individualResults.add(executeOperation(flyway, operation, commandLineArguments));
+                if (commandLineArguments.isCommunityFallback()) {
+                    LOG.warn("A Flyway License was not provided; fell back to Community Edition. Please contact sales at sales@flywaydb.org for license information.");
                 }
-                result = compositeResult;
-            }
 
-            if (commandLineArguments.isCommunityFallback()) {
-                LOG.warn("A Flyway License was not provided; fell back to Community Edition. Please contact sales at sales@flywaydb.org for license information.");
-            }
+                if (commandLineArguments.shouldOutputJson()) {
+                    printJson(commandLineArguments, result);
+                }
 
-            if (commandLineArguments.shouldOutputJson()) {
-                printJson(commandLineArguments, result);
+            } catch (DbMigrate.FlywayMigrateException e) {
+                MigrateErrorResult errorResult = ErrorOutput.fromMigrateException(e);
+                printError(commandLineArguments, e, errorResult);
+                exitCode = 1;
+            } catch (Exception e) {
+                ErrorOutput errorOutput = ErrorOutput.fromException(e);
+                printError(commandLineArguments, e, errorOutput);
+                exitCode = 1;
+            } finally {
+                flushLog(commandLineArguments);
             }
-        } catch (DbMigrate.FlywayMigrateException e) {
-            MigrateErrorResult errorResult = ErrorOutput.fromMigrateException(e);
-            printError(commandLineArguments, e, errorResult);
-            System.exit(1);
-        } catch (Exception e) {
-            ErrorOutput errorOutput = ErrorOutput.fromException(e);
-            printError(commandLineArguments, e, errorOutput);
-            System.exit(1);
         } finally {
-            flushLog(commandLineArguments);
+            if(flywayTelemetryManager != null) {
+                flywayTelemetryManager.close();
+            }
+        }
+
+        if (exitCode != 0) {
+            System.exit(exitCode);
         }
     }
 
@@ -183,9 +232,15 @@ public class Main {
         List<File> existingFiles = tomlFiles.stream().filter(File::exists).collect(Collectors.toList());
         ConfigurationModel config = TomlUtils.loadConfigurationFiles(existingFiles, workingDirectory);
 
+        ConfigurationModel commandLineArgumentsModel = TomlUtils.loadConfigurationFromCommandlineArgs(commandLineArguments.getConfiguration());
         config = config.merge(TomlUtils.loadConfigurationFromEnvironment())
-                       .merge(TomlUtils.loadConfigurationFromCommandlineArgs(commandLineArguments.getConfiguration()));
+                       .merge(commandLineArgumentsModel);
 
+        if (commandLineArgumentsModel.getEnvironments().containsKey(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)) {
+            EnvironmentModel defaultEnv = config.getEnvironments().get(config.getFlyway().getEnvironment());
+            config.getEnvironments().put(config.getFlyway().getEnvironment(), defaultEnv.merge(commandLineArgumentsModel.getEnvironments().get(ClassicConfiguration.TEMP_ENVIRONMENT_NAME)));
+            config.getEnvironments().remove(ClassicConfiguration.TEMP_ENVIRONMENT_NAME);
+        }
         config.getFlyway().getLocations().add("filesystem:" + new File(workingDirectory, "sql").getAbsolutePath());
 
         List<String> jarDirs = new ArrayList<>();
@@ -212,6 +267,7 @@ public class Main {
 
         ClassicConfiguration cfg = new ClassicConfiguration(config);
         cfg.setClassLoader(classLoader);
+
 
 
 
@@ -264,6 +320,7 @@ public class Main {
 
         ConfigUtils.dumpConfiguration(config);
         filterProperties(config);
+
 
 
 
@@ -334,55 +391,71 @@ public class Main {
         return condensedMessages.toString();
     }
 
-    private static OperationResult executeOperation(Flyway flyway, String operation, CommandLineArguments commandLineArguments) {
+    @SneakyThrows
+    private static OperationResult executeOperation(Flyway flyway, String operation, CommandLineArguments commandLineArguments, FlywayTelemetryManager telemetryManager) {
         OperationResult result = null;
+        flyway.setFlywayTelemetryManager(telemetryManager);
         if ("clean".equals(operation)) {
             result = flyway.clean();
         } else if ("baseline".equals(operation)) {
             result = flyway.baseline();
         } else if ("migrate".equals(operation)) {
             result = flyway.migrate();
-        } else if ("undo".equals(operation)) {
-            result = flyway.undo();
         } else if ("validate".equals(operation)) {
-            if (commandLineArguments.shouldOutputJson()) {
-                result = flyway.validateWithResult();
-            } else {
-                flyway.validate();
+            try (EventTelemetryModel telemetryModel = new EventTelemetryModel("validate", telemetryManager)) {
+                try {
+                    if (commandLineArguments.shouldOutputJson()) {
+                        result = flyway.validateWithResult();
+                    } else {
+                        flyway.validate();
+                    }
+                } catch (Exception e) {
+                    telemetryModel.setException(e);
+                    throw e;
+                }
             }
         } else if ("info".equals(operation)) {
-            MigrationInfoService info = flyway.info();
-            MigrationInfo current = info.current();
-            MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
+            try(InfoTelemetryModel infoTelemetryModel = new InfoTelemetryModel(telemetryManager)) {
+                try {
+                    MigrationInfoService info = flyway.info();
+                    MigrationInfo current = info.current();
+                    MigrationVersion currentSchemaVersion = current == null ? MigrationVersion.EMPTY : current.getVersion();
 
-            MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
-            LOG.info("Schema version: " + schemaVersionToOutput);
-            LOG.info("");
-
-
-
-
+                    MigrationVersion schemaVersionToOutput = currentSchemaVersion == null ? MigrationVersion.EMPTY : currentSchemaVersion;
+                    LOG.info("Schema version: " + schemaVersionToOutput);
+                    LOG.info("");
 
 
 
-             result = info.getInfoResult();
-             MigrationInfo[] infos = info.all();
 
 
-            if (commandLineArguments.isFilterOnMigrationIds()) {
-                System.out.print(Arrays.stream(infos)
-                                       .map(m -> m.getVersion() == null ? m.getDescription() : m.getVersion().getVersion())
-                                       .collect(Collectors.joining(",")));
-            } else {
-                LOG.info(MigrationInfoDumper.dumpToAsciiTable(infos));
+
+
+                     result = info.getInfoResult();
+                     MigrationInfo[] infos = info.all();
+
+
+                    if (commandLineArguments.isFilterOnMigrationIds()) {
+                        System.out.print(Arrays.stream(infos)
+                                               .map(m -> m.getVersion() == null ? m.getDescription() : m.getVersion().getVersion())
+                                               .collect(Collectors.joining(",")));
+                    } else {
+                        LOG.info(MigrationInfoDumper.dumpToAsciiTable(infos));
+                    }
+                    infoTelemetryModel.setNumberOfMigrations(((InfoResult) result).migrations.size());
+                    infoTelemetryModel.setNumberOfPendingMigrations((int) ((InfoResult) result).migrations.stream().filter(m -> "Pending".equals(m.state)).count());
+                } catch (Exception e) {
+                    infoTelemetryModel.setException(e);
+                    throw e;
+                }
             }
         } else if ("repair".equals(operation)) {
             result = flyway.repair();
         } else {
             result = pluginRegister.getPlugins(CommandExtension.class).stream()
                                    .filter(commandExtension -> commandExtension.handlesCommand(operation))
-                                   .findFirst()
-                                   .map(commandExtension -> commandExtension.handle(operation, flyway.getConfiguration(), commandLineArguments.getFlags()))
+                                   .max(Comparator.comparingInt(CommandExtension::getPriority))
+                                   .map(commandExtension -> commandExtension.handle(operation, flyway.getConfiguration(), commandLineArguments.getFlags(), telemetryManager))
                                    .orElseThrow(() -> new FlywayException("No command extension found to handle command: " + operation));
         }
 
@@ -605,7 +678,10 @@ public class Main {
         }
 
         String url = config.get(ConfigUtils.URL);
-        if (!config.containsKey(ConfigUtils.USER)
+
+        boolean hasUser = config.containsKey(ConfigUtils.USER) || config.keySet().stream().anyMatch(p -> p.toLowerCase().endsWith(".user"));
+
+        if (!hasUser
 
 
 
@@ -613,7 +689,9 @@ public class Main {
             config.put(ConfigUtils.USER, console.readLine("Database user: "));
         }
 
-        if (!config.containsKey(ConfigUtils.PASSWORD)
+        boolean hasPassword = config.containsKey(ConfigUtils.PASSWORD) || config.keySet().stream().anyMatch(p -> p.toLowerCase().endsWith(".password"));
+
+        if (!hasPassword
 
 
 

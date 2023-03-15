@@ -21,7 +21,7 @@
 
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-bom</artifactId>
-    <version>9.12.1-SNAPSHOT</version>
+    <version>9.15.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Flyway - BOM</name>
@@ -44,12 +44,6 @@
         </developer>
     </developers>
 
-    <!-- [master-only] -->
-    <properties>
-        <maven.test.skip>true</maven.test.skip>
-    </properties>
-    <!-- [/master-only] -->
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -61,50 +55,27 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>flyway-community-db-support</artifactId>
                 <version>${project.version}</version>
-                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>flyway-gcp-bigquery</artifactId>
-                <version>${flyway-gcp-bigquery.version}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>flyway-gcp-spanner</artifactId>
-                <version>${flyway-gcp-spanner.version}</version>
-                <optional>true</optional>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>flyway-sqlserver</artifactId>
-                <version>${flyway-sqlserver.version}</version>
-                <optional>true</optional>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>flyway-mysql</artifactId>
-                <version>${flyway-mysql.version}</version>
-                <optional>true</optional>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>flyway-firebird</artifactId>
-                <version>${flyway-firebird.version}</version>
-                <optional>true</optional>
+                <version>${project.version}</version>
             </dependency>
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -169,4 +140,51 @@
 
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+
+
+
+
+
+
+
+
+
+
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok-maven-plugin</artifactId>
+                <version>1.18.20.0</version>
+                <configuration>
+                    <skip>true</skip>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.amashchenko.maven.plugin</groupId>
+                <artifactId>gitflow-maven-plugin</artifactId>
+                <version>1.19.0</version>
+                <configuration>
+                    <gitFlowConfig>
+                        <productionBranch>main</productionBranch>
+                        <versionTagPrefix>flyway-</versionTagPrefix>
+                    </gitFlowConfig>
+                    <commitMessages>
+                        <releaseStartMessage>Updating release version to @{version}</releaseStartMessage>
+                        <releaseFinishMessage>Updating snapshot version to @{version}</releaseFinishMessage>
+                    </commitMessages>
+                    <pushRemote>false</pushRemote>
+                    <skipTestProject>true</skipTestProject>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

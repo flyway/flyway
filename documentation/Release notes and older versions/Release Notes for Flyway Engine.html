@@ -17,12 +17,45 @@
 -->
 <div class="call-to-action">
 
-<p>Learn more about <a href="https://www.red-gate.com/products/flyway/editions" style="font-size: larger;" title="Flyway editions">Flyway Editions</a> capabilities
-<p>Download <a href="https://documentation.red-gate.com/fd/command-line-184127404.html" style="font-size: larger;" title="Flyway CLI">Flyway CLI</a>
+<p>Learn more about <a href="https://www.red-gate.com/products/flyway/editions" style="font-size: larger;" title="Flyway editions">Flyway Editions</a> capabilities </p>
+<p>Download <a href="https://documentation.red-gate.com/fd/command-line-184127404.html" style="font-size: larger;" title="Flyway CLI">Flyway CLI</a> </p>
 
 
 </div>
 <div class="col-md-9">
+
+<div class="release">
+        <h2 id="9.16.0">Flyway 9.16.0 (2023-03-15)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3618">Issue 3618</a>
+                Fix reading in configuration from standard input in Teams and Enterprise edition.
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3621">Issue 3621</a>
+                Fixed a parsing error caused by begin transaction statements in Snowflake.
+            </li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Drift report titles have been renamed from 'Before' and 'After' to 'Expected' and 'Actual'.</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3628">Issue 3628</a>
+                Update `flyway-bom` to use correct versioning system and deploy to Maven Central
+            </li>
+        </ul>
+
+        <p>
+            Thanks to eddumelendez, frichtarik and Phil-Factor for reporting these issues.
+        </p>
+    </div>
 
 <div class="release">
         <h2 id="9.15.2">Flyway 9.15.2 (2023-03-06)</h2>

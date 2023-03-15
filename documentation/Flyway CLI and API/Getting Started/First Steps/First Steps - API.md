@@ -33,19 +33,6 @@ We are now ready to get started. Let's jump into our project:
 Let's add Flyway and H2 to our new `pom.xml`:
 ```xml
 <project xmlns="...">;
-    ...
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-bom</artifactId>
-                <version>{{ site.flywayVersion }}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-    ...
     <dependencies>
         <dependency>
             <groupId>org.flywaydb</groupId>
