@@ -28,7 +28,7 @@
     mvn clean install -Pbuild-assemblies-no-jre
     -->
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.flywaydb</groupId>
+    <groupId>io.github.coolbeevip</groupId>
     <artifactId>flyway-parent</artifactId>
     <version>9.15.2</version>
     <packaging>pom</packaging>

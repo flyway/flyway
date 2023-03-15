@@ -21,7 +21,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>flyway-parent</artifactId>
-        <groupId>org.flywaydb</groupId>
+        <groupId>io.github.coolbeevip</groupId>
         <version>9.15.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
