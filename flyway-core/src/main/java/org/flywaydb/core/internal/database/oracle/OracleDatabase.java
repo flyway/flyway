@@ -67,7 +67,8 @@ public class OracleDatabase extends Database<OracleConnection> {
     public final void ensureSupported() {
         ensureDatabaseIsRecentEnough("10");
 
-        ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("18.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+        // fix not support Oracle 11g by coolbeevip
+        // ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("18.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
 
         recommendFlywayUpgradeIfNecessaryForMajorVersion("19.3");
     }
@@ -291,18 +292,21 @@ public class OracleDatabase extends Database<OracleConnection> {
 
 
 
-
-
-        result.addAll(getMainConnection().getJdbcTemplate().queryForStringList("SELECT USERNAME FROM ALL_USERS " +
-                                                                                       "WHERE REGEXP_LIKE(USERNAME, '^(APEX|FLOWS)_\\d+$')" +
-
-
-
-                                                                                               " OR ORACLE_MAINTAINED = 'Y'"
-
-
-
-                                                                              ));
+        if (!getVersion().isAtLeast("12.2")) {
+            // fix ORACLE_MAINTAINED not found less than Oracle 12.2 by coolbeevip
+            result.addAll(
+                getMainConnection().getJdbcTemplate()
+                    .queryForStringList("SELECT USERNAME FROM ALL_USERS " +
+                        "WHERE REGEXP_LIKE(USERNAME, '^(APEX|FLOWS)_\\d+$')"
+                    ));
+        } else {
+            result.addAll(
+                getMainConnection().getJdbcTemplate()
+                    .queryForStringList("SELECT USERNAME FROM ALL_USERS " +
+                        "WHERE REGEXP_LIKE(USERNAME, '^(APEX|FLOWS)_\\d+$')" +
+                        " OR ORACLE_MAINTAINED = 'Y'"
+                    ));
+        }
 
 
 
