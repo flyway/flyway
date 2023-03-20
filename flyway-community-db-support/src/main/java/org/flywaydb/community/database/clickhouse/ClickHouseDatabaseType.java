@@ -50,4 +50,14 @@ public class ClickHouseDatabaseType extends BaseDatabaseType {
     public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
         return new ClickHouseParser(configuration, parsingContext, 3);
     }
+
+    @Override
+    public boolean detectUserRequiredByUrl(String url) {
+        return !url.contains("user=");
+    }
+
+    @Override
+    public boolean detectPasswordRequiredByUrl(String url) {
+        return !url.contains("password=");
+    }
 }
