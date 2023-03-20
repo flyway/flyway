@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * A migration applied to the database (maps to a row in the schema history table).
  */
-public interface AppliedMigration extends Plugin, Comparable<AppliedMigration> {
+public interface AppliedMigration extends Plugin {
     /**
      * @return The order in which this migration was applied amongst all others.
      */

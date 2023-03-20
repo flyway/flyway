@@ -53,7 +53,7 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 <tr>
 <th>Maven Central coordinates</th>
-<td><code>com.singlestore:singlestore-jdbc-client:1.1.4</code></td>
+<td><code>com.singlestore:singlestore-jdbc-client</code></td>
 </tr>
 <tr>
 <th>Supported versions</th>

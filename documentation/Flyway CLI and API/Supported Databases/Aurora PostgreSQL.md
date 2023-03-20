@@ -48,7 +48,7 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 <tr>
 <th>Maven Central coordinates</th>
-<td><code>org.postgresql:postgresql:42.2.5</code></td>
+<td><code>org.postgresql:postgresql</code></td>
 </tr>
 <tr>
 <th>Supported versions</th>

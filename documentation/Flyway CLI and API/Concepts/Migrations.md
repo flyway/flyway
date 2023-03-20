@@ -245,8 +245,8 @@ These would typically be things like
 ### Naming
 
 In order to be picked up by Flyway, Java-based Migrations must implement the
-[`JavaMigration`](https://flywaydb.org/documentation/usage/api/javadoc/org/flywaydb/core/api/migration/JavaMigration) interface. Most users
-however should inherit from the convenience class [`BaseJavaMigration`](https://flywaydb.org/documentation/usage/api/javadoc/org/flywaydb/core/api/migration/BaseJavaMigration)
+[`JavaMigration`](https://javadoc.io/doc/org.flywaydb/flyway-core/latest/org/flywaydb/core/api/migration/JavaMigration.html) interface. Most users
+however should inherit from the convenience class [`BaseJavaMigration`](https://javadoc.io/doc/org.flywaydb/flyway-core/latest/org/flywaydb/core/api/migration/BaseJavaMigration.html)
 instead as it encourages Flyway's default naming convention, enabling Flyway to automatically extract the version and
 the description from the class name. To be able to do so, the class name must comply with the following naming pattern:
 
@@ -284,7 +284,7 @@ The class name consists of the following parts:
 - **Description**: Underscores (automatically replaced by spaces at runtime) separate the words
 
 If you need more control over the class name, you can override the default convention by implementing the
-[`JavaMigration`](https://flywaydb.org/documentation/usage/api/javadoc/org/flywaydb/core/api/migration/JavaMigration) interface directly.
+[`JavaMigration`](https://javadoc.io/doc/org.flywaydb/flyway-core/latest/org/flywaydb/core/api/migration/JavaMigration.html) interface directly.
 
 This will allow you to name your class as you wish. Version, description and migration category are provided by
 implementing the respective methods.

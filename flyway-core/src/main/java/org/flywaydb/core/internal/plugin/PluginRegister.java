@@ -42,15 +42,6 @@ public class PluginRegister {
                 .orElse(null);
     }
 
-    public <T extends Plugin & Comparable<T>> T getHighestPriorityPlugin(Class<T> clazz) {
-        return (T) getPlugins()
-                .stream()
-                .filter(clazz::isInstance)
-                .sorted()
-                .findFirst()
-                .orElse(null);
-    }
-
     public <T extends Plugin> List<T> getPlugins(Class<T> clazz) {
         return (List<T>) getPlugins()
                 .stream()

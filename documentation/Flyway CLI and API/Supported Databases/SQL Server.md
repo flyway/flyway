@@ -53,7 +53,7 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 <tr>
 <th>Maven Central coordinates</th>
-<td><code>com.microsoft.sqlserver:mssql-jdbc:9.2.1.jre8</code></td>
+<td><code>com.microsoft.sqlserver:mssql-jdbc</code></td>
 </tr>
 <tr>
 <th>Supported versions</th>

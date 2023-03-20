@@ -39,7 +39,7 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 <tr>
 <th>Download</th>
-<td>Maven Central coordinates: <code>com.ibm.informix:jdbc:4.10.10.0</code></td>
+<td>Maven Central coordinates: <code>com.ibm.informix:jdbc</code></td>
 </tr>
 <tr>
 <th>Supported versions</th>

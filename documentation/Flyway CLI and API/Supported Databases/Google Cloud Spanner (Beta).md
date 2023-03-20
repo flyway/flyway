@@ -41,7 +41,7 @@ subtitle: Google Cloud Spanner
 </tr>
 <tr>
 <th>Maven Central coordinates</th>
-<td><code>com.google.cloud:google-cloud-spanner-jdbc:2.2.6</code></td>
+<td><code>com.google.cloud:google-cloud-spanner-jdbc</code></td>
 </tr>
 <tr>
 <th>Supported versions</th>

@@ -126,6 +126,14 @@
 
 
 
+
+
+
+
+
+
+
+
         <fileSet>
             <directory>target/editions/community</directory>
             <outputDirectory>lib/community</outputDirectory>
@@ -186,6 +194,7 @@
                 <include>org.flywaydb:flyway-dapr-integration</include>
                 <include>org.flywaydb:flyway-gcsm-integration</include>
                 <include>org.flywaydb:flyway-compare</include>
+                <include>org.flywaydb:flyway-telemetry-otel</include>
                 <include>org.flywaydb:flyway-rgcompare</include>
                 <include>org.flywaydb:flyway-rulesengine-sqlfluff</include>
                 <include>org.flywaydb:flyway-rulesengine-regex</include>
@@ -194,8 +203,12 @@
                 <include>org.flywaydb:flyway-mysql</include>
                 <include>org.flywaydb:flyway-firebird</include>
                 <include>org.flywaydb:flyway-proprietary</include>
+                <include>org.flywaydb:flyway-command-resolve-environment</include>
             </includes>
         </dependencySet>
+
+
+
 
 
 

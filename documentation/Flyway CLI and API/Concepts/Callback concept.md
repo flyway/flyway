@@ -200,7 +200,7 @@ the separator, the description and the suffix. Example: `beforeRepair__vacuum.sq
 ## Java Callbacks
 
 If SQL Callbacks aren't flexible enough for you, you have the option to implement the
-[**Callback**](https://flywaydb.org/documentation/usage/api/javadoc/org/flywaydb/core/api/callback/Callback)
+[**Callback**](https://javadoc.io/doc/org.flywaydb/flyway-core/latest/org/flywaydb/core/api/callback/Callback.html)
 interface yourself. You can even hook multiple Callback implementations in the lifecycle. Java callbacks have the
 additional flexibility that a single Callback implementation can handle multiple lifecycle events, and are
 therefore not bound by the SQL callback naming convention.

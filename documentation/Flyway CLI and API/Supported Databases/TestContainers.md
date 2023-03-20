@@ -35,19 +35,19 @@ Support Level determines the degree of support available for this database ([lea
 <tr>
 <th>Maven Central coordinates</th>
 <td>Database specific JARs: <br/>
-<code>org.testcontainers:cockroachdb:jar:1.17.6</code> <br/>
-<code>org.testcontainers:db2:jar:1.17.6</code> <br/>
-<code>org.testcontainers:mariadb:jar:1.17.6</code> <br/>
-<code>org.testcontainers:mssqlserver:jar:1.17.6</code> <br/>
-<code>org.testcontainers:mysql:jar:1.17.6</code> <br/>
-<code>org.testcontainers:oracle-xe:jar:1.17.6</code> <br/>
-<code>org.testcontainers:postgresql:jar:1.17.6</code> <br/>
-<code>org.testcontainers:tidb:jar:1.17.6</code> <br/>
-<code>org.testcontainers:yugabytedb:jar:1.17.6</code> <br/>
+<code>org.testcontainers:cockroachdb:jar</code> <br/>
+<code>org.testcontainers:db2:jar</code> <br/>
+<code>org.testcontainers:mariadb:jar</code> <br/>
+<code>org.testcontainers:mssqlserver:jar</code> <br/>
+<code>org.testcontainers:mysql:jar</code> <br/>
+<code>org.testcontainers:oracle-xe:jar</code> <br/>
+<code>org.testcontainers:postgresql:jar</code> <br/>
+<code>org.testcontainers:tidb:jar</code> <br/>
+<code>org.testcontainers:yugabytedb:jar</code> <br/>
 Dependencies: <br/>
-<code>org.testcontainers:jdbc:jar:1.17.6</code> <br/>
-<code>org.testcontainers:database-commons:jar:1.17.6</code> <br/>
-<code>org.testcontainers:testcontainers:jar:1.17.6</code></td>
+<code>org.testcontainers:jdbc:jar</code> <br/>
+<code>org.testcontainers:database-commons:jar</code> <br/>
+<code>org.testcontainers:testcontainers:jar</code></td>
 </tr>
 <tr>
 <th>Supported versions</th>

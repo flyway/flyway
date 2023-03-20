@@ -33,19 +33,6 @@ We are now ready to get started. Let's jump into our project:
 Let's integrate Flyway and the H2 database into our new `pom.xml` and configure Flyway so it can successfully connect to H2:
 ```xml
 <project xmlns="...">
-    ...
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-bom</artifactId>
-                <version>{{ site.flywayVersion }}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-    ...
     <build>
         <plugins>
             <plugin>

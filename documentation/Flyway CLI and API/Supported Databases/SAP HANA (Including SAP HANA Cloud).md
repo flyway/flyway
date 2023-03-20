@@ -44,7 +44,7 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 <tr>
 <th>Maven Central coordinates</th>
-<td><code>com.sap.cloud.db.jdbc:ngdbc:2.6.30</code></td>
+<td><code>com.sap.cloud.db.jdbc:ngdbc</code></td>
 </tr>
 <tr>
 <th>Supported versions</th>

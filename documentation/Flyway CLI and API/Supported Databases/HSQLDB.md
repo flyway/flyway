@@ -43,7 +43,7 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 <tr>
 <th>Maven Central coordinates</th>
-<td><code>org.hsqldb:hsqldb:2.4.1</code></td>
+<td><code>org.hsqldb:hsqldb</code></td>
 </tr>
 <tr>
 <th>Supported versions</th>

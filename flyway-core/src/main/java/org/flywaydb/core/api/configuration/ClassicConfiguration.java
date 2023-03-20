@@ -61,11 +61,11 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger
 @CustomLog
 public class ClassicConfiguration implements Configuration {
 
+    public static final String TEMP_ENVIRONMENT_NAME = "tempConfigEnvironment";
     @Getter
     @Setter
     private ConfigurationModel modernConfig = ConfigurationModel.defaults();
 
-    @Getter
     private final Map<String, ResolvedEnvironment> resolvedEnvironments = new HashMap<>();
 
     @Getter
@@ -95,14 +95,18 @@ public class ClassicConfiguration implements Configuration {
         return getModernConfig().getEnvironments().get(envName);
     }
 
-    private ResolvedEnvironment getCurrentEnvironment() {
-        if (environmentResolver == null) {
-            environmentResolver = new EnvironmentResolver(pluginRegister.getPlugins(PropertyResolver.class).stream().collect(Collectors.toMap(PropertyResolver::getName, x -> x)));
-        }
-
+    public ResolvedEnvironment getCurrentResolvedEnvironment() {
         String envName = modernConfig.getFlyway().getEnvironment();
         if (!StringUtils.hasText(envName)) {
             envName = "default";
+        }
+
+        return getResolvedEnvironment(envName);
+    }
+
+    public ResolvedEnvironment getResolvedEnvironment(String envName) {
+        if (environmentResolver == null) {
+            environmentResolver = new EnvironmentResolver(pluginRegister.getPlugins(PropertyResolver.class).stream().collect(Collectors.toMap(PropertyResolver::getName, x -> x)));
         }
 
         if (!resolvedEnvironments.containsKey(envName) && getModernConfig().getEnvironments().containsKey(envName)) {
@@ -118,7 +122,7 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public String[] getSchemas() {
-        return getCurrentEnvironment().getSchemas().toArray(new String[0]);
+        return getCurrentResolvedEnvironment().getSchemas().toArray(new String[0]);
     }
 
     @Override
@@ -187,17 +191,17 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public String getUrl() {
-        return getCurrentEnvironment().getUrl();
+        return getCurrentResolvedEnvironment().getUrl();
     }
 
     @Override
     public String getUser() {
-        return getCurrentEnvironment().getUser();
+        return getCurrentResolvedEnvironment().getUser();
     }
 
     @Override
     public String getPassword() {
-        return getCurrentEnvironment().getPassword();
+        return getCurrentResolvedEnvironment().getPassword();
     }
 
     @Override
@@ -348,7 +352,7 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public Map<String, String> getJdbcProperties() {
-        return getCurrentEnvironment().getJdbcProperties();
+        return getCurrentResolvedEnvironment().getJdbcProperties();
     }
 
     @Override
@@ -368,17 +372,17 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public int getConnectRetries() {
-        return getCurrentEnvironment().getConnectRetries();
+        return getCurrentResolvedEnvironment().getConnectRetries();
     }
 
     @Override
     public int getConnectRetriesInterval() {
-        return getCurrentEnvironment().getConnectRetriesInterval();
+        return getCurrentResolvedEnvironment().getConnectRetriesInterval();
     }
 
     @Override
     public String getInitSql() {
-        return getCurrentEnvironment().getInitSql();
+        return getCurrentResolvedEnvironment().getInitSql();
     }
 
     @Override
@@ -1094,7 +1098,7 @@ public class ClassicConfiguration implements Configuration {
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
      */
     public void setBaselineVersionAsString(String baselineVersion) {
-       setBaselineVersion(baselineVersion);
+        setBaselineVersion(baselineVersion);
     }
 
     /**
@@ -1415,9 +1419,18 @@ public class ClassicConfiguration implements Configuration {
      *
      * @throws FlywayException when the configuration failed.
      */
+
     public void configure(Map<String, String> props) {
         // Make copy to prevent removing elements from the original.
-        props = new HashMap<>(props);
+        Map<String, String> tempProps = new HashMap<>(props);
+
+        for (String key : props.keySet()) {
+            if (key.startsWith("environments." + TEMP_ENVIRONMENT_NAME)) {
+                tempProps.put(key.replace("environments." + TEMP_ENVIRONMENT_NAME, "flyway"), props.get(key));
+            }
+        }
+
+        props = new HashMap<>(tempProps);
 
         for (ConfigurationExtension configurationExtension : pluginRegister.getPlugins(ConfigurationExtension.class)) {
             configurationExtension.extractParametersFromConfiguration(props);
@@ -1667,9 +1680,9 @@ public class ClassicConfiguration implements Configuration {
             setFailOnMissingLocations(failOnMissingLocationsProp);
         }
 
-        if (StringUtils.hasText(getCurrentEnvironment().getUrl()) && (dataSource == null || StringUtils.hasText(urlProp) || StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
+        if (StringUtils.hasText(getCurrentResolvedEnvironment().getUrl()) && (dataSource == null || StringUtils.hasText(urlProp) || StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
             Map<String, String> jdbcPropertiesFromProps = getPropertiesUnderNamespace(props, getPlaceholders(), ConfigUtils.JDBC_PROPERTIES_PREFIX);
-            setDataSource(new DriverDataSource(classLoader, getCurrentEnvironment().getDriver(), getCurrentEnvironment().getUrl(), getCurrentEnvironment().getUser(), getCurrentEnvironment().getPassword(), this, jdbcPropertiesFromProps));
+            setDataSource(new DriverDataSource(classLoader, getCurrentResolvedEnvironment().getDriver(), getCurrentResolvedEnvironment().getUrl(), getCurrentResolvedEnvironment().getUser(), getCurrentResolvedEnvironment().getPassword(), this, jdbcPropertiesFromProps));
         }
 
         ConfigUtils.checkConfigurationForUnrecognisedProperties(props, "flyway.");
@@ -1680,7 +1693,7 @@ public class ClassicConfiguration implements Configuration {
     }
 
     public String getDriver() {
-        return getCurrentEnvironment().getDriver();
+        return getCurrentResolvedEnvironment().getDriver();
     }
 
     public void setGroup(Boolean groupProp) {

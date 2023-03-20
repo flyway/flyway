@@ -70,6 +70,11 @@ public class SnowflakeParser extends Parser {
         String keywordText = keyword.getText();
         String previousKeywordText = previousKeyword != null ? previousKeyword.getText().toUpperCase(Locale.ENGLISH) : "";
 
+        if ("BEGIN".equalsIgnoreCase(keywordText) &&
+                (reader.peekIgnoreCase(" TRANSACTION") || reader.peekIgnoreCase(context.getDelimiter().toString()) || reader.peekIgnoreCase(" WORK") || reader.peekIgnoreCase(" NAME"))) {
+            return; //Beginning a transaction shouldn't increase block depth
+        }
+
         if ("BEGIN".equalsIgnoreCase(keywordText)
                 || ((("IF".equalsIgnoreCase(keywordText) && !CONDITIONALLY_CREATABLE_OBJECTS.contains(previousKeywordText))  // excludes the IF in eg. CREATE TABLE IF EXISTS
                 || "FOR".equalsIgnoreCase(keywordText)
@@ -95,7 +100,7 @@ public class SnowflakeParser extends Parser {
         reader.swallow(prefix.length());
         while (!reader.peek(suffix)) {
             result.append(reader.readUntilExcluding(prefix, suffix));
-            if (reader.peek("END IF") || reader.peek("END FOR") || reader.peek("END CASE")) {
+            if (reader.peekIgnoreCase("END IF") || reader.peekIgnoreCase("END FOR") || reader.peekIgnoreCase("END CASE")) {
                 result.append(reader.readUntilIncluding(delimiter));
                 result.append(reader.readUntilExcluding(prefix, suffix));
             }

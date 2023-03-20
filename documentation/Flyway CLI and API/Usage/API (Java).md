@@ -125,7 +125,7 @@ dependencies {
 ## The Flyway Class
 
 The central piece of Flyway's database migration infrastructure is the
-**[org.flywaydb.core.Flyway](https://flywaydb.org/documentation/usage/api/javadoc/org/flywaydb/core/Flyway)**
+**[org.flywaydb.core.Flyway](https://javadoc.io/doc/org.flywaydb/flyway-core/latest/org/flywaydb/core/Flyway.html)**
 class. It is your **one-stop shop** for working with Flyway programmatically. It serves both as a
 **configuration** and a **launching** point for all of Flyway's functions.
 

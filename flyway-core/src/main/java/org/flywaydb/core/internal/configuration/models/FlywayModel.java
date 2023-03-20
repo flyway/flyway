@@ -146,6 +146,7 @@ public class FlywayModel {
     public FlywayModel merge(FlywayModel otherPojo) {
         FlywayModel result = new FlywayModel();
         result.encoding = encoding.merge(otherPojo.encoding);
+        result.environment = environment.merge(otherPojo.environment);
         result.detectEncoding = detectEncoding.merge(otherPojo.detectEncoding);
         result.placeholderPrefix = placeholderPrefix.merge(otherPojo.placeholderPrefix);
         result.placeholderSuffix = placeholderSuffix.merge(otherPojo.placeholderSuffix);

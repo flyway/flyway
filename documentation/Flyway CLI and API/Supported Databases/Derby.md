@@ -43,7 +43,7 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 <tr>
 <th>Maven Central coordinates</th>
-<td><code>org.apache.derby:derbyclient:10.14.1.0</code></td>
+<td><code>org.apache.derby:derbyclient</code></td>
 </tr>
 <tr>
 <th>Supported versions</th>

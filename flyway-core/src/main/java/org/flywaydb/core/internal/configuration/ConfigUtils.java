@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.configuration;
 
 import lombok.AccessLevel;
 import lombok.CustomLog;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
@@ -114,6 +115,9 @@ public class ConfigUtils {
     public static final String FLYWAY_PLUGINS_PREFIX = "flyway.plugins.";
 
     private static final PluginRegister PLUGIN_REGISTER = new PluginRegister();
+
+    @Getter
+    private static String stdInContent = "";
 
     /**
      * Converts Flyway-specific environment variables to their matching properties.
@@ -392,7 +396,11 @@ public class ConfigUtils {
         String errorMessage = "Unable to load config file: " + configFile.getAbsolutePath();
 
         if ("-".equals(configFile.getName())) {
-            return loadConfigurationFromInputStream(System.in);
+            Map<String, String> inputStreamConfig = loadConfigurationFromInputStream(System.in);
+            for (String key : inputStreamConfig.keySet()) {
+                stdInContent += key + "=" + inputStreamConfig.get(key) + " \n";
+            }
+            return inputStreamConfig;
         } else if (!configFile.isFile() || !configFile.canRead()) {
             if (!failIfMissing) {
                 LOG.debug(errorMessage);
