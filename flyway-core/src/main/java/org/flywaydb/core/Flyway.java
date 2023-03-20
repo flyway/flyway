@@ -38,6 +38,7 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
+import org.flywaydb.core.internal.util.CommandExtensionUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.ArrayList;
@@ -389,11 +390,7 @@ public class Flyway {
     }
 
     private OperationResult runCommand(String command, List<String> flags) {
-        return configuration.getPluginRegister().getPlugins(CommandExtension.class).stream()
-                            .filter(commandExtension -> commandExtension.handlesCommand(command))
-                            .max(Comparator.comparingInt(CommandExtension::getPriority))
-                            .map(commandExtension -> commandExtension.handle(command, configuration, flags, null))
-                            .orElseThrow(() -> new FlywayException("No command extension found to handle command: " + command));
+        return CommandExtensionUtils.runCommandExtension(configuration, command, flags, null);
     }
 
     private CleanResult doClean(Database database, SchemaHistory schemaHistory, Schema defaultSchema, Schema[] schemas, CallbackExecutor callbackExecutor) {
