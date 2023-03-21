@@ -39,6 +39,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
 
@@ -185,6 +186,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
     @Override
     public List<AppliedMigration> allAppliedMigrations() {
         if (!exists()) {
+            LOG.info(String.format("Schema history table %s does not exist yet", table.toString()));
             return new ArrayList<>();
         }
 

@@ -452,11 +452,7 @@ public class Main {
         } else if ("repair".equals(operation)) {
             result = flyway.repair();
         } else {
-            result = pluginRegister.getPlugins(CommandExtension.class).stream()
-                                   .filter(commandExtension -> commandExtension.handlesCommand(operation))
-                                   .max(Comparator.comparingInt(CommandExtension::getPriority))
-                                   .map(commandExtension -> commandExtension.handle(operation, flyway.getConfiguration(), commandLineArguments.getFlags(), telemetryManager))
-                                   .orElseThrow(() -> new FlywayException("No command extension found to handle command: " + operation));
+            result = CommandExtensionUtils.runCommandExtension(flyway.getConfiguration(), operation, commandLineArguments.getFlags(), telemetryManager);
         }
 
         return result;

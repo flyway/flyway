@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-flywayVersion: 9.16.0
+flywayVersion: 9.16.1
 enterpriseUrl: https://download.red-gate.com/maven/release/org/flywaydb/enterprise
 kramdown:
   smart_quotes: ["apos", "apos", "quot", "quot"]
