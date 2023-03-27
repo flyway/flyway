@@ -65,8 +65,6 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
         FileSystemScanner fileSystemScanner = new FileSystemScanner(encoding, stream, detectEncoding, throwOnMissingLocations);
 
         FeatureDetector detector = new FeatureDetector(classLoader);
-        boolean aws = detector.isAwsAvailable();
-        boolean gcs = detector.isGCSAvailable();
         long cloudMigrationCount = 0;
 
         for (Location location : locations) {
@@ -86,7 +84,7 @@ public class Scanner<I> implements ResourceProvider, ClassProvider<I> {
 
 
             } else if (location.isAwsS3()) {
-                if (aws) {
+                if (detector.isAwsAvailable()) {
                     Collection<LoadableResource> awsResources = new AwsS3Scanner(encoding, throwOnMissingLocations).scanForResources(location);
                     resources.addAll(awsResources);
                     cloudMigrationCount += awsResources.stream().filter(r -> r.getFilename().endsWith(".sql")).count();
