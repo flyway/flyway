@@ -79,7 +79,7 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection> {
 
         String script = "CREATE TABLE IF NOT EXISTS " + table + (isClustered ? (" ON CLUSTER " + clusterName) : "") + "(" +
                 "    installed_rank Int32," +
-                "    version String," +
+                "    version Nullable(String)," +
                 "    description String," +
                 "    type String," +
                 "    script String," +
@@ -90,13 +90,16 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection> {
                 "    success Bool" +
                 ")";
 
+        String engine;
+
         if (isClustered) {
-            script += " ENGINE = ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/{table}', '{replica}')" +
-                    " PARTITION BY tuple()" +
-                    " ORDER BY (installed_rank);";
+            engine = "ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/{table}', '{replica}')";
         } else {
-            script += " ENGINE = MergeTree PRIMARY KEY (version);";
+            engine = "MergeTree";
         }
+
+        script += " ENGINE = " + engine +
+                " PRIMARY KEY (script);";
 
         return script + (baseline ? getBaselineStatement(table) + ";" : "");
     }
