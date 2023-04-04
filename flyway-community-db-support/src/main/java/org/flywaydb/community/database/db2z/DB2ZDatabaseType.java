@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.db2;
+package org.flywaydb.community.database.db2z;
 
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
@@ -28,10 +28,10 @@ import java.sql.Connection;
 import java.sql.Types;
 import java.util.Properties;
 
-public class DB2DatabaseType extends BaseDatabaseType {
-    @Override
+public class DB2ZDatabaseType extends BaseDatabaseType {
+
     public String getName() {
-        return "DB2";
+        return "DB2 for z/OS";
     }
 
     @Override
@@ -54,17 +54,17 @@ public class DB2DatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
-        return databaseProductName.startsWith("DB2") && !databaseProductVersion.startsWith("DSN");
+        return databaseProductName.startsWith("DB2") && databaseProductVersion.startsWith("DSN");
     }
 
     @Override
     public Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
-        return new DB2Database(configuration, jdbcConnectionFactory, statementInterceptor);
+        return new DB2ZDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
     }
 
     @Override
     public Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext) {
-        return new DB2Parser(configuration, parsingContext);
+        return new DB2ZParser(configuration, parsingContext);
     }
 
     @Override
