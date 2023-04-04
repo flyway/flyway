@@ -27,4 +27,16 @@
     <componentDescriptors>
         <componentDescriptor>src/main/assembly/component.xml</componentDescriptor>
     </componentDescriptors>
+    <!-- [teams] -->
+    <fileSets>
+        <fileSet>
+            <directory>../flyway-rgcompare/src/main/resources/rgcompare/linux-x64</directory>
+            <outputDirectory>lib/rgcompare</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <fileMode>755</fileMode>
+        </fileSet>
+    </fileSets>
+    <!-- [/teams] -->
 </assembly>

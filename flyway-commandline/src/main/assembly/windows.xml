@@ -32,6 +32,16 @@
             <outputDirectory>jre</outputDirectory>
             <fileMode>644</fileMode>
         </fileSet>
+        <!-- [teams] -->
+        <fileSet>
+            <directory>../flyway-rgcompare/src/main/resources/rgcompare/windows-x64</directory>
+            <outputDirectory>lib/rgcompare</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <fileMode>644</fileMode>
+        </fileSet>
+        <!-- [/teams] -->
     </fileSets>
     <files>
         <file>

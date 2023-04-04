@@ -73,8 +73,7 @@ public class RedshiftDatabaseType extends BaseDatabaseType {
     @Override
     public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
         if (databaseProductName.startsWith("PostgreSQL")) {
-            String selectVersionQueryOutput = getSelectVersionOutput(connection);
-            if (databaseProductName.startsWith("PostgreSQL 8") && selectVersionQueryOutput.contains("Redshift")) {
+            if (databaseProductName.startsWith("PostgreSQL 8") && getSelectVersionOutput(connection).contains("Redshift")) {
                 return true;
             }
         }

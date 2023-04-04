@@ -37,8 +37,8 @@ public class EnvironmentModel {
     private String driver;
     private List<String> schemas = new ArrayList<>();
     private String token;
-    private Integer connectRetries = 120;
-    private Integer connectRetriesInterval = 0;
+    private Integer connectRetries = 0;
+    private Integer connectRetriesInterval = 120;
     private String initSql;
     private Map<String, String> jdbcProperties;
 

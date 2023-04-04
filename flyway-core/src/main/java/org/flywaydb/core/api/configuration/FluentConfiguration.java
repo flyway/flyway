@@ -107,6 +107,11 @@ public class FluentConfiguration implements Configuration {
         return this;
     }
 
+    public FluentConfiguration reportFilename(String reportFilename) {
+        config.setReportFilename(reportFilename);
+        return this;
+    }
+
     /**
      * Rules for the built-in error handler that let you override specific SQL states and errors codes in order to force
      * specific errors or warnings to be treated as debug messages, info messages, warnings or errors.
@@ -166,7 +171,7 @@ public class FluentConfiguration implements Configuration {
      * <ul>
      *     <li>auto: Auto detect the logger (default behavior)</li>
      *     <li>console: Use stdout/stderr (only available when using the CLI)</li>
-     *     <li>slf4j2: Use the slf4j2 logger</li>
+     *     <li>slf4j: Use the slf4j logger</li>
      *     <li>log4j2: Use the log4j2 logger</li>
      *     <li>apache-commons: Use the Apache Commons logger</li>
      * </ul>

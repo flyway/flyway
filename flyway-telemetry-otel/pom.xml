@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.16.1</version>
+        <version>9.16.2</version>
     </parent>
 
     <artifactId>flyway-telemetry-otel</artifactId>
@@ -36,6 +36,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-core</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
             <groupId>io.opentelemetry</groupId>

@@ -135,6 +135,9 @@ public class ClassicConfiguration implements Configuration {
         return getModernFlyway().getDetectEncoding();
     }
 
+    @Override
+    public String getReportFilename() { return getModernFlyway().getReportFilename(); }
+
     @Getter
     @Setter
     private ResourceProvider resourceProvider = null;
@@ -735,7 +738,7 @@ public class ClassicConfiguration implements Configuration {
      * <ul>
      *     <li>auto: Auto detect the logger (default behavior)</li>
      *     <li>console: Use stdout/stderr (only available when using the CLI)</li>
-     *     <li>slf4j2: Use the slf4j2 logger</li>
+     *     <li>slf4j: Use the slf4j logger</li>
      *     <li>log4j2: Use the log4j2 logger</li>
      *     <li>apache-commons: Use the Apache Commons logger</li>
      * </ul>
@@ -807,6 +810,10 @@ public class ClassicConfiguration implements Configuration {
 
 
 
+    }
+
+    public void setReportFilename(String reportFilename) {
+        getModernFlyway().setReportFilename(reportFilename);
     }
 
     /**
@@ -1432,8 +1439,15 @@ public class ClassicConfiguration implements Configuration {
 
         props = new HashMap<>(tempProps);
 
+        props.computeIfAbsent(ConfigUtils.REPORT_FILENAME, k -> getModernConfig().getFlyway().getReportFilename());
+
         for (ConfigurationExtension configurationExtension : pluginRegister.getPlugins(ConfigurationExtension.class)) {
             configurationExtension.extractParametersFromConfiguration(props);
+        }
+
+        String reportFilenameProp = props.remove(ConfigUtils.REPORT_FILENAME);
+        if (reportFilenameProp != null) {
+            setReportFilename(reportFilenameProp);
         }
 
         String driverProp = props.remove(ConfigUtils.DRIVER);
@@ -1448,6 +1462,7 @@ public class ClassicConfiguration implements Configuration {
         if (userProp != null) {
             setUser(userProp);
         }
+
         String passwordProp = props.remove(ConfigUtils.PASSWORD);
         if (passwordProp != null) {
             setPassword(passwordProp);

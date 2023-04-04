@@ -282,7 +282,7 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
      * @return The url resolver for this protocol.
      */
     private UrlResolver createUrlResolver(String protocol) {
-        if (new FeatureDetector(classLoader).isJBossVFSv2Available() && protocol.startsWith("vfs")) {
+        if (protocol.startsWith("vfs") && new FeatureDetector(classLoader).isJBossVFSv2Available()) {
             return new JBossVFSv2UrlResolver();
         }
 
@@ -316,13 +316,13 @@ public class ClassPathScanner<I> implements ResourceAndClassScanner<I> {
         }
 
         FeatureDetector featureDetector = new FeatureDetector(classLoader);
-        if (featureDetector.isJBossVFSv3Available() && "vfs".equals(protocol)) {
+        if ("vfs".equals(protocol) && featureDetector.isJBossVFSv3Available()) {
             JBossVFSv3ClassPathLocationScanner locationScanner = new JBossVFSv3ClassPathLocationScanner();
             locationScannerCache.put(protocol, locationScanner);
             resourceNameCache.put(locationScanner, new HashMap<>());
             return locationScanner;
         }
-        if (featureDetector.isOsgiFrameworkAvailable() && (isFelix(protocol) || isEquinox(protocol))) {
+        if ((isFelix(protocol) || isEquinox(protocol)) && featureDetector.isOsgiFrameworkAvailable()) {
             OsgiClassPathLocationScanner locationScanner = new OsgiClassPathLocationScanner();
             locationScannerCache.put(protocol, locationScanner);
             resourceNameCache.put(locationScanner, new HashMap<>());

@@ -130,14 +130,6 @@
 
 
 
-
-
-
-
-
-
-
-
         <fileSet>
             <directory>target/editions/community</directory>
             <outputDirectory>lib/community</outputDirectory>
@@ -163,6 +155,7 @@
             <includes>
                 <include>org.apache.commons:commons-text</include>
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-toml</include>
+                <include>org.slf4j:slf4j-nop</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -281,6 +274,7 @@
                 <exclude>org.fusesource.jansi:jansi</exclude>
                 <exclude>com.google.code.gson:gson</exclude>
                 <exclude>software.amazon.awssdk:s3</exclude>
+                <exclude>org.slf4j:slf4j-nop</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>
