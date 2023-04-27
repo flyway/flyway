@@ -28,7 +28,7 @@
     </componentDescriptors>
     <fileSets>
         <fileSet>
-            <directory>target/dependency/jre-windows-x64-zip/jdk-${jre.version}+8-jre</directory>
+            <directory>target/dependency/jre-windows-x64-zip/jdk-${jre.version}+10-jre</directory>
             <outputDirectory>jre</outputDirectory>
             <fileMode>644</fileMode>
         </fileSet>

@@ -32,7 +32,7 @@ You can read more about the `check` concept [here](Concepts/Check Concept).
 |    check.buildUrl             | changes, drift | URL for a build database.
 |    check.buildUser            | changes, drift | Username for the build database. Defaults to 'flyway.user'
 |    check.buildPassword        | changes, drift | Password for the build database. Defaults to 'flyway.password'
-|    check.reportFilename       | all            | **[REQUIRED]** Destination filename for reports
+|    check.reportFilename       | all            | **[DEPRECATED]** Destination filename for reports. Please use [`reportFilename`](Configuration/Parameters/Report Filename) instead.
 |    check.nextSnapshot         | changes, drift | A snapshot containing all migrations including those that are pending (generated via [`snapshot`](Commands/snapshot))
 |    check.deployedSnapshot     | changes, drift | A snapshot containing all applied migrations and thus matching what should be in the target (generated via [`snapshot`](Commands/snapshot))
 |    check.appliedMigrations    | changes, drift | A comma-separated list of migration ids (migration versions or repeatable descriptions) to apply to create snapshots (generated via [`info`](Commands/info))
@@ -42,15 +42,6 @@ You can read more about the `check` concept [here](Concepts/Check Concept).
 |    check.majorTolerance       | code           | The number of 'major' issues to be tolerated before throwing an error, see [Check Concept](Concepts/Check Concept)
 |    check.minorTolerance       | code           | The number of 'minor' issues to be tolerated before throwing an error, see [Check Concept](Concepts/Check Concept)
 
-#### `check.reportFilename`
-
-If this filename does not have the `.html` suffix, Flyway will add it for you. Flyway also produces a `json` result for programmatic consumption.
-
-#### Usage Example:
-```
-flyway check -changes -url=jdbc:example:database -user=username -password=password -check.buildUrl=jdbc:example:build_database
-```
-
 ##### Example configuration file
 
 ```properties
@@ -58,7 +49,6 @@ flyway.url=jdbc:example:database
 flyway.user=username
 flyway.password=password
 flyway.check.buildUrl=jdbc:example:build_database
-flyway.check.reportFilename=change_report
 ```
 
 #### Database Support

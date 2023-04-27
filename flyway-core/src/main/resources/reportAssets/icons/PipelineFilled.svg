@@ -1,0 +1,9 @@
+<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" class="symbol">
+    <defs>
+        <g id="pipelineFilled">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M18.48 5C20.53 5.6 22 8 22 11C22 14 20.53 16.4 18.48 17H3.23C5.28 16.4 6.75 14 6.75 11C6.75 8 5.28 5.6 3.23 5H18.48ZM4.4 11C4.4 12.9054 3.41503 14.45 2.2 14.45C0.984974 14.45 0 12.9054 0 11C0 9.09462 0.984974 7.55 2.2 7.55C3.41503 7.55 4.4 9.09462 4.4 11Z"
+                  fill="#B6B6B6"/>
+        </g>
+    </defs>
+</svg>

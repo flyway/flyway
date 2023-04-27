@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.16.2</version>
+        <version>9.17.0</version>
     </parent>
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
@@ -30,8 +30,8 @@
 
 
 
-        <flyway-gcp-spanner.version>9.16.2-beta</flyway-gcp-spanner.version>
-        <jre.version>17.0.5</jre.version>
+        <flyway-gcp-spanner.version>9.17.0-beta</flyway-gcp-spanner.version>
+        <jre.version>17.0.6</jre.version>
     </properties>
     <dependencies>
         <dependency>
@@ -338,6 +338,11 @@
 
 
 
+
+
+
+
+
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -348,7 +353,7 @@
                 <version>${jre.version}</version>
                 <type>zip</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_windows_hotspot_${jre.version}_8.zip</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_windows_hotspot_${jre.version}_10.zip</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -357,7 +362,16 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_linux_hotspot_${jre.version}_8.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_linux_hotspot_${jre.version}_10.tar.gz</systemPath>
+            </dependency>
+            <dependency>
+                <groupId>net.adoptium</groupId>
+                <artifactId>jre</artifactId>
+                <classifier>linux-alpine-x64</classifier>
+                <version>${jre.version}</version>
+                <type>tar.gz</type>
+                <scope>system</scope>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_alpine-linux_hotspot_${jre.version}_10.tar.gz</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -366,7 +380,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_mac_hotspot_${jre.version}_8.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_mac_hotspot_${jre.version}_10.tar.gz</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -375,7 +389,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_aarch64_mac_hotspot_${jre.version}_8.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_aarch64_mac_hotspot_${jre.version}_10.tar.gz</systemPath>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -491,6 +505,13 @@
                 <dependency>
                     <groupId>net.adoptium</groupId>
                     <artifactId>jre</artifactId>
+                    <classifier>linux-alpine-x64</classifier>
+                    <type>tar.gz</type>
+                    <scope>system</scope>
+                </dependency>
+                <dependency>
+                    <groupId>net.adoptium</groupId>
+                    <artifactId>jre</artifactId>
                     <classifier>macos-x64</classifier>
                     <type>tar.gz</type>
                     <scope>system</scope>
@@ -566,6 +587,7 @@
                                     <descriptors>
                                         <descriptor>src/main/assembly/windows.xml</descriptor>
                                         <descriptor>src/main/assembly/linux.xml</descriptor>
+                                        <descriptor>src/main/assembly/linux-alpine.xml</descriptor>
                                         <descriptor>src/main/assembly/macos.xml</descriptor>
                                         <descriptor>src/main/assembly/macos-arm64.xml</descriptor>
                                     </descriptors>

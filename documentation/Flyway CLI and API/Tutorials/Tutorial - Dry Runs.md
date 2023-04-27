@@ -7,7 +7,7 @@ redirect_from:
 # Tutorial: Dry Runs
 {% include teams.html %}
 
-This tutorial assumes you have successfully completed the [**First Steps: Command-line**](Getting Started/First Steps/First Steps - Command-line.md)
+This tutorial assumes you have successfully completed the [**First Steps: Command-line**](Getting Started/First Steps/First Steps - Command-line)
 tutorial. **If you have not done so, please do so first.** This tutorial picks up where that one left off.
 
 This brief tutorial will teach **how to do Dry Runs**. It will take you through the
@@ -29,7 +29,7 @@ directly to the database without using Flyway. This SQL file also contains the n
 
 ## Reviewing the status
 
-After having completed the [First Steps: Command-line](Getting Started/First Steps/First Steps - Command-line.md), you can now execute
+After having completed the [First Steps: Command-line](Getting Started/First Steps/First Steps - Command-line), you can now execute
 
 <pre class="console"><span>flyway-{{ site.flywayVersion }}&gt;</span> flyway <strong>info</strong></pre>
 

@@ -59,7 +59,7 @@ The process works like this:
     1. This is the database you want to apply your changes to, where Flyway is already being used to manage migrations (ie. A Flyway migrations table exists)
 1. Specify a build database
     1. This is an existing build database (note: Flyway will [`clean`](Commands/clean) this database, so if you specify a full database, you must ensure it is ok to for Flyway to erase its schema)
-1. Run `flyway check -changes -check.buildUrl="jdbc://build-url" -url="jdbc://url" -check.reportFilename="changeReport.html"`
+1. Run `flyway check -changes -check.buildUrl="jdbc://build-url" -url="jdbc://url"`
 
 Flyway's `check -changes` will then:
 1. Clean your build database
@@ -83,7 +83,7 @@ The process works like this:
     1. This will produce a comma-separated list which represents the applied migrations of your target database
 1. Specify a build database
     1. This is an existing build database (note: Flyway will [`clean`](Commands/clean) this database, so if you specify a full database, you must ensure it is ok to for Flyway to erase its schema)
-1. Run `flyway check -changes -check.buildUrl="jdbc://build-url" -check.appliedMigrations="$(cat appliedMigrations.txt)" -check.reportFilename="changeReport.html"`
+1. Run `flyway check -changes -check.buildUrl="jdbc://build-url" -check.appliedMigrations="$(cat appliedMigrations.txt)"`
 
 Flyway's `check -changes` will then:
 1. Clean your build database
@@ -119,7 +119,7 @@ The process works like this:
     1. This is the database you want to apply your changes to, where Flyway is already being used to manage migrations (ie. A Flyway migrations table exists)
 1. Specify a build database
     1. This is an existing build database (note: Flyway will "clean" this database, so if you specify a full database, you must ensure it is ok to for Flyway to erase its schema)
-1. Run `flyway check -drift -check.buildUrl="jdbc://build-url" -url="jdbc://url" -check.reportFilename="driftReport.html"`
+1. Run `flyway check -drift -check.buildUrl="jdbc://build-url" -url="jdbc://url"`
 
 Flyway's `check -drift` will then:
 1. Take a [`snapshot`](Commands/snapshot) of the target database
@@ -171,7 +171,7 @@ This will produce a report in your terminal.
 In Flyway Teams, you can run:
 
 ```
-flyway check -code -check.reportFilename=report.html -url=jdbc:postgresql://...
+flyway check -code -url=jdbc:postgresql://...
 ```
 
 This will run SQLFluff under the hood, and produce a HTML and JSON report that you can use to check the standards of your migrations.

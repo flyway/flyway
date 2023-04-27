@@ -28,7 +28,7 @@
     </componentDescriptors>
     <fileSets>
         <fileSet>
-            <directory>target/dependency/jre-macos-arm64-tar.gz/jdk-${jre.version}+8-jre/Contents/Home</directory>
+            <directory>target/dependency/jre-macos-arm64-tar.gz/jdk-${jre.version}+10-jre/Contents/Home</directory>
             <outputDirectory>jre</outputDirectory>
             <fileMode>755</fileMode>
         </fileSet>

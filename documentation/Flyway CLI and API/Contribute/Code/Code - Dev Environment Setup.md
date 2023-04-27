@@ -48,11 +48,7 @@ Unfortunately these are not available through Maven Central and must be added ma
 repository.
 
 Download the v17 JRE package suitable for your OS files from the [Adoptium website](https://adoptium.net/temurin/releases/?version=17):
-and place them in your local maven repository as (_Note: your precise version may be newer_):
-
-- `~/.m2/repository/net/adoptopenjdk/jre/17.0.5/jre-17.0.5-windows-x64.zip`
-- `~/.m2/repository/net/adoptopenjdk/jre/17.0.5/jre-17.0.5-linux-x64.tar.gz`
-- `~/.m2/repository/net/adoptopenjdk/jre/17.0.5/jre-17.0.5-macos-x64.tar.gz`
+and place them in your local directory.
 
 by invoking:
 
@@ -60,25 +56,25 @@ by invoking:
 -DartifactId=jre \
 -Dclassifier=windows-x64 \
 -Dtype=zip \
--Dversion=17.0.5 \
+-Dversion=17.0.6 \
 -Dpackaging=zip \
--Dfile=path/to/OpenJDK17U-jre_x64_windows_hotspot_17.0.5_9.zip</pre>
+-Dfile=path/to/OpenJDK17U-jre_x64_windows_hotspot_17.0.6_10.zip</pre>
 
 <pre class="console">mvn install:install-file -DgroupId=net.adoptopenjdk \
 -DartifactId=jre \
 -Dclassifier=linux-x64 \
 -Dtype=tar.gz \
--Dversion=17.0.5 \
+-Dversion=17.0.6 \
 -Dpackaging=tar.gz \
--Dfile=path/to/OpenJDK17U-jre_x64_linux_hotspot_17.0.5_9.tar.gz</pre>
+-Dfile=path/to/OpenJDK17U-jre_x64_linux_hotspot_17.0.6_10.tar.gz</pre>
 
 <pre class="console">mvn install:install-file -DgroupId=net.adoptopenjdk \
 -DartifactId=jre \
 -Dclassifier=macos-x64 \
 -Dtype=tar.gz \
--Dversion=17.0.5 \
+-Dversion=17.0.6 \
 -Dpackaging=tar.gz \
--Dfile=path/to/OpenJDK17U-jre_x64_mac_hotspot_17.0.5_9.tar.gz</pre>
+-Dfile=path/to/OpenJDK17U-jre_x64_mac_hotspot_17.0.6_10.tar.gz</pre>
 
 <p class="next-steps">
     <a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="Contribute/Code/Code - Submit your Changes">Submit your changes <i class="fa fa-arrow-right"></i></a>
