@@ -33,6 +33,7 @@ import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
 import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
+import lombok.CustomLog;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.extensibility.TelemetryPlugin;
@@ -46,6 +47,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+@CustomLog
 public class OTelTelemetryPlugin implements TelemetryPlugin {
     private OpenTelemetry openTelemetry;
     private Tracer tracer;
@@ -157,11 +159,15 @@ public class OTelTelemetryPlugin implements TelemetryPlugin {
             try {
                 String name = f.getName();
                 String pascalName = name.substring(0, 1).toUpperCase() + name.substring(1);
-                Method m = bean.getClass().getDeclaredMethod("get" + pascalName, null);
+                String getterPrefix = "get";
+                if (f.getType().equals(boolean.class)) {
+                    getterPrefix = "is";
+                }
+                Method m = bean.getClass().getDeclaredMethod(getterPrefix + pascalName, null);
                 Object o = m.invoke(bean, null);
                 result.put(name, o);
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                LOG.error("Error converting model to map", e);
             }
         }
         return result;
@@ -183,7 +189,7 @@ public class OTelTelemetryPlugin implements TelemetryPlugin {
     static OpenTelemetry initOpenTelemetry() {
 
         SpanExporter azureSpanExporter = new AzureMonitorExporterBuilder()
-                .connectionString("InstrumentationKey=34e2ae50-f8b8-4f38-bf0b-44c0b0a961af;IngestionEndpoint=https://appinsights.red-gate.com/;LiveEndpoint=https://appinsights.red-gate.com/")
+                .connectionString("InstrumentationKey=e9fbc411-8ec3-4d20-b1c5-647f406fb332;IngestionEndpoint=https://appinsights.red-gate.com/;LiveEndpoint=https://appinsights.red-gate.com/")
                 .buildTraceExporter();
 
         AttributesMap attributes = AttributesMap.create(2, Integer.MAX_VALUE);

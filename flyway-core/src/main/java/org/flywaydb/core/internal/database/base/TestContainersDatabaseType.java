@@ -27,7 +27,7 @@ import java.sql.Connection;
 public class TestContainersDatabaseType extends BaseDatabaseType {
     @Override
     public String getName() {
-        return "Test Containers";
+        return "Testcontainers";
     }
 
     @Override

@@ -17,6 +17,7 @@ package org.flywaydb.commandline;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import lombok.SneakyThrows;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.commandline.logging.console.ConsoleLogCreator;
@@ -54,6 +55,7 @@ import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
 import org.flywaydb.core.internal.logging.multi.MultiLogCreator;
 import org.flywaydb.core.internal.plugin.PluginRegister;
+import org.flywaydb.core.internal.reports.json.CompositeResultDeserializer;
 import org.flywaydb.core.internal.util.*;
 
 import java.io.Console;
@@ -105,8 +107,6 @@ public class Main {
         }
 
         try {
-
-
             JavaVersionPrinter.printJavaVersion();
             CommandLineArguments commandLineArguments = new CommandLineArguments(pluginRegister, args);
             initLogging(commandLineArguments);
@@ -166,6 +166,8 @@ public class Main {
                     MavenVersionChecker.checkForVersionUpdates();
                 }
 
+                LocalDateTime executionTime = LocalDateTime.now();
+                CompositeResult<HtmlResult> htmlCompositeResult = new CompositeResult<>();
                 OperationResult result;
                 if (commandLineArguments.getOperations().size() == 1) {
                     String operation = commandLineArguments.getOperations().get(0);
@@ -178,15 +180,43 @@ public class Main {
                         }
                     result = compositeResult;
                 }
+                Exception aggregate = null;
+                if (result instanceof CompositeResult<?>) {
+                    CompositeResult<?> compositeResult = (CompositeResult<?>) result;
+                    for(OperationResult individualResult : compositeResult.individualResults) {
+                        if (individualResult instanceof HtmlResult) {
+                            HtmlResult htmlResult = (HtmlResult) individualResult;
+                            htmlCompositeResult.individualResults.add(htmlResult);
+                            if(aggregate == null) {
+                                aggregate = htmlResult.exceptionObject;
+                            } else {
+                                aggregate.addSuppressed(htmlResult.exceptionObject);
+                            }
+
+                        }
+                    }
+                } else if (result instanceof HtmlResult) {
+                    HtmlResult htmlResult = (HtmlResult) result;
+                    htmlCompositeResult.individualResults.add(htmlResult);
+                    aggregate = htmlResult.exceptionObject;
+                }
+
+                htmlCompositeResult.individualResults.forEach(r -> r.timestamp = executionTime);
+
+                htmlCompositeResult = JsonUtils.appendIfExists(configuration.getReportFilename() + ".json", htmlCompositeResult, new CompositeResultDeserializer(configuration.getPluginRegister()));
+                String jsonReportFilename = JsonUtils.jsonToFile(configuration.getReportFilename() + ".json", htmlCompositeResult);
+                String htmlReportFilename = HtmlUtils.toHtmlFile(configuration.getReportFilename() + ".html", htmlCompositeResult, configuration);
 
                 if (commandLineArguments.isCommunityFallback()) {
                     LOG.warn("A Flyway License was not provided; fell back to Community Edition. Please contact sales at sales@flywaydb.org for license information.");
                 }
 
                 if (commandLineArguments.shouldOutputJson()) {
-                    printJson(commandLineArguments, result);
+                    printJson(commandLineArguments, result, jsonReportFilename, htmlReportFilename);
                 }
-
+                if(aggregate != null) {
+                    throw aggregate;
+                }
             } catch (DbMigrate.FlywayMigrateException e) {
                 MigrateErrorResult errorResult = ErrorOutput.fromMigrateException(e);
                 printError(commandLineArguments, e, errorResult);
@@ -274,7 +304,6 @@ public class Main {
 
 
 
-
         return cfg;
     }
 
@@ -327,13 +356,12 @@ public class Main {
 
 
 
-
         return new FluentConfiguration(classLoader).configuration(config);
     }
 
     private static void printError(CommandLineArguments commandLineArguments, Exception e, OperationResult errorResult) {
         if (commandLineArguments.shouldOutputJson()) {
-            printJson(commandLineArguments, errorResult);
+            printJson(commandLineArguments, errorResult, null, null);
         } else {
             if (commandLineArguments.getLogLevel() == Level.DEBUG) {
                 LOG.error("Unexpected error", e);
@@ -469,8 +497,8 @@ public class Main {
 
 
 
-    private static void printJson(CommandLineArguments commandLineArguments, OperationResult object) {
-        String json = convertObjectToJsonString(object);
+    private static void printJson(CommandLineArguments commandLineArguments, OperationResult object, String jsonReport, String htmlReport) {
+        String json = convertObjectToJsonString(object, jsonReport, htmlReport);
 
         if (commandLineArguments.isOutputFileSet()) {
             Path path = Paths.get(commandLineArguments.getOutputFile());
@@ -486,14 +514,19 @@ public class Main {
         System.out.println(json);
     }
 
-    private static String convertObjectToJsonString(Object object) {
+    private static String convertObjectToJsonString(Object object, String jsonReport, String htmlReport) {
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
                 .disableHtmlEscaping()
                 .serializeNulls()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer())
                 .create();
-        return gson.toJson(object);
+        JsonElement jsonElements = gson.toJsonTree(object);
+        if(jsonReport != null) {
+            jsonElements.getAsJsonObject().addProperty("jsonReport", jsonReport);
+            jsonElements.getAsJsonObject().addProperty("htmlReport", htmlReport);
+        }
+        return gson.toJson(jsonElements);
     }
 
     /**

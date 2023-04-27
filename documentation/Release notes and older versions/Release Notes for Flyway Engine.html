@@ -25,6 +25,38 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="9.16.2">Flyway 9.16.2 (2023-04-04)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Removed unwanted SLF4J messages on stderr</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3636">Issue 3636</a>
+                EnvironmentModel: swap back connectRetries and connectRetriesInterval default values
+            </li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Updated Postgres password change regex to use latest form</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Update msal4j to fix SNYK-JAVA-NETMINIDEV-3369748</li>
+        </ul>
+
+        <h3>Performance improvements</h3>
+        <ul>
+            <li>Reduce allocations from class loading through FeatureDetector</li>
+        </ul>
+
+        <p>
+            Thanks to mihalyr for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="9.16.0">Flyway 9.16.0 (2023-03-15)</h2>
 
         <h3>Bug fixes</h3>

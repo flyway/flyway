@@ -47,6 +47,12 @@ public interface Configuration {
     PluginRegister getPluginRegister();
 
     /**
+     * Get the filename of generated reports
+     * @return report filename;
+     */
+    String getReportFilename();
+
+    /**
      * Retrieves the url used to construct the dataSource. May be null if the dataSource was passed in directly.
      *
      * @return The url used to construct the dataSource. May be null if the dataSource was passed in directly.
@@ -633,7 +639,7 @@ public interface Configuration {
      * <ul>
      *     <li>auto: Auto detect the logger (default behavior)</li>
      *     <li>console: Use stdout/stderr (only available when using the CLI)</li>
-     *     <li>slf4j2: Use the slf4j2 logger</li>
+     *     <li>slf4j: Use the slf4j logger</li>
      *     <li>log4j2: Use the log4j2 logger</li>
      *     <li>apache-commons: Use the Apache Commons logger</li>
      * </ul>

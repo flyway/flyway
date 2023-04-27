@@ -33,6 +33,7 @@ import java.util.Map;
 @NoArgsConstructor
 @ExtensionMethod(MergeUtils.class)
 public class FlywayModel {
+    private String reportFilename;
     private String environment;
     private Boolean detectEncoding;
     private String encoding;
@@ -92,6 +93,7 @@ public class FlywayModel {
 
     public static FlywayModel defaults(){
          FlywayModel model = new FlywayModel();
+         model.reportFilename = "report.html";
          model.detectEncoding = false;
          model.encoding = "UTF-8";
          model.executeInTransaction = true;
@@ -145,6 +147,7 @@ public class FlywayModel {
 
     public FlywayModel merge(FlywayModel otherPojo) {
         FlywayModel result = new FlywayModel();
+        result.reportFilename = reportFilename.merge(otherPojo.reportFilename);
         result.encoding = encoding.merge(otherPojo.encoding);
         result.environment = environment.merge(otherPojo.environment);
         result.detectEncoding = detectEncoding.merge(otherPojo.detectEncoding);

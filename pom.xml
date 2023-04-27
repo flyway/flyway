@@ -30,7 +30,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>9.16.1</version>
+    <version>9.16.2</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -148,7 +148,7 @@
         <version.gcs>2.13.0</version.gcs>
         <version.gcsm>2.3.10</version.gcsm>
         <version.gradle>6.1.1</version.gradle>
-        <version.gson>2.8.9</version.gson>
+        <version.gson>2.10.1</version.gson>
         <version.h2>2.1.214</version.h2>
         <version.hamcrest>2.2</version.hamcrest>
         <version.hsqldb>2.7.1</version.hsqldb>
@@ -170,7 +170,7 @@
         <version.mariadb>2.7.2</version.mariadb>
         <version.maven>3.8.5</version.maven>
         <version.mockito>4.2.0</version.mockito>
-        <version.msal4j>1.13.3</version.msal4j>
+        <version.msal4j>1.13.7</version.msal4j>
         <version.mssql>10.2.0</version.mssql>
         <version.mssql-jdbc>${version.mssql}.jre8</version.mssql-jdbc>
         <version.oracle>19.6.0.0</version.oracle>

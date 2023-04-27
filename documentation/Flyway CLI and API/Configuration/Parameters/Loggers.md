@@ -13,7 +13,7 @@ This can be useful when a dependency comes with a logger you do not wish to use.
 
 * `auto` - Auto detect the logger (default behavior)
 * `console` - Use stdout/stderr (_only available when using CLI_)
-* `slf4j2` - Use the slf4j2 logger
+* `slf4j` - Use the slf4j logger
 * `log4j2` - Use the log4j2 logger
 * `apache-commons` - Use the Apache Commons logger
 

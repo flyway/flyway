@@ -133,7 +133,6 @@ Flyway's `check -drift` will then:
 ## Good things to know
 - There is no requirement for the build database to be in your production system
 - Please note that the build database **may be cleaned** before the operation starts
-- The underlying comparison technology is dependent on [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) which is why this is required
 - If you get an ERROR: Invalid argument: -check, this is because some systems do not like the period in the argument.  You can wrap the arguments in a single or double quotes.  Eg, -'check.buildURL'
 
 ## `Check -code`

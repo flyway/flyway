@@ -17,6 +17,9 @@ package org.flywaydb.core.internal.util;
 
 import lombok.CustomLog;
 
+import java.util.ServiceLoader;
+import java.util.stream.StreamSupport;
+
 @CustomLog
 public final class FeatureDetector {
     private final ClassLoader classLoader;
@@ -58,6 +61,10 @@ public final class FeatureDetector {
                     && ClassUtils.isPresent("org.slf4j.impl.StaticLoggerBinder", classLoader);
             // Versions 1.8 and later use a ServiceLocator to bind to the implementation
             slf4jAvailable |= ClassUtils.isImplementationPresent("org.slf4j.spi.SLF4JServiceProvider", classLoader);
+            if(slf4jAvailable) {
+                slf4jAvailable = !StreamSupport.stream(ServiceLoader.load(org.slf4j.Logger.class, classLoader).spliterator(),false)
+                                                             .allMatch(logger -> logger instanceof org.slf4j.helpers.NOPLogger);
+            }
         }
 
         return slf4jAvailable;
