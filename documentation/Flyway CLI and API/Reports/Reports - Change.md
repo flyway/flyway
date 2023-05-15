@@ -10,6 +10,8 @@ You might want this to:
 * Pre-deployment - check the effect of your pending changes (DBA review)
 * Post-deployment -capture a history of changes for retrospective auditing or reporting
 
+![Change report](assets/change_report_screenshot.png)
+
 ## Learn more
 * [Check concept](Concepts/Check Concept) - how does it work ?
 * [Check command](Commands/Check) - What is the command structure ?

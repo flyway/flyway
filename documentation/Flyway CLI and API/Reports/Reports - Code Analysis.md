@@ -7,6 +7,8 @@ The code analysis report shows you the results of the static analysis tool(s) th
 * Teams customers can configure how their pipeline can be halted based on policy around rule violations
 * Enterprise customers also get an easy mechanism to create and use custom rules based on regex pattern matching
 
+![Code report](assets/code_report_screenshot.png)
+
 ## Learn more
 
 * [Check concept](Concepts/Check Concept) - how does it work ?

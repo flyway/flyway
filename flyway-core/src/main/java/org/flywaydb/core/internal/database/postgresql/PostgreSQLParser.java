@@ -71,6 +71,19 @@ public class PostgreSQLParser extends Parser {
                                     );
     }
 
+    @Override
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
+        String keywordText = keyword.getText();
+
+        if (lastTokenIs(tokens, context.getParensDepth(), "BEGIN") && "ATOMIC".equalsIgnoreCase(keywordText)) {
+            context.increaseBlockDepth("ATOMIC");
+        }
+
+        if (context.getBlockDepth() > 0 &&  keywordText.equalsIgnoreCase("END") && "ATOMIC".equals(context.getBlockInitiator())) {
+            context.decreaseBlockDepth();
+        }
+    }
+
     private String readCopyData(PeekingReader reader, Recorder recorder) throws IOException {
         // Skip end of current line after ;
         reader.readUntilIncluding('\n');

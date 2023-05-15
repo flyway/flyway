@@ -10,6 +10,8 @@ You might want this to:
 * Check the current migration state of your target DB
 * Understand what is yet to be deployed in a more digestible format than the raw filenames
 
+![Info report](assets/info_report_screenshot.png)
+
 ## Learn More
 
 * [Info](Commands/info)

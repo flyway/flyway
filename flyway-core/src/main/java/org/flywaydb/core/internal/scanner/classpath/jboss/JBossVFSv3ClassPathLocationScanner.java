@@ -41,7 +41,7 @@ public class JBossVFSv3ClassPathLocationScanner implements ClassPathLocationScan
         }
         LOG.debug("Scanning starting at classpath root on JBoss VFS: " + classPathRootOnDisk);
 
-        Set<String> resourceNames = new TreeSet<>();
+        Set<String> resourceNames = new TreeSet<String>();
 
         List<VirtualFile> files;
         try {

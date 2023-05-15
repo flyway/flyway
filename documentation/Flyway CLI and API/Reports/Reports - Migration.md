@@ -9,6 +9,8 @@ subtitle: Migration Report
  * Have a record of what happened when for audit or reporting purposes
  * Understand and be able to communicate failures in a more richly descriptive manner 
  
+![Migrate report](assets/migrate_report_screenshot.png)
+
 ## Learn More
  
  * [Migrate Command](Commands/Migrate) - how does it work ?

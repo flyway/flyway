@@ -23,6 +23,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.api.output.OperationResult;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.lang.reflect.Type;
@@ -39,9 +40,12 @@ public class JsonUtils {
     }
 
     public static String jsonToFile(String filename, Object json) {
-        try (FileWriter fileWriter = new FileWriter(filename)) {
+
+        File file= new File(filename);
+
+        try (FileWriter fileWriter = new FileWriter(file)) {
             getGson().toJson(json, fileWriter);
-            return filename;
+            return file.getCanonicalPath();
         } catch (Exception e) {
             throw new FlywayException("Unable to write JSON to file: " + e.getMessage());
         }

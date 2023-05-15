@@ -11,6 +11,8 @@ You might want this to:
 * submit the SQL statements for review to a DBA before applying them
 * use Flyway to determine what needs updating, yet use a different tool to apply the actual database changes 
 
+![Dryrun report](assets/dryrun_report_screenshot.png)
+
 ## Learn More
 
 * [Dry Run Concept](Concepts/Dry Runs) - how does it work ?

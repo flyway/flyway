@@ -194,6 +194,9 @@ public class CommandResultFactory {
         if (migrationInfo.getType().isUndo()) {
             return "Undo";
         }
+        if (migrationInfo.getType().isBaseline()) {
+            return "Baseline";
+        }
         return "Versioned";
     }
 }

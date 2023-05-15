@@ -21,6 +21,7 @@ import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.output.CompositeResult;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.time.format.DateTimeFormatter;
 
@@ -30,12 +31,15 @@ public class HtmlUtils {
     public static String toHtmlFile(String filename, CompositeResult<HtmlResult> results, Configuration config) {
         String fileContents = generateHtml(results, config);
 
-        try (FileWriter fileWriter = new FileWriter(filename)) {
+        File file = new File(filename);
+
+        try (FileWriter fileWriter = new FileWriter(file)) {
             fileWriter.write(fileContents);
+            return file.getCanonicalPath();
         } catch (Exception e) {
             throw new FlywayException("Unable to write HTML to file: " + e.getMessage());
         }
-        return filename;
+
     }
 
     public static String getFormattedTimestamp(HtmlResult result) {

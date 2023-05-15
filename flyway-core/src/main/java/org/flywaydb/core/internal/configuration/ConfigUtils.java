@@ -335,7 +335,7 @@ public class ConfigUtils {
             return ORACLE_WALLET_LOCATION;
         }
 
-        if ("FLYWAY_REPORT_FILENAME".endsWith(key)) {
+        if ("FLYWAY_REPORT_FILENAME".equals(key)) {
             return REPORT_FILENAME;
         }
 
@@ -379,10 +379,10 @@ public class ConfigUtils {
     }
 
     public static List<File> getDefaultTomlConfigFileLocations(File installationDir) {
-        return Arrays.asList(new File(installationDir.getAbsolutePath() + "/conf/flyway.toml"),
+        return new ArrayList<>(Arrays.asList(new File(installationDir.getAbsolutePath() + "/conf/flyway.toml"),
                       new File(System.getProperty("user.home") + "/flyway.toml"),
                       new File("flyway.toml"),
-                      new File("flyway.user.toml"));
+                      new File("flyway.user.toml")));
     }
 
     /**

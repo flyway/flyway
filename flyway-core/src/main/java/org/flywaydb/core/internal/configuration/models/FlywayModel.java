@@ -34,6 +34,9 @@ import java.util.Map;
 @NoArgsConstructor
 @ExtensionMethod(MergeUtils.class)
 public class FlywayModel {
+
+    public static final String DEFAULT_REPORT_FILENAME = "report";
+
     @Setter(lombok.AccessLevel.NONE)
     private String reportFilename;
     private String environment;
@@ -95,7 +98,7 @@ public class FlywayModel {
 
     public static FlywayModel defaults(){
          FlywayModel model = new FlywayModel();
-         model.reportFilename = "report";
+         model.reportFilename = DEFAULT_REPORT_FILENAME;
          model.detectEncoding = false;
          model.encoding = "UTF-8";
          model.executeInTransaction = true;

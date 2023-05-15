@@ -272,9 +272,7 @@ public abstract class Parser {
 
                 if (keywords.size() <= getTransactionalDetectionCutoff()
                         && (tokenType == TokenType.KEYWORD
-
-
-
+                        || "@".equals(token.getText())
                 )
                         && parensDepth == 0
                         && (statementType == StatementType.UNKNOWN || canExecuteInTransaction == null)) {

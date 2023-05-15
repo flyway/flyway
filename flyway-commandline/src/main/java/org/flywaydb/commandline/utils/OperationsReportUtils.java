@@ -18,11 +18,11 @@ package org.flywaydb.commandline.utils;
 import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.NoArgsConstructor;
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.api.output.OperationResult;
+import org.flywaydb.core.internal.configuration.models.FlywayModel;
 import org.flywaydb.core.internal.util.HtmlUtils;
 import org.flywaydb.core.internal.util.JsonUtils;
 
@@ -35,6 +35,11 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OperationsReportUtils {
 
+    public static final String DEFAULT_REPORT_FILENAME = FlywayModel.DEFAULT_REPORT_FILENAME;
+    public static final String JSON_REPORT_EXTENSION = ".json";
+    public static final String HTML_REPORT_EXTENSION = ".html";
+    public static final String HTM_REPORT_EXTENSION = ".htm";
+
     private static final Pattern REPORT_FILE_PATTERN = Pattern.compile("\\.html?$");
 
     public static String getBaseFilename(String filename) {
@@ -45,21 +50,11 @@ public class OperationsReportUtils {
     }
 
     public static String createHtmlReport(Configuration configuration, CompositeResult<HtmlResult> htmlCompositeResult, String tmpHtmlReportFilename) {
-        try {
-            return HtmlUtils.toHtmlFile(tmpHtmlReportFilename, htmlCompositeResult, configuration);
-        } catch (FlywayException e) {
-            LOG.error("Unable to create HTML report", e);
-            return null;
-        }
+        return HtmlUtils.toHtmlFile(tmpHtmlReportFilename, htmlCompositeResult, configuration);
     }
 
     public static String createJsonReport(CompositeResult<HtmlResult> htmlCompositeResult, String tmpJsonReportFilename) {
-        try {
-            return JsonUtils.jsonToFile(tmpJsonReportFilename, htmlCompositeResult);
-        } catch (FlywayException e) {
-            LOG.error("Unable to create JSON report", e);
-            return null;
-        }
+        return JsonUtils.jsonToFile(tmpJsonReportFilename, htmlCompositeResult);
     }
 
     public static OperationResult filterHtmlResults(OperationResult result) {

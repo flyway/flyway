@@ -22,6 +22,7 @@ import lombok.SneakyThrows;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.commandline.logging.console.ConsoleLogCreator;
 import org.flywaydb.commandline.logging.file.FileLogCreator;
+import org.flywaydb.commandline.utils.OperationsReportUtils;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.*;
@@ -65,6 +66,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.flywaydb.commandline.utils.OperationsReportUtils.DEFAULT_REPORT_FILENAME;
+import static org.flywaydb.commandline.utils.OperationsReportUtils.HTML_REPORT_EXTENSION;
+import static org.flywaydb.commandline.utils.OperationsReportUtils.HTM_REPORT_EXTENSION;
+import static org.flywaydb.commandline.utils.OperationsReportUtils.JSON_REPORT_EXTENSION;
 import static org.flywaydb.commandline.utils.OperationsReportUtils.createHtmlReport;
 import static org.flywaydb.commandline.utils.OperationsReportUtils.createJsonReport;
 import static org.flywaydb.commandline.utils.OperationsReportUtils.filterHtmlResults;
@@ -170,13 +175,24 @@ public class Main {
                     String reportFilename = configuration.getReportFilename();
                     String baseReportFilename = getBaseFilename(reportFilename);
 
-                    String tmpJsonReportFilename = baseReportFilename + ".json";
-                    String tmpHtmlReportFilename = baseReportFilename + (reportFilename.endsWith(".htm") ? ".htm" : ".html");
+                    String tmpJsonReportFilename = baseReportFilename + JSON_REPORT_EXTENSION;
+                    String tmpHtmlReportFilename = baseReportFilename + (reportFilename.endsWith(HTM_REPORT_EXTENSION) ? HTM_REPORT_EXTENSION : HTML_REPORT_EXTENSION);
 
                     htmlCompositeResult = JsonUtils.appendIfExists(tmpJsonReportFilename, htmlCompositeResult, new CompositeResultDeserializer(configuration.getPluginRegister()));
 
-                    jsonReportFilename = createJsonReport(htmlCompositeResult, tmpJsonReportFilename);
-                    htmlReportFilename = createHtmlReport(configuration, htmlCompositeResult, tmpHtmlReportFilename);
+                    try {
+                        jsonReportFilename = createJsonReport(htmlCompositeResult, tmpJsonReportFilename);
+                        htmlReportFilename = createHtmlReport(configuration, htmlCompositeResult, tmpHtmlReportFilename);
+                    } catch (FlywayException e) {
+                        if(DEFAULT_REPORT_FILENAME.equals(configuration.getReportFilename())) {
+                            LOG.warn("Unable to create default report files.");
+                            if(LOG.isDebugEnabled()) {
+                                e.printStackTrace(System.out);
+                            }
+                        } else {
+                            LOG.error("Unable to create report files", e);
+                        }
+                    }
 
                     if (htmlReportFilename != null) {
                         LOG.info("A Flyway report has been generated here: " + htmlReportFilename);

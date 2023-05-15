@@ -9,6 +9,8 @@ You might want this to:
 * Check if changes have been made to your database outside of the Flyway migration control mechanism
 * The target database is in the state you expect it t be in prior to applying new migrations
 
+![Drift report](assets/drift_report_screenshot.png)
+
 ## Learn more
 
 * [Check concept](Concepts/Check Concept) - how does it work ?

@@ -26,6 +26,41 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="9.18.0">Flyway 9.18.0 (2023-05-15)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Avoid hanging indefinitely during 'check' comparisons when running on Windows.</li>
+            <li>Running `check -changes` or `check -drift` now handles schema creation rows in the schema history table.</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>All undo migrations will no longer have their own rows in the ASCII-table output. This seemed redundant given that there's a separate `Undoable` column to provide this information. Also, there was some inconsistency whereby undo migrations in the AVAILABLE state were already filtered out but others were not.</li>
+            <li>Baseline migrations now have the 'baseline' category in info output</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3665">Issue 3665</a>
+                Only warn if reports are unable to write to the default location rather than print an error
+            </li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Flyway now handles defining PostgreSQL functions using `BEGIN ATOMIC`.</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Bump maven version to address CVE-2021-29425</li>
+            <li>Update documentation to provide solution to Snowflake JDBC JRE16+ issues</li>
+        </ul>
+
+        <p>
+            Thanks to sseide for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="9.17.0">Flyway 9.17.0 (2023-04-27)</h2>
 
         <h3>Bug fixes</h3>

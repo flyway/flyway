@@ -101,3 +101,4 @@ location of the private key:
 ## Limitations
 
 - Parallel migrations as described [here](Learn More/Frequently Asked Questions#parallel) are unavailable in Snowflake. You can track the status of this feature in our GitHub issues [here](https://github.com/flyway/flyway/issues/3305).
+- Users using Java 16 or above, which includes the JRE shipped within Java Command Line, will need to add the following JVM argument to JAVA_ARGS `--add-opens java.base/java.lang=ALL-UNNAMED`. This can be done via the [command line or environment variables](Usage/Command-Line) This is due to a change in the Java 16 runtime which causes an error within the Snowflake JDBC driver.

@@ -28,7 +28,7 @@ public class MySQLParser extends Parser {
     private static final char ALTERNATIVE_SINGLE_LINE_COMMENT = '#';
 
     private static final Pattern STORED_PROGRAM_REGEX = Pattern.compile(
-            "^CREATE\\s(((DEFINER\\s@\\s)?(PROCEDURE|FUNCTION|EVENT))|TRIGGER)", Pattern.CASE_INSENSITIVE);
+            "^CREATE\\s(((DEFINER\\s(\\w+\\s)?@\\s(\\w+\\s)?)?(PROCEDURE|FUNCTION|EVENT))|TRIGGER)", Pattern.CASE_INSENSITIVE);
     private static final StatementType STORED_PROGRAM_STATEMENT = new StatementType();
 
     public MySQLParser(Configuration configuration, ParsingContext parsingContext) {
@@ -161,8 +161,13 @@ public class MySQLParser extends Parser {
             context.increaseBlockDepth(Integer.toString(parensDepth));
         }
 
-        if (context.getBlockDepth() > 0 && lastTokenIs(tokens, parensDepth, "END") &&
-                !"IF".equalsIgnoreCase(keywordText) && !"LOOP".equalsIgnoreCase(keywordText)) {
+        if (context.getBlockDepth() > 0
+            && lastTokenIs(tokens, parensDepth, "END")
+            && !"IF".equalsIgnoreCase(keywordText)
+            && !"CASE".equalsIgnoreCase(keywordText)
+            && !"LOOP".equalsIgnoreCase(keywordText)
+            && !"REPEAT".equalsIgnoreCase(keywordText)
+            && !"WHILE".equalsIgnoreCase(keywordText)) {
             String initiator = context.getBlockInitiator();
             if (initiator.equals("") || initiator.equals(keywordText) || "AS".equalsIgnoreCase(keywordText) || initiator.equals(Integer.toString(parensDepth))) {
                 context.decreaseBlockDepth();

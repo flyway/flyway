@@ -33,7 +33,7 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
         File folder = new File(filePath);
         if (!folder.isDirectory()) {
             LOG.debug("Skipping path as it is not a directory: " + filePath);
-            return new TreeSet<>();
+            return new TreeSet<String>();
         }
 
         String classPathRootOnDisk = filePath.substring(0, filePath.length() - location.length());
