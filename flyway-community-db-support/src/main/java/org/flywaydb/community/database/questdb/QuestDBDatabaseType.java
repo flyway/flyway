@@ -46,13 +46,7 @@ public class QuestDBDatabaseType extends PostgreSQLDatabaseType {
 
     @Override
     public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
-        try {
-            return databaseProductName.startsWith("PostgreSQL")
-                   && "QuestDB".equals(connection.getClientInfo().get("ApplicationName"));
-
-        } catch (SQLException e) {
-            return false;
-        }
+        return databaseProductName.startsWith("PostgreSQL") && databaseProductName.endsWith("QuestDB");
     }
 
     @Override
