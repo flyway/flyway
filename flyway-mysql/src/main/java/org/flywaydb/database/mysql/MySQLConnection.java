@@ -155,6 +155,6 @@ public class MySQLConnection extends Connection<MySQLDatabase> {
     }
 
     protected boolean canUseNamedLockTemplate() {
-        return !database.isPxcStrict();
+        return !database.isPxcStrict() && !database.isWsrepOn();
     }
 }
