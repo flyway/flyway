@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,14 @@ package org.flywaydb.core.internal.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.reports.html.HtmlReportGenerator;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Utility class for copying files and their contents. Inspired by Spring's own.
@@ -137,12 +130,16 @@ public class FileUtils {
         }
     }
 
-    public static String readAsString(Path path) {
+    private static String readAsString(Path path, Charset charset) {
         try {
-            return String.join(System.lineSeparator(), Files.readAllLines(path.toAbsolutePath()));
+            return String.join(System.lineSeparator(), Files.readAllLines(path.toAbsolutePath(), charset));
         } catch (IOException ioe) {
             throw new FlywayException("Unable to read " + path.toAbsolutePath() + " from disk", ioe);
         }
+    }
+
+    public static String readAsString(Path path) {
+        return readAsString(path, StandardCharsets.UTF_8);
     }
 
     public static String readResourceAsString(String path) {
@@ -158,4 +155,13 @@ public class FileUtils {
             throw new FlywayException("Unable to read " + path + " from resources", ioe);
         }
     }
+
+    public static String readAsStringFallbackToResource(String parent, String path) {
+        try {
+            return readAsString(Paths.get(parent,path), Charset.defaultCharset()) + System.lineSeparator();
+        } catch (FlywayException fe) {
+            return readResourceAsString(path);
+        }
+    }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,6 +98,7 @@ public class ConfigUtils {
     public static final String LOGGERS = "flyway.loggers";
     public static final String KERBEROS_CONFIG_FILE = "flyway.kerberosConfigFile";
 
+    public static final String REPORT_ENABLED = "flyway.reportEnabled";
     public static final String REPORT_FILENAME = "flyway.reportFilename";
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";

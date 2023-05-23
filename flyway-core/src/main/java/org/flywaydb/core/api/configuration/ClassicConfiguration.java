@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,6 +123,11 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String[] getSchemas() {
         return getCurrentResolvedEnvironment().getSchemas().toArray(new String[0]);
+    }
+
+    @Override
+    public boolean isReportEnabled() {
+        return modernConfig.getFlyway().getReportEnabled() != null && modernConfig.getFlyway().getReportEnabled();
     }
 
     @Override
@@ -754,7 +759,7 @@ public class ClassicConfiguration implements Configuration {
     /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations.
      * Each pattern is of the form <migration_type>:<migration_state>
-     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * See https://documentation.red-gate.com/fd/ignore-migration-patterns-184127507.html for full details
      * Example: repeatable:missing,versioned:pending,*:failed
      * <i>Flyway Teams only</i>
      */
@@ -764,7 +769,7 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Ignore migrations that match this array of ValidatePatterns when validating migrations.
-     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * See https://documentation.red-gate.com/fd/ignore-migration-patterns-184127507.html for full details
      * <i>Flyway Teams only</i>
      */
     public void setIgnoreMigrationPatterns(ValidatePattern... ignoreMigrationPatterns) {
@@ -1384,7 +1389,7 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Properties are documented
-     * here: https://flywaydb.org/documentation/configuration/parameters/
+     * here: https://documentation.red-gate.com/fd/parameters-184127474.html
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
      *
      * @param properties Properties used for configuration.
@@ -1421,7 +1426,7 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Properties are documented
-     * here: https://flywaydb.org/documentation/configuration/parameters/
+     * here: https://documentation.red-gate.com/fd/parameters-184127474.html
      * <p>To use a custom ClassLoader, it must be passed to the Flyway constructor prior to calling this method.</p>
      *
      * @param props Properties used for configuration.
@@ -1564,6 +1569,10 @@ public class ClassicConfiguration implements Configuration {
         Boolean cleanDisabledProp = removeBoolean(props, ConfigUtils.CLEAN_DISABLED);
         if (cleanDisabledProp != null) {
             setCleanDisabled(cleanDisabledProp);
+        }
+        Boolean reportEnabledProp = removeBoolean(props, ConfigUtils.REPORT_ENABLED);
+        if (reportEnabledProp != null) {
+            setReportEnabled(reportEnabledProp);
         }
         Boolean validateOnMigrateProp = removeBoolean(props, ConfigUtils.VALIDATE_ON_MIGRATE);
         if (validateOnMigrateProp != null) {
@@ -1771,6 +1780,10 @@ public class ClassicConfiguration implements Configuration {
 
     public void setCleanDisabled(Boolean cleanDisabledProp) {
         getModernFlyway().setCleanDisabled(cleanDisabledProp);
+    }
+
+    public void setReportEnabled(Boolean reportEnabled) {
+        getModernFlyway().setReportEnabled(reportEnabled);
     }
 
     public void setCleanOnValidationError(Boolean cleanOnValidationErrorProp) {

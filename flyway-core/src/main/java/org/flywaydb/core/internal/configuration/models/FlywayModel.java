@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,6 +95,7 @@ public class FlywayModel {
     private Map<String, String> placeholders;
     private String defaultSchema;
     private Map<String, PropertyResolver> propertyResolvers;
+    private Boolean reportEnabled;
 
     public static FlywayModel defaults(){
          FlywayModel model = new FlywayModel();
@@ -148,6 +149,7 @@ public class FlywayModel {
          model.loggers = Arrays.asList("auto");
          model.placeholders = new HashMap<>();
          model.environment = "default";
+         model.reportEnabled = true;
          return model;
     }
 
@@ -209,6 +211,7 @@ public class FlywayModel {
         result.loggers = loggers.merge(otherPojo.loggers);
         result.defaultSchema = defaultSchema.merge(otherPojo.defaultSchema);
         result.placeholders = placeholders.merge(otherPojo.placeholders);
+        result.reportEnabled = reportEnabled.merge(otherPojo.reportEnabled);
         result.propertyResolvers = MergeUtils.merge(propertyResolvers, otherPojo.propertyResolvers, (a,b) -> b != null ? b : a); // TODO: more granular merge
         return result;
     }

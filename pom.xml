@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) Red Gate Software Ltd 2010-2022
+    Copyright (C) Red Gate Software Ltd 2010-2023
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <!--
-    Detailed information how to contribute: https://flywaydb.org/documentation/contribute/code/
+    Detailed information how to contribute: https://documentation.red-gate.com/fd/code-184127557.html
 
     To build the OS-specific flyway-commandline assemblies you can run the build with one of the following commands:
     mvn clean install -Pbuild-assemblies-windows
@@ -30,7 +30,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>9.18.0</version>
+    <version>9.19.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -75,6 +75,7 @@
         <module>flyway-sqlserver</module>
         <module>flyway-mysql</module>
         <module>flyway-firebird</module>
+        <module>flyway-database-oracle</module>
 
 
 
@@ -207,6 +208,7 @@
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-toml</artifactId>
                 <version>${version.jackson}</version>
+                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>

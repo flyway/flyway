@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) Red Gate Software Ltd 2010-2022
+    Copyright (C) Red Gate Software Ltd 2010-2023
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -24,6 +24,26 @@
 
 </div>
 <div class="col-md-9">
+
+<div class="release">
+        <h2 id="9.19.0">Flyway 9.19.0 (2023-05-23)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Extract Oracle code to plugin. This will need to be added as a new dependency. See [Oracle documentation](https://documentation.red-gate.com/fd/oracle-184127602.html).</li>
+            <li>Change error code on migration failure to be more specific and include script path and line number of failure in JSON error output</li>
+            <li>Disable GET_LOCK on MariaDB connections when `WSRERP=ON` is present. This is to allow for usage of MariaDB with Galera clusters</li>
+            <li>An event connection will be created to handle callbacks, and this connection will be released instantly after the event handle work is done.</li>
+            <li>Baseline scripts with the same version number as an applied '<< Flyway Baseline >>' are now put in the 'Ignored (Baseline)' state. Also, migrations in this state appear before the '<< Flyway Baseline >>' in the info output instead of being put at the end.</li>
+            <li>Update RGCompare version to 1.11.2.9265</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Added `driver()` method to `FluentConfiguration`</li>
+        </ul>
+
+    </div>
 
 <div class="release">
         <h2 id="9.18.0">Flyway 9.18.0 (2023-05-15)</h2>

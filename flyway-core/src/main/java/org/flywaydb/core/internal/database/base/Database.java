@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@ public abstract class Database<C extends Connection> implements Closeable {
     protected final java.sql.Connection rawMainJdbcConnection;
     protected JdbcTemplate jdbcTemplate;
     private C migrationConnection;
+    private C eventConnection;
     private C mainConnection;
     /**
      * The 'major.minor' version of this database.
@@ -297,6 +298,32 @@ public abstract class Database<C extends Connection> implements Closeable {
     }
 
     /**
+     * @return The event connection used to handle event callbacks.
+     * The reason for creating an event connection is that if using the migration connection instead, it may trigger an unwanted commit which breaks
+     * any ongoing migration transaction.
+     */
+    public final C getEventConnection() {
+        if (!hasEventConnection()) {
+            eventConnection = getConnection(jdbcConnectionFactory.openConnection());
+        }
+        return eventConnection;
+    }
+
+    public final boolean hasEventConnection(){
+        return eventConnection != null;
+    }
+
+    /**
+     * An event connection should be disposed after usage to minimize long-standing connections.
+     */
+    public void disposeEventConnection() {
+        if (hasEventConnection()) {
+            eventConnection.close();
+            eventConnection = null;
+        }
+    }
+
+    /**
      * @return The major and minor version of the database.
      */
     protected MigrationVersion determineVersion() {
@@ -379,6 +406,8 @@ public abstract class Database<C extends Connection> implements Closeable {
         if (mainConnection != null) {
             mainConnection.close();
         }
+
+        disposeEventConnection();
 
         if (rawMainJdbcConnection != null) {
             JdbcUtils.closeConnection(rawMainJdbcConnection);

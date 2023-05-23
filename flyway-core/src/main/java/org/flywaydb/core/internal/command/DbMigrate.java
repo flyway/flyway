@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.command;
 
 import lombok.CustomLog;
 import lombok.Getter;
+import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
@@ -428,6 +429,14 @@ public class DbMigrate {
         private final boolean executableInTransaction;
         private final boolean outOfOrder;
         private final MigrateErrorResult errorResult;
+
+        public ErrorCode getMigrationErrorCode() {
+            if (migration.getVersion() != null) {
+                return ErrorCode.FAILED_VERSIONED_MIGRATION;
+            } else {
+                return ErrorCode.FAILED_REPEATABLE_MIGRATION;
+            }
+        }
 
         FlywayMigrateException(MigrationInfo migration, boolean outOfOrder, SQLException e, boolean canExecuteInTransaction, MigrateResult partialResult) {
             super(ExceptionUtils.toMessage(e), e);

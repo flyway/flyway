@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ import org.flywaydb.core.api.configuration.Configuration;
 
 public interface Plugin extends Comparable<Plugin> {
     default boolean isLicensed(Configuration configuration) {
+        return true;
+    }
+    default boolean isEnabled() {
         return true;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.flywaydb.core.internal.util.ClassUtils.getInstallDir;
 import static org.flywaydb.core.internal.util.HtmlUtils.getFormattedTimestamp;
 
 @CustomLog
@@ -50,6 +51,7 @@ public class HtmlReportGenerator {
             new HoldingTabMetadata("dryrun", "PRO", "ENTERPRISE", "TIER3", "MASTER"),
             new HoldingTabMetadata("code", "OSS")
                                                                                       );
+    public static final String INSTALL_DIR = getInstallDir(HtmlReportGenerator.class);
 
     public static String generateHtml(CompositeResult<HtmlResult> result, Configuration config) {
         Map<LocalDateTime, List<HtmlResult>> groupedResults = result.individualResults.stream().collect(Collectors.groupingBy(HtmlResult::getTimestamp));
@@ -71,16 +73,16 @@ public class HtmlReportGenerator {
             for (HoldingTabMetadata holdingTabMetadata : HOLDING_TAB_METADATA) {
                 String holdingTab = holdingTabMetadata.getName();
                 if (groupedResult.stream().noneMatch(t -> holdingTab.equals(t.getOperation()) && !t.isLicenseFailed())) {
-                    String htmlFile = FileUtils.readResourceAsString("reportAssets/holdingTabs/" + holdingTab + ".html");
+                    String htmlFile = FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/holdingTabs/" + holdingTab + ".html");
                     HoldingResult holdingResult = new HoldingResult();
                     if (holdingTabMetadata.getSupportedEditions().get(0) != "OSS" && !holdingTabMetadata.getSupportedEditions().contains(currentTier)) {
-                        htmlFile = FileUtils.readResourceAsString("reportAssets/upgradeTabs/" + holdingTab + ".html");
+                        htmlFile = FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/upgradeTabs/" + holdingTab + ".html");
                         if (groupedResult.stream().anyMatch(t -> t.getOperation().equals(holdingTab))) {
                             HtmlResult htmlResult = groupedResult.stream().filter(t -> t.getOperation().equals(holdingTab)).findFirst().get();
                             holdingResult.setException(htmlResult.exceptionObject);
                         }
                     }
-                    String tabTitle = FileUtils.readResourceAsString("reportAssets/holdingTabs/" + holdingTab + ".txt");
+                    String tabTitle = FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/holdingTabs/" + holdingTab + ".txt");
                     holdingResult.setTimestamp(timestamp);
                     holdingResult.setTabTitle(tabTitle.trim());
                     holdingResult.setBodyText(htmlFile);
@@ -112,29 +114,28 @@ public class HtmlReportGenerator {
                 getCodeStyle() +
                 "</style>\n</head>\n" +
                 "<body>\n" +
-                FileUtils.readResourceAsString("reportAssets/icons/AddFilled.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/Calendar.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/CheckFilled.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/ClockOutlined.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/Database.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/DeleteFilled.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/Document.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/EditFilled.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/ErrorFilled.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/FeedbackOutlined.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/flyway-upgrade-icon.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/InfoOutlined.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/PipelineFilled.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/ScriptOutlined.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/upgrade.svg") +
-                FileUtils.readResourceAsString("reportAssets/icons/WarningFilled.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/AddFilled.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Calendar.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/CheckFilled.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ClockOutlined.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Database.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/DeleteFilled.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/Document.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/EditFilled.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ErrorFilled.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/FeedbackOutlined.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/flyway-upgrade-icon.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/InfoOutlined.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/PipelineFilled.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/ScriptOutlined.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/upgrade.svg") +
+                FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/icons/WarningFilled.svg") +
                 " <div class=\"container\">" +
                 "  <div class=\"header\">" +
                 "    <div class=\"flywayLogo headerElement\"></div>\n" +
                 "    <div class=\"headerElement leftPaddedElement\">Flyway Reports</div>" +
                 //"    <div class=\"headerElement redgateBanner\">" +
                 "      <div class=\"redgateText\"><a class='unstyledLink' href='https://www.redgate.com'>redgate</a></div>" +
-                "      <div class=\"redgateLogo\"><a class='unstyledLink' href='https://www.redgate.com'>\uE925</a></div>" +
                 //"    </div>" +
                 "  </div>\n" +
                 "  <div class=\"content\">\n" +
@@ -229,7 +230,7 @@ public class HtmlReportGenerator {
         }
 
         try {
-            String informationalText = FileUtils.readResourceAsString("reportAssets/infoBlobs/" + result.getOperation() + ".html");
+            String informationalText = FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/infoBlobs/" + result.getOperation() + ".html");
 
             if (StringUtils.hasText(informationalText)) {
                 html += "<div class='summaryDiv summaryNote'><div class='summaryDivContent'><span class='summaryIcon'><svg fill=\"none\"><use href=\"#infoOutlined\"/></svg></span><span class='summaryText'>" + informationalText + "</span></div></div>";
@@ -262,7 +263,7 @@ public class HtmlReportGenerator {
 
     private static String getEnd() {
         String html = "</div>\n";
-        html += FileUtils.readResourceAsString("reportAssets/footer.html");
+        html += FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/footer.html");
         html += "</div></body>\n" + getScript() + "</html>\n";
 
         return html;
@@ -288,7 +289,7 @@ public class HtmlReportGenerator {
     }
 
     private static String getScript() {
-        return FileUtils.readResourceAsString("reportAssets/reportScript.html");
+        return FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/reportScript.html");
     }
 
     private static String getBase64EncodedLogo() {
@@ -301,6 +302,6 @@ public class HtmlReportGenerator {
     }
 
     private static String getCodeStyle() {
-        return FileUtils.readResourceAsString("reportAssets/report.css");
+        return FileUtils.readAsStringFallbackToResource(INSTALL_DIR, "assets/report/report.css");
     }
 }

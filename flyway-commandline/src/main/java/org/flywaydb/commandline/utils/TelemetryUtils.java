@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,15 +33,21 @@ public class TelemetryUtils {
         rootTelemetryModel.setApplicationVersion(VersionPrinter.getVersion());
         rootTelemetryModel.setApplicationEdition(VersionPrinter.EDITION.getDescription());
         rootTelemetryModel.setRedgateEmployee(isRedgateEmployee);
-        ClassicConfiguration classicConfiguration = new ClassicConfiguration(configuration);
-        if (classicConfiguration.getDataSource() != null) {
-            try (JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(classicConfiguration.getDataSource(), classicConfiguration, null);
-                 Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null)) {
-                rootTelemetryModel.setDatabaseEngine(database.getDatabaseType().getName());
+
+        if(configuration != null) {
+            ClassicConfiguration classicConfiguration = new ClassicConfiguration(configuration);
+            if (classicConfiguration.getDataSource() != null) {
+                try (JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(classicConfiguration.getDataSource(), classicConfiguration, null);
+                     Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null)) {
+                    rootTelemetryModel.setDatabaseEngine(database.getDatabaseType().getName());
+                    rootTelemetryModel.setDatabaseVersion(database.getVersion().toString());
+                    return rootTelemetryModel;
+                }
             }
-        } else {
-            rootTelemetryModel.setDatabaseEngine("UNKNOWN");
         }
+
+        rootTelemetryModel.setDatabaseEngine("UNKNOWN");
+
         return rootTelemetryModel;
     }
 

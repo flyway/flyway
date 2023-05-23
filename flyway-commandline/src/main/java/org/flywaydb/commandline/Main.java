@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,6 +113,7 @@ public class Main {
         FlywayTelemetryManager flywayTelemetryManager = null;
         if (!StringUtils.hasText(System.getenv("REDGATE_DISABLE_TELEMETRY"))) {
             flywayTelemetryManager = new FlywayTelemetryManager(pluginRegister);
+            flywayTelemetryManager.setRootTelemetryModel(populateRootTelemetry(flywayTelemetryManager.getRootTelemetryModel(), null, false));
         }
 
         try {
@@ -166,7 +167,7 @@ public class Main {
                 String htmlReportFilename = null;
 
                 OperationResult filteredResults = filterHtmlResults(result);
-                if (filteredResults != null) {
+                if (filteredResults != null && configuration.isReportEnabled()) {
                     aggregate = getAggregateExceptions(filteredResults);
                     CompositeResult<HtmlResult> htmlCompositeResult = flattenHtmlResults(filteredResults);
 
@@ -178,9 +179,9 @@ public class Main {
                     String tmpJsonReportFilename = baseReportFilename + JSON_REPORT_EXTENSION;
                     String tmpHtmlReportFilename = baseReportFilename + (reportFilename.endsWith(HTM_REPORT_EXTENSION) ? HTM_REPORT_EXTENSION : HTML_REPORT_EXTENSION);
 
-                    htmlCompositeResult = JsonUtils.appendIfExists(tmpJsonReportFilename, htmlCompositeResult, new CompositeResultDeserializer(configuration.getPluginRegister()));
 
                     try {
+                        htmlCompositeResult = JsonUtils.appendIfExists(tmpJsonReportFilename, htmlCompositeResult, new CompositeResultDeserializer(configuration.getPluginRegister()));
                         jsonReportFilename = createJsonReport(htmlCompositeResult, tmpJsonReportFilename);
                         htmlReportFilename = createHtmlReport(configuration, htmlCompositeResult, tmpHtmlReportFilename);
                     } catch (FlywayException e) {

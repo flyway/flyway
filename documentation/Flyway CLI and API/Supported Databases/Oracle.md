@@ -63,6 +63,50 @@ Support Level determines the degree of support available for this database ([lea
 
 \* `TNS_ADMIN` environment variable must point to the directory of where `tnsnames.ora` resides
 
+## Java Usage
+
+Oracle support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+
+### Maven
+
+#### Community
+
+```xml
+
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-oracle</artifactId>
+</dependency>
+```
+
+#### Teams
+
+```xml
+
+<dependency>
+    <groupId>org.flywaydb.enterprise</groupId>
+    <artifactId>flyway-database-oracle</artifactId>
+</dependency>
+```
+
+### Gradle
+
+#### Community
+
+```groovy
+dependencies {
+    compile "org.flywaydb:flyway-database-oracle"
+}
+```
+
+#### Teams
+
+```groovy
+dependencies {
+    compile "org.flywaydb.enterprise:flyway-database-oracle"
+}
+```
+
 ## SQL Script Syntax
 
 - [Standard SQL syntax](Concepts/migrations#sql-based-migrations#syntax) with statement delimiter `;`

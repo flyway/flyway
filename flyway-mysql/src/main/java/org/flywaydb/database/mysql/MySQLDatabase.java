@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,10 @@ public class MySQLDatabase extends Database<MySQLConnection> {
      */
     private final boolean pxcStrict;
     /**
+     * Whether WSREP_ON=ON
+     */
+    private final boolean wsrepOn;
+    /**
      * Whether this database is enforcing GTID consistency.
      */
     private final boolean gtidConsistencyEnforced;
@@ -58,6 +62,7 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(rawMainJdbcConnection, databaseType);
         pxcStrict = isMySQL() && isRunningInPerconaXtraDBClusterWithStrictMode(jdbcTemplate);
+        wsrepOn = isMariaDB() && isWsrepOn(jdbcTemplate);
         gtidConsistencyEnforced = isMySQL() && isRunningInGTIDConsistencyMode(jdbcTemplate);
         eventSchedulerQueryable = isMySQL() || isEventSchedulerQueryable(jdbcTemplate);
     }
@@ -89,6 +94,20 @@ public class MySQLDatabase extends Database<MySQLConnection> {
         return false;
     }
 
+    static boolean isWsrepOn(JdbcTemplate jdbcTemplate) {
+        try {
+            boolean wsrepOn = jdbcTemplate.queryForBoolean("SELECT @@GLOBAL.WSREP_ON");
+            if (wsrepOn) {
+                LOG.debug("Detected WSREP_ON=ON");
+                return true;
+            }
+        } catch (SQLException e) {
+            LOG.debug("Unable to detect whether WSREP_ON=ON. Assuming not.");
+        }
+
+        return false;
+    }
+
     static boolean isRunningInGTIDConsistencyMode(JdbcTemplate jdbcTemplate) {
         try {
             String gtidConsistency = jdbcTemplate.queryForString("SELECT @@GLOBAL.ENFORCE_GTID_CONSISTENCY");
@@ -113,6 +132,10 @@ public class MySQLDatabase extends Database<MySQLConnection> {
 
     boolean isPxcStrict() {
         return pxcStrict;
+    }
+
+    public boolean isWsrepOn() {
+        return wsrepOn;
     }
 
     /*

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -203,7 +203,7 @@ public class FluentConfiguration implements Configuration {
     /**
      * Ignore migrations that match this comma-separated list of patterns when validating migrations.
      * Each pattern is of the form <migration_type>:<migration_state>
-     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * See https://documentation.red-gate.com/fd/ignore-migration-patterns-184127507.html for full details
      * Example: repeatable:missing,versioned:pending,*:failed
      * <i>Flyway Teams only</i>
      */
@@ -214,7 +214,7 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Ignore migrations that match this array of ValidatePatterns when validating migrations.
-     * See https://flywaydb.org/documentation/configuration/parameters/ignoreMigrationPatterns for full details
+     * See https://documentation.red-gate.com/fd/ignore-migration-patterns-184127507.html for full details
      * <i>Flyway Teams only</i>
      */
     public FluentConfiguration ignoreMigrationPatterns(ValidatePattern... ignoreMigrationPatterns) {
@@ -1020,6 +1020,16 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration failOnMissingLocations(boolean failOnMissingLocations) {
         config.setFailOnMissingLocations(failOnMissingLocations);
+        return this;
+    }
+
+    /**
+     * Sets the JDBC driver to use. Must match the driver for the database type in the url.
+     *
+     * @param driver The name of the JDBC driver of the database.
+     */
+    public FluentConfiguration driver(String driver) {
+        config.setDriver(driver);
         return this;
     }
 }
