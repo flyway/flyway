@@ -530,3 +530,7 @@ The following will happen:
 | `Out of Order`     | This migration succeeded but it was applied out of order. Rerunning the entire migration history might produce different results!                         |
 | `Outdated`         | This is a [`repeatable`](Tutorials/Tutorial Repeatable Migrations) migration that is outdated and should be re-applied                               |
 | `Superseded`       | This is a [`repeatable`](Tutorials/Tutorial Repeatable Migrations) migration that is outdated and has already been superseded by a newer one         |
+
+## Learn More
+
+* [Migration Report](Reports/Reports - Migration)

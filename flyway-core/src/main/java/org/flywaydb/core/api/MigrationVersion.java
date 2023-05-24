@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.flywaydb.core.api;
+
+import lombok.Getter;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -52,6 +54,12 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     private final String displayText;
 
     /**
+     * The raw, unprocessed text to represent the version.
+     */
+    @Getter
+    private final String rawVersion;
+
+    /**
      * Create a MigrationVersion from a version String.
      *
      * @param version The version String. The value {@code current} will be interpreted as MigrationVersion.CURRENT,
@@ -85,6 +93,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         String normalizedVersion = version.replace('_', '.');
         this.versionParts = tokenize(normalizedVersion);
         this.displayText = normalizedVersion;
+        this.rawVersion = version;
     }
 
     /**
@@ -96,6 +105,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         this.versionParts = new ArrayList<>();
         this.versionParts.add(version);
         this.displayText = displayText;
+        this.rawVersion = displayText;
     }
 
     @Override

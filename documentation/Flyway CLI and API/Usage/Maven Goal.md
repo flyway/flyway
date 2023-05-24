@@ -5,7 +5,7 @@ redirect_from: /documentation/maven/
 ---
 # Maven Plugin
 
-The Flyway Maven plugin supports **Maven 3.x** running on **Java 8**, **Java 9**, **Java 10**, **Java 11** or **Java 12**.
+The Flyway Maven plugin supports **Maven 3.x** running on **Java 8**, **Java 9**, **Java 10**, **Java 11**, **Java 12** or **Java 17**.
 
 ## Installation
 ### Community Edition

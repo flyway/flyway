@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ public class MySQLParser extends Parser {
     private static final char ALTERNATIVE_SINGLE_LINE_COMMENT = '#';
 
     private static final Pattern STORED_PROGRAM_REGEX = Pattern.compile(
-            "^CREATE\\s(((DEFINER\\s@\\s)?(PROCEDURE|FUNCTION|EVENT))|TRIGGER)", Pattern.CASE_INSENSITIVE);
+            "^CREATE\\s(((DEFINER\\s(\\w+\\s)?@\\s(\\w+\\s)?)?(PROCEDURE|FUNCTION|EVENT))|TRIGGER)", Pattern.CASE_INSENSITIVE);
     private static final StatementType STORED_PROGRAM_STATEMENT = new StatementType();
 
     public MySQLParser(Configuration configuration, ParsingContext parsingContext) {
@@ -131,26 +131,6 @@ public class MySQLParser extends Parser {
         return super.shouldAdjustBlockDepth(context, tokens, token);
     }
 
-    private boolean doesDelimiterEndFunction(List<Token> tokens, Token delimiter) {
-        // if there's not enough tokens, it's not the function
-        if (tokens.size() < 2) {
-            return false;
-        }
-
-        // if the previous keyword was not inside some brackets, it's not the function
-        if (tokens.get(tokens.size() - 1).getParensDepth() != delimiter.getParensDepth() + 1) {
-            return false;
-        }
-
-        // if the previous token was not IF or REPEAT, it's not the function
-        Token previousToken = getPreviousToken(tokens, delimiter.getParensDepth());
-        if (previousToken == null || !("IF".equals(previousToken.getText()) || "REPEAT".equals(previousToken.getText()))) {
-            return false;
-        }
-
-        return true;
-    }
-
     @Override
     protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
         String keywordText = keyword.getText();
@@ -161,16 +141,15 @@ public class MySQLParser extends Parser {
             context.increaseBlockDepth(Integer.toString(parensDepth));
         }
 
-        if (context.getBlockDepth() > 0 && lastTokenIs(tokens, parensDepth, "END") &&
-                !"IF".equalsIgnoreCase(keywordText) && !"LOOP".equalsIgnoreCase(keywordText)) {
+        if (context.getBlockDepth() > 0
+            && lastTokenIs(tokens, parensDepth, "END")
+            && !"IF".equalsIgnoreCase(keywordText)
+            && !"CASE".equalsIgnoreCase(keywordText)
+            && !"LOOP".equalsIgnoreCase(keywordText)
+            && !"REPEAT".equalsIgnoreCase(keywordText)
+            && !"WHILE".equalsIgnoreCase(keywordText)) {
             String initiator = context.getBlockInitiator();
             if (initiator.equals("") || initiator.equals(keywordText) || "AS".equalsIgnoreCase(keywordText) || initiator.equals(Integer.toString(parensDepth))) {
-                context.decreaseBlockDepth();
-            }
-        }
-
-        if (";".equals(keywordText) || TokenType.DELIMITER.equals(keyword.getType()) || TokenType.EOF.equals(keyword.getType())) {
-            if (context.getBlockDepth() > 0 && doesDelimiterEndFunction(tokens, keyword)) {
                 context.decreaseBlockDepth();
             }
         }

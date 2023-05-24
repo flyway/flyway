@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.internal.util.MergeUtils;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +34,10 @@ import java.util.Map;
 @NoArgsConstructor
 @ExtensionMethod(MergeUtils.class)
 public class FlywayModel {
+
+    public static final String DEFAULT_REPORT_FILENAME = "report";
+
+    @Setter(lombok.AccessLevel.NONE)
     private String reportFilename;
     private String environment;
     private Boolean detectEncoding;
@@ -90,10 +95,11 @@ public class FlywayModel {
     private Map<String, String> placeholders;
     private String defaultSchema;
     private Map<String, PropertyResolver> propertyResolvers;
+    private Boolean reportEnabled;
 
     public static FlywayModel defaults(){
          FlywayModel model = new FlywayModel();
-         model.reportFilename = "report.html";
+         model.reportFilename = DEFAULT_REPORT_FILENAME;
          model.detectEncoding = false;
          model.encoding = "UTF-8";
          model.executeInTransaction = true;
@@ -142,6 +148,8 @@ public class FlywayModel {
          model.failOnMissingLocations = false;
          model.loggers = Arrays.asList("auto");
          model.placeholders = new HashMap<>();
+         model.environment = "default";
+         model.reportEnabled = true;
          return model;
     }
 
@@ -203,7 +211,14 @@ public class FlywayModel {
         result.loggers = loggers.merge(otherPojo.loggers);
         result.defaultSchema = defaultSchema.merge(otherPojo.defaultSchema);
         result.placeholders = placeholders.merge(otherPojo.placeholders);
+        result.reportEnabled = reportEnabled.merge(otherPojo.reportEnabled);
         result.propertyResolvers = MergeUtils.merge(propertyResolvers, otherPojo.propertyResolvers, (a,b) -> b != null ? b : a); // TODO: more granular merge
         return result;
+    }
+
+    public void setReportFilename(String reportFilename) {
+        if (StringUtils.hasText(reportFilename)) {
+            this.reportFilename = reportFilename;
+        }
     }
 }

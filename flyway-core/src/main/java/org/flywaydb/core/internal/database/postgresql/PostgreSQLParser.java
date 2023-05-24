@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,6 +69,19 @@ public class PostgreSQLParser extends Parser {
 
 
                                     );
+    }
+
+    @Override
+    protected void adjustBlockDepth(ParserContext context, List<Token> tokens, Token keyword, PeekingReader reader) {
+        String keywordText = keyword.getText();
+
+        if (lastTokenIs(tokens, context.getParensDepth(), "BEGIN") && "ATOMIC".equalsIgnoreCase(keywordText)) {
+            context.increaseBlockDepth("ATOMIC");
+        }
+
+        if (context.getBlockDepth() > 0 &&  keywordText.equalsIgnoreCase("END") && "ATOMIC".equals(context.getBlockInitiator())) {
+            context.decreaseBlockDepth();
+        }
     }
 
     private String readCopyData(PeekingReader reader, Recorder recorder) throws IOException {

@@ -5,7 +5,6 @@ org.flywaydb.core.internal.database.derby.DerbyDatabaseType
 org.flywaydb.core.internal.database.h2.H2DatabaseType
 org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabaseType
 org.flywaydb.core.internal.database.informix.InformixDatabaseType
-org.flywaydb.core.internal.database.oracle.OracleDatabaseType
 org.flywaydb.core.internal.database.postgresql.PostgreSQLDatabaseType
 org.flywaydb.core.internal.database.saphana.SAPHANADatabaseType
 org.flywaydb.core.internal.database.snowflake.SnowflakeDatabaseType
@@ -19,3 +18,9 @@ org.flywaydb.core.internal.database.postgresql.PostgreSQLConfigurationExtension
 org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension
 org.flywaydb.core.internal.configuration.resolvers.EnvironmentVariableResolver
 org.flywaydb.core.internal.proprietaryStubs.CommandExtensionStub
+org.flywaydb.core.api.output.InfoHtmlRenderer
+org.flywaydb.core.internal.reports.json.InfoResultDeserializer
+org.flywaydb.core.api.output.MigrateHtmlRenderer
+org.flywaydb.core.internal.reports.json.MigrateResultDeserializer
+org.flywaydb.core.api.output.HoldingRenderer
+org.flywaydb.core.api.output.DashboardRenderer

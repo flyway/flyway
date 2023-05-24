@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,17 @@ package org.flywaydb.core.internal.util;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.api.output.OperationResult;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -39,9 +42,12 @@ public class JsonUtils {
     }
 
     public static String jsonToFile(String filename, Object json) {
-        try (FileWriter fileWriter = new FileWriter(filename)) {
+
+        File file= new File(filename);
+
+        try (FileWriter fileWriter = new FileWriter(file)) {
             getGson().toJson(json, fileWriter);
-            return filename;
+            return file.getCanonicalPath();
         } catch (Exception e) {
             throw new FlywayException("Unable to write JSON to file: " + e.getMessage());
         }
@@ -73,6 +79,7 @@ public class JsonUtils {
         Type existingObjectType = new TypeToken<CompositeResult<T>>() { }.getType();
 
         try (FileReader reader = new FileReader(filename)) {
+
             existingObject = new GsonBuilder()
                     .registerTypeAdapter(existingObjectType, deserializer)
                     .create()
@@ -87,5 +94,11 @@ public class JsonUtils {
 
     public static Object parseJsonArray(String json) {
         return JsonParser.parseString(json).getAsJsonArray();
+    }
+
+    public static String prettyPrint(String json) {
+        JsonReader reader = new JsonReader(new StringReader(json));
+        reader.setLenient(true);
+        return getGson().newBuilder().setLenient().create().toJson(JsonParser.parseReader(reader).getAsJsonObject());
     }
 }

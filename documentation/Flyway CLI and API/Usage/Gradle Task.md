@@ -6,7 +6,7 @@ redirect_from: /documentation/gradle/
 # Gradle Plugin
 
 The Flyway Gradle plugin supports **Gradle 3.x**, **Gradle 4.x**, **Gradle 5.x**, and **Gradle 6.x**
-running on **Java 8**, **Java 9**, **Java 10**, **Java 11** or **Java 12**.
+running on **Java 8**, **Java 9**, **Java 10**, **Java 11**, **Java 12** or **Java 17**.
 
 ## Installation
 ### Community Edition

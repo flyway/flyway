@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class TomlUtils {
             for (int i = 0; i < parts.length; i++) {
                 if (i != parts.length - 1) {
                     //noinspection unchecked
-                    currentMap = (Map<String, Object>) currentMap.computeIfAbsent(parts[i], (x) -> new HashMap<>());
+                    currentMap = (Map<String, Object>) currentMap.computeIfAbsent(parts[i], (x) -> new HashMap<String, Object>());
                 } else {
                     currentMap.put(parts[i], entry.getValue());
                 }

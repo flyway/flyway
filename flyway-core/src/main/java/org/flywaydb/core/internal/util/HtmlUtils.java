@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.output.CompositeResult;
 
+import java.io.File;
 import java.io.FileWriter;
+import java.time.format.DateTimeFormatter;
 
 import static org.flywaydb.core.internal.reports.html.HtmlReportGenerator.generateHtml;
 
@@ -29,12 +31,22 @@ public class HtmlUtils {
     public static String toHtmlFile(String filename, CompositeResult<HtmlResult> results, Configuration config) {
         String fileContents = generateHtml(results, config);
 
-        try (FileWriter fileWriter = new FileWriter(filename)) {
+        File file = new File(filename);
+
+        try (FileWriter fileWriter = new FileWriter(file)) {
             fileWriter.write(fileContents);
+            return file.getCanonicalPath();
         } catch (Exception e) {
             throw new FlywayException("Unable to write HTML to file: " + e.getMessage());
         }
-        return filename;
+
+    }
+
+    public static String getFormattedTimestamp(HtmlResult result) {
+        if (result == null || result.getTimestamp() == null) {
+            return "--";
+        }
+        return result.getTimestamp().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     public static String htmlEncode(String input) {

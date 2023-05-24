@@ -73,6 +73,7 @@ Here is a sample configuration file:
 # Oracle (TNS)**    : jdbc:oracle:thin:@<tns_entry>
 # PostgreSQL        : jdbc:postgresql://<host>:<port>/<database>?<key1>=<value1>&<key2>=<value2>...
 # SAP HANA*         : jdbc:sap://<host>:<port>/?databaseName=<database>
+# SingleStoreDB     : jdbc:singlestore:<host>:<port>/<database>
 # Snowflake*        : jdbc:snowflake://<account>.snowflakecomputing.com/?db=<database>&warehouse=<warehouse>&role=<role>...
 # SQL Server        : jdbc:sqlserver://<host>:<port>;databaseName=<database>
 # SQLite            : jdbc:sqlite:<database>

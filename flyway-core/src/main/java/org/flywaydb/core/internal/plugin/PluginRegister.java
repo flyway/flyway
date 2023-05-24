@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,9 @@ public class PluginRegister {
             }
 
             for (Plugin plugin : ServiceLoader.load(Plugin.class, CLASS_LOADER)) {
-                REGISTERED_PLUGINS.add(plugin);
+                if (plugin.isEnabled()) {
+                    REGISTERED_PLUGINS.add(plugin);
+                }
             }
 
 

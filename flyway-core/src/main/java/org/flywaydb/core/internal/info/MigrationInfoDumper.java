@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class MigrationInfoDumper {
      */
     public static String dumpToAsciiTable(MigrationInfo[] migrationInfos) {
         Set<MigrationVersion> undoableVersions = getUndoableVersions(migrationInfos);
-        migrationInfos = removeAvailableUndos(migrationInfos);
+        migrationInfos = removeUndos(migrationInfos);
 
         List<String> columns = Arrays.asList("Category", "Version", "Description", "Type", "Installed On", "State", "Undoable");
 
@@ -104,10 +104,10 @@ public class MigrationInfoDumper {
         return result;
     }
 
-    private static MigrationInfo[] removeAvailableUndos(MigrationInfo[] migrationInfos) {
+    private static MigrationInfo[] removeUndos(MigrationInfo[] migrationInfos) {
         List<MigrationInfo> result = new ArrayList<>();
         for (MigrationInfo migrationInfo : migrationInfos) {
-            if (!migrationInfo.getState().equals(MigrationState.AVAILABLE)) {
+            if (!migrationInfo.getType().isUndo()) {
                 result.add(migrationInfo);
             }
         }

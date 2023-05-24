@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,13 @@ public class SnowflakeParser extends Parser {
             return true;
         }
         return super.isAlternativeStringLiteral(peek);
+    }
+
+    @Override
+    protected Token handleStringLiteral(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
+        reader.swallow();
+        reader.swallowUntilIncludingWithEscape('\'', true, '\\');
+        return new Token(TokenType.STRING, pos, line, col, null, null, context.getParensDepth());
     }
 
     @Override

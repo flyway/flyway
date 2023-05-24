@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class JBossVFSv3ClassPathLocationScanner implements ClassPathLocationScan
         }
         LOG.debug("Scanning starting at classpath root on JBoss VFS: " + classPathRootOnDisk);
 
-        Set<String> resourceNames = new TreeSet<>();
+        Set<String> resourceNames = new TreeSet<String>();
 
         List<VirtualFile> files;
         try {

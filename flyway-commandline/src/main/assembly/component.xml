@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) Red Gate Software Ltd 2010-2022
+    Copyright (C) Red Gate Software Ltd 2010-2023
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -100,6 +100,14 @@
             </includes>
             <fileMode>644</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>../flyway-core/src/main/resources/assets</directory>
+            <outputDirectory>assets</outputDirectory>
+            <includes>
+                <include>report/**/*</include>
+            </includes>
+            <fileMode>644</fileMode>
+        </fileSet>
 
 
 
@@ -182,6 +190,7 @@
             <includes>
                 <include>org.flywaydb:flyway-core</include>
                 <include>org.flywaydb:flyway-commandline</include>
+                <include>org.flywaydb:flyway-database-oracle</include>
                 <include>org.flywaydb:flyway-gcp-bigquery</include>
                 <include>org.flywaydb:flyway-gcp-spanner</include>
                 <include>org.flywaydb:flyway-community-db-support</include>
@@ -203,6 +212,8 @@
                 <include>org.flywaydb:flyway-command-resolve-environment</include>
             </includes>
         </dependencySet>
+
+
 
 
 

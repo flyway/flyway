@@ -115,16 +115,6 @@ executing Flyway to any of the following values:
 <tr><td><code>teams</code></td><td>Select the Flyway Teams Edition</td></tr>
 </table>
 
-### Edition-selecting flags
-
-Alternatively Flyway also comes with edition-selecting flags. By default the `flyway` command will launch whatever edition has been auto-detected.
-You can however also use edition-selecting flags to force the selection of the edition of your choice:
-
-<table class="table table-striped">
-<tr><td><code>-community</code></td><td>Select the Flyway Community Edition</td></tr>
-<tr><td><code>-teams</code></td><td>Select the Flyway Teams Edition</td></tr>
-</table>
-
 ## Help flags
 
 The following flags provide helpful information without carrying out any other operations:

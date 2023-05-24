@@ -14,19 +14,20 @@ Windows, macOS, Linux, Docker and Java
 Maven and Gradle
 
 #### Supported databases
-Oracle, SQL Server, DB2, MySQL, Aurora MySQL, MariaDB, Percona XtraDB Cluster, PostgreSQL, Aurora PostgreSQL, Redshift, CockroachDB, SAP HANA, Sybase ASE, Informix, H2, HSQLDB, Derby, SQLite, Firebird
+Aurora MySQL, Aurora PostgreSQL, Azure Synapse, CockroachDB, DB2, Derby, Firebird, Google BigQuery, Google Cloud Spanner (Beta), H2, HSQLDB, Informix, MariaDB, MySQL, Oracle, Percona XtraDB Cluster, PostgreSQL, Redshift, SAP HANA (Including SAP HANA Cloud), SingleStoreDB, Snowflake, SQLite, SQL Server, Sybase ASE
 
 #### Third party plugins
 SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...
 
 ## Documentation
-https://flywaydb.org
+You can find our getting started guides [here](https://documentation.red-gate.com/fd/quickstart-how-flyway-works-184127223.html).
+Our reference documentation can be found [here](https://documentation.red-gate.com/fd/flyway-cli-and-api-183306238.html).
 
 ## About
-Flyway is brought to you by [Redgate](https://www.red-gate.com/) with the help of [many contributors](https://flywaydb.org/documentation/contribute/hallOfFame.html).
+Flyway is brought to you by [Redgate](https://www.red-gate.com/) with the help of many contributors.
 
 ## How to contribute
-https://flywaydb.org/documentation/contribute
+Please visit our [contribution page](https://documentation.red-gate.com/fd/contribute-184127449.html) to find out how you can contribute in various ways to the project.
 
 ## License
 Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2022

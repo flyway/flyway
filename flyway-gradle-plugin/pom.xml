@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) Red Gate Software Ltd 2010-2022
+    Copyright (C) Red Gate Software Ltd 2010-2023
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.16.2</version>
+        <version>9.19.1</version>
     </parent>
     <artifactId>flyway-gradle-plugin</artifactId>
     <packaging>jar</packaging>
@@ -32,6 +32,18 @@
             <artifactId>flyway-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>flyway-database-oracle</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+
+
+
+
+
+
         <dependency>
             <groupId>org.gradle</groupId>
             <artifactId>gradle-core</artifactId>

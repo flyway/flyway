@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,6 +147,7 @@ public class CommandLineArguments {
     private static Map<String, String> getConfigurationFromArgs(String[] args) {
         return Arrays.stream(args)
                      .filter(CommandLineArguments::isConfigurationArg)
+                     .filter(arg -> !arg.startsWith("-" + CONFIG_FILES + "="))
                      .filter(f -> !isConfigurationOptionCommandlineOnly(getConfigurationOptionNameFromArg(f)))
                      .collect(Collectors.toMap(p -> (Arrays.stream((EnvironmentModel.class).getDeclaredFields()).anyMatch(x -> x.getName().equals(getConfigurationOptionNameFromArg(p)))
                                                        ? "environments." + ClassicConfiguration.TEMP_ENVIRONMENT_NAME + "."

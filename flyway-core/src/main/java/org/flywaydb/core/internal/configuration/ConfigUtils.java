@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,6 +98,7 @@ public class ConfigUtils {
     public static final String LOGGERS = "flyway.loggers";
     public static final String KERBEROS_CONFIG_FILE = "flyway.kerberosConfigFile";
 
+    public static final String REPORT_ENABLED = "flyway.reportEnabled";
     public static final String REPORT_FILENAME = "flyway.reportFilename";
     // Oracle-specific
     public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
@@ -335,6 +336,10 @@ public class ConfigUtils {
             return ORACLE_WALLET_LOCATION;
         }
 
+        if ("FLYWAY_REPORT_FILENAME".equals(key)) {
+            return REPORT_FILENAME;
+        }
+
         // Command-line specific
         if ("FLYWAY_JAR_DIRS".equals(key)) {
             return JAR_DIRS;
@@ -344,6 +349,7 @@ public class ConfigUtils {
         if ("FLYWAY_CONFIGURATIONS".equals(key)) {
             return CONFIGURATIONS;
         }
+
 
         for (ConfigurationExtension configurationExtension : PLUGIN_REGISTER.getPlugins(ConfigurationExtension.class)) {
             String configurationParameter = configurationExtension.getConfigurationParameterFromEnvironmentVariable(key);
@@ -374,10 +380,10 @@ public class ConfigUtils {
     }
 
     public static List<File> getDefaultTomlConfigFileLocations(File installationDir) {
-        return Arrays.asList(new File(installationDir.getAbsolutePath() + "/conf/flyway.toml"),
+        return new ArrayList<>(Arrays.asList(new File(installationDir.getAbsolutePath() + "/conf/flyway.toml"),
                       new File(System.getProperty("user.home") + "/flyway.toml"),
                       new File("flyway.toml"),
-                      new File("flyway.user.toml"));
+                      new File("flyway.user.toml")));
     }
 
     /**

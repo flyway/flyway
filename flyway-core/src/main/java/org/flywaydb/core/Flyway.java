@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,7 +153,7 @@ public class Flyway {
                         LOG.warn("The configuration option 'createSchemas' is false.\n" +
                                          "However, the schema history table still needs a schema to reside in.\n" +
                                          "You must manually create a schema for the schema history table to reside in.\n" +
-                                         "See https://flywaydb.org/documentation/concepts/migrations.html#the-createschemas-option-and-the-schema-history-table");
+                                         "See https://documentation.red-gate.com/fd/migrations-184127470.html");
                     }
 
                     if (!schemaHistory.exists()) {
@@ -265,8 +265,6 @@ public class Flyway {
 
             callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
 
-            LOG.notice("Automate migration testing for Database CI with Flyway Hub. Visit https://flywaydb.org/get-started-with-hub");
-
             if (!validateResult.validationSuccessful && !configuration.isCleanOnValidationError()) {
                 throw new FlywayValidateException(validateResult.errorDetails, validateResult.getAllErrorMessages());
             }
@@ -321,7 +319,7 @@ public class Flyway {
                         LOG.warn("The configuration option 'createSchemas' is false.\n" +
                                          "Even though Flyway is configured not to create any schemas, the schema history table still needs a schema to reside in.\n" +
                                          "You must manually create a schema for the schema history table to reside in.\n" +
-                                         "See https://flywaydb.org/documentation/concepts/migrations.html#the-createschemas-option-and-the-schema-history-table");
+                                         "See https://documentation.red-gate.com/fd/migrations-184127470.html");
                     }
 
                     BaselineResult baselineResult = doBaseline(schemaHistory, callbackExecutor, database);

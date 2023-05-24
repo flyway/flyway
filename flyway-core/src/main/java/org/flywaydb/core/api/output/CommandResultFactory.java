@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,6 +88,7 @@ public class CommandResultFactory {
     public static InfoOutput createInfoOutput(Set<MigrationInfo> undoableMigrations, MigrationInfo migrationInfo) {
         return new InfoOutput(getCategory(migrationInfo),
                               migrationInfo.getVersion() != null ? migrationInfo.getVersion().getVersion() : "",
+                              migrationInfo.getVersion() != null ? migrationInfo.getVersion().getRawVersion() : "",
                               migrationInfo.getDescription(),
                               migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
                               migrationInfo.getInstalledOn() != null ? migrationInfo.getInstalledOn().toInstant().toString() : "",
@@ -192,6 +193,9 @@ public class CommandResultFactory {
         }
         if (migrationInfo.getType().isUndo()) {
             return "Undo";
+        }
+        if (migrationInfo.getType().isBaseline()) {
+            return "Baseline";
         }
         return "Versioned";
     }

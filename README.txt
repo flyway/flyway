@@ -5,12 +5,13 @@ Database Migrations Made Easy.
 
 Documentation
 -------------
-You can find getting started guides and reference documentation at https://flywaydb.org
+You can find our getting started guides here https://documentation.red-gate.com/fd/quickstart-how-flyway-works-184127223.html
+Our reference documentation can be found at https://documentation.red-gate.com/fd/flyway-cli-and-api-183306238.html
 
 
 Contributing
 ------------
-Here is the info on how you can contribute in various ways to the project: https://flywaydb.org/documentation/contribute/
+Here is the info on how you can contribute in various ways to the project: https://documentation.red-gate.com/fd/contribute-184127449.html
 
 
 License

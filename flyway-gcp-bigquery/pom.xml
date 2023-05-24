@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) Red Gate Software Ltd 2010-2022
+    Copyright (C) Red Gate Software Ltd 2010-2023
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -21,14 +21,14 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.16.2</version>
+        <version>9.19.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>flyway-gcp-bigquery</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <version>9.16.2</version>
+    <version>9.19.1</version>
 
     <dependencies>
         <dependency>

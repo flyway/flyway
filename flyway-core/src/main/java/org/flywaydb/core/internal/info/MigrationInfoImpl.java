@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -248,7 +248,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             }
         }
 
-        if (!context.isIgnoredIgnored() && MigrationState.IGNORED == state && !resolvedMigration.getType().isBaseline()) {
+        if (!context.isIgnoredIgnored() && MigrationState.IGNORED == state && !resolvedMigration.getType().isBaseline() && !resolvedMigration.getType().isUndo()) {
             if (shouldNotExecuteMigration) {
                 return null;
             }
@@ -357,10 +357,12 @@ public class MigrationInfoImpl implements MigrationInfo {
         MigrationState oState = o.getState();
 
         // Below baseline migrations come before applied ones
-        if (state == MigrationState.BELOW_BASELINE && oState.isApplied()) {
+        if ((state == MigrationState.BELOW_BASELINE || state == MigrationState.BASELINE_IGNORED)
+                && oState.isApplied()) {
             return -1;
         }
-        if (state.isApplied() && oState == MigrationState.BELOW_BASELINE) {
+        if (state.isApplied() &&
+                (oState == MigrationState.BELOW_BASELINE || oState == MigrationState.BASELINE_IGNORED)) {
             return 1;
         }
 

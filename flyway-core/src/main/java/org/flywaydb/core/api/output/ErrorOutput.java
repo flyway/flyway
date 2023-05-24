@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.command.DbMigrate;
+import org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -33,16 +34,29 @@ public class ErrorOutput implements OperationResult {
         public ErrorCode errorCode;
         public String message;
         public String stackTrace;
+        public Integer lineNumber;
+        public String path;
     }
 
     public ErrorOutputItem error;
 
-    public ErrorOutput(ErrorCode errorCode, String message, String stackTrace) {
-        this.error = new ErrorOutputItem(errorCode, message, stackTrace);
+    public ErrorOutput(ErrorCode errorCode, String message, String stackTrace, Integer lineNumber, String path) {
+        this.error = new ErrorOutputItem(errorCode, message, stackTrace, lineNumber, path);
     }
 
     public static ErrorOutput fromException(Exception exception) {
         String message = exception.getMessage();
+
+        if (exception instanceof DbMigrate.FlywayMigrateException && exception.getCause() instanceof FlywaySqlScriptException) {
+            FlywaySqlScriptException flywaySqlScriptException = (FlywaySqlScriptException) exception.getCause();
+
+            return new ErrorOutput(
+                    ((DbMigrate.FlywayMigrateException) exception).getMigrationErrorCode(),
+                    message == null ? "Error occurred" : message,
+                    null,
+                    flywaySqlScriptException.getLineNumber(),
+                    flywaySqlScriptException.getResource().getAbsolutePathOnDisk());
+        }
 
         if (exception instanceof FlywayException) {
             FlywayException flywayException = (FlywayException) exception;
@@ -50,13 +64,17 @@ public class ErrorOutput implements OperationResult {
             return new ErrorOutput(
                     flywayException.getErrorCode(),
                     message == null ? "Error occurred" : message,
+                    null,
+                    null,
                     null);
         }
 
         return new ErrorOutput(
                 ErrorCode.FAULT,
                 message == null ? "Fault occurred" : message,
-                getStackTrace(exception));
+                getStackTrace(exception),
+                null,
+                null);
     }
 
     public static MigrateErrorResult fromMigrateException(DbMigrate.FlywayMigrateException exception) {

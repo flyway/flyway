@@ -1,15 +1,6 @@
 ---
 title: Welcome To Flyway
 ---
-# Welcome To Flyway
-
-<p>Welcome to <strong>Flyway</strong>, database migrations made easy.</p>
-
-<div class="well well-small">
-    <strong>Tip:</strong>
-    If you haven't checked out the <a href="Getting%20Started">Get Started</a> section yet, do it now. You'll be up
-    and running in no time!
-</div>
 
 <h1 class="text--center">
     <span class="icon--flyway color--red icon--6x display--block spaced-v"></span>
@@ -67,4 +58,7 @@ title: Welcome To Flyway
     <a href="Supported Databases/sqlite">SQLite</a> and
     <a href="Supported Databases/firebird">Firebird</a>.</p>
 
-<p>We recommend using the free new <a href="https://flywaydb.org/hub">Flyway Hub and Pre-flight checks service</a> for getting started with Flyway and database CI. <a href="https://flywaydb.org/hub">Learn more</a>.</p>
+## Tips
+* If you haven't checked out the [Getting Started](Getting Started) section yet, do it now. You'll be up
+    and running in no time!
+* If you are looking for a GUI experience with more comprehensive authoring tools then take a look at <a href="https://documentation.red-gate.com/fd/flyway-desktop-138346953.html">Flyway Desktop</a> 

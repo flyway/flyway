@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) Red Gate Software Ltd 2010-2022
+    Copyright (C) Red Gate Software Ltd 2010-2023
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,13 +16,158 @@
 
 -->
 <div class="call-to-action">
-
-<p>Learn more about <a href="https://www.red-gate.com/products/flyway/editions" style="font-size: larger;" title="Flyway editions">Flyway Editions</a> capabilities </p>
-<p>Download <a href="https://documentation.red-gate.com/fd/command-line-184127404.html" style="font-size: larger;" title="Flyway CLI">Flyway CLI</a> </p>
-
+<ul>
+    <li>Learn more about <a href="https://www.red-gate.com/products/flyway/editions" style="font-size: larger;" title="Flyway editions">Flyway Editions</a> capabilities </li>
+    <li>Download <a href="https://documentation.red-gate.com/fd/command-line-184127404.html" style="font-size: larger;" title="Flyway CLI">Flyway CLI</a> </li>
+</ul>
+<hr></hr>
 
 </div>
 <div class="col-md-9">
+
+<div class="release">
+        <h2 id="9.19.1">Flyway 9.19.1 (2023-05-24)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed exit code when report is disabled and error occurs</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>The SQLite driver shipped with the Flyway CLI has been updated to 3.41.2.2 to avoid CVE-2023-32697</li>
+            <li>Flyway's SQLPlus 'FEEDBACK' output wording has been adjusted to match Oracle SQLPlus.</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Fixed an issue where IF(..) function calls in MySQL functions could cause the statement parser to incorrectly split the function in two</li>
+        </ul>
+
+    </div>
+
+<div class="release">
+        <h2 id="9.19.0">Flyway 9.19.0 (2023-05-23)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Extract Oracle code to plugin. This will need to be added as a new dependency. See [Oracle documentation](https://documentation.red-gate.com/fd/oracle-184127602.html).</li>
+            <li>Change error code on migration failure to be more specific and include script path and line number of failure in JSON error output</li>
+            <li>Disable GET_LOCK on MariaDB connections when `WSRERP=ON` is present. This is to allow for usage of MariaDB with Galera clusters</li>
+            <li>An event connection will be created to handle callbacks, and this connection will be released instantly after the event handle work is done.</li>
+            <li>Baseline scripts with the same version number as an applied '&lt;&lt; Flyway Baseline &gt;&gt;' are now put in the 'Ignored (Baseline)' state. Also, migrations in this state appear before the '&lt;&lt; Flyway Baseline &gt;&gt;' in the info output instead of being put at the end.</li>
+            <li>Update RGCompare version to 1.11.2.9265</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Added `driver()` method to `FluentConfiguration`</li>
+        </ul>
+
+    </div>
+
+<div class="release">
+        <h2 id="9.18.0">Flyway 9.18.0 (2023-05-15)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Avoid hanging indefinitely during 'check' comparisons when running on Windows.</li>
+            <li>Running `check -changes` or `check -drift` now handles schema creation rows in the schema history table.</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>All undo migrations will no longer have their own rows in the ASCII-table output. This seemed redundant given that there's a separate `Undoable` column to provide this information. Also, there was some inconsistency whereby undo migrations in the AVAILABLE state were already filtered out but others were not.</li>
+            <li>Baseline migrations now have the 'baseline' category in info output</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3665">Issue 3665</a>
+                Only warn if reports are unable to write to the default location rather than print an error
+            </li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Flyway now handles defining PostgreSQL functions using `BEGIN ATOMIC`.</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Bump maven version to address CVE-2021-29425</li>
+            <li>Update documentation to provide solution to Snowflake JDBC JRE16+ issues</li>
+        </ul>
+
+        <p>
+            Thanks to sseide for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
+        <h2 id="9.17.0">Flyway 9.17.0 (2023-04-27)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed the issue causing empty dry run reports when running flyway using the Maven plugin.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3621">Issue 3621</a>
+                The Snowflake SQL parser can now handle escaping single quotes inside strings using backslash.
+            </li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Undo migrations which have not been applied will no longer cause validation to fail.</li>
+            <li>add direct support for Alpine linux</li>
+            <li>Remove unused Edition flags documentation, E.G `-community` or `-teams`. These flags are no longer used by Flyway and have been marked for deprecation. These flags will be removed in V10.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3648">Issue 3648</a>
+                Ensure Flyway uses ALL_CREDENTIALS when using versions of Oracle where ALL_SCHEDULER_CREDENTIALS is deprecated. This is to avoid continuting to rely on functionality only retained in Oracle for backwards compatibility.
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3652">Issue 3652</a>
+                Remove redundant `html` extension on automatically generated reports and prevent generation of reports for currently unsupported verbs
+            </li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Add Info report. You can now get a report of an `info` call as a tab in a flyway HTML report.</li>
+            <li>We have improved support for `WHENEVER SQLERROR EXIT` in Oracle SQL*Plus. This now works on its own and no longer needs to be followed by `FAILURE` or `SQL.SQLCODE`.</li>
+            <li>Add migration report</li>
+            <li>Adding Flyway Reports; Single file HTML reports that expose important details and stats about your Flyway pipeline in an easy to read and share format.</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Update version of snowflake-jdbc to 3.13.29 to fix SNYK-JAVA-NETSNOWFLAKE-5425048</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3664">Issue 3664</a>
+                Bump Snowflake JDBC to 3.13.3
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3664">Issue 3664</a>
+                ]Bump SQLite JDBC to 3.41.2.1 to address CVE-2021-20227, CVE-2022-35737 and CVE-2022-46908
+            </li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3664">Issue 3664</a>
+                Bump MariaDB JDBC to 2.7.9 to address race condition, metadata catalog, ArrayIndexOutOfBounceExcetions  and other issues in JDBC driver
+            </li>
+        </ul>
+
+        <p>
+            Thanks to lm-net, ryangraffy, jdmendozaa and frichtarik for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
+        <h2 id="9.16.3">Flyway 9.16.3 (2023-04-04)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Remove placeholder text from report summary</li>
+            <li>Fix Nullpointer exception on empty exception in reports</li>
+        </ul>
+
+    </div>
 
 <div class="release">
         <h2 id="9.16.2">Flyway 9.16.2 (2023-04-04)</h2>

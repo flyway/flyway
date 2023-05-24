@@ -28,3 +28,7 @@ Migrate does nothing.
 
 ## Usage
 {% include commandUsage.html command="Migrate" %}
+
+## Learn More
+
+* [Migration Report](Reports/Reports - Migration)

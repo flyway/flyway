@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Red Gate Software Ltd 2010-2022
+ * Copyright (C) Red Gate Software Ltd 2010-2023
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,11 @@ public class DefaultCallbackExecutor implements CallbackExecutor {
 
     @Override
     public void onMigrateOrUndoEvent(final Event event) {
-        execute(event, database.getMigrationConnection());
+
+        if (callbacks.stream().anyMatch(callback -> callback.supports(event, null))) {
+            execute(event, database.getEventConnection());
+            database.disposeEventConnection();
+        }
     }
 
     @Override
