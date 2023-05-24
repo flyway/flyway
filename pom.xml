@@ -30,7 +30,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>9.19.0</version>
+    <version>9.19.1</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -186,7 +186,7 @@
         <version.snowflake>3.13.30</version.snowflake>
         <version.spanner>2.7.8</version.spanner>
         <version.springjdbc>5.3.19</version.springjdbc>
-        <version.sqlite>3.41.2.1</version.sqlite>
+        <version.sqlite>3.41.2.2</version.sqlite>
         <version.testcontainers>1.15.3</version.testcontainers>
     </properties>
 

@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.util;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
@@ -26,6 +27,7 @@ import org.flywaydb.core.api.output.OperationResult;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -92,5 +94,11 @@ public class JsonUtils {
 
     public static Object parseJsonArray(String json) {
         return JsonParser.parseString(json).getAsJsonArray();
+    }
+
+    public static String prettyPrint(String json) {
+        JsonReader reader = new JsonReader(new StringReader(json));
+        reader.setLenient(true);
+        return getGson().newBuilder().setLenient().create().toJson(JsonParser.parseReader(reader).getAsJsonObject());
     }
 }

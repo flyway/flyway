@@ -26,6 +26,27 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="9.19.1">Flyway 9.19.1 (2023-05-24)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed exit code when report is disabled and error occurs</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>The SQLite driver shipped with the Flyway CLI has been updated to 3.41.2.2 to avoid CVE-2023-32697</li>
+            <li>Flyway's SQLPlus 'FEEDBACK' output wording has been adjusted to match Oracle SQLPlus.</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Fixed an issue where IF(..) function calls in MySQL functions could cause the statement parser to incorrectly split the function in two</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="9.19.0">Flyway 9.19.0 (2023-05-23)</h2>
 
         <h3>Changes</h3>
@@ -34,7 +55,7 @@
             <li>Change error code on migration failure to be more specific and include script path and line number of failure in JSON error output</li>
             <li>Disable GET_LOCK on MariaDB connections when `WSRERP=ON` is present. This is to allow for usage of MariaDB with Galera clusters</li>
             <li>An event connection will be created to handle callbacks, and this connection will be released instantly after the event handle work is done.</li>
-            <li>Baseline scripts with the same version number as an applied '<< Flyway Baseline >>' are now put in the 'Ignored (Baseline)' state. Also, migrations in this state appear before the '<< Flyway Baseline >>' in the info output instead of being put at the end.</li>
+            <li>Baseline scripts with the same version number as an applied '&lt;&lt; Flyway Baseline &gt;&gt;' are now put in the 'Ignored (Baseline)' state. Also, migrations in this state appear before the '&lt;&lt; Flyway Baseline &gt;&gt;' in the info output instead of being put at the end.</li>
             <li>Update RGCompare version to 1.11.2.9265</li>
         </ul>
 
