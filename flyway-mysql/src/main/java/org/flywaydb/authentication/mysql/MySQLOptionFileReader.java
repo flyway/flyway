@@ -44,69 +44,8 @@ public class MySQLOptionFileReader implements ExternalAuthFileReader {
     @Override
     public List<String> getAllContents() {
         List<String> fileContents = new ArrayList<>();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         return fileContents;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public void populateOptionFiles() {
         boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
