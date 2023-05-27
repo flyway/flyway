@@ -4,9 +4,11 @@ import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
+import java.sql.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class DatabricksSchema extends Schema<DatabricksDatabase, DatabricksTable> {
     /**
@@ -18,16 +20,25 @@ public class DatabricksSchema extends Schema<DatabricksDatabase, DatabricksTable
         super(jdbcTemplate, database, name);
     }
 
+    private List<String> fetchAllObjs(String obj) throws SQLException  {
+        List<Map<String, String>> tableInfos = jdbcTemplate.queryForList(
+                "show " + obj + "s from " + database.quote(name)
+        );
+        List<String> tableNames = new ArrayList<String>();
+        for (Map<String, String> tableInfo : tableInfos) {
+            tableNames.add(tableInfo.get("tableName"));
+        }
+        return tableNames;
+    }
+
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate
-                .queryForInt("select count(table_name) from information_schema.tables where table_schema = ?;", name) > 0;
+        return fetchAllObjs("table").size() > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        return jdbcTemplate
-                .queryForInt("select count(table_name) from information_schema.tables where table_schema = ?;", name) == 0;
+        return fetchAllObjs("table").size() == 0;
     }
 
     @Override
@@ -42,25 +53,19 @@ public class DatabricksSchema extends Schema<DatabricksDatabase, DatabricksTable
 
     @Override
     protected void doClean() throws SQLException {
-        for (String statement : generateDropStatements("MANAGED", "TABLE")) {
+        for (String statement : generateDropStatements("TABLE")) {
             jdbcTemplate.execute(statement);
         }
-        for (String statement : generateDropStatements("VIEW", "VIEW")) {
+        for (String statement : generateDropStatements("VIEW")) {
             jdbcTemplate.execute(statement);
         }
-        for (String statement : generateDropStatementsForRoutines("FUNCTION")) {
+        for (String statement : generateDropStatements("FUNCTION")) {
             jdbcTemplate.execute(statement);
         }
     }
 
-    private List<String> generateDropStatements(String type, String objType) throws SQLException {
-        List<String> names =
-                jdbcTemplate.queryForStringList(
-                        // Search for all views
-                        "select table_name from information_schema.tables where table_schema = ? WHERE table_type = ?;",
-                        name,
-                        type
-                );
+    private List<String> generateDropStatements(String objType) throws SQLException {
+        List<String> names = fetchAllObjs(objType);
         List<String> statements = new ArrayList<>();
         for (String domainName : names) {
             statements.add("drop " + objType + " if exists " + database.quote(name, domainName) + ";");
@@ -68,26 +73,10 @@ public class DatabricksSchema extends Schema<DatabricksDatabase, DatabricksTable
         return statements;
     }
 
-    private List<String> generateDropStatementsForRoutines(String objType) throws SQLException {
-        List<String> objNames =
-                jdbcTemplate.queryForStringList(
-                        // Search for all functions
-                        "select routine_name from information_schema.routines where routine_schema = ? WHERE routine_type = ?;",
-                        objType
-                );
-        List<String> statements = new ArrayList<>();
-        for (String objName : objNames) {
-            statements.add("drop " + objType + " if exists " + database.quote(name, objName) + ";");
-        }
-        return statements;
-    }
 
     @Override
     protected DatabricksTable[] doAllTables() throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList(
-                "select table_name from information_schema.tables where table_schema = ? and table_type = 'MANAGED';",
-                name
-        );
+        List<String> tableNames = fetchAllObjs("TABLE");
         DatabricksTable[] tables = new DatabricksTable[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new DatabricksTable(jdbcTemplate, database, this, tableNames.get(i));

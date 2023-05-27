@@ -48,10 +48,7 @@ public class DatabricksDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
-        if (databaseProductName.startsWith("SparkSQL")) {
-            return true;
-        }
-        return false;
+        return databaseProductName.startsWith("SparkSQL");
     }
 
     @Override

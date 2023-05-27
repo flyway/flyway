@@ -5,6 +5,8 @@ import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 public class DatabricksTable extends Table<DatabricksDatabase, DatabricksSchema> {
     private final InsertRowLock insertRowLock;
@@ -30,8 +32,11 @@ public class DatabricksTable extends Table<DatabricksDatabase, DatabricksSchema>
         if (!schema.exists()) {
             return false;
         }
-        return jdbcTemplate
-                .queryForInt("select count(table_name) from information_schema.tables where table_schema = ? and table_name = ? and table_type='MANAGED';", schema.getName(), name) > 0;
+        List<Map<String, String>> tables = jdbcTemplate.queryForList(
+                "show tables in " + database.quote(schema.getName()) + " like ?",
+                name
+        );
+        return tables.stream().anyMatch(table -> table.get("tableName").equals(name));
     }
 
     @Override

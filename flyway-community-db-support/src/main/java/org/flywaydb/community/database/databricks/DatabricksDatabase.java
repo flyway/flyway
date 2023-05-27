@@ -38,7 +38,7 @@ public class DatabricksDatabase extends Database<DatabricksConnection> {
 
     @Override
     public boolean supportsChangingCurrentSchema() {
-        return false;
+        return true;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class DatabricksDatabase extends Database<DatabricksConnection> {
 
     @Override
     public boolean catalogIsSchema() {
-        return true;
+        return false;
     }
 
     @Override

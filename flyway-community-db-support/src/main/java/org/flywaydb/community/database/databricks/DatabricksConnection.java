@@ -14,8 +14,6 @@ public class DatabricksConnection extends Connection<DatabricksDatabase> {
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
-        String defaultCatalog = "hive_metastore";
-        String currentCatalog = jdbcTemplate.queryForString("SELECT current_catalog();");
         String defaultSchema = "default";
         String currentSchema = jdbcTemplate.queryForString("SELECT current_database();");
         return (currentSchema != null) ? currentSchema : defaultSchema;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.commandline.logging.version;
+package org.flywaydb.commandline.command.version;
 
 import org.flywaydb.core.api.output.OperationResult;
 
