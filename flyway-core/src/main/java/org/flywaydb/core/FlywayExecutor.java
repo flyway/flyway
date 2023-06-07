@@ -30,7 +30,6 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 
@@ -84,10 +83,7 @@ public class FlywayExecutor {
      * Used to cache LocationScanners between commands
      */
     private final LocationScannerCache locationScannerCache;
-    /**
-     * Whether the database connection info has already been printed in the logs
-     */
-    private boolean dbConnectionInfoPrinted;
+
     private final Configuration configuration;
 
     public FlywayExecutor(Configuration configuration) {
@@ -117,8 +113,6 @@ public class FlywayExecutor {
         T result;
 
         configurationValidator.validate(configuration);
-
-        VersionPrinter.printVersion();
 
         StatementInterceptor statementInterceptor = configuration.getPluginRegister().getPlugins(StatementInterceptor.class).stream()
                                                                  .filter(i -> i.isConfigured(configuration))
@@ -164,9 +158,9 @@ public class FlywayExecutor {
 
         Database database = null;
         try {
-            database = databaseType.createDatabase(configuration, !dbConnectionInfoPrinted, jdbcConnectionFactory, statementInterceptor);
+            database = databaseType.createDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
             databaseType.printMessages();
-            dbConnectionInfoPrinted = true;
+
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
 
             Pair<Schema, List<Schema>> schemas = SchemaHistoryFactory.prepareSchemas(configuration, database);

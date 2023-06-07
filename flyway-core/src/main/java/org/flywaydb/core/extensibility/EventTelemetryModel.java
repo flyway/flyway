@@ -41,7 +41,7 @@ public class EventTelemetryModel implements AutoCloseable {
     public void close() throws Exception {
         duration = Duration.between(startTime, Instant.now()).toMillis();
         if(flywayTelemetryManager != null) {
-            flywayTelemetryManager.LogEvent(this);
+            flywayTelemetryManager.logEvent(this);
         }
     }
 }

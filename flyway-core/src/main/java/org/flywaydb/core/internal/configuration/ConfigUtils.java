@@ -637,7 +637,7 @@ public class ConfigUtils {
     public static void checkConfigurationForUnrecognisedProperties(Map<String, String> config, String prefix) {
         ArrayList<String> unknownFlywayProperties = new ArrayList<>();
         for (String key : config.keySet()) {
-            if (prefix == null || (key.startsWith(prefix) && !key.startsWith(FLYWAY_PLUGINS_PREFIX))) {
+            if (prefix == null || (key.startsWith(prefix))) {
                 unknownFlywayProperties.add(key);
             }
         }

@@ -116,19 +116,9 @@ public class MySQLParser extends Parser {
 
     @Override
     protected boolean shouldAdjustBlockDepth(ParserContext context, List<Token> tokens, Token token) {
-        TokenType tokenType = token.getType();
-        if (TokenType.DELIMITER.equals(tokenType) || ";".equals(token.getText())) {
-            return true;
-        } else if (TokenType.EOF.equals(tokenType)) {
-            return true;
-        }
-
-        Token lastToken = getPreviousToken(tokens, context.getParensDepth());
-        if (lastToken != null && lastToken.getType() == TokenType.KEYWORD) {
-            return true;
-        }
-
-        return super.shouldAdjustBlockDepth(context, tokens, token);
+        // we assume that any blocks opened or closed inside some parens
+        // can't affect block depth outside those parens
+        return token.getParensDepth() == 0;
     }
 
     @Override
@@ -138,20 +128,40 @@ public class MySQLParser extends Parser {
         int parensDepth = keyword.getParensDepth();
 
         if ("BEGIN".equalsIgnoreCase(keywordText) && context.getStatementType() == STORED_PROGRAM_STATEMENT) {
-            context.increaseBlockDepth(Integer.toString(parensDepth));
+            // BEGIN ... END is the usual way to define a nested block
+            context.increaseBlockDepth("");
         }
 
+        if ("CASE".equalsIgnoreCase(keywordText)) {
+            // CASE is treated specially compared to IF or LOOP since it can either be
+            // a statement or an expression. CASE statements are terminated with END CASE,
+            // while CASE expressions are only terminated with END.
+            //
+            // We need to decide if some END token ends a CASE statement or a block. Since
+            // we can't easily tell if we're in a CASE statement or expression, we don't
+            // know if we should be expecting END or END CASE. So we'll just assume that
+            // END always closes a CASE, and then prevent END CASE from starting
+            // a new one:
+            if (!lastTokenIs(tokens, parensDepth, "END")) {
+                context.increaseBlockDepth("");
+            }
+
+            // we could do something similar for the other control flow keywords, but IF and
+            // REPEAT in particular would be tricky since they are also the names of functions
+            // (and functions don't have a matching END keyword).
+        }
+
+        // END always ends a block, unless it's part of END IF or END LOOP etc
+        //
+        // this is a little tricky since we can't peek ahead at tokens, so we have to
+        // wait until one token *after* the END and decrease the block depth there.
         if (context.getBlockDepth() > 0
             && lastTokenIs(tokens, parensDepth, "END")
             && !"IF".equalsIgnoreCase(keywordText)
-            && !"CASE".equalsIgnoreCase(keywordText)
             && !"LOOP".equalsIgnoreCase(keywordText)
             && !"REPEAT".equalsIgnoreCase(keywordText)
             && !"WHILE".equalsIgnoreCase(keywordText)) {
-            String initiator = context.getBlockInitiator();
-            if (initiator.equals("") || initiator.equals(keywordText) || "AS".equalsIgnoreCase(keywordText) || initiator.equals(Integer.toString(parensDepth))) {
-                context.decreaseBlockDepth();
-            }
+            context.decreaseBlockDepth();
         }
     }
 }

@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.api.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -41,8 +42,11 @@ import org.flywaydb.core.internal.util.*;
 
 import javax.sql.DataSource;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -60,6 +64,8 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger
  */
 @CustomLog
 public class ClassicConfiguration implements Configuration {
+    private static final Pattern ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN = Pattern.compile("\"([^\"]*)\"");
+    private static final Pattern ANY_WORD_BETWEEN_TWO_DOTS_PATTERN = Pattern.compile("\\.(.*?)\\.");
 
     public static final String TEMP_ENVIRONMENT_NAME = "tempConfigEnvironment";
     @Getter
@@ -1448,9 +1454,29 @@ public class ClassicConfiguration implements Configuration {
 
         props.computeIfAbsent(ConfigUtils.REPORT_FILENAME, k -> getModernConfig().getFlyway().getReportFilename());
 
-        for (ConfigurationExtension configurationExtension : pluginRegister.getPlugins(ConfigurationExtension.class)) {
-            configurationExtension.extractParametersFromConfiguration(props);
+        HashMap<String, Map<String, Object>> configExtensionsPropertyMap = new HashMap<>();
+
+        List<String> keysToRemove = new ArrayList<>();
+        for (Map.Entry<String, String> params : props.entrySet()) {
+
+            String text = params.getKey();
+            Matcher matcher = ANY_WORD_BETWEEN_TWO_DOTS_PATTERN.matcher(text);
+            final String rootNamespace = matcher.find() ? matcher.group(1) : "";
+
+            List<ConfigurationExtension> configExtensions = pluginRegister.getPlugins(ConfigurationExtension.class)
+                                                                          .stream()
+                                                                          .filter(c -> rootNamespace.equals(c.getNamespace()))
+                                                                          .collect(Collectors.toList());
+            String replaceNamespace = "flyway.";
+            if (StringUtils.hasText(rootNamespace)) {
+                replaceNamespace = "flyway." + rootNamespace + ".";
+            }
+            String fixedKey = params.getKey().replace(replaceNamespace, "");
+
+            configExtensions.forEach(c -> parsePropertiesFromConfigExtension(configExtensionsPropertyMap, keysToRemove, params, fixedKey, c));
         }
+
+        determineKeysToRemoveAndRemoveFromProps(configExtensionsPropertyMap, keysToRemove, props);
 
         String reportFilenameProp = props.remove(ConfigUtils.REPORT_FILENAME);
         if (reportFilenameProp != null) {
@@ -1714,6 +1740,63 @@ public class ClassicConfiguration implements Configuration {
         ConfigUtils.checkConfigurationForUnrecognisedProperties(props, "flyway.");
     }
 
+    private static void parsePropertiesFromConfigExtension(HashMap<String, Map<String, Object>> configExtensionsPropertyMap, List<String> keysToRemove, Map.Entry<String, String> params, String fixedKey, ConfigurationExtension configExtension) {
+        List<String> fields = Arrays.stream(configExtension.getClass().getDeclaredFields()).map(Field::getName).collect(Collectors.toList());
+
+        String rootKey = fixedKey.contains(".") ? fixedKey.substring(0, fixedKey.indexOf(".")) : fixedKey;
+        if (fields.contains(rootKey)) {
+            Object value = params.getValue();
+
+            if (!configExtensionsPropertyMap.containsKey(configExtension.getClass().toString())) {
+                configExtensionsPropertyMap.put(configExtension.getClass().toString(), new HashMap<>());
+            }
+
+            if (fixedKey.contains(".")) {
+                String[] path = fixedKey.split("\\.");
+                Map<String, Object> currentConfigExtensionProperties = new HashMap<>();
+                if (!configExtensionsPropertyMap.get(configExtension.getClass().toString()).containsKey(path[0])) {
+                    configExtensionsPropertyMap.get(configExtension.getClass().toString()).put(path[0], currentConfigExtensionProperties);
+                } else {
+                    currentConfigExtensionProperties = (Map<String, Object>) configExtensionsPropertyMap.get(configExtension.getClass().toString()).get(path[0]);
+                }
+                Object currentConfigExtension = configExtension;
+                Field[] declaredFields = configExtension.getClass().getDeclaredFields();
+                Field field = Arrays.stream(declaredFields).filter(f -> f.getName().equals(path[0])).findFirst().orElse(null);
+                try {
+                    currentConfigExtension = field.getType().getDeclaredConstructor().newInstance();
+                } catch (Exception e) {
+                    LOG.error("Failed to get configuration extension", e);
+                }
+
+                for (int i = 1; i < path.length; i++) {
+                    final String currentPath = path[i];
+                    try {
+                        Field[] subFields = currentConfigExtension.getClass().getDeclaredFields();
+                        field = Arrays.stream(subFields).filter(f -> f.getName().equals(currentPath)).findFirst().orElse(null);
+                        try {
+                            currentConfigExtension = field.getType().getDeclaredConstructor().newInstance();
+                        } catch (Exception e) {
+                            value = ((String) value).split(",");
+                        }
+                    } catch (Exception e) {
+                        LOG.error("Failed to get fields of configuration extension", e);
+                    }
+                    if (i < path.length - 1) {
+                        Map<String, Object> newValue = new HashMap<>();
+                        currentConfigExtensionProperties.put(path[i], newValue);
+                        currentConfigExtensionProperties = newValue;
+                    } else {
+                        currentConfigExtensionProperties.put(path[i], value);
+                    }
+                }
+            } else {
+                configExtensionsPropertyMap.get(configExtension.getClass().toString()).put(fixedKey, value);
+            }
+
+            keysToRemove.add(params.getKey());
+        }
+    }
+
     public void setFailOnMissingLocations(Boolean failOnMissingLocationsProp) {
         getModernFlyway().setFailOnMissingLocations(failOnMissingLocationsProp);
     }
@@ -1815,6 +1898,30 @@ public class ClassicConfiguration implements Configuration {
     public void setInitSql(String initSqlProp) {
         getCurrentUnresolvedEnvironment().setInitSql(initSqlProp);
         resolvedEnvironments.clear();
+    }
+
+    private void determineKeysToRemoveAndRemoveFromProps(HashMap<String, Map<String, Object>> configExtensionsPropertyMap, List<String> keysToRemove, Map<String, String> props) {
+        for (Map.Entry<String, Map<String, Object>> property : configExtensionsPropertyMap.entrySet()) {
+            ConfigurationExtension cfg = pluginRegister.getPlugins(ConfigurationExtension.class).stream().filter(c -> c.getClass().toString().equals(property.getKey())).findFirst().orElse(null);
+            if (cfg != null) {
+                Map<String, Object> mp = property.getValue();
+
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    ConfigurationExtension newConfigurationExtension = objectMapper.convertValue(mp, cfg.getClass());
+                    MergeUtils.mergeModel(newConfigurationExtension, cfg);
+                } catch (Exception e) {
+                    Matcher matcher = ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN.matcher(e.getMessage());
+                    if (matcher.find()) {
+                        String errorProperty = matcher.group(1);
+                        List<String> propsToRemove = keysToRemove.stream().filter(k -> k.endsWith(errorProperty)).collect(Collectors.toList());
+                        keysToRemove.removeAll(propsToRemove);
+                    }
+                }
+            }
+        }
+
+        props.keySet().removeAll(keysToRemove);
     }
 
     private void configureFromConfigurationProviders(ClassicConfiguration configuration) {

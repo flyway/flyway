@@ -26,8 +26,6 @@ public class RootTelemetryModel {
     private String userId;
     private String sessionId;
     private String operationId;
-    private String applicationVersion;
-    private String applicationEdition;
     private String databaseEngine;
     private String databaseVersion;
     private String environment;

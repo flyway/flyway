@@ -7,7 +7,7 @@ redirect_from:
 ---
 # Tutorial: Java-based Migrations
 
-This tutorial assumes you have successfully completed the [**First Steps: Maven**](Getting Started/First Steps/First Steps - Maven)
+This tutorial assumes you have successfully completed the **{% include quickstart-maven.html %}**
 tutorial. **If you have not done so, please do so first.** This tutorial picks up where that one left off.
 
 This brief tutorial will teach **how to use Java-based migrations**. It will take you through the
@@ -23,7 +23,7 @@ These would typically be things like
 
 ## Reviewing the status
 
-After having completed the [First Steps: Maven](Getting Started/First Steps/First Steps - Maven), you can now execute
+After having completed the {% include quickstart-maven.html %}, you can now execute
 
 <pre class="console"><span>bar&gt;</span> mvn flyway:<strong>info</strong></pre>
 

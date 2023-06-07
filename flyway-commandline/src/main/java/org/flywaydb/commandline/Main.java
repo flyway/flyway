@@ -15,14 +15,17 @@
  */
 package org.flywaydb.commandline;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.stream.JsonReader;
 import lombok.SneakyThrows;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
 import org.flywaydb.commandline.logging.console.ConsoleLogCreator;
 import org.flywaydb.commandline.logging.file.FileLogCreator;
 import org.flywaydb.commandline.utils.OperationsReportUtils;
+import org.flywaydb.commandline.utils.TelemetryUtils;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.*;
@@ -35,6 +38,7 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.*;
 
 import org.flywaydb.core.extensibility.CommandExtension;
+import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.InfoTelemetryModel;
 import org.flywaydb.core.internal.command.DbMigrate;
@@ -46,6 +50,8 @@ import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 
+import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
+import org.flywaydb.core.internal.license.VersionPrinter;
 
 import org.flywaydb.core.internal.logging.EvolvingLog;
 import org.flywaydb.core.internal.logging.buffered.BufferedLog;
@@ -57,12 +63,15 @@ import org.flywaydb.core.internal.util.*;
 import java.io.Console;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -80,6 +89,7 @@ import static org.flywaydb.commandline.utils.TelemetryUtils.isRedgateEmployee;
 import static org.flywaydb.commandline.utils.TelemetryUtils.populateRootTelemetry;
 
 public class Main {
+    private static final Pattern ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN = Pattern.compile("\"([^\"]*)\"");
     private static Log LOG;
     private static final PluginRegister pluginRegister = new PluginRegister();
 
@@ -233,6 +243,11 @@ public class Main {
     }
 
     private static OperationResult executeFlyway(FlywayTelemetryManager flywayTelemetryManager, CommandLineArguments commandLineArguments, Configuration configuration) {
+
+        VersionPrinter.printVersion();
+
+        printDatabaseHeader(configuration);
+
         Flyway flyway = Flyway.configure(configuration.getClassLoader()).configuration(configuration).load();
         OperationResult result;
         if (commandLineArguments.getOperations().size() == 1) {
@@ -311,6 +326,42 @@ public class Main {
 
         ClassicConfiguration cfg = new ClassicConfiguration(config);
         cfg.setClassLoader(classLoader);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<String> missingParams = new ArrayList<>();
+        for (ConfigurationExtension configurationExtension : cfg.getPluginRegister().getPlugins(ConfigurationExtension.class)) {
+            String namespace = configurationExtension.getNamespace();
+            if (config.getFlyway().getPluginConfigurations().containsKey(namespace)) {
+                List<String> fields = Arrays.stream(configurationExtension.getClass().getDeclaredFields()).map(Field::getName).collect(Collectors.toList());
+                Map<String, Object> values = (Map<String, Object>) config.getFlyway().getPluginConfigurations().get(namespace);
+                values = values.entrySet().stream().filter(p -> fields.contains(p.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                for (String key : values.keySet()) {
+                    ((Map<?, ?>) config.getFlyway().getPluginConfigurations().get(namespace)).remove(key);
+                }
+                try {
+                    ConfigurationExtension newConfigurationExtension = objectMapper.convertValue(values, configurationExtension.getClass());
+                    MergeUtils.mergeModel(configurationExtension, newConfigurationExtension);
+                } catch (IllegalArgumentException e) {
+                    Matcher matcher = ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN.matcher(e.getMessage());
+                    if (matcher.find()) {
+                        missingParams.add(matcher.group(1));
+                    }
+                }
+            }
+        }
+
+        for (Map.Entry<String, Object> configuration : config.getFlyway().getPluginConfigurations().entrySet()) {
+            if (configuration.getValue() instanceof Map<?, ?>) {
+                Map<String, Object> temp = (Map<String, Object>) configuration.getValue();
+                missingParams.addAll(temp.keySet());
+            } else {
+                missingParams.add(configuration.getKey());
+            }
+        }
+
+        if (!missingParams.isEmpty()) {
+            throw new FlywayException("Unknown configuration parameters: " + missingParams.stream().collect(Collectors.joining(", ")));
+        }
 
 
 
@@ -492,6 +543,7 @@ public class Main {
                     }
                     infoTelemetryModel.setNumberOfMigrations(((InfoResult) result).migrations.size());
                     infoTelemetryModel.setNumberOfPendingMigrations((int) ((InfoResult) result).migrations.stream().filter(m -> "Pending".equals(m.state)).count());
+                    infoTelemetryModel.setOldestMigrationInstalledOnUTC(TelemetryUtils.getOldestMigration(((InfoResult) result).migrations));
                 } catch (Exception e) {
                     infoTelemetryModel.setException(e);
                     throw e;
@@ -826,4 +878,14 @@ public class Main {
 
         return "UTF-8";
     }
+
+    private static void printDatabaseHeader(Configuration configuration) {
+        if(configuration != null && configuration.getDataSource() != null) {
+            try (JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(configuration.getDataSource(), configuration, null)) {
+                LOG.info("Database: " + jdbcConnectionFactory.getJdbcUrl() + " (" + jdbcConnectionFactory.getProductName() + ")");
+                LOG.debug("Driver: " + jdbcConnectionFactory.getDriverInfo());
+            }
+        }
+    }
+
 }

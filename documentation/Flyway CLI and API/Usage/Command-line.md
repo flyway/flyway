@@ -103,7 +103,7 @@ The Flyway download, once extracted, now becomes a directory with the following 
 
 The Flyway Command-line tool distribution ships with all editions of Flyway.
 It auto-detects which edition to run based on any license keys you configure,
-however it can easily be configured to run the [paid editions]https://flywaydb.org/download specifically.
+however it can easily be configured to run the [paid editions](https://flywaydb.org/download) specifically.
 
 ### Environment variable
 

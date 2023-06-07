@@ -8,7 +8,7 @@ redirect_from:
 # Tutorial: Error Overrides
 {% include teams.html %}
 
-This tutorial assumes you have successfully completed the [**First Steps: Maven**](Getting Started/First Steps/First Steps - Maven)
+This tutorial assumes you have successfully completed the **{% include quickstart-maven.html %}**
 tutorial. **If you have not done so, please do so first.** This tutorial picks up where that one left off.
 
 This brief tutorial will teach **how to use Error Overrides**. It will take you through the
@@ -22,7 +22,7 @@ steps on how to configure and use them.
 
 ## Reviewing the status
 
-After having completed the [First Steps: Maven](Getting Started/First Steps/First Steps - Maven), you can now execute
+After having completed the {% include quickstart-maven.html %}, you can now execute
 
 <pre class="console"><span>bar&gt;</span> mvn flyway:<strong>info</strong></pre>
 

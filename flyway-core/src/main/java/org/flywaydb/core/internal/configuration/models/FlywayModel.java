@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.configuration.models;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -96,6 +97,8 @@ public class FlywayModel {
     private String defaultSchema;
     private Map<String, PropertyResolver> propertyResolvers;
     private Boolean reportEnabled;
+    @JsonAnySetter
+    private Map<String,Object> pluginConfigurations = new HashMap<>();
 
     public static FlywayModel defaults(){
          FlywayModel model = new FlywayModel();
@@ -213,6 +216,7 @@ public class FlywayModel {
         result.placeholders = placeholders.merge(otherPojo.placeholders);
         result.reportEnabled = reportEnabled.merge(otherPojo.reportEnabled);
         result.propertyResolvers = MergeUtils.merge(propertyResolvers, otherPojo.propertyResolvers, (a,b) -> b != null ? b : a); // TODO: more granular merge
+        result.pluginConfigurations = MergeUtils.merge(pluginConfigurations, otherPojo.pluginConfigurations, (a,b) -> b != null ? b : a);
         return result;
     }
 

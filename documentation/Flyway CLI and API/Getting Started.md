@@ -3,24 +3,48 @@ menu: gs_overview
 title: Getting Started
 redirect_from: /getStarted/
 ---
-<div id="getStarted">
-    <h1>Getting Started</h1>
+# Getting Started
 
-    <p>Welcome to <strong>Flyway</strong>, database migrations made easy.</p>
+Welcome to **Flyway**, database migrations made easy.
 
-    <h1 class="text--center">
-        <span class="icon--flyway color--red icon--6x display--block spaced-v"></span>
-    </h1>
+* [Why Database Migrations](https://documentation.red-gate.com/display/FD/Why+database+migrations)
+* [How Flyway Works](https://documentation.red-gate.com/display/FD/Quickstart+-+How+Flyway+Works)
 
-    <p>
-        <a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="Getting Started/Why database migrations">Why database migrations? <i class="fa fa-arrow-right"></i></a>
-    </p>
+Ready to get started? Take a **5 minute** tutorial:
 
-    <p>&nbsp;</p>
-    <p>&nbsp;</p>
-    <p>
-        Ready to get started? Take a <strong>5 minute</strong> tutorial:
-    </p>
+## Command Line
 
-    {% include getstarted.html %}
-</div>
+For non-JVM users and environments without build tools
+
+`> flyway migrate -url=... -user=... -password=...`
+
+* {% include quickstart-cli.html %}
+* [Quickstart: Docker](https://documentation.red-gate.com/display/FD/Quickstart+-+Docker)
+
+## API Usage
+
+Migrate directly from within your application
+
+```
+Flyway flyway = Flyway.configure().dataSource(url, user, password).load();
+flyway.migrate();
+```
+
+[Quickstart: API](https://documentation.red-gate.com/display/FD/Quickstart+-+API)
+
+## Maven usage
+
+Seamless integration with Maven 2/3 builds
+
+`> mvn flyway:migrate -Dflyway.url=... -Dflyway.user=... -Dflyway.password=...`
+
+{% include quickstart-maven.html %}
+
+## Gradle usage
+
+Seamless integration with Gradle builds
+
+`> gradle flywayMigrate -Dflyway.url=... -Dflyway.user=... -Dflyway.password=...`
+
+[Quickstart: Gradle](https://documentation.red-gate.com/display/FD/Quickstart+-+Gradle)
+

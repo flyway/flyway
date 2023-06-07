@@ -88,6 +88,11 @@ public class SynapseDatabase extends SQLServerDatabase {
     }
 
     @Override
+    protected boolean hasXmlSchemaCollections() {
+        return false;
+    }
+
+    @Override
     public String getRawCreateScript(Table table, boolean baseline) {
 
         return "CREATE TABLE " + table + " (\n" +

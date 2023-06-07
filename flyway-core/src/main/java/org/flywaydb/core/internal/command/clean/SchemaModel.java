@@ -13,28 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.output;
+package org.flywaydb.core.internal.command.clean;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-public class InfoOutput {
-    public String category;
-    public String version;
-    public String rawVersion;
-    public String description;
-    public String type;
-    public String installedOnUTC;
-    public String state;
-    public String undoable;
-    public String filepath;
-    public String undoFilepath;
-    public String installedBy;
-    public int executionTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Data
+public class SchemaModel {
+    private List<String> exclude = new ArrayList<>();
 }

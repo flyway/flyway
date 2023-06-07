@@ -28,6 +28,7 @@ import org.flywaydb.core.internal.database.base.Connection;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.Collections;
 
@@ -58,11 +59,11 @@ public class DbClean {
 
         callbackExecutor.onEvent(Event.BEFORE_CLEAN);
 
-        Mode cleanMode = configuration.getPluginRegister().getPlugin(CleanModeConfigurationExtension.class).getCleanMode();
+        String cleanMode = configuration.getPluginRegister().getPlugin(CleanModeConfigurationExtension.class).getClean().getMode();
 
         CleanResult cleanResult;
 
-        if (cleanMode == Mode.DEFAULT) {
+        if (cleanMode == null || Mode.DEFAULT.name().equals(cleanMode) || !StringUtils.hasText(cleanMode)) {
             cleanResult = CommandResultFactory.createCleanResult(database.getCatalog());
             new CleanExecutor(connection, database, schemaHistory, callbackExecutor).clean(defaultSchema, schemas, cleanResult);
         } else {
@@ -81,11 +82,11 @@ public class DbClean {
         return cleanResult;
     }
 
-    private String toCommand(Mode mode) {
+    private String toCommand(String mode) {
         switch (mode) {
-            case SCHEMA:
+            case "SCHEMA":
                 return "clean-schemas";
-            case ALL:
+            case "ALL":
                 return "clean-all";
             default:
                 return "clean";

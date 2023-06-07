@@ -15,5 +15,5 @@ subtitle: Migration Report
  
  * [Migrate Command](Commands/Migrate) - how does it work ?
  * [Migrate - CLI reference](Usage/Command-line/Command-line - Migrate) - What is the command structure ?
- * [First Steps: Command-line](Getting Started/First Steps/First Steps - Command-line) - how do I use it ?
+ * {% include quickstart-cli.html %} - how do I use it ?
  * Find out about [Flyway Editions](https://www.red-gate.com/products/flyway/editions)

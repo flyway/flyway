@@ -246,6 +246,10 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
         return true;
     }
 
+    protected boolean hasXmlSchemaCollections() {
+        return true;
+    }
+
     /**
      * Cleans all the objects in this database that need to be cleaned after cleaning schemas.
      *
@@ -276,10 +280,10 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
             }
         }
 
-        Mode cleanMode = configuration.getPluginRegister().getPlugin(CleanModeConfigurationExtension.class).getCleanMode();
-        if (cleanMode == Mode.ALL) {
+        String cleanMode = configuration.getPluginRegister().getPlugin(CleanModeConfigurationExtension.class).getClean().getMode();
+        if (Mode.ALL.name().equals(cleanMode)) {
             CleanModePlugin cleanModePlugin = configuration.getPluginRegister().getPlugins(CleanModePlugin.class).stream()
-                                                           .filter(p -> p.handlesMode(cleanMode))
+                                                           .filter(p -> p.handlesMode(Mode.fromString(cleanMode)))
                                                            .filter(p -> p.handlesDatabase(this))
                                                            .findFirst()
                                                            .orElseThrow(() -> new FlywayException("No plugin found to handle clean mode " + cleanMode + " for SQLServer. Please ensure you have the `flyway-desktop-clean` module on the classpath"));

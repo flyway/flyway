@@ -113,18 +113,6 @@ public abstract class BaseDatabaseType implements DatabaseType {
      */
     public abstract boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection);
 
-    public Database createDatabase(Configuration configuration, boolean printInfo, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
-        String databaseProductName = jdbcConnectionFactory.getProductName();
-        if (printInfo) {
-            LOG.info("Database: " + jdbcConnectionFactory.getJdbcUrl() + " (" + databaseProductName + ")");
-            LOG.debug("Driver  : " + jdbcConnectionFactory.getDriverInfo());
-        }
-
-        Database database = createDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
-
-        return database;
-    }
-
     public abstract Database createDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor);
 
     public abstract Parser createParser(Configuration configuration, ResourceProvider resourceProvider, ParsingContext parsingContext);
