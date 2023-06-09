@@ -1773,13 +1773,14 @@ public class ClassicConfiguration implements Configuration {
                     try {
                         Field[] subFields = currentConfigExtension.getClass().getDeclaredFields();
                         field = Arrays.stream(subFields).filter(f -> f.getName().equals(currentPath)).findFirst().orElse(null);
-                        try {
-                            currentConfigExtension = field.getType().getDeclaredConstructor().newInstance();
-                        } catch (Exception e) {
+                        if (field.getType() == String[].class) {
                             value = ((String) value).split(",");
+                        } else if (field.getType() == Boolean.class) {
+                            currentConfigExtension = null;
+                        } else {
+                            currentConfigExtension = field.getType().getDeclaredConstructor().newInstance();
                         }
-                    } catch (Exception e) {
-                        LOG.error("Failed to get fields of configuration extension", e);
+                    } catch (Exception ignored) {
                     }
                     if (i < path.length - 1) {
                         Map<String, Object> newValue = new HashMap<>();

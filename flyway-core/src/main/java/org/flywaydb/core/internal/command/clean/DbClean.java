@@ -83,7 +83,7 @@ public class DbClean {
     }
 
     private String toCommand(String mode) {
-        switch (mode) {
+        switch (mode.toUpperCase()) {
             case "SCHEMA":
                 return "clean-schemas";
             case "ALL":

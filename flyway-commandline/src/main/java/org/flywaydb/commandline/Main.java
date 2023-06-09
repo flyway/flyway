@@ -243,10 +243,10 @@ public class Main {
     }
 
     private static OperationResult executeFlyway(FlywayTelemetryManager flywayTelemetryManager, CommandLineArguments commandLineArguments, Configuration configuration) {
-
-        VersionPrinter.printVersion();
-
-        printDatabaseHeader(configuration);
+        if (!commandLineArguments.shouldCheckLicenseAndExit()) {
+            VersionPrinter.printVersion();
+            printDatabaseHeader(configuration);
+        }
 
         Flyway flyway = Flyway.configure(configuration.getClassLoader()).configuration(configuration).load();
         OperationResult result;
