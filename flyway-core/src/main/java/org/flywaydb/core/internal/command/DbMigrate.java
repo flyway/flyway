@@ -279,6 +279,9 @@ public class DbMigrate {
                 doMigrateGroup(group, stopWatch, skipExecutingMigrations, false);
             }
         } catch (FlywayMigrateException e) {
+            if (LOG.isDebugEnabled() && e.getCause() != null) {
+                LOG.debug("Migration failed, underlying cause was "+e.getCause().getMessage());
+            }
             MigrationInfo migration = e.getMigration();
 
             String failedMsg = "Migration of " + toMigrationText(migration, e.isExecutableInTransaction(), e.isOutOfOrder()) + " failed!";
