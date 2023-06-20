@@ -6,7 +6,7 @@ subtitle: SQL Server
 
 ## Supported Versions
 
-- `2022*`
+- `2022`
 - `2019`
 - `2017`
 - `2016` {% include teams.html %}
@@ -14,8 +14,6 @@ subtitle: SQL Server
 - `2012` {% include enterprise.html %}
 - `2008 R2` {% include enterprise.html %}
 - `2008` {% include enterprise.html %}
-
-*Tested with preview version (June 2022).
 
 ## Support Level
 

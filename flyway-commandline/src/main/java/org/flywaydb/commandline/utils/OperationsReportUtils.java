@@ -18,14 +18,18 @@ package org.flywaydb.commandline.utils;
 import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.NoArgsConstructor;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.api.output.OperationResult;
 import org.flywaydb.core.internal.configuration.models.FlywayModel;
+import org.flywaydb.core.internal.reports.ReportDetails;
+import org.flywaydb.core.internal.reports.json.CompositeResultDeserializer;
 import org.flywaydb.core.internal.util.HtmlUtils;
 import org.flywaydb.core.internal.util.JsonUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -55,6 +59,43 @@ public class OperationsReportUtils {
 
     public static String createJsonReport(CompositeResult<HtmlResult> htmlCompositeResult, String tmpJsonReportFilename) {
         return JsonUtils.jsonToFile(tmpJsonReportFilename, htmlCompositeResult);
+    }
+
+    public static ReportDetails writeReport(Configuration configuration, OperationResult filteredResults, LocalDateTime executionTime) {
+        ReportDetails reportDetails = new ReportDetails();
+
+        if (configuration.isReportEnabled()) {
+            CompositeResult<HtmlResult> htmlCompositeResult = flattenHtmlResults(filteredResults);
+
+            htmlCompositeResult.individualResults.forEach(r -> r.setTimestamp(executionTime));
+
+            String reportFilename = configuration.getReportFilename();
+            String baseReportFilename = getBaseFilename(reportFilename);
+
+            String tmpJsonReportFilename = baseReportFilename + JSON_REPORT_EXTENSION;
+            String tmpHtmlReportFilename = baseReportFilename + (reportFilename.endsWith(HTM_REPORT_EXTENSION) ? HTM_REPORT_EXTENSION : HTML_REPORT_EXTENSION);
+
+            try {
+                htmlCompositeResult = JsonUtils.appendIfExists(tmpJsonReportFilename, htmlCompositeResult, new CompositeResultDeserializer(configuration.getPluginRegister()));
+                reportDetails.setJsonReportFilename(createJsonReport(htmlCompositeResult, tmpJsonReportFilename));
+                reportDetails.setHtmlReportFilename(createHtmlReport(configuration, htmlCompositeResult, tmpHtmlReportFilename));
+            } catch (FlywayException e) {
+                if (DEFAULT_REPORT_FILENAME.equals(configuration.getReportFilename())) {
+                    LOG.warn("Unable to create default report files.");
+                    if (LOG.isDebugEnabled()) {
+                        e.printStackTrace(System.out);
+                    }
+                } else {
+                    LOG.error("Unable to create report files", e);
+                }
+            }
+
+            if (reportDetails.getHtmlReportFilename() != null) {
+                LOG.info("A Flyway report has been generated here: " + reportDetails.getHtmlReportFilename());
+            }
+        }
+
+        return reportDetails;
     }
 
     public static OperationResult filterHtmlResults(OperationResult result) {

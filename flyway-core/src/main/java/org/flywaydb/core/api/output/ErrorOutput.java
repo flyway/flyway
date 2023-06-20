@@ -81,6 +81,14 @@ public class ErrorOutput implements OperationResult {
         return exception.getErrorResult();
     }
 
+    public static OperationResult toOperationResult(Exception exception) {
+        if (exception instanceof DbMigrate.FlywayMigrateException) {
+            return fromMigrateException((DbMigrate.FlywayMigrateException) exception);
+        } else {
+            return fromException(exception);
+        }
+    }
+
     private static String getStackTrace(Exception exception) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         PrintStream printStream;

@@ -21,6 +21,7 @@ import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
+import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 
 import javax.sql.DataSource;
@@ -544,31 +545,10 @@ public interface Configuration {
     boolean isBatch();
 
     /**
-     * Whether to Flyway's support for Oracle SQL*Plus commands should be activated.
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @return {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
-     */
-    boolean isOracleSqlplus();
-
-    /**
-     * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
-     * it doesn't yet support.
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @return {@code true} to issue a warning. {@code false} to fail fast instead. (default: {@code false})
-     */
-    boolean isOracleSqlplusWarn();
-
-    /**
      * The path to the Kerberos config file.
      * <i>Flyway Teams only</i>
      */
     String getKerberosConfigFile();
-
-    String getOracleKerberosCacheFile();
 
     /**
      * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
@@ -633,13 +613,6 @@ public interface Configuration {
     boolean isFailOnMissingLocations();
 
     /**
-     * The location of your Oracle wallet, used to automatically sign in to your databases.
-     *
-     * <i>Flyway Teams only</i>
-     */
-    String getOracleWalletLocation();
-
-    /**
      * The loggers Flyway should use. Valid options are:
      *
      * <ul>
@@ -658,4 +631,9 @@ public interface Configuration {
      * The JDBC driver of the configuration
      */
     String getDriver();
+
+    /**
+     * Get the Database type determined by the URL or Datasource
+     */
+    DatabaseType getDatabaseType();
 }

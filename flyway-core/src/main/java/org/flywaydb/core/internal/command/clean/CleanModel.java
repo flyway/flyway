@@ -16,9 +16,25 @@
 package org.flywaydb.core.internal.command.clean;
 
 import lombok.Data;
+import org.flywaydb.core.api.FlywayException;
 
 @Data
 public class CleanModel {
     private SchemaModel schemas = null;
     private String mode = null;
+
+    public String getMode() {
+        try {
+            if(this.mode != null) {
+                CleanModeConfigurationExtension.Mode.valueOf(this.mode);
+            }
+            return mode;
+        } catch (IllegalArgumentException e) {
+            throw new FlywayException("Unknown clean mode: " + mode);
+        }
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode.toUpperCase();
+    }
 }

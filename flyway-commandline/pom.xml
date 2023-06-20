@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.19.4</version>
+        <version>9.20.0</version>
     </parent>
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
@@ -30,7 +30,7 @@
 
 
 
-        <flyway-gcp-spanner.version>9.19.4-beta</flyway-gcp-spanner.version>
+        <flyway-gcp-spanner.version>9.20.0-beta</flyway-gcp-spanner.version>
         <jre.version>17.0.6</jre.version>
     </properties>
     <dependencies>
@@ -1080,13 +1080,6 @@
 
 
 
-
-
-
-
-
-
-
         <profile>
             <id>copy-enterprise-dependencies</id>
             <build>
@@ -1102,13 +1095,6 @@
                                 </goals>
                                 <configuration>
                                     <artifactItems>
-                                        <artifactItem>
-                                            <groupId>org.flywaydb.enterprise</groupId>
-                                            <artifactId>flyway-extensibility-commons</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/editions/community</outputDirectory>
-                                        </artifactItem>
                                         <artifactItem>
                                             <groupId>org.flywaydb.enterprise</groupId>
                                             <artifactId>flyway-compare</artifactId>

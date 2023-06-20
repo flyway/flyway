@@ -42,7 +42,7 @@ public class TelemetryUtils {
             ClassicConfiguration classicConfiguration = new ClassicConfiguration(configuration);
             if (classicConfiguration.getDataSource() != null) {
                 try (JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(classicConfiguration.getDataSource(), classicConfiguration, null);
-                     Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, jdbcConnectionFactory, null)) {
+                     Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null)) {
                     rootTelemetryModel.setDatabaseEngine(database.getDatabaseType().getName());
                     rootTelemetryModel.setDatabaseVersion(database.getVersion().toString());
                     return rootTelemetryModel;

@@ -18,6 +18,8 @@ package org.flywaydb.database.oracle;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.Resource;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.internal.license.Edition;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParserContext;
 import org.flywaydb.core.internal.parser.ParsingContext;
@@ -217,6 +219,9 @@ public class OracleParser extends Parser {
             , ParsingContext parsingContext
                        ) {
         super(configuration, parsingContext, 3);
+
+
+
 
 
 

@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.Plugin;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -73,10 +72,6 @@ public class PluginRegister {
                     REGISTERED_PLUGINS.add(plugin);
                 }
             }
-
-
-
-
 
             hasRegisteredPlugins = true;
         }

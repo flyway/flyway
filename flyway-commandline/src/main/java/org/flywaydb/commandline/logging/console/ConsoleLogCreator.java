@@ -16,8 +16,8 @@
 package org.flywaydb.commandline.logging.console;
 
 import lombok.RequiredArgsConstructor;
-import org.flywaydb.commandline.CommandLineArguments;
-import org.flywaydb.commandline.CommandLineArguments.Color;
+import org.flywaydb.commandline.configuration.CommandLineArguments;
+import org.flywaydb.commandline.configuration.CommandLineArguments.Color;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;
 

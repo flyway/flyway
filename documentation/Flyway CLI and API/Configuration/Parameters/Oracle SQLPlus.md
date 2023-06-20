@@ -32,9 +32,8 @@ FLYWAY_ORACLE_SQLPLUS=true
 
 ### API
 ```java
-Flyway.configure()
-    .oracleSqlplus(true)
-    .load()
+OracleConfigurationExtension oracleConfigurationExtension = configuration.getPluginRegister().getPlugin(OracleConfigurationExtension.class);
+oracleConfigurationExtension.setSqlPlus(true);
 ```
 
 ### Gradle

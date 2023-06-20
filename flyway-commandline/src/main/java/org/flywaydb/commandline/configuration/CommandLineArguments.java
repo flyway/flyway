@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.commandline;
+package org.flywaydb.commandline.configuration;
 
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.commandline.logging.console.ConsoleLog.Level;
@@ -67,6 +67,12 @@ public class CommandLineArguments {
 
     private final PluginRegister pluginRegister;
     private final String[] args;
+
+    public enum PrintUsage {
+        PRINT_NONE,
+        PRINT_ORIGINAL,
+        PRINT_SHORT
+    }
 
     public CommandLineArguments(PluginRegister pluginRegister, String... args) {
         this.pluginRegister = pluginRegister;
@@ -219,9 +225,46 @@ public class CommandLineArguments {
         return "json".equalsIgnoreCase(getArgumentValue(OUTPUT_TYPE, args));
     }
 
-    public boolean shouldPrintUsage() {
-        return isFlagSet(args, PRINT_USAGE_FLAGS) || getOperations().isEmpty() && !isFlagSet(args, CHECK_LICENCE);
+    public PrintUsage shouldPrintUsage(StringBuilder helpText) {
+
+        if (shouldCheckLicenseAndExit()) {
+            return PrintUsage.PRINT_NONE;
+        }
+
+        if (hasOperation("help") || isFlagSet(args, PRINT_USAGE_FLAGS)) {
+
+            getHelpTextForOperations(helpText);
+
+            return PrintUsage.PRINT_ORIGINAL;
+
+        } else if (getOperations().isEmpty()) {
+            return PrintUsage.PRINT_SHORT;
+        } else {
+            return PrintUsage.PRINT_NONE;
+        }
+
+
     }
+
+    private void getHelpTextForOperations(StringBuilder helpText) {
+
+        if(helpText == null) {
+            return;
+        }
+
+        for (String operation : getOperations()) {
+            String helpTextForOperation = pluginRegister.getPlugins(CommandExtension.class).stream()
+                                                        .filter(e -> e.handlesCommand(operation))
+                                                        .map(CommandExtension::getHelpText)
+                                                        .collect(Collectors.joining("\n\n"));
+
+            if (StringUtils.hasText(helpTextForOperation)) {
+                helpText.append(helpTextForOperation).append("\n\n");
+            }
+        }
+
+    }
+
 
     public Level getLogLevel() {
         if (isFlagSet(args, QUIET_FLAG)) {

@@ -30,10 +30,6 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGIN
 public class CleanModeConfigurationExtension implements ConfigurationExtension {
     public enum Mode {
         DEFAULT, SCHEMA, ALL;
-
-        public static Mode fromString(String string) {
-            return Mode.valueOf(string.toUpperCase());
-        }
     }
 
     private static final String CLEAN_MODE = FLYWAY_PLUGINS_PREFIX + "clean.mode";

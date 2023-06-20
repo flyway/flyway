@@ -30,6 +30,8 @@ import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
 import java.sql.Connection;
 import java.sql.Driver;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -98,6 +100,20 @@ public interface DatabaseType extends Plugin {
      * @return {@code true} if this handles the product name and version, {@code false} if not.
      */
     boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection);
+
+    /**
+     * Initializes the Database class, and optionally prints some information.
+     *
+     * @param configuration The Flyway configuration.
+     * @param jdbcConnectionFactory The current connection factory.
+     * @param printInfo Where the DB info should be printed in the logs.
+     * @return The appropriate Database class.
+     */
+    Database createDatabase(
+            Configuration configuration, boolean printInfo,
+            JdbcConnectionFactory jdbcConnectionFactory,
+            StatementInterceptor statementInterceptor
+                           );
 
     /**
      * Initializes the Database used by this Database Type.
@@ -238,4 +254,8 @@ public interface DatabaseType extends Plugin {
     String instantiateClassExtendedErrorMessage();
 
     void printMessages();
+
+    default List<String> getSpecialResourceFilenames(Configuration configuration) {
+        return Collections.emptyList();
+    }
 }

@@ -836,28 +836,6 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Whether Flyway's support for Oracle SQL*Plus commands should be activated.
-     * <i>Flyway Teams only</i>
-     *
-     * @param oracleSqlplus {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
-     */
-    public FluentConfiguration oracleSqlplus(boolean oracleSqlplus) {
-        config.setOracleSqlplus(oracleSqlplus);
-        return this;
-    }
-
-    /**
-     * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement it doesn't yet support.
-     * <i>Flyway Teams only</i>
-     *
-     * @param oracleSqlplusWarn {@code true} to issue a warning. {@code false} to fail fast instead. (default: {@code false})
-     */
-    public FluentConfiguration oracleSqlplusWarn(boolean oracleSqlplusWarn) {
-        config.setOracleSqlplusWarn(oracleSqlplusWarn);
-        return this;
-    }
-
-    /**
      * When connecting to a Kerberos service to authenticate, the path to the Kerberos config file.
      * <i>Flyway Teams only</i>
      *
@@ -865,29 +843,6 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration kerberosConfigFile(String kerberosConfigFile) {
         config.setKerberosConfigFile(kerberosConfigFile);
-        return this;
-    }
-
-    /**
-     * When authenticating to Oracle via Kerberos, the location of the local Kerberos config cache (optional).
-     * <i>Flyway Teams only</i>
-     *
-     * @param oracleKerberosCacheFile The Kerberos cache file path.
-     */
-    public FluentConfiguration oracleKerberosCacheFile(String oracleKerberosCacheFile) {
-        config.setOracleKerberosCacheFile(oracleKerberosCacheFile);
-        return this;
-    }
-
-    /**
-     * The location of your Oracle wallet, used to automatically sign in to your databases.
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @param oracleWalletLocation The path to your Oracle Wallet
-     */
-    public FluentConfiguration oracleWalletLocation(String oracleWalletLocation) {
-        config.setOracleWalletLocation(oracleWalletLocation);
         return this;
     }
 

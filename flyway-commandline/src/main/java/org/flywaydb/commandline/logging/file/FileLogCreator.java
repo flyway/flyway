@@ -15,7 +15,7 @@
  */
 package org.flywaydb.commandline.logging.file;
 
-import org.flywaydb.commandline.CommandLineArguments;
+import org.flywaydb.commandline.configuration.CommandLineArguments;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogCreator;

@@ -191,11 +191,11 @@
             <includes>
                 <include>org.flywaydb:flyway-core</include>
                 <include>org.flywaydb:flyway-commandline</include>
+                <include>org.flywaydb:flyway-database-db2zOS</include>
                 <include>org.flywaydb:flyway-database-oracle</include>
                 <include>org.flywaydb:flyway-gcp-bigquery</include>
                 <include>org.flywaydb:flyway-gcp-spanner</include>
                 <include>org.flywaydb:flyway-community-db-support</include>
-                <include>org.flywaydb:flyway-extensibility-commons</include>
                 <include>org.flywaydb:flyway-desktop-clean</include>
                 <include>org.flywaydb:flyway-vault-integration</include>
                 <include>org.flywaydb:flyway-dapr-integration</include>
@@ -213,7 +213,6 @@
                 <include>org.flywaydb:flyway-command-resolve-environment</include>
             </includes>
         </dependencySet>
-
 
 
 
