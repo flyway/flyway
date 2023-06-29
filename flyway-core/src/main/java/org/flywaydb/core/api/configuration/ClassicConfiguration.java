@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.api.configuration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -1831,8 +1831,8 @@ public class ClassicConfiguration implements Configuration {
                 Map<String, Object> mp = property.getValue();
 
                 try {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    ConfigurationExtension newConfigurationExtension = objectMapper.convertValue(mp, cfg.getClass());
+                    Gson gson = new Gson();
+                    ConfigurationExtension newConfigurationExtension = gson.fromJson(gson.toJson(mp), cfg.getClass());
                     MergeUtils.mergeModel(newConfigurationExtension, cfg);
                 } catch (Exception e) {
                     Matcher matcher = ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN.matcher(e.getMessage());
