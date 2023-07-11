@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.api.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -34,6 +35,8 @@ import org.flywaydb.core.internal.configuration.models.FlywayModel;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.configuration.resolvers.EnvironmentResolver;
 import org.flywaydb.core.internal.configuration.resolvers.PropertyResolver;
+import org.flywaydb.core.internal.database.DatabaseType;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
@@ -41,8 +44,13 @@ import org.flywaydb.core.internal.util.*;
 
 import javax.sql.DataSource;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -60,6 +68,8 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger
  */
 @CustomLog
 public class ClassicConfiguration implements Configuration {
+    private static final Pattern ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN = Pattern.compile("\"([^\"]*)\"");
+    private static final Pattern ANY_WORD_BETWEEN_TWO_DOTS_PATTERN = Pattern.compile("\\.(.*?)\\.");
 
     public static final String TEMP_ENVIRONMENT_NAME = "tempConfigEnvironment";
     @Getter
@@ -69,12 +79,14 @@ public class ClassicConfiguration implements Configuration {
     private final Map<String, ResolvedEnvironment> resolvedEnvironments = new HashMap<>();
 
     @Getter
-    @Setter
     private DataSource dataSource;
 
     @Getter
     @Setter
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+    @Getter
+    private DatabaseType databaseType;
 
     public void setDefaultSchema(String defaultSchema) {
         getModernFlyway().setDefaultSchema(defaultSchema);
@@ -321,23 +333,8 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public boolean isOracleSqlplus() {
-        return getModernFlyway().getOracleSqlplus();
-    }
-
-    @Override
-    public boolean isOracleSqlplusWarn() {
-        return getModernFlyway().getOracleSqlplusWarn();
-    }
-
-    @Override
     public String getKerberosConfigFile() {
         return getModernFlyway().getKerberosConfigFile();
-    }
-
-    @Override
-    public String getOracleKerberosCacheFile() {
-        return getModernFlyway().getOracleKerberosCacheFile();
     }
 
     @Override
@@ -368,11 +365,6 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public boolean isFailOnMissingLocations() {
         return getModernFlyway().getFailOnMissingLocations();
-    }
-
-    @Override
-    public String getOracleWalletLocation() {
-        return getModernFlyway().getOracleWalletLocation();
     }
 
     @Override
@@ -1076,7 +1068,18 @@ public class ClassicConfiguration implements Configuration {
         getCurrentUnresolvedEnvironment().setUser(user);
         getCurrentUnresolvedEnvironment().setPassword(password);
 
+        this.databaseType = StringUtils.hasText(url) ? DatabaseTypeRegister.getDatabaseTypeForUrl(url) : null;
+
         this.dataSource = new DriverDataSource(classLoader, null, url, user, password, this);
+    }
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+        try (Connection connection = dataSource.getConnection()){
+            this.databaseType = dataSource != null ? DatabaseTypeRegister.getDatabaseTypeForConnection(connection) : null;
+        } catch (SQLException e) {
+            this.databaseType = null;
+        }
     }
 
     /**
@@ -1232,71 +1235,12 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Whether Flyway's support for Oracle SQL*Plus commands should be activated.
-     * <i>Flyway Teams only</i>
-     *
-     * @param oracleSqlplus {@code true} to active SQL*Plus support. {@code false} to fail fast instead. (default: {@code false})
-     */
-    public void setOracleSqlplus(boolean oracleSqlplus) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.sqlplus");
-
-
-
-
-    }
-
-    /**
-     * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statementit doesn't yet support.
-     * <i>Flyway Teams only</i>
-     *
-     * @param oracleSqlplusWarn {@code true} to issue a warning. {@code false} to fail fast instead. (default: {@code false})
-     */
-    public void setOracleSqlplusWarn(boolean oracleSqlplusWarn) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.sqlplusWarn");
-
-
-
-
-    }
-
-    /**
-     * When Oracle needs to connect to a Kerberos service to authenticate, the location of the Kerberos cache.
-     * <i>Flyway Teams only</i>
-     */
-    public void setOracleKerberosCacheFile(String oracleKerberosCacheFile) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.kerberosCacheFile");
-
-
-
-
-    }
-
-    /**
      * When connecting to a Kerberos service to authenticate, the path to the Kerberos config file.
      * <i>Flyway Teams only</i>
      */
     public void setKerberosConfigFile(String kerberosConfigFile) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("kerberosConfigFile");
-
-
-
-
-    }
-
-    /**
-     * The location of your Oracle wallet, used to automatically sign in to your databases.
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @param oracleWalletLocation The path to your Oracle Wallet
-     */
-    public void setOracleWalletLocation(String oracleWalletLocation) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("oracle.walletLocation");
 
 
 
@@ -1379,6 +1323,7 @@ public class ClassicConfiguration implements Configuration {
         getModernFlyway().setMigrationResolvers(null);
 
         dataSource = configuration.getDataSource();
+        databaseType = configuration.getDatabaseType();
         pluginRegister = configuration.getPluginRegister();
 
 
@@ -1403,6 +1348,7 @@ public class ClassicConfiguration implements Configuration {
     public void setUrl(String url) {
         this.dataSource = null;
         getCurrentUnresolvedEnvironment().setUrl(url);
+        this.databaseType = StringUtils.hasText(url) ? DatabaseTypeRegister.getDatabaseTypeForUrl(url) : null;
         this.resolvedEnvironments.clear();
     }
 
@@ -1448,9 +1394,29 @@ public class ClassicConfiguration implements Configuration {
 
         props.computeIfAbsent(ConfigUtils.REPORT_FILENAME, k -> getModernConfig().getFlyway().getReportFilename());
 
-        for (ConfigurationExtension configurationExtension : pluginRegister.getPlugins(ConfigurationExtension.class)) {
-            configurationExtension.extractParametersFromConfiguration(props);
+        HashMap<String, Map<String, Object>> configExtensionsPropertyMap = new HashMap<>();
+
+        List<String> keysToRemove = new ArrayList<>();
+        for (Map.Entry<String, String> params : props.entrySet()) {
+
+            String text = params.getKey();
+            Matcher matcher = ANY_WORD_BETWEEN_TWO_DOTS_PATTERN.matcher(text);
+            final String rootNamespace = matcher.find() ? matcher.group(1) : "";
+
+            List<ConfigurationExtension> configExtensions = pluginRegister.getPlugins(ConfigurationExtension.class)
+                                                                          .stream()
+                                                                          .filter(c -> rootNamespace.equals(c.getNamespace()))
+                                                                          .collect(Collectors.toList());
+            String replaceNamespace = "flyway.";
+            if (StringUtils.hasText(rootNamespace)) {
+                replaceNamespace = "flyway." + rootNamespace + ".";
+            }
+            String fixedKey = params.getKey().replace(replaceNamespace, "");
+
+            configExtensions.forEach(c -> parsePropertiesFromConfigExtension(configExtensionsPropertyMap, keysToRemove, params, fixedKey, c));
         }
+
+        determineKeysToRemoveAndRemoveFromProps(configExtensionsPropertyMap, keysToRemove, props);
 
         String reportFilenameProp = props.remove(ConfigUtils.REPORT_FILENAME);
         if (reportFilenameProp != null) {
@@ -1668,14 +1634,6 @@ public class ClassicConfiguration implements Configuration {
         if (batchProp != null) {
             setBatch(batchProp);
         }
-        Boolean oracleSqlplusProp = removeBoolean(props, ConfigUtils.ORACLE_SQLPLUS);
-        if (oracleSqlplusProp != null) {
-            setOracleSqlplus(oracleSqlplusProp);
-        }
-        Boolean oracleSqlplusWarnProp = removeBoolean(props, ConfigUtils.ORACLE_SQLPLUS_WARN);
-        if (oracleSqlplusWarnProp != null) {
-            setOracleSqlplusWarn(oracleSqlplusWarnProp);
-        }
         Boolean createSchemasProp = removeBoolean(props, ConfigUtils.CREATE_SCHEMAS);
         if (createSchemasProp != null) {
             setShouldCreateSchemas(createSchemasProp);
@@ -1683,15 +1641,6 @@ public class ClassicConfiguration implements Configuration {
         String kerberosConfigFile = props.remove(ConfigUtils.KERBEROS_CONFIG_FILE);
         if (kerberosConfigFile != null) {
             setKerberosConfigFile(kerberosConfigFile);
-        }
-        String oracleKerberosCacheFile = props.remove(ConfigUtils.ORACLE_KERBEROS_CACHE_FILE);
-        if (oracleKerberosCacheFile != null) {
-            setOracleKerberosCacheFile(oracleKerberosCacheFile);
-        }
-
-        String oracleWalletLocationProp = props.remove(ConfigUtils.ORACLE_WALLET_LOCATION);
-        if (oracleWalletLocationProp != null) {
-            setOracleWalletLocation(oracleWalletLocationProp);
         }
         String ignoreMigrationPatternsProp = props.remove(ConfigUtils.IGNORE_MIGRATION_PATTERNS);
         if (ignoreMigrationPatternsProp != null) {
@@ -1712,6 +1661,64 @@ public class ClassicConfiguration implements Configuration {
         }
 
         ConfigUtils.checkConfigurationForUnrecognisedProperties(props, "flyway.");
+    }
+
+    private static void parsePropertiesFromConfigExtension(HashMap<String, Map<String, Object>> configExtensionsPropertyMap, List<String> keysToRemove, Map.Entry<String, String> params, String fixedKey, ConfigurationExtension configExtension) {
+        List<String> fields = Arrays.stream(configExtension.getClass().getDeclaredFields()).map(Field::getName).collect(Collectors.toList());
+
+        String rootKey = fixedKey.contains(".") ? fixedKey.substring(0, fixedKey.indexOf(".")) : fixedKey;
+        if (fields.contains(rootKey)) {
+            Object value = params.getValue();
+
+            if (!configExtensionsPropertyMap.containsKey(configExtension.getClass().toString())) {
+                configExtensionsPropertyMap.put(configExtension.getClass().toString(), new HashMap<>());
+            }
+
+            if (fixedKey.contains(".")) {
+                String[] path = fixedKey.split("\\.");
+                Map<String, Object> currentConfigExtensionProperties = new HashMap<>();
+                if (!configExtensionsPropertyMap.get(configExtension.getClass().toString()).containsKey(path[0])) {
+                    configExtensionsPropertyMap.get(configExtension.getClass().toString()).put(path[0], currentConfigExtensionProperties);
+                } else {
+                    currentConfigExtensionProperties = (Map<String, Object>) configExtensionsPropertyMap.get(configExtension.getClass().toString()).get(path[0]);
+                }
+                Object currentConfigExtension = configExtension;
+                Field[] declaredFields = configExtension.getClass().getDeclaredFields();
+                Field field = Arrays.stream(declaredFields).filter(f -> f.getName().equals(path[0])).findFirst().orElse(null);
+                try {
+                    currentConfigExtension = field.getType().getDeclaredConstructor().newInstance();
+                } catch (Exception e) {
+                    LOG.error("Failed to get configuration extension", e);
+                }
+
+                for (int i = 1; i < path.length; i++) {
+                    final String currentPath = path[i];
+                    try {
+                        Field[] subFields = currentConfigExtension.getClass().getDeclaredFields();
+                        field = Arrays.stream(subFields).filter(f -> f.getName().equals(currentPath)).findFirst().orElse(null);
+                        if (field.getType() == List.class || field.getType() == String[].class) {
+                            value = ((String) value).split(",");
+                        } else if (field.getType() == Boolean.class) {
+                            currentConfigExtension = null;
+                        } else {
+                            currentConfigExtension = field.getType().getDeclaredConstructor().newInstance();
+                        }
+                    } catch (Exception ignored) {
+                    }
+                    if (i < path.length - 1) {
+                        Map<String, Object> newValue = new HashMap<>();
+                        currentConfigExtensionProperties.put(path[i], newValue);
+                        currentConfigExtensionProperties = newValue;
+                    } else {
+                        currentConfigExtensionProperties.put(path[i], value);
+                    }
+                }
+            } else {
+                configExtensionsPropertyMap.get(configExtension.getClass().toString()).put(fixedKey, value);
+            }
+
+            keysToRemove.add(params.getKey());
+        }
     }
 
     public void setFailOnMissingLocations(Boolean failOnMissingLocationsProp) {
@@ -1815,6 +1822,30 @@ public class ClassicConfiguration implements Configuration {
     public void setInitSql(String initSqlProp) {
         getCurrentUnresolvedEnvironment().setInitSql(initSqlProp);
         resolvedEnvironments.clear();
+    }
+
+    private void determineKeysToRemoveAndRemoveFromProps(HashMap<String, Map<String, Object>> configExtensionsPropertyMap, List<String> keysToRemove, Map<String, String> props) {
+        for (Map.Entry<String, Map<String, Object>> property : configExtensionsPropertyMap.entrySet()) {
+            ConfigurationExtension cfg = pluginRegister.getPlugins(ConfigurationExtension.class).stream().filter(c -> c.getClass().toString().equals(property.getKey())).findFirst().orElse(null);
+            if (cfg != null) {
+                Map<String, Object> mp = property.getValue();
+
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    ConfigurationExtension newConfigurationExtension = objectMapper.convertValue(mp, cfg.getClass());
+                    MergeUtils.mergeModel(newConfigurationExtension, cfg);
+                } catch (Exception e) {
+                    Matcher matcher = ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN.matcher(e.getMessage());
+                    if (matcher.find()) {
+                        String errorProperty = matcher.group(1);
+                        List<String> propsToRemove = keysToRemove.stream().filter(k -> k.endsWith(errorProperty)).collect(Collectors.toList());
+                        keysToRemove.removeAll(propsToRemove);
+                    }
+                }
+            }
+        }
+
+        props.keySet().removeAll(keysToRemove);
     }
 
     private void configureFromConfigurationProviders(ClassicConfiguration configuration) {

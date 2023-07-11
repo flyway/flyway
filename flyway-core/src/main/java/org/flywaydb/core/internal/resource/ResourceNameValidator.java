@@ -21,6 +21,8 @@ import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.Resource;
+import org.flywaydb.core.internal.database.DatabaseType;
+import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.ArrayList;
@@ -69,13 +71,11 @@ public class ResourceNameValidator {
     }
 
     private boolean isSpecialResourceFile(Configuration configuration, String filename) {
-
-
-
-
-
-
-
-        return false;
+        try {
+        DatabaseType databaseType = configuration.getDatabaseType();
+        return databaseType.getSpecialResourceFilenames(configuration).contains(filename);
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

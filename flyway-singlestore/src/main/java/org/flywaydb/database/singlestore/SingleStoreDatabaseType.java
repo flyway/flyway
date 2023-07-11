@@ -15,7 +15,7 @@
  */
 package org.flywaydb.database.singlestore;
 
-import org.flywaydb.LicenseGuard;
+import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;

@@ -30,9 +30,8 @@ FLYWAY_ORACLE_KERBEROS_CACHE_FILE=/temp/krb5cc_123
 
 ### API
 ```java
-Flyway.configure()
-    .oracleKerberosCacheFile("/temp/krb5cc_123")
-    .load()
+OracleConfigurationExtension oracleConfigurationExtension = configuration.getPluginRegister().getPlugin(OracleConfigurationExtension.class);
+oracleConfigurationExtension.setKerberosCacheFile("/temp/krb5cc_123");
 ```
 
 ### Gradle

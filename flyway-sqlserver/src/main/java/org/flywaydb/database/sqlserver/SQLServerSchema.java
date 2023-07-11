@@ -241,7 +241,9 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
         statements.addAll(cleanSynonyms());
         statements.addAll(cleanRules());
         statements.addAll(cleanObjects("DEFAULT", ObjectType.DEFAULT_CONSTRAINT));
-        statements.addAll(cleanXmlSchemaCollections());
+        if (database.hasXmlSchemaCollections()) {
+            statements.addAll(cleanXmlSchemaCollections());
+        }
 
 
 

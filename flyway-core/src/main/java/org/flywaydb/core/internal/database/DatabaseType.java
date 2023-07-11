@@ -30,6 +30,8 @@ import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 
 import java.sql.Connection;
 import java.sql.Driver;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -252,4 +254,8 @@ public interface DatabaseType extends Plugin {
     String instantiateClassExtendedErrorMessage();
 
     void printMessages();
+
+    default List<String> getSpecialResourceFilenames(Configuration configuration) {
+        return Collections.emptyList();
+    }
 }

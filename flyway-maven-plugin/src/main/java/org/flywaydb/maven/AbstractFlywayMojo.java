@@ -588,34 +588,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Boolean batch;
 
     /**
-     * Whether to Flyway's support for Oracle SQL*Plus commands should be activated. (default: {@code false})
-     *
-     * <i>Flyway Teams only</i>
-     * <p>Also configurable with Maven or System Property: ${flyway.oracle.sqlplus}</p>
-     */
-    @Parameter(property = ConfigUtils.ORACLE_SQLPLUS)
-    private Boolean oracleSqlplus;
-
-    /**
-     * Whether Flyway should issue a warning instead of an error whenever it encounters an Oracle SQL*Plus statement
-     * it doesn't yet support. (default: {@code false})
-     *
-     * <i>Flyway Teams only</i>
-     * <p>Also configurable with Maven or System Property: ${flyway.oracle.sqlplusWarn}</p>
-     */
-    @Parameter(property = ConfigUtils.ORACLE_SQLPLUS_WARN)
-    private Boolean oracleSqlplusWarn;
-
-    /**
-     * The location of your Oracle wallet, used to automatically sign in to your databases.
-     *
-     * <i>Flyway Teams only</i>
-     * <p>Also configurable with Maven or System Property: ${flyway.oracle.walletLocation}</p>
-     */
-    @Parameter(property = ConfigUtils.ORACLE_WALLET_LOCATION)
-    private String oracleWalletLocation;
-
-    /**
      * When connecting to a Kerberos service to authenticate, the path to the Kerberos config file.
      * <i>Flyway Teams only</i>
      */
@@ -840,10 +812,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.DRYRUN_OUTPUT, dryRunOutput);
             putIfSet(conf, ConfigUtils.STREAM, stream);
             putIfSet(conf, ConfigUtils.BATCH, batch);
-
-            putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus);
-            putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS_WARN, oracleSqlplusWarn);
-            putIfSet(conf, ConfigUtils.ORACLE_WALLET_LOCATION, oracleWalletLocation);
 
             putIfSet(conf, ConfigUtils.KERBEROS_CONFIG_FILE, kerberosConfigFile);
 

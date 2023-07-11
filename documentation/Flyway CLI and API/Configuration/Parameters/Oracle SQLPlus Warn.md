@@ -32,9 +32,8 @@ FLYWAY_ORACLE_SQLPLUS_WARN=true
 
 ### API
 ```java
-Flyway.configure()
-    .oracleSqlplusWarn(true)
-    .load()
+OracleConfigurationExtension oracleConfigurationExtension = configuration.getPluginRegister().getPlugin(OracleConfigurationExtension.class);
+oracleConfigurationExtension.setSqlPlusWarn(true);
 ```
 
 ### Gradle

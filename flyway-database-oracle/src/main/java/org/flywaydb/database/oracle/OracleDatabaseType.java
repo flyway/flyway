@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.plugin.PluginRegister;
 
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
@@ -39,6 +40,8 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -109,6 +112,7 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
 
 
+
         return new OracleParser(configuration
 
 
@@ -161,6 +165,9 @@ public class OracleDatabaseType extends BaseDatabaseType {
 
     @Override
     public void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader) {
+
+
+
 
 
 
@@ -253,4 +260,15 @@ public class OracleDatabaseType extends BaseDatabaseType {
             throw new FlywayException("Unable to register Oracle driver. AWS Secrets Manager may not work", e);
         }
     }
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -18,6 +18,10 @@ package org.flywaydb.core.extensibility;
 import java.util.Map;
 
 public interface ConfigurationExtension extends Plugin {
-    void extractParametersFromConfiguration(Map<String, String> configuration);
+    String getNamespace();
+    @Deprecated
+    default void extractParametersFromConfiguration(Map<String, String> configuration) {
+        // Do nothing
+    }
     String getConfigurationParameterFromEnvironmentVariable(String environmentVariable);
 }

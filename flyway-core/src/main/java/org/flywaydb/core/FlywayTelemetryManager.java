@@ -18,7 +18,6 @@ package org.flywaydb.core;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.extensibility.TelemetryPlugin;
@@ -89,7 +88,7 @@ public class FlywayTelemetryManager implements AutoCloseable{
         rootTelemetryModel.setOperationId(operationId);
     }
 
-    public void LogEvent(EventTelemetryModel model) {
+    public void logEvent(EventTelemetryModel model) {
         List<TelemetryPlugin> telemetryPlugins = pluginRegister.getPlugins(TelemetryPlugin.class);
 
         for(TelemetryPlugin telemetryPlugin : telemetryPlugins){

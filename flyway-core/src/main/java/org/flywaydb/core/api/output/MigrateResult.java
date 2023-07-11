@@ -18,6 +18,7 @@ package org.flywaydb.core.api.output;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MigrateResult extends HtmlResult {
     public static final String COMMAND = "migrate";
@@ -61,5 +62,17 @@ public class MigrateResult extends HtmlResult {
         }
 
         warnings.add(warning);
+    }
+
+    public long getTotalMigrationTime() {
+
+        if (migrations == null) {
+            return 0;
+        }
+
+        return migrations.stream()
+                         .filter(Objects::nonNull)
+                         .mapToLong(migrateOutput -> migrateOutput.executionTime)
+                         .sum();
     }
 }

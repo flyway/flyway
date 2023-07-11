@@ -752,10 +752,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.STREAM, stream, extension.stream);
         putIfSet(conf, ConfigUtils.BATCH, batch, extension.batch);
 
-        putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS, oracleSqlplus, extension.oracleSqlplus);
-        putIfSet(conf, ConfigUtils.ORACLE_SQLPLUS_WARN, oracleSqlplusWarn, extension.oracleSqlplusWarn);
-        putIfSet(conf, ConfigUtils.ORACLE_WALLET_LOCATION, oracleWalletLocation, extension.oracleWalletLocation);
-
         putIfSet(conf, ConfigUtils.KERBEROS_CONFIG_FILE, kerberosConfigFile, extension.kerberosConfigFile);
 
         putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey, extension.licenseKey);

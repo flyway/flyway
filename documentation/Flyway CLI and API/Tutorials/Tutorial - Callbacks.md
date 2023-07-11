@@ -7,7 +7,7 @@ redirect_from:
 ---
 # Tutorial: Callbacks
 
-This tutorial assumes you have successfully completed the [**First Steps: Command-line**](Getting Started/First Steps/First Steps - Command-line)
+This tutorial assumes you have successfully completed the **{% include quickstart-cli.html %}**
 tutorial. **If you have not done so, please do so first.** This tutorial picks up where that one left off.
 
 This brief tutorial will teach **how to use callbacks**. It will take you through the
@@ -25,7 +25,7 @@ They are typically used for
 
 ## Reviewing the status
 
-After having completed the [First Steps: Command-line](Getting Started/First Steps/First Steps - Command-line), you can now execute
+After having completed the {% include quickstart-cli.html %}, you can now execute
 
 <pre class="console"><span>flyway-{{ site.flywayVersion }}&gt;</span> flyway <strong>info</strong></pre>
 

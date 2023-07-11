@@ -31,11 +31,12 @@ public class SQLServerConfigurationExtension implements ConfigurationExtension {
     private static final String SQLSERVER_KERBEROS_LOGIN_FILE = "sqlserver.kerberos.login.file";
     private static final String KERBEROS_LOGIN_FILE = FLYWAY_PLUGINS_PREFIX + SQLSERVER_KERBEROS_LOGIN_FILE;
 
-    private String kerberosLoginFile;
-
+    @Getter
+    @Setter
+    private KerberosModel kerberos = new KerberosModel();
     @Override
-    public void extractParametersFromConfiguration(Map<String, String> configuration) {
-        kerberosLoginFile = getProperty(configuration, KERBEROS_LOGIN_FILE, kerberosLoginFile);
+    public String getNamespace() {
+        return "sqlserver";
     }
 
     @Override
@@ -46,19 +47,5 @@ public class SQLServerConfigurationExtension implements ConfigurationExtension {
             default:
                 return null;
         }
-    }
-
-    private String getProperty(Map<String, String> configuration, String key, String fallback) {
-
-         if (org.flywaydb.core.internal.util.StringUtils.hasText(fallback)) {
-           throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException(SQLSERVER_KERBEROS_LOGIN_FILE);
-         }
-         return null;
-
-
-
-
-
-
     }
 }

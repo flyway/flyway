@@ -26,6 +26,59 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="9.20.0">Flyway 9.20.0 (2023-06-20)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>RGCompare MySql support has gone GA</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Flyway now supports the latest version on SQL Server 2022.</li>
+        </ul>
+
+    </div>
+
+<div class="release">
+        <h2 id="9.19.4">Flyway 9.19.4 (2023-06-09)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>incorrect license shown above correct license</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3682">Issue 3682</a>
+                Fixed parsing of boolean values in configuration
+            </li>
+        </ul>
+
+        <p>
+            Thanks to TheHenrick for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
+        <h2 id="9.19.3">Flyway 9.19.3 (2023-06-07)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fix missing Jackson-Annotation dependency in CLI bundle</li>
+        </ul>
+
+    </div>
+
+<div class="release">
+        <h2 id="9.19.2">Flyway 9.19.2 (2023-06-07)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Improved parsing of CASE expressions inside function bodies.</li>
+            <li>Fixed a bug encountered when cleaning Azure Synapse instances where Flyway referred to 'sys.xml_schema_collections` which only exists in SQL Server.</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="9.19.1">Flyway 9.19.1 (2023-05-24)</h2>
 
         <h3>Bug fixes</h3>

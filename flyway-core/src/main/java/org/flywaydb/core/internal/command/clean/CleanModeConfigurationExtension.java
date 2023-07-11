@@ -22,7 +22,6 @@ import org.flywaydb.core.extensibility.ConfigurationExtension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGINS_PREFIX;
 
@@ -31,27 +30,16 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGIN
 public class CleanModeConfigurationExtension implements ConfigurationExtension {
     public enum Mode {
         DEFAULT, SCHEMA, ALL;
-
-        public static Mode fromString(String string) {
-            return Mode.valueOf(string.toUpperCase());
-        }
     }
 
     private static final String CLEAN_MODE = FLYWAY_PLUGINS_PREFIX + "clean.mode";
     private static final String CLEAN_SCHEMAS_EXCLUDE = FLYWAY_PLUGINS_PREFIX + "clean.schemas.exclude";
 
-    private Mode cleanMode = Mode.DEFAULT;
-    private List<String> cleanSchemasExclude = new ArrayList<>();
+    CleanModel clean = new CleanModel();
 
     @Override
-    public void extractParametersFromConfiguration(Map<String, String> configuration) {
-        cleanMode = Mode.fromString(configuration.getOrDefault(CLEAN_MODE, cleanMode.toString()));
-        String cleanSchemasExcludeString = configuration.getOrDefault(CLEAN_SCHEMAS_EXCLUDE, null);
-        if (cleanSchemasExcludeString != null) {
-            cleanSchemasExclude = Arrays.asList(cleanSchemasExcludeString.split(","));
-        }
-        configuration.remove(CLEAN_MODE);
-        configuration.remove(CLEAN_SCHEMAS_EXCLUDE);
+    public String getNamespace() {
+        return "plugins";
     }
 
     @Override
@@ -67,6 +55,7 @@ public class CleanModeConfigurationExtension implements ConfigurationExtension {
     }
 
     public void setCleanSchemasExclude(String... cleanSchemasExclude) {
-        this.cleanSchemasExclude = Arrays.asList(cleanSchemasExclude);
+        this.clean.setSchemas(new SchemaModel());
+        this.clean.getSchemas().setExclude(Arrays.asList(cleanSchemasExclude));
     }
 }

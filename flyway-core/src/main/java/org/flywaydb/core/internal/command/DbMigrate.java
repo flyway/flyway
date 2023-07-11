@@ -88,8 +88,6 @@ public class DbMigrate {
 
         int count;
         try {
-            StopWatch stopWatch = new StopWatch();
-            stopWatch.start();
 
             count = configuration.isGroup() ?
                     // When group is active, start the transaction boundary early to
@@ -98,12 +96,11 @@ public class DbMigrate {
                     // For all regular cases, proceed with the migration as usual.
                     migrateAll();
 
-            stopWatch.stop();
-
             migrateResult.targetSchemaVersion = getTargetVersion();
             migrateResult.migrationsExecuted = count;
 
-            logSummary(count, stopWatch.getTotalTimeMillis(), migrateResult.targetSchemaVersion);
+            logSummary(count, migrateResult.getTotalMigrationTime(), migrateResult.targetSchemaVersion);
+
         } catch (FlywayException e) {
             callbackExecutor.onMigrateOrUndoEvent(Event.AFTER_MIGRATE_ERROR);
             throw e;

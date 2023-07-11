@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.configuration.models;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -54,8 +55,6 @@ public class FlywayModel {
     private String sqlMigrationSeparator;
     private List<String> sqlMigrationSuffixes;
     private String licenseKey;
-    private Boolean oracleSqlplus;
-    private Boolean oracleSqlplusWarn;
     private Boolean cleanDisabled;
     private Boolean cleanOnValidationError;
     private List<String> locations;
@@ -88,14 +87,14 @@ public class FlywayModel {
     private Boolean outputQueryResults;
     private Integer lockRetryCount;
     private String kerberosConfigFile;
-    private String oracleKerberosCacheFile;
-    private String oracleWalletLocation;
     private Boolean failOnMissingLocations;
     private List<String> loggers;
     private Map<String, String> placeholders;
     private String defaultSchema;
     private Map<String, PropertyResolver> propertyResolvers;
     private Boolean reportEnabled;
+    @JsonAnySetter
+    private Map<String,Object> pluginConfigurations = new HashMap<>();
 
     public static FlywayModel defaults(){
          FlywayModel model = new FlywayModel();
@@ -113,8 +112,6 @@ public class FlywayModel {
          model.repeatableSqlMigrationPrefix = "R";
          model.sqlMigrationSeparator = "__";
          model.sqlMigrationSuffixes = Arrays.asList(".sql");
-         model.oracleSqlplus = false;
-         model.oracleSqlplusWarn = false;
          model.cleanDisabled = true;
          model.cleanOnValidationError = false;
          model.locations = new ArrayList<>(Collections.singletonList("db/migration"));
@@ -144,7 +141,6 @@ public class FlywayModel {
          model.outputQueryResults = true;
          model.lockRetryCount = 50;
          model.kerberosConfigFile = "";
-         model.oracleKerberosCacheFile = "";
          model.failOnMissingLocations = false;
          model.loggers = Arrays.asList("auto");
          model.placeholders = new HashMap<>();
@@ -171,8 +167,6 @@ public class FlywayModel {
         result.sqlMigrationSeparator = sqlMigrationSeparator.merge(otherPojo.sqlMigrationSeparator);
         result.sqlMigrationSuffixes = sqlMigrationSuffixes.merge(otherPojo.sqlMigrationSuffixes);
         result.licenseKey = licenseKey.merge(otherPojo.licenseKey);
-        result.oracleSqlplus = oracleSqlplus.merge(otherPojo.oracleSqlplus);
-        result.oracleSqlplusWarn = oracleSqlplusWarn.merge(otherPojo.oracleSqlplusWarn);
         result.cleanDisabled = cleanDisabled.merge(otherPojo.cleanDisabled);
         result.cleanOnValidationError = cleanOnValidationError.merge(otherPojo.cleanOnValidationError);
         result.locations = locations.merge(otherPojo.locations);
@@ -205,14 +199,13 @@ public class FlywayModel {
         result.outputQueryResults = outputQueryResults.merge(otherPojo.outputQueryResults);
         result.lockRetryCount = lockRetryCount.merge(otherPojo.lockRetryCount);
         result.kerberosConfigFile = kerberosConfigFile.merge(otherPojo.kerberosConfigFile);
-        result.oracleKerberosCacheFile = oracleKerberosCacheFile.merge(otherPojo.oracleKerberosCacheFile);
-        result.oracleWalletLocation = oracleWalletLocation.merge(otherPojo.oracleWalletLocation);
         result.failOnMissingLocations = failOnMissingLocations.merge(otherPojo.failOnMissingLocations);
         result.loggers = loggers.merge(otherPojo.loggers);
         result.defaultSchema = defaultSchema.merge(otherPojo.defaultSchema);
         result.placeholders = placeholders.merge(otherPojo.placeholders);
         result.reportEnabled = reportEnabled.merge(otherPojo.reportEnabled);
         result.propertyResolvers = MergeUtils.merge(propertyResolvers, otherPojo.propertyResolvers, (a,b) -> b != null ? b : a); // TODO: more granular merge
+        result.pluginConfigurations = MergeUtils.merge(pluginConfigurations, otherPojo.pluginConfigurations, (a,b) -> b != null ? b : a);
         return result;
     }
 

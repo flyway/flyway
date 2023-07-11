@@ -100,11 +100,6 @@ public class ConfigUtils {
 
     public static final String REPORT_ENABLED = "flyway.reportEnabled";
     public static final String REPORT_FILENAME = "flyway.reportFilename";
-    // Oracle-specific
-    public static final String ORACLE_SQLPLUS = "flyway.oracle.sqlplus";
-    public static final String ORACLE_SQLPLUS_WARN = "flyway.oracle.sqlplusWarn";
-    public static final String ORACLE_KERBEROS_CACHE_FILE = "flyway.oracle.kerberosCacheFile";
-    public static final String ORACLE_WALLET_LOCATION = "flyway.oracle.walletLocation";
 
     // Command-line specific
     public static final String JAR_DIRS = "flyway.jarDirs";
@@ -320,20 +315,6 @@ public class ConfigUtils {
         }
         if ("FLYWAY_KERBEROS_CONFIG_FILE".equals(key)) {
             return KERBEROS_CONFIG_FILE;
-        }
-
-        // Oracle-specific
-        if ("FLYWAY_ORACLE_SQLPLUS".equals(key)) {
-            return ORACLE_SQLPLUS;
-        }
-        if ("FLYWAY_ORACLE_SQLPLUS_WARN".equals(key)) {
-            return ORACLE_SQLPLUS_WARN;
-        }
-        if ("FLYWAY_ORACLE_KERBEROS_CACHE_FILE".equals(key)) {
-            return ORACLE_KERBEROS_CACHE_FILE;
-        }
-        if ("FLYWAY_ORACLE_WALLET_LOCATION".equals(key)) {
-            return ORACLE_WALLET_LOCATION;
         }
 
         if ("FLYWAY_REPORT_FILENAME".equals(key)) {
@@ -637,7 +618,7 @@ public class ConfigUtils {
     public static void checkConfigurationForUnrecognisedProperties(Map<String, String> config, String prefix) {
         ArrayList<String> unknownFlywayProperties = new ArrayList<>();
         for (String key : config.keySet()) {
-            if (prefix == null || (key.startsWith(prefix) && !key.startsWith(FLYWAY_PLUGINS_PREFIX))) {
+            if (prefix == null || (key.startsWith(prefix))) {
                 unknownFlywayProperties.add(key);
             }
         }

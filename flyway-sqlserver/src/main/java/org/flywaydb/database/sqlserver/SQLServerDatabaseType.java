@@ -22,6 +22,7 @@ import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.parser.Parser;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -115,7 +116,15 @@ public class SQLServerDatabaseType extends BaseDatabaseType {
 
 
 
-    }
+
+        if (config != null) {
+            SQLServerConfigurationExtension configurationExtension = config.getPluginRegister().getPlugin(SQLServerConfigurationExtension.class);
+            if (StringUtils.hasText(configurationExtension.getKerberos().getLogin().getFile())) {
+                throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("sqlserver.kerberos.login.file");
+            }
+        }
+
+}
 
     @Override
     public boolean detectUserRequiredByUrl(String url) {

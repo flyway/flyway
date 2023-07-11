@@ -24,3 +24,4 @@ org.flywaydb.core.api.output.MigrateHtmlRenderer
 org.flywaydb.core.internal.reports.json.MigrateResultDeserializer
 org.flywaydb.core.api.output.HoldingRenderer
 org.flywaydb.core.api.output.DashboardRenderer
+org.flywaydb.core.extensibility.LicenseRgDomainChecker
