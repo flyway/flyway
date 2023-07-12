@@ -26,6 +26,37 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="9.20.1">Flyway 9.20.1 (2023-07-12)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Update Maven Version check to use Maven Metadata to avoid website deprecation issues</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Added table feedback for SQL Plus</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Upgrade AWS SDK to fix SNYK issue CVE-2023-34462</li>
+            <li>Upgrade google-cloud-spanner to fix SNYK issue SNYK-JAVA-COMGOOGLEGUAVA-5710356</li>
+            <li>Upgrade Google Cloud Secretmanager to 2.22.5 to fix SNYK-JAVA-COMGOOGLEGUAVA-5710356</li>
+            <li>Upgrade Google Cloud Storage to 2.22.5 to fix SNYK-JAVA-COMGOOGLEGUAVA-5710356</li>
+            <li>Update AWS Java SDK to 2.20.69 to fix SNYK-JAVA-IONETTY-5725787</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3690">Issue 3690</a>
+                flyway-core now has a dependency on jackson-dataformat-toml.
+            </li>
+        </ul>
+
+        <p>
+            Thanks to froque for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="9.20.0">Flyway 9.20.0 (2023-06-20)</h2>
 
         <h3>Changes</h3>

@@ -18,10 +18,6 @@ More information can be found on [the check command page](Commands/check).
 
 This tutorial exemplifies the scenario where you have access to both your target DB (`url`) and a build DB (`buildUrl`).
 
-## Install prerequisites
-
-Flyway Check requires .Net 6 so make sure you have this installed. You can download it from [here](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
-
 ## Download the latest version of Flyway Enterprise CLI
 
 First, [download the latest version of the Flyway Enterprise CLI](Usage/Command-line) and extract its contents.
