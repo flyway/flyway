@@ -35,26 +35,6 @@ public class PostgreSQLDatabase extends Database<PostgreSQLConnection> {
         return new PostgreSQLConnection(this, connection);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public void ensureSupported() {
         ensureDatabaseIsRecentEnough("9.0");
