@@ -14,32 +14,18 @@
  * limitations under the License.
  */
 package org.flywaydb.core.internal.database.sinodb;
-
-import org.flywaydb.core.internal.database.base.Connection;
+import org.flywaydb.core.internal.database.sinodb.DbSupport;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.database.base.Schema;
-
+import org.flywaydb.core.internal.database.base.Type;
 import java.sql.SQLException;
 
-/**
- * SinoDB connection.
- */
-public class SinoDBConnection extends Connection<SinoDBDatabase> {
-    InformixConnection(InformixDatabase database, java.sql.Connection connection) {
-        super(database, connection);
+public class SinoDBRowType extends Type {
+    public SinoDBRowType(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
+        super(jdbcTemplate, dbSupport, schema, name);
     }
 
-    @Override
-    protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
-        return getJdbcConnection().getMetaData().getUserName();
-    }
-
-    @Override
-    public Schema getSchema(String name) {
-        return new InformixSchema(jdbcTemplate, database, name);
-    }
-
-    @Override
-    public void changeCurrentSchemaTo(Schema schema) {
-        // Informix doesn't support schemas
+    protected void doDrop() throws SQLException {
+        this.jdbcTemplate.execute("DROP ROW TYPE " + this.dbSupport.quote(new String[]{this.schema.getName(), this.name}) + " RESTRICT", new Object[0]);
     }
 }

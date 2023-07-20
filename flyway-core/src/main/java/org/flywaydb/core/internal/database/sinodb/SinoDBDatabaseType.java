@@ -50,7 +50,7 @@ public class SinoDBDatabaseType extends BaseDatabaseType {
 
     @Override
     public boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection) {
-        return databaseProductName.startsWith("sinodb");
+        return databaseProductName.startsWith("SinoDB");
     }
 
     @Override

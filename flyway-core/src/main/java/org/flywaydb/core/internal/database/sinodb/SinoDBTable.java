@@ -13,46 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.database.gbase;
+package  org.flywaydb.core.internal.database.sinodb;
 
-import org.flywaydb.core.internal.database.base.Table;
-import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-
+import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.Schema;
+import com.googlecode.flyway.core.dbsupport.Table;
 import java.sql.SQLException;
 
-/**
- * Informix-specific table.
- */
-public class SinoDBTable extends Table<SinoDBDatabase, SinoDBSchema> {
-    /**
-     * Creates a new Informix table.
-     *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param database The database-specific support.
-     * @param schema The schema this table lives in.
-     * @param name The name of the table.
-     */
-    SinoDBTable(JdbcTemplate jdbcTemplate, SinoDBDatabase database, SinoDBSchema schema, String name) {
-        super(jdbcTemplate, database, schema, name);
+public class SinoDBTable extends Table {
+    public SinoDBTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
+        super(jdbcTemplate, dbSupport, schema, name);
+
+        try {
+            jdbcTemplate.execute("SET LOCK MODE TO WAIT", new Object[0]);
+        } catch (SQLException var6) {
+            throw new FlywayException("Can not Set Lock Mode!", var6);
+        }
     }
 
-    @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP TABLE " + name);
+        this.jdbcTemplate.execute("DROP TABLE " + this.dbSupport.quote(new String[]{this.name}), new Object[0]);
     }
 
-    @Override
     protected boolean doExists() throws SQLException {
-        return exists(null, schema, name);
+        return this.exists((Schema)null, this.schema, this.name, new String[0]);
     }
 
-    @Override
+    protected boolean doExistsNoQuotes() throws SQLException {
+        return this.exists((Schema)null, this.dbSupport.getSchema(this.schema.getName().toUpperCase()), this.name.toUpperCase(), new String[0]);
+    }
+
     protected void doLock() throws SQLException {
-        jdbcTemplate.update("lock table " + this + " in exclusive mode");
-    }
-
-    @Override
-    public String toString() {
-        return name;
+        this.jdbcTemplate.update("LOCK TABLE " + this + " IN EXCLUSIVE MODE", new Object[0]);
     }
 }

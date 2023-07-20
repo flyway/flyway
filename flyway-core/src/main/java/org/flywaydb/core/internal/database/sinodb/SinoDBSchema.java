@@ -102,8 +102,50 @@ public class SinoDBSchema extends Schema<SinoDBDatabase, SinoDBTable> {
                                   ")", name);
     }
 
+    protected Function[] doAllFunctions() throws SQLException {
+        List<Map<String, String>> rows = this.jdbcTemplate.queryForList("select procname, paramtypes::LVARCHAR as paramtypes from SYSPROCEDURES where  procid > 531 and isproc='f' and owner=? ", new String[]{this.name});
+        List<Function> functions = new ArrayList();
+        Iterator iterator = rows.iterator();
+
+        while(iterator.hasNext()) {
+            Map<String, String> row = (Map)iterator.next();
+            functions.add(this.getFunction((String)row.get("procname"), StringUtils.tokenizeToStringArray((String)row.get("paramtypes"), ",")));
+        }
+
+        return (Function[])functions.toArray(new Function[functions.size()]);
+    }
+
     @Override
     public Table getTable(String tableName) {
         return new InformixTable(jdbcTemplate, database, this, tableName);
+    }
+
+    protected Type getType(String typeName) {
+        return new SinoDBType(this.jdbcTemplate, this.dbSupport, this, typeName);
+    }
+
+    public Function getFunction(String functionName, String... args) {
+        return new SinoDBFunction(this.jdbcTemplate, this.dbSupport, this, functionName, args);
+    }
+
+    private List<String> generateDropStatementsForTriggers(String schema) throws SQLException {
+        String dropTrigGenQuery = "select rtrim(trigname) from systriggers ";
+        return this.buildDropStatements("DROP TRIGGER", dropTrigGenQuery, schema);
+    }
+
+    public final Type[] doAllTypes() throws SQLException {
+        return this.doAllRowTypes();
+    }
+
+    private final Type[] doAllRowTypes() throws SQLException {
+        List<Type> types = new ArrayList();
+        String rTypesqlQuery = "select name from SYSXTDTYPES where mode='R' and owner= ? ";
+        List<String> RTypeName = this.jdbcTemplate.queryForStringList(rTypesqlQuery, new String[]{this.name});
+
+        for(int i = 0; i < RTypeName.size(); ++i) {
+            types.add(new SinoDBRowType(this.jdbcTemplate, this.dbSupport, this, (String)RTypeName.get(i)));
+        }
+
+        return (Type[])types.toArray(new Type[types.size()]);
     }
 }

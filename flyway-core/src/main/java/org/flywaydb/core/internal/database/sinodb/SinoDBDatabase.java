@@ -25,9 +25,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Informix database.
+ * SinoDB database.
  */
-public class SinoDBDatabase extends Database<InformixConnection> {
+public class SinoDBDatabase extends Database<SinoDBConnection> {
 
     public SinoDBDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
