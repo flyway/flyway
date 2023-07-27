@@ -30,7 +30,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>9.20.0</version>
+    <version>9.20.1</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -138,7 +138,7 @@
     <properties>
         <version.ant>1.10.13</version.ant>
         <version.appinsights>3.4.7</version.appinsights>
-        <version.aws-java-sdk>2.19.0</version.aws-java-sdk>
+        <version.aws-java-sdk>2.20.94</version.aws-java-sdk>
         <version.aws-secretsmanager>1.0.9</version.aws-secretsmanager>
         <version.byte-buddy-agent>1.11.18</version.byte-buddy-agent>
         <version.commonslogging>1.2</version.commonslogging>
@@ -147,8 +147,8 @@
         <version.derby>10.15.2.0</version.derby>
         <version.equinox>3.15.200</version.equinox>
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
-        <version.gcs>2.13.0</version.gcs>
-        <version.gcsm>2.3.10</version.gcsm>
+        <version.gcs>2.22.5</version.gcs>
+        <version.gcsm>2.20.0</version.gcsm>
         <version.gradle>6.1.1</version.gradle>
         <version.gson>2.10.1</version.gson>
         <version.h2>2.1.214</version.h2>
@@ -184,7 +184,7 @@
         <version.singlestore>1.1.4</version.singlestore>
         <version.slf4j>1.7.30</version.slf4j>
         <version.snowflake>3.13.30</version.snowflake>
-        <version.spanner>2.7.8</version.spanner>
+        <version.spanner>2.11.1</version.spanner>
         <version.springjdbc>5.3.19</version.springjdbc>
         <version.sqlite>3.41.2.2</version.sqlite>
         <version.testcontainers>1.15.3</version.testcontainers>
@@ -208,7 +208,6 @@
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-toml</artifactId>
                 <version>${version.jackson}</version>
-                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
