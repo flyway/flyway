@@ -88,7 +88,7 @@ public class LegacyConfigurationManager implements ConfigurationManager {
 
 
 
-        return new FluentConfiguration(classLoader).configuration(config);
+        return new FluentConfiguration(classLoader).configuration(config).workingDirectory(workingDirectory);
     }
 
     protected void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {

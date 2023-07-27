@@ -35,15 +35,20 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.flywaydb.core.internal.util.FileUtils.createDirIfNotExists;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JsonUtils {
-    public static String jsonToFile(String filename, String json) {
-        return jsonToFile(filename, JsonParser.parseString(json).getAsJsonObject());
-    }
 
     public static String jsonToFile(String filename, Object json) {
 
         File file= new File(filename);
+
+        try {
+            createDirIfNotExists(file);
+        } catch (UnsupportedOperationException ignore) {
+
+        }
 
         try (FileWriter fileWriter = new FileWriter(file)) {
             getGson().toJson(json, fileWriter);
@@ -86,6 +91,10 @@ public class JsonUtils {
                     .fromJson(reader, existingObjectType);
         } catch (Exception e) {
             throw new FlywayException("Unable to read filename: " + filename, e);
+        }
+
+        if (existingObject == null) {
+            return json;
         }
 
         existingObject.individualResults.addAll(json.individualResults);

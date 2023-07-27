@@ -92,8 +92,8 @@ public class DefaultSqlScriptExecutor implements SqlScriptExecutor {
 
 
         try (SqlStatementIterator sqlStatementIterator = sqlScript.getSqlStatements()) {
-            while (sqlStatementIterator.hasNext()) {
-                SqlStatement sqlStatement = sqlStatementIterator.next();
+            SqlStatement sqlStatement;
+            while ((sqlStatement = sqlStatementIterator.next()) != null) {
 
 
 

@@ -112,6 +112,11 @@ public class FluentConfiguration implements Configuration {
         return this;
     }
 
+    public FluentConfiguration workingDirectory(String workingDirectory) {
+        config.setWorkingDirectory(workingDirectory);
+        return this;
+    }
+
     /**
      * Rules for the built-in error handler that let you override specific SQL states and errors codes in order to force
      * specific errors or warnings to be treated as debug messages, info messages, warnings or errors.

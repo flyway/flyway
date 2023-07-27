@@ -25,76 +25,76 @@ _A table has been created but has no MS_Description property added_
 **Dialects:** TSQL
 
 Intrinsic documentation helps other database developers and can be used to generate documentation about the database.
-## RX0001
+## RX001
 _DROP TABLE statement_
 
 **Dialects:** All
 
 Dropping a table is likely to result in the loss of data so should be investigated before continuing.
-## RX0002
+## RX002
 _Attempt to change password_
 
 **Dialects:** Oracle/PostgreSQL/TSQL
 
 Changing passwords through a DB migration is not considered best practice
-## RX0003
+## RX003
 _TRUNCATE statement used_
 
 **Dialects:** All
 
 This operation is likely to result in a loss of data so should be investigated before continuing
 
-## RX0004
-_DROP COLUMN or PARTITION statement used_
+## RX004
+_DROP COLUMN statement used_
 
 **Dialects:** All
 
 This operation is likely to result in a loss of data so should be investigated before continuing
-## RX0005
+## RX005
 _GRANT TO PUBLIC statement used_
 
 **Dialects:** All
 
 It is not common to access to this degree so should be investigated before continuing 
 
-## RX0006
+## RX006
 _GRANT WITH GRANT OPTION statement used_
 
 **Dialects:** All
 
 Allows grantee to grant additional permissions and so it becomes difficult to track the scope of permissions 
 
-## RX0007
+## RX007
 _GRANT WITH ADMIN OPTION statement used_
 
 **Dialects:** All
 
 Allows grantee to grant administrative permissions and so it becomes difficult to control the scope of permissions 
 
-## RX0008
+## RX008
 _ALTER USER statement used_
 
 **Dialects:** All
 
 Modifies the properties of an existing user and should be investigated before continuing
 
-## RX0009
+## RX009
 _GRANT ALL statement used_
 
 **Dialects:** All
 
 It is not common to access to this degree so should be investigated before continuing
-## RX0010
+## RX010
 _CREATE ROLE statement used_
 
 **Dialects:** All
-## RX0011
+## RX011
 _ALTER ROLE statement used_
 
 This is used to modify user accounts so should be investigated before continuing
 
 **Dialects:** All
-## RX0012
+## RX012
 _DROP PARTITION statement used_
 
 **Dialects:** All

@@ -26,6 +26,42 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="9.21.1">Flyway 9.21.1 (2023-07-27)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Added working directory variable to config</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>When running the SQL*Plus '@' command, Flyway will also search 'SQLPATH' and 'ORACLE_PATH' for runnable scripts. It will also attempt to load from absolute paths.</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Upgrade H2 to 2.2.220</li>
+        </ul>
+
+    </div>
+
+<div class="release">
+        <h2 id="9.21.0">Flyway 9.21.0 (2023-07-20)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>fix handling of plugin string array properties</li>
+            <li>Previously, when migrating using Flyway's SQL*Plus feature, Flyway parsed the first statement of the migration script before reading 'login.sql'/'glogin.sql' files. These files are now fully read beforehand.</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Drop B Script functionality from teams into OSS</li>
+        </ul>
+
+    </div>
+
+<div class="release">
         <h2 id="9.20.1">Flyway 9.20.1 (2023-07-12)</h2>
 
         <h3>Changes</h3>

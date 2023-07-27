@@ -151,12 +151,12 @@ public class Main {
         OperationResult result;
         if (commandLineArguments.getOperations().size() == 1) {
             String operation = commandLineArguments.getOperations().get(0);
-            result = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager, configuration);
+            result = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager, flyway.getConfiguration());
         } else {
             CompositeResult<OperationResult> compositeResult = new CompositeResult<>();
 
             for (String operation : commandLineArguments.getOperations()) {
-                OperationResult operationResult = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager, configuration);
+                OperationResult operationResult = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager, flyway.getConfiguration());
                 compositeResult.individualResults.add(operationResult);
                 if (operationResult instanceof HtmlResult && ((HtmlResult) operationResult).exceptionObject instanceof DbMigrate.FlywayMigrateException) {
                     break;
@@ -253,9 +253,8 @@ public class Main {
 
 
                     if (commandLineArguments.isFilterOnMigrationIds()) {
-                        System.out.print(Arrays.stream(infos)
-                                               .map(m -> m.getVersion() == null ? m.getDescription() : m.getVersion().getVersion())
-                                               .collect(Collectors.joining(",")));
+                        //Must use System.out here rather than LOG.info because LogCreator is empty.
+                        System.out.print(MigrationInfoDumper.dumpToMigrationIds(infos));
                     } else {
                         LOG.info(MigrationInfoDumper.dumpToAsciiTable(infos));
                     }

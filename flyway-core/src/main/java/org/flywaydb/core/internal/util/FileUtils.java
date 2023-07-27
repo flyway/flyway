@@ -164,4 +164,17 @@ public class FileUtils {
         }
     }
 
+    public static void createDirIfNotExists(File file) {
+
+        File dir = file.getParentFile();
+
+        if (dir == null || dir.exists()) {
+            throw new UnsupportedOperationException("No need to create report file directory");
+        }
+
+        if (!dir.mkdirs()) {
+            throw new FlywayException("Unable to creat report file directory");
+        }
+    }
+
 }

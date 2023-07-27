@@ -25,6 +25,7 @@ import org.flywaydb.core.internal.util.AsciiTable;
 import org.flywaydb.core.internal.util.DateUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Dumps migrations in an ascii-art table in the logs and the console.
@@ -58,6 +59,20 @@ public class MigrationInfoDumper {
         }
 
         return new AsciiTable(columns, rows, true, "", "No migrations found").render();
+    }
+
+    /**
+     * Dumps the info about all migrations into a String of Migration Ids.
+     *
+     * @param migrationInfos The list of migrationInfos to dump.
+     * @return The String containing Migration Ids, separated by comma.
+     */
+    public static String dumpToMigrationIds(MigrationInfo[] migrationInfos) {
+        migrationInfos = removeUndos(migrationInfos);
+
+        return Arrays.stream(migrationInfos)
+                     .map(m -> m.getVersion() == null ? m.getDescription() : m.getVersion().getVersion())
+                     .collect(Collectors.joining(","));
     }
 
     static String getCategory(MigrationInfo migrationInfo) {

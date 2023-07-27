@@ -4,7 +4,6 @@ subtitle: flyway.baselineMigrationPrefix
 ---
 
 # Baseline Migration Prefix
-{% include teams.html %}
 
 ## Description
 The file name prefix for baseline migrations.

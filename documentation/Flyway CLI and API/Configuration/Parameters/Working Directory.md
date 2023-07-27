@@ -26,7 +26,11 @@ Not available
 Not available
 
 ### API
-Not available
+```java
+Flyway.configure()
+        .workingDirectory("working_Directory")
+        .load()
+```
 
 ### Gradle
 Not available
