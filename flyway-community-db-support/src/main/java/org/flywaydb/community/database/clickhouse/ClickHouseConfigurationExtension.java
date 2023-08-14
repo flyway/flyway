@@ -27,6 +27,11 @@ public class ClickHouseConfigurationExtension implements ConfigurationExtension 
     private String clusterName;
 
     @Override
+    public String getNamespace() {
+        return "clickhouse";
+    }
+
+    @Override
     public void extractParametersFromConfiguration(Map<String, String> configuration) {
         String clusterName = configuration.remove(CLUSTER_NAME);
         if (clusterName != null) {
