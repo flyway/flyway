@@ -54,6 +54,50 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 </table>
 
+## Java Usage
+Azure Synapse support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+Azure Synapse is found within the `flyway-sqlserver` plugin module.
+
+### Maven
+
+#### Community
+
+```xml
+
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-sqlserver</artifactId>
+</dependency>
+```
+
+#### Teams
+
+```xml
+
+<dependency>
+    <groupId>org.flywaydb.enterprise</groupId>
+    <artifactId>flyway-sqlserver</artifactId>
+</dependency>
+```
+
+### Gradle
+
+#### Community
+
+```groovy
+dependencies {
+    compile "org.flywaydb:flyway-sqlserver"
+}
+```
+
+#### Teams
+
+```groovy
+dependencies {
+    compile "org.flywaydb.enterprise:flyway-sqlserver"
+}
+```
+
 ## Azure Synapse Syntax
 
 - [See SQL Server](Supported Databases/SQL Server#sql-server-syntax)

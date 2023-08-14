@@ -32,12 +32,12 @@ public class SnowflakeParser extends Parser {
      );
 
     public SnowflakeParser(Configuration configuration, ParsingContext parsingContext) {
-        super(configuration, parsingContext, 7);
+        super(configuration, parsingContext, 9);
     }
 
     @Override
     protected boolean isAlternativeStringLiteral(String peek) {
-        if (peek.startsWith(ALTERNATIVE_QUOTE) || peek.toUpperCase().startsWith(ALTERNATIVE_QUOTE_SCRIPT)) {
+        if (peek.startsWith(ALTERNATIVE_QUOTE) || peek.toUpperCase().startsWith(ALTERNATIVE_QUOTE_SCRIPT + " ") || peek.toUpperCase().startsWith(ALTERNATIVE_QUOTE_SCRIPT + "\n") || peek.toUpperCase().startsWith(ALTERNATIVE_QUOTE_SCRIPT + ";")) {
             return true;
         }
         return super.isAlternativeStringLiteral(peek);

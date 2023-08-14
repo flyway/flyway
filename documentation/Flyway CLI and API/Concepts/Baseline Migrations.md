@@ -3,25 +3,12 @@ subtitle: Baseline Migrations
 redirect_from: Concepts/statescripts
 ---
 # Baseline Migrations
-{% include teams.html %}
 
 Over the lifetime of a project, many database objects may be created and destroyed across many migrations which leaves behind a lengthy history of migrations that need to be applied in order to bring a new environment up to speed.
 
 Instead, you might wish to add a single, cumulative migration that represents the state of your database after all of those migrations have been applied without disrupting existing environments.
 
-[Flyway Teams Edition](/https://flywaydb.org/download) gives you a way to achieve this using **Baseline Migrations**.
-
-## Usage
-
-API/Maven/Gradle users will need to include `flyway-proprietary` as a dependency in order to use Baseline Migrations. For example:
-
-```
-<dependency>
-    <groupId>org.flywaydb.enterprise</groupId>
-    <artifactId>flyway-proprietary</artifactId>
-    <version>{{ site.flywayVersion }}</version>
-</dependency>
-```
+Flyway gives you a way to achieve this using **Baseline Migrations**.
 
 ## How it works
 

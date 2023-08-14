@@ -704,7 +704,9 @@ public abstract class Parser {
         private final Recorder recorder;
         private final PositionTracker tracker;
         private final ParserContext context;
+
         private SqlStatement nextStatement;
+        private boolean needToRefreshNextStatement = true;
 
         public ParserSqlStatementIterator(PeekingReader peekingReader, LoadableResource resource, Recorder recorder, PositionTracker tracker, ParserContext context) {
             this.peekingReader = peekingReader;
@@ -712,7 +714,6 @@ public abstract class Parser {
             this.recorder = recorder;
             this.tracker = tracker;
             this.context = context;
-            nextStatement = getNextStatement(resource, peekingReader, recorder, tracker, context);
         }
 
         @Override
@@ -722,23 +723,20 @@ public abstract class Parser {
 
         @Override
         public boolean hasNext() {
+            if (needToRefreshNextStatement) {
+                nextStatement = getNextStatement(resource, peekingReader, recorder, tracker, context);
+                needToRefreshNextStatement = false;
+            }
             return nextStatement != null;
         }
 
         @Override
         public SqlStatement next() {
-            if (nextStatement == null) {
-                throw new NoSuchElementException("No more statements in " + resource.getFilename());
+            if (needToRefreshNextStatement) {
+                nextStatement = getNextStatement(resource, peekingReader, recorder, tracker, context);
             }
-
-            SqlStatement result = nextStatement;
-            nextStatement = getNextStatement(resource, peekingReader, recorder, tracker, context);
-            return result;
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException("remove");
+            needToRefreshNextStatement = true;
+            return nextStatement;
         }
     }
 }

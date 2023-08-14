@@ -66,6 +66,8 @@ public interface Configuration {
      */
     String getUrl();
 
+    String getWorkingDirectory();
+
     /**
      * Retrieves the user used to construct the dataSource. May be null if the dataSource was passed in directly, or if dataSource did not need a user.
      *

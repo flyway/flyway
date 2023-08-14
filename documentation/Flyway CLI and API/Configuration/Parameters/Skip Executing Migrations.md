@@ -65,4 +65,4 @@ See the following articles for additional information on `skipExecutingMigration
     - [Hotfixes](https://flywaydb.org/blog/skipExecutingMigrations#hotfixes)
     - [Migration Generation](https://flywaydb.org/blog/skipExecutingMigrations#migration-generation)
     - [Deferred Migration Execution](https://flywaydb.org/blog/skipExecutingMigrations#deferred-migration-execution)
-    - [Intermediate Baseline](https://flywaydb.org/blog/skipExecutingMigrations#intermediate-baseline)
+    - [Baseline Script](https://flywaydb.org/blog/skipExecutingMigrations#intermediate-baseline)

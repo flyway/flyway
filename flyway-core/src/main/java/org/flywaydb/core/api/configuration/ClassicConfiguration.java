@@ -83,6 +83,10 @@ public class ClassicConfiguration implements Configuration {
 
     @Getter
     @Setter
+    private String workingDirectory;
+
+    @Getter
+    @Setter
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
     @Getter
@@ -1828,10 +1832,20 @@ public class ClassicConfiguration implements Configuration {
         for (Map.Entry<String, Map<String, Object>> property : configExtensionsPropertyMap.entrySet()) {
             ConfigurationExtension cfg = pluginRegister.getPlugins(ConfigurationExtension.class).stream().filter(c -> c.getClass().toString().equals(property.getKey())).findFirst().orElse(null);
             if (cfg != null) {
-                Map<String, Object> mp = property.getValue();
+                Map<String, Object> mpTmp = property.getValue();
 
                 try {
                     ObjectMapper objectMapper = new ObjectMapper();
+                    Map<String, Object> mp = new HashMap<>();
+                    for(Map.Entry<String, Object> entry : mpTmp.entrySet()) {
+                        Field[] subFields = cfg.getClass().getDeclaredFields();
+                        Field field = Arrays.stream(subFields).filter(f -> f.getName().equals(entry.getKey())).findFirst().orElse(null);
+                        Object value = (field.getType() == List.class || field.getType() == String[].class) ?
+                                ((String) entry.getValue()).split(",") :
+                                entry.getValue();
+
+                        mp.put(entry.getKey(), value);
+                    }
                     ConfigurationExtension newConfigurationExtension = objectMapper.convertValue(mp, cfg.getClass());
                     MergeUtils.mergeModel(newConfigurationExtension, cfg);
                 } catch (Exception e) {

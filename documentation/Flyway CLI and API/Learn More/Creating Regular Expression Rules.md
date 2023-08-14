@@ -57,11 +57,14 @@ The file name will be used as the source of rule metadata:
 * Where `B` is a short rule description (this will be replaced by the `description` field in the file content if supplied) 
 
 ## File location
-By default the rules are located in the `/rules` folder of your flyway release.
+By default, the rules are located in the `/rules` folder of your flyway release.
 
-It is possible to change where Flyway looks for rules (for example if you keep them seperately under configuration management) and this is done by setting the `check.rulesLocation` parameter. 
+It is possible to change where Flyway looks for rules (for example if you keep them separately under configuration management) and this is done by setting the `check.rulesLocation` parameter. 
 
 Be aware that this is will be the only place Flyway looks for rules so if you want to use the Redgate supplied ones then you'll need to copy them from the `/rules` folder to the new location.
+
+**NOTE:** Flyway will only look in the default or specified locations for rules and won't traverse sub-folders.
+
 ### In the config file
 `flyway.check.rulesLocation=<path to your files>`
 ### On the command line

@@ -26,12 +26,19 @@ import java.io.FileWriter;
 import java.time.format.DateTimeFormatter;
 
 import static org.flywaydb.core.internal.reports.html.HtmlReportGenerator.generateHtml;
+import static org.flywaydb.core.internal.util.FileUtils.createDirIfNotExists;
 
 public class HtmlUtils {
     public static String toHtmlFile(String filename, CompositeResult<HtmlResult> results, Configuration config) {
         String fileContents = generateHtml(results, config);
 
         File file = new File(filename);
+
+        try {
+            createDirIfNotExists(file);
+        } catch (UnsupportedOperationException ignore) {
+
+        }
 
         try (FileWriter fileWriter = new FileWriter(file)) {
             fileWriter.write(fileContents);

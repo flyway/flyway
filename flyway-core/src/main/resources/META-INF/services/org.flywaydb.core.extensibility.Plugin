@@ -25,3 +25,7 @@ org.flywaydb.core.internal.reports.json.MigrateResultDeserializer
 org.flywaydb.core.api.output.HoldingRenderer
 org.flywaydb.core.api.output.DashboardRenderer
 org.flywaydb.core.extensibility.LicenseRgDomainChecker
+org.flywaydb.core.api.migration.baseline.BaselineAppliedMigration
+org.flywaydb.core.api.migration.baseline.BaselineMigrationConfigurationExtension
+org.flywaydb.core.api.migration.baseline.BaselineMigrationResolver
+org.flywaydb.core.api.migration.baseline.BaselineResourceTypeProvider
