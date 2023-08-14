@@ -59,6 +59,7 @@
             <groupId>com.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
             <version>0.4.6</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
