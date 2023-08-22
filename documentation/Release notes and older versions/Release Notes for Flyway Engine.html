@@ -26,6 +26,41 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="9.21.2">Flyway 9.21.2 (2023-08-22)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>check.buildUrl, check.buildUser and check.buildPassword are now deprecated. These will be replaced by check.buildEnvironment in Flyway 10.0</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Flyway now supports Oracle 21.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3726">Issue 3726</a>
+                Add MariaDB to Flyway H2 compatibility mode
+            </li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>allow external browser SSO in Snowflake</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3723">Issue 3723</a>
+                Upgrade Jackson to 2.15.2
+            </li>
+        </ul>
+
+        <p>
+            Thanks to oujesky and iamniche-too for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="9.21.1">Flyway 9.21.1 (2023-07-27)</h2>
 
         <h3>Changes</h3>

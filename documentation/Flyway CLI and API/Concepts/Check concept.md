@@ -177,8 +177,8 @@ flyway check -code -url=jdbc:postgresql://...
 This will run SQLFluff under the hood, and produce a HTML and JSON report that you can use to check the standards of your migrations.
 
 Flyway makes use of any configured `locations` to determine what migrations to analyse.
-If you have a `URL` configured, Flyway will only run analysis on pending migrations.
-If no `URL` is configured, then _all_ migrations (pending and applied) will be analysed.
+If you have a `URL` configured, Flyway will only run analysis on _pending_ migrations.
+If no `URL` is configured, then _all_ migrations will be analysed.
 
 ### Configuring SQLFluff
 
@@ -197,17 +197,25 @@ You can also use this to configure more than just the dialect, such as which rul
 {% include teams.html %}
 
 You can configure your pipeline to fail when specified are violated beyond a given tolerance level.
-This can be done by configuring `check.majorRules`, `check.minorRules`, `check.majorTolerance` and `check.minorTolerance`.
+This can be done by configuring the following parameters:
 
-`majorRules` should contain a comma-separated list of [SQL Fluff](https://docs.sqlfluff.com/en/stable/rules.html) or Flyway Regex rule codes which are considered to be `major`.
-If the total number of `majorRules` violations exceeds the `majorTolerance`, Flyway will fail.
+- [`check.majorRules`](Configuration/Parameters/Major Rules)
+- [`check.minorRules`](Configuration/Parameters/Minor Rules)
+- [`check.majorTolerance`](Configuration/Parameters/Major Tolerance)
+- [`check.minorTolerance`](Configuration/Parameters/Minor Tolerance)
 
-The same applies to `minorRules` and `minorTolerance`.
-
-For example:
+#### Example:
 
 ```
 ./flyway check -code '-check.majorTolerance=3' '-check.majorRules=L034,L042'
 ```
 
 This will fail if rules `L034` and `L042` are violated 4 or more times in total across all scanned migration scripts.
+
+## Regular Expression (Regex) rules
+
+{% include enterprise.html %}
+
+Customers can easily craft their own custom rules or take advantage of the set of rules Flyway provides:
+- [Creating Regular Expression Rules](Learn More/Creating Regular Expression Rules)
+- [Code Analysis Rules](Usage/Code Analysis Rules)

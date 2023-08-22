@@ -101,19 +101,6 @@ public interface DatabaseType extends Plugin {
      */
     boolean handlesDatabaseProductNameAndVersion(String databaseProductName, String databaseProductVersion, Connection connection);
 
-    /**
-     * Initializes the Database class, and optionally prints some information.
-     *
-     * @param configuration The Flyway configuration.
-     * @param jdbcConnectionFactory The current connection factory.
-     * @param printInfo Where the DB info should be printed in the logs.
-     * @return The appropriate Database class.
-     */
-    Database createDatabase(
-            Configuration configuration, boolean printInfo,
-            JdbcConnectionFactory jdbcConnectionFactory,
-            StatementInterceptor statementInterceptor
-                           );
 
     /**
      * Initializes the Database used by this Database Type.

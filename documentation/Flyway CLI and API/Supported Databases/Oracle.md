@@ -5,6 +5,7 @@ subtitle: Oracle
 
 ## Supported Versions
 
+- `21`
 - `19.3`
 - `18.3`
 - `12.2`

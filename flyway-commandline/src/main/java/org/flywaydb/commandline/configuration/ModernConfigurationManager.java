@@ -99,6 +99,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
             classLoader = ClassUtils.addJarsOrDirectoriesToClasspath(classLoader, jarFiles);
         }
 
+        ConfigUtils.dumpConfigurationModel(config);
         ClassicConfiguration cfg = new ClassicConfiguration(config);
         cfg.setClassLoader(classLoader);
 
@@ -124,8 +125,9 @@ public class ModernConfigurationManager implements ConfigurationManager {
                 }
             }
         }
-
-        for (Map.Entry<String, Object> configuration : config.getFlyway().getPluginConfigurations().entrySet()) {
+        Map<String, Object> pluginConfigurations = config.getFlyway().getPluginConfigurations();
+        pluginConfigurations.remove("jarDirs");
+        for (Map.Entry<String, Object> configuration : pluginConfigurations.entrySet()) {
             if (configuration.getValue() instanceof Map<?, ?>) {
                 Map<String, Object> temp = (Map<String, Object>) configuration.getValue();
                 missingParams.addAll(temp.keySet());

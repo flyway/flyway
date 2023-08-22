@@ -190,7 +190,7 @@ public class Flyway {
                     callbackExecutor.onOperationFinishEvent(Event.AFTER_MIGRATE_OPERATION_FINISH, result);
 
                     return result;
-                }, true);
+                }, true, flywayTelemetryManager);
             } catch (Exception e) {
                 telemetryModel.setException(e);
                 throw e;
@@ -215,7 +215,7 @@ public class Flyway {
             callbackExecutor.onOperationFinishEvent(Event.AFTER_INFO_OPERATION_FINISH, migrationInfoService.getInfoResult());
 
             return migrationInfoService;
-        }, true);
+        }, true, flywayTelemetryManager);
     }
 
     /**
@@ -237,7 +237,7 @@ public class Flyway {
                     callbackExecutor.onOperationFinishEvent(Event.AFTER_CLEAN_OPERATION_FINISH, cleanResult);
 
                     return cleanResult;
-                }, false);
+                }, false, flywayTelemetryManager);
             } catch (Exception e) {
                 telemetryModel.setException(e);
                 throw e;
@@ -270,7 +270,7 @@ public class Flyway {
             }
 
             return null;
-        }, true);
+        }, true, flywayTelemetryManager);
     }
 
     /**
@@ -296,7 +296,7 @@ public class Flyway {
             callbackExecutor.onOperationFinishEvent(Event.AFTER_VALIDATE_OPERATION_FINISH, validateResult);
 
             return validateResult;
-        }, true);
+        }, true, flywayTelemetryManager);
     }
 
     /**
@@ -327,7 +327,7 @@ public class Flyway {
                     callbackExecutor.onOperationFinishEvent(Event.AFTER_BASELINE_OPERATION_FINISH, baselineResult);
 
                     return baselineResult;
-                }, false);
+                }, false, flywayTelemetryManager);
             } catch (Exception e) {
                 telemetryModel.setException(e);
                 throw e;
@@ -357,7 +357,7 @@ public class Flyway {
                     callbackExecutor.onOperationFinishEvent(Event.AFTER_REPAIR_OPERATION_FINISH, repairResult);
 
                     return repairResult;
-                }, true);
+                }, true, flywayTelemetryManager);
             } catch (Exception e) {
                 telemetryModel.setException(e);
                 throw e;

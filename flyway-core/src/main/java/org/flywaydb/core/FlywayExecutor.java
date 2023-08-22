@@ -21,6 +21,7 @@ import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
+import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.internal.callback.*;
 
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
@@ -54,6 +55,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.flywaydb.core.internal.database.DatabaseTypeRegister.redactJdbcUrl;
 import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
 
 
@@ -113,7 +115,7 @@ public class FlywayExecutor {
      * @param <T> The type of the result.
      * @return The result of the command.
      */
-    public <T> T execute(Command<T> command, boolean scannerRequired) {
+    public <T> T execute(Command<T> command, boolean scannerRequired, FlywayTelemetryManager flywayTelemetryManager) {
         T result;
 
         configurationValidator.validate(configuration);
@@ -164,9 +166,24 @@ public class FlywayExecutor {
 
         Database database = null;
         try {
-            database = databaseType.createDatabase(configuration, !dbConnectionInfoPrinted, jdbcConnectionFactory, statementInterceptor);
+            database = databaseType.createDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
             databaseType.printMessages();
-            dbConnectionInfoPrinted = true;
+
+            if (!dbConnectionInfoPrinted) {
+                dbConnectionInfoPrinted = true;
+
+                LOG.info("Database: " + redactJdbcUrl(jdbcConnectionFactory.getJdbcUrl()) + " (" + jdbcConnectionFactory.getProductName() + ")");
+                LOG.debug("Driver: " + jdbcConnectionFactory.getDriverInfo());
+
+                if (flywayTelemetryManager != null) {
+                    RootTelemetryModel rootTelemetryModel = flywayTelemetryManager.getRootTelemetryModel();
+                    if (rootTelemetryModel != null) {
+                        rootTelemetryModel.setDatabaseEngine(database.getDatabaseType().getName());
+                        rootTelemetryModel.setDatabaseVersion(database.getVersion().toString());
+                    }
+                }
+            }
+
             LOG.debug("DDL Transactions Supported: " + database.supportsDdlTransactions());
 
             Pair<Schema, List<Schema>> schemas = SchemaHistoryFactory.prepareSchemas(configuration, database);
@@ -317,4 +334,5 @@ public class FlywayExecutor {
         long usedMB = MEGABYTE.fromBytes(used);
         LOG.debug("Memory usage: " + usedMB + " of " + totalMB + "M");
     }
+
 }

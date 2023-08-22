@@ -819,6 +819,14 @@ public class ClassicConfiguration implements Configuration {
         getModernFlyway().setReportFilename(reportFilename);
     }
 
+    public void setEnvironment(String environment) {
+        if (modernConfig.getEnvironments().containsKey(environment)) {
+            getModernFlyway().setEnvironment(environment);
+        } else {
+            throw new FlywayException("Environment '" + environment + "' not found");
+        }
+    }
+
     /**
      * Sets whether SQL should be executed within a transaction.
      *

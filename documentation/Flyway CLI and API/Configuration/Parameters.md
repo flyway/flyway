@@ -36,6 +36,7 @@ subtitle: placeholder page
 - [mixed](Configuration/parameters/mixed)
 - [outOfOrder](Configuration/Parameters/Out Of Order)
 - [outputQueryResults](Configuration/Parameters/Output Query Results) {% include teams.html %}
+- [reportFilename](Configuration/Parameters/Report Filename)
 - [skipDefaultCallbacks](Configuration/Parameters/Skip Default Callbacks)
 - [skipDefaultResolvers](Configuration/parameters/skipDefaultResolvers)
 - [skipExecutingMigrations](Configuration/Parameters/Skip Executing Migrations) {% include teams.html %}
@@ -85,6 +86,20 @@ subtitle: placeholder page
 ### Command Line
 - [color](Configuration/Parameters/Color)
 - [edition](Configuration/parameters/edition)
+
+### Check
+- [buildUrl](Configuration/Parameters/Build URL)
+- [buildUser](Configuration/Parameters/Build User)
+- [buildPassword](Configuration/Parameters/Build Password)
+- [nextSnapshot](Configuration/Parameters/Next Snapshot)
+- [deployedSnapshot](Configuration/Parameters/Deployed Snapshot)
+- [appliedMigrations](Configuration/Parameters/Applied Migrations)
+- [failOnDrift](Configuration/Parameters/Fail On Drift)
+- [minorTolerance](Configuration/Parameters/Minor Tolerance)
+- [majorTolerance](Configuration/Parameters/Major Tolerance)
+- [minorRules](Configuration/Parameters/Minor Rules)
+- [majorRules](Configuration/Parameters/Major Rules)
+- [rulesLocation](Configuration/Parameters/Rules Location)
 
 ### Oracle
 - [oracleSqlPlus](Configuration/Parameters/Oracle SQLPlus) {% include teams.html %}

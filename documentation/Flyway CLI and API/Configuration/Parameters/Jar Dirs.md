@@ -22,7 +22,9 @@ This configuration parameter will only be used in the command line version of Fl
 ```
 
 ### Configuration File
-Not available
+```properties
+flyway.jarDirs=my/jar/dir
+```
 
 ### Environment Variable
 ```properties
