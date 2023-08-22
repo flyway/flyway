@@ -51,6 +51,17 @@
             <artifactId>ignite-core</artifactId>
             <optional>true</optional>
         </dependency>
+        <!-- Caché -->
+        <dependency>
+            <groupId>com.intersys</groupId>
+            <artifactId>cache-jdbc</artifactId>
+        </dependency>
+
+        <!-- IRIS -->
+        <dependency>
+            <groupId>com.intersys</groupId>
+            <artifactId>iris-jdbc</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
