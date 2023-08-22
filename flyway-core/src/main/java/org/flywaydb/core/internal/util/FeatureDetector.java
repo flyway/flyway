@@ -58,13 +58,11 @@ public final class FeatureDetector {
             // provide any implementation, causing SLF4J to drop what we want to be console output on the floor.
             // Versions up to 1.7 have a StaticLoggerBinder
             slf4jAvailable = ClassUtils.isPresent("org.slf4j.Logger", classLoader)
-                    && ClassUtils.isPresent("org.slf4j.impl.StaticLoggerBinder", classLoader);
+                    && ClassUtils.isPresent("org.slf4j.impl.StaticLoggerBinder", classLoader)
+                    && !StreamSupport.stream(ServiceLoader.load(org.slf4j.Logger.class, classLoader)
+                            .spliterator(), false).allMatch(logger -> logger instanceof org.slf4j.helpers.NOPLogger);
             // Versions 1.8 and later use a ServiceLocator to bind to the implementation
             slf4jAvailable |= ClassUtils.isImplementationPresent("org.slf4j.spi.SLF4JServiceProvider", classLoader);
-            if(slf4jAvailable) {
-                slf4jAvailable = !StreamSupport.stream(ServiceLoader.load(org.slf4j.Logger.class, classLoader).spliterator(),false)
-                                                             .allMatch(logger -> logger instanceof org.slf4j.helpers.NOPLogger);
-            }
         }
 
         return slf4jAvailable;
