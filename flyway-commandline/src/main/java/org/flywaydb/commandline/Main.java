@@ -26,7 +26,9 @@ import org.flywaydb.commandline.utils.TelemetryUtils;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.FlywayTelemetryManager;
 import org.flywaydb.core.api.*;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.api.output.ErrorOutput;
@@ -155,15 +157,16 @@ public class Main {
 
     private static OperationResult executeFlyway(FlywayTelemetryManager flywayTelemetryManager, CommandLineArguments commandLineArguments, Configuration configuration) {
         Flyway flyway = Flyway.configure(configuration.getClassLoader()).configuration(configuration).load();
+        Configuration executionConfiguration = flyway.getConfiguration();
         OperationResult result;
         if (commandLineArguments.getOperations().size() == 1) {
             String operation = commandLineArguments.getOperations().get(0);
-            result = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager, flyway.getConfiguration());
+            result = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager, executionConfiguration);
         } else {
             CompositeResult<OperationResult> compositeResult = new CompositeResult<>();
 
             for (String operation : commandLineArguments.getOperations()) {
-                OperationResult operationResult = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager, flyway.getConfiguration());
+                OperationResult operationResult = executeOperation(flyway, operation, commandLineArguments, flywayTelemetryManager, executionConfiguration);
                 compositeResult.individualResults.add(operationResult);
                 if (operationResult instanceof HtmlResult && ((HtmlResult) operationResult).exceptionObject instanceof DbMigrate.FlywayMigrateException) {
                     break;
@@ -171,6 +174,16 @@ public class Main {
             }
             result = compositeResult;
         }
+        if (configuration instanceof ClassicConfiguration) {
+            ClassicConfiguration classicConfiguration = (ClassicConfiguration) configuration;
+            classicConfiguration.configure(executionConfiguration);
+        }
+
+        if (configuration instanceof FluentConfiguration) {
+            FluentConfiguration fluentConfiguration = (FluentConfiguration) configuration;
+            fluentConfiguration.configuration(executionConfiguration);
+        }
+
         return result;
     }
 

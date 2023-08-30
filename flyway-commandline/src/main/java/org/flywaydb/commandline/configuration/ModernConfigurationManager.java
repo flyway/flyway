@@ -74,8 +74,9 @@ public class ModernConfigurationManager implements ConfigurationManager {
             config.getEnvironments().remove(ClassicConfiguration.TEMP_ENVIRONMENT_NAME);
         }
 
-
-        config.getFlyway().getLocations().add("filesystem:" + new File(workingDirectory, "sql").getAbsolutePath());
+        if (config.getFlyway().getLocations().equals(ConfigurationModel.defaults().getFlyway().getLocations())) {
+            config.getFlyway().setLocations(List.of("filesystem:" + new File(workingDirectory, "sql").getAbsolutePath()));
+        }
 
         List<String> jarDirs = new ArrayList<>();
 
@@ -105,14 +106,23 @@ public class ModernConfigurationManager implements ConfigurationManager {
 
         ObjectMapper objectMapper = new ObjectMapper();
         List<String> missingParams = new ArrayList<>();
+
         for (ConfigurationExtension configurationExtension : cfg.getPluginRegister().getPlugins(ConfigurationExtension.class)) {
             String namespace = configurationExtension.getNamespace();
-            if (config.getFlyway().getPluginConfigurations().containsKey(namespace)) {
+
+            Map<String, Object> pluginConfigs = config.getFlyway().getPluginConfigurations();
+
+            if (namespace.startsWith("\\")) {
+                namespace = namespace.substring(1);
+                pluginConfigs = config.getRootConfigurations();
+            }
+            if (pluginConfigs.containsKey(namespace)) {
                 List<String> fields = Arrays.stream(configurationExtension.getClass().getDeclaredFields()).map(Field::getName).collect(Collectors.toList());
-                Map<String, Object> values = (Map<String, Object>) config.getFlyway().getPluginConfigurations().get(namespace);
+                Map<String, Object> values = (Map<String, Object>) pluginConfigs.get(namespace);
+
                 values = values.entrySet().stream().filter(p -> fields.contains(p.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                 for (String key : values.keySet()) {
-                    ((Map<?, ?>) config.getFlyway().getPluginConfigurations().get(namespace)).remove(key);
+                    ((Map<?, ?>) pluginConfigs.get(namespace)).remove(key);
                 }
                 try {
                     ConfigurationExtension newConfigurationExtension = objectMapper.convertValue(values, configurationExtension.getClass());
@@ -126,6 +136,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
             }
         }
         Map<String, Object> pluginConfigurations = config.getFlyway().getPluginConfigurations();
+
         pluginConfigurations.remove("jarDirs");
         for (Map.Entry<String, Object> configuration : pluginConfigurations.entrySet()) {
             if (configuration.getValue() instanceof Map<?, ?>) {

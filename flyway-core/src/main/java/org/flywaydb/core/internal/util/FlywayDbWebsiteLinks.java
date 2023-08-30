@@ -56,4 +56,5 @@ public class FlywayDbWebsiteLinks {
     public static final String INFO_REPORT_LEARN_MORE = "https://rd.gt/3UMs1wb";
     public static final String MIGRATION_REPORT_LEARN_MORE = "https://rd.gt/3okl9tM";
     public static final String GIVE_FEEDBACK = "https://rd.gt/41oQMAG";
+    public static final String TOML_HELP = "https://rd.gt/45ynYIt";
 }

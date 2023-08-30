@@ -623,6 +623,12 @@ public class ConfigUtils {
             }
         });
 
+        config.getRootConfigurations().forEach((name, pluginConfig) -> {
+                if (pluginConfig instanceof Map<?, ?>) {
+                    ((Map<?, ?>) pluginConfig).forEach((key, value) -> configMap.put(name + "." + key, value.toString()));
+                }
+        });
+
         dumpConfigurationMap(configMap);
     }
 

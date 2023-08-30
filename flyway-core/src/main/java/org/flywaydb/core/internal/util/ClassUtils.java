@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClassUtils {
@@ -241,7 +242,7 @@ public class ClassUtils {
 
     public static Map<String, String> getGettableFieldValues(Object obj, String prefix) {
         Map<String, String> fieldValues = new TreeMap<>();
-        for (Method method : Arrays.stream(obj.getClass().getDeclaredMethods()).filter(m -> m.getName().startsWith("get")).toList()) {
+        for (Method method : Arrays.stream(obj.getClass().getDeclaredMethods()).filter(m -> m.getName().startsWith("get")).collect(Collectors.toList())) {
             try {
                 method.setAccessible(true);
                 String name = method.getName().substring(3,4).toLowerCase() + method.getName().substring(4);

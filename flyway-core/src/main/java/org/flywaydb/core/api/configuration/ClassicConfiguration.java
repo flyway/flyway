@@ -107,7 +107,9 @@ public class ClassicConfiguration implements Configuration {
         if (!StringUtils.hasText(envName)) {
             envName = "default";
         }
-
+        if (getModernConfig().getEnvironments().get(envName) == null) {
+            throw new FlywayException("Environment '" + envName + "' not found. Check that this environment exists in your configuration.");
+        }
         return getModernConfig().getEnvironments().get(envName);
     }
 
@@ -116,7 +118,9 @@ public class ClassicConfiguration implements Configuration {
         if (!StringUtils.hasText(envName)) {
             envName = "default";
         }
-
+        if (getResolvedEnvironment(envName) == null) {
+            throw new FlywayException("Environment '" + envName + "' not found. Check that this environment exists in your configuration.");
+        }
         return getResolvedEnvironment(envName);
     }
 
@@ -394,7 +398,7 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public MigrationVersion getBaselineVersion() {
 
-        return MigrationVersion.fromVersion(getModernFlyway().getBaselineVersion()); // todo - should this be in env
+        return MigrationVersion.fromVersion(getModernFlyway().getBaselineVersion() != null ? getModernFlyway().getBaselineVersion() : "1");
     }
 
     @Override
