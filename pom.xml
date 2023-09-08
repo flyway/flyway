@@ -169,7 +169,7 @@
         <version.logback>1.2.3</version.logback>
         <version.lombok>1.18.20</version.lombok>
         <version.lombok-maven-plugin>1.18.20.0</version.lombok-maven-plugin>
-        <version.mariadb>2.7.9</version.mariadb>
+        <version.mariadb>2.7.10</version.mariadb>
         <version.maven>3.9.4</version.maven>
         <version.mockito>4.2.0</version.mockito>
         <version.msal4j>1.13.8</version.msal4j>
