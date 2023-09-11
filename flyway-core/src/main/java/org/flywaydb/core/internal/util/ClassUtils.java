@@ -23,15 +23,20 @@ import org.flywaydb.core.api.FlywayException;
 import java.beans.Expression;
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.ServiceLoader;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClassUtils {
@@ -233,5 +238,17 @@ public class ClassUtils {
         } catch (Exception e) {
             throw new FlywayException("Unable to obtain field value " + className + "." + fieldName + " : " + e.getMessage(), e);
         }
+    }
+
+    public static Map<String, String> getGettableFieldValues(Object obj, String prefix) {
+        Map<String, String> fieldValues = new TreeMap<>();
+        for (Method method : Arrays.stream(obj.getClass().getDeclaredMethods()).filter(m -> m.getName().startsWith("get")).collect(Collectors.toList())) {
+            try {
+                method.setAccessible(true);
+                String name = method.getName().substring(3,4).toLowerCase() + method.getName().substring(4);
+                fieldValues.put(prefix + name, method.invoke(obj).toString());
+            } catch (Exception ignored) {}
+        }
+        return fieldValues;
     }
 }

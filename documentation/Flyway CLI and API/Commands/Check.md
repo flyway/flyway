@@ -29,9 +29,9 @@ You can read more about the `check` concept [here](Concepts/Check Concept).
 
 | Parameter                     | Operation      | Description
 | ----------------------------- | -------------- | -------------------------------------------------
-|    check.buildUrl             | changes, drift | URL for a build database.
-|    check.buildUser            | changes, drift | Username for the build database. Defaults to 'flyway.user'
-|    check.buildPassword        | changes, drift | Password for the build database. Defaults to 'flyway.password'
+|    check.buildUrl             | changes, drift | **[DEPRECATED]** URL for a build database. Will be replaced by check.buildEnvironment in Flyway 10.0
+|    check.buildUser            | changes, drift | **[DEPRECATED]** Username for the build database. Defaults to 'flyway.user'. Will be replaced by check.buildEnvironment in Flyway 10.0
+|    check.buildPassword        | changes, drift | **[DEPRECATED]** Password for the build database. Defaults to 'flyway.password'. Will be replaced by check.buildEnvironment in Flyway 10.0
 |    check.reportFilename       | all            | **[DEPRECATED]** Destination filename for reports. Please use [`reportFilename`](Configuration/Parameters/Report Filename) instead.
 |    check.nextSnapshot         | changes, drift | A snapshot containing all migrations including those that are pending (generated via [`snapshot`](Commands/snapshot))
 |    check.deployedSnapshot     | changes, drift | A snapshot containing all applied migrations and thus matching what should be in the target (generated via [`snapshot`](Commands/snapshot))

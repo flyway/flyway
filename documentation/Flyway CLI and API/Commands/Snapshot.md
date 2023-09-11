@@ -8,8 +8,8 @@ subtitle: snapshot
 
 `snapshot` captures the schema of the database specified in `flyway.url` into a file.
 
-This can be used to generate a snapshot of your database in its current state for use with [`check.deployedSnapshot`](Commands/check#configuration-parameters)
-or to take a snapshot of a build database for use with [`check.nextSnapshot`](Commands/check#configuration-parameters)
+This can be used to generate a snapshot of your database in its current state for use with [`check.deployedSnapshot`](Configuration/Parameters/Deployed Snapshot)
+or to take a snapshot of a build database for use with [`check.nextSnapshot`](Configuration/Parameters/Next Snapshot)
 
 #### Configuration parameters:
 

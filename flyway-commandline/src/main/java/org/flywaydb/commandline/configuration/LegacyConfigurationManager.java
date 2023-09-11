@@ -79,7 +79,7 @@ public class LegacyConfigurationManager implements ConfigurationManager {
             promptForCredentialsIfMissing(config);
         }
 
-        ConfigUtils.dumpConfiguration(config);
+        ConfigUtils.dumpConfigurationMap(config);
         filterProperties(config);
 
 

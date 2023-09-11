@@ -21,13 +21,29 @@ import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
+import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.plugin.PluginRegister;
+import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -594,7 +610,29 @@ public class ConfigUtils {
         }
     }
 
-    public static void dumpConfiguration(Map<String, String> config) {
+    public static void dumpConfigurationModel(ConfigurationModel config) {
+        if (!LOG.isDebugEnabled()) {
+            return;
+        }
+        Map<String, String> configMap = new TreeMap<>(ClassUtils.getGettableFieldValues(config.getFlyway(), "flyway."));
+        config.getEnvironments().forEach((name, env) -> configMap.putAll(ClassUtils.getGettableFieldValues(env, "environments." + name + ".")));
+
+        config.getFlyway().getPluginConfigurations().forEach((name, pluginConfig) -> {
+            if (pluginConfig instanceof Map<?, ?>) {
+                ((Map<?, ?>) pluginConfig).forEach((key, value) -> configMap.put("flyway." + name + "." + key, value.toString()));
+            }
+        });
+
+        config.getRootConfigurations().forEach((name, pluginConfig) -> {
+                if (pluginConfig instanceof Map<?, ?>) {
+                    ((Map<?, ?>) pluginConfig).forEach((key, value) -> configMap.put(name + "." + key, value.toString()));
+                }
+        });
+
+        dumpConfigurationMap(configMap);
+    }
+
+    public static void dumpConfigurationMap(Map<String, String> config) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Using configuration:");
             for (Map.Entry<String, String> entry : new TreeMap<>(config).entrySet()) {
@@ -605,7 +643,7 @@ public class ConfigUtils {
                     value = StringUtils.trimOrPad("", value.length(), '*');
                 } else if (ConfigUtils.LICENSE_KEY.equals(key)) {
                     value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
-                } else if (ConfigUtils.URL.equals(key)) {
+                } else if (ConfigUtils.URL.equals(key) || (key.startsWith("environments.") && key.endsWith(".url"))) {
                     value = DatabaseTypeRegister.redactJdbcUrl(value);
                 }
 

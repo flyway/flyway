@@ -123,7 +123,6 @@ public class FlywayModel {
          model.ignoreMigrationPatterns = Arrays.asList("*:future");
          model.validateMigrationNaming = false;
          model.validateOnMigrate = true;
-         model.baselineVersion = "1";
          model.baselineDescription = "<< Flyway Baseline >>";
          model.baselineOnMigrate = false;
          model.outOfOrder = false;

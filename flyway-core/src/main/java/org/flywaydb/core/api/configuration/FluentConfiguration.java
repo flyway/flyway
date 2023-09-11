@@ -112,6 +112,11 @@ public class FluentConfiguration implements Configuration {
         return this;
     }
 
+    public FluentConfiguration environment(String environment) {
+        config.setEnvironment(environment);
+        return this;
+    }
+
     public FluentConfiguration workingDirectory(String workingDirectory) {
         config.setWorkingDirectory(workingDirectory);
         return this;

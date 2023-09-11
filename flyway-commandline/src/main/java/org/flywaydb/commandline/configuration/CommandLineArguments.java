@@ -154,6 +154,7 @@ public class CommandLineArguments {
         return Arrays.stream(args)
                      .filter(CommandLineArguments::isConfigurationArg)
                      .filter(arg -> !arg.startsWith("-" + CONFIG_FILES + "="))
+                     .filter(arg -> !arg.startsWith("-" + CONFIG_FILE_ENCODING + "="))
                      .filter(f -> !isConfigurationOptionCommandlineOnly(getConfigurationOptionNameFromArg(f)))
                      .collect(Collectors.toMap(p -> (Arrays.stream((EnvironmentModel.class).getDeclaredFields()).anyMatch(x -> x.getName().equals(getConfigurationOptionNameFromArg(p)))
                                                        ? "environments." + ClassicConfiguration.TEMP_ENVIRONMENT_NAME + "."

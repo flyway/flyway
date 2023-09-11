@@ -18,15 +18,11 @@ package org.flywaydb.commandline.utils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.InfoOutput;
 import org.flywaydb.core.extensibility.RgDomainChecker;
 import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
-import org.flywaydb.core.internal.database.base.Database;
-import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
-import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -37,7 +33,6 @@ import java.util.List;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TelemetryUtils {
@@ -46,25 +41,11 @@ public class TelemetryUtils {
         rootTelemetryModel.setRedgateEmployee(isRedgateEmployee);
 
         if (configuration != null) {
-            ClassicConfiguration classicConfiguration = new ClassicConfiguration(configuration);
-            if (classicConfiguration.getDataSource() != null) {
-                try (JdbcConnectionFactory jdbcConnectionFactory = new JdbcConnectionFactory(classicConfiguration.getDataSource(), classicConfiguration, null);
-                     Database database = jdbcConnectionFactory.getDatabaseType().createDatabase(configuration, false, jdbcConnectionFactory, null)) {
-                    rootTelemetryModel.setDatabaseEngine(database.getDatabaseType().getName());
-                    rootTelemetryModel.setDatabaseVersion(database.getVersion().toString());
-                    ConfigurationModel modernConfig = configuration.getModernConfig();
-                    if (modernConfig != null) {
-                        if (StringUtils.hasText(modernConfig.getId())) {
-                            String hashedProjectId = hashProjectId(modernConfig.getId());
-                            rootTelemetryModel.setProjectId(hashedProjectId);
-                        }
-                    }
-                    return rootTelemetryModel;
-                }
+            ConfigurationModel modernConfig = configuration.getModernConfig();
+            if (modernConfig != null && StringUtils.hasText(modernConfig.getId())) {
+                rootTelemetryModel.setProjectId(hashProjectId(modernConfig.getId()));
             }
         }
-
-        rootTelemetryModel.setDatabaseEngine("UNKNOWN");
 
         return rootTelemetryModel;
     }

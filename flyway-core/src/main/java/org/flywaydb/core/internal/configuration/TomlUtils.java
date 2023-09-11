@@ -116,6 +116,7 @@ public class TomlUtils {
     }
 
     static ConfigurationModel loadConfigurationFile(File configFile, String workingDirectory) {
+        LOG.debug("Loading config file: " + configFile.getAbsolutePath());
         if (!configFile.isAbsolute() && workingDirectory != null) {
             File temporaryFile = new File(workingDirectory, configFile.getPath());
             if (temporaryFile.exists()) {

@@ -48,6 +48,7 @@ public class H2Database extends Database<H2Connection> {
         Derby,
         HSQLDB,
         MSSQLServer,
+        MariaDB,
         MySQL,
         Oracle,
         PostgreSQL,
