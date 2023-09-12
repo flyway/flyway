@@ -11,7 +11,7 @@ Flyway supports loading configuration via config files.
 By default Flyway will load configuration files from the following locations:
 - <i>installDir<i>/conf/flyway.conf
 - <i>userhome<i>/flyway.conf
-- <i>workingDir<i>/flyway.conf
+- <i>executionDir<i>/flyway.conf
 
 Additionally you can make Flyway load other configurations using the [configFiles](Configuration/Parameters/Config Files) configuration parameter.
 

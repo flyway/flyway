@@ -26,6 +26,34 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="9.22.1">Flyway 9.22.1 (2023-09-12)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Correctly parse Oracle wrapped statements.</li>
+            <li>Fix filter file option detection</li>
+            <li>Fix invalid flags not correctly erroring at the end of the arguments</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>update Java 17 JRE included in Flyway CLI</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3736">Issue 3736</a>
+                Increase CockroachDB support to V22.2
+            </li>
+        </ul>
+
+        <p>
+            Thanks to trourance for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="9.22.0">Flyway 9.22.0 (2023-08-30)</h2>
 
         <h3>Bug fixes</h3>

@@ -106,8 +106,16 @@ public class JsonUtils {
     }
 
     public static String prettyPrint(String json) {
-        JsonReader reader = new JsonReader(new StringReader(json));
-        reader.setLenient(true);
-        return getGson().newBuilder().setLenient().create().toJson(JsonParser.parseReader(reader).getAsJsonObject());
+        String output;
+        try {
+            JsonReader reader = new JsonReader(new StringReader(json));
+            reader.setLenient(true);
+            output = getGson().newBuilder().setLenient().create().toJson(JsonParser.parseReader(reader).getAsJsonObject());
+        } catch (Exception ignore) {
+            output = json;
+        }
+        output = output.replace("\\r\\n", "\n");
+        output = output.replace("\\n", "\n");
+        return output;
     }
 }

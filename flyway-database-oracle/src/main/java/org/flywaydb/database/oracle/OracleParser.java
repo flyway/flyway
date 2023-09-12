@@ -487,7 +487,7 @@ public class OracleParser extends Parser {
                 context.increaseBlockDepth("WRAPPED");
             }
             // decrease block depth at the end to step out of a wrapped SQL block
-            if (TokenType.EOF == tokenType && context.getBlockDepth() > 0) {
+            if ((TokenType.EOF == tokenType || (TokenType.DELIMITER == tokenType && "/".equals(keywordText))) && context.getBlockDepth() > 0) {
                 context.decreaseBlockDepth();
             }
             // return early as we don't need to parse the contents of wrapped SQL - it's all one statement anyways
@@ -601,6 +601,8 @@ public class OracleParser extends Parser {
         return new Token(TokenType.COMMENT, pos, line, col, text, text, context.getParensDepth());
     }
 
+    @Override
+    protected Token handleDelimiter(PeekingReader reader, ParserContext context, int pos, int line, int col) throws IOException {
 
 
 
@@ -609,10 +611,13 @@ public class OracleParser extends Parser {
 
 
 
+        if (reader.peek('/')) {
+            reader.swallow(1);
+            return new Token(TokenType.DELIMITER, pos, line, col, "/", "/", context.getParensDepth());
+        }
 
-
-
-
+        return super.handleDelimiter(reader, context, pos, line, col);
+    }
 
     @Override
     protected boolean isAlternativeStringLiteral(String peek) {

@@ -75,7 +75,7 @@ public class ModernConfigurationManager implements ConfigurationManager {
         }
 
         if (config.getFlyway().getLocations().equals(ConfigurationModel.defaults().getFlyway().getLocations())) {
-            config.getFlyway().setLocations(List.of("filesystem:" + new File(workingDirectory, "sql").getAbsolutePath()));
+            config.getFlyway().setLocations(Arrays.asList("filesystem:" + new File(workingDirectory, "sql").getAbsolutePath()));
         }
 
         List<String> jarDirs = new ArrayList<>();
