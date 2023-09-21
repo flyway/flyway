@@ -71,7 +71,7 @@ public class OracleParser extends Parser {
 
 
     //                                                 accessible   by    (        keyword<space>optionalidentifier                      )
-    private static final String ACCESSIBLE_BY_REGEX = "ACCESSIBLE\\sBY\\s\\(?((FUNCTION|PROCEDURE|PACKAGE|TRIGGER|TYPE)\\s[^\\s]*\\s?+)*\\)?";
+    private static final String ACCESSIBLE_BY_REGEX = "ACCESSIBLE\\sBY\\s\\(?(((FUNCTION|PROCEDURE|PACKAGE|TRIGGER|TYPE)\\s)?[^\\s]*\\s?+)*\\)?";
 
     private static final Pattern PLSQL_TYPE_BODY_REGEX = Pattern.compile(
             "^CREATE(\\sOR\\sREPLACE)?(\\s(NON)?EDITIONABLE)?\\sTYPE\\sBODY\\s([^\\s]*\\s)?(IS|AS)");

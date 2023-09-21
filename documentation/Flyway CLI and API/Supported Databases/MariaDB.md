@@ -5,6 +5,7 @@ subtitle: MariaDB
 
 ## Supported Versions
 
+- `10.11`
 - `10.10`
 - `10.6`
 - `10.5`

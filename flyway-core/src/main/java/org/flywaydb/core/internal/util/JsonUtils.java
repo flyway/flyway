@@ -105,6 +105,10 @@ public class JsonUtils {
         return JsonParser.parseString(json).getAsJsonArray();
     }
 
+    public static <T> T parseJson(String json, Class<T> clazz) {
+        return getGson().fromJson(json, clazz);
+    }
+
     public static String prettyPrint(String json) {
         String output;
         try {
@@ -114,8 +118,8 @@ public class JsonUtils {
         } catch (Exception ignore) {
             output = json;
         }
-        output = output.replace("\\r\\n", "\n");
-        output = output.replace("\\n", "\n");
+        output = output.replace("\\r\\n", System.lineSeparator());
+        output = output.replace("\\n", System.lineSeparator());
         return output;
     }
 }

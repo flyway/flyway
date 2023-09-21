@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
+import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.MergeUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -94,6 +95,7 @@ public class FlywayModel {
     private Map<String, PropertyResolver> propertyResolvers;
     private Boolean reportEnabled;
     @JsonAnySetter
+    @Getter(onMethod = @__(@ClassUtils.DoNotMapForLogging))
     private Map<String,Object> pluginConfigurations = new HashMap<>();
 
     public static FlywayModel defaults(){

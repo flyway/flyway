@@ -28,7 +28,7 @@ public class SnowflakeParser extends Parser {
     private static final String ALTERNATIVE_QUOTE_SCRIPT = "DECLARE";
     private static final List<String> CONDITIONALLY_CREATABLE_OBJECTS = Arrays.asList(
         "COLUMN", "CONNECTION", "CONSTRAINT", "DATABASE", "FORMAT", "FUNCTION", "GROUP", "INDEX", "INTEGRATION", "PIPE", "POLICY", "PROCEDURE", "ROLE",
-        "SCHEMA", "SEQUENCE", "STAGE", "STREAM", "TABLE", "TAG", "TASK", "USER", "VIEW", "WAREHOUSE"
+        "SCHEMA", "SEQUENCE", "STAGE", "STREAM", "TABLE", "TAG", "TASK", "USER", "VIEW", "WAREHOUSE", "MONITOR"
      );
 
     public SnowflakeParser(Configuration configuration, ParsingContext parsingContext) {
