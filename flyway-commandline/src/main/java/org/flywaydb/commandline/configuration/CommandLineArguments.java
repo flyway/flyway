@@ -183,7 +183,7 @@ public class CommandLineArguments {
 
     public void validate() {
 
-        IntStream.range(0, args.length - 1)
+        IntStream.range(0, args.length)
                  .filter(i -> !isConfigurationArg(args[i]))
                  .filter(i -> !VALID_OPERATIONS_AND_FLAGS.contains(args[i]))
                  .filter(i -> !isHandledByExtension(args[i]))

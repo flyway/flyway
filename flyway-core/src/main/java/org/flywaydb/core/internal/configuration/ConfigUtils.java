@@ -635,21 +635,27 @@ public class ConfigUtils {
     public static void dumpConfigurationMap(Map<String, String> config) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Using configuration:");
-            for (Map.Entry<String, String> entry : new TreeMap<>(config).entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-
-                if (key.toLowerCase().endsWith("password")) {
-                    value = StringUtils.trimOrPad("", value.length(), '*');
-                } else if (ConfigUtils.LICENSE_KEY.equals(key)) {
-                    value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
-                } else if (ConfigUtils.URL.equals(key) || (key.startsWith("environments.") && key.endsWith(".url"))) {
-                    value = DatabaseTypeRegister.redactJdbcUrl(value);
-                }
-
-                LOG.debug(key + " -> " + value);
-            }
+            LOG.debug(getConfigMapDump(config));
         }
+    }
+
+    static String getConfigMapDump(Map<String, String> config) {
+        StringBuilder dump = new StringBuilder();
+        for (Map.Entry<String, String> entry : new TreeMap<>(config).entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+
+            if (key.toLowerCase().endsWith("password") || key.toLowerCase().endsWith("token")) {
+                value = StringUtils.trimOrPad("", value.length(), '*');
+            } else if (ConfigUtils.LICENSE_KEY.equals(key)) {
+                value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
+            } else if (key.toLowerCase().endsWith("url")) {
+                value = DatabaseTypeRegister.redactJdbcUrl(value);
+            }
+
+            dump.append(key).append(" -> ").append(value).append("\n");
+        }
+        return dump.toString();
     }
 
     /**

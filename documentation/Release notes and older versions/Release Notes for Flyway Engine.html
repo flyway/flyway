@@ -26,6 +26,68 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="9.22.2">Flyway 9.22.2 (2023-09-21)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fixed configuration disclosure in extended debug output. CVE-2023-43564</li>
+            <li>improve parsing of 'ACCESSIBLE BY' clauses in Oracle</li>
+            <li>Fix parsing issue caused by statements containing multiple sets of parentheses.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3730">Issue 3730</a>
+                Make SLF4J detection also work with SLF4J 2.0
+            </li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Enhance Comparison engine error output</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Flyway now supports MariaDB version 10.11</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>update mariadb-java-client to 2.7.10 to resolve CONJ-1091</li>
+        </ul>
+
+        <p>
+            Thanks to hho for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
+        <h2 id="9.22.1">Flyway 9.22.1 (2023-09-12)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Correctly parse Oracle wrapped statements.</li>
+            <li>Fix filter file option detection</li>
+            <li>Fix invalid flags not correctly erroring at the end of the arguments</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>update Java 17 JRE included in Flyway CLI</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3736">Issue 3736</a>
+                Increase CockroachDB support to V22.2
+            </li>
+        </ul>
+
+        <p>
+            Thanks to trourance for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="9.22.0">Flyway 9.22.0 (2023-08-30)</h2>
 
         <h3>Bug fixes</h3>

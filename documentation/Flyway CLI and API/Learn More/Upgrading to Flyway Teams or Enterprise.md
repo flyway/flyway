@@ -5,7 +5,7 @@ redirect_from: /documentation/upgradingToTeams/
 
 # Upgrading to Flyway Teams or Enterprise
 
-This article assumes you are a proud owner of a Flyway Teams / Enterprise license. If you are not, head over to [Redgate Products Trial](https://www.red-gate.com/products/flyway/trial) to start a free trial.
+This article assumes you are a proud owner of a Flyway Teams / Enterprise license. If you are not, head over to [Redgate Products Trial](https://www.red-gate.com/products/flyway/enterprise/trial) to start a free trial.
 
 ## Upgrading from Community
 

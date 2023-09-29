@@ -138,13 +138,6 @@ public class Main {
             }
         } finally {
             if (flywayTelemetryManager != null) {
-
-                /*
-                * Below message won't be printed out when running [help] command because [help] uses BufferedLog which is already flushed in flushLog().
-                * While other types of LOG won't be flushed in flushLog(), so below printing works as expected.
-                */
-                LOG.info("Flyway is performing some final checks. Thank you for your patience.");
-
                 flywayTelemetryManager.close();
             }
         }

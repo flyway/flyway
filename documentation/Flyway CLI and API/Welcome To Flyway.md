@@ -26,7 +26,7 @@ title: Welcome To Flyway
     (for advanced data transformations or dealing with LOBs).</p>
 
 <p>It has a <a href="Usage/Command Line">Command-line client</a>.
-    If you are on the JVM, we recommend using the <a href="Uusage/api">Java API</a>
+    If you are on the JVM, we recommend using the <a href="Usage/api-java">Java API</a>
     for migrating the database on application startup.
     Alternatively, you can also use the <a href="Usage/Maven Goal">Maven plugin</a>
     or <a href="Usage/Gradle Task">Gradle plugin</a>.</p>

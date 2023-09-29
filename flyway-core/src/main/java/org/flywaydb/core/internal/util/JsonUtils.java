@@ -105,9 +105,21 @@ public class JsonUtils {
         return JsonParser.parseString(json).getAsJsonArray();
     }
 
+    public static <T> T parseJson(String json, Class<T> clazz) {
+        return getGson().fromJson(json, clazz);
+    }
+
     public static String prettyPrint(String json) {
-        JsonReader reader = new JsonReader(new StringReader(json));
-        reader.setLenient(true);
-        return getGson().newBuilder().setLenient().create().toJson(JsonParser.parseReader(reader).getAsJsonObject());
+        String output;
+        try {
+            JsonReader reader = new JsonReader(new StringReader(json));
+            reader.setLenient(true);
+            output = getGson().newBuilder().setLenient().create().toJson(JsonParser.parseReader(reader).getAsJsonObject());
+        } catch (Exception ignore) {
+            output = json;
+        }
+        output = output.replace("\\r\\n", System.lineSeparator());
+        output = output.replace("\\n", System.lineSeparator());
+        return output;
     }
 }

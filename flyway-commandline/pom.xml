@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>9.22.0</version>
+        <version>9.22.2</version>
     </parent>
     <artifactId>flyway-commandline</artifactId>
     <packaging>jar</packaging>
@@ -30,8 +30,8 @@
 
 
 
-        <flyway-gcp-spanner.version>9.22.0-beta</flyway-gcp-spanner.version>
-        <jre.version>17.0.6</jre.version>
+        <flyway-gcp-spanner.version>9.22.2-beta</flyway-gcp-spanner.version>
+        <jre.version>17.0.8.1</jre.version>
     </properties>
     <dependencies>
         <dependency>
@@ -370,7 +370,7 @@
                 <version>${jre.version}</version>
                 <type>zip</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_windows_hotspot_${jre.version}_10.zip</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_windows_hotspot_${jre.version}_1.zip</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -379,7 +379,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_linux_hotspot_${jre.version}_10.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_linux_hotspot_${jre.version}_1.tar.gz</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -388,7 +388,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_alpine-linux_hotspot_${jre.version}_10.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_alpine-linux_hotspot_${jre.version}_1.tar.gz</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -397,7 +397,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_mac_hotspot_${jre.version}_10.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_x64_mac_hotspot_${jre.version}_1.tar.gz</systemPath>
             </dependency>
             <dependency>
                 <groupId>net.adoptium</groupId>
@@ -406,7 +406,7 @@
                 <version>${jre.version}</version>
                 <type>tar.gz</type>
                 <scope>system</scope>
-                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_aarch64_mac_hotspot_${jre.version}_10.tar.gz</systemPath>
+                <systemPath>${basedir}/src/main/assembly/OpenJDK17U-jre_aarch64_mac_hotspot_${jre.version}_1.tar.gz</systemPath>
             </dependency>
         </dependencies>
     </dependencyManagement>

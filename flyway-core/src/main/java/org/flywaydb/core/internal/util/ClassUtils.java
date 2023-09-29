@@ -17,11 +17,14 @@ package org.flywaydb.core.internal.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.Synchronized;
 import org.flywaydb.core.api.FlywayException;
 
 import java.beans.Expression;
 import java.io.File;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -242,7 +245,7 @@ public class ClassUtils {
 
     public static Map<String, String> getGettableFieldValues(Object obj, String prefix) {
         Map<String, String> fieldValues = new TreeMap<>();
-        for (Method method : Arrays.stream(obj.getClass().getDeclaredMethods()).filter(m -> m.getName().startsWith("get")).collect(Collectors.toList())) {
+        for (Method method : Arrays.stream(obj.getClass().getDeclaredMethods()).filter(m -> m.getName().startsWith("get") && Arrays.stream(m.getAnnotations()).noneMatch(a -> a instanceof DoNotMapForLogging)).collect(Collectors.toList())) {
             try {
                 method.setAccessible(true);
                 String name = method.getName().substring(3,4).toLowerCase() + method.getName().substring(4);
@@ -250,5 +253,10 @@ public class ClassUtils {
             } catch (Exception ignored) {}
         }
         return fieldValues;
+    }
+
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface DoNotMapForLogging {
     }
 }
