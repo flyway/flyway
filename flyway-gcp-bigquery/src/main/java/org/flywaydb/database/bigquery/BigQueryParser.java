@@ -144,6 +144,7 @@ public class BigQueryParser extends Parser {
                 && !"IF".equalsIgnoreCase(keywordText)
                 && !"WHILE".equalsIgnoreCase(keywordText)
                 && !"LOOP".equalsIgnoreCase(keywordText)
+                && !"CASE".equalsIgnoreCase(keywordText)
                 && !"AS".equalsIgnoreCase(keywordText)
                 && context.getBlockDepth() > 0) {
             context.decreaseBlockDepth();
