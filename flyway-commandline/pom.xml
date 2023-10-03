@@ -480,9 +480,9 @@
         </profile>
         -->
         <profile>
-            <id>jdk17</id>
+            <id>jdk9</id>
             <activation>
-                <jdk>17</jdk>
+                <jdk>9</jdk>
             </activation>
             <build>
                 <plugins>
