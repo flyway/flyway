@@ -1411,9 +1411,9 @@
 
 
         <profile>
-            <id>jdk17</id>
+            <id>jdk9</id>
             <activation>
-                <jdk>17</jdk>
+                <jdk>9</jdk>
             </activation>
             <build>
                 <plugins>
@@ -1421,15 +1421,15 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>compile-java-17</id>
+                                <id>compile-java-9</id>
                                 <phase>compile</phase>
                                 <goals>
                                     <goal>compile</goal>
                                 </goals>
                                 <configuration>
-                                    <release>17</release>
+                                    <release>9</release>
                                     <compileSourceRoots>
-                                        <compileSourceRoot>${project.basedir}/src/main/java17</compileSourceRoot>
+                                        <compileSourceRoot>${project.basedir}/src/main/java9</compileSourceRoot>
                                     </compileSourceRoots>
                                     <multiReleaseOutput>true</multiReleaseOutput>
                                 </configuration>
