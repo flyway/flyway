@@ -30,7 +30,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>9.22.2</version>
+    <version>9.22.3</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -138,8 +138,8 @@
     <properties>
         <version.ant>1.10.13</version.ant>
         <version.appinsights>3.4.7</version.appinsights>
-        <version.aws-java-sdk>2.20.94</version.aws-java-sdk>
-        <version.aws-secretsmanager>1.0.9</version.aws-secretsmanager>
+        <version.aws-java-sdk>[2.20.162,2.21.0)</version.aws-java-sdk>
+        <version.aws-secretsmanager>2.0.0</version.aws-secretsmanager>
         <version.byte-buddy-agent>1.11.18</version.byte-buddy-agent>
         <version.commonslogging>1.2</version.commonslogging>
         <version.commonstext>1.10.0</version.commonstext>

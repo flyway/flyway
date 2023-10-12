@@ -26,6 +26,34 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="9.22.3">Flyway 9.22.3 (2023-10-12)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>The AWS-Secrets JDBC driver included in the Commandline package has been upgraded to 2.0.0.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3752">Issue 3752</a>
+                add &quot;END CASE&quot; support in BigQuery sql script
+            </li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Update newest supported version of Snowflake to 7.33</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Keep software.amazon.awssdk:s3 on latest 2.20.X release to get fix for CVE-2023-4586</li>
+            <li>Upgrade software.amazon.awssdk:s3@2.20.94 to software.amazon.awssdk:s3@2.20.158 to fix CWE-295</li>
+        </ul>
+
+        <p>
+            Thanks to kankaiz for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="9.22.2">Flyway 9.22.2 (2023-09-21)</h2>
 
         <h3>Bug fixes</h3>
