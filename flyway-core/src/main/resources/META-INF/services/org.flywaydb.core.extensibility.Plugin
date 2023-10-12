@@ -5,6 +5,7 @@ org.flywaydb.core.internal.database.derby.DerbyDatabaseType
 org.flywaydb.core.internal.database.h2.H2DatabaseType
 org.flywaydb.core.internal.database.hsqldb.HSQLDBDatabaseType
 org.flywaydb.core.internal.database.informix.InformixDatabaseType
+org.flywaydb.core.internal.database.sinodb.SinoDBDatabaseType
 org.flywaydb.core.internal.database.postgresql.PostgreSQLDatabaseType
 org.flywaydb.core.internal.database.saphana.SAPHANADatabaseType
 org.flywaydb.core.internal.database.snowflake.SnowflakeDatabaseType
