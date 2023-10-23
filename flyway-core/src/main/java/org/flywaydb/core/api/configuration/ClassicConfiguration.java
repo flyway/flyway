@@ -28,7 +28,6 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.ConfigurationProvider;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
-
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.FlywayModel;
@@ -43,7 +42,8 @@ import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.*;
 
 import javax.sql.DataSource;
-import java.io.*;
+import java.io.File;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.sql.Connection;
@@ -52,11 +52,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-
-
-
-
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger;
@@ -172,10 +167,10 @@ public class ClassicConfiguration implements Configuration {
     @Setter
     private ClassProvider<JavaMigration> javaMigrationClassProvider = null;
     @Getter
-    private JavaMigration[] javaMigrations = { };
+    private JavaMigration[] javaMigrations = {};
 
     @Getter
-    private MigrationResolver[] resolvers = { };
+    private MigrationResolver[] resolvers = {};
 
     private OutputStream dryRunOutput;
 
@@ -246,6 +241,11 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
+    public BaseLineMigrationMode getBaselineMigrationMode() {
+        return getModernFlyway().getBaselineMigrationMode();
+    }
+
+    @Override
     public boolean isSkipExecutingMigrations() {
         return getModernFlyway().getSkipExecutingMigrations();
     }
@@ -258,12 +258,12 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public ValidatePattern[] getIgnoreMigrationPatterns() {
         String[] ignoreMigrationPatterns = getModernFlyway().getIgnoreMigrationPatterns().toArray(new String[0]);
-        if (Arrays.equals(ignoreMigrationPatterns, new String[] { "" })) {
+        if (Arrays.equals(ignoreMigrationPatterns, new String[]{""})) {
             return new ValidatePattern[0];
         } else {
             return Arrays.stream(ignoreMigrationPatterns)
-                         .map(ValidatePattern::fromPattern)
-                         .toArray(ValidatePattern[]::new);
+                    .map(ValidatePattern::fromPattern)
+                    .toArray(ValidatePattern[]::new);
         }
     }
 
@@ -316,13 +316,6 @@ public class ClassicConfiguration implements Configuration {
             if (!StringUtils.hasText(dryRunOutputFileName)) {
                 return null;
             }
-
-
-
-
-
-
-
 
 
         }
@@ -489,9 +482,6 @@ public class ClassicConfiguration implements Configuration {
             throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("failOnMissingTarget");
 
 
-
-
-
         } else {
             getModernFlyway().setFailOnMissingTarget(true);
             return MigrationVersion.fromVersion(target);
@@ -564,8 +554,6 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
 
 
-
-
     }
 
     /**
@@ -581,92 +569,11 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
     private OutputStream getDryRunOutputAsFile(File dryRunOutput) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     }
@@ -684,8 +591,6 @@ public class ClassicConfiguration implements Configuration {
     public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("dryRunOutput");
-
-
 
 
     }
@@ -723,8 +628,6 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("errorOverrides");
 
 
-
-
     }
 
     /**
@@ -749,7 +652,7 @@ public class ClassicConfiguration implements Configuration {
      *     <li>log4j2: Use the log4j2 logger</li>
      *     <li>apache-commons: Use the Apache Commons logger</li>
      * </ul>
-     *
+     * <p>
      * Alternatively you can provide the fully qualified class name for any other logger to use that.
      */
     public void setLoggers(String... loggers) {
@@ -815,8 +718,6 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("detectEncoding");
 
 
-
-
     }
 
     public void setReportFilename(String reportFilename) {
@@ -879,13 +780,6 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("cherryPick");
 
 
-
-
-
-
-
-
-
     }
 
     /**
@@ -897,8 +791,6 @@ public class ClassicConfiguration implements Configuration {
     public void setCherryPick(String... cherryPickAsString) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("cherryPick");
-
-
 
 
     }
@@ -988,8 +880,6 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("undoSqlMigrationPrefix");
 
 
-
-
     }
 
     /**
@@ -1020,8 +910,6 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("stream");
 
 
-
-
     }
 
     /**
@@ -1037,8 +925,6 @@ public class ClassicConfiguration implements Configuration {
     public void setBatch(boolean batch) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("batch");
-
-
 
 
     }
@@ -1091,7 +977,7 @@ public class ClassicConfiguration implements Configuration {
 
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-        try (Connection connection = dataSource.getConnection()){
+        try (Connection connection = dataSource.getConnection()) {
             this.databaseType = dataSource != null ? DatabaseTypeRegister.getDatabaseTypeForConnection(connection) : null;
         } catch (SQLException e) {
             this.databaseType = null;
@@ -1138,7 +1024,7 @@ public class ClassicConfiguration implements Configuration {
      * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
      * This should be used when you have applied a migration manually (via executing the sql yourself, or via an IDE), and
      * just want the schema history table to reflect this.
-     *
+     * <p>
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
      *
      * <i>Flyway Teams only</i>
@@ -1146,8 +1032,6 @@ public class ClassicConfiguration implements Configuration {
     public void setSkipExecutingMigrations(boolean skipExecutingMigrations) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("skipExecutingMigrations");
-
-
 
 
     }
@@ -1259,8 +1143,6 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("kerberosConfigFile");
 
 
-
-
     }
 
     /**
@@ -1281,9 +1163,7 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setLicenseKey(String licenseKey) {
 
-         LOG.warn("License key detected - in order to use Teams or Enterprise features, download " + org.flywaydb.core.internal.license.Edition.ENTERPRISE + " & " + org.flywaydb.core.internal.license.Edition.TIER3 + " here: " +  org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.TEAMS_ENTERPRISE_DOWNLOAD);
-
-
+        LOG.warn("License key detected - in order to use Teams or Enterprise features, download " + org.flywaydb.core.internal.license.Edition.ENTERPRISE + " & " + org.flywaydb.core.internal.license.Edition.TIER3 + " here: " + org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.TEAMS_ENTERPRISE_DOWNLOAD);
 
 
     }
@@ -1299,8 +1179,6 @@ public class ClassicConfiguration implements Configuration {
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("outputQueryResults");
 
 
-
-
     }
 
     /**
@@ -1310,8 +1188,6 @@ public class ClassicConfiguration implements Configuration {
     public void setJdbcProperties(Map<String, String> jdbcProperties) {
 
         throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbcProperties");
-
-
 
 
     }
@@ -1343,8 +1219,6 @@ public class ClassicConfiguration implements Configuration {
         pluginRegister = configuration.getPluginRegister();
 
 
-
-
         configureFromConfigurationProviders(this);
     }
 
@@ -1354,7 +1228,6 @@ public class ClassicConfiguration implements Configuration {
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
      *
      * @param properties Properties used for configuration.
-     *
      * @throws FlywayException when the configuration failed.
      */
     public void configure(Properties properties) {
@@ -1392,7 +1265,6 @@ public class ClassicConfiguration implements Configuration {
      * <p>To use a custom ClassLoader, it must be passed to the Flyway constructor prior to calling this method.</p>
      *
      * @param props Properties used for configuration.
-     *
      * @throws FlywayException when the configuration failed.
      */
 
@@ -1420,9 +1292,9 @@ public class ClassicConfiguration implements Configuration {
             final String rootNamespace = matcher.find() ? matcher.group(1) : "";
 
             List<ConfigurationExtension> configExtensions = pluginRegister.getPlugins(ConfigurationExtension.class)
-                                                                          .stream()
-                                                                          .filter(c -> rootNamespace.equals(c.getNamespace()))
-                                                                          .collect(Collectors.toList());
+                    .stream()
+                    .filter(c -> rootNamespace.equals(c.getNamespace()))
+                    .collect(Collectors.toList());
             String replaceNamespace = "flyway.";
             if (StringUtils.hasText(rootNamespace)) {
                 replaceNamespace = "flyway." + rootNamespace + ".";
@@ -1571,6 +1443,10 @@ public class ClassicConfiguration implements Configuration {
         Boolean baselineOnMigrateProp = removeBoolean(props, ConfigUtils.BASELINE_ON_MIGRATE);
         if (baselineOnMigrateProp != null) {
             setBaselineOnMigrate(baselineOnMigrateProp);
+        }
+        String baseLineMigrationMode = props.remove(ConfigUtils.BASELINE_MIGRATION_MODE);
+        if (baseLineMigrationMode != null) {
+            setBaselineMigrationMode(BaseLineMigrationMode.valueOf(baseLineMigrationMode));
         }
         Boolean validateMigrationNamingProp = removeBoolean(props, ConfigUtils.VALIDATE_MIGRATION_NAMING);
         if (validateMigrationNamingProp != null) {
@@ -1787,6 +1663,10 @@ public class ClassicConfiguration implements Configuration {
         getModernFlyway().setBaselineOnMigrate(baselineOnMigrateProp);
     }
 
+    public void setBaselineMigrationMode(BaseLineMigrationMode baseLineMigrationMode) {
+        getModernFlyway().setBaselineMigrationMode(baseLineMigrationMode);
+    }
+
     public void setBaselineDescription(String baselineDescriptionProp) {
         getModernFlyway().setBaselineDescription(baselineDescriptionProp);
     }
@@ -1851,7 +1731,7 @@ public class ClassicConfiguration implements Configuration {
                 try {
                     ObjectMapper objectMapper = new ObjectMapper();
                     Map<String, Object> mp = new HashMap<>();
-                    for(Map.Entry<String, Object> entry : mpTmp.entrySet()) {
+                    for (Map.Entry<String, Object> entry : mpTmp.entrySet()) {
                         Field[] subFields = cfg.getClass().getDeclaredFields();
                         Field field = Arrays.stream(subFields).filter(f -> f.getName().equals(entry.getKey())).findFirst().orElse(null);
                         Object value = (field.getType() == List.class || field.getType() == String[].class) ?

@@ -28,22 +28,8 @@ import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeMap;
+import java.io.*;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,6 +43,7 @@ public class ConfigUtils {
     public static final String CONFIG_FILE_ENCODING = "flyway.configFileEncoding";
     public static final String BASELINE_DESCRIPTION = "flyway.baselineDescription";
     public static final String BASELINE_ON_MIGRATE = "flyway.baselineOnMigrate";
+    public static final String BASELINE_MIGRATION_MODE = "flyway.baselineMigrationMode";
     public static final String BASELINE_VERSION = "flyway.baselineVersion";
     public static final String BATCH = "flyway.batch";
     public static final String CALLBACKS = "flyway.callbacks";
@@ -378,16 +365,16 @@ public class ConfigUtils {
 
     public static List<File> getDefaultTomlConfigFileLocations(File installationDir) {
         return new ArrayList<>(Arrays.asList(new File(installationDir.getAbsolutePath() + "/conf/flyway.toml"),
-                      new File(System.getProperty("user.home") + "/flyway.toml"),
-                      new File("flyway.toml"),
-                      new File("flyway.user.toml")));
+                new File(System.getProperty("user.home") + "/flyway.toml"),
+                new File("flyway.toml"),
+                new File("flyway.user.toml")));
     }
 
     /**
      * Loads the configuration from this configuration file.
      *
-     * @param configFile The configuration file to load.
-     * @param encoding The encoding of the configuration file.
+     * @param configFile    The configuration file to load.
+     * @param encoding      The encoding of the configuration file.
      * @param failIfMissing Whether to fail if the file is missing.
      * @return The properties from the configuration file. An empty Map if none.
      * @throws FlywayException When the configuration file could not be loaded.
@@ -540,7 +527,7 @@ public class ConfigUtils {
      * Puts this property in the config if it has been set in any of these values.
      *
      * @param config The config.
-     * @param key The property name.
+     * @param key    The property name.
      * @param values The values to try. The first non-null value will be set.
      */
     public static void putIfSet(Map<String, String> config, String key, Object... values) {
@@ -556,7 +543,7 @@ public class ConfigUtils {
      * Puts this property in the config if it has been set in any of these values.
      *
      * @param config The config.
-     * @param key The property name.
+     * @param key    The property name.
      * @param values The values to try. The first non-null value will be set.
      */
     public static void putArrayIfSet(Map<String, String> config, String key, String[]... values) {
@@ -570,7 +557,7 @@ public class ConfigUtils {
 
     /**
      * @param config The config.
-     * @param key The property name.
+     * @param key    The property name.
      * @return The property value as a boolean if it exists, otherwise {@code null}.
      * @throws FlywayException when the property value is not a valid boolean.
      */
@@ -586,14 +573,14 @@ public class ConfigUtils {
         }
         if (!"true".equalsIgnoreCase(value) && !"false".equalsIgnoreCase(value)) {
             throw new FlywayException("Invalid value for " + key + " (should be either true or false): " + value,
-                                      ErrorCode.CONFIGURATION);
+                    ErrorCode.CONFIGURATION);
         }
         return Boolean.valueOf(value);
     }
 
     /**
      * @param config The config.
-     * @param key The property name.
+     * @param key    The property name.
      * @return The property value as an integer if it exists, otherwise {@code null}.
      * @throws FlywayException When the property value is not a valid integer.
      */
@@ -606,7 +593,7 @@ public class ConfigUtils {
             return Integer.valueOf(value);
         } catch (NumberFormatException e) {
             throw new FlywayException("Invalid value for " + key + " (should be an integer): " + value,
-                                      ErrorCode.CONFIGURATION);
+                    ErrorCode.CONFIGURATION);
         }
     }
 
@@ -624,9 +611,9 @@ public class ConfigUtils {
         });
 
         config.getRootConfigurations().forEach((name, pluginConfig) -> {
-                if (pluginConfig instanceof Map<?, ?>) {
-                    ((Map<?, ?>) pluginConfig).forEach((key, value) -> configMap.put(name + "." + key, value.toString()));
-                }
+            if (pluginConfig instanceof Map<?, ?>) {
+                ((Map<?, ?>) pluginConfig).forEach((key, value) -> configMap.put(name + "." + key, value.toString()));
+            }
         });
 
         dumpConfigurationMap(configMap);
@@ -675,8 +662,8 @@ public class ConfigUtils {
         if (!unknownFlywayProperties.isEmpty()) {
             String property = (unknownFlywayProperties.size() == 1) ? "property" : "properties";
             String message = String.format("Unknown configuration %s: %s",
-                                           property,
-                                           StringUtils.arrayToCommaDelimitedString(unknownFlywayProperties.toArray()));
+                    property,
+                    StringUtils.arrayToCommaDelimitedString(unknownFlywayProperties.toArray()));
             throw new FlywayException(message, ErrorCode.CONFIGURATION);
         }
     }
