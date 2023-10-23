@@ -18,6 +18,7 @@ package org.flywaydb.core;
 import lombok.CustomLog;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import org.flywaydb.core.api.BaseLineMigrationMode;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
@@ -29,7 +30,6 @@ import org.flywaydb.core.api.exception.FlywayValidateException;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.output.*;
 import org.flywaydb.core.api.pattern.ValidatePattern;
-import org.flywaydb.core.extensibility.CommandExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.command.*;
@@ -44,14 +44,13 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
- *
+ * <p>
  * It is THE public API from which all important Flyway functions such as clean, validate and migrate can be called.
- *
+ * <p>
  * To get started all you need to do is create a configured Flyway object and then invoke its principal methods.
  * <pre>
  * Flyway flyway = Flyway.configure().dataSource(url, user, password).load();
@@ -71,10 +70,10 @@ public class Flyway {
     /**
      * This is your starting point. This creates a configuration which can be customized to your needs before being
      * loaded into a new Flyway instance using the load() method.
-     *
+     * <p>
      * In its simplest form, this is how you configure Flyway with all defaults to get started:
      * <pre>Flyway flyway = Flyway.configure().dataSource(url, user, password).load();</pre>
-     *
+     * <p>
      * After that you have a fully-configured Flyway instance at your disposal which can be used to invoke Flyway
      * functionality such as migrate() or clean().
      *
@@ -87,15 +86,14 @@ public class Flyway {
     /**
      * This is your starting point. This creates a configuration which can be customized to your needs before being
      * loaded into a new Flyway instance using the load() method.
-     *
+     * <p>
      * In its simplest form, this is how you configure Flyway with all defaults to get started:
      * <pre>Flyway flyway = Flyway.configure().dataSource(url, user, password).load();</pre>
-     *
+     * <p>
      * After that you have a fully-configured Flyway instance at your disposal which can be used to invoke Flyway
      * functionality such as migrate() or clean().
      *
      * @param classLoader The class loader to use when loading classes and resources.
-     *
      * @return A new configuration from which Flyway can be loaded.
      */
     public static FluentConfiguration configure(ClassLoader classLoader) {
@@ -130,7 +128,6 @@ public class Flyway {
      * <img src="https://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
      *
      * @return An object summarising the successfully applied migrations.
-     *
      * @throws FlywayException when the migration failed.
      */
     @SneakyThrows
@@ -151,21 +148,21 @@ public class Flyway {
                         new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(false);
                     } else if (!defaultSchema.exists()) {
                         LOG.warn("The configuration option 'createSchemas' is false.\n" +
-                                         "However, the schema history table still needs a schema to reside in.\n" +
-                                         "You must manually create a schema for the schema history table to reside in.\n" +
-                                         "See https://documentation.red-gate.com/fd/migrations-184127470.html");
+                                "However, the schema history table still needs a schema to reside in.\n" +
+                                "You must manually create a schema for the schema history table to reside in.\n" +
+                                "See https://documentation.red-gate.com/fd/migrations-184127470.html");
                     }
 
                     if (!schemaHistory.exists()) {
                         List<Schema> nonEmptySchemas = new ArrayList<>();
-                        for (Schema schema : schemas) {
-                            if (schema.exists() && !schema.empty()) {
-                                nonEmptySchemas.add(schema);
+                        if (BaseLineMigrationMode.SCHEMA.equals(configuration.getBaselineMigrationMode())) {
+                            for (Schema schema : schemas) {
+                                if (schema.exists() && !schema.empty()) {
+                                    nonEmptySchemas.add(schema);
+                                }
                             }
                         }
-
                         if (!nonEmptySchemas.isEmpty()
-
 
 
                         ) {
@@ -175,9 +172,9 @@ public class Flyway {
                                 // Second check for MySQL which is sometimes flaky otherwise
                                 if (!schemaHistory.exists()) {
                                     throw new FlywayException("Found non-empty schema(s) "
-                                                                      + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
-                                                                      + " but no schema history table. Use baseline()"
-                                                                      + " or set baselineOnMigrate to true to initialize the schema history table.", ErrorCode.NON_EMPTY_SCHEMA_WITHOUT_SCHEMA_HISTORY_TABLE);
+                                            + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
+                                            + " but no schema history table. Use baseline()"
+                                            + " or set baselineOnMigrate to true to initialize the schema history table.", ErrorCode.NON_EMPTY_SCHEMA_WITHOUT_SCHEMA_HISTORY_TABLE);
                                 }
                             }
                         }
@@ -204,7 +201,6 @@ public class Flyway {
      * <img src="https://flywaydb.org/assets/balsamiq/command-info.png" alt="info">
      *
      * @return All migrations sorted by version, oldest first.
-     *
      * @throws FlywayException when the info retrieval failed.
      */
     public MigrationInfoService info() {
@@ -224,7 +220,6 @@ public class Flyway {
      * <img src="https://flywaydb.org/assets/balsamiq/command-clean.png" alt="clean">
      *
      * @return An object summarising the actions taken
-     *
      * @throws FlywayException when the clean fails.
      */
     @SneakyThrows
@@ -286,7 +281,6 @@ public class Flyway {
      * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
      *
      * @return An object summarising the validation results
-     *
      * @throws FlywayException when the validation failed.
      */
     public ValidateResult validateWithResult() throws FlywayException {
@@ -305,7 +299,6 @@ public class Flyway {
      * <img src="https://flywaydb.org/assets/balsamiq/command-baseline.png" alt="baseline">
      *
      * @return An object summarising the actions taken
-     *
      * @throws FlywayException when the schema baseline failed.
      */
     @SneakyThrows
@@ -317,9 +310,9 @@ public class Flyway {
                         new DbSchemas(database, schemas, schemaHistory, callbackExecutor).create(true);
                     } else {
                         LOG.warn("The configuration option 'createSchemas' is false.\n" +
-                                         "Even though Flyway is configured not to create any schemas, the schema history table still needs a schema to reside in.\n" +
-                                         "You must manually create a schema for the schema history table to reside in.\n" +
-                                         "See https://documentation.red-gate.com/fd/migrations-184127470.html");
+                                "Even though Flyway is configured not to create any schemas, the schema history table still needs a schema to reside in.\n" +
+                                "You must manually create a schema for the schema history table to reside in.\n" +
+                                "See https://documentation.red-gate.com/fd/migrations-184127470.html");
                     }
 
                     BaselineResult baselineResult = doBaseline(schemaHistory, callbackExecutor, database);
@@ -344,7 +337,6 @@ public class Flyway {
      * <img src="https://flywaydb.org/assets/balsamiq/command-repair.png" alt="repair">
      *
      * @return An object summarising the actions taken
-     *
      * @throws FlywayException when the schema history table repair failed.
      */
     @SneakyThrows
@@ -373,7 +365,6 @@ public class Flyway {
      * <img src="https://flywaydb.org/assets/balsamiq/command-undo.png" alt="undo">
      *
      * @return An object summarising the successfully undone migrations.
-     *
      * @throws FlywayException when undo failed.
      */
     public UndoResult undo() throws FlywayException {

@@ -49,6 +49,7 @@ public interface Configuration {
 
     /**
      * Get the filename of generated reports
+     *
      * @return report filename;
      */
     String getReportFilename();
@@ -382,9 +383,9 @@ public interface Configuration {
      * Whether to automatically call baseline when migrate is executed against a non-empty schema with no schema history table.
      * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.
      * Only migrations above {@code baselineVersion} will then be applied.
-     *
+     * <p>
      * This is useful for initial Flyway production deployments on projects with an existing DB.
-     *
+     * <p>
      * Be careful when enabling this as it removes the safety net that ensures Flyway does not migrate the wrong database in case of a configuration mistake!
      *
      * @return {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
@@ -392,10 +393,22 @@ public interface Configuration {
     boolean isBaselineOnMigrate();
 
     /**
+     * Set the evaluation mode, when the baseline should be applied. By default, the baseline is only used on non-existing or empty schemas.
+     * In some use cases multiple migrators or already existing schemas already contain structures independently. In this case Flyway will only check for the defined
+     * history table if the baseline should be applied or not.
+     * <p>
+     * The baseline migration mode is not applied if `baselineOnMigrate` is set to {@code true}
+     *
+     * @return {@code SCHEMA} if baseline should be used only on empty schema, {@code HISTORY_TABLE} if baseline should be used on non-existing history table
+     * (default: {@code SCHEMA})
+     */
+    BaseLineMigrationMode getBaselineMigrationMode();
+
+    /**
      * Whether Flyway should skip actually executing the contents of the migrations and only update the schema history table.
      * This should be used when you have applied a migration manually (via executing the sql yourself, or via an ide), and
      * just want the schema history table to reflect this.
-     *
+     * <p>
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
      *
      * <i>Flyway Teams only</i>
@@ -460,7 +473,7 @@ public interface Configuration {
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration. Enabling this
      * automatically causes the entire affected migration to be run without a transaction.
-     *
+     * <p>
      * Note that this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have
      * statements that do not run at all within a transaction.
      * This is not to be confused with implicit transaction, as they occur in MySQL or Oracle, where even though a
@@ -624,7 +637,7 @@ public interface Configuration {
      *     <li>log4j2: Use the log4j2 logger</li>
      *     <li>apache-commons: Use the Apache Commons logger</li>
      * </ul>
-     *
+     * <p>
      * Alternatively you can provide the fully qualified class name for any other logger to use that.
      */
     String[] getLoggers();

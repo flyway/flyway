@@ -20,16 +20,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
+import org.flywaydb.core.api.BaseLineMigrationMode;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.MergeUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 @Setter
@@ -71,6 +67,7 @@ public class FlywayModel {
     private String baselineVersion;
     private String baselineDescription;
     private Boolean baselineOnMigrate;
+    private BaseLineMigrationMode baselineMigrationMode;
     private Boolean outOfOrder;
     private Boolean skipExecutingMigrations;
     private List<String> callbacks;
@@ -96,58 +93,59 @@ public class FlywayModel {
     private Boolean reportEnabled;
     @JsonAnySetter
     @Getter(onMethod = @__(@ClassUtils.DoNotMapForLogging))
-    private Map<String,Object> pluginConfigurations = new HashMap<>();
+    private Map<String, Object> pluginConfigurations = new HashMap<>();
 
-    public static FlywayModel defaults(){
-         FlywayModel model = new FlywayModel();
-         model.reportFilename = DEFAULT_REPORT_FILENAME;
-         model.detectEncoding = false;
-         model.encoding = "UTF-8";
-         model.executeInTransaction = true;
-         model.placeholderPrefix = "${";
-         model.placeholderSuffix = "}";
-         model.placeholderSeparator = ":";
-         model.scriptPlaceholderPrefix = "FP__";
-         model.scriptPlaceholderSuffix = "__";
-         model.sqlMigrationPrefix = "V";
-         model.undoSqlMigrationPrefix = "U";
-         model.repeatableSqlMigrationPrefix = "R";
-         model.sqlMigrationSeparator = "__";
-         model.sqlMigrationSuffixes = Arrays.asList(".sql");
-         model.cleanDisabled = true;
-         model.cleanOnValidationError = false;
-         model.locations = new ArrayList<>(Collections.singletonList("db/migration"));
-         model.target = "latest";
-         model.table = "flyway_schema_history";
-         model.failOnMissingTarget = false;
-         model.cherryPick = new ArrayList<>();
-         model.placeholderReplacement = true;
-         model.ignoreMigrationPatterns = Arrays.asList("*:future");
-         model.validateMigrationNaming = false;
-         model.validateOnMigrate = true;
-         model.baselineDescription = "<< Flyway Baseline >>";
-         model.baselineOnMigrate = false;
-         model.outOfOrder = false;
-         model.skipExecutingMigrations = false;
-         model.callbacks = new ArrayList<>();
-         model.skipDefaultCallbacks = false;
-         model.migrationResolvers = new ArrayList<>();
-         model.skipDefaultResolvers = false;
-         model.mixed = false;
-         model.group = false;
-         model.createSchemas = true;
-         model.errorOverrides = new ArrayList<>();
-         model.stream = false;
-         model.batch = false;
-         model.outputQueryResults = true;
-         model.lockRetryCount = 50;
-         model.kerberosConfigFile = "";
-         model.failOnMissingLocations = false;
-         model.loggers = Arrays.asList("auto");
-         model.placeholders = new HashMap<>();
-         model.environment = "default";
-         model.reportEnabled = true;
-         return model;
+    public static FlywayModel defaults() {
+        FlywayModel model = new FlywayModel();
+        model.reportFilename = DEFAULT_REPORT_FILENAME;
+        model.detectEncoding = false;
+        model.encoding = "UTF-8";
+        model.executeInTransaction = true;
+        model.placeholderPrefix = "${";
+        model.placeholderSuffix = "}";
+        model.placeholderSeparator = ":";
+        model.scriptPlaceholderPrefix = "FP__";
+        model.scriptPlaceholderSuffix = "__";
+        model.sqlMigrationPrefix = "V";
+        model.undoSqlMigrationPrefix = "U";
+        model.repeatableSqlMigrationPrefix = "R";
+        model.sqlMigrationSeparator = "__";
+        model.sqlMigrationSuffixes = Arrays.asList(".sql");
+        model.cleanDisabled = true;
+        model.cleanOnValidationError = false;
+        model.locations = new ArrayList<>(Collections.singletonList("db/migration"));
+        model.target = "latest";
+        model.table = "flyway_schema_history";
+        model.failOnMissingTarget = false;
+        model.cherryPick = new ArrayList<>();
+        model.placeholderReplacement = true;
+        model.ignoreMigrationPatterns = Arrays.asList("*:future");
+        model.validateMigrationNaming = false;
+        model.validateOnMigrate = true;
+        model.baselineDescription = "<< Flyway Baseline >>";
+        model.baselineOnMigrate = false;
+        model.outOfOrder = false;
+        model.skipExecutingMigrations = false;
+        model.callbacks = new ArrayList<>();
+        model.skipDefaultCallbacks = false;
+        model.migrationResolvers = new ArrayList<>();
+        model.skipDefaultResolvers = false;
+        model.mixed = false;
+        model.group = false;
+        model.createSchemas = true;
+        model.errorOverrides = new ArrayList<>();
+        model.stream = false;
+        model.batch = false;
+        model.outputQueryResults = true;
+        model.lockRetryCount = 50;
+        model.kerberosConfigFile = "";
+        model.failOnMissingLocations = false;
+        model.loggers = Arrays.asList("auto");
+        model.placeholders = new HashMap<>();
+        model.environment = "default";
+        model.reportEnabled = true;
+        model.baselineMigrationMode = BaseLineMigrationMode.SCHEMA;
+        return model;
     }
 
     public FlywayModel merge(FlywayModel otherPojo) {
@@ -183,6 +181,7 @@ public class FlywayModel {
         result.baselineVersion = baselineVersion.merge(otherPojo.baselineVersion);
         result.baselineDescription = baselineDescription.merge(otherPojo.baselineDescription);
         result.baselineOnMigrate = baselineOnMigrate.merge(otherPojo.baselineOnMigrate);
+        result.baselineMigrationMode = baselineMigrationMode.merge(otherPojo.baselineMigrationMode);
         result.outOfOrder = outOfOrder.merge(otherPojo.outOfOrder);
         result.skipExecutingMigrations = skipExecutingMigrations.merge(otherPojo.skipExecutingMigrations);
         result.callbacks = callbacks.merge(otherPojo.callbacks);
@@ -205,8 +204,8 @@ public class FlywayModel {
         result.defaultSchema = defaultSchema.merge(otherPojo.defaultSchema);
         result.placeholders = placeholders.merge(otherPojo.placeholders);
         result.reportEnabled = reportEnabled.merge(otherPojo.reportEnabled);
-        result.propertyResolvers = MergeUtils.merge(propertyResolvers, otherPojo.propertyResolvers, (a,b) -> b != null ? b : a); // TODO: more granular merge
-        result.pluginConfigurations = MergeUtils.merge(pluginConfigurations, otherPojo.pluginConfigurations, (a,b) -> b != null ? b : a);
+        result.propertyResolvers = MergeUtils.merge(propertyResolvers, otherPojo.propertyResolvers, (a, b) -> b != null ? b : a); // TODO: more granular merge
+        result.pluginConfigurations = MergeUtils.merge(pluginConfigurations, otherPojo.pluginConfigurations, (a, b) -> b != null ? b : a);
         return result;
     }
 
