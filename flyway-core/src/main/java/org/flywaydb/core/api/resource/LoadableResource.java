@@ -15,7 +15,15 @@
  */
 package org.flywaydb.core.api.resource;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.CRC32;
+
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.BomFilter;
+import org.flywaydb.core.internal.util.IOUtils;
 
 /**
  * A loadable resource.
@@ -41,5 +49,32 @@ public abstract class LoadableResource implements Resource, Comparable<LoadableR
     @Override
     public int compareTo(LoadableResource o) {
         return getRelativePath().compareTo(o.getRelativePath());
+    }
+    
+    public int calculateChecksum()
+    {
+        final CRC32 crc32 = new CRC32();
+
+        BufferedReader bufferedReader = null;
+        try {
+            bufferedReader = new BufferedReader(read(), 4096);
+            String line = bufferedReader.readLine();
+
+            if (line != null) {
+                line = BomFilter.FilterBomFromString(line);
+                do {
+                    //noinspection Since15
+                    crc32.update(line.getBytes(StandardCharsets.UTF_8));
+                } while ((line = bufferedReader.readLine()) != null);
+            }
+        } catch (IOException e) {
+            throw new FlywayException("Unable to calculate checksum of " + getFilename() + "\n" +
+                                      "Please ensure you have configured the correct file encoding with 'flyway.encoding' " +
+                                      "or enable 'flyway.detectEncoding' to let Flyway detect it for you", e);
+        } finally {
+            IOUtils.close(bufferedReader);
+        }
+
+        return (int) crc32.getValue();
     }
 }
