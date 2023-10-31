@@ -20,6 +20,7 @@ import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
@@ -27,17 +28,21 @@ import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.ConfigurationProvider;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
 
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
 import org.flywaydb.core.internal.configuration.models.FlywayModel;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
+import org.flywaydb.core.internal.configuration.resolvers.EnvironmentProvisioner;
 import org.flywaydb.core.internal.configuration.resolvers.EnvironmentResolver;
 import org.flywaydb.core.internal.configuration.resolvers.PropertyResolver;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
+import org.flywaydb.core.internal.license.FlywayTeamsUpgradeMessage;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.*;
@@ -58,6 +63,7 @@ import java.util.stream.Collectors;
 
 
 
+
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeBoolean;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger;
 
@@ -67,6 +73,7 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.removeInteger
  * <p>This configuration can then be passed to Flyway using the <code>new Flyway(Configuration)</code> constructor.</p>
  */
 @CustomLog
+@ExtensionMethod(Tier.class)
 public class ClassicConfiguration implements Configuration {
     private static final Pattern ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN = Pattern.compile("\"([^\"]*)\"");
     private static final Pattern ANY_WORD_BETWEEN_TWO_DOTS_PATTERN = Pattern.compile("\\.(.*?)\\.");
@@ -107,7 +114,7 @@ public class ClassicConfiguration implements Configuration {
         if (!StringUtils.hasText(envName)) {
             envName = "default";
         }
-        if (getModernConfig().getEnvironments().get(envName) == null) {
+        if (!getModernConfig().getEnvironments().containsKey(envName)) {
             throw new FlywayException("Environment '" + envName + "' not found. Check that this environment exists in your configuration.");
         }
         return getModernConfig().getEnvironments().get(envName);
@@ -126,11 +133,14 @@ public class ClassicConfiguration implements Configuration {
 
     public ResolvedEnvironment getResolvedEnvironment(String envName) {
         if (environmentResolver == null) {
-            environmentResolver = new EnvironmentResolver(pluginRegister.getPlugins(PropertyResolver.class).stream().collect(Collectors.toMap(PropertyResolver::getName, x -> x)));
+            environmentResolver = new EnvironmentResolver(
+                    pluginRegister.getLicensedPlugins(PropertyResolver.class, this).stream().collect(Collectors.toMap(PropertyResolver::getName, x -> x)),
+                    pluginRegister.getLicensedPlugins(EnvironmentProvisioner.class, this).stream().collect(Collectors.toMap(EnvironmentProvisioner::getName, x -> x))
+            );
         }
 
         if (!resolvedEnvironments.containsKey(envName) && getModernConfig().getEnvironments().containsKey(envName)) {
-            resolvedEnvironments.put(envName, environmentResolver.resolve(getModernConfig().getEnvironments().get(envName)));
+            resolvedEnvironments.put(envName, environmentResolver.resolve(envName, getModernConfig().getEnvironments().get(envName)));
         }
 
         return resolvedEnvironments.get(envName);
@@ -346,11 +356,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     @Override
-    public String getLicenseKey() {
-        return getModernFlyway().getLicenseKey();
-    }
-
-    @Override
     public boolean isOutputQueryResults() {
         return getModernFlyway().getOutputQueryResults();
     }
@@ -419,11 +424,6 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public String getSqlMigrationPrefix() {
         return getModernFlyway().getSqlMigrationPrefix();
-    }
-
-    @Override
-    public String getUndoSqlMigrationPrefix() {
-        return getModernFlyway().getUndoSqlMigrationPrefix();
     }
 
     @Override
@@ -506,8 +506,16 @@ public class ClassicConfiguration implements Configuration {
     @Override
     public MigrationPattern[] getCherryPick() {
         MigrationPattern[] cherryPick = null;
-        if (getModernFlyway().getCherryPick() != null) {
-            cherryPick = getModernFlyway().getCherryPick().stream().map(MigrationPattern::new).toArray(MigrationPattern[]::new);
+        ConfigurationExtension cherryPickConfig = pluginRegister.getLicensedPlugin("CherryPickConfigurationExtension", this);
+
+        if (cherryPickConfig == null) {
+            LOG.debug("CherryPickConfigurationExtension not found");
+            return null;
+        }
+        List<String> cherryPickList = (List<String>) ClassUtils.getFieldValue(cherryPickConfig, "cherryPick");
+
+        if (cherryPickList != null) {
+            cherryPick = cherryPickList.stream().map(MigrationPattern::new).toArray(MigrationPattern[]::new);
         }
 
         cherryPick = (cherryPick != null && cherryPick.length == 0) ? null : cherryPick;
@@ -870,40 +878,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
-     * Migrations not in this list will be ignored.
-     * <i>Flyway Teams only</i>
-     */
-    public void setCherryPick(MigrationPattern... cherryPick) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("cherryPick");
-
-
-
-
-
-
-
-
-
-    }
-
-    /**
-     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
-     * Migrations not in this list will be ignored.
-     * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
-     * <i>Flyway Teams only</i>
-     */
-    public void setCherryPick(String... cherryPickAsString) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("cherryPick");
-
-
-
-
-    }
-
-    /**
      * Sets the prefix of every placeholder.
      *
      * @param placeholderPrefix The prefix of every placeholder. (default: ${ )
@@ -972,24 +946,6 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setSqlMigrationPrefix(String sqlMigrationPrefix) {
         getModernFlyway().setSqlMigrationPrefix(sqlMigrationPrefix);
-    }
-
-    /**
-     * Sets the file name prefix for undo SQL migrations. (default: U)
-     * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.</p>
-     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to U1.1__My_description.sql
-     * <<i>Flyway Teams only</i>
-     *
-     * @param undoSqlMigrationPrefix The file name prefix for undo SQL migrations. (default: U)
-     */
-    public void setUndoSqlMigrationPrefix(String undoSqlMigrationPrefix) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("undoSqlMigrationPrefix");
-
-
-
-
     }
 
     /**
@@ -1087,11 +1043,13 @@ public class ClassicConfiguration implements Configuration {
         this.databaseType = StringUtils.hasText(url) ? DatabaseTypeRegister.getDatabaseTypeForUrl(url) : null;
 
         this.dataSource = new DriverDataSource(classLoader, null, url, user, password, this);
+
+        licenseGuardJdbcUrl(url);
     }
 
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-        try (Connection connection = dataSource.getConnection()){
+        try (Connection connection = dataSource.getConnection()) {
             this.databaseType = dataSource != null ? DatabaseTypeRegister.getDatabaseTypeForConnection(connection) : null;
         } catch (SQLException e) {
             this.databaseType = null;
@@ -1273,22 +1231,6 @@ public class ClassicConfiguration implements Configuration {
     }
 
     /**
-     * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
-     * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
-     * to try out Flyway Teams Edition features free for 30 days.
-     *
-     * <i>Flyway Teams only</i>
-     */
-    public void setLicenseKey(String licenseKey) {
-
-         LOG.warn("License key detected - in order to use Teams or Enterprise features, download " + org.flywaydb.core.internal.license.Edition.ENTERPRISE + " & " + org.flywaydb.core.internal.license.Edition.TIER3 + " here: " +  org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.TEAMS_ENTERPRISE_DOWNLOAD);
-
-
-
-
-    }
-
-    /**
      * Whether Flyway should output a table with the results of queries when executing migrations.
      * <i>Flyway Teams only</i>
      *
@@ -1308,12 +1250,7 @@ public class ClassicConfiguration implements Configuration {
      * <i>Flyway Teams only</i>
      */
     public void setJdbcProperties(Map<String, String> jdbcProperties) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbcProperties");
-
-
-
-
+        getCurrentUnresolvedEnvironment().setJdbcProperties(jdbcProperties);
     }
 
     /**
@@ -1340,7 +1277,7 @@ public class ClassicConfiguration implements Configuration {
 
         dataSource = configuration.getDataSource();
         databaseType = configuration.getDatabaseType();
-        pluginRegister = configuration.getPluginRegister();
+        pluginRegister = configuration.getPluginRegister().getCopy();
 
 
 
@@ -1366,6 +1303,8 @@ public class ClassicConfiguration implements Configuration {
         getCurrentUnresolvedEnvironment().setUrl(url);
         this.databaseType = StringUtils.hasText(url) ? DatabaseTypeRegister.getDatabaseTypeForUrl(url) : null;
         this.resolvedEnvironments.clear();
+
+        licenseGuardJdbcUrl(url);
     }
 
     public void setUser(String user) {
@@ -1413,7 +1352,13 @@ public class ClassicConfiguration implements Configuration {
         HashMap<String, Map<String, Object>> configExtensionsPropertyMap = new HashMap<>();
 
         List<String> keysToRemove = new ArrayList<>();
-        for (Map.Entry<String, String> params : props.entrySet()) {
+
+        final String deprecatedNameSpace = "plugins";
+        Set<Map.Entry<String, String>> sortedEntrySet = new LinkedHashSet<>();
+        sortedEntrySet.addAll(props.entrySet().stream().filter(r -> r.getKey().contains(deprecatedNameSpace)).collect(Collectors.toSet()));
+        sortedEntrySet.addAll(props.entrySet().stream().filter(r -> !sortedEntrySet.contains(r)).collect(Collectors.toSet()));
+
+        for (Map.Entry<String, String> params : sortedEntrySet) {
 
             String text = params.getKey();
             Matcher matcher = ANY_WORD_BETWEEN_TWO_DOTS_PATTERN.matcher(text);
@@ -1421,15 +1366,25 @@ public class ClassicConfiguration implements Configuration {
 
             List<ConfigurationExtension> configExtensions = pluginRegister.getPlugins(ConfigurationExtension.class)
                                                                           .stream()
-                                                                          .filter(c -> rootNamespace.equals(c.getNamespace()))
+                                                                          .filter(c -> c.getNamespace().isEmpty() || rootNamespace.equals(c.getNamespace()) || rootNamespace.equals(deprecatedNameSpace))
                                                                           .collect(Collectors.toList());
-            String replaceNamespace = "flyway.";
-            if (StringUtils.hasText(rootNamespace)) {
-                replaceNamespace = "flyway." + rootNamespace + ".";
-            }
-            String fixedKey = params.getKey().replace(replaceNamespace, "");
 
-            configExtensions.forEach(c -> parsePropertiesFromConfigExtension(configExtensionsPropertyMap, keysToRemove, params, fixedKey, c));
+            configExtensions.forEach(c -> {
+                if (c.getNamespace().isEmpty()) {
+                    String replaceNamespace = "flyway." + deprecatedNameSpace + ".";
+                    String fixedKey = params.getKey().replace(replaceNamespace, "");
+                    parsePropertiesFromConfigExtension(configExtensionsPropertyMap, keysToRemove, params, fixedKey, c);
+                }
+            });
+
+            configExtensions.forEach(c -> {
+                String replaceNamespace = "flyway.";
+                if (StringUtils.hasText(rootNamespace) && !c.getNamespace().isEmpty()) {
+                    replaceNamespace = "flyway." + rootNamespace + ".";
+                }
+                String fixedKey = params.getKey().replace(replaceNamespace, "");
+                parsePropertiesFromConfigExtension(configExtensionsPropertyMap, keysToRemove, params, fixedKey, c);
+            });
         }
 
         determineKeysToRemoveAndRemoveFromProps(configExtensionsPropertyMap, keysToRemove, props);
@@ -1499,10 +1454,6 @@ public class ClassicConfiguration implements Configuration {
         String sqlMigrationPrefixProp = props.remove(ConfigUtils.SQL_MIGRATION_PREFIX);
         if (sqlMigrationPrefixProp != null) {
             setSqlMigrationPrefix(sqlMigrationPrefixProp);
-        }
-        String undoSqlMigrationPrefixProp = props.remove(ConfigUtils.UNDO_SQL_MIGRATION_PREFIX);
-        if (undoSqlMigrationPrefixProp != null) {
-            setUndoSqlMigrationPrefix(undoSqlMigrationPrefixProp);
         }
         String repeatableSqlMigrationPrefixProp = props.remove(ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX);
         if (repeatableSqlMigrationPrefixProp != null) {
@@ -1579,10 +1530,6 @@ public class ClassicConfiguration implements Configuration {
         String targetProp = props.remove(ConfigUtils.TARGET);
         if (targetProp != null) {
             setTargetAsString(targetProp);
-        }
-        String cherryPickProp = props.remove(ConfigUtils.CHERRY_PICK);
-        if (cherryPickProp != null) {
-            setCherryPick(StringUtils.tokenizeToStringArray(cherryPickProp, ","));
         }
         String loggersProp = props.remove(ConfigUtils.LOGGERS);
         if (loggersProp != null) {
@@ -1662,10 +1609,6 @@ public class ClassicConfiguration implements Configuration {
         if (ignoreMigrationPatternsProp != null) {
             setIgnoreMigrationPatterns(StringUtils.tokenizeToStringArray(ignoreMigrationPatternsProp, ","));
         }
-        String licenseKeyProp = props.remove(ConfigUtils.LICENSE_KEY);
-        if (licenseKeyProp != null) {
-            setLicenseKey(licenseKeyProp);
-        }
         Boolean failOnMissingLocationsProp = removeBoolean(props, ConfigUtils.FAIL_ON_MISSING_LOCATIONS);
         if (failOnMissingLocationsProp != null) {
             setFailOnMissingLocations(failOnMissingLocationsProp);
@@ -1683,6 +1626,10 @@ public class ClassicConfiguration implements Configuration {
 
     private static void parsePropertiesFromConfigExtension(HashMap<String, Map<String, Object>> configExtensionsPropertyMap, List<String> keysToRemove, Map.Entry<String, String> params, String fixedKey, ConfigurationExtension configExtension) {
         List<String> fields = Arrays.stream(configExtension.getClass().getDeclaredFields()).map(Field::getName).collect(Collectors.toList());
+
+        if (keysToRemove.contains(params.getKey()) && configExtension.isStub()) {
+            return;
+        }
 
         String rootKey = fixedKey.contains(".") ? fixedKey.substring(0, fixedKey.indexOf(".")) : fixedKey;
         if (fields.contains(rootKey)) {
@@ -1842,6 +1789,24 @@ public class ClassicConfiguration implements Configuration {
         resolvedEnvironments.clear();
     }
 
+    private void licenseGuardJdbcUrl(String url) {
+        if(!url.toLowerCase().startsWith("jdbc-secretsmanager:")) {
+            return;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+
     private void determineKeysToRemoveAndRemoveFromProps(HashMap<String, Map<String, Object>> configExtensionsPropertyMap, List<String> keysToRemove, Map<String, String> props) {
         for (Map.Entry<String, Map<String, Object>> property : configExtensionsPropertyMap.entrySet()) {
             ConfigurationExtension cfg = pluginRegister.getPlugins(ConfigurationExtension.class).stream().filter(c -> c.getClass().toString().equals(property.getKey())).findFirst().orElse(null);
@@ -1851,7 +1816,7 @@ public class ClassicConfiguration implements Configuration {
                 try {
                     ObjectMapper objectMapper = new ObjectMapper();
                     Map<String, Object> mp = new HashMap<>();
-                    for(Map.Entry<String, Object> entry : mpTmp.entrySet()) {
+                    for (Map.Entry<String, Object> entry : mpTmp.entrySet()) {
                         Field[] subFields = cfg.getClass().getDeclaredFields();
                         Field field = Arrays.stream(subFields).filter(f -> f.getName().equals(entry.getKey())).findFirst().orElse(null);
                         Object value = (field.getType() == List.class || field.getType() == String[].class) ?

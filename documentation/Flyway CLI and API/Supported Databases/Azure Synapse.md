@@ -75,7 +75,7 @@ Azure Synapse is found within the `flyway-sqlserver` plugin module.
 ```xml
 
 <dependency>
-    <groupId>org.flywaydb.enterprise</groupId>
+    <groupId>com.redgate.flyway</groupId>
     <artifactId>flyway-sqlserver</artifactId>
 </dependency>
 ```
@@ -94,7 +94,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    compile "org.flywaydb.enterprise:flyway-sqlserver"
+    compile "com.redgate.flyway:flyway-sqlserver"
 }
 ```
 

@@ -5,6 +5,7 @@ subtitle: MySQL
 
 ## Supported Versions
 
+- `8.1`
 - `8.0`
 - `5.7` {% include teams.html %}
 - `5.6` {% include teams.html %}
@@ -90,7 +91,7 @@ MySQL support is a separate dependency for Flyway and will need to be added to y
 #### Teams
 ```xml
 <dependency>
-    <groupId>org.flywaydb.enterprise</groupId>
+    <groupId>com.redgate.flyway</groupId>
     <artifactId>flyway-mysql</artifactId>
 </dependency>
 ```
@@ -98,13 +99,13 @@ MySQL support is a separate dependency for Flyway and will need to be added to y
 #### Community
 ```groovy
 dependencies {
-    compile "org.flywaydb:flyway-mysql"
+    implementation "org.flywaydb:flyway-mysql"
 }
 ```
 #### Teams
 ```groovy
 dependencies {
-    compile "org.flywaydb.enterprise:flyway-mysql"
+    implementation "com.redgate.flyway:flyway-mysql"
 }
 ```
 

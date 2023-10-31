@@ -115,7 +115,7 @@ class JdbcTableSchemaHistory extends SchemaHistory {
                             @Override
                             public Object call() {
                                 sqlScriptExecutorFactory.createSqlScriptExecutor(connection.getJdbcConnection(), false, false, true)
-                                        .execute(database.getCreateScript(sqlScriptFactory, table, baseline));
+                                        .execute(database.getCreateScript(sqlScriptFactory, table, baseline), database.getConfiguration());
                                 LOG.debug("Created Schema History table " + table + (baseline ? " with baseline" : ""));
                                 return null;
                             }

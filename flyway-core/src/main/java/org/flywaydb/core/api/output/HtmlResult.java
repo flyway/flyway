@@ -36,7 +36,7 @@ public class HtmlResult implements OperationResult {
     @Setter
     private boolean licenseFailed;
 
-    protected HtmlResult(LocalDateTime timestamp, String operation) {
+    public HtmlResult(LocalDateTime timestamp, String operation) {
         setTimestamp(timestamp);
         this.operation = operation;
     }

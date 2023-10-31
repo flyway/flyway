@@ -58,6 +58,32 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 </table>
 
+## Java Usage
+
+YugabyteDB support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+
+### Maven
+
+#### Community
+
+```xml
+
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-yugabytedb</artifactId>
+</dependency>
+```
+
+### Gradle
+
+#### Community
+
+```groovy
+dependencies {
+    compile "org.flywaydb:flyway-database-yugabytedb"
+}
+```
+
 ## Notes
 
 YugabyteDB is a variant of PostgreSQL and Flyway usage is the same for the two databases. For more details, 

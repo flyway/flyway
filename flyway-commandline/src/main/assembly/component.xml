@@ -19,26 +19,19 @@
            xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2 http://maven.apache.org/xsd/component-1.1.2.xsd">
     <fileSets>
         <fileSet>
-
             <directory>src/main/assembly</directory>
-
-
-
-
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway.cmd</include>
+
+                <include>README.txt</include>
+
             </includes>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </fileSet>
         <fileSet>
-
             <directory>src/main/assembly</directory>
-
-
-
-
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway</include>
@@ -47,6 +40,17 @@
             <lineEnding>unix</lineEnding>
             <filtered>true</filtered>
         </fileSet>
+
+
+
+
+
+
+
+
+
+
+
         <fileSet>
             <directory>src/main/assembly</directory>
             <outputDirectory>drivers</outputDirectory>
@@ -59,23 +63,7 @@
             <directory>src/main/assembly</directory>
             <outputDirectory>conf</outputDirectory>
             <includes>
-                <include>flyway.conf</include>
-            </includes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>src/main/assembly</directory>
-            <outputDirectory>sql</outputDirectory>
-            <includes>
-                <include>put-your-sql-migrations-here.txt</include>
-            </includes>
-            <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>src/main/assembly</directory>
-            <outputDirectory>jars</outputDirectory>
-            <includes>
-                <include>put-your-java-migration-jars-here.txt</include>
+                <include>flyway.toml.example</include>
             </includes>
             <fileMode>644</fileMode>
         </fileSet>
@@ -83,22 +71,24 @@
             <directory>src/main/assembly</directory>
             <outputDirectory>licenses</outputDirectory>
             <includes>
-                <include>flyway-community.txt</include>
                 <include>LICENSES-THIRD-PARTY.txt</include>
-
-                <include>flyway-teams.txt</include>
-
             </includes>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </fileSet>
         <fileSet>
+
             <directory>src/main/assembly</directory>
-            <outputDirectory></outputDirectory>
+
+
+
+
+            <outputDirectory>licenses</outputDirectory>
             <includes>
-                <include>README.txt</include>
+                <include>LICENSE.md</include>
             </includes>
             <fileMode>644</fileMode>
+            <filtered>true</filtered>
         </fileSet>
         <fileSet>
             <directory>../flyway-core/src/main/resources/assets</directory>
@@ -108,44 +98,44 @@
             </includes>
             <fileMode>644</fileMode>
         </fileSet>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <fileSet>
-            <directory>target/editions/community</directory>
-            <outputDirectory>lib/community</outputDirectory>
+            <directory>../flyway-redgate-licensing/src/main/resources/assets</directory>
+            <outputDirectory>assets</outputDirectory>
             <includes>
                 <include>*</include>
             </includes>
             <fileMode>644</fileMode>
         </fileSet>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     </fileSets>
     <dependencySets>
         <dependencySet>
@@ -165,6 +155,9 @@
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-toml</include>
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</include>
                 <include>org.slf4j:slf4j-nop</include>
+                <include>com.nimbusds:nimbus-jose-jwt</include>
+                <include>com.nimbusds:oauth2-oidc-sdk</include>
+                <include>org.eclipse.jetty:jetty-server</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -186,83 +179,49 @@
             </includes>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>lib/community</outputDirectory>
-            <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
+            <outputDirectory>lib/flyway</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                 <include>org.flywaydb:flyway-core</include>
                 <include>org.flywaydb:flyway-commandline</include>
-                <include>org.flywaydb:flyway-database-db2zOS</include>
+                <include>org.flywaydb:flyway-database-db2</include>
+                <include>org.flywaydb:flyway-database-derby</include>
+                <include>org.flywaydb:flyway-database-hsqldb</include>
+                <include>org.flywaydb:flyway-database-informix</include>
+                <include>org.flywaydb:flyway-database-postgresql</include>
                 <include>org.flywaydb:flyway-database-oracle</include>
+                <include>org.flywaydb:flyway-database-redshift</include>
+                <include>org.flywaydb:flyway-database-saphana</include>
+                <include>org.flywaydb:flyway-database-snowflake</include>
+                <include>org.flywaydb:flyway-database-sybasease</include>
                 <include>org.flywaydb:flyway-gcp-bigquery</include>
                 <include>org.flywaydb:flyway-gcp-spanner</include>
-                <include>org.flywaydb:flyway-community-db-support</include>
-                <include>org.flywaydb:flyway-desktop-clean</include>
-                <include>org.flywaydb:flyway-vault-integration</include>
-                <include>org.flywaydb:flyway-dapr-integration</include>
-                <include>org.flywaydb:flyway-gcsm-integration</include>
-                <include>org.flywaydb:flyway-compare</include>
-                <include>org.flywaydb:flyway-telemetry-otel</include>
-                <include>org.flywaydb:flyway-rgcompare</include>
-                <include>org.flywaydb:flyway-rulesengine-sqlfluff</include>
-                <include>org.flywaydb:flyway-rulesengine-regex</include>
+                <include>org.flywaydb:flyway-database-ignite</include>
+                <include>org.flywaydb:flyway-database-tidb</include>
+                <include>org.flywaydb:flyway-database-yugabytedb</include>
                 <include>org.flywaydb:flyway-sqlserver</include>
                 <include>org.flywaydb:flyway-singlestore</include>
                 <include>org.flywaydb:flyway-mysql</include>
                 <include>org.flywaydb:flyway-firebird</include>
-                <include>org.flywaydb:flyway-proprietary</include>
-                <include>org.flywaydb:flyway-command-resolve-environment</include>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             </includes>
         </dependencySet>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <dependencySet>
             <outputDirectory>drivers/gcp</outputDirectory>
             <useTransitiveFiltering>true</useTransitiveFiltering>

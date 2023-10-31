@@ -165,17 +165,6 @@ public interface Configuration {
     String getSqlMigrationPrefix();
 
     /**
-     * The file name prefix for undo SQL migrations.
-     * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
-     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to U1.1__My_description.sql
-     * <i>Flyway Teams only</i>
-     *
-     * @return The file name prefix for undo sql migrations. (default: U)
-     */
-    String getUndoSqlMigrationPrefix();
-
-    /**
      * Checks whether SQL is executed in a transaction.
      *
      * @return Whether SQL is executed in a transaction. (default: true)
@@ -551,17 +540,6 @@ public interface Configuration {
      * <i>Flyway Teams only</i>
      */
     String getKerberosConfigFile();
-
-    /**
-     * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
-     * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
-     * to try out Flyway Teams Edition features free for 30 days.
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @return Your Flyway license key.
-     */
-    String getLicenseKey();
 
     /**
      * Whether Flyway should output a table with the results of queries when executing migrations.

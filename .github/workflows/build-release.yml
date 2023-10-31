@@ -32,8 +32,6 @@ jobs:
           - macOS-latest
           - windows-latest
         java:
-          - 8
-          - 11
           - 17
 
     permissions:

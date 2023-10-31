@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.sqlscript;
 
 import lombok.Getter;
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Results;
 
@@ -88,6 +89,7 @@ public class ParsedSqlStatement implements SqlStatement {
 
     @Override
     public Results execute(JdbcTemplate jdbcTemplate
+
 
 
 

@@ -31,6 +31,8 @@ public class RootTelemetryModel {
     private String databaseEngine;
     private String databaseVersion;
     private String environment;
+    private String applicationVersion;
+    private String applicationEdition;
     private boolean redgateEmployee;
 
     private Instant startTime = Instant.now();

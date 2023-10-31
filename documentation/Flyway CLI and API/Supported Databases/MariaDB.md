@@ -81,7 +81,7 @@ MariaDB is found within the `flyway-mysql` plugin module.
 #### Teams
 ```xml
 <dependency>
-    <groupId>org.flywaydb.enterprise</groupId>
+    <groupId>com.redgate.flyway</groupId>
     <artifactId>flyway-mysql</artifactId>
 </dependency>
 ```
@@ -89,13 +89,13 @@ MariaDB is found within the `flyway-mysql` plugin module.
 #### Community
 ```groovy
 dependencies {
-    compile "org.flywaydb:flyway-mysql"
+    implementation "org.flywaydb:flyway-mysql"
 }
 ```
 #### Teams
 ```groovy
 dependencies {
-    compile "org.flywaydb.enterprise:flyway-mysql"
+    implementation "com.redgate.flyway:flyway-mysql"
 }
 ```
 

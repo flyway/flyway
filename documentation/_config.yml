@@ -14,8 +14,8 @@
 # limitations under the License.
 #
 
-flywayVersion: 9.22.3
-enterpriseUrl: https://download.red-gate.com/maven/release/org/flywaydb/enterprise
+flywayVersion: 10.0.0
+enterpriseUrl: https://download.red-gate.com/maven/release/com/redgate/flyway
 kramdown:
   smart_quotes: ["apos", "apos", "quot", "quot"]
   typographic_symbols: { hellip: ... , mdash: --- , ndash: -- , laquo: "<<" , raquo: ">>" , laquo_space: "<< " , raquo_space: " >>" }

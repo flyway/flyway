@@ -66,7 +66,7 @@ Firebird support is a separate dependency for Flyway and will need to be added t
 #### Teams
 ```xml
 <dependency>
-    <groupId>org.flywaydb.enterprise</groupId>
+    <groupId>com.redgate.flyway</groupId>
     <artifactId>flyway-firebird</artifactId>
 </dependency>
 ```
@@ -74,13 +74,13 @@ Firebird support is a separate dependency for Flyway and will need to be added t
 #### Community
 ```groovy
 dependencies {
-    compile "org.flywaydb:flyway-firebird"
+    implementation "org.flywaydb:flyway-firebird"
 }
 ```
 #### Teams
 ```groovy
 dependencies {
-    compile "org.flywaydb.enterprise:flyway-firebird"
+    implementation "com.redgate.flyway:flyway-firebird"
 }
 ```
 

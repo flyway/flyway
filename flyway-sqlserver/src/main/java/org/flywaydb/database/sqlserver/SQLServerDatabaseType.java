@@ -18,6 +18,8 @@ package org.flywaydb.database.sqlserver;
 import lombok.CustomLog;
 import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.database.base.BaseDatabaseType;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
@@ -29,6 +31,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.Types;
+import java.util.List;
 import java.util.Properties;
 
 @CustomLog
@@ -54,7 +57,7 @@ public class SQLServerDatabaseType extends BaseDatabaseType {
 
 
 
-            throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("jdbc-secretsmanager");
+            throw new FlywayEditionUpgradeRequiredException(Tier.ENTERPRISE, (Tier) null, "jdbc-secretsmanager");
 
         }
         return url.startsWith("jdbc:sqlserver:") || (supportsJTDS() && url.startsWith("jdbc:jtds:")) ||
@@ -105,26 +108,29 @@ public class SQLServerDatabaseType extends BaseDatabaseType {
 
     @Override
     public void setConfigConnectionProps(Configuration config, Properties props, ClassLoader classLoader) {
-
-
-
-
-
-
-
-
-
-
-
-
         if (config != null) {
             SQLServerConfigurationExtension configurationExtension = config.getPluginRegister().getPlugin(SQLServerConfigurationExtension.class);
+
+
+
+
+
+
+
+
+
+
+
+
             if (StringUtils.hasText(configurationExtension.getKerberos().getLogin().getFile())) {
                 throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("sqlserver.kerberos.login.file");
             }
-        }
+            if (StringUtils.hasText(config.getKerberosConfigFile())) {
+                throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("sqlserver.kerberos.config.file");
+            }
 
-}
+        }
+    }
 
     @Override
     public boolean detectUserRequiredByUrl(String url) {

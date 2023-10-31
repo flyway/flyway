@@ -33,7 +33,7 @@ In this example, there are two databases in our SQL Server instance: `foobar` (t
 
 ## Configuration
 
-As well as the usual config parameters (`flyway.url`, `flyway.user`, `flyway.password`, `flyway.licenseKey`...), we also need to configure properties specific to the `check` command (see [the documentation](Commands/check) for more details). In this case, we only need to configure `flyway.check.buildUrl` and `flyway.check.reportFilename` as the other properties all have suitable default values.
+As well as the usual config parameters (`flyway.url`, `flyway.user`, `flyway.password`, `flyway.licenseKey`...), we also need to configure properties specific to the `check` command (see [the documentation](Commands/check) for more details). In this case, we only need to configure `flyway.check.buildUrl` and `flyway.reportFilename` as the other properties all have suitable default values.
 
 Our `flyway.conf` file (found in the `conf` folder), should contain the following values:
 
@@ -44,7 +44,7 @@ flyway.password=Flyway123
 flyway.licenseKey=<put your license key here>
 
 flyway.check.buildUrl=jdbc:sqlserver://localhost;databaseName=check_build_db;trustServerCertificate=true
-flyway.check.reportFilename=check_report
+flyway.reportFilename=check_report
 ```
 
 ## Setting up migrations
@@ -138,7 +138,7 @@ flyway.password=Flyway123
 flyway.licenseKey=<put your license key here>
 
 flyway.check.buildUrl=jdbc:sqlserver://localhost;databaseName=check_build_db;trustServerCertificate=true
-flyway.check.reportFilename=reports/check_report
+flyway.reportFilename=reports/check_report
 ```
 
 ### Running `check` in Docker
@@ -162,7 +162,7 @@ version: '3'
 services:
   flyway:
     image: redgate/flyway
-    command: -url=jdbc:sqlserver://db;trustServerCertificate=true -check.buildUrl=jdbc:sqlserver://db;databaseName=check_build_db;trustServerCertificate=true -password=Flyway123 -user=sa -check.reportFilename=reports/check_report check -changes
+    command: -url=jdbc:sqlserver://db;trustServerCertificate=true -check.buildUrl=jdbc:sqlserver://db;databaseName=check_build_db;trustServerCertificate=true -password=Flyway123 -user=sa -reportFilename=reports/check_report check -changes
     environment:
       - FLYWAY_LICENSE_KEY=<put your license key here>
     volumes:

@@ -47,13 +47,6 @@ public enum CoreMigrationType implements MigrationType {
      */
     SCRIPT(false, false, false),
     /**
-     * @deprecated Will be removed and replaced with just SCRIPT
-     *
-     * Script baseline migrations.
-     */
-    @Deprecated
-    SCRIPT_BASELINE(false, false, true),
-    /**
      * Undo Script migrations.
      */
     UNDO_SCRIPT(false, true, false),

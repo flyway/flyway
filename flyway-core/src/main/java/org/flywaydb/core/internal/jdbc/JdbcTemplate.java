@@ -16,9 +16,15 @@
 package org.flywaydb.core.internal.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
+import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
 
+import java.io.BufferedInputStream;
+import java.io.InputStreamReader;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -350,6 +356,10 @@ public class JdbcTemplate {
 
         return results;
     }
+
+
+
+
 
 
 

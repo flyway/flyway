@@ -106,7 +106,6 @@ Database: jdbc:h2:file:flyway.db (H2 1.3)
 }</pre>
 
 ## Filtering output
-{% include teams.html %}
 
 The output from `info` can be filtered to only the parts of the history that you care about using the following parameters:
 - `infoSinceDate`: Limits info to show only migrations applied after this date, and any unapplied migrations. Must be in the format `dd/MM/yyyy HH:mm` (e.g. `01/12/2020 13:00`)
@@ -114,7 +113,7 @@ The output from `info` can be filtered to only the parts of the history that you
 - `infoSinceVersion`: Limits info to show only migrations greater than or equal to this version, and any repeatable migrations. (e.g `1.1`)
 - `infoUntilVersion`: Limits info to show only migrations less than or equal to this version, and any repeatable migrations. (e.g. `1.1`)
 - `infoOfState`: Limits info to show only migrations of the provided states. This is a case insensitive, comma-separated list. The valid states can be found at [Migration States](Concepts/migrations#migration-states).
-- `migrationIds`: Suppresses all other output and displays a comma-separated list of migration versions for versioned migrations and descriptions for repeatable migrations. This is equivalent to the expected input to [`cherryPick`](Configuration/Parameters/Cherry Pick)
+- `migrationIds`: Suppresses all other output and displays a comma-separated list of migration versions for versioned migrations and descriptions for repeatable migrations. This is equivalent to the expected input to [`cherryPick`](Configuration/Parameters/Flyway/Cherry Pick)
 
 Example:
 <pre class="console">&gt; flyway info -infoSinceDate="01/12/2020 13:00"

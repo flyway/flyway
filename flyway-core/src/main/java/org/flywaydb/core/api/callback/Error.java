@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.api.callback;
 
+import org.flywaydb.core.api.configuration.Configuration;
+
 /**
  * An error that occurred while executing a statement.
  * <p><i>Flyway Teams only</i></p>
@@ -49,5 +51,5 @@ public interface Error {
      * @param handled {@code true} if this error has already be handled or {@code false} if it should flow via the
      * default error handler.
      */
-    void setHandled(boolean handled);
+    void setHandled(boolean handled, Configuration config);
 }

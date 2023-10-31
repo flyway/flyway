@@ -42,7 +42,7 @@ For example, to access Flyway {{ page.flywayVersion }}:
     <tr>
         <th>Gradle</th>
         <td>
-            <pre class="prettyprint">compile "org.flywaydb:flyway-core:{{ page.flywayVersion }}"</pre>
+            <pre class="prettyprint">implementation "org.flywaydb:flyway-core:{{ page.flywayVersion }}"</pre>
         </td>
     </tr>
     <tr>
@@ -112,7 +112,7 @@ For example, to access Flyway {{ page.flywayVersion }}:
 }
 
 dependencies {
-    compile "org.flywaydb<strong>.pro</strong>:flyway-core:{{ page.flywayVersion }}"
+    implementation "org.flywaydb<strong>.pro</strong>:flyway-core:{{ page.flywayVersion }}"
 }</pre>
         </td>
     </tr>
@@ -183,7 +183,7 @@ dependencies {
 }
 
 dependencies {
-    compile "org.flywaydb<strong>.enterprise</strong>:flyway-core:{{ page.flywayVersion }}"
+    implementation "org.flywaydb<strong>.enterprise</strong>:flyway-core:{{ page.flywayVersion }}"
 }</pre>
         </td>
     </tr>

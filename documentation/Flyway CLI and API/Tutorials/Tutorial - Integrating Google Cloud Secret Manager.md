@@ -2,7 +2,7 @@
 subtitle: 'Tutorial: Integrating Google Cloud Secret Manager'
 ---
 # Tutorial: Integrating Google Cloud Secret Manager
-{% include teams.html %}
+{% include enterprise.html %}
 
 This brief tutorial will teach you **how to integrate Google Cloud Secret Manager into your Flyway process**.
 
@@ -21,11 +21,11 @@ for creating a project containing some secrets.
 
 There are two new parameters to configure in Flyway in order to set up the GCSM integration:
 
-### [`gcsm.project`](Configuration/Parameters/Google Cloud Secret Manager Project)
+### [`gcsm.project`](Configuration/Parameters/Flyway/Google Cloud Secret Manager Project)
 
 This is the name of the project you have created that contains the secrets.
 
-### [`gcsm.secrets`](Configuration/Parameters/Google Cloud Secret Manager Secrets)
+### [`gcsm.secrets`](Configuration/Parameters/Flyway/Google Cloud Secret Manager Secrets)
 
 This is a comma-separated list of secrets in Google Cloud Secret Manager which Flyway should try to read from.
 

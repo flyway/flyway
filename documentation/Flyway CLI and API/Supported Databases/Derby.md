@@ -55,6 +55,38 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 </table>
 
+## Java Usage
+Derby support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+Derby is found within the `flyway-database-derby` plugin module.
+### Maven
+#### Community
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-derby</artifactId>
+</dependency>
+```
+#### Teams
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-database-derby</artifactId>
+</dependency>
+```
+### Gradle
+#### Community
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-derby"
+}
+```
+#### Teams
+```groovy
+dependencies {
+    implementation "com.redgate.flyway:flyway-database-derby"
+}
+```
+
 ## SQL Script Syntax
 
 - [Standard SQL syntax](Concepts/migrations#sql-based-migrations#syntax) with statement delimiter **;**

@@ -45,6 +45,7 @@ public class PluginRegister {
         return (List<T>) getPlugins()
                 .stream()
                 .filter(clazz::isInstance)
+                .sorted()
                 .collect(Collectors.toList());
     }
 
@@ -53,7 +54,18 @@ public class PluginRegister {
                 .stream()
                 .filter(clazz::isInstance)
                 .filter(p -> p.isLicensed(configuration))
+                .sorted()
                 .collect(Collectors.toList());
+    }
+
+    public <T extends Plugin> T getLicensedPlugin(String className, Configuration configuration) {
+        return (T) getPlugins()
+                .stream()
+                .filter(p -> p.isLicensed(configuration))
+                .filter(p -> p.getClass().getSimpleName().equals(className))
+                .sorted()
+                .findFirst()
+                .orElse(null);
     }
 
     private List<Plugin> getPlugins() {
@@ -61,7 +73,7 @@ public class PluginRegister {
         return REGISTERED_PLUGINS;
     }
 
-    private void registerPlugins() {
+    void registerPlugins() {
         synchronized (REGISTERED_PLUGINS) {
             if (hasRegisteredPlugins) {
                 return;
@@ -75,5 +87,17 @@ public class PluginRegister {
 
             hasRegisteredPlugins = true;
         }
+    }
+
+    public PluginRegister getCopy(){
+        PluginRegister copy = new PluginRegister();
+        copy.setRegisteredPlugins(getPlugins());
+        return copy;
+    }
+
+    private void setRegisteredPlugins(List<Plugin> plugins) {
+        REGISTERED_PLUGINS.clear();
+        REGISTERED_PLUGINS.addAll(plugins.stream().map(Plugin::copy).collect(Collectors.toList()));
+        hasRegisteredPlugins = true;
     }
 }

@@ -17,12 +17,15 @@ package org.flywaydb.commandline.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.InfoOutput;
-import org.flywaydb.core.extensibility.RgDomainChecker;
+import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.RootTelemetryModel;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
+import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -35,12 +38,16 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@ExtensionMethod(Tier.class)
 public class TelemetryUtils {
 
     public static RootTelemetryModel populateRootTelemetry(RootTelemetryModel rootTelemetryModel, Configuration configuration, boolean isRedgateEmployee) {
         rootTelemetryModel.setRedgateEmployee(isRedgateEmployee);
 
         if (configuration != null) {
+            String currentTier = LicenseGuard.getTierAsString(configuration);
+            rootTelemetryModel.setApplicationEdition(currentTier);
+            rootTelemetryModel.setApplicationVersion(VersionPrinter.getVersion());
             ConfigurationModel modernConfig = configuration.getModernConfig();
             if (modernConfig != null && StringUtils.hasText(modernConfig.getId())) {
                 rootTelemetryModel.setProjectId(hashProjectId(modernConfig.getId()));
@@ -69,13 +76,6 @@ public class TelemetryUtils {
         }
     }
 
-    public static boolean isRedgateEmployee(PluginRegister pluginRegister, Configuration configuration) {
-        RgDomainChecker domainChecker = pluginRegister.getPlugin(RgDomainChecker.class);
-        if (domainChecker == null) {
-            return false;
-        }
-        return domainChecker.isInDomain(configuration);
-    }
 
     /**
      * @param infos a List of InfoOutput

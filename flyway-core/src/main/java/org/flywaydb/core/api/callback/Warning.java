@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.api.callback;
 
+import org.flywaydb.core.api.configuration.Configuration;
+
 /**
  * A warning that occurred while executing a statement.
  * <p><i>Flyway Teams only</i></p>
@@ -49,5 +51,5 @@ public interface Warning {
      * @param handled {@code true} if this warning has already be handled or {@code false} if it should flow via the
      * default warning handler.
      */
-    void setHandled(boolean handled);
+    void setHandled(boolean handled, Configuration config);
 }

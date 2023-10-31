@@ -1,0 +1,3 @@
+org.flywaydb.database.mysql.MySQLDatabaseType
+org.flywaydb.database.mysql.mariadb.MariaDBDatabaseType
+org.flywaydb.database.MySQLDatabaseExtension

@@ -36,13 +36,15 @@ public class EnvironmentModel {
     private String password;
     private String driver;
     private List<String> schemas = new ArrayList<>();
+    private List<String> jarDirs = new ArrayList<>();
     private String token;
     private Integer connectRetries = 0;
     private Integer connectRetriesInterval = 120;
     private String initSql;
     private Map<String, String> jdbcProperties;
 
-    private Map<String, Map<String, String>> resolvers;
+    private Map<String, Map<String, Object>> resolvers;
+    private String provisioner;
 
     public EnvironmentModel merge(EnvironmentModel otherPojo) {
         EnvironmentModel result = new EnvironmentModel();
@@ -51,12 +53,24 @@ public class EnvironmentModel {
         result.password = password.merge(otherPojo.password);
         result.driver = driver.merge(otherPojo.driver);
         result.schemas = schemas.merge(otherPojo.schemas);
+        result.jarDirs = jarDirs.merge(otherPojo.jarDirs);
         result.token = token.merge(otherPojo.token);
         result.connectRetries = connectRetries.merge(otherPojo.connectRetries);
         result.connectRetriesInterval = connectRetriesInterval.merge(otherPojo.connectRetriesInterval);
         result.initSql = initSql.merge(otherPojo.initSql);
         result.jdbcProperties = MergeUtils.merge(jdbcProperties, otherPojo.jdbcProperties, MergeUtils::merge);
-        result.resolvers = MergeUtils.merge(resolvers, otherPojo.resolvers, (a, b) -> b != null ? b : a);
+        result.resolvers = MergeUtils.merge(resolvers, otherPojo.resolvers, EnvironmentModel::MergeResolvers);
+        result.provisioner = provisioner.merge(otherPojo.provisioner);
         return result;
+    }
+
+    private static Map<String, Object> MergeResolvers(Map<String, Object> primary, Map<String, Object> overrides) {
+        if(primary == null) {
+            return overrides;
+        }
+        if(overrides == null) {
+            return primary;
+        }
+        return MergeUtils.merge(primary, overrides, MergeUtils::merge);
     }
 }

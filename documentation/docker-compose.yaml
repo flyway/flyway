@@ -20,4 +20,4 @@ services:
     image: jekyll/jekyll:3.8
     volumes:
       - "./:/srv/jekyll"
-    command: sh -c "chmod -R a+w /srv/jekyll && jekyll build"
+    command: sh -c "chmod -R a+w /srv/jekyll && jekyll build -V"

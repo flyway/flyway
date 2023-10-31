@@ -68,9 +68,7 @@ public class FlywayTelemetryManager implements AutoCloseable{
                 }
                 try(FileWriter fileWriter = new FileWriter(userIdFile)) {
                     fileWriter.write(userId);
-                } catch (IOException ignore) {
-                    System.err.println(ignore.getMessage());
-                }
+                } catch (IOException ignore) {}
             }
         }
 

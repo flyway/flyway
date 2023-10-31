@@ -50,12 +50,10 @@ public class FlywayModel {
     private String scriptPlaceholderPrefix;
     private String scriptPlaceholderSuffix;
     private String sqlMigrationPrefix;
-    private String undoSqlMigrationPrefix;
     private Boolean executeInTransaction;
     private String repeatableSqlMigrationPrefix;
     private String sqlMigrationSeparator;
     private List<String> sqlMigrationSuffixes;
-    private String licenseKey;
     private Boolean cleanDisabled;
     private Boolean cleanOnValidationError;
     private List<String> locations;
@@ -63,7 +61,6 @@ public class FlywayModel {
     private String tablespace;
     private String target;
     private Boolean failOnMissingTarget;
-    private List<String> cherryPick;
     private Boolean placeholderReplacement;
     private List<String> ignoreMigrationPatterns;
     private Boolean validateMigrationNaming;
@@ -110,7 +107,6 @@ public class FlywayModel {
          model.scriptPlaceholderPrefix = "FP__";
          model.scriptPlaceholderSuffix = "__";
          model.sqlMigrationPrefix = "V";
-         model.undoSqlMigrationPrefix = "U";
          model.repeatableSqlMigrationPrefix = "R";
          model.sqlMigrationSeparator = "__";
          model.sqlMigrationSuffixes = Arrays.asList(".sql");
@@ -120,7 +116,6 @@ public class FlywayModel {
          model.target = "latest";
          model.table = "flyway_schema_history";
          model.failOnMissingTarget = false;
-         model.cherryPick = new ArrayList<>();
          model.placeholderReplacement = true;
          model.ignoreMigrationPatterns = Arrays.asList("*:future");
          model.validateMigrationNaming = false;
@@ -146,7 +141,7 @@ public class FlywayModel {
          model.loggers = Arrays.asList("auto");
          model.placeholders = new HashMap<>();
          model.environment = "default";
-         model.reportEnabled = true;
+         model.reportEnabled = false;
          return model;
     }
 
@@ -162,12 +157,10 @@ public class FlywayModel {
         result.scriptPlaceholderPrefix = scriptPlaceholderPrefix.merge(otherPojo.scriptPlaceholderPrefix);
         result.scriptPlaceholderSuffix = scriptPlaceholderSuffix.merge(otherPojo.scriptPlaceholderSuffix);
         result.sqlMigrationPrefix = sqlMigrationPrefix.merge(otherPojo.sqlMigrationPrefix);
-        result.undoSqlMigrationPrefix = undoSqlMigrationPrefix.merge(otherPojo.undoSqlMigrationPrefix);
         result.executeInTransaction = executeInTransaction.merge(otherPojo.executeInTransaction);
         result.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix.merge(otherPojo.repeatableSqlMigrationPrefix);
         result.sqlMigrationSeparator = sqlMigrationSeparator.merge(otherPojo.sqlMigrationSeparator);
         result.sqlMigrationSuffixes = sqlMigrationSuffixes.merge(otherPojo.sqlMigrationSuffixes);
-        result.licenseKey = licenseKey.merge(otherPojo.licenseKey);
         result.cleanDisabled = cleanDisabled.merge(otherPojo.cleanDisabled);
         result.cleanOnValidationError = cleanOnValidationError.merge(otherPojo.cleanOnValidationError);
         result.locations = locations.merge(otherPojo.locations);
@@ -175,7 +168,6 @@ public class FlywayModel {
         result.tablespace = tablespace.merge(otherPojo.tablespace);
         result.target = target.merge(otherPojo.target);
         result.failOnMissingTarget = failOnMissingTarget.merge(otherPojo.failOnMissingTarget);
-        result.cherryPick = cherryPick.merge(otherPojo.cherryPick);
         result.placeholderReplacement = placeholderReplacement.merge(otherPojo.placeholderReplacement);
         result.ignoreMigrationPatterns = ignoreMigrationPatterns.merge(otherPojo.ignoreMigrationPatterns);
         result.validateMigrationNaming = validateMigrationNaming.merge(otherPojo.validateMigrationNaming);

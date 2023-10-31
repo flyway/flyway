@@ -63,9 +63,9 @@ public class OperationsReportUtils {
 
     public static ReportDetails writeReport(Configuration configuration, OperationResult filteredResults, LocalDateTime executionTime) {
         ReportDetails reportDetails = new ReportDetails();
+        CompositeResult<HtmlResult> htmlCompositeResult = removeRedundantHtmlResults(flattenHtmlResults(filteredResults), configuration.isReportEnabled()) ;
 
-        if (configuration.isReportEnabled()) {
-            CompositeResult<HtmlResult> htmlCompositeResult = flattenHtmlResults(filteredResults);
+        if (htmlCompositeResult != null && !htmlCompositeResult.individualResults.isEmpty()) {
 
             htmlCompositeResult.individualResults.forEach(r -> r.setTimestamp(executionTime));
 
@@ -148,6 +148,19 @@ public class OperationsReportUtils {
             htmlCompositeResult.individualResults.addAll(htmlResults);
         } else if (result instanceof HtmlResult) {
             htmlCompositeResult.individualResults.add((HtmlResult) result);
+        }
+        return htmlCompositeResult;
+    }
+
+    public static CompositeResult<HtmlResult> removeRedundantHtmlResults(CompositeResult<HtmlResult> htmlCompositeResult, boolean isReportEnabled) {
+        if(htmlCompositeResult == null || htmlCompositeResult.individualResults == null) {
+            return null;
+        }
+
+        if(!isReportEnabled) {
+            htmlCompositeResult.individualResults = htmlCompositeResult.individualResults.stream()
+                                                                                         .filter(r -> List.of("changes", "drift", "dryrun", "code").contains(r.getOperation().toLowerCase()))
+                                                                                         .collect(Collectors.toList());
         }
         return htmlCompositeResult;
     }

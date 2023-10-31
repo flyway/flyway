@@ -31,15 +31,15 @@ These are the events Flyway supports:
         <td>Before every single migration during Migrate</td>
     </tr>
     <tr id="beforeEachMigrateStatement">
-        <td>beforeEachMigrateStatement {% include teams.html %}</td>
+        <td>beforeEachMigrateStatement {% include redgate.html %}</td>
         <td>Before every single statement of a migration during Migrate</td>
     </tr>
     <tr id="afterEachMigrateStatement">
-        <td>afterEachMigrateStatement {% include teams.html %}</td>
+        <td>afterEachMigrateStatement {% include redgate.html %}</td>
         <td>After every single successful statement of a migration during Migrate</td>
     </tr>
     <tr id="afterEachMigrateStatementError">
-        <td>afterEachMigrateStatementError {% include teams.html %}</td>
+        <td>afterEachMigrateStatementError {% include redgate.html %}</td>
         <td>After every single failed statement of a migration during Migrate</td>
     </tr>
     <tr id="afterEachMigrate">
@@ -174,7 +174,7 @@ These are the events Flyway supports:
         <td>Before automatically creating non-existent schemas</td>
     </tr>
     <tr id="beforeConnect">
-        <td>beforeConnect {% include teams.html %}</td>
+        <td>beforeConnect {% include redgate.html %}</td>
         <td>Before Flyway connects to the database</td>
     </tr>
     </tbody>
