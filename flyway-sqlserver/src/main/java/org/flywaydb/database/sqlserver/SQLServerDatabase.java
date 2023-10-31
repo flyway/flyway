@@ -19,8 +19,9 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.extensibility.CleanModePlugin;
-import org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.command.clean.CleanModeConfigurationExtension.Mode;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.database.base.Table;
@@ -67,17 +68,17 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
 
 
     @Override
-    public final void ensureSupported() {
+    public final void ensureSupported(Configuration configuration) {
         if (isAzure()) {
             ensureDatabaseIsRecentEnough("11.0");
 
-            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("12.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("12.0", Tier.PREMIUM, configuration);
 
             recommendFlywayUpgradeIfNecessary("12.0");
         } else {
             ensureDatabaseIsRecentEnough("10.0");
 
-            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("14.0", org.flywaydb.core.internal.license.Edition.ENTERPRISE);
+            ensureDatabaseNotOlderThanOtherwiseRecommendUpgradeToFlywayEdition("14.0", Tier.PREMIUM, configuration);
 
             recommendFlywayUpgradeIfNecessary("16.0");
         }
@@ -280,13 +281,13 @@ public class SQLServerDatabase extends Database<SQLServerConnection> {
             }
         }
 
-        String cleanMode = configuration.getPluginRegister().getPlugin(CleanModeConfigurationExtension.class).getClean().getMode();
+        String cleanMode = ConfigUtils.getCleanModel(configuration).getMode();
         if (Mode.ALL.name().equalsIgnoreCase(cleanMode)) {
             CleanModePlugin cleanModePlugin = configuration.getPluginRegister().getPlugins(CleanModePlugin.class).stream()
                                                            .filter(p -> p.handlesMode(Mode.valueOf(cleanMode)))
                                                            .filter(p -> p.handlesDatabase(this))
                                                            .findFirst()
-                                                           .orElseThrow(() -> new FlywayException("No plugin found to handle clean mode " + cleanMode + " for SQLServer. Please ensure you have the `flyway-desktop-clean` module on the classpath"));
+                                                           .orElseThrow(() -> new FlywayException("No plugin found to handle clean mode " + cleanMode + " for SQLServer."));
             cleanModePlugin.cleanDatabasePostSchema(this, jdbcTemplate);
         }
     }

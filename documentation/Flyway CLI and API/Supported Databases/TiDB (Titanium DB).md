@@ -61,6 +61,32 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 </table>
 
+## Java Usage
+
+YugabyteDB support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+
+### Maven
+
+#### Community
+
+```xml
+
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-tidb</artifactId>
+</dependency>
+```
+
+### Gradle
+
+#### Community
+
+```groovy
+dependencies {
+    compile "org.flywaydb:flyway-database-tidb"
+}
+```
+
 ## SQL Script Syntax
 
 - [Standard SQL syntax](Concepts/migrations#sql-based-migrations#syntax) with statement delimiter **;**

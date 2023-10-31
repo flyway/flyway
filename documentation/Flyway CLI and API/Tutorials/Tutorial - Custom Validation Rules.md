@@ -12,7 +12,7 @@ Flyway validates your migrations according to its own conventions, however as th
 
 `ignoreMigrationPatterns` let's you add your own validation rules to tell Flyway which migrations are valid.
 
-You can read about how to configure `ignoreMigrationPatterns` [here](Configuration/Parameters/Ignore Migration Patterns). In summary, `ignoreMigrationPatterns` allows you to specify a list of patterns of the form `type:status` and any migration that matches any of these patterns is ignored during validate.
+You can read about how to configure `ignoreMigrationPatterns` [here](Configuration/Parameters/Flyway/Ignore Migration Patterns). In summary, `ignoreMigrationPatterns` allows you to specify a list of patterns of the form `type:status` and any migration that matches any of these patterns is ignored during validate.
 
 You can see a video showing how to use `ignoreMigrationPatterns` parameter [here](https://flywaydb.org/blog/customize-validation-rules-with-ignoremigrationpatterns).
 

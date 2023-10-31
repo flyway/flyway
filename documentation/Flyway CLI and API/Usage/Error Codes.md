@@ -44,11 +44,11 @@ These error codes may appear from any command, and are indicative of more genera
 
 ### `DUPLICATE_DELETED_MIGRATION`
 - **Caused by:** Schema history or filesystem corruption causing the same migration to appear to be deleted more than once
-- **Solution:** Ensure that you do not tamper with the schema history and all migrations that have been deleted are removed from [locations](Configuration/parameters/locations) known to Flyway
+- **Solution:** Ensure that you do not tamper with the schema history and all migrations that have been deleted are removed from [locations](Configuration/parameters/flyway/locations) known to Flyway
 
 ### `NON_EMPTY_SCHEMA_WITHOUT_SCHEMA_HISTORY_TABLE`
 - **Caused by:** Having non-empty schema(s) but no schema history table (e.g. introducing Flyway to an existing database)
-- **Solution:** Run `baseline` or set [baselineOnMigrate](Configuration/parameters/Baseline On Migrate) to true to initialize the schema history table
+- **Solution:** Run `baseline` or set [baselineOnMigrate](Configuration/parameters/flyway/Baseline On Migrate) to true to initialize the schema history table
 
 
 ## Validate Error Codes
@@ -60,7 +60,7 @@ These error codes are surfaced when running `validate` or `validateWithResult`.
 
 ### `SCHEMA_DOES_NOT_EXIST`
 - **Caused by:** The schema being validated against does not exist
-- **Solution:** Manually create the schema or enable [`createSchemas`](Configuration/Parameters/Create Schemas)
+- **Solution:** Manually create the schema or enable [`createSchemas`](Configuration/Parameters/Flyway/Create Schemas)
 
 ### `FAILED_REPEATABLE_MIGRATION`
 - **Caused by:** A failed repeatable migration was detected
@@ -80,11 +80,11 @@ These error codes are surfaced when running `validate` or `validateWithResult`.
 
 ### `RESOLVED_REPEATABLE_MIGRATION_NOT_APPLIED`
 - **Caused by:** A repeatable migration that was resolved has not been applied
-- **Solution:** To ignore this migration set [`ignoreMigrationPatterns`](Configuration/Parameters/Ignore Migration Patterns) to `*:ignored`
+- **Solution:** To ignore this migration set [`ignoreMigrationPatterns`](Configuration/Parameters/Flyway/Ignore Migration Patterns) to `*:ignored`
 
 ### `RESOLVED_VERSIONED_MIGRATION_NOT_APPLIED`
 - **Caused by:** A versioned migration that was resolved has not been applied
-- **Solution:** To ignore this migration set [`ignoreMigrationPatterns`](Configuration/Parameters/Ignore Migration Patterns) to `*:ignored` and to allow executing this migration enable [`outOfOrder`](Configuration/Parameters/Out Of Order)
+- **Solution:** To ignore this migration set [`ignoreMigrationPatterns`](Configuration/Parameters/Flyway/Ignore Migration Patterns) to `*:ignored` and to allow executing this migration enable [`outOfOrder`](Configuration/Parameters/Out Of Order)
 
 ### `OUTDATED_REPEATABLE_MIGRATION`
 - **Caused by:** An applied repeatable migration was resolved with a newer checksum and can be reapplied

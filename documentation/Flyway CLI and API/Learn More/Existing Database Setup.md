@@ -17,7 +17,7 @@ First start by taking a snapshot of your most important database: production. Th
 
 Generate a SQL script that includes the entire DDL (including indexes, triggers, procedures ...) of the production database. To do this you will need to add insert statements for all of the reference data present in the database.
 
-This script will form your baseline migration. Save it in a location specified in the [locations](Configuration/parameters/locations) property. Give it a relevant version number and description such as `V1__baseline_migration.sql`.
+This script will form your baseline migration. Save it in a location specified in the [locations](Configuration/parameters/flyway/locations) property. Give it a relevant version number and description such as `V1__baseline_migration.sql`.
 
 ## Clean all databases containing data you don't mind losing
 
@@ -25,7 +25,7 @@ Now comes the point where we have to make sure that the migrations meant for pro
 
 For all databases with unimportant data that you don't mind losing, execute:
 <pre class="console">&gt; flyway clean</pre>
-by altering the [url](Configuration/parameters/url) to completely remove their contents.
+by altering the [url](Configuration/parameters/environments/url) to completely remove their contents.
 
 ## Align the databases not cleaned with production
 
@@ -37,7 +37,7 @@ Now comes the time to [baseline](Commands/baseline) the databases that contain d
 
 You can accomplish it like this:
 <pre class="console">&gt; flyway -baselineVersion="1" -baselineDescription="baseline_migration" baseline</pre>
-You must perform this step for each database that hasn't been cleaned by altering the [url](Configuration/parameters/url) again.
+You must perform this step for each database that hasn't been cleaned by altering the [url](Configuration/parameters/environments/url) again.
 
 ## Done!
 
@@ -47,6 +47,6 @@ When you execute:
 
 <pre class="console">&gt; flyway migrate</pre>
 
-against the empty databases (by altering the [url](Configuration/parameters/url)), they will be migrated to the state of production and the others will be left as is.
+against the empty databases (by altering the [url](Configuration/parameters/environments/url)), they will be migrated to the state of production and the others will be left as is.
 
 As soon as you add a new migration, it can be applied identically to any of your databases.

@@ -56,6 +56,38 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 </table>
 
+## Java Usage
+Snowflake support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+Snowflake is found within the `flyway-database-snowflake` plugin module.
+### Maven
+#### Community
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-snowflake</artifactId>
+</dependency>
+```
+#### Teams
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-database-snowflake</artifactId>
+</dependency>
+```
+### Gradle
+#### Community
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-snowflake"
+}
+```
+#### Teams
+```groovy
+dependencies {
+    implementation "com.redgate.flyway:flyway-database-snowflake"
+}
+```
+
 ## SQL Script Syntax
 
 - [Standard SQL syntax](Concepts/migrations#syntax) with statement delimiter **;**

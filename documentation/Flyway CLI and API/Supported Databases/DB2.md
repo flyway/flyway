@@ -60,6 +60,38 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 </table>
 
+## Java Usage
+DB2 support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+DB2 is found within the `flyway-database-db2` plugin module.
+### Maven
+#### Community
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-db2</artifactId>
+</dependency>
+```
+#### Teams
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-database-db2</artifactId>
+</dependency>
+```
+### Gradle
+#### Community
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-db2"
+}
+```
+#### Teams
+```groovy
+dependencies {
+    implementation "com.redgate.flyway:flyway-database-db2"
+}
+```
+
 ## SQL Script Syntax
 
 - [Standard SQL syntax](Concepts/migrations#sql-based-migrations#syntax)

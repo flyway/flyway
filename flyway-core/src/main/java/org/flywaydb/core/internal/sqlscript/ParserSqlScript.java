@@ -60,7 +60,7 @@ public class ParserSqlScript implements SqlScript {
      */
     public ParserSqlScript(Parser parser, LoadableResource resource, LoadableResource metadataResource, boolean mixed) {
         this.resource = resource;
-        this.metadata = SqlScriptMetadata.fromResource(metadataResource, parser);
+        this.metadata = SqlScriptMetadata.fromResource(metadataResource, parser, parser.configuration);
         this.parser = parser;
 
 

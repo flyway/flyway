@@ -9,7 +9,7 @@ redirect_from: Usage/Community Plugins and Integrations/grails/
 Grails 3.x is based on Spring Boot comes with out-of-the-box <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/howto.html#howto-execute-flyway-database-migrations-on-startup">integration for Flyway</a>.
 
 All you need to do is add `flyway-core` to your `build.gradle`:
-<pre class="prettyprint">compile "org.flywaydb:flyway-core:{{ site.flywayVersion }}"</pre>
+<pre class="prettyprint">implementation "org.flywaydb:flyway-core:{{ site.flywayVersion }}"</pre>
 
 Spring Boot will then automatically autowire Flyway with its DataSource and invoke it on startup.
 

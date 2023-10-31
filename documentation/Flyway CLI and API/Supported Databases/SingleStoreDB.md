@@ -6,10 +6,9 @@ subtitle: SingleStoreDB
 
 ## Supported Versions
 
-- `7.1` {% include teams.html %}
-- `7.8` {% include teams.html %}
+- `7.1`
+- `7.8` 
 
-**Note: SingleStoreDB is currently only available to Teams and Enterprise users**
 
 ## Support Level
 
@@ -24,7 +23,7 @@ subtitle: SingleStoreDB
     </tr>
     <tr>
         <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
+        <td>&#10003;</td>
     </tr>
 </table>
 
@@ -71,12 +70,21 @@ SingleStoreDB support is a separate dependency for Flyway and will need to be ad
 
 ### Maven
 
+#### Community
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-singlestore</artifactId>
+    <version>{{ site.flywayVersion }}</version>
+</dependency>
+```
+
 #### Teams
 
 ```xml
 
 <dependency>
-    <groupId>org.flywaydb.enterprise</groupId>
+    <groupId>com.redgate.flyway</groupId>
     <artifactId>flyway-singlestore</artifactId>
     <version>{{ site.flywayVersion }}</version>
 </dependency>
@@ -88,7 +96,7 @@ You will also need to [configure the repository](Usage/api-java)
 
 ```groovy
 dependencies {
-    compile "org.flywaydb.enterprise:flyway-singlestore"
+    implementation "com.redgate.flyway:flyway-singlestore"
 }
 ```
 You will also need to [configure the repository](Usage/api-java)

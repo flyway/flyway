@@ -126,7 +126,7 @@ public class SqlScriptCallbackFactory {
 
 
 
-            sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection(), false, batch, outputQueryResults).execute(sqlScript);
+            sqlScriptExecutorFactory.createSqlScriptExecutor(context.getConnection(), false, batch, outputQueryResults).execute(sqlScript, context.getConfiguration());
         }
 
         @Override

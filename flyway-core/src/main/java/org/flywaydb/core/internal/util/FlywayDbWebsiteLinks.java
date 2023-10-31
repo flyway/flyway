@@ -30,6 +30,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FlywayDbWebsiteLinks {
     public static final String TRY_TEAMS_EDITION = "https://rd.gt/2VzHpkY";
+    public static final String REDGATE_EDITION_DOWNLOAD = "https://rd.gt/2VzHpkY";
     public static final String FILTER_INFO_OUTPUT = "https://rd.gt/3jqLqAn";
     public static final String USAGE_COMMANDLINE = "https://rd.gt/3Cc1xKC";
     public static final String STAYING_UP_TO_DATE = "https://rd.gt/3rXiSlV";
@@ -57,4 +58,9 @@ public class FlywayDbWebsiteLinks {
     public static final String MIGRATION_REPORT_LEARN_MORE = "https://rd.gt/3okl9tM";
     public static final String GIVE_FEEDBACK = "https://rd.gt/41oQMAG";
     public static final String TOML_HELP = "https://rd.gt/45ynYIt";
+    public static final String EULA_LINK = "https://www.red-gate.com/eula";
+    public static final String COMMUNITY_SUPPORT = "https://rd.gt/468B6ni";
+
+    public static final String ENTERPRISE_INFO = "https://www.red-gate.com/products/flyway/enterprise/";
+    public static final String RELEASE_NOTES = "https://rd.gt/416ObMi";
 }

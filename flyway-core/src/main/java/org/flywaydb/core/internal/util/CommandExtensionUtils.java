@@ -28,7 +28,7 @@ public class CommandExtensionUtils {
     public static OperationResult runCommandExtension(Configuration configuration, String command, List<String> flags, FlywayTelemetryManager telemetryManager) {
         return configuration.getPluginRegister().getPlugins(CommandExtension.class).stream()
                             .filter(commandExtension -> commandExtension.handlesCommand(command))
-                            .max(Comparator.comparingInt(CommandExtension::getPriority))
+                            .findFirst()
                             .map(commandExtension -> commandExtension.handle(command, configuration, flags, telemetryManager))
                             .orElseThrow(() -> new FlywayException("No command extension found to handle command: " + command));
     }

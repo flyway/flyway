@@ -24,6 +24,8 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.api.resource.LoadableResource;
 import org.flywaydb.core.api.resource.Resource;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.parser.PlaceholderReplacingReader;
 import org.flywaydb.core.internal.resolver.ChecksumCalculator;
@@ -135,6 +137,8 @@ public class SqlMigrationResolver implements MigrationResolver {
 
             List<LoadableResource> resources = new ArrayList<>();
             resources.add(resource);
+
+
 
 
 

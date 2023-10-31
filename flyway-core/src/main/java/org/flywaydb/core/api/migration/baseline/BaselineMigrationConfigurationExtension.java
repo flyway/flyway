@@ -18,9 +18,6 @@ package org.flywaydb.core.api.migration.baseline;
 import lombok.Getter;
 import lombok.Setter;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
-import org.flywaydb.core.internal.configuration.ConfigUtils;
-
-import java.util.Map;
 
 @Getter
 @Setter

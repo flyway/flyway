@@ -28,6 +28,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DateUtils {
     /**
@@ -103,4 +105,9 @@ public class DateUtils {
                                  .atStartOfDay(ZoneId.systemDefault())
                                  .toInstant());
     }
+
+    public static long getRemainingDays(Date expiry) {
+        return DAYS.between(new Date().toInstant(), expiry.toInstant());
+    }
+
 }

@@ -15,9 +15,9 @@
  */
 package org.flywaydb.core.internal.proprietaryStubs;
 
-import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.license.FlywayLicensingException;
 
-public class FlywayProprietaryRequiredException extends FlywayException {
+public class FlywayProprietaryRequiredException extends FlywayLicensingException {
 
     public FlywayProprietaryRequiredException(String feature, String link) {
         super(feature + " is not available in this edition of Flyway.\n" +

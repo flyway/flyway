@@ -18,8 +18,7 @@ License
 -------
 Copyright (C) Red Gate Software Ltd 2010-2023
 
-Flyway Community Edition: https://www.red-gate.com/assets/purchase/assets/subscription-license.pdf
-Flyway Teams Edition: https://www.red-gate.com/assets/purchase/assets/subscription-license.pdf
-Flyway Enterprise Edition: https://www.red-gate.com/assets/purchase/assets/subscription-license.pdf
+Flyway Open Source Edition: https://www.apache.org/licenses/LICENSE-2.0.html
+Also available in: licenses/LICENSE.md
 
 Flyway is a registered trademark of Red Gate Software Ltd.

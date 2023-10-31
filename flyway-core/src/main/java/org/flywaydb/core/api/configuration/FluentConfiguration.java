@@ -448,27 +448,6 @@ public class FluentConfiguration implements Configuration {
     }
 
     /**
-     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
-     * Migrations not in this list will be ignored.
-     * <i>Flyway Teams only</i>
-     */
-    public FluentConfiguration cherryPick(MigrationPattern... cherryPick) {
-        config.setCherryPick(cherryPick);
-        return this;
-    }
-
-    /**
-     * Gets the migrations that Flyway should consider when migrating or undoing. Leave empty to consider all available migrations.
-     * Migrations not in this list will be ignored.
-     * Values should be the version for versioned migrations (e.g. 1, 2.4, 6.5.3) or the description for repeatable migrations (e.g. Insert_Data, Create_Table)
-     * <i>Flyway Teams only</i>
-     */
-    public FluentConfiguration cherryPick(String... cherryPickAsString) {
-        config.setCherryPick(cherryPickAsString);
-        return this;
-    }
-
-    /**
      * Sets whether placeholders should be replaced.
      *
      * @param placeholderReplacement Whether placeholders should be replaced. (default: true)
@@ -547,20 +526,6 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration sqlMigrationPrefix(String sqlMigrationPrefix) {
         config.setSqlMigrationPrefix(sqlMigrationPrefix);
-        return this;
-    }
-
-    /**
-     * Sets the file name prefix for undo SQL migrations. (default: U)
-     * Undo SQL migrations are responsible for undoing the effects of the versioned migration with the same version.
-     * They have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix,
-     * which using the defaults translates to U1.1__My_description.sql
-     * <i>Flyway Teams only</i>
-     *
-     * @param undoSqlMigrationPrefix The file name prefix for undo SQL migrations. (default: U)
-     */
-    public FluentConfiguration undoSqlMigrationPrefix(String undoSqlMigrationPrefix) {
-        config.setUndoSqlMigrationPrefix(undoSqlMigrationPrefix);
         return this;
     }
 
@@ -853,20 +818,6 @@ public class FluentConfiguration implements Configuration {
      */
     public FluentConfiguration kerberosConfigFile(String kerberosConfigFile) {
         config.setKerberosConfigFile(kerberosConfigFile);
-        return this;
-    }
-
-    /**
-     * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
-     * Request your <a href="https://flywaydb.org/try-flyway-teams-edition">Flyway trial license key</a>
-     * to try out Flyway Teams Edition features free for 30 days.
-     *
-     * <i>Flyway Teams only</i>
-     *
-     * @param licenseKey Your Flyway license key.
-     */
-    public FluentConfiguration licenseKey(String licenseKey) {
-        config.setLicenseKey(licenseKey);
         return this;
     }
 

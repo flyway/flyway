@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.configuration.resolvers;
 public class EnvironmentVariableResolver implements PropertyResolver {
     @Override
     public String getName() {
-        return "environment";
+        return "env";
     }
 
     @Override

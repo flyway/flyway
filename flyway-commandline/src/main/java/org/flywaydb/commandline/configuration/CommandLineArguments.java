@@ -39,14 +39,10 @@ public class CommandLineArguments {
     private static final String QUIET_FLAG = "-q";
     private static final String SUPPRESS_PROMPT_FLAG = "-n";
     private static final List<String> PRINT_VERSION_AND_EXIT_FLAGS = Arrays.asList("-v", "--version");
-    private static final String CHECK_LICENCE = "-checkLicence";
     private static final List<String> PRINT_USAGE_FLAGS = Arrays.asList("-?", "-h", "--help");
     private static final String SKIP_CHECK_FOR_UPDATE_FLAG = "-skipCheckForUpdate";
     private static final String MIGRATIONS_IDS_FLAG = "-migrationIds";
-    private static final String COMMUNITY_FLAG = "-community";
-    private static final String ENTERPRISE_FLAG = "-enterprise";
-    private static final String PRO_FLAG = "-pro";
-    private static final String TEAMS_FLAG = "-teams";
+
     // Command line specific configuration options
     private static final String OUTPUT_FILE = "outputFile";
     private static final String OUTPUT_TYPE = "outputType";
@@ -89,11 +85,6 @@ public class CommandLineArguments {
                 SUPPRESS_PROMPT_FLAG,
                 SKIP_CHECK_FOR_UPDATE_FLAG,
                 MIGRATIONS_IDS_FLAG,
-                COMMUNITY_FLAG,
-                ENTERPRISE_FLAG,
-                PRO_FLAG,
-                TEAMS_FLAG,
-                CHECK_LICENCE,
                 "help",
                 "migrate",
                 "clean",
@@ -150,13 +141,13 @@ public class CommandLineArguments {
                      .collect(Collectors.toList());
     }
 
-    private static Map<String, String> getConfigurationFromArgs(String[] args) {
+    private static Map<String, String> getConfigurationFromArgs(String[] args, boolean isModernConfig) {
         return Arrays.stream(args)
                      .filter(CommandLineArguments::isConfigurationArg)
                      .filter(arg -> !arg.startsWith("-" + CONFIG_FILES + "="))
                      .filter(arg -> !arg.startsWith("-" + CONFIG_FILE_ENCODING + "="))
                      .filter(f -> !isConfigurationOptionCommandlineOnly(getConfigurationOptionNameFromArg(f)))
-                     .collect(Collectors.toMap(p -> (Arrays.stream((EnvironmentModel.class).getDeclaredFields()).anyMatch(x -> x.getName().equals(getConfigurationOptionNameFromArg(p)))
+                     .collect(Collectors.toMap(p -> (Arrays.stream((EnvironmentModel.class).getDeclaredFields()).anyMatch(x -> x.getName().equals(getConfigurationOptionNameFromArg(p))) && isModernConfig
                                                        ? "environments." + ClassicConfiguration.TEMP_ENVIRONMENT_NAME + "."
                                                        : "flyway.")
                                                        + getConfigurationOptionNameFromArg(p),
@@ -228,10 +219,6 @@ public class CommandLineArguments {
 
     public PrintUsage shouldPrintUsage(StringBuilder helpText) {
 
-        if (shouldCheckLicenseAndExit()) {
-            return PrintUsage.PRINT_NONE;
-        }
-
         if (hasOperation("help") || isFlagSet(args, PRINT_USAGE_FLAGS)) {
 
             getHelpTextForOperations(helpText);
@@ -291,10 +278,6 @@ public class CommandLineArguments {
 
     public List<String> getConfigFiles() {
         return getConfigFilesFromArgs(args);
-    }
-
-    public boolean shouldCheckLicenseAndExit() {
-        return isFlagSet(args, CHECK_LICENCE);
     }
 
     public String getOutputFile() {
@@ -383,8 +366,8 @@ public class CommandLineArguments {
         return Color.fromString(getArgumentValue(COLOR, args));
     }
 
-    public Map<String, String> getConfiguration() {
-        return getConfigurationFromArgs(args);
+    public Map<String, String> getConfiguration(boolean isModernConfig) {
+        return getConfigurationFromArgs(args, isModernConfig);
     }
 
     @RequiredArgsConstructor

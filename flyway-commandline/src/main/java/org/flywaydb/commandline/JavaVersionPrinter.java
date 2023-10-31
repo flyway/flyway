@@ -17,13 +17,10 @@ package org.flywaydb.commandline;
 
 import lombok.CustomLog;
 
-/**
- * TODO: To be removed when Java 17 is sole release
- */
 @CustomLog
 public class JavaVersionPrinter {
 
     public static void printJavaVersion() {
-        LOG.debug("Java Version (Please Update): " + System.getProperty("java.version"));
+        LOG.debug("Java Version: " + Runtime.version().toString());
     }
 }

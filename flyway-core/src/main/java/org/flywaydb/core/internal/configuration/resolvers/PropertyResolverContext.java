@@ -15,7 +15,11 @@
  */
 package org.flywaydb.core.internal.configuration.resolvers;
 
+import java.util.List;
+
 public interface PropertyResolverContext {
+    String getEnvironmentName();
     String resolveValue(String input);
-    String resolveProperty(String resolverName, String propertyName);
+    String resolvePropertyString(String resolverName, String propertyName);
+    List<String> resolvePropertyStringList(String resolverName, String propertyName);
 }

@@ -237,5 +237,5 @@ public abstract class BaseDatabaseType implements DatabaseType {
         return "";
     }
 
-    public void printMessages() {}
+    public void printMessages(Configuration configuration) {}
 }

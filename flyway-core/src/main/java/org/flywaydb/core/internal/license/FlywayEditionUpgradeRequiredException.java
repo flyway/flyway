@@ -15,17 +15,17 @@
  */
 package org.flywaydb.core.internal.license;
 
-import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.database.DatabaseType;
 
-public class FlywayEditionUpgradeRequiredException extends FlywayException {
-    public FlywayEditionUpgradeRequiredException(Edition edition, DatabaseType databaseType, String version) {
+public class FlywayEditionUpgradeRequiredException extends FlywayLicensingException {
+    public FlywayEditionUpgradeRequiredException(Tier edition, DatabaseType databaseType, String version) {
         super(edition + " or " + databaseType.getName() + " upgrade required: " + databaseType.getName() + " " + version
-                      + " is no longer supported by " + VersionPrinter.EDITION + ","
-                      + " but still supported by " + edition + ".");
+                      + " is no longer supported by your current edition of Flyway,"
+                      + " but still supported by " + (edition == null ? "OSS" : edition.getDisplayName()) + ".");
     }
 
-    public FlywayEditionUpgradeRequiredException(Edition required, Edition current, String feature) {
-        super(required + " upgrade required: " + feature + " is not supported by " + current + ".");
+    public FlywayEditionUpgradeRequiredException(Tier required, Tier current, String feature) {
+        super(required.getDisplayName() + " upgrade required: " + feature + " is not supported by " + (current == null ? "OSS" : current.getDisplayName()) + ".");
     }
 }

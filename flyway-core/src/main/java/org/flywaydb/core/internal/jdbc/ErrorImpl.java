@@ -17,8 +17,13 @@ package org.flywaydb.core.internal.jdbc;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import org.flywaydb.core.api.callback.Error;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
+import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Getter(onMethod = @__(@Override))
@@ -26,6 +31,14 @@ public class ErrorImpl implements Error {
     private final int code;
     private final String state;
     private final String message;
-    @Setter(onMethod = @__(@Override))
     private boolean handled;
+
+    @Override
+    public void setHandled(boolean handled, Configuration configuration) {
+        if (!LicenseGuard.isLicensed(configuration, Tier.PREMIUM)) {
+            throw new FlywayTeamsUpgradeRequiredException("Error handling");
+        }
+
+        this.handled = handled;
+    }
 }

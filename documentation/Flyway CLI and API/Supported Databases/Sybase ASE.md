@@ -67,6 +67,38 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 </table>
 
+## Java Usage
+Sybase ASE support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+Sybase ASE is found within the `flyway-database-sybasease` plugin module.
+### Maven
+#### Community
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-sybasease</artifactId>
+</dependency>
+```
+#### Teams
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-database-sybasease</artifactId>
+</dependency>
+```
+### Gradle
+#### Community
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-sybasease"
+}
+```
+#### Teams
+```groovy
+dependencies {
+    implementation "com.redgate.flyway:flyway-database-sybasease"
+}
+```
+
 ## SQL Script Syntax
 
 - [Standard SQL syntax](Concepts/migrations#sql-based-migrations#syntax) with statement delimiter **GO**

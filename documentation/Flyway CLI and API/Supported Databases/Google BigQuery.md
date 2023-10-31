@@ -65,7 +65,7 @@ it [here](https://cloud.google.com/blog/products/data-analytics/troubleshoot-big
 
 Flyway Teams Edition alleviates this via batching which executes multiple schema changes in one request to minimize latency and improve performance.
 
-To enable batching follow the guide [here](Configuration/parameters/batch) for your platform. <br/>
+To enable batching follow the guide [here](Configuration/parameters/flyway/batch) for your platform. <br/>
 In the Flyway Command-Line this would look like the following:
 
 <pre class="console"><span>&gt;</span> flyway migrate -batch=true</pre>
@@ -123,12 +123,12 @@ The keyfile file needs to be accessible to Flyway, so save it somewhere accessib
 
 You can learn more about service accounts [here](https://cloud.google.com/iam/docs/service-accounts).
 
-Set this URL in the [`url`](Configuration/parameters/url) property in your Flyway configuration.
+Set this URL in the [`url`](Configuration/parameters/environments/url) property in your Flyway configuration.
 
 ### Other configuration
 
-Set the [`schemas`](Configuration/parameters/schemas) property in your Flyway configuration to the name of a `data set` within your BigQuery project. Set
-the [`user`](Configuration/parameters/user) and [`password`](Configuration/parameters/password) properties to empty in your Flyway configuration since we're authenticating using
+Set the [`schemas`](Configuration/parameters/environments/schemas) property in your Flyway configuration to the name of a `data set` within your BigQuery project. Set
+the [`user`](Configuration/parameters/environments/user) and [`password`](Configuration/parameters/environments/password) properties to empty in your Flyway configuration since we're authenticating using
 the JDBC URL i.e.
 
 ```

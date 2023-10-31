@@ -16,7 +16,6 @@
 package org.flywaydb.commandline.configuration;
 
 import org.flywaydb.commandline.Main;
-import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
@@ -25,6 +24,8 @@ import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
 
 import java.io.Console;
 import java.io.File;
@@ -37,6 +38,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.flywaydb.core.internal.configuration.ConfigUtils.DEFAULT_CLI_SQL_LOCATION;
+
 public class LegacyConfigurationManager implements ConfigurationManager {
 
     public Configuration getConfiguration(CommandLineArguments commandLineArguments) {
@@ -44,9 +47,8 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         Map<String, String> config = new HashMap<>();
         String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : ClassUtils.getInstallDir(Main.class);
 
-        config.put(ConfigUtils.LOCATIONS, "filesystem:" + new File(workingDirectory, "sql").getAbsolutePath());
-
         File jarDir = new File(workingDirectory, "jars");
+        ConfigUtils.warnIfUsingDeprecatedMigrationsFolder(jarDir, ".jar");
         if (jarDir.exists()) {
             config.put(ConfigUtils.JAR_DIRS, jarDir.getAbsolutePath());
         }
@@ -56,7 +58,12 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         loadConfigurationFromConfigFiles(config, commandLineArguments, envVars);
 
         config.putAll(envVars);
-        config = overrideConfiguration(config, commandLineArguments.getConfiguration());
+        config = overrideConfiguration(config, commandLineArguments.getConfiguration(false));
+
+        File sqlFolder = new File(workingDirectory, DEFAULT_CLI_SQL_LOCATION);
+        if (ConfigUtils.shouldUseDefaultCliSqlLocation(sqlFolder, StringUtils.hasText(config.get(ConfigUtils.LOCATIONS)))) {
+            config.put(ConfigUtils.LOCATIONS, "filesystem:" + sqlFolder.getAbsolutePath());
+        }
 
         if (commandLineArguments.isWorkingDirectorySet()) {
             makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments, config);
@@ -75,20 +82,16 @@ public class LegacyConfigurationManager implements ConfigurationManager {
             classLoader = ClassUtils.addJarsOrDirectoriesToClasspath(classLoader, jarFiles);
         }
 
-        if (!commandLineArguments.shouldSuppressPrompt()) {
-            promptForCredentialsIfMissing(config);
-        }
-
         ConfigUtils.dumpConfigurationMap(config);
         filterProperties(config);
 
+        Configuration configuration = new FluentConfiguration(classLoader).configuration(config).workingDirectory(workingDirectory);
 
+        if (!commandLineArguments.shouldSuppressPrompt()) {
+            promptForCredentialsIfMissing(config, configuration);
+        }
 
-
-
-
-
-        return new FluentConfiguration(classLoader).configuration(config).workingDirectory(workingDirectory);
+        return configuration;
     }
 
     protected void loadConfigurationFromConfigFiles(Map<String, String> config, CommandLineArguments commandLineArguments, Map<String, String> envVars) {
@@ -159,7 +162,7 @@ public class LegacyConfigurationManager implements ConfigurationManager {
      *
      * @param config The properties object to load to configuration into.
      */
-    private void promptForCredentialsIfMissing(Map<String, String> config) {
+    private void promptForCredentialsIfMissing(Map<String, String> config,  Configuration configuration) {
         Console console = System.console();
         if (console == null) {
             // We are running in an automated build. Prompting is not possible.
@@ -179,7 +182,7 @@ public class LegacyConfigurationManager implements ConfigurationManager {
 
 
 
-                && needsUser(url, config.getOrDefault(ConfigUtils.PASSWORD, null))) {
+                && needsUser(url, config.getOrDefault(ConfigUtils.PASSWORD, null), configuration)) {
             config.put(ConfigUtils.USER, console.readLine("Database user: "));
         }
 
@@ -189,7 +192,7 @@ public class LegacyConfigurationManager implements ConfigurationManager {
 
 
 
-                && needsPassword(url, config.get(ConfigUtils.USER))) {
+                && needsPassword(url, config.get(ConfigUtils.USER), configuration)) {
             char[] password = console.readPassword("Database password: ");
             config.put(ConfigUtils.PASSWORD, password == null ? "" : String.valueOf(password));
         }
@@ -198,7 +201,7 @@ public class LegacyConfigurationManager implements ConfigurationManager {
     /**
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a username.
      */
-    boolean needsUser(String url, String password) {
+    boolean needsUser(String url, String password, Configuration configuration) {
         DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
         if (databaseType.detectUserRequiredByUrl(url)) {
 
@@ -209,7 +212,8 @@ public class LegacyConfigurationManager implements ConfigurationManager {
 
 
 
-             return true;
+
+            return true;
 
         }
 
@@ -219,7 +223,7 @@ public class LegacyConfigurationManager implements ConfigurationManager {
     /**
      * Detect whether the JDBC URL specifies a known authentication mechanism that does not need a password.
      */
-    boolean needsPassword(String url, String username) {
+    boolean needsPassword(String url, String username, Configuration configuration) {
         DatabaseType databaseType = DatabaseTypeRegister.getDatabaseTypeForUrl(url);
         if (databaseType.detectPasswordRequiredByUrl(url)) {
 
@@ -230,8 +234,8 @@ public class LegacyConfigurationManager implements ConfigurationManager {
 
 
 
-             return true;
 
+            return true;
         }
 
         return false;

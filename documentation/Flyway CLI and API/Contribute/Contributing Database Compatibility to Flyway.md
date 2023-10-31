@@ -10,7 +10,7 @@ Flyway supports migrations for a large number of database platforms in a unified
 ## You will need...
 
 *   A JDBC driver for your database.
-*   A Java IDE that builds with Java 8 or higher. We use and recommend IntelliJ
+*   A Java IDE that builds with Java 17 or higher. We use and recommend IntelliJ
 
 **Note for organizations:** let us know whether you will allow us to ship your JDBC driver with Flyway. This helps us deliver a more frictionless out-of-the-box experience for end users. If you follow step 2 below, this will happen automatically.
 

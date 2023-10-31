@@ -18,7 +18,7 @@ This tutorial will assume you already have a Vault instance and know how to conf
 
 There are three new parameters to configure in Flyway in order to set up the Vault integration:
 
-### [`vault.url`](Configuration/Parameters/Vault Url)
+### [`vault.url`](Configuration/Parameters/Flyway/Vault Url)
 
 This is the REST API URL of your Vault server, and should include the API version.<br/>
 _Note: Flyway currently only supports API version v1_
@@ -26,14 +26,14 @@ _Note: Flyway currently only supports API version v1_
 If you are using a [Vault dev server](https://learn.hashicorp.com/tutorials/vault/getting-started-dev-server) then an example of what configuring this in Flyway may look like is:<br/>
 `flyway.plugins.vault.url=http://localhost:8200/v1/`
 
-### [`vault.token`](Configuration/Parameters/Vault Token)
+### [`vault.token`](Configuration/Parameters/Flyway/Vault Token)
 
 This is the token required to access your secrets. You can read about generating tokens [here](https://www.vaultproject.io/docs/commands/token/create), including how to add a lifetime to your token in order to control the duration of its validity.
 
 If we have a token `<vault_token>` then configuring this parameter involves adding the following to our Flyway configuration:<br/>
 `flyway.plugins.vault.token=<vault_token>`
 
-### [`vault.secrets`](Configuration/Parameters/Vault Secrets)
+### [`vault.secrets`](Configuration/Parameters/Flyway/Vault Secrets)
 
 This is a comma-separated list of secrets in Vault which Flyway should try to read from. Each secret must include the path to the secret, and must also start with the secret engine's name. The resulting form is:<br/>
 `<engine_name>/<path>/<to>/<secret_name>`

@@ -17,7 +17,7 @@ API/Maven/Gradle users will need to include `flyway-proprietary` as a dependency
 
 ```
 <dependency>
-    <groupId>org.flywaydb.enterprise</groupId>
+    <groupId>com.redgate.flyway</groupId>
     <artifactId>flyway-proprietary</artifactId>
     <version>{{ site.flywayVersion }}</version>
 </dependency>

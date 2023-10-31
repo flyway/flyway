@@ -20,7 +20,7 @@ All you need to do is add `flyway-core` to either your `pom.xml`:
 Or `build.gradle`:
 
 ```groovy
-compile "org.flywaydb:flyway-core:{{ site.flywayVersion }}"
+implementation "org.flywaydb:flyway-core:{{ site.flywayVersion }}"
 ```
 
 Spring Boot will then automatically autowire Flyway with its DataSource and invoke it on startup.

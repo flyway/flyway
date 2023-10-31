@@ -23,7 +23,7 @@ API/Maven/Gradle users will need to include `flyway-proprietary` as a dependency
 
 ```
 <dependency>
-    <groupId>org.flywaydb.enterprise</groupId>
+    <groupId>com.redgate.flyway</groupId>
     <artifactId>flyway-proprietary</artifactId>
     <version>{{ site.flywayVersion }}</version>
 </dependency>
@@ -61,7 +61,7 @@ These are no longer executed during a dry run. Instead, their file names are log
 
 When using the Flyway [command-line tool](Usage/Command Line), [Maven plugin](Usage/Maven Goal) or
 [Gradle plugin](usage/Gradle Task), a SQL file contained the output of the dry run can be configured using the
-[`flyway.dryRunOutput`](Configuration/Parameters/Dry Run Output) property. This can be on the local file
+[`flyway.dryRunOutput`](Configuration/Parameters/Flyway/Dry Run Output) property. This can be on the local file
 system, or in AWS S3 / Google Cloud Storage.
 
 When using the API directly, the dry run output can be configured using a `java.io.OutputStream`, giving you additional

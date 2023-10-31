@@ -44,7 +44,7 @@ Now let's create a Java-based migration to anonymize the data in the person tabl
 
 Start by
 - adding the `flyway-core` dependency to our `pom.xml`
-- configuring the Java compiler for Java 8
+- configuring the Java compiler for Java 17
 - configuring Flyway to scan the Java classpath for migrations
 
 ```xml

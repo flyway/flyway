@@ -254,7 +254,7 @@ public class DbMigrate {
 
         String targetText = (targetVersion != null) ? ", now at version v" + targetVersion : "";
 
-        String migrationText = (migrationSuccessCount == 1) ? "migration" : "migrations";
+        String migrationText = "migration" + StringUtils.pluralizeSuffix(migrationSuccessCount);
 
         LOG.info("Successfully applied " + migrationSuccessCount + " " + migrationText + " to schema " + schema
                          + targetText + " (execution time " + TimeFormat.format(executionTime) + ")");

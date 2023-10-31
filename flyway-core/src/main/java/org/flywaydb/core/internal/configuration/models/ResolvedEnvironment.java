@@ -29,6 +29,7 @@ public class ResolvedEnvironment {
     private String password;
     private String driver;
     private List<String> schemas;
+    private List<String> jarDirs;
     private String token;
     private Integer connectRetries;
     private Integer connectRetriesInterval;

@@ -5,24 +5,14 @@ redirect_from: /documentation/gradle/
 ---
 # Gradle Plugin
 
-The Flyway Gradle plugin supports **Gradle 3.x**, **Gradle 4.x**, **Gradle 5.x**, and **Gradle 6.x**
-running on **Java 8**, **Java 9**, **Java 10**, **Java 11**, **Java 12** or **Java 17**.
+The Flyway Gradle plugin supports **Gradle 7.6.x*** and **Gradle 8.x**
+running on **Java 17**.
+
+*Older versions fail due to some dependencies having multi-release jars with Java 19 code. 
+This is a known [Gradle issue](https://github.com/gradle/gradle/issues/24390). 
 
 ## Installation
-### Community Edition
-
-<code>build.gradle</code>
-<table class="table">
-    <tr>
-        <td>
-            <pre class="prettyprint">plugins {
-    id "org.flywaydb.flyway" version "{{ site.flywayVersion }}"
-}</pre>
-        </td>
-    </tr>
-</table>
-
-### Teams/Enterprise Edition
+### Flyway Community Edition
 <code>build.gradle</code>
 <table class="table">
     <tr>
@@ -34,7 +24,7 @@ running on **Java 8**, **Java 9**, **Java 10**, **Java 11**, **Java 12** or **Ja
     }
 }
 plugins {
-    id "org.flywaydb<strong>.enterprise</strong>.flyway" version "{{ site.flywayVersion }}"
+    id "<strong>com.redgate.flyway</strong>.flyway" version "{{ site.flywayVersion }}"
 }</pre>
         </td>
     </tr>
@@ -48,6 +38,20 @@ By downloading Flyway Teams/Enterprise Gradle Plugin you confirm that you have r
 <p class="note">
   For older versions see <a href="/Accessing Older Versions of Flyway">Accessing Older Versions of Flyway</a>
 </p>
+
+### Open Source Edition
+
+<code>build.gradle</code>
+<table class="table">
+    <tr>
+        <td>
+            <pre class="prettyprint">plugins {
+    id "org.flywaydb.flyway" version "{{ site.flywayVersion }}"
+}</pre>
+        </td>
+    </tr>
+</table>
+
 
 ## Tasks
 
@@ -140,7 +144,7 @@ Alternatively you can make the `flywayMigrate` task depend on classes.
 
 ```groovy
 dependencies {
-    compile "org.flywaydb:flyway-core:${flywayVersion}"
+    implementation "org.flywaydb:flyway-core:${flywayVersion}"
 }
 
 flyway {
@@ -170,7 +174,7 @@ configurations {
 
 // Declare your dependencies as usual for each configuration
 dependencies {
-    compile "org.flywaydb:flyway-core:${flywayVersion}"
+    implementation "org.flywaydb:flyway-core:${flywayVersion}"
     flywayMigration "com.mygroupid:my-lib:1.2.3"
 }
 

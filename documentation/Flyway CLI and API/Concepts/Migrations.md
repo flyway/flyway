@@ -174,13 +174,13 @@ In order to be picked up by Flyway, SQL migrations must comply with the followin
 </div>
 
 The file name consists of the following parts:
-- **Prefix**: `V` for versioned ([configurable](Configuration/Parameters/SQL Migration Prefix)),
-`U` for undo ([configurable](Configuration/Parameters/Undo SQL Migration Prefix)) and
-`R` for repeatable migrations ([configurable](Configuration/Parameters/Repeatable SQL Migration Prefix))
+- **Prefix**: `V` for versioned ([configurable](Configuration/Parameters/Flyway/SQL Migration Prefix)),
+`U` for undo ([configurable](Configuration/Parameters/Flyway/Undo SQL Migration Prefix)) and
+`R` for repeatable migrations ([configurable](Configuration/Parameters/Flyway/Repeatable SQL Migration Prefix))
 - **Version**: Version with dots or underscores separate as many parts as you like (Not for repeatable migrations)
-- **Separator**: `__` (two underscores) ([configurable](Configuration/Parameters/SQL Migration Separator))
+- **Separator**: `__` (two underscores) ([configurable](Configuration/Parameters/Flyway/SQL Migration Separator))
 - **Description**: Underscores or spaces separate the words
-- **Suffix**: `.sql` ([configurable](Configuration/Parameters/SQL Migration Suffixes))
+- **Suffix**: `.sql` ([configurable](Configuration/Parameters/Flyway/SQL Migration Suffixes))
 
 Optionally versioned SQL migrations can also omit both the separator and the description.
 
@@ -190,7 +190,7 @@ Flyway will fail fast and list all files which need to be corrected.
 
 ### Discovery
 
-Flyway discovers SQL-based migrations from one or more directories referenced by the **[`locations`](Configuration/parameters/locations)**
+Flyway discovers SQL-based migrations from one or more directories referenced by the **[`locations`](Configuration/parameters/flyway/locations)**
 property.
 - Unprefixed locations or locations with the `classpath:` prefix target the Java classpath.
 - Locations with the `filesystem:` prefix search the file system.
@@ -214,7 +214,7 @@ property.
     <i class="fa fa-file-text"></i> V1.2__Add_constraints.sql</pre>
 
 New SQL-based migrations are **discovered automatically** through filesystem and Java classpath scanning at runtime.
-Once you have configured the [`locations`](Configuration/parameters/locations) you want to use, Flyway will
+Once you have configured the [`locations`](Configuration/parameters/flyway/locations) you want to use, Flyway will
 automatically pick up any new SQL migrations as long as they conform to the configured *naming convention*.
 
 This scanning is recursive. All migrations in non-hidden directories below the specified ones are also picked up.
@@ -292,7 +292,7 @@ implementing the respective methods.
 ### Discovery
 
 Flyway discovers Java-based migrations on the Java classpath in the packages referenced by the
-[`locations`](Configuration/parameters/locations) property.
+[`locations`](Configuration/parameters/flyway/locations) property.
 
 <pre class="filetree"><i class="fa fa-folder-open"></i> my-project
   <i class="fa fa-folder-open"></i> src
@@ -367,7 +367,7 @@ public class V1_2__Another_user extends BaseJavaMigration {
 ```
 
 ## Script migrations
-{% include teams.html %}
+{% include redgate.html %}
 
 Sometimes it may be more desirable to use a scripting language for migrations. Flyway Teams currently supports the `.ps1`, `.bat`, `.cmd`, `.sh`, `.bash`, `.py` file extensions as migrations, and on non-windows platforms it also supports migrations without extensions (assuming a valid [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix))).
 
@@ -399,7 +399,7 @@ Flyway wraps the execution of each migration script in a single transaction and 
   If success, commit and continue; else rollback (if possible) and stop - do not process any further pending migrations
 ```
 
-Alternatively, for certain databases, for each `migrate`, you can configure Flyway to wrap the execution of all pending migrations in a single transaction by setting the [`group`](Configuration/parameters/group) property to `true`. This would look like:
+Alternatively, for certain databases, for each `migrate`, you can configure Flyway to wrap the execution of all pending migrations in a single transaction by setting the [`group`](Configuration/parameters/flyway/group) property to `true`. This would look like:
 
 ```
 Begin a transaction
@@ -414,7 +414,7 @@ If Flyway detects that a specific statement cannot be run within a transaction d
 database, it won't run that migration within a transaction. Instead, it will be marked as *non-transactional*.
 
 If the `group` property is set to true, then transactional and non-transactional statements cannot be mixed within a
-migration run. You can allow this by setting the [`mixed`](Configuration/parameters/mixed) property to `true`. Note that
+migration run. You can allow this by setting the [`mixed`](Configuration/parameters/flyway/mixed) property to `true`. Note that
 this is only applicable for PostgreSQL, Aurora PostgreSQL, SQL Server and SQLite which all have statements that do not
 run at all within a transaction. This is not to be confused with implicit transactions, as they occur in MySQL or Oracle,
 where even though a DDL statement was run within a transaction, the database will issue an implicit commit before and after
@@ -451,7 +451,7 @@ There are however some scenarios where such manual inspection makes sense, and t
 ### Toggling query results
 {% include teams.html %}
 
-To prevent Flyway from displaying query results, set the configuration option [`outputQueryResults`](Configuration/Parameters/Output Query Results) to `false`.
+To prevent Flyway from displaying query results, set the configuration option [`outputQueryResults`](Configuration/Parameters/Flyway/Output Query Results) to `false`.
 
 ## Schema History Table
 
@@ -509,25 +509,25 @@ The following will happen:
 
 ## Migration States
 
-| State              | Description                                                                                                                                               |
-|--------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Pending`          | This migration has not been applied yet                                                                                                                   |
-| `Success`          | This migration succeeded                                                                                                                                  |
-| `Ignored`          | This migration will not be considered when running [`migrate`](Commands/migrate)                                                            |
-| `Deleted`          | This is a migration that has been marked as deleted by [`repair`](Commands/undo)                                                            |
-| `Available`        | This [`undo`](Commands/undo) migration is ready to be applied if desired                                                                    |
-| `Undone`           | This versioned migration succeeded but has since been undone                                                                                              |
-| `Above Target`     | This migration has not been applied yet and won't be applied because [`target`](Configuration/parameters/target) is set to a lower version |
-| `Baseline`         | This migration has [`baselined`](Commands/baseline) this DB                                                                                 |
-| `Below Baseline`   | This migration was not applied against this DB because the schema history table was [`baselined`](Commands/baseline) with a higher version  |
-| `Missing`          | This migration succeeded and could not be resolved                                                                                                        |
-| `Failed (Missing)` | This migration failed and could not be resolved                                                                                                           |
-| `Failed`           | This migration failed                                                                                                                                     |
-| `Failed (Future)`  | This migration failed and its version is higher than the schema history table's current version                                                           |
-| `Future`           | This migration succeeded and its version is higher than the schema history table's current version                                                        |
-| `Out of Order`     | This migration succeeded but it was applied out of order. Rerunning the entire migration history might produce different results!                         |
-| `Outdated`         | This is a [`repeatable`](Tutorials/Tutorial Repeatable Migrations) migration that is outdated and should be re-applied                               |
-| `Superseded`       | This is a [`repeatable`](Tutorials/Tutorial Repeatable Migrations) migration that is outdated and has already been superseded by a newer one         |
+| State              | Description                                                                                                                                       |
+|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Pending`          | This migration has not been applied yet                                                                                                           |
+| `Success`          | This migration succeeded                                                                                                                          |
+| `Ignored`          | This migration will not be considered when running [`migrate`](Commands/migrate)                                                                  |
+| `Deleted`          | This is a migration that has been marked as deleted by [`repair`](Commands/undo)                                                                  |
+| `Available`        | This [`undo`](Commands/undo) migration is ready to be applied if desired                                                                          |
+| `Undone`           | This versioned migration succeeded but has since been undone                                                                                      |
+| `Above Target`     | This migration has not been applied yet and won't be applied because [`target`](Configuration/parameters/flyway/target) is set to a lower version |
+| `Baseline`         | This migration has [`baselined`](Commands/baseline) this DB                                                                                       |
+| `Below Baseline`   | This migration was not applied against this DB because the schema history table was [`baselined`](Commands/baseline) with a higher version        |
+| `Missing`          | This migration succeeded and could not be resolved                                                                                                |
+| `Failed (Missing)` | This migration failed and could not be resolved                                                                                                   |
+| `Failed`           | This migration failed                                                                                                                             |
+| `Failed (Future)`  | This migration failed and its version is higher than the schema history table's current version                                                   |
+| `Future`           | This migration succeeded and its version is higher than the schema history table's current version                                                |
+| `Out of Order`     | This migration succeeded but it was applied out of order. Rerunning the entire migration history might produce different results!                 |
+| `Outdated`         | This is a [`repeatable`](Tutorials/Tutorial Repeatable Migrations) migration that is outdated and should be re-applied                            |
+| `Superseded`       | This is a [`repeatable`](Tutorials/Tutorial Repeatable Migrations) migration that is outdated and has already been superseded by a newer one      |
 
 ## Learn More
 

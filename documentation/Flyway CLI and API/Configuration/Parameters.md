@@ -3,125 +3,127 @@ subtitle: placeholder page
 ---
 
 ### Connection
-- [url](Configuration/parameters/url)
-- [user](Configuration/parameters/user)
-- [password](Configuration/parameters/password)
-- [driver](Configuration/parameters/driver)
-- [connectRetries](Configuration/Parameters/Connect Retries)
-- [connectRetriesInterval](Configuration/Parameters/Connect Retries Interval)
-- [initSql](Configuration/Parameters/Init SQL)
-- [jdbcProperties](Configuration/Parameters/JDBC Properties) {% include teams.html %}
+- [url](configuration/parameters/environments/url)
+- [user](configuration/parameters/environments/user)
+- [password](configuration/parameters/environments/password)
+- [driver](configuration/parameters/environments/driver)
+- [connectRetries](configuration/parameters/environments/Connect Retries)
+- [connectRetriesInterval](configuration/parameters/environments/Connect Retries Interval)
+- [initSql](configuration/parameters/environments/Init SQL)
+- [jdbcProperties](configuration/parameters/environments/JDBC Properties) {% include teams.html %}
 
 ### General
 
-- [batch](Configuration/parameters/batch) {% include teams.html %}
-- [callbacks](Configuration/parameters/callbacks)
-- [cherryPick](Configuration/Parameters/Cherry Pick) {% include teams.html %}
-- [configFileEncoding](Configuration/Parameters/Config File Encoding)
-- [configFiles](Configuration/Parameters/Config Files)
-- [detectEncoding](Configuration/Parameters/Detect Encoding) {% include teams.html %}
-- [dryRunOutput](Configuration/Parameters/Dry Run Output) {% include teams.html %}
-- [encoding](Configuration/parameters/encoding)
-- [errorOverrides](Configuration/parameters/errorOverrides) {% include teams.html %}
-- [executeInTransaction](Configuration/parameters/Execute In Transaction)
-- [group](Configuration/parameters/group)
-- [installedBy](Configuration/Parameters/Installed By)
-- [jarDirs](Configuration/Parameters/Jar Dirs)
-- [kerberosConfigFile](Configuration/Parameters/Kerberos Config File) {% include teams.html %}
-- [licenseKey](Configuration/Parameters/License Key) {% include teams.html %}
-- [locations](Configuration/parameters/locations)
-- [failOnMissingLocations](Configuration/Parameters/Fail On Missing Locations)
-- [lockRetryCount](Configuration/Parameters/Lock Retry Count)
-- [loggers](Configuration/parameters/loggers)
-- [mixed](Configuration/parameters/mixed)
-- [outOfOrder](Configuration/Parameters/Out Of Order)
-- [outputQueryResults](Configuration/Parameters/Output Query Results) {% include teams.html %}
-- [reportFilename](Configuration/Parameters/Report Filename)
-- [skipDefaultCallbacks](Configuration/Parameters/Skip Default Callbacks)
-- [skipDefaultResolvers](Configuration/parameters/skipDefaultResolvers)
-- [skipExecutingMigrations](Configuration/Parameters/Skip Executing Migrations) {% include teams.html %}
-- [stream](Configuration/parameters/stream) {% include teams.html %}
-- [table](Configuration/parameters/table)
-- [tablespace](Configuration/parameters/tablespace)
-- [target](Configuration/parameters/target)
-- [validateMigrationNaming](Configuration/Parameters/Validate Migration Naming)
-- [validateOnMigrate](Configuration/Parameters/Validate On Migrate)
-- [workingDirectory](Configuration/Parameters/Working Directory)
+- [batch](configuration/parameters/flyway/batch) {% include teams.html %}
+- [callbacks](configuration/parameters/flyway/callbacks)
+- [cherryPick](configuration/parameters/flyway/Cherry Pick) {% include teams.html %}
+- [configFileEncoding](configuration/parameters/flyway/Config File Encoding)
+- [configFiles](configuration/parameters/flyway/Config Files)
+- [detectEncoding](configuration/parameters/flyway/Detect Encoding) {% include teams.html %}
+- [dryRunOutput](configuration/parameters/flyway/Dry Run Output) {% include teams.html %}
+- [encoding](configuration/parameters/flyway/encoding)
+- [environment](configuration/parameters/flyway/environment)
+- [errorOverrides](configuration/parameters/flyway/errorOverrides) {% include teams.html %}
+- [executeInTransaction](configuration/parameters/flyway/Execute In Transaction)
+- [group](configuration/parameters/flyway/group)
+- [installedBy](configuration/parameters/flyway/Installed By)
+- [jarDirs](configuration/parameters/flyway/Jar Dirs)
+- [kerberosConfigFile](configuration/parameters/flyway/Kerberos Config File) {% include teams.html %}
+- [licenseKey](configuration/parameters/flyway/License Key) {% include teams.html %}
+- [locations](configuration/parameters/flyway/locations)
+- [failOnMissingLocations](configuration/parameters/flyway/Fail On Missing Locations)
+- [lockRetryCount](configuration/parameters/flyway/Lock Retry Count)
+- [loggers](configuration/parameters/flyway/loggers)
+- [mixed](configuration/parameters/flyway/mixed)
+- [outOfOrder](configuration/parameters/flyway/Out Of Order)
+- [outputQueryResults](configuration/parameters/flyway/Output Query Results) {% include teams.html %}
+- [reportFilename](configuration/parameters/flyway/Report Filename)
+- [skipDefaultCallbacks](configuration/parameters/flyway/Skip Default Callbacks)
+- [skipDefaultResolvers](configuration/parameters/flyway/skipDefaultResolvers)
+- [skipExecutingMigrations](configuration/parameters/flyway/Skip Executing Migrations) {% include teams.html %}
+- [stream](configuration/parameters/flyway/stream) {% include teams.html %}
+- [table](configuration/parameters/flyway/table)
+- [tablespace](configuration/parameters/flyway/tablespace)
+- [target](configuration/parameters/flyway/target)
+- [validateMigrationNaming](configuration/parameters/flyway/Validate Migration Naming)
+- [validateOnMigrate](configuration/parameters/flyway/Validate On Migrate)
+- [workingDirectory](configuration/parameters/flyway/Working Directory)
 
 ### Schema
-- [createSchemas](Configuration/Parameters/Create Schemas)
-- [defaultSchema](Configuration/Parameters/Default Schema)
-- [schemas](Configuration/parameters/schemas)
+- [createSchemas](configuration/parameters/flyway/Create Schemas)
+- [defaultSchema](configuration/parameters/flyway/Default Schema)
+- [schemas](configuration/parameters/environments/schemas)
 
 ### Baseline
-- [baselineDescription](Configuration/Parameters/Baseline Description)
-- [baselineOnMigrate](Configuration/Parameters/Baseline On Migrate)
-- [baselineVersion](Configuration/Parameters/Baseline Version)
+- [baselineDescription](configuration/parameters/flyway/Baseline Description)
+- [baselineOnMigrate](configuration/parameters/flyway/Baseline On Migrate)
+- [baselineVersion](configuration/parameters/flyway/Baseline Version)
 
 ### Clean
-- [cleanDisabled](Configuration/Parameters/Clean Disabled)
-- [cleanOnValidationError](Configuration/Parameters/Clean On Validation Error)
+- [cleanDisabled](configuration/parameters/flyway/Clean Disabled)
+- [cleanOnValidationError](configuration/parameters/flyway/Clean On Validation Error)
 
 ### Validate
-- [ignoreMigrationPatterns](Configuration/Parameters/Ignore Migration Patterns)
+- [ignoreMigrationPatterns](configuration/parameters/flyway/Ignore Migration Patterns)
 
 ### Migrations
-- [repeatableSqlMigrationPrefix](Configuration/Parameters/Repeatable SQL Migration Prefix)
-- [resolvers](Configuration/Parameters/Resolver)
-- [sqlMigrationPrefix](Configuration/Parameters/SQL Migration Prefix)
-- [sqlMigrationSeparator](Configuration/Parameters/SQL Migration Separator)
-- [sqlMigrationSuffixes](Configuration/Parameters/SQL Migration Suffixes)
-- [undoSqlMigrationPrefix](Configuration/Parameters/Undo SQL Migration Prefix) {% include teams.html %}
-- [baselineMigrationPrefix](Configuration/Parameters/Baseline Migration Prefix) {% include teams.html %}
+- [repeatableSqlMigrationPrefix](configuration/parameters/flyway/Repeatable SQL Migration Prefix)
+- [resolvers](configuration/parameters/environments/Resolver)
+- [sqlMigrationPrefix](configuration/parameters/flyway/SQL Migration Prefix)
+- [sqlMigrationSeparator](configuration/parameters/flyway/SQL Migration Separator)
+- [sqlMigrationSuffixes](configuration/parameters/flyway/SQL Migration Suffixes)
+- [undoSqlMigrationPrefix](configuration/parameters/flyway/Undo SQL Migration Prefix) {% include teams.html %}
+- [baselineMigrationPrefix](configuration/parameters/flyway/Baseline Migration Prefix) {% include teams.html %}
 
 ### Placeholders
-- [placeholderPrefix](Configuration/Parameters/Placeholder Prefix)
-- [scriptPlaceholderPrefix](Configuration/Parameters/Script Placeholder Prefix) {% include teams.html %}
-- [placeholderReplacement](Configuration/Parameters/Placeholder Replacement)
-- [placeholders](Configuration/parameters/placeholders)
-- [placeholderSeparator](Configuration/Parameters/Placeholder Separator)
-- [placeholderSuffix](Configuration/Parameters/Placeholder Suffix)
-- [scriptPlaceholderSuffix](Configuration/Parameters/Script Placeholder Suffix) {% include teams.html %}
+- [placeholderPrefix](configuration/parameters/flyway/Placeholder Prefix)
+- [scriptPlaceholderPrefix](configuration/parameters/flyway/Script Placeholder Prefix) {% include teams.html %}
+- [placeholderReplacement](configuration/parameters/flyway/Placeholder Replacement)
+- [placeholders](configuration/parameters/flyway/placeholders)
+- [placeholderSeparator](configuration/parameters/flyway/Placeholder Separator)
+- [placeholderSuffix](configuration/parameters/flyway/Placeholder Suffix)
+- [scriptPlaceholderSuffix](configuration/parameters/flyway/Script Placeholder Suffix) {% include teams.html %}
 
 ### Command Line
-- [color](Configuration/Parameters/Color)
-- [edition](Configuration/parameters/edition)
+- [color](configuration/parameters/flyway/Color)
+- [outputType](configuration/parameters/flyway/outputtype)
 
 ### Check
-- [buildUrl](Configuration/Parameters/Build URL)
-- [buildUser](Configuration/Parameters/Build User)
-- [buildPassword](Configuration/Parameters/Build Password)
-- [nextSnapshot](Configuration/Parameters/Next Snapshot)
-- [deployedSnapshot](Configuration/Parameters/Deployed Snapshot)
-- [appliedMigrations](Configuration/Parameters/Applied Migrations)
-- [failOnDrift](Configuration/Parameters/Fail On Drift)
-- [minorTolerance](Configuration/Parameters/Minor Tolerance)
-- [majorTolerance](Configuration/Parameters/Major Tolerance)
-- [minorRules](Configuration/Parameters/Minor Rules)
-- [majorRules](Configuration/Parameters/Major Rules)
-- [rulesLocation](Configuration/Parameters/Rules Location)
+- [buildUrl](configuration/parameters/flyway/check/Build URL)
+- [buildUser](configuration/parameters/flyway/check/Build User)
+- [buildPassword](configuration/parameters/flyway/check/Build Password)
+- [nextSnapshot](configuration/parameters/flyway/check/Next Snapshot)
+- [deployedSnapshot](configuration/parameters/flyway/check/Deployed Snapshot)
+- [appliedMigrations](configuration/parameters/flyway/check/Applied Migrations)
+- [failOnDrift](configuration/parameters/flyway/check/Fail On Drift)
+- [filterFile](configuration/parameters/flyway/check/Filter File)
+- [minorTolerance](configuration/parameters/flyway/check/Minor Tolerance)
+- [majorTolerance](configuration/parameters/flyway/check/Major Tolerance)
+- [minorRules](configuration/parameters/flyway/check/Minor Rules)
+- [majorRules](configuration/parameters/flyway/check/Major Rules)
+- [rulesLocation](configuration/parameters/flyway/check/Rules Location)
 
 ### Oracle
-- [oracleSqlPlus](Configuration/Parameters/Oracle SQLPlus) {% include teams.html %}
-- [oracleSqlPlusWarn](Configuration/Parameters/Oracle SQLPlus Warn) {% include teams.html %}
-- [oracleKerberosCacheFile](Configuration/Parameters/Oracle Kerberos Cache File) {% include teams.html %}
-- [oracleWalletLocation](Configuration/Parameters/Oracle Wallet Location) {% include teams.html %}
+- [oracleSqlPlus](configuration/parameters/flyway/oracle/Oracle SQLPlus) {% include teams.html %}
+- [oracleSqlPlusWarn](configuration/parameters/flyway/oracle/Oracle SQLPlus Warn) {% include teams.html %}
+- [oracleKerberosCacheFile](configuration/parameters/flyway/oracle/Oracle Kerberos Cache File) {% include teams.html %}
+- [oracleWalletLocation](configuration/parameters/flyway/oracle/Oracle Wallet Location) {% include teams.html %}
 
 ### PostgreSQL
-- [postgresqlTransactionalLock](Configuration/Parameters/PostgreSQL Transactional Lock)
+- [postgresqlTransactionalLock](configuration/parameters/flyway/PostgreSQL Transactional Lock)
 
 ### SQL Server
-- [sqlServerKerberosLoginFile](Configuration/Parameters/SQL Server Kerberos Login File) {% include teams.html %}
+- [sqlServerKerberosLoginFile](configuration/parameters/flyway/SQL Server Kerberos Login File) {% include teams.html %}
 
 ### Secrets Management - Dapr Secret Store
-- [daprUrl](Configuration/Parameters/Dapr URL) {% include teams.html %}
-- [daprSecrets](configuration/parameters/dapr-secrets) {% include teams.html %}
+- [daprUrl](configuration/parameters/flyway/Dapr URL) {% include enterprise.html %}
+- [daprSecrets](configuration/parameters/flyway/dapr-secrets) {% include enterprise.html %}
 
 ### Secrets Management - Google Cloud Secret Manager
-- [gcsmProject](Configuration/Parameters/Google Cloud Secret Manager Project) {% include teams.html %}
-- [gcsmSecrets](Configuration/Parameters/Google Cloud Secret Manager Secrets) {% include teams.html %}
+- [gcsmProject](configuration/parameters/flyway/Google Cloud Secret Manager Project) {% include enterprise.html %}
+- [gcsmSecrets](configuration/parameters/flyway/Google Cloud Secret Manager Secrets) {% include enterprise.html %}
 
 ### Secrets Management - Vault
-- [vaultUrl](Configuration/Parameters/Vault Url) {% include teams.html %}
-- [vaultToken](Configuration/Parameters/Vault Token) {% include teams.html %}
-- [vaultSecrets](Configuration/Parameters/Vault Secrets) {% include teams.html %}
+- [vaultUrl](configuration/parameters/flyway/Vault Url) {% include enterprise.html %}
+- [vaultToken](configuration/parameters/flyway/Vault Token) {% include enterprise.html %}
+- [vaultSecrets](configuration/parameters/flyway/Vault Secrets) {% include enterprise.html %}
