@@ -15,13 +15,12 @@
  */
 package org.flywaydb.core.extensibility;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.license.Edition;
+import org.flywaydb.core.internal.license.FlywayLicensingException;
 
-public class FlywayExpiredLicenseKeyException extends FlywayException {
+public class FlywayExpiredLicenseKeyException extends FlywayLicensingException {
 
-    public FlywayExpiredLicenseKeyException(Edition edition, String featureName) {
-        super("Your " + edition + " license has expired and is no longer valid." +
+    public FlywayExpiredLicenseKeyException(Tier tier, String featureName) {
+        super("Your " + tier.getDisplayName() + " license has expired and is no longer valid." +
                       " You must renew your license immediately to keep on using " + featureName + ".");
     }
 }

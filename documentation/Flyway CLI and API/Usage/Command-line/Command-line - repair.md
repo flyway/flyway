@@ -9,7 +9,7 @@ Repairs the Flyway schema history table. This will perform the following actions
             (User objects left behind must still be cleaned up manually)
 - Realign the checksums, descriptions and types of the applied migrations with the ones of the available migrations
 - Mark all missing migrations as **deleted**
-    - As a result, `repair` must be given the same [`locations`](Configuration/parameters/locations) as `migrate`!
+    - As a result, `repair` must be given the same [`locations`](Configuration/parameters/flyway/locations) as `migrate`!
 
 <a href="Commands/repair"><img src="assets/command-repair.png" alt="repair"></a>
 

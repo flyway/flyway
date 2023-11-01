@@ -59,6 +59,6 @@ public class CommandExtensionStub implements CommandExtension {
 
     @Override
     public int getPriority() {
-        return Integer.MIN_VALUE;
+        return -100;
     }
 }

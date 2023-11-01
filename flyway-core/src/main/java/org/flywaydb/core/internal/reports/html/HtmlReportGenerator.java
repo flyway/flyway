@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.reports.html;
 
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.output.DashboardResult;
 import org.flywaydb.core.api.output.HoldingResult;
@@ -23,7 +24,8 @@ import org.flywaydb.core.api.output.HtmlResult;
 import org.flywaydb.core.api.output.CompositeResult;
 import org.flywaydb.core.extensibility.HtmlRenderer;
 import org.flywaydb.core.extensibility.HtmlReportSummary;
-import org.flywaydb.core.internal.license.VersionPrinter;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -43,6 +45,7 @@ import static org.flywaydb.core.internal.util.ClassUtils.getInstallDir;
 import static org.flywaydb.core.internal.util.HtmlUtils.getFormattedTimestamp;
 
 @CustomLog
+@ExtensionMethod(Tier.class)
 public class HtmlReportGenerator {
     private static final List<HoldingTabMetadata> HOLDING_TAB_METADATA = Arrays.asList(
             new HoldingTabMetadata("changes", "TIER3", "MASTER"),
@@ -68,7 +71,7 @@ public class HtmlReportGenerator {
 
             groupedResult.add(0, dashboardResult);
 
-            String currentTier = VersionPrinter.EDITION.name();
+            String currentTier = LicenseGuard.getTierAsString(config);
 
             for (HoldingTabMetadata holdingTabMetadata : HOLDING_TAB_METADATA) {
                 String holdingTab = holdingTabMetadata.getName();

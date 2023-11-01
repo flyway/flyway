@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-focal as flyway
+FROM eclipse-temurin:17-jdk-focal as flyway
 RUN apt-get update \
     && apt-get install -y python3-pip \
     && pip3 install sqlfluff==1.2.1

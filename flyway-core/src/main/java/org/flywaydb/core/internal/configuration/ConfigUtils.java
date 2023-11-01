@@ -20,10 +20,14 @@ import lombok.CustomLog;
 import lombok.NoArgsConstructor;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
+import org.flywaydb.core.internal.command.clean.CleanModel;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.plugin.PluginRegister;
+import org.flywaydb.core.internal.proprietaryStubs.LicensingConfigurationExtensionStub;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FileUtils;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -52,6 +56,11 @@ import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.isMultiline
 @CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConfigUtils {
+    public static final Class<? extends LicensingConfigurationExtensionStub> LICENSE_CONFIG_EXTENSION_CLASS = new FluentConfiguration().getPluginRegister()
+                                                                                                                                       .getPlugins(LicensingConfigurationExtensionStub.class)
+                                                                                                                                       .get(0)
+                                                                                                                                       .getClass();
+    public static final String DEFAULT_CLI_SQL_LOCATION = "sql";
     public static final String CONFIG_FILE_NAME = "flyway.conf";
     public static final String CONFIG_FILES = "flyway.configFiles";
     public static final String CONFIG_FILE_ENCODING = "flyway.configFileEncoding";
@@ -103,7 +112,6 @@ public class ConfigUtils {
     public static final String TABLE = "flyway.table";
     public static final String TABLESPACE = "flyway.tablespace";
     public static final String TARGET = "flyway.target";
-    public static final String CHERRY_PICK = "flyway.cherryPick";
     public static final String UNDO_SQL_MIGRATION_PREFIX = "flyway.undoSqlMigrationPrefix";
     public static final String URL = "flyway.url";
     public static final String USER = "flyway.user";
@@ -302,9 +310,6 @@ public class ConfigUtils {
         if ("FLYWAY_TARGET".equals(key)) {
             return TARGET;
         }
-        if ("FLYWAY_CHERRY_PICK".equals(key)) {
-            return CHERRY_PICK;
-        }
         if ("FLYWAY_LOGGERS".equals(key)) {
             return LOGGERS;
         }
@@ -378,7 +383,9 @@ public class ConfigUtils {
 
     public static List<File> getDefaultTomlConfigFileLocations(File installationDir) {
         return new ArrayList<>(Arrays.asList(new File(installationDir.getAbsolutePath() + "/conf/flyway.toml"),
+                      new File(installationDir.getAbsolutePath() + "/conf/flyway.user.toml"),
                       new File(System.getProperty("user.home") + "/flyway.toml"),
+                      new File(System.getProperty("user.home") + "/flyway.user.toml"),
                       new File("flyway.toml"),
                       new File("flyway.user.toml")));
     }
@@ -645,13 +652,17 @@ public class ConfigUtils {
             String key = entry.getKey();
             String value = entry.getValue();
 
-            if (key.toLowerCase().endsWith("password") || key.toLowerCase().endsWith("token")) {
-                value = StringUtils.trimOrPad("", value.length(), '*');
-            } else if (ConfigUtils.LICENSE_KEY.equals(key)) {
-                value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
-            } else if (key.toLowerCase().endsWith("url")) {
-                value = DatabaseTypeRegister.redactJdbcUrl(value);
-            }
+                if (key.toLowerCase().endsWith("password") || key.toLowerCase().endsWith("token")) {
+                    value = StringUtils.trimOrPad("", value.length(), '*');
+                } else if (ConfigUtils.LICENSE_KEY.equals(key)) {
+                    if (value.length() > 8) {
+                        value = value.substring(0, 8) + "******" + value.substring(value.length() - 4);
+                    } else {
+                        value = "********";
+                    }
+                } else if (key.toLowerCase().endsWith("url")) {
+                    value = DatabaseTypeRegister.redactJdbcUrl(value);
+                }
 
             dump.append(key).append(" -> ").append(value).append("\n");
         }
@@ -679,5 +690,48 @@ public class ConfigUtils {
                                            StringUtils.arrayToCommaDelimitedString(unknownFlywayProperties.toArray()));
             throw new FlywayException(message, ErrorCode.CONFIGURATION);
         }
+    }
+
+    public static CleanModel getCleanModel(Configuration conf) {
+        ConfigurationExtension extensionNew = conf.getPluginRegister().getLicensedPlugin("SQLServerConfigurationExtension", conf);
+        ConfigurationExtension extensionDepreciated = conf.getPluginRegister().getLicensedPlugin("CleanModeConfigurationExtension", conf);
+        CleanModel cleanModelNew = null;
+        CleanModel cleanModelDepreciated = null;
+
+        if(extensionNew != null) {
+            cleanModelNew = (CleanModel) ClassUtils.getFieldValue(extensionNew, "clean");
+        }
+        if(extensionDepreciated != null) {
+            cleanModelDepreciated = (CleanModel) ClassUtils.getFieldValue(extensionDepreciated, "clean");
+        }
+
+        CleanModel result = cleanModelNew != null ? cleanModelNew : cleanModelDepreciated;
+        if(result != null) {
+            result.validate();
+            return result;
+        } else {
+            return new CleanModel();
+        }
+    }
+
+    public static boolean shouldUseDefaultCliSqlLocation(File sqlFolder, boolean areOtherLocationsConfigured) {
+        if (areOtherLocationsConfigured) {
+            return false;
+        }
+        if (sqlFolder.exists()) {
+            warnIfUsingDeprecatedMigrationsFolder(sqlFolder, ".sql");
+            return true;
+        } else {
+            LOG.warn("No locations configured and default location '" + sqlFolder.getName() + "' not found.");
+            return false;
+        }
+    }
+
+    public static void warnIfUsingDeprecatedMigrationsFolder(File folder, String fileExtension) {
+        try {
+            if (Arrays.stream(folder.listFiles()).anyMatch(f -> f.getName().endsWith(fileExtension))) {
+                LOG.warn("Storing migrations in '" + folder.getName() + "' is not recommended and default scanning of this location may be deprecated in a future release");
+            }
+        } catch (Exception ignored) {}
     }
 }

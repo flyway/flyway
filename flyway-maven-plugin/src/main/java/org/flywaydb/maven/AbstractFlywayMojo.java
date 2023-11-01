@@ -595,17 +595,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String kerberosConfigFile;
 
     /**
-     * Your Flyway license key (FL01...). Not yet a Flyway Teams Edition customer?
-     * Request your <a href="https://flywaydb.org/download">Flyway trial license key</a>
-     * to try out Flyway Teams Edition features free for 30 days.
-     *
-     * <i>Flyway Teams only</i>
-     * <p>Also configurable with Maven or System Property: ${flyway.licenseKey}</p>
-     */
-    @Parameter(property = ConfigUtils.LICENSE_KEY)
-    private String licenseKey;
-
-    /**
      * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).
      * <p>Also configurable with Maven or System Property: ${flyway.configFileEncoding}</p>
      */
@@ -792,7 +781,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.SKIP_EXECUTING_MIGRATIONS, skipExecutingMigrations);
             putIfSet(conf, ConfigUtils.OUTPUT_QUERY_RESULTS, outputQueryResults);
             putIfSet(conf, ConfigUtils.TARGET, target);
-            putArrayIfSet(conf, ConfigUtils.CHERRY_PICK, cherryPick);
             putArrayIfSet(conf, ConfigUtils.LOGGERS, loggers);
             putArrayIfSet(conf, ConfigUtils.IGNORE_MIGRATION_PATTERNS, ignoreMigrationPatterns);
             putIfSet(conf, ConfigUtils.VALIDATE_MIGRATION_NAMING, validateMigrationNaming);
@@ -814,8 +802,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.BATCH, batch);
 
             putIfSet(conf, ConfigUtils.KERBEROS_CONFIG_FILE, kerberosConfigFile);
-
-            putIfSet(conf, ConfigUtils.LICENSE_KEY, licenseKey);
 
             if (placeholders != null) {
                 for (String placeholder : placeholders.keySet()) {

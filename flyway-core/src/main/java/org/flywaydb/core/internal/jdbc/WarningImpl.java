@@ -19,6 +19,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.flywaydb.core.api.callback.Warning;
+import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.extensibility.LicenseGuard;
+import org.flywaydb.core.extensibility.Tier;
+import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
 
 @RequiredArgsConstructor
 @Getter(onMethod = @__(@Override))
@@ -26,6 +30,14 @@ public class WarningImpl implements Warning {
     private final int code;
     private final String state;
     private final String message;
-    @Setter(onMethod = @__(@Override))
     private boolean handled;
+
+    @Override
+    public void setHandled(boolean handled, Configuration configuration) {
+        if (!LicenseGuard.isLicensed(configuration, Tier.PREMIUM)) {
+            throw new FlywayTeamsUpgradeRequiredException("Warning handling");
+        }
+
+        this.handled = handled;
+    }
 }

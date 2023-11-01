@@ -51,6 +51,38 @@ Support Level determines the degree of support available for this database ([lea
 </tr>
 </table>
 
+## Java Usage
+Redshift support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+Redshift is found within the `flyway-database-redshift` plugin module.
+### Maven
+#### Community
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-redshift</artifactId>
+</dependency>
+```
+#### Teams
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-database-redshift</artifactId>
+</dependency>
+```
+### Gradle
+#### Community
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-redshift"
+}
+```
+#### Teams
+```groovy
+dependencies {
+    implementation "com.redgate.flyway:flyway-database-redshift"
+}
+```
+
 ## SQL Script Syntax
 
 - [Standard SQL syntax](Concepts/migrations#sql-based-migrations#syntax) with statement delimiter **;**

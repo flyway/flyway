@@ -56,3 +56,30 @@ Support for Ignite is provided only on a community-led basis, and is not formall
 <td><code>org.apache.ignite.IgniteJdbcThinDriver</code></td>
 </tr>
 </table>
+
+
+## Java Usage
+
+Ignite support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+
+### Maven
+
+#### Community
+
+```xml
+
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-ignite</artifactId>
+</dependency>
+```
+
+### Gradle
+
+#### Community
+
+```groovy
+dependencies {
+    compile "org.flywaydb:flyway-database-ignite"
+}
+```

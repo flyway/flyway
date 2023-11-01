@@ -19,7 +19,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
-import org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException;
+import org.flywaydb.core.internal.license.FlywayRedgateEditionRequiredException;
 import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 
 import java.util.Arrays;
@@ -57,7 +57,7 @@ public class ValidatePattern {
 
 
         if (migrationType.equals("repeatable") || migrationType.equals("versioned")) {
-            throw new FlywayTeamsUpgradeRequiredException("ignoreMigrationPattern with type '" + migrationType + "'");
+            throw new FlywayRedgateEditionRequiredException("ignoreMigrationPattern with type '" + migrationType + "'");
         }
 
 

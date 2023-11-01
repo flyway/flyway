@@ -1,0 +1,2 @@
+org.flywaydb.community.database.TiDBDatabaseExtension
+org.flywaydb.community.database.mysql.tidb.TiDBDatabaseType

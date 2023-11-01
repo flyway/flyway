@@ -17,7 +17,6 @@ package org.flywaydb.core.api.output;
 
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.extensibility.AppliedMigration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.license.VersionPrinter;
@@ -62,11 +61,6 @@ public class CommandResultFactory {
         return new CleanResult(flywayVersion, databaseName);
     }
 
-    public static UndoResult createUndoResult(String databaseName, Configuration configuration) {
-        String flywayVersion = VersionPrinter.getVersion();
-        return new UndoResult(flywayVersion, databaseName, String.join(", ", configuration.getSchemas()));
-    }
-
     public static BaselineResult createBaselineResult(String databaseName) {
         String flywayVersion = VersionPrinter.getVersion();
         return new BaselineResult(flywayVersion, databaseName);
@@ -107,14 +101,6 @@ public class CommandResultFactory {
                                  migrationInfo.getType() != null ? migrationInfo.getType().toString() : "",
                                  migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
                                  executionTime);
-    }
-
-    public static UndoOutput createUndoOutput(ResolvedMigration migrationInfo, int executionTime) {
-        return new UndoOutput(
-                migrationInfo.getVersion().getVersion(),
-                migrationInfo.getDescription(),
-                migrationInfo.getPhysicalLocation() != null ? migrationInfo.getPhysicalLocation() : "",
-                executionTime);
     }
 
     public static ValidateOutput createValidateOutput(MigrationInfo migrationInfo, ErrorDetails validateError) {

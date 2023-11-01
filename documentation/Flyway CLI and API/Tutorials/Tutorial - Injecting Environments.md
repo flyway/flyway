@@ -10,7 +10,7 @@ This brief tutorial will teach you **how to inject environments for your migrati
 
 When working with databases you often have different environments such as development, test or production. In each of these environments you might want to execute different migrations, and this can be achieved with a placeholder and the `shouldExecute` script configuration parameter.
 
-`shouldExecute` is a parameter that lets you easily customize when a migration should execute by providing it a boolean expression. Unlike [`skipExecutingMigrations`](Configuration/Parameters/Skip Executing Migrations), this will **not** update the schema history table. It also supports placeholders within its boolean expressions, which gives you the flexibility to customize the execution of migrations as needed.
+`shouldExecute` is a parameter that lets you easily customize when a migration should execute by providing it a boolean expression. Unlike [`skipExecutingMigrations`](Configuration/Parameters/Flyway/Skip Executing Migrations), this will **not** update the schema history table. It also supports placeholders within its boolean expressions, which gives you the flexibility to customize the execution of migrations as needed.
 
 If you aren't already familiar with the concept of script configuration parameters, you can read about it [here](Configuration/Script Config Files). If you'd like to brush up on your knowledge of placeholders, you can read about them [here](Configuration/Placeholders Configuration).
 

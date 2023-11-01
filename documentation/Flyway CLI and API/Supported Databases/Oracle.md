@@ -85,7 +85,7 @@ Oracle support is a separate dependency for Flyway and will need to be added to 
 ```xml
 
 <dependency>
-    <groupId>org.flywaydb.enterprise</groupId>
+    <groupId>com.redgate.flyway</groupId>
     <artifactId>flyway-database-oracle</artifactId>
 </dependency>
 ```
@@ -96,7 +96,7 @@ Oracle support is a separate dependency for Flyway and will need to be added to 
 
 ```groovy
 dependencies {
-    compile "org.flywaydb:flyway-database-oracle"
+    implementation "org.flywaydb:flyway-database-oracle"
 }
 ```
 
@@ -104,7 +104,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    compile "org.flywaydb.enterprise:flyway-database-oracle"
+    implementation "com.redgate.flyway:flyway-database-oracle"
 }
 ```
 
@@ -145,7 +145,7 @@ INSERT INTO ${tableName} (name) VALUES ('Mr. T');</pre>
 
 In addition to the regular Oracle SQL syntax, Flyway Teams also comes with support for many Oracle SQL*Plus commands.
 
-This support is disabled by default and must be activated using the [`oracle.sqlplus`](Configuration/Parameters/Oracle SQLPlus) flag.
+This support is disabled by default and must be activated using the [`oracle.sqlplus`](Configuration/Parameters/Flyway/Oracle/Oracle SQLPlus) flag.
 
 The SQL\*Plus capability within Flyway is a re-implementation so may not behave exactly as native SQL\*Plus does.
 If a feature you're looking for doesn't work as expected then we recommend using [script migrations](Concepts/migrations#script-migrations) to invoke the SQL*Plus command-line tool.
@@ -211,7 +211,7 @@ the session in a consistent manner by calling SQL*Plus commands such as `SET FEE
 
 Flyway will look for `login.sql` in all the valid migration locations, and load it if present. `glogin.sql` will be loaded from `$ORACLE_HOME/sqlplus/admin/glogin.sql` in UNIX, and `ORACLE_HOME\sqlplus\admin\glogin.sql` otherwise.
 
-Profiles are only loaded when [`oracle.sqlplus`](Configuration/Parameters/Oracle SQLPlus) is enabled.
+Profiles are only loaded when [`oracle.sqlplus`](Configuration/Parameters/Flyway/Oracle/Oracle SQLPlus) is enabled.
 
 ### Output
 
@@ -247,7 +247,7 @@ In this case, they do not need to be passed separately in configuration and the 
 
 Flyway can connect to your databases using credentials in your Oracle Wallet.
 
-First you need to ensure you have set the environment variable `TNS_ADMIN` to point to the location containing your `tnsnames.ora` file. Then you will need to configure the [`flyway.oracle.walletLocation`](Configuration/Parameters/Oracle Wallet Location) parameter to point to the location of your Oracle wallet. Lastly your URL should be provided as specified in `tnsnames.ora` i.e. if it is using an alias then connect with the `jdbc:oracle:thin:@db_alias` syntax.
+First you need to ensure you have set the environment variable `TNS_ADMIN` to point to the location containing your `tnsnames.ora` file. Then you will need to configure the [`flyway.oracle.walletLocation`](Configuration/Parameters/Flyway/Oracle/Oracle Wallet Location) parameter to point to the location of your Oracle wallet. Lastly your URL should be provided as specified in `tnsnames.ora` i.e. if it is using an alias then connect with the `jdbc:oracle:thin:@db_alias` syntax.
 
 With that configuration you will be able to connect to your database without providing any credentials in config.
 
@@ -268,7 +268,7 @@ flyway.oracle.kerberosCacheFile=/tmp/krb5cc_123
 
 Flyway allows you to proxy through other users during migrations. You can read about how to enable proxying for users [here](https://docs.oracle.com/cd/E11882_01/java.112/e16548/proxya.htm#JJDBC28352).
 
-To configure Flyway to use a proxy connection, you need to add to [jdbcProperties](Configuration/Parameters/JDBC Properties) a key `PROXY_USER_NAME` whose value is the name of the user you are trying to proxy as. For example, if you connect as user `A` to Flyway (i.e. `flyway.user=A`) and you want to proxy as user `B` for migrations, you need to add `flyway.jdbcproperties.PROXY_USER_NAME=B`.
+To configure Flyway to use a proxy connection, you need to add to [jdbcProperties](Configuration/Parameters/Environments/JDBC Properties) a key `PROXY_USER_NAME` whose value is the name of the user you are trying to proxy as. For example, if you connect as user `A` to Flyway (i.e. `flyway.user=A`) and you want to proxy as user `B` for migrations, you need to add `flyway.jdbcproperties.PROXY_USER_NAME=B`.
 
 ## Limitations
 
@@ -302,7 +302,7 @@ Implementing a compatible solution to some problems isn't always possible, so we
 
 #### A default schema different to the current user's causes remote links to fail
 
-Flyway alters the current schema to the specified [default schema](Configuration/Parameters/Default Schema) as this is where the schema history table should reside. This causes remote links to fail in migrations that expect the current schema to be the user's. The workarounds for this are:
+Flyway alters the current schema to the specified [default schema](Configuration/Parameters/Flyway/Default Schema) as this is where the schema history table should reside. This causes remote links to fail in migrations that expect the current schema to be the user's. The workarounds for this are:
 
 - Create the remote link via dynamic SQL in a stored procedure that resides in the correct schema. Stored procedures execute as the schema owner, so the remote link is created in the correct schema
 - Use [beforeEachMigrate](Concepts/Callback concept#beforeEachMigrate) and [afterEachMigrate](Concepts/Callback concept#afterEachMigrate) callbacks to alter the current schema as needed

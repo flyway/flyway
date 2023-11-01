@@ -413,4 +413,12 @@ public class StringUtils {
         }
         return count;
     }
+
+    public static String getDaysString(long days) {
+        return days + " day" + pluralizeSuffix(days);
+    }
+
+    public static String pluralizeSuffix(long input) {
+        return input != 1 ? "s" : "";
+    }
 }

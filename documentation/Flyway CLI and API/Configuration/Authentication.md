@@ -2,6 +2,8 @@
 subtitle: Authentication
 ---
 
+If you are looking to authenticate Flyway with Redgate authentication, please see [here](Commands/Auth).
+
 # Authentication
 
 In order to log in to your database, the typical approach is to set your username and password in the Flyway [configuration file](Configuration/Configuration Files). This however has some concerns:

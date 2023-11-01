@@ -245,13 +245,9 @@ public class SQLServerSchema extends Schema<SQLServerDatabase, SQLServerTable> {
             statements.addAll(cleanXmlSchemaCollections());
         }
 
-
-
-
+        if (database.supportsSequences()) {
             statements.addAll(cleanObjects("SEQUENCE", ObjectType.SEQUENCE_OBJECT));
-
-
-
+        }
 
         return statements;
     }

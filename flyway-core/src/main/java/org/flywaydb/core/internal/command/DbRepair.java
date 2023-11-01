@@ -244,7 +244,7 @@ public class DbRepair {
         }
 
         public String deletedMessage() {
-            return "Deleted missing migrations";
+            return "Marked missing migrations as deleted";
         }
 
         public String alignedMessage() {

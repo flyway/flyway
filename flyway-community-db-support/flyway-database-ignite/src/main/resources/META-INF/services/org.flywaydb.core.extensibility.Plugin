@@ -1,0 +1,2 @@
+org.flywaydb.community.database.IgniteDatabaseExtension
+org.flywaydb.community.database.ignite.thin.IgniteThinDatabaseType

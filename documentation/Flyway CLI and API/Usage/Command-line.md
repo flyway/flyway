@@ -8,30 +8,34 @@ redirect_from: Commandsline/
 The Flyway command-line tool is a standalone Flyway distribution. It runs on Windows, macOS and Linux and it is primarily meant for users who wish to migrate their database from the command-line without having to integrate Flyway into their applications nor having to install a build tool.
 
 ## Download and installation
-### Teams/Enterprise Edition
-#### Windows
+
+### Windows
  <a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://flywaydb.org/download/thankyou?dl={{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-windows-x64.zip">flyway-commandline-{{site.flywayVersion}}-windows-x64.zip</a>
+ 
  <a class="note" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-windows-x64.zip.md5">md5</a>
- <a class="note" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-windows-x64.zip.sha1">sha1</a><br/>
- <p class="note"><br/>Extract the archive and simply add the new `flyway-{{site.flywayVersion}}` directory to the `PATH` to make the `flyway` command available from anywhere on your system.</p>
+ <a class="note" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-windows-x64.zip.sha1">sha1</a>
+ 
+ Extract the archive and simply add the new `flyway-{{site.flywayVersion}}` directory to the `PATH` to make the `flyway` command available from anywhere on your system.
 
-#### macOS
-  <a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://flywaydb.org/download/thankyou?dl={{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz">flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz</a>    <a class="note" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz.md5">md5</a>    <a class="note" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz.sha1">sha1</a><br/><br/>
+### macOS
+  <a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://flywaydb.org/download/thankyou?dl={{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz">flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz</a>    
+  
+ <a class="note" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz.md5">md5</a>
+ <a class="note" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz.sha1">sha1</a>
 
-#### Linux
+### Linux
 
   Download, extract and install by adding to `PATH` (requires `sudo` permissions):
   <pre class="console" style="overflow-x: auto"><span>$</span> wget -qO- {{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/<strong>flyway-commandline-{{site.flywayVersion}}-linux-x64.tar.gz</strong> | tar -xvz && sudo ln -s `pwd`/flyway-{{site.flywayVersion}}/flyway /usr/local/bin </pre>
 
   Or simply download the archive:
 
-  <br />
-
   <a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://flywaydb.org/download/thankyou?dl={{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-linux-x64.tar.gz">flyway-commandline-{{site.flywayVersion}}-linux-x64.tar.gz</a>
+
   <a class="note" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-linux-x64.tar.gz.md5">md5</a>
   <a class="note" href="{{site.enterpriseUrl}}/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-linux-x64.tar.gz.sha1">sha1</a><br/><br/>
 
-#### Docker
+### Docker
 
 (Linux only) Download, extract and install by adding to `PATH` (requires `sudo` permissions):
 <pre class="console"><span>$</span> sudo sh -c 'echo "docker run --rm <strong>redgate/flyway:{{site.flywayVersion}} $*</strong>" > /usr/local/bin/flyway && chmod +x /usr/local/bin/flyway'</pre>
@@ -39,131 +43,58 @@ The Flyway command-line tool is a standalone Flyway distribution. It runs on Win
 <pre class="console"><span>&gt;</span> docker pull <strong>redgate/flyway:{{site.flywayVersion}}</strong></pre>
 Go to Docker Hub for <a href="https://hub.docker.com/r/redgate/flyway/">detailed usage instructions</a>.
 
-### Community Edition
-#### Windows
-
-<a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://flywaydb.org/download/thankyou?dl=https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-windows-x64.zip">flyway-commandline-{{site.flywayVersion}}-windows-x64.zip</a>
-<a class="note" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-windows-x64.zip.md5">md5</a>
-<a class="note" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-windows-x64.zip.sha1">sha1</a><br/>
-<p class="note"><br/>Extract the archive and simply add the new `flyway-{{site.flywayVersion}}` directory to the `PATH` to make the `flyway` command available from anywhere on your system.</p>
-
-#### macOS
-<a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://flywaydb.org/download/thankyou?dl=https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz">flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz</a>
-<a class="note" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz.md5">md5</a>
-<a class="note" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-macosx-x64.tar.gz.sha1">sha1</a><br/><br/>
-
-#### Linux
-
- Download, extract and install by adding to `PATH` (requires `sudo` permissions):
- <pre class="console" style="overflow-x: auto"><span>$</span> wget -qO- https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/<strong>flyway-commandline-{{site.flywayVersion}}-linux-x64.tar.gz</strong> | tar -xvz && sudo ln -s `pwd`/flyway-{{site.flywayVersion}}/flyway /usr/local/bin </pre>
-
- Or simply download the archive:
-
- <br />
-
- <a style="text-decoration: none; background: rgb(204,0,0); padding: 6px 40px; border-radius: 10px; color: white; font-weight: bold;" href="https://flywaydb.org/download/thankyou?dl=https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-linux-x64.tar.gz">flyway-commandline-{{site.flywayVersion}}-linux-x64.tar.gz</a>
- <a class="note" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-linux-x64.tar.gz.md5">md5</a>
- <a class="note" href="https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{site.flywayVersion}}/flyway-commandline-{{site.flywayVersion}}-linux-x64.tar.gz.sha1">sha1</a><br/><br/>
-
-#### Docker
- (Linux only) Download, extract and install by adding to `PATH` (requires `sudo` permissions):
-
- <pre class="console"><span>$</span> sudo sh -c 'echo "docker run --rm <strong>flyway/flyway:{{site.flywayVersion}} $*</strong>" > /usr/local/bin/flyway && chmod +x /usr/local/bin/flyway'</pre>
-
- (All platforms) Or simply download the image:
-
- <pre class="console"><span>&gt;</span> docker pull <strong>flyway/flyway:{{site.flywayVersion}}</strong></pre>
-
- Go to Docker Hub for <a href="https://hub.docker.com/r/flyway/flyway/">detailed usage instructions</a>.
-
- <p class="note">Older versions, packages without JRE and sources are available from <a href="https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline">Maven Central</a></p>
- <p class="note">Older Docker images are available from <a href="https://hub.docker.com/r/boxfuse/flyway/">boxfuse/flyway</a></p>
-
 ## Directory structure
 
 The Flyway download, once extracted, now becomes a directory with the following structure:
-
-<pre class="filetree"><i class="fa fa-folder-open"></i> flyway-{{site.flywayVersion}}
-  <i class="fa fa-folder-open"></i> conf
-    <span><i class="fa fa-file-text"></i> flyway.conf</span> <i class="fa fa-long-arrow-left"></i> configuration file
-  <i class="fa fa-folder"></i> drivers        <i class="fa fa-long-arrow-left" style="margin-left: -3px"></i> JDBC drivers
-  <i class="fa fa-folder"></i> jars           <i class="fa fa-long-arrow-left" style="margin-left: -3px"></i> Java-based migrations (as jars)
-  <i class="fa fa-folder"></i> jre
-  <i class="fa fa-folder"></i> lib
-  <i class="fa fa-folder"></i> licenses
-  <i class="fa fa-folder"></i> sql            <i class="fa fa-long-arrow-left" style="margin-left: -3px"></i> SQL migrations
-  <span><i class="fa fa-file"></i> flyway</span>        <i class="fa fa-long-arrow-left"></i> macOS/Linux executable
-  <span><i class="fa fa-file"></i> flyway.cmd</span>    <i class="fa fa-long-arrow-left"></i> Windows executable</pre>
+```
+flyway
+    conf/       Configuration file(s)
+    drivers/    JDBC Drivers
+    jars/       Java-based migrations (as jars)
+    jre/
+    lib/
+    licenses/
+    sql/        SQL migrations
+    flyway      macOS/Linux executable
+    flyway.cmd  Windows executable
+```
 
 ## Usage
 
-<pre class="console"><span>&gt;</span> flyway [options] command</pre>
+`> flyway [options] command`
 
-## Flyway editions
-
-The Flyway Command-line tool distribution ships with all editions of Flyway.
-It auto-detects which edition to run based on any license keys you configure,
-however it can easily be configured to run the [paid editions](https://flywaydb.org/download) specifically.
-
-### Environment variable
-
-One way to switch between the various Flyway editions is to set the `FLYWAY_EDITION` environment variable prior to
-executing Flyway to any of the following values:
-
-<table class="table table-striped">
-<tr><td><code>community</code></td><td>Select the Flyway Community Edition</td></tr>
-<tr><td><code>teams</code></td><td>Select the Flyway Teams Edition</td></tr>
-</table>
-
-## Help flags
+## Command Line flags
 
 The following flags provide helpful information without carrying out any other operations:
 
-<table class="table table-striped">
-<tr><td><code>--help</code><br/><code>-h</code><br/><code>-?</code></td><td>Print the list of available commands and options</td></tr>
-<tr><td><code>--version</code><br/><code>-v</code></td><td>Print the Flyway version</td></tr>
-</table>
+| Flag                                                      | Purpose                                                        |
+|-----------------------------------------------------------|----------------------------------------------------------------|
+| `--help`<br/>`-h`<br/>`-?`                                | Print the list of available commands and options               |
+| `--version`<br/>`-v`                                      | Print the Flyway version                                       |
+
+The following flags modify the console output 
+
+| Flag                                                      | Purpose                                                        |
+|-----------------------------------------------------------|----------------------------------------------------------------|
+| `-X`                                                      | Extended debug output enabled                                  |
+| `-q`                                                      | Quiet mode,suppress all output, except for errors and warnings |
+| [-color](Configuration/Parameters/Flyway/Color)           | Colorize the terminal output                                   |
+| [-outputType](Configuration/Parameters/Flyway/OutputType) | Human or machine-readable output                               |
 
 ## Commands
 
-<table class="table table-bordered table-hover">
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td><a href="Usage/Command Line/Command Line migrate">migrate</a></td>
-        <td>Migrates the database</td>
-    </tr>
-    <tr>
-        <td><a href="Usage/Command Line/Command Line clean">clean</a></td>
-        <td>Drops all objects in the configured schemas</td>
-    </tr>
-    <tr>
-        <td><a href="Usage/Command Line/Command Line info">info</a></td>
-        <td>Prints the details and status information about all the migrations</td>
-    </tr>
-    <tr>
-        <td><a href="Usage/Command Line/Command Line validate">validate</a></td>
-        <td>Validates the applied migrations against the ones available on the classpath</td>
-    </tr>
-    <tr>
-        <td><a href="Usage/Command Line/Command Line undo">undo</a> <a href="https://flywaydb.org/download" class="label label-primary" title="Supported by Flyway Teams Edition only">Flyway Teams</a></td>
-        <td>Undoes the most recently applied versioned migrations</td>
-    </tr>
-    <tr>
-        <td><a href="Usage/Command Line/Command Line baseline">baseline</a></td>
-        <td>Baselines an existing database, excluding all migrations up to and including baselineVersion</td>
-    </tr>
-    <tr>
-        <td><a href="Usage/Command Line/Command Line repair">repair</a></td>
-        <td>Repairs the schema history table</td>
-    </tr>
-    </tbody>
-</table>
+| 	  Name                                             | Description	                                                                                |
+|-----------------------------------------------------|---------------------------------------------------------------------------------------------|
+| [Migrate](Usage/Command Line/Command Line migrate)| Migrates the database	                                                                      |
+| [Clean](Usage/Command Line/Command Line clean)     | Drops all objects in the configured schemas                                                 |
+| [Info](Usage/Command Line/Command Line info)        | Prints the details and status information about all the migrations                          |
+| [Validate](Usage/Command Line/Command Line validate) | Validates the applied migrations against the ones available on the classpath                |
+| [Undo](Usage/Command Line/Command Line undo)        | Undoes the most recently applied versioned migrations                                       |
+| [Baseline](Usage/Command Line/Command Line baseline) | Baselines an existing database, excluding all migrations up to and including baselineVersion |
+| [Repair](Usage/Command Line/Command Line repair)    | Repairs the schema history table                                                            |
+| [Auth](Usage/Command Line/Command Line auth)        | Licenses flyway usage	                                                                      |
+
+
 
 ## JDBC drivers
 
@@ -175,58 +106,20 @@ If Flyway does not ship with the JDBC driver, you will need to download the driv
 
 ## Configuration
 
-The Flyway Command-line tool can be configured in a wide variety of ways. You can use config files, environment
-variables and command-line parameters (except for `FLYWAY_EDITION`, which is not available in config files and
-should be used as specified above). These different means of configuration can be combined at will.
+The Flyway Command-line tool can be configured in a wide variety of ways. 
 
-### Config files
-
-[Config files](Configuration/Configuration Files) are supported by the Flyway command-line tool. If you are not familiar with them,
-check out the [Flyway config file structure and settings reference](Configuration/Configuration Files) first.
-
-Flyway will search for and automatically load the following config files if present:
-- `<install-dir>/conf/flyway.conf`
-- `<user-home>/flyway.conf`
-- `<current-dir>/flyway.conf`
-
-It is also possible to point Flyway at one or more additional config files. This is achieved by
-supplying the command line parameter `-configFiles=` as follows:
-
-<pre class="console"><span>&gt;</span> flyway <strong>-configFiles=</strong>path/to/myAlternativeConfig.conf migrate</pre>
-
-To pass in multiple files, separate their names with commas:
-
-<pre class="console"><span>&gt;</span> flyway <strong>-configFiles</strong>=path/to/myAlternativeConfig.conf,other.conf migrate</pre>
-
-Relative paths are relative to the current working directory. The special option `-configFiles=-` reads from
-standard input.
-
-Alternatively you can also use the `FLYWAY_CONFIG_FILES` environment variable for this.
-When set it will take preference over the command-line parameter.
-
-<pre class="console"><span>&gt;</span> export <strong>FLYWAY_CONFIG_FILES</strong>=path/to/myAlternativeConfig.conf,other.conf
-<span>&gt;</span> flyway migrate</pre>
-
-By default Flyway loads configuration files using UTF-8. To use an alternative encoding, use the command line parameter `-configFileEncoding=` as follows:
-<pre class="console"><span>&gt;</span> flyway <strong>-configFileEncoding=</strong>ISO-8859-1 migrate</pre>
-
-Alternatively you can also use the `FLYWAY_CONFIG_FILE_ENCODING` environment variable for this.
-When set it will take preference over the command-line parameter.
-
-<pre class="console"><span>&gt;</span> export <strong>FLYWAY_CONFIG_FILE_ENCODING</strong>=ISO-8859-1</pre>
-
-### Environment Variables
-
-To make it easier to work with cloud and containerized environments, Flyway also supports configuration via
-[environment variables](Configuration/Environment Variables). Check out the [Flyway environment variable reference](Configuration/Environment Variables) for details.
+You can find out more in the [Configuration](Configuration) section of the documents
+- [Configuration files](Configuration/Configuration Files)
+- [Environment variables](Configuration/Environment Variables)
 
 ### Command-line Arguments
 
-Finally, Flyway can also be configured by passing arguments directly from the command-line:
+Finally, Flyway can also be configured by passing [parameters](Configuration/Parameters) directly from the command-line:
+```powershell
+flyway -user=myuser -schemas=schema1,schema2 -placeholders.keyABC=valueXYZ migrate
+```
 
-<pre class="console"><span>&gt;</span> flyway -user=myuser -schemas=schema1,schema2 -placeholders.keyABC=valueXYZ migrate</pre>
-
-#### A note on escaping command-line arguments
+### Escaping command-line arguments
 
 Some command-line arguments will need care as specific characters may be interpreted differently depending on the
 shell you are working in. The `url` parameter is particularly affected when it contains extra parameters with
@@ -242,62 +135,16 @@ equals `=` and ampersands `&`. For example:
 
 ### Configuration from standard input
 
-You can provide configuration options to the standard input of the Flyway command line, using the
-` -configFiles=-` option. Flyway will expect such configuration to be in the same format as a configuration file.
-
-This allows you to compose Flyway with other operations. For instance, you can decrypt a config file containing
-login credentials and pipe it straight into Flyway.
-
-#### Examples
-
-Read a single option from `echo`:
-<pre class="console">
-<span>&gt;</span> echo $'flyway.url=jdbc:h2:mem:mydb' | flyway info -configFiles=-
-</pre>
-
-Read multiple options from `echo`, delimited by newlines:
-<pre class="console">
-<span>&gt;</span> echo $'flyway.url=jdbc:h2:mem:mydb\nflyway.user=sa' | flyway info -configFiles=-
-</pre>
-
-Use `cat` to read a config file and pipe it directly into Flyway:
-<pre class="console">
-<span>&gt;</span> cat flyway.conf | flyway migrate -configFiles=-
-</pre>
-
-Use `gpg` to encrypt a config file, then pipe it into Flyway.
-
-Encrypt the config file:
-<pre class="console">
-<span>&gt;</span> gpg -e -r "Your Name" flyway.conf
-</pre>
-
-Decrypt the file and pipe it to Flyway:
-<pre class="console">
-<span>&gt;</span> gpg -d -q flyway.conf.gpg | flyway info -configFiles=-
-</pre>
+See [Configuration from Standard Input](Configuration/Configuration from Standard Input)
 
 ### Overriding order
 
-The Flyway command-line tool has been carefully designed to load and override configuration in a sensible order.
-
-Settings are loaded in the following order (higher items in the list take precedence over lower ones):
-1. Command-line arguments
-1. Environment variables
-1. Standard input
-1. Custom config files
-1. `<current-dir>/flyway.conf`
-1. `<user-home>/flyway.conf`
-1. `<install-dir>/conf/flyway.conf`
-1. Flyway command-line defaults
-
-The means that if for example `flyway.url` is both present in a config file and passed as `-url=` from the command-line,
-the command-line argument will take precedence and be used.
+See [CLI Configuration Order](Configuration/CLI Configuration Order) for details of the configuration mechanism priority.
 
 ### Credentials
 
-If you do not supply a database `user` or `password` via any of the means above, you will be
-prompted to enter them:
+If you do not supply a database `user` or `password` via any of the means above, you may be
+prompted to enter them (depending on the database):
 <pre class="console">Database user: myuser
 Database password:</pre>
 
@@ -312,6 +159,7 @@ authentication is being used.
 If you need to to pass custom arguments to Flyway's JVM, you can do so by setting the `JAVA_ARGS` environment variable.
 They will then automatically be taken into account when launching Flyway. This is particularly useful when needing to set JVM system properties.
 
+
 ## Output
 
 By default, all debug, info and warning output is sent to `stdout`. All errors are sent to `stderr`.
@@ -321,7 +169,7 @@ Flyway will automatically detect and use any logger class that it finds on its c
  - SLF4J `org.slf4j.Logger`
  - Log4J v2 `org.apache.logging.log4j.Logger`
 
-Alternatively, you can use the [loggers](Configuration/parameters/loggers) configuration parameter to specify an exact desired logging framework to use.
+Alternatively, you can use the [loggers](Configuration/parameters/flyway/loggers) configuration parameter to specify an exact desired logging framework to use.
 
 The simplest way to make use of Flyway's auto-detection is to put all the necessary JAR files in Flyway's `lib` folder and any configuration in the Flyway root folder.
 For example, if you wished to use `log4j` v2 with the Flyway command line, you would achieve this by placing the log4j JAR files and the corresponding configuration file `log4j2.xml` like this:
@@ -361,15 +209,6 @@ If you are building Flyway into a larger application, this means you do not need
 
 P6Spy is another approach to logging which operates at the driver or datasource level, and Flyway has integration with this. You can read about setting it up [here](https://p6spy.readthedocs.io/en/latest/install.html#generic-instructions) and configuring it [here](https://p6spy.readthedocs.io/en/latest/configandusage.html#configuration-and-usage).
 
-### Colors
-
-By default the output is automatically colorized if `stdout` is associated with a terminal.
-
-You can override this behavior with the `-color` option. Possible values:
-
-- `auto` (default) : Colorize output, unless `stdout` is not associated with a terminal
-- `always` : Always colorize output
-- `never` : Never colorize output
 
 ### Debug output
 
@@ -388,14 +227,10 @@ with normal command-line tools, for example:
 
 <pre class="console"><span>&gt;</span> flyway migrate -X <strong>| findstr /v /c:"term-to-filter-out"</strong></pre>
 
-### Quiet mode
-
-Add `-q` to the argument list to suppress all output, except for errors and warnings.
-
-### Machine-readable output
-
-Add `-outputType=json` to the argument list to print JSON instead of human-readable output. Errors are included in the JSON payload instead of being sent to `stderr`.
 
 ### Writing to a file
 
 Add `-outputFile=/my/output.txt` to the argument list to also write output to the specified file.
+
+## Open Source Flyway
+This project is a core part of Flyway and you can find more information about it in [Flyway Open Source](Contribute/Flyway Open Source)

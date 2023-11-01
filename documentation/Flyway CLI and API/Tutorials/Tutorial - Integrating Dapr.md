@@ -2,7 +2,7 @@
 subtitle: 'Tutorial: Integrating Dapr'
 ---
 # Tutorial: Integrating Dapr
-{% include teams.html %}
+{% include enterprise.html %}
 
 This brief tutorial will teach you **how to integrate Dapr into your Flyway process**.
 
@@ -22,14 +22,14 @@ and a local installation of the Dapr application sidecar.
 
 There are two new parameters to configure in Flyway in order to set up the Dapr integration:
 
-### [`dapr.url`](Configuration/Parameters/Dapr URL)
+### [`dapr.url`](Configuration/Parameters/Flyway/Dapr URL)
 
 This is the REST API URL of your Dapr application sidecar. Typically you will initialise the sidecar with a command 
 such as `dapr run --app-id my-app --dapr-http-port 3500` where you specify the port the sidecar will listen to. 
 The Secret Store REST API is then accessible at `http://localhost:3500/v1.0/secrets/my-secrets-store` where
 `my-secrets-store` is the specific store name. The API is the same regardless of the underlying storage mechanism.
 
-### [`dapr.secrets`](configuration/parameters/dapr-secrets)
+### [`dapr.secrets`](configuration/parameters/flyway/dapr-secrets)
 
 This is a comma-separated list of secrets in Dapr Secret Store which Flyway should try to read from. 
 

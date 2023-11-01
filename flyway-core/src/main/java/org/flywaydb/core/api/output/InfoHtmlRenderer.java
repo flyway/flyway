@@ -61,7 +61,7 @@ public class InfoHtmlRenderer implements HtmlRenderer<InfoResult> {
         int pending = (int) result.migrations.stream().filter(f -> "Pending".equals(f.state)).count();
 
         HtmlReportSummary pendingSummary = new HtmlReportSummary();
-        pendingSummary.setSummaryText(pending + " script" + (pending != 1 ? "s" : "") + " pending");
+        pendingSummary.setSummaryText(pending + " script" + StringUtils.pluralizeSuffix(pending) + " pending");
         pendingSummary.setIcon("scriptOutlined");
         pendingSummary.setCssClass(pending > 0 ? "scInfo" : "scAmbivalent");
 
@@ -70,7 +70,7 @@ public class InfoHtmlRenderer implements HtmlRenderer<InfoResult> {
         int deployed = (int) result.migrations.stream().filter(f -> "Success".equals(f.state)).count();
 
         HtmlReportSummary deployedSummary = new HtmlReportSummary();
-        deployedSummary.setSummaryText(deployed + " script" + (deployed != 1 ? "s" : "") + " succeeded");
+        deployedSummary.setSummaryText(deployed + " script" + StringUtils.pluralizeSuffix(deployed) + " succeeded");
         deployedSummary.setIcon("checkFilled");
         deployedSummary.setCssClass(deployed > 0 ? "scGood" : "scAmbivalent");
 

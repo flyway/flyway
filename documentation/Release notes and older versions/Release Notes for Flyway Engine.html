@@ -26,6 +26,77 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.0.0">Flyway 10.0.0 (2023-10-31)</h2>
+
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>Removed deprecated flyway.check.reportFilename. Please use flyway.reportFilename.</li>
+            <li>The 'cherryPick' configuration option has been moved to a configuration extension. When using the API, it can no longer be directly set through configuration object - instead it is set using an 'cherryPickConfigurationExtension' object which must be retrieved from the plugin register. See the docs for this configuration parameter for more information.</li>
+            <li>License key logic has been moved into a different module ('flyway-key-licensing'). This is not shipped in the open-source edition of Flyway so attempting to configure the license key will cause an error. In the Redgate edition of Flyway, license keys must be configured as a configuration extension (see configuration docs for more information).</li>
+            <li>Rename lib/community with lib/flyway</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Remove unused Edition flags documentation, E.G -community or -teams. These flags are no longer used by Flyway and have been marked for deprecation.</li>
+            <li>The lowest supported Gradle version for the Flyway Gradle plugin is now 7.6. This is due to a known issue with older Gradle versions where it cannot handle dependencies with multi-release chars containing Java 19 code.</li>
+            <li>Move older db support handling into OSS</li>
+            <li>If flyway fails due to a licensing issue, return a unique (35) exit code</li>
+            <li>Adjusted the wording on the 'deleted' Repair action to mention it only marks migrations as deleted</li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Flyway now supports MySQL 8.1.0.</li>
+            <li>Include singlestore into Flyway Community Edition.</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Info filters are now available in community</li>
+            <li>Added auth command to authorize Flyway online using Redgate username and password</li>
+            <li>Added support for REDGATE_LICENSING_PERMIT_PATH and REDGATE_LICENSING_PERMIT environment variables along with offline licensing for offline machines</li>
+            <li>beforeEachMigrateStatement, afterEachMigrateStatement, afterEachMigrateStatementError, and beforeConnect callbacks are now Community features</li>
+            <li>add support for LocalSecrets resolvers</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Deprecated Java 8. Java 17 is now required for development</li>
+            <li>Modularizeddatabase support in Flyway to allow greater flexibility. This includes; DB2, Derby, HSQLDB, Informix, PostgreSQL, CockroachDB, Redshift, SAP HANA, Snowflake and Sybase ASE. See Database Support page for your database for module dependency.</li>
+        </ul>
+
+    </div>
+
+<div class="release">
+        <h2 id="9.22.3">Flyway 9.22.3 (2023-10-12)</h2>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>The AWS-Secrets JDBC driver included in the Commandline package has been upgraded to 2.0.0.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3752">Issue 3752</a>
+                add &quot;END CASE&quot; support in BigQuery sql script
+            </li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Update newest supported version of Snowflake to 7.33</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Keep software.amazon.awssdk:s3 on latest 2.20.X release to get fix for CVE-2023-4586</li>
+            <li>Upgrade software.amazon.awssdk:s3@2.20.94 to software.amazon.awssdk:s3@2.20.158 to fix CWE-295</li>
+        </ul>
+
+        <p>
+            Thanks to kankaiz for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="9.22.2">Flyway 9.22.2 (2023-09-21)</h2>
 
         <h3>Bug fixes</h3>

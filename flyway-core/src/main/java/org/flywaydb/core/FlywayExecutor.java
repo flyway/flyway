@@ -21,7 +21,9 @@ import org.flywaydb.core.api.ResourceProvider;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.JavaMigration;
+import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.RootTelemetryModel;
+import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.callback.*;
 
 import org.flywaydb.core.internal.clazz.NoopClassProvider;
@@ -31,10 +33,9 @@ import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Schema;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.parser.ParsingContext;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
-
+import org.flywaydb.core.internal.resolver.script.ScriptMigrationResolver;
 import org.flywaydb.core.internal.resource.NoopResourceProvider;
 import org.flywaydb.core.internal.resource.ResourceNameValidator;
 import org.flywaydb.core.internal.resource.StringResource;
@@ -47,9 +48,12 @@ import org.flywaydb.core.internal.sqlscript.SqlScript;
 import org.flywaydb.core.internal.sqlscript.SqlScriptExecutorFactory;
 import org.flywaydb.core.internal.sqlscript.SqlScriptFactory;
 import org.flywaydb.core.internal.strategy.RetryStrategy;
+import org.flywaydb.core.internal.util.FileUtils;
+import org.flywaydb.core.internal.util.FlywayDbWebsiteLinks;
 import org.flywaydb.core.internal.util.IOUtils;
 import org.flywaydb.core.internal.util.Pair;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,10 +62,7 @@ import java.util.List;
 import static org.flywaydb.core.internal.database.DatabaseTypeRegister.redactJdbcUrl;
 import static org.flywaydb.core.internal.util.DataUnits.MEGABYTE;
 
-
-
-
-
+import org.flywaydb.core.internal.license.FlywayExpiredLicenseKeyException;
 
 @CustomLog
 public class FlywayExecutor {
@@ -91,6 +92,7 @@ public class FlywayExecutor {
      */
     private boolean dbConnectionInfoPrinted;
     private final Configuration configuration;
+    private static boolean hasPrintedLicense;
 
     public FlywayExecutor(Configuration configuration) {
         this.configurationValidator = new ConfigurationValidator();
@@ -99,13 +101,15 @@ public class FlywayExecutor {
         this.locationScannerCache = new LocationScannerCache();
         this.configuration = configuration;
 
-
-
-
-
-
-
-
+        if (!hasPrintedLicense) {
+            try {
+                LicenseGuard.getPermit(configuration).print();
+                LOG.info("See release notes here: " + FlywayDbWebsiteLinks.RELEASE_NOTES);
+            } catch (FlywayExpiredLicenseKeyException e) {
+                LOG.error(e.getMessage());
+            }
+            hasPrintedLicense = true;
+        }
     }
 
     /**
@@ -119,8 +123,6 @@ public class FlywayExecutor {
         T result;
 
         configurationValidator.validate(configuration);
-
-        VersionPrinter.printVersion();
 
         StatementInterceptor statementInterceptor = configuration.getPluginRegister().getPlugins(StatementInterceptor.class).stream()
                                                                  .filter(i -> i.isConfigured(configuration))
@@ -161,13 +163,13 @@ public class FlywayExecutor {
 
 
 
-            noCallbackSqlScriptExecutorFactory.createSqlScriptExecutor(connection, false, false, outputQueryResults).execute(sqlScript);
+            noCallbackSqlScriptExecutorFactory.createSqlScriptExecutor(connection, false, false, outputQueryResults).execute(sqlScript, configuration);
         });
 
         Database database = null;
         try {
             database = databaseType.createDatabase(configuration, jdbcConnectionFactory, statementInterceptor);
-            databaseType.printMessages();
+            databaseType.printMessages(configuration);
 
             if (!dbConnectionInfoPrinted) {
                 dbConnectionInfoPrinted = true;
@@ -195,7 +197,7 @@ public class FlywayExecutor {
 
             parsingContext.populate(database, configuration);
 
-            database.ensureSupported();
+            database.ensureSupported(configuration);
 
             DefaultCallbackExecutor callbackExecutor = new DefaultCallbackExecutor(configuration, database, defaultSchema, prepareCallbacks(
                     database, resourceProvider, jdbcConnectionFactory, sqlScriptFactory, statementInterceptor, defaultSchema, parsingContext));
@@ -225,6 +227,13 @@ public class FlywayExecutor {
             }
             showMemoryUsage();
         }
+
+        File permit_file = new File(FileUtils.getAppDataFlywayCLILocation(), "permit");
+        if (LicenseGuard.getTier(configuration) == Tier.COMMUNITY && !permit_file.exists()) {
+            LOG.info("");
+            LOG.info("You are not signed in to Flyway, to sign in please run auth");
+        }
+
         return result;
     }
 
@@ -248,14 +257,10 @@ public class FlywayExecutor {
 
                 Scanner<JavaMigration> scanner = new Scanner<>(
                         JavaMigration.class,
-                        Arrays.asList(configuration.getLocations()),
-                        configuration.getClassLoader(),
-                        configuration.getEncoding(),
-                        configuration.isDetectEncoding(),
                         stream,
                         resourceNameCache,
                         locationScannerCache,
-                        configuration.isFailOnMissingLocations());
+                        configuration);
                 // set the defaults
                 resourceProvider = scanner;
                 classProvider = scanner;
@@ -282,17 +287,14 @@ public class FlywayExecutor {
             effectiveCallbacks.addAll(statementInterceptor.getCallbacks());
         }
 
-
-
-
-
-
-
-
-
-
-
         effectiveCallbacks.addAll(Arrays.asList(configuration.getCallbacks()));
+
+
+
+
+
+
+
 
 
 
@@ -307,6 +309,8 @@ public class FlywayExecutor {
 
             effectiveCallbacks.addAll(new SqlScriptCallbackFactory(resourceProvider, sqlScriptExecutorFactory, sqlScriptFactory, configuration).getCallbacks());
         }
+
+
 
 
 

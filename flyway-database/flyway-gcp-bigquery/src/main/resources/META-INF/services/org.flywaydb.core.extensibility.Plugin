@@ -1,0 +1,2 @@
+org.flywaydb.database.bigquery.BigQueryDatabaseType
+org.flywaydb.database.BigQueryDatabaseExtension

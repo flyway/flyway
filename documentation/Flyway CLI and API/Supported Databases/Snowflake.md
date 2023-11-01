@@ -5,7 +5,7 @@ subtitle: Snowflake
 
 ## Supported Versions
 
-- `7.x` versions up to 7.1
+- `7.x` versions up to 7.33
 - `6.x` versions up to 6.29
 - `5.x` versions up to 5.1
 - `4.x` versions up to 4.2
@@ -55,6 +55,38 @@ Support Level determines the degree of support available for this database ([lea
 <td><code>net.snowflake.client.jdbc.SnowflakeDriver</code></td>
 </tr>
 </table>
+
+## Java Usage
+Snowflake support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
+Snowflake is found within the `flyway-database-snowflake` plugin module.
+### Maven
+#### Community
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-snowflake</artifactId>
+</dependency>
+```
+#### Teams
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-database-snowflake</artifactId>
+</dependency>
+```
+### Gradle
+#### Community
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-snowflake"
+}
+```
+#### Teams
+```groovy
+dependencies {
+    implementation "com.redgate.flyway:flyway-database-snowflake"
+}
+```
 
 ## SQL Script Syntax
 

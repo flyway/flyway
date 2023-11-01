@@ -84,7 +84,7 @@ SQLServer support is a separate dependency for Flyway and will need to be added 
 ```xml
 
 <dependency>
-    <groupId>org.flywaydb.enterprise</groupId>
+    <groupId>com.redgate.flyway</groupId>
     <artifactId>flyway-sqlserver</artifactId>
 </dependency>
 ```
@@ -95,7 +95,7 @@ SQLServer support is a separate dependency for Flyway and will need to be added 
 
 ```groovy
 dependencies {
-    compile "org.flywaydb:flyway-sqlserver"
+    implementation "org.flywaydb:flyway-sqlserver"
 }
 ```
 
@@ -103,7 +103,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    compile "org.flywaydb.enterprise:flyway-sqlserver"
+    implementation "com.redgate.flyway:flyway-sqlserver"
 }
 ```
 
@@ -265,8 +265,8 @@ the [process of setting `accessToken` as described on this Microsoft documentati
 
 Kerberos authentication can also be used to connect Flyway to your database.
 
-To set this up, you will need to pass the path to your Kerberos configuration file to the parameter [`kerberosConfigFile`](Configuration/Parameters/Kerberos Config File) and the
-path to your login module configuration file to the parameter [`plugin.sqlserver.kerberos.login.file`](Configuration/Parameters/SQL Server Kerberos Login File).
+To set this up, you will need to pass the path to your Kerberos configuration file to the parameter [`kerberosConfigFile`](Configuration/Parameters/Flyway/Kerberos Config File) and the
+path to your login module configuration file to the parameter [`plugin.sqlserver.kerberos.login.file`](Configuration/Parameters/Flyway/SQL Server Kerberos Login File).
 
 You may also need to add `;authenticationScheme=JavaKerberos` to your JDBC URL.
 
@@ -301,7 +301,7 @@ jdbc:sqlserver://test_server;instanceName=test_instance;databaseName=test_databa
 - By default, the flyway schema history table will try to write to the default schema for the database connection. You may
   specify which schema to write this table to by setting `flyway.schemas=custom_schema`, as the first entry will become the
   default schema if `flyway.defaultSchema` itself is not set.
-- With these limitations in mind, please refer to the properties or options mentioned [here](Configuration/Parameters/Default Schema) for descriptions/consequences.
+- With these limitations in mind, please refer to the properties or options mentioned [here](Configuration/Parameters/Flyway/Default Schema) for descriptions/consequences.
 - If using the JTDS driver, then setting `ANSI_NULLS` or `QUOTED_IDENTIFIER` in a script will cause an error. This is
   a driver limitation, and can be solved by using the Microsoft driver instead.
 - When running clean, no users will be dropped

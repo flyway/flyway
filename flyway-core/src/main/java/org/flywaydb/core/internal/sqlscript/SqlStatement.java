@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.sqlscript;
 
+import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.Results;
 
@@ -66,6 +67,7 @@ public interface SqlStatement {
      * @return the result of the execution.
      */
     Results execute(JdbcTemplate jdbcTemplate
+
 
 
 

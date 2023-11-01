@@ -15,8 +15,6 @@
  */
 package org.flywaydb.core.api;
 
-
-
 /**
  * Info about all migrations, including applied, current and pending with details and status.
  */
@@ -28,16 +26,13 @@ public interface MigrationInfoService extends InfoOutputProvider {
      */
     MigrationInfo[] all();
 
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Retrieves the full set of infos about applied, current, and future migrations, that match the provided filter.
+     *
+     * @param filter The filter to use to restrict the infos.
+     * @return The full set of infos that match the filter. An empty array if none.
+     */
+    MigrationInfo[] all(MigrationFilter filter);
 
     /**
      * Retrieves the information of the current applied migration, if any.

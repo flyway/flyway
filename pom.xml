@@ -27,10 +27,11 @@
     mvn clean install -Pbuild-assemblies-mac-arm64
     mvn clean install -Pbuild-assemblies-no-jre
     -->
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>9.22.2</version>
+    <version>10.0.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -38,15 +39,15 @@
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
-            <url>https://flywaydb.org/licenses/flyway-community</url>
+            <url>https://flywaydb.org/licenses/flyway-oss</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
     <scm>
 
         <url>https://github.com/flyway/flyway</url>
-        <connection>scm:git:${env.FLYWAY_REPO_URL}</connection>
-        <developerConnection>scm:git:${env.FLYWAY_REPO_URL}</developerConnection>
+        <connection>scm:git:git@github.com:flyway/flyway.git</connection>
+        <developerConnection>scm:git:git@github.com:flyway/flyway.git</developerConnection>
 
 
 
@@ -70,12 +71,10 @@
         <module>flyway-gradle-plugin</module>
         <module>flyway-maven-plugin</module>
         <module>flyway-commandline</module>
-        <module>flyway-gcp-bigquery</module>
-        <module>flyway-gcp-spanner</module>
-        <module>flyway-sqlserver</module>
-        <module>flyway-mysql</module>
-        <module>flyway-firebird</module>
-        <module>flyway-database-oracle</module>
+        <module>flyway-database</module>
+
+
+
 
 
 
@@ -138,8 +137,8 @@
     <properties>
         <version.ant>1.10.13</version.ant>
         <version.appinsights>3.4.7</version.appinsights>
-        <version.aws-java-sdk>2.20.94</version.aws-java-sdk>
-        <version.aws-secretsmanager>1.0.9</version.aws-secretsmanager>
+        <version.aws-java-sdk>[2.20.162,2.21.0)</version.aws-java-sdk>
+        <version.aws-secretsmanager>2.0.0</version.aws-secretsmanager>
         <version.byte-buddy-agent>1.11.18</version.byte-buddy-agent>
         <version.commonslogging>1.2</version.commonslogging>
         <version.commonstext>1.10.0</version.commonstext>
@@ -645,6 +644,21 @@
                 <version>${version.lombok}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>9.22</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>oauth2-oidc-sdk</artifactId>
+                <version>10.7.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>9.4.53.v20231009</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -732,8 +746,7 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <release>17</release>
                     <encoding>UTF-8</encoding>
                     <annotationProcessorPaths>
                         <path>
@@ -1410,35 +1423,6 @@
 
 
 
-        <profile>
-            <id>jdk17</id>
-            <activation>
-                <jdk>17</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>compile-java-17</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>compile</goal>
-                                </goals>
-                                <configuration>
-                                    <release>17</release>
-                                    <compileSourceRoots>
-                                        <compileSourceRoot>${project.basedir}/src/main/java17</compileSourceRoot>
-                                    </compileSourceRoots>
-                                    <multiReleaseOutput>true</multiReleaseOutput>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
         <profile>
             <id>release-sign-artifacts</id>
             <activation>
