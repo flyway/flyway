@@ -18,6 +18,7 @@ package org.flywaydb.community.database.clickhouse;
 import org.flywaydb.core.internal.database.base.Connection;
 
 import java.sql.SQLException;
+import java.util.Optional;
 
 public class ClickHouseConnection extends Connection<ClickHouseDatabase> {
     ClickHouseConnection(ClickHouseDatabase database, java.sql.Connection connection) {
@@ -26,7 +27,7 @@ public class ClickHouseConnection extends Connection<ClickHouseDatabase> {
 
     @Override
     protected String getCurrentSchemaNameOrSearchPath() throws SQLException {
-        return database.unQuote(getJdbcTemplate().getConnection().getSchema());
+        return Optional.ofNullable(getJdbcTemplate().getConnection().getSchema()).map(database::unQuote).orElse(null);
     }
 
     @Override

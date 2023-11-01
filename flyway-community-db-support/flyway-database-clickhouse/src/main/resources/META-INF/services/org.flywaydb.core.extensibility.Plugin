@@ -1,0 +1,2 @@
+org.flywaydb.community.database.clickhouse.ClickHouseConfigurationExtension
+org.flywaydb.community.database.clickhouse.ClickHouseDatabaseType
