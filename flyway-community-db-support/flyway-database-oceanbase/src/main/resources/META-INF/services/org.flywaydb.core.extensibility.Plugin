@@ -1,0 +1,2 @@
+org.flywaydb.community.database.OceanBaseDatabaseExtension
+org.flywaydb.community.database.oceanbase.OceanBaseDatabaseType

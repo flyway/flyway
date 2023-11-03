@@ -33,6 +33,7 @@
         <module>flyway-database-tidb</module>
         <module>flyway-database-ignite</module>
         <module>flyway-database-yugabytedb</module>
+        <module>flyway-database-oceanbase</module>
     </modules>
 
     <dependencyManagement>
