@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>10.0.0</version>
+        <version>10.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

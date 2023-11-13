@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -48,13 +49,13 @@ public class TomlUtils {
                                                                  || e.getKey().startsWith("environments_")
                                                                  || (e.getKey().startsWith("FLYWAY_") && ConfigUtils.convertKey(e.getKey()) != null))
                                                          .collect(Collectors.toMap(k -> {
-                                                                                       String prop = k.getKey().startsWith("FLYWAY_") ?
-                                                                                               ConfigUtils.convertKey(k.getKey())
+                                                                                       String prop = k.getKey().startsWith("FLYWAY_") || k.getKey().toUpperCase(Locale.ENGLISH).startsWith("FLYWAY_JDBC_PROPERTIES_") ?
+                                                                                               ConfigUtils.convertKey(k.getKey().toUpperCase(Locale.ENGLISH))
                                                                                                : k.getKey().replace("_", ".");
                                                                                        if (prop != null && prop.startsWith("flyway.")) {
                                                                                            String p = prop.substring("flyway.".length());
-                                                                                           if (Arrays.stream((EnvironmentModel.class).getDeclaredFields()).anyMatch(x -> x.getName().equals(p))) {
-                                                                                               return "environments." + ClassicConfiguration.TEMP_ENVIRONMENT_NAME + "." + prop.substring("flyway.".length());
+                                                                                           if (Arrays.stream((EnvironmentModel.class).getDeclaredFields()).anyMatch(x -> x.getName().equals(p.split("\\.")[0]))) {
+                                                                                               return "environments." + ClassicConfiguration.TEMP_ENVIRONMENT_NAME + "." + p;
                                                                                            }
                                                                                        }
                                                                                        return prop;

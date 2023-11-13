@@ -392,7 +392,7 @@ public class Main {
             LOG.info(indent + "installedBy                    Username that will be recorded in the schema history table");
             LOG.info(indent + "target                         Target version up to which Flyway should use migrations");
             LOG.info(indent + "cherryPick                     [" + "teams] Comma separated list of migrations that Flyway should consider when migrating");
-            LOG.info(indent + "skipExecutingMigrations        [" + "teams] Whether Flyway should skip actually executing the contents of the migrations");
+            LOG.info(indent + "skipExecutingMigrations        Whether Flyway should skip actually executing the contents of the migrations");
             LOG.info(indent + "outOfOrder                     Allows migrations to be run \"out of order\"");
             LOG.info(indent + "callbacks                      Comma-separated list of FlywayCallback classes, or locations to scan for FlywayCallback classes");
             LOG.info(indent + "skipDefaultCallbacks           Skips default callbacks (sql)");

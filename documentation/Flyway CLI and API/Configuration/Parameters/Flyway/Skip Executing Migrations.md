@@ -5,7 +5,6 @@ redirect_from: Configuration/skipExecutingMigrations/
 ---
 
 # Skip Executing Migrations
-{% include teams.html %}
 
 ## Description
 Whether Flyway should skip migration execution. The remainder of the operation will run as normal - including updating the schema history table, callbacks, and so on.
@@ -14,7 +13,7 @@ Whether Flyway should skip migration execution. The remainder of the operation w
 
 `skipExecutingMigrations` can be used to bring an out-of-process change into Flyway's change control process. For instance, a script run against the database outside of Flyway (like a hotfix) can be turned into a migration. The hotfix migration can be deployed with Flyway with `skipExecutingMigrations=true`. The schema history table will be updated with the new migration, but the script itself won't be executed again.
 
-`skipExecutingMigrations` can be used with with [cherryPick](Configuration/Parameters/Flyway/Cherry Pick) to skip specific migrations.
+`skipExecutingMigrations` can be used with [cherryPick](Configuration/Parameters/Flyway/Cherry Pick) to skip specific migrations.
 
 ## Default
 false

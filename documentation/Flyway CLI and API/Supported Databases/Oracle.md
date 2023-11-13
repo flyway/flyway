@@ -2,65 +2,26 @@
 subtitle: Oracle
 ---
 # Oracle
-
-## Supported Versions
-
-- `21`
-- `19.3`
-- `18.3`
-- `12.2`
-- `12.1` {% include teams.html %}
-- `11.2` {% include enterprise.html %}
-- `11.1` {% include enterprise.html %}
+- **Verified Versions:** 11.1, 21
+- **Maintainer:** Redgate
 
 All editions are supported, including XE.
 
-## Support Level
+## Supported Versions and Support Levels
+For information regarding the supported version and support levels available,
+please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)).
+For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
 
 ## Driver
 
-<table class="table">
-    <tr>
-        <th>URL format</th>
-        <td>
-            <code>jdbc:oracle:thin:@//<i>host</i>:<i>port</i>/<i>service</i></code><br>
-            <code>jdbc:oracle:thin:@<i>tns_entry</i></code> *
-        </td>
-    </tr>
-    <tr>
-        <th>Ships with Flyway Command-line</th>
-        <td>Yes</td>
-    </tr>
-    <tr>
-        <th>Maven Central coordinates</th>
-        <td><code>com.oracle.database.jdbc:ojdbc8</code></td>
-    </tr>
-    <tr>
-        <th>Supported versions</th>
-        <td><code>18.3.0.0</code> and later</td>
-    </tr>
-    <tr>
-        <th>Default Java class</th>
-        <td><code>oracle.jdbc.OracleDriver</code></td>
-    </tr>
-</table>
+| Item                               | Details |
+|------------------------------------|---------|
+| **URL format**                     | <code>jdbc:oracle:thin:@//<i>host</i>:<i>port</i>/<i>service</i></code>  <br><code>jdbc:oracle:thin:@<i>tns_entry</i></code> *        |
+| **Ships with Flyway Command-line** |    Yes     |
+| **Maven Central coordinates**      |   `com.oracle.database.jdbc:ojdbc8`      |
+| **Supported versions**             |   `18.3.0.0` and later      |
+| **Default Java class**             |   `oracle.jdbc.OracleDriver`      |
 
 \* `TNS_ADMIN` environment variable must point to the directory of where `tnsnames.ora` resides
 
@@ -69,19 +30,7 @@ Support Level determines the degree of support available for this database ([lea
 Oracle support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 
 ### Maven
-
-#### Community
-
-```xml
-
-<dependency>
-    <groupId>org.flywaydb</groupId>
-    <artifactId>flyway-database-oracle</artifactId>
-</dependency>
-```
-
-#### Teams
-
+#### Redgate
 ```xml
 
 <dependency>
@@ -90,21 +39,26 @@ Oracle support is a separate dependency for Flyway and will need to be added to 
 </dependency>
 ```
 
-### Gradle
+#### Open Source
+```xml
 
-#### Community
-
-```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-oracle"
-}
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-oracle</artifactId>
+</dependency>
 ```
 
-#### Teams
-
+### Gradle
+#### Redgate
 ```groovy
 dependencies {
     implementation "com.redgate.flyway:flyway-database-oracle"
+}
+```
+#### Open Source
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-oracle"
 }
 ```
 

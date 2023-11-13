@@ -2,60 +2,25 @@
 subtitle: SQLite
 ---
 # SQLite
+- **Verified Versions:** 3.0, 3.7
+- **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
+For information regarding the supported version and support levels available,
+please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-- `3.7` and later `3.x` versions
+For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
 
-## Support Level
 
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
+## Driver
 
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)). 
-
-## Drivers
-
-<table class="table">
-<thead>
-<tr>
-<th></th>
-<th>Java (Xerial)</th>
-</tr>
-</thead>
-<tr>
-<th>URL format</th>
-<td><code>jdbc:sqlite:<i>database</i></code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>org.xerial:sqlite-jdbc</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>3.7</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>org.sqlite.JDBC</code></td>
-</tr>
-</table>
+| Item                               | Java (Xerial)                            |
+|------------------------------------|------------------------------------------|
+| **URL format**                     | <code>jdbc:sqlite:<i>database</i></code> |
+| **Ships with Flyway Command-line** | Yes                                      |
+| **Maven Central coordinates**      | `org.xerial:sqlite-jdbc`                 |
+| **Supported versions**             | `3.7` and later                          |
+| **Default Java class**             | `org.sqlite.JDBC`                        |
 
 ## SQL Script Syntax
 

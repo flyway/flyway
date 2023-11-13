@@ -39,6 +39,8 @@ public class FlywayModel {
 
     public static final String DEFAULT_REPORT_FILENAME = "report";
 
+    private String outputType;
+    private Boolean outputProgress;
     @Setter(lombok.AccessLevel.NONE)
     private String reportFilename;
     private String environment;
@@ -97,6 +99,7 @@ public class FlywayModel {
 
     public static FlywayModel defaults(){
          FlywayModel model = new FlywayModel();
+         model.outputProgress = false;
          model.reportFilename = DEFAULT_REPORT_FILENAME;
          model.detectEncoding = false;
          model.encoding = "UTF-8";
@@ -147,6 +150,8 @@ public class FlywayModel {
 
     public FlywayModel merge(FlywayModel otherPojo) {
         FlywayModel result = new FlywayModel();
+        result.outputProgress = outputProgress.merge(otherPojo.outputProgress);
+        result.outputType = outputType.merge(otherPojo.outputType);
         result.reportFilename = reportFilename.merge(otherPojo.reportFilename);
         result.encoding = encoding.merge(otherPojo.encoding);
         result.environment = environment.merge(otherPojo.environment);

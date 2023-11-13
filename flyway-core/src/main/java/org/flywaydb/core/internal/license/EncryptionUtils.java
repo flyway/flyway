@@ -39,8 +39,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
@@ -89,6 +92,25 @@ public class EncryptionUtils {
 
     public static SealedObject fromByteArray(byte[] byteArray) throws IOException, ClassNotFoundException {
         return (SealedObject) new ObjectInputStream(new ByteArrayInputStream(byteArray)).readObject();
+    }
+
+    public static String hashProjectId(String projectId, String hashInput) {
+        if (projectId == null) {
+            return null;
+        }
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(projectId.getBytes(StandardCharsets.UTF_8));
+            byte[] hash = md.digest(hashInput.getBytes(StandardCharsets.UTF_8));
+            BigInteger number = new BigInteger(1, hash);
+            String result = number.toString(16);
+            while (result.length() < 64) {
+                result = "0" + result;
+            }
+            return result;
+        } catch (Exception e) {
+            throw new FlywayException(e);
+        }
     }
 
 

@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.configuration.resolvers;
 
+import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.configuration.models.EnvironmentModel;
@@ -33,14 +34,14 @@ public class EnvironmentResolver {
         this.environmentProvisioners = environmentProvisioners;
     }
 
-    public ResolvedEnvironment resolve(String environmentName, EnvironmentModel environment) {
-        return resolve(environmentName, environment, ProvisionerMode.Provision);
+    public ResolvedEnvironment resolve(String environmentName, EnvironmentModel environment, String workingDirectory, ProgressLogger progress) {
+        return resolve(environmentName, environment, ProvisionerMode.Provision, workingDirectory, progress);
     }
 
-    public ResolvedEnvironment resolve(String environmentName, EnvironmentModel environment, ProvisionerMode mode) {
+    public ResolvedEnvironment resolve(String environmentName, EnvironmentModel environment, ProvisionerMode mode, String workingDirectory, ProgressLogger progress) {
         Map<String, Map<String, Object>> resolversToConfigure = environment.getResolvers();
 
-        PropertyResolverContext context = new PropertyResolverContextImpl(environmentName, propertyResolvers, resolversToConfigure);
+        PropertyResolverContext context = new PropertyResolverContextImpl(environmentName, workingDirectory, propertyResolvers, resolversToConfigure);
         ResolvedEnvironment result = new ResolvedEnvironment();
         result.setDriver(environment.getDriver());
         result.setConnectRetries(environment.getConnectRetries());
@@ -49,37 +50,46 @@ public class EnvironmentResolver {
         result.setSchemas(environment.getSchemas());
         result.setJarDirs(environment.getJarDirs());
 
+        progress.pushSteps(2);
+        ProgressLogger provisionProgress = progress.subTask("provision");
+        ProgressLogger resolveProgress = progress.subTask("resolve");
+
+        EnvironmentProvisioner provisioner = getProvisioner(environment.getProvisioner(), context, provisionProgress);
+        if (mode == ProvisionerMode.Provision) {
+            progress.log("Provisioning environment " + environmentName + " with " + provisioner.getName());
+            provisioner.preProvision(context, provisionProgress);
+        } else if (mode == ProvisionerMode.Reprovision) {
+            progress.log("Reprovisioning environment " + environmentName + " with " + provisioner.getName());
+            provisioner.preReprovision(context, provisionProgress);
+        }
+
+        progress.log("Resolving environment properties " + environmentName);
         if (environment.getJdbcProperties() != null) {
             Map<String, String> jdbcResolvedProps = new HashMap<>();
             for (Map.Entry<String, String> entry : environment.getJdbcProperties().entrySet()) {
-                jdbcResolvedProps.put(entry.getKey(), context.resolveValue(entry.getValue()));
+                jdbcResolvedProps.put(entry.getKey(), context.resolveValue(entry.getValue(), resolveProgress));
             }
             result.setJdbcProperties(jdbcResolvedProps);
         }
 
-        EnvironmentProvisioner provisioner = getProvisioner(environment.getProvisioner(), context);
-        if (mode == ProvisionerMode.Provision) {
-            provisioner.preProvision(context);
-        } else if (mode == ProvisionerMode.Reprovision) {
-            provisioner.preReprovision(context);
-        }
-
-        result.setPassword(context.resolveValue(environment.getPassword()));
-        result.setUser(context.resolveValue(environment.getUser()));
-        result.setUrl(context.resolveValue(environment.getUrl()));
-        result.setToken(context.resolveValue(environment.getToken()));
+        result.setPassword(context.resolveValue(environment.getPassword(), resolveProgress));
+        result.setUser(context.resolveValue(environment.getUser(), resolveProgress));
+        result.setUrl(context.resolveValue(environment.getUrl(), resolveProgress));
+        result.setToken(context.resolveValue(environment.getToken(), resolveProgress));
 
         if (mode == ProvisionerMode.Provision) {
-            provisioner.postProvision(context, result);
+            progress.log("Provisioning environment " + environmentName + " with " + provisioner.getName());
+            provisioner.postProvision(context, result, provisionProgress);
         } else if (mode == ProvisionerMode.Reprovision) {
-            provisioner.postReprovision(context, result);
+            progress.log("Reprovisioning environment " + environmentName + " with " + provisioner.getName());
+            provisioner.postReprovision(context, result, provisionProgress);
         }
 
         return result;
     }
 
-    private EnvironmentProvisioner getProvisioner(String provisionerName, PropertyResolverContext context) {
-        String name = context.resolveValue(provisionerName);
+    private EnvironmentProvisioner getProvisioner(String provisionerName, PropertyResolverContext context, ProgressLogger progress) {
+        String name = context.resolveValue(provisionerName, progress);
         if (name != null) {
             if (!environmentProvisioners.containsKey(provisionerName)) {
                 throw new FlywayException("Unknown provisioner '" + provisionerName + "' for environment " + context.getEnvironmentName(), ErrorCode.CONFIGURATION);

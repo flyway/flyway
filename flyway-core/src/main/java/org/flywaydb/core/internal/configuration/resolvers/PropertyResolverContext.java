@@ -15,11 +15,15 @@
  */
 package org.flywaydb.core.internal.configuration.resolvers;
 
+import org.flywaydb.core.ProgressLogger;
+
 import java.util.List;
 
 public interface PropertyResolverContext {
+    String getWorkingDirectory();
     String getEnvironmentName();
-    String resolveValue(String input);
-    String resolvePropertyString(String resolverName, String propertyName);
-    List<String> resolvePropertyStringList(String resolverName, String propertyName);
+    String resolveValue(String input, ProgressLogger progress);
+    String resolvePropertyString(String resolverName, String propertyName, ProgressLogger progress);
+    List<String> resolvePropertyStringList(String resolverName, String propertyName, ProgressLogger progress);
+    Integer getPropertyInteger(String resolverName, String propertyName);
 }

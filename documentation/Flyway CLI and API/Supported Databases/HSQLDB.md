@@ -2,88 +2,56 @@
 subtitle: HSQLDB
 ---
 # HSQLDB
+- **Verified Versions:** 1.8, 2.4
+- **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
+For information regarding the supported version and support levels available,
+please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-- `2.4`
-- `2.3` {% include teams.html %}
-- `2.2` {% include teams.html %}
-- `2.0` {% include teams.html %}
-- `1.8` {% include teams.html %}
-
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)). 
+For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
 
 ## Driver
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:hsqldb:file:<i>file</i></code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>org.hsqldb:hsqldb</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>1.8</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>org.hsqldb.jdbcDriver</code></td>
-</tr>
-</table>
+| Item                               | Details                                   |
+|------------------------------------|-------------------------------------------|
+| **URL format**                     | <code>jdbc:hsqldb:file:<i>file</i></code> |
+| **Ships with Flyway Command-line** | Yes                                       |
+| **Maven Central coordinates**      | `org.hsqldb:hsqldb`                       |
+| **Supported versions**             | `1.8` and later                           |
+| **Default Java class**             | `org.hsqldb.jdbcDriver`                   |
+
 
 ## Java Usage
 HSQLDB support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 HSQLDB is found within the `flyway-database-hsqldb` plugin module.
 ### Maven
-#### Community
-```xml
-<dependency>
-    <groupId>org.flywaydb</groupId>
-    <artifactId>flyway-database-hsqldb</artifactId>
-</dependency>
-```
-#### Teams
+#### Redgate
 ```xml
 <dependency>
     <groupId>com.redgate.flyway</groupId>
     <artifactId>flyway-database-hsqldb</artifactId>
 </dependency>
 ```
-### Gradle
-#### Community
-```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-hsqldb"
-}
+#### Open source
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-hsqldb</artifactId>
+</dependency>
 ```
-#### Teams
+
+### Gradle
+#### Redgate
 ```groovy
 dependencies {
     implementation "com.redgate.flyway:flyway-database-hsqldb"
+}
+```
+#### Open source
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-hsqldb"
 }
 ```
 

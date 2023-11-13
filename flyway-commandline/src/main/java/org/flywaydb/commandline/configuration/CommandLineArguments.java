@@ -56,7 +56,7 @@ public class CommandLineArguments {
     private static final String INFO_UNTIL_VERSION = "infoUntilVersion";
     private static final String INFO_OF_STATE = "infoOfState";
     private static final Set<String> COMMAND_LINE_ONLY_OPTIONS = new HashSet<>(Arrays.asList(
-            OUTPUT_FILE, OUTPUT_TYPE, COLOR, WORKING_DIRECTORY, INFO_SINCE_DATE,
+            OUTPUT_FILE, COLOR, WORKING_DIRECTORY, INFO_SINCE_DATE,
             INFO_UNTIL_DATE, INFO_SINCE_VERSION, INFO_UNTIL_VERSION, INFO_OF_STATE));
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     private static final List<String> VALID_OPERATIONS_AND_FLAGS = getValidOperationsAndFlags();

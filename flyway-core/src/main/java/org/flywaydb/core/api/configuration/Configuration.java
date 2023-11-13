@@ -21,6 +21,7 @@ import org.flywaydb.core.api.migration.JavaMigration;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
+import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 
@@ -616,4 +617,9 @@ public interface Configuration {
      * Get the Database type determined by the URL or Datasource
      */
     DatabaseType getDatabaseType();
+
+    /**
+     *  Gets the connection environments that have already been resolved from this configuration
+     */
+    Map<String, ResolvedEnvironment> getCachedResolvedEnvironments();
 }

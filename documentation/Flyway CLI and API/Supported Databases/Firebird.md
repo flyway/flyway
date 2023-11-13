@@ -2,85 +2,55 @@
 subtitle: Firebird
 ---
 # Firebird
+- **Verified Versions:** 3.0, 4.0
+- **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
+For information regarding the supported version and support levels available,
+please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-- `4.0`
-- `3.0`
-
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)). 
+For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
 
 ## Driver
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:firebirdsql://<i>host</i>:<i>port</i>/<i>database</i></code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>org.firebirdsql.jdbc:jaybird-jdk18</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>2.2</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>org.firebirdsql.jdbc.FBDriver</code></td>
-</tr>
-</table>
+| Item                               | Details                                                                 |
+|------------------------------------|-------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:firebirdsql://<i>host</i>:<i>port</i>/<i>database</i></code> |
+| **Ships with Flyway Command-line** | Yes                                                                     |
+| **Maven Central coordinates**      | `org.firebirdsql.jdbc:jaybird-jdk18`                                    |
+| **Supported versions**             | `2.2` and later                                                         |
+| **Default Java class**             | `org.firebirdsql.jdbc.FBDriver`                                         |
 
 ## Java Usage
 Firebird support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 
 ### Maven
-#### Community
-```xml
-<dependency>
-    <groupId>org.flywaydb</groupId>
-    <artifactId>flyway-firebird</artifactId>
-</dependency>
-```
-#### Teams
+#### Redgate
 ```xml
 <dependency>
     <groupId>com.redgate.flyway</groupId>
     <artifactId>flyway-firebird</artifactId>
 </dependency>
 ```
-### Gradle
-#### Community
-```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-firebird"
-}
+#### Open Source
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-firebird</artifactId>
+</dependency>
 ```
-#### Teams
+
+### Gradle
+#### Redgate
 ```groovy
 dependencies {
     implementation "com.redgate.flyway:flyway-firebird"
+}
+```
+#### Open Source
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-firebird"
 }
 ```
 

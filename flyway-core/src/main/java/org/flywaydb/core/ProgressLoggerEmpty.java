@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.configuration.resolvers;
+package org.flywaydb.core;
 
-import lombok.CustomLog;
-
-@CustomLog
-public class EnvironmentProvisionerDocker implements EnvironmentProvisioner {
+public class ProgressLoggerEmpty implements ProgressLogger {
     @Override
-    public String getName() {
-        return "docker";
+    public ProgressLogger subTask(String operationName) {
+        return this;
     }
 
     @Override
-    public void preProvision(PropertyResolverContext context) {
-        LOG.warn("Provisioner 'docker' specified for environment " + context.getEnvironmentName() + " was requested (provision) but not run.");
+    public ProgressLogger pushSteps(int maxSteps) {
+        return this;
     }
 
     @Override
-    public void preReprovision(PropertyResolverContext context) {
-        LOG.warn("Provisioner 'docker' specified for environment " + context.getEnvironmentName() + " was requested (reprovision) but not run.");
+    public void log(String message) {
+
+    }
+
+    @Override
+    public void log(String message, int step) {
+
     }
 }

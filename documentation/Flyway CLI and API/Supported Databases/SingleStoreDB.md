@@ -3,74 +3,42 @@ subtitle: SingleStoreDB
 ---
 
 # SingleStoreDB
+- **Verified Versions:** 7.1, 7.8
+- **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
+For information regarding the supported version and support levels available,
+please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-- `7.1`
-- `7.8` 
+For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
 
+## Driver
 
-## Support Level
+| Item                               | Details                                                                 |
+|------------------------------------|-------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:singlestore://<i>host</i>:<i>port</i>/<i>database</i></code> |
+| **SSL support**                    | Yes - add `?useSsl=true`                                                |
+| **Ships with Flyway Command-line** | Yes                                                                     |
+| **Maven Central coordinates**      | `com.singlestore:singlestore-jdbc-client`                               |
+| **Supported versions**             | `1.1.4` and later                                                       |
+| **Default Java class**             | `com.singlestore.jdbc.Driver`                                           |
 
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003;</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)).
-
-## Drivers
-
-<table class="table">
-<thead>
-<tr>
-<th></th>
-<th>SingleStoreDB</th>
-</tr>
-</thead>
-<tr>
-<th>URL format</th>
-<td><code>jdbc:singlestore://<i>host</i>:<i>port</i>/<i>database</i></code></td>
-</tr>
-<tr>
-<th>SSL support</th>
-<td>Yes - add <code>?useSsl=true</code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>com.singlestore:singlestore-jdbc-client</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>1.1.4</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>com.singlestore.jdbc.Driver</code></td>
-</tr>
-</table>
 
 ## Java Usage
 
 SingleStoreDB support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 
 ### Maven
+#### Redgate
 
-#### Community
+```xml
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-singlestore</artifactId>
+    <version>{{ site.flywayVersion }}</version>
+</dependency>
+```
+#### Open Source
 ```xml
 <dependency>
     <groupId>org.flywaydb</groupId>
@@ -78,22 +46,10 @@ SingleStoreDB support is a separate dependency for Flyway and will need to be ad
     <version>{{ site.flywayVersion }}</version>
 </dependency>
 ```
-
-#### Teams
-
-```xml
-
-<dependency>
-    <groupId>com.redgate.flyway</groupId>
-    <artifactId>flyway-singlestore</artifactId>
-    <version>{{ site.flywayVersion }}</version>
-</dependency>
-```
 You will also need to [configure the repository](Usage/api-java)
+
 ### Gradle
-
-#### Teams
-
+#### Redgate
 ```groovy
 dependencies {
     implementation "com.redgate.flyway:flyway-singlestore"

@@ -75,6 +75,15 @@ public class LicenseGuard {
         return false;
     }
 
+
+
+
+
+
+
+
+
+
     public static FlywayPermit getPermit(Configuration configuration) {
         return getPermit(configuration, true);
     }

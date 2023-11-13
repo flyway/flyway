@@ -3,58 +3,25 @@ subtitle: Google BigQuery
 ---
 
 # Google BigQuery
+- **Verified Versions:** Latest
+- **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
+For information regarding the supported version and support levels available,
+please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-- `Latest`
-
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)).
+For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
 
 ## Driver
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectId=<i>project_id</i>;OAuthType=0;OAuthServiceAcctEmail=<i>service_account_name</i>;OAuthPvtKeyPath=<i>path_to_key</i>;</code></td>
-</tr>
-<tr>
-<th>SSL support</th>
-<td>No</td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>No</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td>None. The Simba driver is available for download <a href="https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers" target="_blank">here</a></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td>-</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>com.simba.googlebigquery.jdbc42.Driver</code></td>
-</tr>
-</table>
+| Item                               | Details                                                                                                |
+|------------------------------------|--------------------------------------------------------------------------------------------------------|
+| **URL format** | <code>jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;ProjectId=<i>project_id</i>;OAuthType=0;OAuthServiceAcctEmail=<i>service_account_name</i>;OAuthPvtKeyPath=<i>path_to_key</i>;</code> |
+| **SSL support** | No  |
+| **Ships with Flyway Command-line** | No  |
+| **Maven Central coordinates** | None. The Simba driver is available for download [here](https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers) |
+| **Supported versions** | -   |
+| **Default Java class** | `com.simba.googlebigquery.jdbc42.Driver` |
 
 ## Flyway Teams Features for BigQuery
 

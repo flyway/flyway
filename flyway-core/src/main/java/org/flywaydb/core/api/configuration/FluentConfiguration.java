@@ -30,6 +30,7 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -699,7 +700,6 @@ public class FluentConfiguration implements Configuration {
      * just want the schema history table to reflect this.
      *
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
-     * <i>Flyway Teams only</i>
      */
     public FluentConfiguration skipExecutingMigrations(boolean skipExecutingMigrations) {
         config.setSkipExecutingMigrations(skipExecutingMigrations);
@@ -801,7 +801,6 @@ public class FluentConfiguration implements Configuration {
 
     /**
      * Properties to pass to the JDBC driver object
-     * <i>Flyway Teams only</i>
      *
      * @param jdbcProperties The properties to pass to the JDBC driver object
      */

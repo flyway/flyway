@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.configuration.resolvers;
 
 import lombok.CustomLog;
+import org.flywaydb.core.ProgressLogger;
 
 @CustomLog
 public class EnvironmentProvisionerClone implements EnvironmentProvisioner {
@@ -25,12 +26,12 @@ public class EnvironmentProvisionerClone implements EnvironmentProvisioner {
     }
 
     @Override
-    public void preProvision(PropertyResolverContext context) {
+    public void preProvision(PropertyResolverContext context, ProgressLogger progress) {
         LOG.warn("Provisioner 'clone' specified for environment " + context.getEnvironmentName() + " was requested (provision) but not run.");
     }
 
     @Override
-    public void preReprovision(PropertyResolverContext context) {
+    public void preReprovision(PropertyResolverContext context, ProgressLogger progress) {
         LOG.warn("Provisioner 'clone' specified for environment " + context.getEnvironmentName() + " was requested (reprovision) but not run.");
     }
 }

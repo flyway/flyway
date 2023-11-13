@@ -8,7 +8,6 @@ org.flywaydb.core.internal.configuration.resolvers.EnvironmentVariableResolver
 org.flywaydb.core.internal.configuration.resolvers.EnvironmentProvisionerNone
 org.flywaydb.core.internal.configuration.resolvers.EnvironmentProvisionerClean
 org.flywaydb.core.internal.configuration.resolvers.EnvironmentProvisionerClone
-org.flywaydb.core.internal.configuration.resolvers.EnvironmentProvisionerDocker
 org.flywaydb.core.internal.proprietaryStubs.CommandExtensionStub
 org.flywaydb.core.api.output.InfoHtmlRenderer
 org.flywaydb.core.internal.reports.json.InfoResultDeserializer
