@@ -68,8 +68,8 @@
     <modules>
         <module>flyway-core</module>
         <module>flyway-community-db-support</module>
-        <module>flyway-gradle-plugin</module>
-        <module>flyway-maven-plugin</module>
+        <!-- <module>flyway-gradle-plugin</module>
+        <module>flyway-maven-plugin</module> -->
         <module>flyway-commandline</module>
         <module>flyway-database</module>
 
