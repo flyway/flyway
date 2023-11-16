@@ -93,7 +93,7 @@ public class ClickHouseDatabase extends Database<ClickHouseConnection> {
         String engine;
 
         if (isClustered) {
-            engine = "ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/{table}', '{replica}')";
+            engine = "ReplicatedMergeTree('/clickhouse/tables/replicated/" + table.getSchema() + "{uuid}}', '{replica}')";
         } else {
             engine = "MergeTree";
         }
