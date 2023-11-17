@@ -2,102 +2,59 @@
 subtitle: PostgreSQL
 ---
 # PostgreSQL
+- **Verified Versions:** 9.0, 15
+- **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
+For information regarding the supported version and support levels available,
+please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-- `15`
-- `14`
-- `13`
-- `12`
-- `11`
-- `10`
-- `9.6` {% include teams.html %}
-- `9.5` {% include teams.html %}
-- `9.4` {% include teams.html %}
-- `9.3` {% include teams.html %}
-- `9.2` {% include teams.html %}
-- `9.1` {% include enterprise.html %}
-- `9.0` {% include enterprise.html %}
-
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)). 
+For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
 
 ## Driver
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:postgresql://<i>host</i>:<i>port</i>/<i>database</i></code></td>
-</tr>
-<tr>
-<th>SSL support</th>
-<td>Yes - add <code>?ssl=true</code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>org.postgresql:postgresql</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>9.3-1104-jdbc4</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>org.postgresql.Driver</code></td>
-</tr>
-</table>
+| Item                               | Details                                                                |
+|------------------------------------|------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:postgresql://<i>host</i>:<i>port</i>/<i>database</i></code> |
+| **SSL support**                    | Yes - add `?ssl=true`                                                  |
+| **Ships with Flyway Command-line** | Yes                                                                    |
+| **Maven Central coordinates**      | `org.postgresql:postgresql`                                            |
+| **Supported versions**             | `9.3-1104-jdbc4` and later                                             |
+| **Default Java class**             | `org.postgresql.Driver`                                                |
 
 ## Java Usage
 PostgreSQL support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 PostgreSQL is found within the `flyway-database-postgresql` plugin module.
 ### Maven
-#### Community
-```xml
-<dependency>
-    <groupId>org.flywaydb</groupId>
-    <artifactId>flyway-database-postgresql</artifactId>
-</dependency>
-```
-#### Teams
+#### Redgate
 ```xml
 <dependency>
     <groupId>com.redgate.flyway</groupId>
     <artifactId>flyway-database-postgresql</artifactId>
 </dependency>
 ```
-### Gradle
-#### Community
-```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-database-postgresql"
-}
+#### Open Source
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-database-postgresql</artifactId>
+</dependency>
 ```
-#### Teams
+
+### Gradle
+#### Redgate
 ```groovy
 dependencies {
     implementation "com.redgate.flyway:flyway-database-postgresql"
 }
 ```
+#### Open Source
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-database-postgresql"
+}
+```
+
 
 ## SQL Script Syntax
 

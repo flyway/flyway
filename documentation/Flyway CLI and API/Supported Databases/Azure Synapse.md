@@ -2,66 +2,41 @@
 subtitle: Azure Synapse
 ---
 # Azure Synapse
+- **Verified Versions:** Latest
+- **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
+For information regarding the supported version and support levels available,
+please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-- `Latest`
-
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)). 
+For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
 
 ## Driver
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i></code></td>
-</tr>
-<tr>
-<th>SSL support</th>
-<td><a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/connecting-with-ssl-encryption?view=sql-server-ver15">Yes</a> - add <code>;encrypt=true</code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>com.microsoft.sqlserver:mssql-jdbc</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>4.0</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>com.microsoft.sqlserver.jdbc.SQLServerDriver</code></td>
-</tr>
-</table>
+
+| Item                               | Details                                                                                                                              |
+|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i></code>                                                   |
+| **SSL support**                    | [Yes](https://docs.microsoft.com/en-us/sql/connect/jdbc/connecting-with-ssl-encryption?view=sql-server-ver15) \- add `;encrypt=true` |
+| **Ships with Flyway Command-line** | Yes                                                                                                                                  |
+| **Maven Central coordinates**      | `com.microsoft.sqlserver:mssql-jdbc`                                                                                                 |
+| **Supported versions**             | `4.0` and later                                                                                                                      |
+| **Default Java class**             | `com.microsoft.sqlserver.jdbc.SQLServerDriver`                                                                                       |
+
 
 ## Java Usage
 Azure Synapse support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 Azure Synapse is found within the `flyway-sqlserver` plugin module.
 
 ### Maven
+#### Redgate
+```xml
 
-#### Community
-
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-sqlserver</artifactId>
+</dependency>
+```
+#### Open Source
 ```xml
 
 <dependency>
@@ -70,31 +45,18 @@ Azure Synapse is found within the `flyway-sqlserver` plugin module.
 </dependency>
 ```
 
-#### Teams
-
-```xml
-
-<dependency>
-    <groupId>com.redgate.flyway</groupId>
-    <artifactId>flyway-sqlserver</artifactId>
-</dependency>
-```
-
 ### Gradle
-
-#### Community
-
-```groovy
-dependencies {
-    compile "org.flywaydb:flyway-sqlserver"
-}
-```
-
-#### Teams
-
+#### Redgate
 ```groovy
 dependencies {
     compile "com.redgate.flyway:flyway-sqlserver"
+}
+```
+
+#### Open Source
+```groovy
+dependencies {
+    compile "org.flywaydb:flyway-sqlserver"
 }
 ```
 

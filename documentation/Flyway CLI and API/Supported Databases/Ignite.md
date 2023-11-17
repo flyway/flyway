@@ -2,60 +2,25 @@
 subtitle: Ignite
 ---
 # Ignite (Thin)
+- **Verified Versions:** N/A
+- **Maintainer:** Community
 
-## Supported Versions
+## Supported Versions and Support Levels
+For information regarding the supported version and support levels available,
+please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-- `N/A`
+For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
 
-## Support Level
+## Driver
 
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10060;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10060;</td>
-    </tr>
-</table>
-
-Support for Ignite is provided only on a community-led basis, and is not formally supported by Redgate
-
-## Drivers
-
-<table class="table">
-<thead>
-</thead>
-<tr>
-<th>URL format</th>
-<td><code>jdbc:ignite:thin://<i>host</i>:<i>port</i>/<i>database</i></code></td>
-</tr>
-<tr>
-<th>SSL support</th>
-<td>Not tested</td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>No</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>org.apache.ignite:ignite-core</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>N/A</code></td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>org.apache.ignite.IgniteJdbcThinDriver</code></td>
-</tr>
-</table>
+| Item                               | Details                                                                 |
+|------------------------------------|-------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:ignite:thin://<i>host</i>:<i>port</i>/<i>database</i></code> |
+| **SSL support**                    | Not tested                                                              |
+| **Ships with Flyway Command-line** | No                                                                      |
+| **Maven Central coordinates**      | `org.apache.ignite:ignite-core`                                         |
+| **Supported versions**             | `N/A`                                                                   |
+| **Default Java class**             | `org.apache.ignite.IgniteJdbcThinDriver`                                |
 
 
 ## Java Usage
@@ -64,7 +29,7 @@ Ignite support is a separate dependency for Flyway and will need to be added to 
 
 ### Maven
 
-#### Community
+#### Open Source
 
 ```xml
 
@@ -76,7 +41,7 @@ Ignite support is a separate dependency for Flyway and will need to be added to 
 
 ### Gradle
 
-#### Community
+#### Open Source
 
 ```groovy
 dependencies {

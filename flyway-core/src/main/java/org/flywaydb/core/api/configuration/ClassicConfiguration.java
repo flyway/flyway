@@ -21,6 +21,9 @@ import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
+import org.flywaydb.core.ProgressLogger;
+import org.flywaydb.core.ProgressLoggerJson;
+import org.flywaydb.core.ProgressLoggerEmpty;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.Callback;
 import org.flywaydb.core.api.migration.JavaMigration;
@@ -42,7 +45,6 @@ import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
-import org.flywaydb.core.internal.license.FlywayTeamsUpgradeMessage;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.scanner.ClasspathClassScanner;
 import org.flywaydb.core.internal.util.*;
@@ -121,17 +123,27 @@ public class ClassicConfiguration implements Configuration {
     }
 
     public ResolvedEnvironment getCurrentResolvedEnvironment() {
+        return getCurrentResolvedEnvironment(null);
+    }
+
+    public ResolvedEnvironment getCurrentResolvedEnvironment(ProgressLogger progress) {
         String envName = modernConfig.getFlyway().getEnvironment();
         if (!StringUtils.hasText(envName)) {
             envName = "default";
         }
-        if (getResolvedEnvironment(envName) == null) {
+
+        ResolvedEnvironment resolved = getResolvedEnvironment(envName, progress);
+        if (resolved == null) {
             throw new FlywayException("Environment '" + envName + "' not found. Check that this environment exists in your configuration.");
         }
-        return getResolvedEnvironment(envName);
+        return resolved;
     }
 
     public ResolvedEnvironment getResolvedEnvironment(String envName) {
+        return getResolvedEnvironment(envName, null);
+    }
+
+    public ResolvedEnvironment getResolvedEnvironment(String envName, ProgressLogger progress) {
         if (environmentResolver == null) {
             environmentResolver = new EnvironmentResolver(
                     pluginRegister.getLicensedPlugins(PropertyResolver.class, this).stream().collect(Collectors.toMap(PropertyResolver::getName, x -> x)),
@@ -140,7 +152,8 @@ public class ClassicConfiguration implements Configuration {
         }
 
         if (!resolvedEnvironments.containsKey(envName) && getModernConfig().getEnvironments().containsKey(envName)) {
-            resolvedEnvironments.put(envName, environmentResolver.resolve(envName, getModernConfig().getEnvironments().get(envName)));
+            EnvironmentModel unresolved = getModernConfig().getEnvironments().get(envName);
+            resolvedEnvironments.put(envName, environmentResolver.resolve(envName, unresolved, getWorkingDirectory(), progress == null ? createProgress("environment") : progress));
         }
 
         return resolvedEnvironments.get(envName);
@@ -175,6 +188,11 @@ public class ClassicConfiguration implements Configuration {
         return getModernFlyway().getReportFilename();
     }
 
+    @Override
+    public Map<String, ResolvedEnvironment> getCachedResolvedEnvironments() {
+        return Map.copyOf(resolvedEnvironments);
+    }
+
     @Getter
     @Setter
     private ResourceProvider resourceProvider = null;
@@ -184,7 +202,6 @@ public class ClassicConfiguration implements Configuration {
     @Getter
     private JavaMigration[] javaMigrations = { };
 
-    @Getter
     private MigrationResolver[] resolvers = { };
 
     private OutputStream dryRunOutput;
@@ -226,7 +243,25 @@ public class ClassicConfiguration implements Configuration {
 
     @Override
     public Callback[] getCallbacks() {
+        loadUnloadedCallbacks();
         return callbacks.toArray(new Callback[0]);
+    }
+
+    @Override
+    public MigrationResolver[] getResolvers() {
+        if (getModernFlyway().getMigrationResolvers() != null) {
+            List<MigrationResolver> migrationResolvers = new ArrayList<>(Arrays.asList(resolvers));
+            migrationResolvers.addAll(
+                    Arrays.stream(getModernFlyway().getMigrationResolvers()
+                                     .stream()
+                                     .filter(p -> Arrays.stream(resolvers).noneMatch(r -> r.getClass().getCanonicalName().equals(p)))
+                                     .map(p -> ClassUtils.instantiate(p, classLoader))
+                                     .toArray(MigrationResolver[]::new))
+                                     .toList()
+                                     );
+            setResolvers(migrationResolvers.toArray(new MigrationResolver[0]));
+        }
+        return resolvers;
     }
 
     @Override
@@ -1039,6 +1074,7 @@ public class ClassicConfiguration implements Configuration {
         getCurrentUnresolvedEnvironment().setUrl(url);
         getCurrentUnresolvedEnvironment().setUser(user);
         getCurrentUnresolvedEnvironment().setPassword(password);
+        resolvedEnvironments.clear();
 
         this.databaseType = StringUtils.hasText(url) ? DatabaseTypeRegister.getDatabaseTypeForUrl(url) : null;
 
@@ -1068,6 +1104,7 @@ public class ClassicConfiguration implements Configuration {
             throw new FlywayException("Invalid number of connectRetries (must be 0 or greater): " + connectRetries, ErrorCode.CONFIGURATION);
         }
         getCurrentUnresolvedEnvironment().setConnectRetries(connectRetries);
+        resolvedEnvironments.clear();
     }
 
     /**
@@ -1081,6 +1118,7 @@ public class ClassicConfiguration implements Configuration {
             throw new FlywayException("Invalid number for connectRetriesInterval (must be 0 or greater): " + connectRetriesInterval, ErrorCode.CONFIGURATION);
         }
         getCurrentUnresolvedEnvironment().setConnectRetriesInterval(connectRetriesInterval);
+        resolvedEnvironments.clear();
     }
 
     /**
@@ -1099,15 +1137,9 @@ public class ClassicConfiguration implements Configuration {
      *
      * Use in conjunction with {@code cherryPick} to skip specific migrations instead of all pending ones.
      *
-     * <i>Flyway Teams only</i>
      */
     public void setSkipExecutingMigrations(boolean skipExecutingMigrations) {
-
-        throw new org.flywaydb.core.internal.license.FlywayTeamsUpgradeRequiredException("skipExecutingMigrations");
-
-
-
-
+        getModernFlyway().setSkipExecutingMigrations(skipExecutingMigrations);
     }
 
     public void setCallbacks(Callback... callbacks) {
@@ -1122,9 +1154,16 @@ public class ClassicConfiguration implements Configuration {
      */
     public void setCallbacksAsClassNames(String... callbacks) {
         getModernFlyway().setCallbacks(Arrays.stream(callbacks).collect(Collectors.toList()));
-        this.callbacks.clear();
+    }
+
+    private void loadUnloadedCallbacks() {
         for (String callback : getModernFlyway().getCallbacks()) {
-            this.callbacks.addAll(loadCallbackPath(callback));
+            List<Callback> newCallbacks = loadCallbackPath(callback);
+            this.callbacks.addAll(
+                    newCallbacks.stream()
+                                .filter(this::callbackNotLoadedYet)
+                                .toList()
+                                 );
         }
     }
 
@@ -1156,6 +1195,11 @@ public class ClassicConfiguration implements Configuration {
         }
 
         return callbacks;
+    }
+
+    private boolean callbackNotLoadedYet(Callback callback) {
+        return this.callbacks.stream()
+                      .noneMatch(c -> c.getClass().getCanonicalName().equals(callback.getClass().getCanonicalName()));
     }
 
     /**
@@ -1247,10 +1291,10 @@ public class ClassicConfiguration implements Configuration {
 
     /**
      * Properties to pass to the JDBC driver object.
-     * <i>Flyway Teams only</i>
      */
     public void setJdbcProperties(Map<String, String> jdbcProperties) {
         getCurrentUnresolvedEnvironment().setJdbcProperties(jdbcProperties);
+        resolvedEnvironments.clear();
     }
 
     /**
@@ -1258,23 +1302,18 @@ public class ClassicConfiguration implements Configuration {
      */
     public void configure(Configuration configuration) {
         setModernConfig(ConfigurationModel.clone(configuration.getModernConfig()));
+        setWorkingDirectory(configuration.getWorkingDirectory());
 
         setJavaMigrations(configuration.getJavaMigrations());
         setResourceProvider(configuration.getResourceProvider());
         setJavaMigrationClassProvider(configuration.getJavaMigrationClassProvider());
         setCallbacks(configuration.getCallbacks());
 
-        List<MigrationResolver> migrationResolvers = new ArrayList<>(Arrays.asList(configuration.getResolvers()));
-        if (getModernFlyway().getMigrationResolvers() != null) {
-            String[] resolversFromConfig = getModernFlyway().getMigrationResolvers().toArray(new String[0]);
-            List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolversFromConfig, classLoader);
-            migrationResolvers.addAll(resolverList);
-        }
-
-        setResolvers(migrationResolvers.toArray(new MigrationResolver[0]));
+        setResolvers(configuration.getResolvers().clone());
 
         getModernFlyway().setMigrationResolvers(null);
 
+        resolvedEnvironments.putAll(configuration.getCachedResolvedEnvironments());
         dataSource = configuration.getDataSource();
         databaseType = configuration.getDatabaseType();
         pluginRegister = configuration.getPluginRegister().getCopy();
@@ -1422,6 +1461,10 @@ public class ClassicConfiguration implements Configuration {
         String initSqlProp = props.remove(ConfigUtils.INIT_SQL);
         if (initSqlProp != null) {
             setInitSql(initSqlProp);
+        }
+        String outputType = props.remove(ConfigUtils.OUTPUT_TYPE);
+        if (outputType != null) {
+            getModernConfig().getFlyway().setOutputType(outputType);
         }
         String locationsProp = props.remove(ConfigUtils.LOCATIONS);
         if (locationsProp != null) {
@@ -1790,7 +1833,7 @@ public class ClassicConfiguration implements Configuration {
     }
 
     private void licenseGuardJdbcUrl(String url) {
-        if(!url.toLowerCase().startsWith("jdbc-secretsmanager:")) {
+        if (!url.toLowerCase().startsWith("jdbc-secretsmanager:")) {
             return;
         }
 
@@ -1882,6 +1925,14 @@ public class ClassicConfiguration implements Configuration {
             getModernFlyway().setTarget(target.getName());
         } else {
             getModernFlyway().setTarget("latest");
+        }
+    }
+
+    public ProgressLogger createProgress(String operationName) {
+        if (getModernFlyway().getOutputProgress() && "json".equalsIgnoreCase(getModernFlyway().getOutputType())) {
+            return new ProgressLoggerJson(operationName);
+        } else {
+            return new ProgressLoggerEmpty();
         }
     }
 }

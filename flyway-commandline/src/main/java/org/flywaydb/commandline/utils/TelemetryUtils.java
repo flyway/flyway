@@ -25,6 +25,7 @@ import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.extensibility.RootTelemetryModel;
 import org.flywaydb.core.extensibility.Tier;
 import org.flywaydb.core.internal.configuration.models.ConfigurationModel;
+import org.flywaydb.core.internal.license.EncryptionUtils;
 import org.flywaydb.core.internal.license.VersionPrinter;
 import org.flywaydb.core.internal.plugin.PluginRegister;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -50,32 +51,12 @@ public class TelemetryUtils {
             rootTelemetryModel.setApplicationVersion(VersionPrinter.getVersion());
             ConfigurationModel modernConfig = configuration.getModernConfig();
             if (modernConfig != null && StringUtils.hasText(modernConfig.getId())) {
-                rootTelemetryModel.setProjectId(hashProjectId(modernConfig.getId()));
+                rootTelemetryModel.setProjectId(EncryptionUtils.hashProjectId(modernConfig.getId(), "fur"));
             }
         }
 
         return rootTelemetryModel;
     }
-
-    static String hashProjectId(String projectId) {
-        if (projectId == null) {
-            return null;
-        }
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(projectId.getBytes(StandardCharsets.UTF_8));
-            byte[] hash = md.digest("fur".getBytes(StandardCharsets.UTF_8));
-            BigInteger number = new BigInteger(1, hash);
-            String result = number.toString(16);
-            while (result.length() < 64) {
-                result = "0" + result;
-            }
-            return result;
-        } catch (Exception e) {
-            throw new FlywayException(e);
-        }
-    }
-
 
     /**
      * @param infos a List of InfoOutput

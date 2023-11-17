@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.configuration.resolvers;
 
 import lombok.CustomLog;
+import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 
 @CustomLog
@@ -26,7 +27,7 @@ public class EnvironmentProvisionerClean implements EnvironmentProvisioner {
     }
 
     @Override
-    public void postReprovision(PropertyResolverContext context, ResolvedEnvironment resolvedEnvironment) {
+    public void postReprovision(PropertyResolverContext context, ResolvedEnvironment resolvedEnvironment, ProgressLogger progress) {
         LOG.warn("Provisioner 'clean' specified for environment " + context.getEnvironmentName() + " was requested but not run.");
     }
 }

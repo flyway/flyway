@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.configuration.resolvers;
 
+import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
 
@@ -30,18 +31,20 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     private final Map<String, PropertyResolver> resolvers;
     private final Map<String, Map<String, Object>> resolverProperties;
     private final String environmentName;
+    private final String workingDirectory;
 
     private static final CharsetEncoder ASCII_ENCODER = StandardCharsets.US_ASCII.newEncoder();
     private static final Pattern RESOLVER_REGEX_PATTERN = Pattern.compile("\\${1,2}\\{[^.]+\\.[^.]+\\}");
     private static final Pattern VERBATIM_REGEX_PATTERN = Pattern.compile("\\!\\{.*\\}");
 
-    public PropertyResolverContextImpl(String environmentName, Map<String, PropertyResolver> resolvers, Map<String, Map<String, Object>> resolverProperties) {
+    public PropertyResolverContextImpl(String environmentName, String workingDirectory, Map<String, PropertyResolver> resolvers, Map<String, Map<String, Object>> resolverProperties) {
         this.environmentName = environmentName;
+        this.workingDirectory = workingDirectory;
         this.resolvers = resolvers;
         this.resolverProperties = resolverProperties;
     }
 
-    public String resolvePropertyString(String resolverName, String propertyName) {
+    public String resolvePropertyString(String resolverName, String propertyName, ProgressLogger progress) {
         if (resolverProperties == null) {
             return null;
         }
@@ -51,15 +54,11 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
             return null;
         }
 
-        var propertyValue = properties.get(propertyName);
-        if (!(propertyValue instanceof String)) {
-            return null;
-        }
-
-        return resolveValue((String) propertyValue);
+        var value = properties.get(propertyName);
+        return value instanceof String valueString ? resolveValue(valueString, progress) : null;
     }
 
-    public List<String> resolvePropertyStringList(String resolverName, String propertyName) {
+    public List<String> resolvePropertyStringList(String resolverName, String propertyName, ProgressLogger progress) {
         if (resolverProperties == null) {
             return null;
         }
@@ -74,7 +73,30 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
             return null;
         }
 
-        return ((List<?>) propertyValue).stream().filter(v -> v instanceof String).map(v -> resolveValue((String) v)).toList();
+        return ((List<?>) propertyValue).stream().filter(v -> v instanceof String).map(v -> resolveValue((String) v, progress)).toList();
+    }
+
+    public Integer getPropertyInteger(String resolverName, String propertyName) {
+        if (resolverProperties == null) {
+            return null;
+        }
+
+        Map<String, Object> properties = resolverProperties.get(resolverName);
+        if (properties == null) {
+            return null;
+        }
+
+        var propertyValue = properties.get(propertyName);
+        return (propertyValue instanceof Integer i) ? i : null;
+    }
+
+    @Override
+    public String getWorkingDirectory() {
+        if(workingDirectory == null) {
+            return System.getProperty("user.dir");
+        } else {
+            return workingDirectory;
+        }
     }
 
     @Override
@@ -83,21 +105,21 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     }
 
     @Override
-    public String resolveValue(String value) {
+    public String resolveValue(String value, ProgressLogger progress) {
         if (value == null) {
             return null;
         }
         if (isVerbatim(value)) {
             return value.substring(2, value.length() - 1);
         }
-        return RESOLVER_REGEX_PATTERN.matcher(value.strip()).replaceAll(this::parseResolverSyntax);
+        return RESOLVER_REGEX_PATTERN.matcher(value.strip()).replaceAll(m -> parseResolverSyntax(m, progress));
     }
 
     private boolean isVerbatim(String value) {
         return VERBATIM_REGEX_PATTERN.matcher(value.strip()).matches();
     }
 
-    private String parseResolverSyntax(MatchResult resolverMatchResult) {
+    private String parseResolverSyntax(MatchResult resolverMatchResult, ProgressLogger progress) {
         String resolverMatch = resolverMatchResult.group();
 
         if (resolverMatch.startsWith("$$")) {
@@ -114,11 +136,11 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
         if (resolverMatch.contains(":")) {
             resolverParam = resolverMatch.substring(resolverMatch.indexOf(".") + 1, resolverMatch.indexOf(":")).strip();
             String filter = resolverMatch.substring(resolverMatch.indexOf(":") + 1, resolverMatch.length() - 1).strip();
-            return filter(resolvers.get(resolverName).resolve(resolverParam, this), filter);
+            return filter(resolvers.get(resolverName).resolve(resolverParam, this, progress), filter);
         }
 
         resolverParam = resolverMatch.substring(resolverMatch.indexOf(".") + 1, resolverMatch.length() - 1).strip();
-        return resolvers.get(resolverName).resolve(resolverParam, this);
+        return resolvers.get(resolverName).resolve(resolverParam, this, progress);
     }
 
     static String filter(String str, String filter) {

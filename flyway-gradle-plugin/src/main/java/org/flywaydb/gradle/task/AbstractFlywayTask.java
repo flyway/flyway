@@ -41,6 +41,7 @@ import java.net.URLClassLoader;
 import java.util.*;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.FLYWAY_PLUGINS_PREFIX;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
 import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
 /**
@@ -807,16 +808,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         String[] locationsToAdd = getLocations();
 
         if (locationsToAdd != null) {
-            for (int i = 0; i < locationsToAdd.length; i++) {
-                if (locationsToAdd[i].startsWith(Location.FILESYSTEM_PREFIX)) {
-                    String newLocation = locationsToAdd[i].substring(Location.FILESYSTEM_PREFIX.length());
-                    File file = new File(newLocation);
-                    if (!file.isAbsolute()) {
-                        file = new File(workingDirectory, newLocation);
-                    }
-                    locationsToAdd[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
-                }
-            }
+            ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory(workingDirectory.getAbsolutePath(), locationsToAdd);
         }
 
         putIfSet(conf, ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locationsToAdd));

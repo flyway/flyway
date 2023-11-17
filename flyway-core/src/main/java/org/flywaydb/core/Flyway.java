@@ -31,6 +31,7 @@ import org.flywaydb.core.api.output.*;
 import org.flywaydb.core.api.pattern.ValidatePattern;
 import org.flywaydb.core.extensibility.ConfigurationExtension;
 import org.flywaydb.core.extensibility.EventTelemetryModel;
+import org.flywaydb.core.extensibility.LicenseGuard;
 import org.flywaydb.core.internal.callback.CallbackExecutor;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.command.clean.DbClean;
@@ -144,6 +145,13 @@ public class Flyway {
         try (EventTelemetryModel telemetryModel = new EventTelemetryModel("migrate", flywayTelemetryManager)) {
             try {
                 return flywayExecutor.execute((migrationResolver, schemaHistory, database, defaultSchema, schemas, callbackExecutor, statementInterceptor) -> {
+
+
+
+
+
+
+
                     if (configuration.isValidateOnMigrate()) {
                         List<ValidatePattern> ignorePatterns = new ArrayList<>(Arrays.asList(configuration.getIgnoreMigrationPatterns()));
                         ignorePatterns.add(ValidatePattern.fromPattern("*:pending"));

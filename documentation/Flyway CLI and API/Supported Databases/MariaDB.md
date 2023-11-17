@@ -2,102 +2,59 @@
 subtitle: MariaDB
 ---
 # MariaDB
+- **Verified Versions:** 5.1, 10.11
+- **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
+For information regarding the supported version and support levels available,
+please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-- `10.11`
-- `10.10`
-- `10.6`
-- `10.5`
-- `10.4`
-- `10.3`
-- `10.2`
-- `10.1` {% include teams.html %}
-- `10.0` {% include teams.html %}
-- `5.5` {% include teams.html %}
-- `5.3` {% include teams.html %}
-- `5.2` {% include teams.html %}
-- `5.1` {% include teams.html %}
-
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)).
+For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
 
 ## Driver
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:(mysql|mariadb)://<i>host</i>:<i>port</i>/<i>database</i></code></td>
-</tr>
-<tr>
-<th>SSL support</th>
-<td>Yes - add <code>?useSsl=true</code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>org.mariadb.jdbc:mariadb-java-client</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>2.0.0</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>org.mariadb.jdbc.Driver</code></td>
-</tr>
-</table>
+| Item                               | Details                                                                      |
+|------------------------------------|------------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:(mysql\|mariadb)://<i>host</i>:<i>port</i>/<i>database</i></code> |
+| **SSL support**                    | Yes - add `?useSsl=true`                                                     |
+| **Ships with Flyway Command-line** | Yes                                                                          |
+| **Maven Central coordinates**      | `org.mariadb.jdbc:mariadb-java-client`                                       |
+| **Supported versions**             | `2.0.0` and later                                                            |
+| **Default Java class**             | `org.mariadb.jdbc.Driver`                                                    |
+
 
 ## Java Usage
 MariaDB support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 MariaDB is found within the `flyway-mysql` plugin module.
 ### Maven
-#### Community
-```xml
-<dependency>
-    <groupId>org.flywaydb</groupId>
-    <artifactId>flyway-mysql</artifactId>
-</dependency>
-```
-#### Teams
+#### Redgate
 ```xml
 <dependency>
     <groupId>com.redgate.flyway</groupId>
     <artifactId>flyway-mysql</artifactId>
 </dependency>
 ```
-### Gradle
-#### Community
-```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-mysql"
-}
+#### Open Source
+```xml
+<dependency>
+    <groupId>org.flywaydb</groupId>
+    <artifactId>flyway-mysql</artifactId>
+</dependency>
 ```
-#### Teams
+
+### Gradle
+#### Redgate
 ```groovy
 dependencies {
     implementation "com.redgate.flyway:flyway-mysql"
 }
 ```
+#### Open Source
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-mysql"
+}
+`
 
 ## SQL Script Syntax
 

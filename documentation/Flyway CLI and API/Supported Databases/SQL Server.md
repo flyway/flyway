@@ -3,74 +3,41 @@ subtitle: SQL Server
 ---
 
 # SQL Server
+ - **Verified Versions:** 2008, 2022
+ - **Maintainer:** Redgate
 
-## Supported Versions
+## Supported Versions and Support Levels
+For information regarding the supported version and support levels available,
+please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-- `2022`
-- `2019`
-- `2017`
-- `2016` {% include teams.html %}
-- `2014` {% include teams.html %}
-- `2012` {% include enterprise.html %}
-- `2008 R2` {% include enterprise.html %}
-- `2008` {% include enterprise.html %}
+For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
 
-## Support Level
-
-<table class="table">
-    <tr>
-        <th width="25%">Compatible</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Certified</th>
-        <td>&#10003;</td>
-    </tr>
-    <tr>
-        <th width="25%">Guaranteed</th>
-        <td>&#10003; {% include teams.html %}</td>
-    </tr>
-</table>
-
-Support Level determines the degree of support available for this database ([learn more](Learn More/Database Support Levels)).
 
 ## Driver
 
-<table class="table">
-<tr>
-<th>URL format</th>
-<td><code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i></code></td>
-</tr>
-<tr>
-<th>SSL support</th>
-<td><a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/connecting-with-ssl-encryption?view=sql-server-ver15">Yes</a> - add <code>;encrypt=true</code></td>
-</tr>
-<tr>
-<th>Ships with Flyway Command-line</th>
-<td>Yes</td>
-</tr>
-<tr>
-<th>Maven Central coordinates</th>
-<td><code>com.microsoft.sqlserver:mssql-jdbc</code></td>
-</tr>
-<tr>
-<th>Supported versions</th>
-<td><code>4.0</code> and later</td>
-</tr>
-<tr>
-<th>Default Java class</th>
-<td><code>com.microsoft.sqlserver.jdbc.SQLServerDriver</code></td>
-</tr>
-</table>
+| Item                               | Details                                                                                                                              |
+|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:sqlserver://<i>host</i>:<i>port</i>;databaseName=<i>database</i></code>                                                   |
+| **SSL support**                    | [Yes](https://docs.microsoft.com/en-us/sql/connect/jdbc/connecting-with-ssl-encryption?view=sql-server-ver15) \- add `;encrypt=true` |
+| **Ships with Flyway Command-line** | Yes                                                                                                                                  |
+| **Maven Central coordinates**      | `com.microsoft.sqlserver:mssql-jdbc`                                                                                                 |
+| **Supported versions**             | `4.0` and later                                                                                                                      |
+| **Default Java class**             | `com.microsoft.sqlserver.jdbc.SQLServerDriver`                                                                                       |
 
 ## Java Usage
 
 SQLServer support is a separate dependency for Flyway and will need to be added to your Java project to access these features.
 
 ### Maven
+#### Redgate
+```xml
 
-#### Community
-
+<dependency>
+    <groupId>com.redgate.flyway</groupId>
+    <artifactId>flyway-sqlserver</artifactId>
+</dependency>
+```
+#### Open Source
 ```xml
 
 <dependency>
@@ -79,33 +46,22 @@ SQLServer support is a separate dependency for Flyway and will need to be added 
 </dependency>
 ```
 
-#### Teams
-
-```xml
-
-<dependency>
-    <groupId>com.redgate.flyway</groupId>
-    <artifactId>flyway-sqlserver</artifactId>
-</dependency>
-```
-
 ### Gradle
-
-#### Community
-
-```groovy
-dependencies {
-    implementation "org.flywaydb:flyway-sqlserver"
-}
-```
-
-#### Teams
+#### Redgate
 
 ```groovy
 dependencies {
     implementation "com.redgate.flyway:flyway-sqlserver"
 }
 ```
+#### Open Source
+```groovy
+dependencies {
+    implementation "org.flywaydb:flyway-sqlserver"
+}
+```
+
+
 
 ## SQL Script Syntax
 

@@ -19,18 +19,20 @@ import lombok.CustomLog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 @CustomLog
 public class MergeUtils {
 
     public static <T> T merge(T a, T b) {
         return b != null ? b : a;
+    }
+
+    public static <E, T extends Collection<E>> T merge(T a, T b) {
+        return a == null ? b : (b != null && !b.isEmpty() ? b : a);
     }
 
     public static <K, V> Map<K, V> merge(Map<K, V> primary, Map<K, V> overrides, BiFunction<V, V, V> mergeFn) {

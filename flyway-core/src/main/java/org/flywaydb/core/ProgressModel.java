@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.configuration.resolvers;
+package org.flywaydb.core;
 
-import org.flywaydb.core.ProgressLogger;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Data;
 
-public class EnvironmentVariableResolver implements PropertyResolver {
-    @Override
-    public String getName() {
-        return "env";
-    }
+@Data
+public class ProgressModel {
+    private String operation;
+    private int step = 1;
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+    private Integer totalSteps;
+    private String message;
+    private String tag = "progress";
 
-    @Override
-    public String resolve(String key, PropertyResolverContext context, ProgressLogger progress) {
-        return System.getenv(key);
+    public void setStepAndTotal(int step) {
+        this.step = step;
+        if(totalSteps != null && step > totalSteps) {
+            totalSteps = step;
+        }
     }
 }

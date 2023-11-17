@@ -42,6 +42,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.DEFAULT_CLI_SQL_LOCATION;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
 
 @CustomLog
 public class ModernConfigurationManager implements ConfigurationManager {
@@ -84,8 +85,14 @@ public class ModernConfigurationManager implements ConfigurationManager {
             config.getFlyway().setLocations(Arrays.asList("filesystem:" + sqlFolder.getAbsolutePath()));
         }
 
+        if (commandLineArguments.isWorkingDirectorySet()) {
+            makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments.getWorkingDirectory(), config.getFlyway().getLocations());
+        }
+
         ConfigUtils.dumpConfigurationModel(config);
         ClassicConfiguration cfg = new ClassicConfiguration(config);
+
+        cfg.setWorkingDirectory(workingDirectory);
 
         configurePlugins(config, cfg);
 

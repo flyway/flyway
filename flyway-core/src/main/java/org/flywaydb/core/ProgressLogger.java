@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.configuration.resolvers;
+package org.flywaydb.core;
 
-import org.flywaydb.core.ProgressLogger;
+public interface ProgressLogger {
+    ProgressLogger subTask(String operationName);
 
-public class EnvironmentVariableResolver implements PropertyResolver {
-    @Override
-    public String getName() {
-        return "env";
-    }
+    ProgressLogger pushSteps(int steps);
 
-    @Override
-    public String resolve(String key, PropertyResolverContext context, ProgressLogger progress) {
-        return System.getenv(key);
-    }
+    void log(String message);
+
+    void log(String message, int step);
 }

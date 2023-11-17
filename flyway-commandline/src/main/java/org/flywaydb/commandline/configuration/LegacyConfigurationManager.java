@@ -16,7 +16,6 @@
 package org.flywaydb.commandline.configuration;
 
 import org.flywaydb.commandline.Main;
-import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.internal.configuration.ConfigUtils;
@@ -39,6 +38,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.flywaydb.core.internal.configuration.ConfigUtils.DEFAULT_CLI_SQL_LOCATION;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeLocationsBasedOnWorkingDirectory;
 
 public class LegacyConfigurationManager implements ConfigurationManager {
 
@@ -66,7 +66,7 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         }
 
         if (commandLineArguments.isWorkingDirectorySet()) {
-            makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments, config);
+            makeRelativeLocationsBasedOnWorkingDirectory(commandLineArguments.getWorkingDirectory(), config);
         }
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -138,22 +138,6 @@ public class LegacyConfigurationManager implements ConfigurationManager {
         combinedConfiguration.putAll(newConfiguration);
 
         return combinedConfiguration;
-    }
-
-    private static void makeRelativeLocationsBasedOnWorkingDirectory(CommandLineArguments commandLineArguments, Map<String, String> config) {
-        String[] locations = config.get(ConfigUtils.LOCATIONS).split(",");
-        for (int i = 0; i < locations.length; i++) {
-            if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
-                String newLocation = locations[i].substring(Location.FILESYSTEM_PREFIX.length());
-                File file = new File(newLocation);
-                if (!file.isAbsolute()) {
-                    file = new File(commandLineArguments.getWorkingDirectory(), newLocation);
-                }
-                locations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
-            }
-        }
-
-        config.put(ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locations));
     }
 
     /**
