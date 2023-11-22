@@ -8,7 +8,7 @@ redirect_from: Configuration/oracleSqlPlus/
 {% include teams.html %}
 
 ## Description
-Enable Flyway's support for [Oracle SQL*Plus commands](Supported Databases/oracle#sqlplus-commands).
+Enable Flyway's support for [Oracle SQL*Plus commands](Supported Databases/oracle database#sqlplus-commands).
 
 ## Default
 false
@@ -60,4 +60,4 @@ flyway {
 
 ### Configuring consistent sessions for your migrations
 
-See our list of [supported SQL\*Plus commands](Supported Databases/oracle#sqlplus-commands) and how you can utilize them with [site and user profiles](Supported Databases/oracle#site-profiles-gloginsql--user-profiles-loginsql) once SQL\*Plus is enable to achieved this.
+See our list of [supported SQL\*Plus commands](Supported Databases/oracle database#sqlplus-commands) and how you can utilize them with [site and user profiles](Supported Databases/oracle#site-profiles-gloginsql--user-profiles-loginsql) once SQL\*Plus is enable to achieved this.

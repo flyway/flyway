@@ -226,7 +226,7 @@ Flyway supports all regular SQL syntax elements including:
 - Single- (--) or Multi-line (/* */) comments spanning complete lines
 - Database-specific SQL syntax extensions (PL/SQL, T-SQL, ...) typically used to define stored procedures, packages, ...
 
-Additionally in the case of Oracle, Flyway also supports [SQL*Plus commands](Supported Databases/oracle#sqlplus-commands).
+Additionally in the case of Oracle, Flyway also supports [SQL*Plus commands](Supported Databases/oracle database#sqlplus-commands).
 
 ### Placeholder Replacement
 In addition to regular SQL syntax, Flyway also supports placeholder replacement with configurable pre- and suffixes.

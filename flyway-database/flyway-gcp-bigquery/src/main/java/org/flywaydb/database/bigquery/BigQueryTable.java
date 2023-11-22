@@ -26,7 +26,7 @@ public class BigQueryTable extends Table<BigQueryDatabase, BigQuerySchema> {
 
     BigQueryTable(JdbcTemplate jdbcTemplate, BigQueryDatabase database, BigQuerySchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
-        this.insertRowLock = new InsertRowLock(jdbcTemplate, 10);
+        this.insertRowLock = new InsertRowLock(jdbcTemplate);
     }
 
     @Override

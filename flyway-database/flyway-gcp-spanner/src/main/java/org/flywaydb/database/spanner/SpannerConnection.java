@@ -37,19 +37,4 @@ public class SpannerConnection extends Connection<SpannerDatabase> {
     public Schema getSchema(String name) {
         return new SpannerSchema(jdbcTemplate, database, name);
     }
-
-    @Override
-    public <T> T lock(Table table, Callable<T> callable) {
-        try {
-            return callable.call();
-        } catch (Exception e) {
-            RuntimeException rethrow;
-            if (e instanceof RuntimeException) {
-                rethrow = (RuntimeException) e;
-            } else {
-                rethrow = new FlywayException(e);
-            }
-            throw rethrow;
-        }
-    }
 }

@@ -26,6 +26,35 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.1.0">Flyway 10.1.0 (2023-11-22)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Correct urls for fetching offline permits</li>
+            <li>Fix dropping views from GCP Spanner when running clean.</li>
+            <li>Add new groupId to flyway-gradle-plugin</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3793">Issue 3793</a>
+                Fix index out of bounds issue in `ConfigUtils`
+            </li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Flyway now supports PostgreSQL version 16.</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Flyway now uses Schema History Table locking to allow parallel migrations in Google Cloud Spanner.</li>
+        </ul>
+
+        <p>
+            Thanks to AlejandroYuste for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="10.0.1">Flyway 10.0.1 (2023-11-13)</h2>
 
         <h3>Bug fixes</h3>
@@ -39,6 +68,11 @@
         <h3>New features</h3>
         <ul>
             <li>add support for progress logging to STDERR with json output</li>
+        </ul>
+
+        <h3>Notes</h3>
+        <ul>
+            <li>Flyway Gradle Plugin is currently unable to be released. </li>
         </ul>
 
     </div>
@@ -84,6 +118,11 @@
         <h3>Java compatibility</h3>
         <ul>
             <li>Deprecated Java 8. Java 17 is now required for development</li>
+        </ul>
+
+        <h3>Notes</h3>
+        <ul>
+            <li>Flyway Gradle Plugin is currently unable to be released. </li>
         </ul>
 
     </div>

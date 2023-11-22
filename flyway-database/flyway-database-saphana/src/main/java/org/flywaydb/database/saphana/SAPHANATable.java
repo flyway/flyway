@@ -48,6 +48,6 @@ public class SAPHANATable extends Table<SAPHANADatabase, SAPHANASchema> {
 
     @Override
     protected void doLock() throws SQLException {
-        jdbcTemplate.update("lock table " + this + " in exclusive mode");
+        jdbcTemplate.update( "lock table " + this + " in exclusive mode");
     }
 }

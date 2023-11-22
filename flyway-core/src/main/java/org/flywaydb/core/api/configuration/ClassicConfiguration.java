@@ -41,6 +41,7 @@ import org.flywaydb.core.internal.configuration.models.ResolvedEnvironment;
 import org.flywaydb.core.internal.configuration.resolvers.EnvironmentProvisioner;
 import org.flywaydb.core.internal.configuration.resolvers.EnvironmentResolver;
 import org.flywaydb.core.internal.configuration.resolvers.PropertyResolver;
+import org.flywaydb.core.internal.configuration.resolvers.ProvisionerMode;
 import org.flywaydb.core.internal.database.DatabaseType;
 import org.flywaydb.core.internal.database.DatabaseTypeRegister;
 import org.flywaydb.core.internal.jdbc.DriverDataSource;
@@ -132,7 +133,9 @@ public class ClassicConfiguration implements Configuration {
             envName = "default";
         }
 
-        ResolvedEnvironment resolved = getResolvedEnvironment(envName, progress);
+        String envProvisionMode = modernConfig.getFlyway().getEnvironmentProvisionMode();
+        ProvisionerMode provisionerMode = StringUtils.hasText(envProvisionMode) ? ProvisionerMode.fromString(envProvisionMode) : ProvisionerMode.Provision;
+        ResolvedEnvironment resolved = getResolvedEnvironment(envName, provisionerMode, progress);
         if (resolved == null) {
             throw new FlywayException("Environment '" + envName + "' not found. Check that this environment exists in your configuration.");
         }
@@ -140,10 +143,10 @@ public class ClassicConfiguration implements Configuration {
     }
 
     public ResolvedEnvironment getResolvedEnvironment(String envName) {
-        return getResolvedEnvironment(envName, null);
+        return getResolvedEnvironment(envName, ProvisionerMode.Provision, null);
     }
 
-    public ResolvedEnvironment getResolvedEnvironment(String envName, ProgressLogger progress) {
+    public ResolvedEnvironment getResolvedEnvironment(String envName, ProvisionerMode provisionerMode, ProgressLogger progress) {
         if (environmentResolver == null) {
             environmentResolver = new EnvironmentResolver(
                     pluginRegister.getLicensedPlugins(PropertyResolver.class, this).stream().collect(Collectors.toMap(PropertyResolver::getName, x -> x)),
@@ -153,7 +156,8 @@ public class ClassicConfiguration implements Configuration {
 
         if (!resolvedEnvironments.containsKey(envName) && getModernConfig().getEnvironments().containsKey(envName)) {
             EnvironmentModel unresolved = getModernConfig().getEnvironments().get(envName);
-            resolvedEnvironments.put(envName, environmentResolver.resolve(envName, unresolved, getWorkingDirectory(), progress == null ? createProgress("environment") : progress));
+            ResolvedEnvironment resolved = environmentResolver.resolve(envName, unresolved, provisionerMode, getWorkingDirectory(), progress == null ? createProgress("environment") : progress);
+            resolvedEnvironments.put(envName, resolved);
         }
 
         return resolvedEnvironments.get(envName);
@@ -561,9 +565,11 @@ public class ClassicConfiguration implements Configuration {
 
         Set<String> cherryPickValues = new HashSet<>();
         List<String> duplicateValues = new ArrayList<>();
+        StringBuilder migrationPatternsString = new StringBuilder();
 
         for (MigrationPattern migrationPattern : cherryPick) {
             String migrationPatternString = migrationPattern.toString();
+            migrationPatternsString.append(migrationPatternString).append(" ");
 
             if (cherryPickValues.contains(migrationPatternString)) {
                 duplicateValues.add(migrationPatternString);
@@ -573,13 +579,7 @@ public class ClassicConfiguration implements Configuration {
         }
 
         if (!duplicateValues.isEmpty()) {
-            StringBuilder listString = new StringBuilder();
-
-            for (String s : duplicateValues) {
-                listString.append(s).append(" ");
-            }
-
-            throw new FlywayException("Duplicate values not allowed in cherryPick. Detected duplicates: \n" + listString);
+            throw new FlywayException("Duplicate values not allowed in migration patterns. Duplication detected in: \n" + migrationPatternsString);
         }
 
         return cherryPick;

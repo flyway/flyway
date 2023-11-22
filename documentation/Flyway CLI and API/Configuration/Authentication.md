@@ -21,7 +21,7 @@ By storing your username and password in the environment variables `FLYWAY_USER`
 ## Database Specific Authentication
 
 ### Oracle
-- [Oracle Wallet](Supported Databases/oracle#oracle-wallet)
+- [Oracle Wallet](Supported Databases/oracle database#oracle-wallet)
 
 ### SQL Server and Azure Synapse
 - [Windows Authentication](Supported Databases/SQL Server#windows-authentication)
