@@ -27,7 +27,7 @@ Our reference documentation can be found [here](https://documentation.red-gate.c
 Flyway is brought to you by [Redgate](https://www.red-gate.com/) with the help of many contributors.
 
 ## How to contribute
-Please visit our [contribution page](https://documentation.red-gate.com/fd/contribute-184127449.html) to find out how you can contribute in various ways to the project.
+Please visit our [contribution page](https://documentation.red-gate.com/fd/contribute-224003054.html) to find out how you can contribute in various ways to the project.
 
 ## License
 Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2023
