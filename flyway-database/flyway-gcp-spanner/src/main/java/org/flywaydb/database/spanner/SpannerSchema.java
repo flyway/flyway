@@ -78,6 +78,27 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
             String table = foreignKeyAndTable[1];
             statements.add("ALTER TABLE " + table + " DROP CONSTRAINT " + foreignKey);
         }
+        executeStatements(statements);
+
+        for (String view : doAllViews()) {
+            statements.add("DROP VIEW " + view);
+        }
+        executeStatements(statements);
+
+        for (Table table : doAllTables()) {
+            for (String index : doAllIndexes(table)) {
+                if (!index.equalsIgnoreCase("PRIMARY_KEY")) {
+                    jdbcTemplate.execute("DROP INDEX " + index);
+                }
+            }
+            statements.add("DROP TABLE " + table);
+        }
+        executeStatements(statements);
+    }
+
+    private void executeStatements(List<String> statements) throws SQLException {
+
+
 
 
 
@@ -97,39 +118,27 @@ public class SpannerSchema extends Schema<SpannerDatabase, SpannerTable> {
 
 
         statements.clear();
+    }
 
-        for (Table table : doAllTables()) {
-            for (String index : doAllIndexes(table)) {
-                if (!index.equalsIgnoreCase("PRIMARY_KEY")) {
-                    jdbcTemplate.execute("DROP INDEX " + index);
-                }
-            }
-            statements.add("DROP TABLE " + table);
+    private String[] doAllViews() throws SQLException {
+        List<String> viewList = new ArrayList<>();
+        Connection connection = jdbcTemplate.getConnection();
+
+        ResultSet viewResults = connection.getMetaData().getTables("", "", null, new String[]{ "VIEW" });
+        while (viewResults.next()) {
+            viewList.add(viewResults.getString("TABLE_NAME"));
         }
+        viewResults.close();
 
-
-
-
-
-
-
-
-
-
-
-
-         for (String statement : statements) {
-             jdbcTemplate.execute(statement);
-         }
-
+        return  viewList.toArray(new String[0]);
     }
 
     @Override
     protected SpannerTable[] doAllTables() throws SQLException {
         List<SpannerTable> tablesList = new ArrayList<>();
-        Connection c = jdbcTemplate.getConnection();
+        Connection connection = jdbcTemplate.getConnection();
 
-        ResultSet tablesRs = c.getMetaData().getTables("", "", null, null);
+        ResultSet tablesRs = connection.getMetaData().getTables("", "", null, new String[]{ "TABLE" });
         while (tablesRs.next()) {
             tablesList.add(new SpannerTable(jdbcTemplate, database, this,
                                             tablesRs.getString("TABLE_NAME")));

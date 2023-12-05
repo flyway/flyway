@@ -44,6 +44,7 @@ public class FlywayModel {
     @Setter(lombok.AccessLevel.NONE)
     private String reportFilename;
     private String environment;
+    private String environmentProvisionMode;
     private Boolean detectEncoding;
     private String encoding;
     private String placeholderPrefix;
@@ -144,6 +145,7 @@ public class FlywayModel {
          model.loggers = Arrays.asList("auto");
          model.placeholders = new HashMap<>();
          model.environment = "default";
+         model.environmentProvisionMode = "provision";
          model.reportEnabled = false;
          return model;
     }
@@ -155,6 +157,7 @@ public class FlywayModel {
         result.reportFilename = reportFilename.merge(otherPojo.reportFilename);
         result.encoding = encoding.merge(otherPojo.encoding);
         result.environment = environment.merge(otherPojo.environment);
+        result.environmentProvisionMode = environmentProvisionMode.merge(otherPojo.environmentProvisionMode);
         result.detectEncoding = detectEncoding.merge(otherPojo.detectEncoding);
         result.placeholderPrefix = placeholderPrefix.merge(otherPojo.placeholderPrefix);
         result.placeholderSuffix = placeholderSuffix.merge(otherPojo.placeholderSuffix);

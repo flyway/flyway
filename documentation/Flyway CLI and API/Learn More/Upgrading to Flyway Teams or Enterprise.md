@@ -76,7 +76,7 @@ Now that you are using the Teams / Enterprise edition of Flyway, you can take ad
 - Gain more control over your deployments by [cherry picking](Configuration/Parameters/Flyway/Cherry Pick) which migrations to execute.
 - Apply migrations manually outside of Flyway but update the schema history using [mark as applied](Configuration/Parameters/Flyway/Skip Executing Migrations).
 - [Guaranteed support for databases](/https://flywaydb.org/download/faq#how-long-are-database-releases-supported-in-each-edition-of-flyway) up to 10 years old.
-- Leverage the power of [Oracle SQL*Plus](Supported Databases/oracle#sqlplus-commands) in your migrations.
+- Leverage the power of [Oracle SQL*Plus](Supported Databases/oracle database#sqlplus-commands) in your migrations.
 - Promote database warnings to errors, or ignore errors thrown during execution with [error overrides](Concepts/Error Overrides).
 
 ... and much more. See [parameters](Configuration/parameters/) for all the Teams configuration parameters.

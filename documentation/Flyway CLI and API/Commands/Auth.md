@@ -10,7 +10,7 @@ username and password. Please note that `auth` is not supported on WSL, nor when
 running Flyway, it is recommended to use environment variables (described below) to authorize Flyway.
 
 Upon successful login, a license permit is then saved to disk in the `Flyway CLI` directory of the Redgate app data folder. If the user is offline, a
-[link to create a license permit](https://permits.red-gate.com/offline?productCode=64&constraint=asdf) will be printed to the console. The user can then copy the license permit
+[link to create a license permit](https://permits.red-gate.com/offline?productCode=63) will be printed to the console. The user can then copy the license permit
 from that site and paste it into the console to authorize Flyway.
 
 #### App Data Folder Locations

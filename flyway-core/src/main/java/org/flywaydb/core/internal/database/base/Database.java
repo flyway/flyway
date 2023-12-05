@@ -29,7 +29,6 @@ import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
-import org.flywaydb.core.internal.license.FlywayEditionUpgradeRequiredException;
 import org.flywaydb.core.internal.resource.StringResource;
 import org.flywaydb.core.internal.sqlscript.Delimiter;
 import org.flywaydb.core.internal.sqlscript.SqlScript;
@@ -40,8 +39,6 @@ import org.flywaydb.core.internal.util.StringUtils;
 import java.io.Closeable;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.flywaydb.core.internal.util.FlywayDbWebsiteLinks.COMMUNITY_SUPPORT;
@@ -367,7 +364,16 @@ public abstract class Database<C extends Connection> implements Closeable {
                 + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
-    public final String getBaselineStatement(Table table) {
+    public String getUpdateStatement(Table table) {
+        return "UPDATE " + table
+                + " SET "
+                + quote("description") + "=? , "
+                + quote("type") + "=? , "
+                + quote("checksum") + "=?"
+                + " WHERE " + quote("installed_rank") + "=?";
+    }
+
+    protected String getBaselineStatement(Table table) {
         return String.format(getInsertStatement(table).replace("?", "%s"),
                              1,
                              "'" + configuration.getBaselineVersion() + "'",
@@ -395,6 +401,14 @@ public abstract class Database<C extends Connection> implements Closeable {
                 + " FROM " + table
                 + " WHERE " + quote("installed_rank") + " > ?"
                 + " ORDER BY " + quote("installed_rank");
+    }
+
+    public String getDeleteStatement(Table table, boolean version) {
+        return "DELETE FROM " + table +
+                " WHERE " + quote("success") + " = " + getBooleanFalse() + " AND " +
+                (version ?
+                        quote("version") + " = ?" :
+                        quote("description") + " = ?");
     }
 
     public final String getInstalledBy() {

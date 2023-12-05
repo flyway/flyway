@@ -58,10 +58,6 @@ import static org.flywaydb.core.internal.sqlscript.SqlScriptMetadata.isMultiline
 @CustomLog
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConfigUtils {
-    public static final Class<? extends LicensingConfigurationExtensionStub> LICENSE_CONFIG_EXTENSION_CLASS = new FluentConfiguration().getPluginRegister()
-                                                                                                                                       .getPlugins(LicensingConfigurationExtensionStub.class)
-                                                                                                                                       .get(0)
-                                                                                                                                       .getClass();
     public static final String DEFAULT_CLI_SQL_LOCATION = "sql";
     public static final String CONFIG_FILE_NAME = "flyway.conf";
     public static final String CONFIG_FILES = "flyway.configFiles";

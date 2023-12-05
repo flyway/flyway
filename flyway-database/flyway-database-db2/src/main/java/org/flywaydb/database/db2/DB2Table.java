@@ -48,6 +48,6 @@ public class DB2Table extends Table<DB2Database, DB2Schema> {
 
     @Override
     protected void doLock() throws SQLException {
-        jdbcTemplate.update("lock table " + this + " in exclusive mode");
+        jdbcTemplate.update( "lock table " + this + " in exclusive mode");
     }
 }

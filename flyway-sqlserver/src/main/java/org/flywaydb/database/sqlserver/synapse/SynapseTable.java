@@ -31,7 +31,7 @@ public class SynapseTable extends SQLServerTable {
 
     SynapseTable(JdbcTemplate jdbcTemplate, SQLServerDatabase database, String databaseName, SQLServerSchema schema, String name) {
         super(jdbcTemplate, database, databaseName, schema, name);
-        this.insertRowLock = new InsertRowLock(jdbcTemplate, 10);
+        this.insertRowLock = new InsertRowLock(jdbcTemplate);
     }
 
     @Override

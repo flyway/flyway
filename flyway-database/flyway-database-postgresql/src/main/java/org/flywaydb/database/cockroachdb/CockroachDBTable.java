@@ -34,7 +34,7 @@ public class CockroachDBTable extends Table<CockroachDBDatabase, CockroachDBSche
 
     CockroachDBTable(JdbcTemplate jdbcTemplate, CockroachDBDatabase database, CockroachDBSchema schema, String name) {
         super(jdbcTemplate, database, schema, name);
-        this.insertRowLock = new InsertRowLock(jdbcTemplate, 10);
+        this.insertRowLock = new InsertRowLock(jdbcTemplate);
     }
 
     @Override

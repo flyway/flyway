@@ -31,7 +31,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.0.1</version>
+    <version>10.1.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -72,6 +72,7 @@
         <module>flyway-maven-plugin</module>
         <module>flyway-commandline</module>
         <module>flyway-database</module>
+
 
 
 
@@ -552,6 +553,12 @@
 
 
 
+
+
+
+
+
+
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
@@ -840,6 +847,32 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

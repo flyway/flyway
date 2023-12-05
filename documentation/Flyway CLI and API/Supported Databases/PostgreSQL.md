@@ -2,7 +2,7 @@
 subtitle: PostgreSQL
 ---
 # PostgreSQL
-- **Verified Versions:** 9.0, 15
+- **Verified Versions:** 9.2, 16
 - **Maintainer:** Redgate
 
 ## Supported Versions and Support Levels

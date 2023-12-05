@@ -97,7 +97,6 @@ public class SpannerDatabaseType extends BaseDatabaseType {
 
     @Override
     public void printMessages(Configuration configuration) {
-        LOG.info("Join the GCP Spanner beta via " + FlywayDbWebsiteLinks.CLOUD_SPANNER_BETA);
 
 
 
