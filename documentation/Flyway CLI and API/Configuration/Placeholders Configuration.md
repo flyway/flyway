@@ -42,6 +42,7 @@ Flyway also provides default placeholders, whose values are automatically popula
 - `${flyway:filename}` = The filename of the current script
 - `${flyway:workingDirectory}` = The user working directory as defined by the ['user.dir']((https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html)) System Property
 - `${flyway:table}` = The name of the Flyway schema history table
+- `${flyway:environment}` = The current environment of the Flyway
 
 ### Example
 Here is a small example of the supported syntax:

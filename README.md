@@ -20,14 +20,14 @@ Aurora MySQL, Aurora PostgreSQL, Azure Synapse, CockroachDB, DB2, Derby, Firebir
 SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...
 
 ## Documentation
-You can find our getting started guides [here](https://documentation.red-gate.com/fd/quickstart-how-flyway-works-184127223.html).
-Our reference documentation can be found [here](https://documentation.red-gate.com/fd/flyway-cli-and-api-183306238.html).
+You can find our getting started guides [here](https://documentation.red-gate.com/flyway/quickstart-how-flyway-works).
+Our reference documentation can be found [here](https://documentation.red-gate.com/flyway/flyway-cli-and-api).
 
 ## About
 Flyway is brought to you by [Redgate](https://www.red-gate.com/) with the help of many contributors.
 
 ## How to contribute
-Please visit our [contribution page](https://documentation.red-gate.com/fd/contribute-184127449.html) to find out how you can contribute in various ways to the project.
+Please visit our [contribution page](https://documentation.red-gate.com/flyway/flyway-cli-and-api/contribute) to find out how you can contribute in various ways to the project.
 
 ## License
 Copyright © [Red Gate Software Ltd](http://www.red-gate.com) 2010-2023

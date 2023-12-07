@@ -2,22 +2,25 @@
 subtitle: Upgrading to Teams
 redirect_from: /documentation/upgradingToTeams/
 ---
+# Flyway Editions
+- The Flyway Community edition contains all the core (free) features as well as Teams or Enterprise features which are made available based on your license.
 
+- The Flyway Open Source edition just contains the open source components so upgrading requires a different installation of Flyway.
 # Upgrading to Flyway Teams or Enterprise
 
 This article assumes you are a proud owner of a Flyway Teams / Enterprise license. 
+
 If you are not, head over to [Redgate Products Trial](https://www.red-gate.com/products/flyway/enterprise/trial) to start a free trial.
+## Command Line
+### Upgrading from Community
+If you are currently using Flyway Community Edition then all you need do is authenticate with your Redgate credentials (see [Auth](Commands/Auth)) or provide a [License Key](Configuration/Parameters/Flyway/License Key) to unlock the advanced capabilities Flyway offers.
 
-## Upgrading from Open Source
+### Upgrading from Open Source
 
-If you are currently using Flyway Community Edition then all you need do is authenticate with your Redgate credentials (see [Auth](Commands/Auth)).
 
-If you have been using the Open Source version of Flyway then you will need to download [Flyway Community Edition](Usage/Command-Line) first.
+If you have been using the Open Source version of Flyway then you will need to download the [Flyway Community Edition](Usage/Command-Line) first.
 
-### Command Line
-See details for Flyway Community in [Command Line](Usage/Command-line)
-
-### API
+## API
 See details for Flyway Community in [Java(API)](Usage/API-Java)
 
 For example:
@@ -34,7 +37,7 @@ Flyway flyway = Flyway.configure()
 flyway.info();
 ```
 
-### Gradle
+## Gradle
 See details for Flyway Community in [Gradle Task](Usage/Gradle Task).
 
 For example:
@@ -48,7 +51,7 @@ flyway {
 }
 ```
 
-### Maven
+## Maven
 See details for Flyway Community in [Maven Goal](Usage/Maven Goal).
 
 For example:
@@ -64,7 +67,7 @@ For example:
 </plugin>
 ```
 
-## New Features
+# New Features
 
 Now that you are using the Teams / Enterprise edition of Flyway, you can take advantage of all the powerful new features at your disposal:
 

@@ -10,6 +10,8 @@ Whether or not transactional advisory locks should be used with PostgreSQL.
 
 If false, session-level locks will be used instead.
 
+This should be set to `false` for statements such as `CREATE INDEX CONCURRENTLY`.
+
 ## Default
 true
 

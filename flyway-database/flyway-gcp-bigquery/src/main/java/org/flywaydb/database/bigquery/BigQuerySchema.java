@@ -71,6 +71,12 @@ public class BigQuerySchema extends Schema<BigQueryDatabase, BigQueryTable> {
         for (String statement : generateDropStatements("BASE TABLE", "TABLE")) {
             jdbcTemplate.execute(statement);
         }
+        for (String statement : generateDropStatements("SNAPSHOT", "SNAPSHOT TABLE")) {
+            jdbcTemplate.execute(statement);
+        }
+        for (String statement : generateDropStatements("CLONE", "TABLE")) {
+            jdbcTemplate.execute(statement);
+        }
         for (String statement : generateDropStatements("EXTERNAL", "EXTERNAL TABLE")) {
             jdbcTemplate.execute(statement);
         }

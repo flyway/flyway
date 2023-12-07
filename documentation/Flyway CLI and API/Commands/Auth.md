@@ -25,10 +25,12 @@ You can find the `Flyway CLI` directory here: `~/.config/Redgate/Flyway CLI`.
 
 #### Flags:
 
-| Parameter        | Edition            |  Description
-|------------------|--------------------| -----------------------------------------------------
-| -IAgreeToTheEula | All                | Mandatory for `auth` to run
-| -logout          | All                | Logs a user out of their authorized session of Flyway
+| Parameter             | Edition            |  Description
+|-----------------------|--------------------| -----------------------------------------------------
+| -IAgreeToTheEula      | All                | Mandatory for `auth` to run
+| -logout               | All                | Logs a user out of their authorized session of Flyway
+| -startTeamsTrial      | All                | Starts a Teams trial
+| -startEnterpriseTrial | All                | Starts an Enterprise trial
 
 
 #### Environment Variables

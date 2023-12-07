@@ -6,21 +6,19 @@ subtitle: MariaDB
 - **Maintainer:** Redgate
 
 ## Supported Versions and Support Levels
-For information regarding the supported version and support levels available,
-please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
+{% include database-boilerplate.html %}
 
 ## Driver
 
-| Item                               | Details                                                                      |
-|------------------------------------|------------------------------------------------------------------------------|
-| **URL format**                     | <code>jdbc:(mysql\|mariadb)://<i>host</i>:<i>port</i>/<i>database</i></code> |
-| **SSL support**                    | Yes - add `?useSsl=true`                                                     |
-| **Ships with Flyway Command-line** | Yes                                                                          |
-| **Maven Central coordinates**      | `org.mariadb.jdbc:mariadb-java-client`                                       |
-| **Supported versions**             | `2.0.0` and later                                                            |
-| **Default Java class**             | `org.mariadb.jdbc.Driver`                                                    |
+| Item                               | Details                                                                                                                                        |
+|------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:mysql://<i>host</i>:<i>port</i>/<i>database</i></code><br>or<br><code>jdbc:mariadb://<i>host</i>:<i>port</i>/<i>database</i></code> |
+| **SSL support**                    | Yes - add `?useSsl=true`                                                                                                                       |
+| **Ships with Flyway Command-line** | Yes                                                                                                                                            |
+| **Maven Central coordinates**      | `org.mariadb.jdbc:mariadb-java-client`                                                                                                         |
+| **Supported versions**             | `2.0.0` and later                                                                                                                              |
+| **Default Java class**             | `org.mariadb.jdbc.Driver`                                                                                                                      |
 
 
 ## Java Usage

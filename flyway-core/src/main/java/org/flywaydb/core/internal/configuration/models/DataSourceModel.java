@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.configuration.resolvers;
+package org.flywaydb.core.internal.configuration.models;
 
-import org.flywaydb.core.ProgressLogger;
-import org.flywaydb.core.api.FlywayException;
+import javax.sql.DataSource;
+import lombok.Getter;
+import lombok.Setter;
+import org.flywaydb.core.internal.database.DatabaseType;
 
-public class EnvironmentVariableResolver implements PropertyResolver {
-    @Override
-    public String getName() {
-        return "env";
-    }
+@Getter
+@Setter
+public class DataSourceModel {
+    private DataSource dataSource;
+    private boolean dataSourceGenerated;
+    private DatabaseType databaseType;
 
-    @Override
-    public String resolve(String key, PropertyResolverContext context, ProgressLogger progress) {
-        String result = System.getenv(key);
-        if (result == null) {
-            throw new FlywayException("Unable to resolve environment variable: '" + key + "'");
-        }
-        return result;
+    public DataSourceModel(DataSource dataSource, boolean dataSourceGenerated) {
+        this.dataSource = dataSource;
+        this.dataSourceGenerated = dataSourceGenerated;
+        this.databaseType = null;
     }
 }

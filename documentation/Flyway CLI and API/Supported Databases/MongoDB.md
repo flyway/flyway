@@ -9,21 +9,19 @@ subtitle: MongoDB
     - Source: [here](https://github.com/DataGrip/mongo-jdbc-driver)
   
 ## Supported Versions and Support Levels
-For information regarding the supported version and support levels available,
-please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
+{% include database-boilerplate.html %}
 
 ## Driver
 
-| Item                               | Details                                                                                                                                                             |
-|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **URL format**                     | <code>jdbc:mongodb://<i>ip address</i>:<i>port number>/<i>database_name</i></code> <code>jdbc:mongodb+srv://<i>ip address</i>database_name</i></code> |
-| **SSL support**                    | No                                                                                                                                                                 |
-| **Ships with Flyway Command-line** | Yes (Redgate Distrubution only while in preview)                                                                                                                                                                 |
-| **Maven Central coordinates**      | n/a                                                                                                                  |
-| **Supported versions**             | `7` and later (including Mongo Atlas)                                                                                                                                                  |
-| **Default Java class**             | `com.dbschema.MongoJdbcDriver`                                                                                                                          |
+| Item                               | Details                                                                                                                                     |
+|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| **URL format**                     | <code>jdbc:mongodb://<i>ip address:port number/database_name</i></code> <code>jdbc:mongodb+srv://<i>ip address/database_name</i></code> |
+| **SSL support**                    | No                                                                                                                                          |
+| **Ships with Flyway Command-line** | Yes (Redgate Distrubution only while in preview)                                                                                            |
+| **Maven Central coordinates**      | n/a                                                                                                                                         |
+| **Supported versions**             | `7` and later (including Mongo Atlas)                                                                                                       |
+| **Default Java class**             | `com.dbschema.MongoJdbcDriver`                                                                                                              |
 
 ## Using Flyway with MongoDB
 
@@ -49,7 +47,7 @@ We need to fetch three things to complete this url:
 
 Migrations in mongo are not `.sql` files like the flyway norm, but instead are `.js`. With standard configuration, flyway will still look for `.sql` files as migrations, but when executing them will expect them to contain `javascript`.
 
-To make this more of a native Mongo experience, we recommend changing the [sqlMigrationSuffixes](/flyway-cli-and-api/configuration/parameters/flyway/sql-migration-suffixes) configuration to `.js`. This can be done in your TOML configuration as such:
+To make this more of a native Mongo experience, we recommend changing the [sqlMigrationSuffixes](/configuration/parameters/flyway/sql-migration-suffixes) configuration to `.js`. This can be done in your TOML configuration as such:
 
 ```
 [flyway]
@@ -58,7 +56,8 @@ sqlMigrationSuffixes = [".js"]
 
 ### Known issues
 
-Performance connecting to MongoDB can be slow. This is a known issue in the driver we are using. It should only impact initial connection so will not impact larger or many migrations. We are investigating solutions to this.
+- Performance connecting to MongoDB can be slow. This is a known issue in the driver we are using. It should only impact initial connection so will not impact larger or many migrations. We are investigating solutions to this.
+- When you see the output of flyway, the migration will be described as type `SQL`. Don't worry, this is just how Flyway describes a versioned migration - your migration hasn't been changed on its way through Flyway ! 
 
 ### MongoDB preview feedback
 

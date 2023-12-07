@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.configuration.resolvers;
 import org.flywaydb.core.ProgressLogger;
 import org.flywaydb.core.api.ErrorCode;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.Configuration;
 
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
@@ -31,15 +32,15 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     private final Map<String, PropertyResolver> resolvers;
     private final Map<String, Map<String, Object>> resolverProperties;
     private final String environmentName;
-    private final String workingDirectory;
+    private final Configuration configuration;
 
     private static final CharsetEncoder ASCII_ENCODER = StandardCharsets.US_ASCII.newEncoder();
     private static final Pattern RESOLVER_REGEX_PATTERN = Pattern.compile("\\${1,2}\\{[^.]+\\.[^.]+\\}");
     private static final Pattern VERBATIM_REGEX_PATTERN = Pattern.compile("\\!\\{.*\\}");
 
-    public PropertyResolverContextImpl(String environmentName, String workingDirectory, Map<String, PropertyResolver> resolvers, Map<String, Map<String, Object>> resolverProperties) {
+    public PropertyResolverContextImpl(String environmentName, Configuration configuration, Map<String, PropertyResolver> resolvers, Map<String, Map<String, Object>> resolverProperties) {
         this.environmentName = environmentName;
-        this.workingDirectory = workingDirectory;
+        this.configuration = configuration;
         this.resolvers = resolvers;
         this.resolverProperties = resolverProperties;
     }
@@ -91,7 +92,13 @@ public class PropertyResolverContextImpl implements PropertyResolverContext {
     }
 
     @Override
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    @Override
     public String getWorkingDirectory() {
+        var workingDirectory = configuration.getWorkingDirectory();
         if(workingDirectory == null) {
             return System.getProperty("user.dir");
         } else {

@@ -26,6 +26,49 @@
 <div class="col-md-9">
 
 <div class="release">
+        <h2 id="10.2.0">Flyway 10.2.0 (2023-12-07)</h2>
+
+        <h3>Bug fixes</h3>
+        <ul>
+            <li>Fix parsing of boolean comparison options</li>
+            <li>Fixed a bug where comma-separated lists for configuration parameters passed in via command line would fail with a parsing error</li>
+        </ul>
+
+        <h3>Changes</h3>
+        <ul>
+            <li>Update document on setting environment parameter through environment variable</li>
+            <li>Upgrade version of Maven dependencies used by the Flyway Maven plugin to 3.9.6.</li>
+            <li>Make datasource in classic config environment aware</li>
+            <li>Improve error message for misconfigured environment variables in TOML config.</li>
+            <li>
+                <a href="https://github.com/flyway/flyway/issues/3797">Issue 3797</a>
+                Use latest version of Apache Derby dependencies to avoid CVE-2022-46337.
+            </li>
+        </ul>
+
+        <h3>Database compatibility</h3>
+        <ul>
+            <li>Added support for cleaning table snapshots and table clones in Google BigQuery.</li>
+        </ul>
+
+        <h3>New features</h3>
+        <ul>
+            <li>Can now start a trial with the `auth` command</li>
+            <li>add `supported-databases` command.</li>
+        </ul>
+
+        <h3>Java compatibility</h3>
+        <ul>
+            <li>Move `flyway-sqlserver` into `flyway-database` folder space</li>
+            <li>Update JRE included in Flyway Command Line to Java 21</li>
+        </ul>
+
+        <p>
+            Thanks to fage88 for reporting these issues.
+        </p>
+    </div>
+
+<div class="release">
         <h2 id="10.1.0">Flyway 10.1.0 (2023-11-22)</h2>
 
         <h3>Bug fixes</h3>
@@ -42,6 +85,11 @@
         <h3>Database compatibility</h3>
         <ul>
             <li>Flyway now supports PostgreSQL version 16.</li>
+            <li>MongoDB 7.0 support available. Currently shipped as preview in Redgate edition CLI.</li>
+        </ul>
+        <h3>Breaking changes</h3>
+        <ul>
+            <li>Updated to use dotnet 8 which drops support for RHEL 7 - this only impacts the check verb (drift and changes)</li>
         </ul>
 
         <h3>New features</h3>

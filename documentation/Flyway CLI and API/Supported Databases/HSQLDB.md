@@ -6,10 +6,8 @@ subtitle: HSQLDB
 - **Maintainer:** Redgate
 
 ## Supported Versions and Support Levels
-For information regarding the supported version and support levels available,
-please see [Supported Databases for Flyway](https://documentation.red-gate.com/flyway/learn-more-about-flyway/system-requirements/supported-databases-for-flyway)
 
-For information regarding the Flyway features available, please see [Flyway feature glossary](https://documentation.red-gate.com/flyway/learn-more-about-flyway/feature-glossary)
+{% include database-boilerplate.html %}
 
 ## Driver
 

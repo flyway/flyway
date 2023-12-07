@@ -31,7 +31,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>10.1.0</version>
+    <version>10.2.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Flyway: Database Migrations Made Easy.</description>
@@ -72,6 +72,8 @@
         <module>flyway-maven-plugin</module>
         <module>flyway-commandline</module>
         <module>flyway-database</module>
+
+
 
 
 
@@ -140,12 +142,12 @@
         <version.ant>1.10.13</version.ant>
         <version.appinsights>3.4.7</version.appinsights>
         <version.aws-java-sdk>[2.20.162,2.21.0)</version.aws-java-sdk>
-        <version.aws-secretsmanager>2.0.0</version.aws-secretsmanager>
+        <version.aws-secretsmanager>2.0.1</version.aws-secretsmanager>
         <version.byte-buddy-agent>1.11.18</version.byte-buddy-agent>
         <version.commonslogging>1.2</version.commonslogging>
         <version.commonstext>1.10.0</version.commonstext>
         <version.db2>11.5.0.0</version.db2>
-        <version.derby>10.15.2.0</version.derby>
+        <version.derby>10.16.1.1</version.derby>
         <version.equinox>3.15.200</version.equinox>
         <version.equinoxcommon>3.10.600</version.equinoxcommon>
         <version.gcs>2.22.5</version.gcs>
@@ -171,7 +173,7 @@
         <version.lombok>1.18.20</version.lombok>
         <version.lombok-maven-plugin>1.18.20.0</version.lombok-maven-plugin>
         <version.mariadb>2.7.10</version.mariadb>
-        <version.maven>3.9.4</version.maven>
+        <version.maven>3.9.6</version.maven>
         <version.mockito>4.2.0</version.mockito>
         <version.msal4j>1.13.8</version.msal4j>
         <version.mssql>12.2.0</version.mssql>
@@ -655,7 +657,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
-                <version>9.22</version>
+                <version>9.37.1</version>
             </dependency>
             <dependency>
                 <groupId>com.nimbusds</groupId>

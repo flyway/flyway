@@ -27,18 +27,27 @@ Before we can get started, please make sure you have the following in place:
 
 - A MongoDB instance running on `localhost:27017` (Using [docker](https://hub.docker.com/_/mongo/) is a great way to get started)
 - A user with the `root` role on the `admin` database
+- Port 27017 is publicly exposed from within the docker container 
+
+You can verify that this is working using the MongoDB Compass tool to connect to your database.
 
 ## Connecting to MongoDB
 
 Connecting to MongoDB is done the same as any other database. 
 You can use the [url](Configuration/Parameters/Environments/URL) configuration property to specify the connection string,
-either as part of an environment configuration or as standalone:
+either as part of an environment configuration or as standalone, also see [MongoDB support](Supported Databases/MongoDB):
 
+In this tutorial we'll be setting things up in the TOML configuration file 
 ```toml
-[flyway]
-url = "jdbc:mongodb://localhost:27017"
-```
+[environments.mongodb]
+url = "jdbc:mongodb://localhost:27017/"
+user = "your username"
+password = "your password"
 
+[flyway]
+environment = "mongodb"
+```
+Note: _MongoDB defaults to the `test` database if you don't specify one in the url_
 ## Handling scripts
 
 Unlike other databases that Flyway supports, MongoDB scripts are JavaScript files containing MongoDB commands rather than
@@ -58,10 +67,10 @@ change allows you to Mongo native `.js` files and gain all the benefits this ent
 Let's add a new migration to make sure everything is working as expected.
 
 In your migrations directory (either use a `sql` folder within the Flyway folder or configure [locations](Configuration/Flyway/Locations/) 
-to specify your own location) create a migration called `V1__test.js`:
+to specify your own location) create a migration called `V1__mongo-migration.js`:
 
 ```javascript
-db.user.insert({name: "Ada Lovelace", age: 205})
+db.user.insert({name: "Ada Lovelace", age: 205});
 ```
 
 Now run the following command:
@@ -78,7 +87,7 @@ Schema version: 1
 +-----------+---------+---------------------+------+---------------------+---------+----------+
 | Category  | Version | Description         | Type | Installed On        | State   | Undoable |
 +-----------+---------+---------------------+------+---------------------+---------+----------+
-| Versioned | 1       | test                | SQL  | 2017-12-22 15:26:39 | Success | No       |
+| Versioned | 1       | mongo-migration     | SQL  | 2017-12-22 15:26:39 | Success | No       |
 +-----------+---------+---------------------+------+---------------------+---------+----------+</pre>
 
 You should also notice a new record (`Ada Lovelace`) within a new collection (`user`) within your Mongo tooling.

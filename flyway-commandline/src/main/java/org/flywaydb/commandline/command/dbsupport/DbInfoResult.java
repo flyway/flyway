@@ -13,23 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.configuration.resolvers;
+package org.flywaydb.commandline.command.dbsupport;
 
-import org.flywaydb.core.ProgressLogger;
-import org.flywaydb.core.api.FlywayException;
-
-public class EnvironmentVariableResolver implements PropertyResolver {
-    @Override
-    public String getName() {
-        return "env";
-    }
-
-    @Override
-    public String resolve(String key, PropertyResolverContext context, ProgressLogger progress) {
-        String result = System.getenv(key);
-        if (result == null) {
-            throw new FlywayException("Unable to resolve environment variable: '" + key + "'");
-        }
-        return result;
-    }
-}
+public record DbInfoResult(String name){}

@@ -35,9 +35,9 @@ environment = "env1"
 
 ### Environment Variable
 ```properties
-FLYWAY_ENVIRONMENT=env1
+flyway_environment=env1
 ```
-
+_Note: The environment variable has to be lower case_
 ### API
 
 ```java

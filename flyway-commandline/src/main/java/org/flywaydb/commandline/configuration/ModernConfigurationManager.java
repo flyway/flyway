@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -47,7 +46,8 @@ import static org.flywaydb.core.internal.configuration.ConfigUtils.makeRelativeL
 @CustomLog
 public class ModernConfigurationManager implements ConfigurationManager {
 
-    private static final Pattern ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN = Pattern.compile("\"([^\"]*)\"");
+    private static final Pattern ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN = Pattern.compile("\\[\"([^\"]*)\"]");
+    private static final String UNABLE_TO_PARSE_FIELD = "Unable to parse '%s' in your TOML configuration file";
 
     public Configuration getConfiguration(CommandLineArguments commandLineArguments) {
         String workingDirectory = commandLineArguments.isWorkingDirectorySet() ? commandLineArguments.getWorkingDirectory() : ClassUtils.getInstallDir(Main.class);
@@ -186,7 +186,19 @@ public class ModernConfigurationManager implements ConfigurationManager {
                 if (configurationExtension.isStub() && new HashSet<>(configuredPluginParameters).containsAll(values.keySet())) {
                     return;
                 }
-                ConfigurationExtension newConfigurationExtension = new ObjectMapper().convertValue(values, configurationExtension.getClass());
+
+                final Map<String, Object> finalValues = values;
+                Arrays.stream(configurationExtension.getClass().getDeclaredFields())
+                    .filter(f -> List.of(List.class, String[].class).contains(f.getType()))
+                    .forEach(f ->  {
+                        String fieldName = f.getName();
+                        Object fieldValue = finalValues.get(fieldName);
+                        if (fieldValue instanceof String) {
+                            finalValues.put(fieldName, fieldValue.toString().split(","));
+                        }
+                    });
+
+                ConfigurationExtension newConfigurationExtension = new ObjectMapper().convertValue(finalValues, configurationExtension.getClass());
                 MergeUtils.mergeModel(newConfigurationExtension, configurationExtension);
 
                 if (!values.isEmpty()) {
@@ -199,16 +211,30 @@ public class ModernConfigurationManager implements ConfigurationManager {
                         }
                     }
                 }
-            } catch (IllegalArgumentException e) {
-                Matcher matcher = ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN.matcher(e.getMessage());
-                if (matcher.find()) {
-                    if (suppressError) {
-                        LOG.warn("Unable to parse the field: " + matcher.group(1));
-                    } else {
-                        LOG.error("Unable to parse the field: " + matcher.group(1));
-                    }
+            } catch (final IllegalArgumentException e) {
+                final var fullFieldName = getFullFieldNameFromException(namespace, e);
+                if (suppressError) {
+                    LOG.warn(String.format(UNABLE_TO_PARSE_FIELD, fullFieldName));
+                } else {
+                    LOG.error(String.format(UNABLE_TO_PARSE_FIELD, fullFieldName));
                 }
             }
         }
+    }
+
+    private static String getFullFieldNameFromException(final String namespace, final IllegalArgumentException e) {
+        final var matcher = ANY_WORD_BETWEEN_TWO_QUOTES_PATTERN.matcher(e.getMessage());
+        final var fullFieldName = new StringBuilder();
+        if (!namespace.isEmpty()) {
+            fullFieldName.append(namespace);
+        }
+
+        while (matcher.find()) {
+            if (!fullFieldName.isEmpty()) {
+                fullFieldName.append(".");
+            }
+            fullFieldName.append(matcher.group(1));
+        }
+        return fullFieldName.toString();
     }
 }

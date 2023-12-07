@@ -61,4 +61,4 @@ title: Welcome To Flyway
 ## Tips
 * If you haven't checked out the [Getting Started](Getting Started) section yet, do it now. You'll be up
     and running in no time!
-* If you are looking for a GUI experience with more comprehensive authoring tools then take a look at <a href="https://documentation.red-gate.com/fd/flyway-desktop-138346953.html">Flyway Desktop</a> 
+* If you are looking for a GUI experience with more comprehensive authoring tools then take a look at <a href="https://documentation.red-gate.com/flyway/flyway-desktop">Flyway Desktop</a> 

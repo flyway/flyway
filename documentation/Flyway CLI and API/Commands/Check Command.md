@@ -30,9 +30,9 @@ You can read more about the `check` concept [here](Concepts/Check Concept).
 | Parameter               | Operation      | Description
 |-------------------------| -------------- | -------------------------------------------------
 | check.buildEnvironment  | changes, drift | Environment for the build database. Defaults to 'default_build', see [Check Concept](Concepts/Check Concept)
-| check.buildUrl          | changes, drift | **[DEPRECATED]** URL for a build database. Will be replaced by check.buildEnvironment in Flyway 10.0
-| check.buildUser         | changes, drift | **[DEPRECATED]** Username for the build database. Defaults to 'flyway.user'. Will be replaced by check.buildEnvironment in Flyway 10.0
-| check.buildPassword     | changes, drift | **[DEPRECATED]** Password for the build database. Defaults to 'flyway.password'. Will be replaced by check.buildEnvironment in Flyway 10.0
+| check.buildUrl          | changes, drift | **[DEPRECATED]** URL for a build database. Replaced by check.buildEnvironment in Flyway 10.0
+| check.buildUser         | changes, drift | **[DEPRECATED]** Username for the build database. Defaults to 'flyway.user'. Replaced by check.buildEnvironment in Flyway 10.0
+| check.buildPassword     | changes, drift | **[DEPRECATED]** Password for the build database. Defaults to 'flyway.password'. Replaced by check.buildEnvironment in Flyway 10.0
 | check.nextSnapshot      | changes, drift | A snapshot containing all migrations including those that are pending (generated via [`snapshot`](Commands/snapshot))
 | check.deployedSnapshot  | changes, drift | A snapshot containing all applied migrations and thus matching what should be in the target (generated via [`snapshot`](Commands/snapshot))
 | check.appliedMigrations | changes, drift | A comma-separated list of migration ids (migration versions or repeatable descriptions) to apply to create snapshots (generated via [`info`](Commands/info))
